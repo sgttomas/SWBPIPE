@@ -1,0 +1,27 @@
+{
+  "kind": "syntax_only_not_typecheck_or_browser_execution",
+  "node": "v24.18.0",
+  "typescript": "5.9.3",
+  "results": [
+    {
+      "path": "apps/desktop/e2e/result-compatibility.spec.ts",
+      "diagnostics": []
+    },
+    {
+      "path": "apps/desktop/e2e/result-compatibility-dist.spec.ts",
+      "diagnostics": []
+    },
+    {
+      "path": "apps/desktop/e2e/report-package-dist.spec.ts",
+      "diagnostics": []
+    },
+    {
+      "path": "apps/desktop/e2e/c3-viewport-visibility.spec.ts",
+      "diagnostics": []
+    },
+    {
+      "path": "apps/desktop/e2e/linear-authoring.spec.ts",
+      "diagnostics": []
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+--- before/features/workspace/workspaceSession.ts
++++ after/features/workspace/workspaceSession.ts
+@@ -20,6 +20,7 @@
+   buildAnalysisRunPreview,
+   cancelPreviewMechanicsJob,
+   loadDesignKnowledge,
++  loadBundledMechanicsReference,
+   loadPreviewModel,
+   loadSampleProposal,
+   hasNativeMechanicsInvocation,
+@@ -52,7 +53,7 @@
+ import { intentKey } from "../operations/OperationApplyPanel";
+ import { buildReportPackageRequest } from "../report/reportPackageRequest";
+ import { controlReportPackageRequest } from "../report/reportRedactionProjector";
+-import { buildHistoricalRunContext } from "../results/HistoricalRunContext";
++import { buildBundledReferenceContext, buildHistoricalRunContext } from "../results/HistoricalRunContext";
+ import type { HistoricalRunContext } from "../results/HistoricalRunContext";
+ import {
+   resolveDiagnosticEntitySelection,
+@@ -668,6 +669,24 @@
+             : current
+         );
+       });
++  }
++
++  async function handleInspectBundledReference() {
++    // Retire any pending backend publication before loading the separate example.
++    handleCancelRun();
++    solveRunGate.current.invalidate();
++    activeSolveJob.current = null;
++    const referenceGeneration = solveRunGate.current.tryStart()!;
++    setRunning(false);
++    setSolveProof(null);
++    clearComputedModelState(initialSolveJob());
++    try {
++      const reference = await loadBundledMechanicsReference(solverMode);
++      if (!solveRunGate.current.isCurrent(referenceGeneration)) return;
++      setHistoricalRun(buildBundledReferenceContext(reference));
++    } finally {
++      solveRunGate.current.finish(referenceGeneration);
++    }
+   }
+ 
+   async function handleRun() {
+@@ -1524,7 +1543,7 @@
+     const generation = projectSessionGenerationRef.current;
+     const requestRevision = uiModelRevisionRef.current;
+     const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
+-    const requestHistoricalRun = historicalRun;
++    const requestHistoricalRun = historicalRun?.designation === "historical_saved_run" ? historicalRun : null;
+     const requestMigrationLedgerCount = modelMigrationLedger.length;
+     let pendingObservation: { envelope: LocalProjectEnvelope; ordinal: number } | null = null;
+     try {
+@@ -1543,8 +1562,8 @@
+         analysis_run: snapshotAnalysisRun,
+         model_hash: snapshotModelHash
+       });
+-      const envelopeHash = historicalRun && computedEnvelopeHash?.value === historicalRun.envelopePayloadHash
+-        ? historicalRun.envelopeHash : computedEnvelopeHash;
++      const envelopeHash = requestHistoricalRun && computedEnvelopeHash?.value === requestHistoricalRun.envelopePayloadHash
++        ? requestHistoricalRun.envelopeHash : computedEnvelopeHash;
+       if (!stillCurrent()) return;
+       const created = await createLocalProject(
+         model,
+@@ -1852,7 +1871,7 @@
+     const generation = projectSessionGenerationRef.current;
+     const requestRevision = uiModelRevisionRef.current;
+     const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
+-    const requestHistoricalRun = historicalRun;
++    const requestHistoricalRun = historicalRun?.designation === "historical_saved_run" ? historicalRun : null;
+     const requestMigrationLedgerCount = modelMigrationLedger.length;
+     let pendingObservation: { envelope: LocalProjectEnvelope; ordinal: number } | null = null;
+     try {
+@@ -1871,8 +1890,8 @@
+         analysis_run: snapshotAnalysisRun,
+         model_hash: snapshotModelHash
+       });
+-      const envelopeHash = historicalRun && computedEnvelopeHash?.value === historicalRun.envelopePayloadHash
+-        ? historicalRun.envelopeHash : computedEnvelopeHash;
++      const envelopeHash = requestHistoricalRun && computedEnvelopeHash?.value === requestHistoricalRun.envelopePayloadHash
++        ? requestHistoricalRun.envelopeHash : computedEnvelopeHash;
+       if (!stillCurrent()) return;
+       const saved = await saveLocalProject(
+         model,
+@@ -2613,6 +2632,7 @@
+       reportPackageRedaction,
+       reportPackageRoute,
+       handleRun,
++      handleInspectBundledReference,
+       handleCancelRun,
+       handleRuleCheckAggregate,
+       handleProposal,

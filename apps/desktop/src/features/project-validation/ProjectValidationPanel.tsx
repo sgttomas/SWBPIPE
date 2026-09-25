@@ -638,7 +638,7 @@ function unitMetadataPresent(model: PreviewModel): boolean {
     Object.values(model.project.units).every((unit) => unit.length > 0) &&
     countUnitBearingRecords(model) > 0 &&
 	    model.pipe_segments.every((segment) => Object.values(segment.section).every((quantity) => hasUnit(quantity))) &&
-	    (model.materials ?? []).every((material) => hasUnit(material.elastic_modulus) && hasUnit(material.shear_modulus)) &&
+	    (model.materials ?? []).every((material) => hasUnit(material.elastic_modulus) && (model.schema_version === "0.3.0" && model.pressure_contract?.mode === "exact_straight_pressure_v2" ? material.constitutive_basis === "homogeneous_isotropic_E_nu_v1" && hasUnit(material.poisson_ratio) && material.poisson_ratio.unit === "1" : hasUnit(material.shear_modulus))) &&
 	    model.supports.every((support) =>
 	      supportUnitQuantities(support).every((quantity) => !quantity || hasUnit(quantity))
 	    ) &&
@@ -650,7 +650,8 @@ function unitMetadataPresent(model: PreviewModel): boolean {
 
 function loadPayloadsHaveUnits(model: PreviewModel): boolean {
   return model.load_cases.every((loadCase) =>
-    (loadCase.primitive_loads ?? []).every((primitiveLoad) => hasUnit(primitiveLoad.magnitude))
+    (loadCase.primitive_loads ?? []).every((primitiveLoad) => hasUnit(primitiveLoad.magnitude)) &&
+    (loadCase.pressure_regions ?? []).every(region => hasUnit(region.pressure))
   );
 }
 
@@ -665,12 +666,14 @@ function countUnitBearingRecords(model: PreviewModel): number {
   const materialQuantities = (model.materials ?? []).flatMap((material) => [
     material.elastic_modulus,
     material.shear_modulus,
+    material.poisson_ratio,
     material.thermal_expansion_coefficient
   ]);
   const supportQuantities = model.supports.flatMap(supportUnitQuantities);
   const componentQuantities = model.components.flatMap(componentUnitQuantities);
   const loadQuantities = model.load_cases.flatMap((loadCase) =>
-    (loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude)
+    [...(loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude),
+      ...(loadCase.pressure_regions ?? []).map(region => region.pressure)]
   );
   return [
     ...pipeSectionQuantities,
@@ -731,7 +734,8 @@ function provenanceRecords(model: PreviewModel): Array<{ provenance?: string }> 
     ...model.components,
     ...model.load_cases,
     ...(model.combinations ?? []),
-    ...model.load_cases.flatMap((loadCase) => loadCase.primitive_loads ?? [])
+    ...model.load_cases.flatMap((loadCase) => loadCase.primitive_loads ?? []),
+    ...model.load_cases.flatMap(loadCase => (loadCase.pressure_regions ?? []).flatMap(region => [region, ...region.terminals]))
   ];
 }
 

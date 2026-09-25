@@ -1,0 +1,134 @@
+{
+  "role": "WORKING_ITEMS",
+  "agent": "/root/physics_resume/physics_reader_join",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+      "bytes": 49093
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "2135f894aa0a8f0dd2114a9226bb61350e6136eaa5a10ce009f14db8e30002c7",
+      "bytes": 9564
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs",
+      "sha256": "5c58ddd494a6bc909940629277b67bacef9dafaaf2d7a4cbc4fe42c409d673b8",
+      "bytes": 35395
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "sha256": "3b2ec7fe0bb82d5e9eba54c7efa7b80db7eefa9e96742295a8a4f11ed77030a5",
+      "bytes": 23335
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "sha256": "45a41a26c220ea43f9e1fb7aad87d5f8c2a4f95b704c795f77593f2bd7718e6a",
+      "bytes": 65891
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/physics_contract.rs",
+      "sha256": "3f1088a478c5cb536affd9f67342dceb267e706724f96f2e727b4e8ec8f46e66",
+      "bytes": 13978
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "9973a951a5fe23ef686565cfebf43d14a9ec7514cc44c90e6cea0b9d9d8a1239",
+      "bytes": 57654
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "d10a4f1e4672d4c27654fd40949ec00f17346eee3fe964ba2b8784e3612353f8",
+      "bytes": 32344
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "caece39db29a97e4beca9ae25ff125ca4de4790c067f45e5ed562db91cf97b92",
+      "bytes": 28483
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_evidence.py",
+      "sha256": "18e392743af2a4a22de33116131b01562654312d3d5087b6f622ac74e800593d",
+      "bytes": 24266
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_physics_consumer_contract.py",
+      "sha256": "6323afa07c5b88d3babf1b4e8e4155a5681fc2aebb5988f53ee89b1e60ac6756",
+      "bytes": 8572
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+      "sha256": "ea306a75a8c9281966a830d3e72279eece0f35a60a81afdb0d62ec0873e21ad0",
+      "bytes": 16794
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "b27725b76ef18834b407cf463cb9ed99f37c44f185a0b6741ca51c5feecbbe64",
+      "bytes": 73039
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "afa90f3ba207de0cd4a571ec4223af35820ed363e8c4426f45509aeacb17c85c",
+      "bytes": 3228
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "d4b75fe2498becfbe728d4ef605776628832e45cb9594611831cbdc9fb0476d1",
+      "bytes": 6725
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "sha256": "295b31cd32638059c79f2123167c8ad3eab3b55879b057dbd1e25e13b7c6aa6b",
+      "bytes": 24854
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "0d57195f49dc0fcd4c940fb570fb6dfeeef25fb458a53f3b9faddd12e4eb998f",
+      "bytes": 32883
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/physicsResultExport.test.ts",
+      "sha256": "7dd3e7833dc3bc97771532ee1abbd6177ce0a4232e52c4d80177ddcc4e1a0866",
+      "bytes": 12622
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "0dc01b84279b1e89c007b73fb3961e1cf16c9faf3baeef51669fc7485fa92618",
+      "bytes": 17613
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+      "sha256": "2956208c38de311e91ab0115c15243c427c75087f750b584486c24285cd17012",
+      "bytes": 24157
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx",
+      "sha256": "e6ca619b18500f2251e458bbbc0338e3bcff3ead58cd52530da30278dc7b40b5",
+      "bytes": 14585
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "96bbf7d3e96406a596672fbb0cf9416e90ae639bc3a086c4c68fb1270035a5fc",
+      "bytes": 26625
+    }
+  ],
+  "test_inputs": [
+    {
+      "path": "fixtures/results/physics_connected_mechanics_sparse.json",
+      "sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2"
+    },
+    {
+      "path": "fixtures/results/physics_connected_mechanics_dense.json",
+      "sha256": "2e3007311d6b5f76172dbf7e9c4a9bbb98ad16382d75ffa63d327c9aab9ebdb6"
+    },
+    {
+      "path": "core/product_physics/tests/fixtures/exact_pressure_connected_request.json",
+      "sha256": "466e514b44ea185e74c1c554aa3083595db94b7ffe519b7f859b42b30e934c1e"
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    }
+  ]
+}

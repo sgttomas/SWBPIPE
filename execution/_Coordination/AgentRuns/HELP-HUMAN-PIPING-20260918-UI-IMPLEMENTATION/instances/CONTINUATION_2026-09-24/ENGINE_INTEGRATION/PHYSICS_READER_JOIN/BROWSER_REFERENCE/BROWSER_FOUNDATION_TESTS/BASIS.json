@@ -1,0 +1,96 @@
+{
+  "captured_at_utc": "2026-09-25T06:39:05.683225+00:00",
+  "git_head": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "worktree": "/private/tmp/piping-engine-integration-20260925",
+  "mechanism": "delegated-harness-native descendant",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "agent": "/root/physics_resume/physics_reader_join/reference_browser_tests",
+  "role": "TASK Type 2; no delegation",
+  "allowed_source_writes": [
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts"
+  ],
+  "runtime_validation": "not run; source-only lane",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/TEST_INVENTORY/INVENTORY.md",
+      "sha256": "7be95d858f1ce26640408006075775e90db0aa6353d6638ca2ca073eb733c439"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "0bbfd7c51482a5243e75a347b4ed39cfd5a698ef233b5f172c87fa4dc6a95fd3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "sha256": "23877e2fcccfce84c03f731afddebac0c703fd3f3188ebccbeb087ef6811f3ff"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts",
+      "sha256": "a2b6fd7415e2f5de95927f8084c320dc1ea05c12549edd2e2b5d64e0da20ade2"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts",
+      "sha256": "4927514880caee095e22945940baba2627e3dbde0ed5ee766f39c5d76beab462"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "9ba4bfa8e7634ff535d69cd5fc670e368d1a6c95e81e5bf6bad7607c40867b5f"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "7e17298c539b5d31e17de6be7b64fa56caee7b8d3e8d284065c9fd3c141aa40c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "1a18b63275eb70418ec8628097cde3ce0f97d298abd07c572ccaded33b5bc0c3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "47b7e0f617d6d4e3b2f97d7b82d3caeed55c64de8689882c504222cc13d2fde9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx",
+      "sha256": "e5bd20ba1ba873c7add676bca9d9be189abbe31b338c658e8f89217968f0f6a1"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "69565ede18bb93d0eb18fcff126a2c7543a2c4f17e31571a37e8d98e94be3ef8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "2cb222ed4e4770388477890034b8c19e4dafa1a6c94b15696ab2b9c38fcaf485"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/projectService.ts",
+      "sha256": "d0305330b8c4d428347896ba99332800815a98cbc084aa19faa492bfe74d6c1b"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+      "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+[
+  {
+    "path": "apps/desktop/src/App.tsx",
+    "sha256": "fd23115f857667048d7fa546b482e27bed864710fdda4f4a49ef512336c56363"
+  },
+  {
+    "path": "apps/desktop/src/features/workspace/workspaceSession.ts",
+    "sha256": "bf31e1adedcc374b2e55ec3b15bcf3d57224bd8ac85e0d1351511dda3f7536a5"
+  },
+  {
+    "path": "apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+    "sha256": "9306de22eafe9d8b2c69f3ee91b416c026705c50692f8febafc944b6275eb9fb"
+  },
+  {
+    "path": "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+    "sha256": "77e9c4ef34d8d61398748ef4c4a57375e1de8de32359734eec752d960a472feb"
+  },
+  {
+    "path": "apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+    "sha256": "de722facdb0ff5938359b512d88b4562aa5b3121b74dd81555393e373ab1beb9"
+  },
+  {
+    "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "sha256": "822ccf6d30fbe1d0e26309da79fbddd23cc6c1aaeee9b6b644f4452e37c24416"
+  },
+  {
+    "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+    "sha256": "ec2105cd58bb7a390b73908a36e1799d02e4316092ffb8ab523526b0dfd00bf0"
+  },
+  {
+    "path": "apps/desktop/src/features/solve/SolvePanel.tsx",
+    "sha256": "e5bd20ba1ba873c7add676bca9d9be189abbe31b338c658e8f89217968f0f6a1"
+  },
+  {
+    "path": "apps/desktop/src/features/solve/SolvePanel.test.tsx",
+    "sha256": "e153cfaca82491f765285193d03c5284255ba73827c8e7ba1cb08fd3f1a9bb11"
+  },
+  {
+    "path": "apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx",
+    "sha256": "61f244f1253256322bebd4990a6366fbb07712013456458eebc834e44d795f03"
+  },
+  {
+    "path": "apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.test.tsx",
+    "sha256": "09f301e25373a42e7e3ddc7713d07e27b92f955aa092139e0aa5f1dbdab5b676"
+  },
+  {
+    "path": "apps/desktop/src/App.shell.test.tsx",
+    "sha256": "3deb318f28f9ccf24e29ebc89eb4e0d152e3ffb7c95b1637c10c37247f54be5e"
+  },
+  {
+    "path": "apps/desktop/src/App.projectHandlers.test.tsx",
+    "sha256": "db9ce5f7836bd9f67e7b9b6dd3651e287e8da266b0beea369a0a7b674d1759b4"
+  },
+  {
+    "path": "apps/desktop/src/App.deadControls.test.tsx",
+    "sha256": "74f72d50d6ecc2c4c9d5fd2747b893ceb7deea346fb2ca47bff72185a38922a1"
+  },
+  {
+    "path": "apps/desktop/src/services/previewService.ts",
+    "sha256": "2cb222ed4e4770388477890034b8c19e4dafa1a6c94b15696ab2b9c38fcaf485"
+  },
+  {
+    "path": "apps/desktop/src/services/ruleCheckService.ts",
+    "sha256": "3ac173a0b5e39d8a480def325a17e1aaedb7a608586a27a2cfde1f3c39a18a07"
+  },
+  {
+    "path": "apps/desktop/src/features/results/numericalResultQuality.ts",
+    "sha256": "3794d4c472ca3c688f4ccea9d02e89f3d2963eb91949f43b4bbef0c6ac5ca557"
+  },
+  {
+    "path": "apps/desktop/src/features/results/physicsResultEvidence.ts",
+    "sha256": "35a996ab42c3174ff34ab48f1408e2c2d26c47fdacb99eb338976d9fd778d6c9"
+  },
+  {
+    "path": "apps/desktop/src/services/analysisRunCompatibility.ts",
+    "sha256": "0dc01b84279b1e89c007b73fb3961e1cf16c9faf3baeef51669fc7485fa92618"
+  },
+  {
+    "path": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "sha256": "86fdbcd5b4e9641acd8aca2c32aee63a7cc5cf74b7e0e1067284b399623a6a5c"
+  },
+  {
+    "path": "apps/desktop/src/features/report/reportPackageRequest.ts",
+    "sha256": "175d0dcb53a5be45a098ab97b37dfdb98c82bd6f39e456e980f40e5feffccf46"
+  },
+  {
+    "path": "apps/desktop/src/features/results/HistoricalRunContext.tsx",
+    "sha256": "1a18b63275eb70418ec8628097cde3ce0f97d298abd07c572ccaded33b5bc0c3"
+  },
+  {
+    "path": "apps/desktop/src/features/workspace/resultsSessionState.ts",
+    "sha256": "999fc8a739cf74736e3d79213f248d5004f7d62a9d0c9272e386dcff3f95ec11"
+  },
+  {
+    "path": "apps/desktop/src/test/nativeMechanicsReplay.ts",
+    "sha256": "69318d88f5ea45bf32d85ce80d8f8e735766227a9e87bd7310c73f1f55996519"
+  }
+]

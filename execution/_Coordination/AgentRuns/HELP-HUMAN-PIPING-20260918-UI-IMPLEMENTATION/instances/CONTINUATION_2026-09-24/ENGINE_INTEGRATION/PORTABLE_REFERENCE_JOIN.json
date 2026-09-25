@@ -1,0 +1,33 @@
+{
+  "cause": "product-regressions-01 compile failure: inherited public test depended on five dated evidence fixtures excluded from selected core21",
+  "repair": "relocate unchanged qualified bytes to maintained test fixtures; update include paths only",
+  "source_checkpoint": "af4120ba52b46922da8bae5a876033e53818adfa",
+  "fixtures": [
+    {
+      "fixture": "SOURCE_ODWALL_EXPECTATIONS.json",
+      "sha256": "7e51ecb3c7eca573194ce60222f2e2e7422b817be7aacad9a2a5e79102801ab1",
+      "preserved_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/SECTION_GEOMETRY/SOURCE_ODWALL_EXPECTATIONS.json"
+    },
+    {
+      "fixture": "NEAR_INCOMPRESSIBLE_EXPECTATIONS.json",
+      "sha256": "a701ac49584ee40d7a5387601152d782e89853d01498f6e65090da08c1f0a95e",
+      "preserved_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/SECTION_GEOMETRY/NEAR_INCOMPRESSIBLE_EXPECTATIONS.json"
+    },
+    {
+      "fixture": "NEAR_TWO_SPAN_EXPECTATIONS.json",
+      "sha256": "9e64a19a992087ac03cfd797042f9298154587bd827f306d1201700cd4e9f70d",
+      "preserved_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/SECTION_GEOMETRY/NEAR_TWO_SPAN_EXPECTATIONS.json"
+    },
+    {
+      "fixture": "NEAR_FIXED_EXPECTATIONS.json",
+      "sha256": "0a1859d52a98baa3a5f3ce0ef3048294c40441b6aaf26ca912709118e2ccd285",
+      "preserved_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/SECTION_GEOMETRY/NEAR_FIXED_EXPECTATIONS.json"
+    },
+    {
+      "fixture": "NEAR_ROTATION_EXPECTATIONS.json",
+      "sha256": "5c7206a74a95104aaa11fd83cbccb9bcb28916346458a26d1fd1a82e9a86398b",
+      "preserved_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/SECTION_GEOMETRY/NEAR_ROTATION_EXPECTATIONS.json"
+    }
+  ],
+  "expectations_tolerances_changed": false
+}

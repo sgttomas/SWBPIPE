@@ -1,5 +1,6 @@
-import { loadPreviewModel, runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
-import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+import { loadPreviewModel, loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
+import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
+import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 // Rider coverage for TP-SEAM-CORPUS-001 (operation-seam unification plan §3
 // T1 rider; assessment §5.3): when the mechanics result summary does not
 // carry location references, the Local FEA handoff package must emit an
@@ -222,23 +223,28 @@ describe("LocalFeaHandoffPanel result-summary boundary hygiene", () => {
   });
 });
 
-async function currentPrecisionSession() {
-  const model = await loadPreviewModel();
-  const result = await runPreviewMechanics(model);
-  const inputManifest = await buildCurrentSessionInputManifest({
-    model,
-    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
-    active_rule_packs: [], external_assets: []
-  });
-  const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
+// Pure received-hash inspection of preserved reference data. This constructs
+// an analysis record, never a native invocation or Current/qualified export.
+async function referencePrecisionAnalysis() {
+  const model = await loadPreviewModel(), reference = await loadBundledMechanicsReference();
+  const result = reference.source;
+  const manifest = {
+    model_basis: { model_ref: model.project.id, model_payload: model },
+    solver_basis: { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: "test:preserved-reference-not-native-invocation" },
+  };
+  const basis = { manifest, manifest_ref: { object_type: "InputManifest", ref: "test:reference-analysis-inputs" }, manifest_sha256: await canonicalSha256HexCheckedV1(manifest) };
+  const analysisRun = await buildAnalysisRunV03(result, basis, undefined, modelLoadBasisRefs(model));
   const receivedHash = analysisRun.analysis_run.hashes.find(hash => hash.payload_scope === "received_result")!.value;
+  expect(reference.standing).toBe("reference_only");
+  expect(reference.provenance.current_use_eligible).toBe(false);
+  expect(hasNativeMechanicsInvocation(result, model)).toBe(false);
   expect(analysisRun.schema_version).toBe("0.3.0");
   return { model, result, analysisRun, receivedHash };
 }
 
 describe("Local FEA received-result hash binding", () => {
-  it("retains the current received hash and discloses unsupported future versions", async () => {
-    const session = await currentPrecisionSession();
+  it("retains the reference received hash and discloses unsupported future versions", async () => {
+    const session = await referencePrecisionAnalysis();
     const before = JSON.stringify(session);
     const packet = buildLocalFeaHandoffPacket(session);
     expect(packet.handoff_package.source_refs.result_hash.value).toBe(session.receivedHash);

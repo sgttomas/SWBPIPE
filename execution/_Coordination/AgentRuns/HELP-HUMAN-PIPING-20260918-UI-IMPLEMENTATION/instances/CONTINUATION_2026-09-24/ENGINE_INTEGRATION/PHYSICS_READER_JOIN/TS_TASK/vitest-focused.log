@@ -1,0 +1,57 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/results/numericalResultQuality.test.ts src/features/results/resultSemantics.test.ts src/features/result-export/resultExportAdapter.test.ts src/features/result-export/physicsResultExport.test.ts src/services/analysisRunCompatibility.test.ts src/services/previewService.test.ts src/features/pressure-authoring/PressureAuthoringPanel.test.tsx src/features/rich-authoring/richForms.test.tsx src/features/load-cases/LoadCaseManagerPanel.units.test.tsx src/services/projectService.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner
+
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+ ❯ src/services/previewService.test.ts (0 test)
+ ❯ src/features/result-export/resultExportAdapter.test.ts (0 test)
+ ❯ src/services/analysisRunCompatibility.test.ts (0 test)
+ ❯ src/features/rich-authoring/richForms.test.tsx (0 test)
+ ❯ src/features/result-export/physicsResultExport.test.ts (0 test)
+ ❯ src/services/projectService.test.ts (0 test)
+ ❯ src/features/load-cases/LoadCaseManagerPanel.units.test.tsx (0 test)
+ ❯ src/features/results/numericalResultQuality.test.ts (0 test)
+ ❯ src/features/pressure-authoring/PressureAuthoringPanel.test.tsx (0 test)
+ ❯ src/features/results/resultSemantics.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 10 ⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/services/analysisRunCompatibility.test.ts [ src/services/analysisRunCompatibility.test.ts ]
+ FAIL  src/services/previewService.test.ts [ src/services/previewService.test.ts ]
+ FAIL  src/services/projectService.test.ts [ src/services/projectService.test.ts ]
+ FAIL  src/features/load-cases/LoadCaseManagerPanel.units.test.tsx [ src/features/load-cases/LoadCaseManagerPanel.units.test.tsx ]
+ FAIL  src/features/result-export/physicsResultExport.test.ts [ src/features/result-export/physicsResultExport.test.ts ]
+ FAIL  src/features/result-export/resultExportAdapter.test.ts [ src/features/result-export/resultExportAdapter.test.ts ]
+ FAIL  src/features/pressure-authoring/PressureAuthoringPanel.test.tsx [ src/features/pressure-authoring/PressureAuthoringPanel.test.tsx ]
+ FAIL  src/features/results/numericalResultQuality.test.ts [ src/features/results/numericalResultQuality.test.ts ]
+ FAIL  src/features/results/resultSemantics.test.ts [ src/features/results/resultSemantics.test.ts ]
+ FAIL  src/features/rich-authoring/richForms.test.tsx [ src/features/rich-authoring/richForms.test.tsx ]
+Error: WASM-ENGINE-ASSET-ABSENT: wasm artifact not found on disk: probed: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/wasm-engine, /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/wasm-engine, /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/apps/desktop/public/wasm-engine — the wasm operation engine is required in browser mode (DEC-020 / ADR-0001) and no fallback engine exists. Build it with `npm run build:wasm --workspace apps/desktop`.
+ ❯ absenceError src/services/wasmEngine/loadWasmEngine.ts:66:10
+     64|
+     65| function absenceError(stage: string, detail: string): Error {
+     66|   return new Error(
+       |          ^
+     67|     `${WASM_ENGINE_ABSENT_DIAGNOSTIC}: ${stage}: ${detail} — the wasm …
+     68|       `browser mode (DEC-020 / ADR-0001) and no fallback engine exists…
+ ❯ locateAssetsUnderNode src/services/wasmEngine/loadWasmEngine.ts:109:9
+ ❯ instantiate src/services/wasmEngine/loadWasmEngine.ts:117:36
+ ❯ src/test/setup.ts:10:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+
+ Test Files  10 failed (10)
+      Tests  no tests
+   Start at  22:08:22
+   Duration  1.68s (transform 33ms, setup 0ms, import 0ms, tests 0ms, environment 2.14s)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/results/numericalResultQuality.test.ts src/features/results/resultSemantics.test.ts src/features/result-export/resultExportAdapter.test.ts src/features/result-export/physicsResultExport.test.ts src/services/analysisRunCompatibility.test.ts src/services/previewService.test.ts src/features/pressure-authoring/PressureAuthoringPanel.test.tsx src/features/rich-authoring/richForms.test.tsx src/features/load-cases/LoadCaseManagerPanel.units.test.tsx src/services/projectService.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner

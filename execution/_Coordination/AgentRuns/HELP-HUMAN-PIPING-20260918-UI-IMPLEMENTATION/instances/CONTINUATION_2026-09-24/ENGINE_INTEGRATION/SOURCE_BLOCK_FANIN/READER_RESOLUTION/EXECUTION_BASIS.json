@@ -1,0 +1,127 @@
+{
+  "task": "/root/physics_resume/physics_reader_join/physics_rust_export",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "mechanism": "delegated-harness-native bounded followup TASK",
+  "role": "TASK",
+  "created_utc": "2026-09-25T07:07:51.217930+00:00",
+  "basis": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/FANIN_01.json",
+      "sha256": "38a1f8a2cbb36cb012f19027f603b22482755f7b666803938f17a1d470dadbd4"
+    },
+    {
+      "origin": "/private/tmp/piping-source-recovery-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/SOURCE_RECOVERY_IMPLEMENTATION_01/REVIEWED_SUBSET.json",
+      "sha256": "0b8c8d84431a94ccc401afad1e7d569858de55ca8c44667e7b294ad1ad47a71d"
+    }
+  ],
+  "owned_files": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "before_sha256": "d56b725fc93b08eca030517aece19e90aad1f3a432adcf9b9a006e779fd79f94",
+      "conflict_count": 9,
+      "preimage": "core__analysis_runs__compatibility.py.preimage"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "before_sha256": "bc295bff598a52cab200b6046828450cb0ea5ad9eb6a5dbcb75dcb77b47a9b22",
+      "conflict_count": 2,
+      "preimage": "core__reporting__result_export__src__derivative.rs.preimage"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "before_sha256": "c3c797451be0d22e890c8155eebc26e78b9d245d233aae8b2375c9efebe18fca",
+      "conflict_count": 4,
+      "preimage": "core__reporting__result_export__src__semantic_contract.rs.preimage"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "before_sha256": "c61f546ae9fcb25df6d4c2500409435d858d411a3e9d42715132d034f945c7bc",
+      "conflict_count": 1,
+      "preimage": "core__reporting__result_export__src__lib.rs.preimage"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/__init__.py",
+      "before_sha256": "aa1fbd8152bfc53ff556dfc65661806a727c782943ec1d909d7a345c9164908d",
+      "conflict_count": 0,
+      "preimage": "core__analysis_runs____init__.py.preimage"
+    }
+  ],
+  "read_only_preservation": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_evidence.py",
+      "sha256": "984463c11fd2e71c6698021b7e910a645b7094a98bf7126c0831fc1c2d66ce2b"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs",
+      "sha256": "1328a29f1871e81da7125efa0cab9c2fd5046762369c5f1b9310fbb35ec2adbf"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "sha256": "35a996ab42c3174ff34ab48f1408e2c2d26c47fdacb99eb338976d9fd778d6c9"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_physics_consumer_contract.py",
+      "sha256": "17417c3cd765157fa950770d8c5080f5053fe16ae0413d393ecc7c77ce7abeee"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/physics_contract.rs",
+      "sha256": "64730f75ca6381ff312fe5fd1b7b9e2924d82a2dc7135ffa62faf5e8a9ab8947"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.parity.test.ts",
+      "sha256": "7eafd3fb2ed3bf005e0d604b7a91bbdaa3c89005a344d79984d73169366c1654"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_source_blocks_1.json",
+      "sha256": "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/source_blocks.py",
+      "sha256": "87b3953fdcfe484e48530b522c8117a0ea72f0fca5aac524d2cdd79b62af2978"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs",
+      "sha256": "29c1fa01117200240bf7eedf4a7e6409328317c6eb5f31721cff9391f3cbcddd"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/source_block_recovery.schema.json",
+      "sha256": "544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c"
+    }
+  ],
+  "limits": [
+    "No delegation",
+    "No Cargo or Python suites during parent UI lane",
+    "No table/identity/header relabeling or physics-source-1 allocation",
+    "Parent owns facade; all other sources read only"
+  ],
+  "consulted_callers": [
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "c311cd57d7e86a45e071953c8a4c2ae367d24b57d413ca5e626895517c5ec588"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/source_blocks.rs",
+      "sha256": "837a496c4390e8beecdc6648a81c60303cd38fbd190e102dc66dbef5d4ab8ef9"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_source_blocks_validation.py",
+      "sha256": "9d9bf808b12d7ea0c79ff096f9db62cd4d2066c9946ee72593918ebf7dddd76e"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+      "sha256": "ea306a75a8c9281966a830d3e72279eece0f35a60a81afdb0d62ec0873e21ad0"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "b27725b76ef18834b407cf463cb9ed99f37c44f185a0b6741ca51c5feecbbe64"
+    }
+  ]
+}

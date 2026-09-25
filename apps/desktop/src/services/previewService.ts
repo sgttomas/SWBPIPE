@@ -16,6 +16,7 @@ import {
   type CurrentSessionInputManifestEvidence,
 } from "./inputManifestService";
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibility";
+import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 
 async function invokeOrFixture<T>(
   command: string,
@@ -45,17 +46,89 @@ export async function runPreviewMechanics(
   solverMode: PreviewSolverMode = "sparse_interactive",
 ): Promise<MechanicsResult> {
   assertPreviewSolverMode(solverMode);
-  const result =
-    typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)
-      ? await runBrowserPreviewMechanics(model, solverMode)
-      : await invoke<MechanicsResult>(
-          "run_preview_mechanics_with_solver_mode",
-          model ? { model, solverMode } : { solverMode },
-        );
-  return bindSourceResultDimensions(result);
+  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
+    throw await browserSolveUnavailable(model);
+  }
+  const capture = captureNativeInvocation(model, solverMode);
+  const result = await invoke<MechanicsResult>(
+    "run_preview_mechanics_with_solver_mode",
+    model ? { model: capture?.invocation.request.model ?? model, solverMode } : { solverMode },
+  );
+  await validateCapturedSource(result, capture);
+  return result; // Preserve received producer data; legacy projection is explicit.
+
 }
 
 export type PreviewSolverMode = "sparse_interactive" | "dense_scrutiny";
+
+export type NativeMechanicsInvocation = {
+  request: { model: PreviewModel; materials: [] };
+  solver_mode: PreviewSolverMode;
+};
+type CapturedNativeInvocation = { invocation: NativeMechanicsInvocation; fingerprint: string; invalidated: boolean; terminalClaimed: boolean };
+type NativeSourceRegistration = { capture: CapturedNativeInvocation; sourceFingerprint: string };
+const nativeSourceInvocations = new WeakMap<MechanicsResult, NativeSourceRegistration>();
+const jobInvocations = new Map<string, CapturedNativeInvocation>();
+
+// Private equality witness only, not another public hash/canonicalization profile.
+// The checked guard rejects lossy/non-JSON inputs, and the extra paths retain
+// negative-zero identity that JSON text alone deliberately normalizes.
+function nativeContentFingerprint(value: unknown): string {
+  const checked = checkedJsonText(value);
+  const negativeZeros: string[] = [];
+  const visit = (item: unknown, path: string) => {
+    if (typeof item === "number" && Object.is(item, -0)) negativeZeros.push(path);
+    else if (item && typeof item === "object") {
+      for (const [key, child] of Object.entries(item)) visit(child, `${path}/${key.replaceAll("~", "~0").replaceAll("/", "~1")}`);
+    }
+  };
+  visit(value, "");
+  return `${canonicalJson(JSON.parse(checked))}\nnegative_zero_paths=${JSON.stringify(negativeZeros.sort())}`;
+}
+function captureNativeInvocation(model: PreviewModel | null | undefined, solverMode: PreviewSolverMode): CapturedNativeInvocation | null {
+  if (!model || typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return null;
+  try {
+    // Mirror the native API's actual {model, materials:[]} request and send this
+    // captured JSON model, not a later caller mutation or a reconstructed result.
+    const invocation = JSON.parse(checkedJsonText({ request: { model, materials: [] }, solver_mode: solverMode })) as NativeMechanicsInvocation;
+    return { invocation, fingerprint: nativeContentFingerprint(invocation), invalidated: false, terminalClaimed: false };
+  } catch { return null; } // Raw native diagnostics remain available; no registration.
+}
+async function validateCapturedSource(source: MechanicsResult, capture: CapturedNativeInvocation | null): Promise<void> {
+  if (!capture || capture.invalidated) return;
+  try {
+    if (source.model_ref !== capture.invocation.request.model.project.id || nativeContentFingerprint(capture.invocation) !== capture.fingerprint) return;
+    const sourceFingerprint = nativeContentFingerprint(source);
+    // Registration is reachable only after actual direct IPC or a completed
+    // known job. Method-specific source-block validation composes here when its
+    // separately reviewed join is selected; none is inferred from these bytes.
+    await canonicalSha256HexCheckedV1(source);
+    if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint) return;
+    nativeSourceInvocations.set(source, { capture, sourceFingerprint });
+  } catch { /* Preserve received source for inspection, without qualified standing. */ }
+}
+/** Query only: headers, hashes, clones and saved records cannot mint registration. */
+export function hasNativeMechanicsInvocation(
+  source: MechanicsResult | null | undefined,
+  model: PreviewModel | null | undefined,
+  solverMode?: string,
+): boolean {
+  if (!source || !model) return false;
+  const registered = nativeSourceInvocations.get(source);
+  if (!registered) return false;
+  try {
+    const invocation = registered.capture.invocation;
+    return !registered.capture.invalidated
+      && (solverMode === undefined || solverMode === invocation.solver_mode)
+      && nativeContentFingerprint(invocation) === registered.capture.fingerprint
+      && nativeContentFingerprint(source) === registered.sourceFingerprint
+      && nativeContentFingerprint(JSON.parse(checkedJsonText(model))) === nativeContentFingerprint(invocation.request.model);
+  } catch { return false; }
+}
+export function retainedNativeMechanicsInvocation(source: MechanicsResult, model: PreviewModel): NativeMechanicsInvocation | null {
+  return hasNativeMechanicsInvocation(source, model)
+    ? structuredClone(nativeSourceInvocations.get(source)!.capture.invocation) : null;
+}
 
 function assertPreviewSolverMode(value: unknown): asserts value is PreviewSolverMode {
   if (value !== "sparse_interactive" && value !== "dense_scrutiny") {
@@ -98,31 +171,57 @@ export async function startPreviewMechanicsJob(
 ): Promise<SolveJobStartReceipt> {
   assertPreviewSolverMode(solverMode);
   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
-    return { mode: "browser_fixture_no_backend_job" };
+    throw await browserSolveUnavailable(model);
   }
+  const capture = captureNativeInvocation(model, solverMode);
   const receipt = await invoke<
       Omit<Extract<SolveJobStartReceipt, { mode: "backend_job" }>, "mode">
-    >("start_preview_mechanics_job_with_solver_mode", model ? { model, solverMode } : { solverMode });
+    >("start_preview_mechanics_job_with_solver_mode", model ? { model: capture?.invocation.request.model ?? model, solverMode } : { solverMode });
+  if (capture && typeof receipt.job_id === "string" && receipt.job_id) jobInvocations.set(receipt.job_id, capture);
   return { mode: "backend_job", ...receipt };
 }
 
 export async function pollPreviewMechanicsJob(
   jobId: string,
 ): Promise<BackendSolveJobStatus> {
-  return invoke<BackendSolveJobStatus>("poll_preview_mechanics_job", { jobId });
+  const status = await invoke<BackendSolveJobStatus>("poll_preview_mechanics_job", { jobId });
+  const capture = jobInvocations.get(jobId) ?? null;
+  if (status.job_id !== jobId) {
+    if (capture) capture.invalidated = true;
+    jobInvocations.delete(jobId);
+    throw new Error("SOLVE-JOB-IDENTITY-MISMATCH");
+  }
+  if (["completed", "cancelled", "failed"].includes(status.state)) {
+    if (capture && !capture.terminalClaimed) {
+      capture.terminalClaimed = true;
+      try {
+        if (status.state === "completed" && status.result) await validateCapturedSource(status.result, capture);
+        else capture.invalidated = true;
+      } finally {
+        if (jobInvocations.get(jobId) === capture) jobInvocations.delete(jobId);
+      }
+    }
+  }
+  return status;
 }
 
 export async function cancelPreviewMechanicsJob(
   jobId: string,
   cancellationToken: string,
 ): Promise<BackendSolveJobCancellationReceipt> {
-  return invoke<BackendSolveJobCancellationReceipt>(
+  const receipt = await invoke<BackendSolveJobCancellationReceipt>(
     "cancel_preview_mechanics_job",
     {
       jobId,
       cancellationToken,
     },
   );
+  if (receipt.accepted) {
+    const capture = jobInvocations.get(jobId);
+    if (capture) capture.invalidated = true;
+    jobInvocations.delete(jobId);
+  }
+  return receipt;
 }
 
 // The three frozen automatic rule-check statuses a GUI rule-check run may
@@ -172,7 +271,7 @@ export async function buildAnalysisRunPreview(
   await verifyCurrentSessionInputManifest(inputManifest);
   const effective = appliedRuleCheckStatus(result.status.rule_check, ruleCheckAggregate);
   const route = sourceContract(result);
-  if (route !== "precision") throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+  if (route !== "precision" && route !== "physics") throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
   return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload));
 }
 
@@ -553,19 +652,52 @@ export function validateBrowserMechanicsFixture(
   return result;
 }
 
-async function runBrowserPreviewMechanics(
-  model: PreviewModel | null | undefined,
-  solverMode: PreviewSolverMode,
-): Promise<MechanicsResult> {
-  const fixtureModel = await loadModelFixture();
-  if (model && canonicalJson(model) !== canonicalJson(fixtureModel)) {
-    // Throw before any raw result/manifest/run builder. This is a backend
-    // availability failure, not a fabricated producer invocation or raw envelope.
-    throw new Error(
-      "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL: Browser fixture mode cannot solve an edited model; use the native backend for model-bound mechanics results.",
-    );
+export type BundledMechanicsReference = {
+  standing: "reference_only";
+  model: PreviewModel;
+  source: MechanicsResult;
+  provenance: {
+    origin: "preserved_bundled_producer_record";
+    fixture_ref: string;
+    recorded_solver_mode: PreviewSolverMode;
+    fresh_invocation_performed: false;
+    current_use_eligible: false;
+    notice: string;
+  };
+};
+
+/** Explicit reference inspection, separate from the fresh solve/job APIs.
+ * Provenance stays outside the unchanged producer data. Reading this record
+ * does not mint a live solve invocation, Current, rule or export eligibility. */
+export async function loadBundledMechanicsReference(
+  solverMode: PreviewSolverMode = "sparse_interactive",
+): Promise<BundledMechanicsReference> {
+  assertPreviewSolverMode(solverMode);
+  const model = await loadModelFixture();
+  const source = validateBrowserMechanicsFixture(await loadMechanicsFixture(solverMode), solverMode, model);
+  return {
+    standing: "reference_only",
+    model,
+    source,
+    provenance: {
+      origin: "preserved_bundled_producer_record",
+      fixture_ref: solverMode === "sparse_interactive"
+        ? "fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json"
+        : "fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      recorded_solver_mode: solverMode,
+      fresh_invocation_performed: false,
+      current_use_eligible: false,
+      notice: "Preserved reference data; no solve was performed. This record is unavailable for Current, rule checks or qualified export.",
+    },
+  };
+}
+
+export const BROWSER_REFERENCE_SOLVE_DIAGNOSTIC = "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY: Browser mechanics requires a real solver backend. Bundled records are available only through reference inspection; use the native application to solve.";
+async function browserSolveUnavailable(model?: PreviewModel | null): Promise<Error> {
+  if (model && canonicalJson(model) !== canonicalJson(await loadModelFixture())) {
+    return new Error("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL: Browser reference data cannot solve an edited model; use the native backend for model-bound mechanics results.");
   }
-  return validateBrowserMechanicsFixture(await loadMechanicsFixture(solverMode), solverMode, fixtureModel);
+  return new Error(BROWSER_REFERENCE_SOLVE_DIAGNOSTIC);
 }
 
 async function loadAgentProposalFixture(): Promise<AgentProposal> {

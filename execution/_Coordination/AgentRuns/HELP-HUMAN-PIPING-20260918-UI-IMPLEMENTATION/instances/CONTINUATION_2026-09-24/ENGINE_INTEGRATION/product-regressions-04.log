@@ -1,0 +1,362 @@
+   Compiling open_pipe_stress_product_physics v0.2.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics)
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:7215:4
+     |
+7215 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_product_physics` (lib) generated 1 warning
+warning: `open_pipe_stress_product_physics` (lib test) generated 1 warning (1 duplicate)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.43s
+     Running unittests src/lib.rs (/private/tmp/piping-engine-integration-product-target/debug/deps/open_pipe_stress_product_physics-154d8896d6784fa2)
+
+running 243 tests
+test annulus_geometry::tests::area_does_not_require_distinct_rounded_radii ... ok
+test annulus_geometry::tests::invalid_and_positive_unrepresentable_areas_fail_closed ... ok
+test annulus_geometry::tests::scaled_area_avoids_intermediate_underflow_before_final_rounding ... ok
+test annulus_geometry::tests::ordinary_source_areas_and_solid_core_are_explicit ... ok
+test annulus_geometry::tests::scaled_source_area_does_not_depend_on_resolving_squared_radius_difference ... ok
+test membrane_publication_range::original_subnormal_wall_force_direct_extrema_preserves_membrane ... ok
+test membrane_publication_range::original_subnormal_wall_force_direct_publisher_preserves_membrane ... ok
+test nonlinear_context_passthrough_tests::assembled_loop_context_is_a_pure_passthrough ... ok
+test pressure_exact::tests::annulus_accepts_reference_and_adjacent_representable_radii ... ok
+test pressure_exact::tests::annulus_rejects_invalid_and_nonrepresentable_geometry ... ok
+test pressure_exact::tests::balanced_product_preserves_applied_eigen_rhs_from_subnormal_partial_product ... ok
+test pressure_exact::tests::balanced_product_preserves_wall_force_from_subnormal_partial_product ... ok
+test pressure_exact::tests::cap_and_applied_eigen_rhs_have_frozen_local_signs ... ok
+test pressure_exact::tests::eigen_rhs_avoids_underflowing_eigenstrain_intermediate ... ok
+test pressure_exact::tests::final_force_conversion_preserves_gradual_underflow_and_signed_zero ... ok
+test pressure_exact::tests::four_rational_pi_states_match_frozen_oracle ... ok
+test pressure_exact::tests::lame_matches_boundaries_interior_and_constant_sum ... ok
+test pressure_exact::tests::lame_rejects_radii_outside_closed_wall_interval ... ok
+test pressure_exact::tests::lame_uses_pressure_scale_for_adjacent_radius_boundary_tractions ... ok
+test pressure_exact::tests::lame_zero_and_signed_pressure_scale_linearly ... ok
+test pressure_exact::tests::material_derives_single_shear_modulus_authority ... ok
+test pressure_exact::tests::material_rejects_invalid_bounds_and_nonrepresentable_g ... ok
+test pressure_exact::tests::nonfinite_strains_and_true_output_overflow_return_errors ... ok
+test pressure_exact::tests::numeric_edge_cases_preserve_frozen_outputs ... ok
+test pressure_exact::tests::opposed_finite_strains_do_not_overflow_before_stress_scaling ... ok
+test pressure_exact::tests::overflowing_force_terms_cancel_to_representable_applied_eigen_rhs ... ok
+test pressure_exact::tests::overflowing_force_terms_cancel_to_representable_axial_state ... ok
+test pressure_exact::tests::pressure_accepts_finite_signed_values_only ... ok
+test pressure_exact::tests::reductions_auxetic_behavior_and_superposition_hold ... ok
+test pressure_exact::tests::rounded_subnormal_area_does_not_control_normal_force_outputs ... ok
+test pressure_exact::tests::squared_radius_ratio_stays_scaled_until_final_stress ... ok
+test pressure_exact::tests::subnormal_area_intermediates_do_not_erase_representable_stress ... ok
+test pressure_exact::tests::subnormal_pressure_rounding_is_accepted_without_blanket_rejection ... ok
+test pressure_exact::tests::underflowed_fluid_force_does_not_erase_representable_stress ... ok
+test pressure_exact::tests::wall_effective_and_membrane_identities_remain_independent ... ok
+test pressure_runtime::grouping_identity_tests::either_derived_zero_direction_sign_contributes_no_force_group ... ok
+test pressure_runtime::grouping_identity_tests::source_bore_identity_does_not_round_distinct_sources_to_match ... ok
+test pressure_runtime::tests::chain_geometry_and_region_ownership_reject_ambiguous_composition ... ok
+test pressure_runtime::tests::closure_ledger_excludes_remote_supports_and_does_not_invent_second_cap ... ok
+test pressure_runtime::tests::generic_node_and_support_row_suffix_collisions_block_exact_publication ... ok
+test pressure_runtime::tests::malformed_pressure_namespaces_and_competing_selectors_never_fall_back ... ok
+test pressure_runtime::tests::explicit_terminals_members_and_pressure_basis_are_required ... ok
+test pressure_runtime::tests::normalized_unit_path_and_nonrepresentable_output_are_explicit ... ok
+test pressure_runtime::tests::region_identity_and_pipe_ownership_are_scoped_to_the_case ... ok
+test pressure_runtime::tests::profile_dispatch_requires_explicit_regions_and_refuses_legacy_pressure ... ok
+test pressure_runtime::tests::signed_pressure_and_zero_poisson_limit_do_not_include_thermal_load ... ok
+test pressure_runtime::tests::unequal_wall_and_material_preserve_bore_caps_and_local_poisson_loads ... ok
+test pressure_sum::tests::cancellation_retains_source_coefficients_and_is_order_independent ... ok
+test pressure_sum::tests::normal_subnormal_boundary_and_nonfinite_rejection ... ok
+test pressure_sum::tests::rounding_ties_and_sticky_bits_are_explicit ... ok
+test pressure_sum::tests::wide_range_cancellation_never_overflows_an_intermediate_float ... ok
+test pressure_runtime::tests::region_load_ledgers_are_separate_and_orientation_invariant ... ok
+test self_weight::tests::applied_legacy_without_source_hash_is_inspected_without_fabrication ... ok
+test self_weight::tests::applied_self_weight_fails_closed_for_malformed_lineage_but_ignores_manual ... ok
+test self_weight::tests::applied_self_weight_ignores_unconsumed_edits_and_equivalent_units ... ok
+test self_weight::tests::applied_self_weight_invalid_current_geometry_is_input_invalid ... ok
+test self_weight::tests::applied_self_weight_checks_each_consumed_input ... ok
+test self_weight::tests::applied_self_weight_invalid_units_and_shared_cache_are_not_stale ... ok
+test self_weight::tests::applied_self_weight_modified_requires_explicit_manual_preservation ... ok
+test self_weight::tests::applied_self_weight_snapshot_cannot_authenticate_itself ... ok
+test self_weight::tests::applied_self_weight_is_pure_and_density_drift_blocks ... ok
+test self_weight::tests::modified_retarget_can_be_preserved_after_original_source_is_removed ... ok
+test self_weight::tests::genuine_v1_requires_method_refresh_and_retains_verbatim_history ... ok
+test self_weight::tests::ordinary_manual_mentions_and_near_prefixes_are_not_lineage ... ok
+test self_weight::tests::self_weight_invalid_quantities_fail_without_partial_plan ... ok
+test self_weight::tests::self_weight_rejects_unknown_request_options ... ok
+test self_weight::tests::self_weight_alternate_units_and_all_mass_sources ... ok
+test self_weight::tests::self_weight_section_resolution_and_unselected_isolation ... ok
+test self_weight::tests::self_weight_selection_geometry_and_collisions ... ok
+test self_weight::tests::stable_mass_ranges_fail_but_actual_optional_zero_is_valid ... ok
+test self_weight::tests::self_weight_signed_axes_shape_and_immutable_inputs ... ok
+test self_weight::tests::stable_method_tag_is_mandatory_and_not_inferred ... ok
+test tests::absent_mill_tolerance_slot_means_no_reduction ... ok
+test self_weight::tests::stable_source_areas_preserve_thin_wall_and_insulation ... ok
+test tests::audit_nonfinite_computed_mechanics_never_publishes_solved_rows ... ok
+test tests::audit_ground_spring_stability_and_duplicate_constraints ... ok
+test tests::audit_retained_spring_fixture_uses_selected_node_state ... ok
+test tests::base_material_values_are_used_when_no_modulus_basis_is_named ... ok
+test tests::bend_component_user_multipliers_emit_stress_review_rows ... ok
+test tests::branch_component_user_multipliers_emit_side_specific_stress_review_rows ... ok
+test tests::combination_stress_summary_rows_are_skipped_with_diagnostics ... ok
+test tests::constant_effort_applies_in_every_solved_load_case ... ok
+test tests::constant_effort_coexists_with_nonlinear_supports_and_nonlinear_field_precedence ... ok
+test tests::constant_effort_consumption_matches_superposition_identity ... ok
+test tests::constant_effort_direction_follows_declared_translational_dof_positive_axis ... ok
+test tests::constant_effort_missing_or_nonpositive_load_keeps_existing_blocking_and_no_defaults ... ok
+test tests::constant_effort_non_consuming_shapes_warn_without_force_or_blocking ... ok
+test tests::constant_effort_user_limit_comparison_warns_from_user_data_only ... ok
+test tests::contact_recovery_failed_sparse_and_dense_attempt_emits_no_success_fallback ... ok
+test tests::contact_recovery_product_crosses_preflight_and_absent_linear_solution ... ok
+test tests::contact_recovery_product_insufficient_or_invalid_potential_restraint_stays_blocked ... ok
+test tests::authored_coordinate_units_preserve_preview_results_and_source ... ok
+test tests::contact_recovery_product_selected_tip_matches_axial_oracle_and_reverse_blocks ... ok
+test tests::curved_bend_macro_element_anchored_thermal_produces_reactions ... ok
+test tests::curved_bend_macro_element_assembles_arc_stiffness_without_straight_chord ... ok
+test tests::curved_bend_macro_element_blocks_on_missing_or_inconsistent_geometry ... ok
+test tests::curved_bend_macro_element_consumes_arc_consistent_uniform_weight ... ok
+test tests::curved_bend_macro_element_emits_arc_interior_station_results ... ok
+test tests::curved_bend_macro_element_keeps_dense_sparse_parity ... ok
+test tests::curved_bend_macro_element_multiplier_applies_sif_only ... ok
+test tests::curved_bend_macro_element_review_row_states_assembled_consumption ... ok
+test tests::curved_bend_macro_element_solves_assembled_nonlinear_loop ... ok
+test tests::curved_bend_macro_element_thermal_free_expansion_is_stress_free ... ok
+test tests::curved_bend_macro_span_pressure_reaches_nonlinear_loop_with_same_vector_historical_pressure_premise ... ok
+test tests::dec092_fixture_consumes_exact_and_interpolated_g_with_provenance_and_combination_carry_through ... ok
+test tests::declared_solve_temperature_interpolates_e_and_alpha_with_provenance ... ok
+test tests::dense_scrutiny_mode_keeps_sparse_parity_row ... ok
+test tests::displacement_component_rows_are_deterministic_across_runs ... ok
+test tests::displacement_component_rows_carry_signed_global_directions ... ok
+test tests::duplicate_ids_block_with_diagnostic ... ok
+test tests::empty_ids_block_with_diagnostic ... ok
+test tests::endpoint_section_cut_curved_bend_pressure_shows_membrane_end_and_station_state_historical_pressure_premise ... ok
+test tests::endpoint_section_cut_curved_endpoints_use_all_six_arc_resultants_historical_pressure_premise ... ok
+test tests::endpoint_section_cut_curved_endpoints_use_all_six_arc_resultants_without_pressure ... ok
+test tests::endpoint_section_cut_fixed_and_free_pressure_thermal_match_uniform_stations_historical_pressure_premise ... ok
+test tests::endpoint_section_cut_genuine_pressure_preserves_existing_result_leaves_historical_pressure_premise ... ok
+test tests::current_composite_derived_normal_friction_and_reversal ... ok
+test tests::endpoint_section_cut_mixed_hydrotest_pressure_blocks_entire_solve ... ok
+test tests::endpoint_section_cut_two_genuine_pressures_sum_once_for_thrust_and_stress_historical_pressure_premise ... ok
+test tests::envelope_keeps_status_boundaries_separate ... ok
+test tests::exact_and_interpolated_basis_fields_are_mutually_exclusive ... ok
+test tests::endpoint_section_cut_straight_axial_torsion_and_bending_match_every_station ... ok
+test tests::expansion_joint_pressure_thrust_uses_user_effective_area_as_load_side_evidence_historical_pressure_premise ... ok
+test tests::explicit_anchor_all_six_preserves_complete_restraint ... ok
+test tests::explicit_anchor_mixed_dofs_leave_uy_spring_and_other_dofs_free ... ok
+test tests::explicit_anchor_repair_preserves_named_and_implicit_family_fallbacks ... ok
+test tests::explicit_anchor_rx_only_preserves_partial_rotation_through_boundary ... ok
+test tests::expansion_joint_user_stiffness_emits_macro_element_review_rows ... ok
+test tests::f3_explicit_six_dof_guide_keeps_family_and_reports_invalid_rotations ... ok
+test tests::f3_family_tokens_accept_exact_canonical_vocabulary ... ok
+test tests::f3_canonical_spring_retains_elastic_stiffness ... ok
+test tests::f3_invalid_family_blocks_every_payload_before_mechanics ... ok
+test tests::f3_missing_and_null_family_preserve_existing_inference_and_payloads ... ok
+test tests::fixed_fixed_thermal_load_applies_axial_fixed_end_correction ... ok
+test tests::friction_preview_derives_normal_from_named_support_reaction ... ok
+test tests::friction_preview_slides_and_converges_with_explicit_normal_evidence ... ok
+test tests::friction_preview_surfaces_explicit_normal_evidence_without_combining_it ... ok
+test tests::gap_preview_closes_to_explicit_clearance_through_dense_loop ... ok
+test tests::generated_result_metadata_and_historical_quantization_match_legacy_fixture_historical_pressure_premise ... ok
+test tests::guide_preview_mapping_remains_guide_with_entered_dofs ... ok
+test tests::historical_round6_demonstrates_subquantum_information_loss ... ok
+test tests::incompatible_material_unit_blocks_with_diagnostic ... ok
+test tests::f3_real_hanger_nonlinear_and_dof_aliases_remain_supported ... ok
+test tests::input_contract_guided_rest_preserves_disjoint_restraint ... ok
+test tests::input_contract_hydrotest_pressure_blocks_instead_of_silently_ignoring ... ok
+test tests::input_contract_authored_moment_axes_reach_live_solve ... ok
+test tests::input_contract_local_provenance_is_traceability_not_clearance ... ok
+test tests::input_contract_repair_colocated_constant_force_and_contact_obey_equilibrium ... ok
+test tests::input_contract_repair_colocated_spring_and_contact_obey_equilibrium ... ok
+test tests::input_contract_repair_conflicting_spring_family_constant_hanger_blocks ... ok
+test tests::input_contract_unused_stiffness_and_conflicting_spring_axis_block ... ok
+test tests::integrity_disconnected_body_is_not_restrained_by_another_bodys_anchor ... ok
+test tests::integrity_exact_case_ids_do_not_alias_passing_and_unassessed_cases ... ok
+test tests::integrity_exact_case_ids_keep_actual_linear_passes_and_component_warnings_distinct ... ok
+test tests::input_contract_repair_skew_authored_moments_match_rotated_analytical_couples ... ok
+test tests::integrity_oblique_torsion_requires_actual_rotational_ground_in_both_modes ... ok
+test tests::interpolation_blocks_at_and_beyond_stored_range_edges ... ok
+test tests::invalid_combination_records_block_with_diagnostics ... ok
+test tests::invalid_load_unit_blocks_with_diagnostic ... ok
+test tests::invalid_subtraction_and_range_records_block_with_named_diagnostics ... ok
+test tests::integrity_multicase_evidence_and_component_diagnostics_have_unique_real_case_identity ... ok
+test tests::lift_off_preview_releases_contact_through_dense_loop ... ok
+test tests::load_case_modulus_basis_selects_exact_user_entered_hot_point ... ok
+test tests::mill_tolerance_reduces_derived_effective_wall_and_section_modulus ... ok
+test tests::legacy_bend_mode_keeps_multiplier_and_chord_realization_unchanged ... ok
+test tests::missing_all_primitive_loads_blocks_with_diagnostic ... ok
+test tests::missing_load_input_blocks_with_diagnostic ... ok
+test tests::missing_material_blocks_with_diagnostic ... ok
+test tests::missing_or_invalid_project_length_units_block_preview ... ok
+test tests::missing_pipe_orientation_blocks_with_diagnostic ... ok
+test tests::missing_public_preview_provenance_blocks_with_diagnostic ... ok
+test tests::mixed_nonlinear_preview_bundle_converges_and_emits_each_support_state ... ok
+test tests::mill_tolerance_units_are_normalized_at_preview_boundary ... ok
+test tests::mixed_units_are_normalized_at_preview_mechanics_boundary_historical_pressure_premise ... ok
+test tests::mixed_units_are_normalized_at_preview_mechanics_boundary_without_pressure ... ok
+test tests::modulus_basis_point_without_elastic_modulus_is_blocking ... ok
+test tests::named_line_stop_reaches_solver_family_with_entered_dof ... ok
+test tests::named_vertical_support_reaches_solver_family_with_entered_dof ... ok
+test tests::node_normalization_preserves_quantities_directions_and_authored_metadata ... ok
+test tests::nonlinear_support_current_pressure_free_law_in_both_modes ... ok
+test tests::models_without_constant_effort_supports_are_untouched_by_the_consumption_path ... ok
+test tests::operation_authored_primitive_categories_map_to_preview_mechanics ... ok
+test tests::p5_combinations_cancel_vectors_and_preserve_subquantum_inputs ... ok
+test tests::p5_combined_magnitude_withholds_incomplete_vector ... ok
+test tests::p5_adjacent_spans_and_qualified_case_edges_preserve_physics ... ok
+test tests::p5_constant_signed_cut_fields_and_fixed_thermal_compression ... ok
+test tests::p5_disjoint_spans_superpose_signed_member_fields ... ok
+test tests::p5_effective_thermal_alpha_and_duplicate_wind_fail_closed ... ok
+test tests::p5_piecewise_extrema_find_interior_peak_and_preserve_reversed_axes ... ok
+test tests::precision_n01_bending_and_summary_match_independent_eb_reference ... ok
+test tests::precision_nonfinite_values_are_rejected_not_serialized_as_null ... ok
+test tests::p5_uniform_full_partial_and_rotated_beams_match_independent_equilibrium ... ok
+test tests::precision_same_unit_raw_quantity_bits_and_numeric_strings_roundtrip ... ok
+test tests::precision_solved_and_blocked_headers_bind_actual_producer_without_assessment ... ok
+test tests::present_but_invalid_mill_tolerance_is_blocking ... ok
+test tests::pressure_load_direction_does_not_change_thrust_magnitude_or_sign_historical_pressure_premise ... ok
+test tests::pressure_thrust_applies_axial_fixed_end_correction_without_longitudinal_rows_historical_pressure_premise ... ok
+test tests::pressure_thrust_on_macro_span_assembles_complete_self_equilibrated_arc_system ... ok
+test tests::private_historical_pressure_scope_restores_public_refusal_and_rejects_exact ... ok
+test tests::private_historical_scope_restores_after_unwind_and_is_thread_local ... ok
+test tests::range_combination_records_each_operand_modulus_basis ... ok
+test tests::precision_signed_subquantum_torsion_both_modes_matches_independent_annulus ... ok
+test tests::seismic_equivalent_static_generation_matches_authored_distributed_load ... ok
+test tests::seismic_generation_with_partial_insulation_pair_is_blocking ... ok
+test tests::seismic_generation_without_material_density_is_blocking ... ok
+test tests::seismic_generation_without_user_gravity_is_blocking_not_defaulted ... ok
+test tests::selected_basis_blocks_missing_invalid_or_dimensionally_wrong_point_g ... ok
+test tests::range_envelope_combination_selects_each_shipped_mode_deterministically ... ok
+test tests::shared_section_blank_reference_identity_blocks_common_entry ... ok
+test tests::shared_section_equivalent_but_different_cache_representation_is_stale ... ok
+test tests::shared_section_local_mill_tolerance_must_leave_positive_wall ... ok
+test tests::shared_section_matching_reference_resolves_and_preserves_local_inputs ... ok
+test tests::selected_point_g_is_base_independent_and_selected_g_sensitive ... ok
+test tests::shared_section_stale_cache_blocks_common_solver_entry ... ok
+test tests::shared_section_reference_failures_are_explicit ... ok
+test tests::shared_section_wire_is_optional_and_retained ... ok
+test tests::spring_hanger_missing_stiffness_blocks_without_defaulting ... ok
+test tests::subspan_wind_double_marking_same_pipe_is_blocking ... ok
+test tests::subspan_wind_generation_matches_hand_computed_lever_rule_nodal_forces ... ok
+test tests::subspan_wind_invalid_fractions_are_blocking ... ok
+test tests::subspan_wind_missing_span_fields_is_blocking ... ok
+test tests::subspan_wind_mixed_whole_and_partial_marking_superposes_on_distinct_pipes ... ok
+test tests::subspan_wind_on_curved_bend_macro_span_is_blocking ... ok
+test tests::subspan_wind_overlapping_extents_are_blocking_but_disjoint_extents_solve ... ok
+test tests::subspan_wind_unknown_pipe_ref_is_blocking ... ok
+test tests::spring_hanger_user_inputs_emit_review_rows_without_catalog_defaults ... ok
+test tests::successor_mixed_product_evaluates_actual_final_rows_in_both_modes ... ok
+test tests::temperature_g_interpolation_uses_adjacent_points_and_duplicate_temperatures_still_block ... ok
+test tests::thermal_load_direction_does_not_change_thermal_magnitude_or_sign ... ok
+test tests::thermal_load_requires_explicit_material_expansion_coefficient ... ok
+test tests::under_restrained_model_reports_solver_diagnostic ... ok
+test tests::subtraction_combination_subtracts_solved_rows_with_signed_determinism ... ok
+test tests::unresolved_exact_modulus_basis_is_blocking_without_defaulting ... ok
+test tests::unit_contract_rotational_gap_cannot_consume_a_length_as_an_angle ... ok
+test tests::valid_invented_model_exposes_element_force_components ... ok
+test tests::valid_invented_model_exposes_endpoint_stress_components_historical_pressure_premise ... ok
+test tests::valid_invented_model_exposes_endpoint_stress_components_without_pressure ... ok
+test tests::valid_invented_model_exposes_explicit_load_combination_results ... ok
+test tests::valid_invented_model_exposes_global_displacement_components ... ok
+test tests::valid_invented_model_solves_deterministically ... ok
+test tests::wind_equivalent_static_generation_matches_authored_distributed_load ... ok
+test tests::wind_generation_without_marked_spans_is_blocking ... ok
+test tests::valid_invented_model_exposes_nonlinear_support_loop_evidence_historical_pressure_premise ... ok
+
+test result: ok. 243 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.94s
+
+     Running tests/elastic_extrema_runtime.rs (/private/tmp/piping-engine-integration-product-target/debug/deps/elastic_extrema_runtime-20c1fa42bd853a33)
+
+running 2 tests
+test pure_torque_has_zero_normal_maximum_and_signed_torsion ... ok
+test actual_x1_loads_find_peak_missed_by_old_signed_sum_candidates ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/pressure_grouping_limits.rs (/private/tmp/piping-engine-integration-product-target/debug/deps/pressure_grouping_limits-3451ee400b7b6042)
+
+running 1 test
+test strongly_cancelling_distinct_pressure_factors_are_explicitly_unqualified ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/pressure_membrane_range.rs (/private/tmp/piping-engine-integration-product-target/debug/deps/pressure_membrane_range-65ab300ef60fdb16)
+
+running 2 tests
+test original_subnormal_membrane_fixture_is_publicly_out_of_range_sparse ... ok
+test original_subnormal_membrane_fixture_is_publicly_out_of_range_dense ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pressure_runtime.rs (/private/tmp/piping-engine-integration-product-target/debug/deps/pressure_runtime-f8da4e99f0b754cf)
+
+running 14 tests
+test distributed_axial_load_is_subtracted_separately_from_pressure_eigenload ... ok
+test exact_material_and_region_contracts_are_required_without_inference ... ok
+test exact_override_materials_replace_base_list_and_redundant_g_is_not_authoritative ... ok
+test exact_pressure_rotates_as_vectors_and_normalizes_mm_mpa_inputs ... ok
+test invalid_region_membership_geometry_and_overlap_block ... ok
+test legacy_missing_g_remains_an_input_error ... ok
+test mixed_closures_use_the_actual_cap_load_path_for_support_reactions ... ok
+test namespaces_and_nonzero_legacy_pressure_cannot_silently_fallback ... ok
+test same_region_id_in_distinct_cases_has_unique_binding_and_order_independent_maximum ... ok
+test selected_point_and_interpolated_pair_determine_g_after_selection ... ok
+test signed_pressure_zero_poisson_and_thermal_reversal_preserve_the_selected_equations ... ok
+test equal_bore_unequal_wall_and_e_chain_is_orientation_independent ... ok
+test thermal_alpha_is_required_on_the_selected_basis_not_unused_base ... ok
+test six_si_pressure_states_through_both_public_solver_modes ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/pressure_section_geometry.rs (/private/tmp/piping-engine-integration-product-target/debug/deps/pressure_section_geometry-b3ebbd699461771f)
+
+running 9 tests
+test fixed_near_limit_effective_force_and_reactions_keep_small_source_difference ... ok
+test near_incompressible_source_net_load_retains_its_nonzero_extension ... ok
+test near_limit_source_extension_transforms_under_a_proper_spatial_rotation ... ok
+test ordinary_source_annulus_properties_and_all_responses ... ok
+test representable_i_and_j_survive_an_unrepresentable_naive_intermediate ... ok
+test thin_source_wall_drives_extension_stress_bending_and_torsion ... ok
+test distinct_near_limit_nu_two_span_source_extensions_survive_all_reversals ... ok
+test unpressurized_thin_member_uses_same_source_section_without_fake_region ... ok
+test unrepresented_gap_and_nonrepresentable_final_sections_block ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/represented_gap_publication.rs (/private/tmp/piping-engine-integration-product-target/debug/deps/represented_gap_publication-31be14f67c98137f)
+
+running 17 tests
+test dense_negative_active_contact ... ok
+test dense_negative_active_open ... ok
+test dense_negative_inactive_open ... ok
+test dense_negative_inactive_contact ... ok
+test dense_positive_active_contact ... ok
+test dense_positive_active_open ... ok
+test dense_positive_inactive_contact ... ok
+test dense_positive_inactive_open ... ok
+test sparse_negative_active_contact ... ok
+test sparse_negative_active_open ... ok
+test ordinary_no_gap_companion_remains_qualified_and_matches_small_strain_axial_law ... ok
+test sparse_negative_inactive_contact ... ok
+test sparse_negative_inactive_open ... ok
+test sparse_positive_active_contact ... ok
+test sparse_positive_active_open ... ok
+test sparse_positive_inactive_contact ... ok
+test sparse_positive_inactive_open ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/stress_maximum_coverage.rs (/private/tmp/piping-engine-integration-product-target/debug/deps/stress_maximum_coverage-ca94c838a12549a6)
+
+running 4 tests
+test exact_zero_displacement_ties_use_location_identity_not_node_order ... ok
+test exact_zero_stress_ties_use_location_identity_not_member_order ... ok
+test incomplete_case_domain_withholds_overall_maximum_in_both_case_orders ... ok
+test incomplete_member_domain_withholds_case_maximum_in_both_member_orders ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/support_reactions_runtime.rs (/private/tmp/piping-engine-integration-product-target/debug/deps/support_reactions_runtime-49e980c024306553)
+
+running 4 tests
+test same_record_spring_cannot_silently_replace_an_extra_rigid_guide ... ok
+test duplicate_rigid_devices_cannot_each_publish_the_complete_nodal_reaction ... ok
+test two_coincident_tip_springs_and_root_rigid_support_have_distinct_actions ... ok
+test six_nonzero_support_components_follow_global_force_and_moment_balance ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

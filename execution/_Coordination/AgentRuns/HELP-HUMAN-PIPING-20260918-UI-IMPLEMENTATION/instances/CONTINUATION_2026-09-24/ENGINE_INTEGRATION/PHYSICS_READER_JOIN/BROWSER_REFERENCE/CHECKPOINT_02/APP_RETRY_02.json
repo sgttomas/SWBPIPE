@@ -1,0 +1,16 @@
+{
+  "source_sha256": "a45a91b474d19b7dffc62680556f548bc18c0adbfa579863c2a41871485ffba2",
+  "typecheck_exit": 0,
+  "selected": 26,
+  "passed": 24,
+  "failed": 2,
+  "excluded": 199,
+  "unhandled_errors": 0,
+  "log": "app-changed-02-failed.log",
+  "log_sha256": "2a859b2db077f0de290afd4a2e629a78c61b2fecbb460b02c7d61ccc3f112253",
+  "failures": [
+    "Reference queued-intent test expects an active handoff panel, but it is ineligible. Preserve packaging oracle separately.",
+    "Native save button has no browser href. Inspect mocked native save request bytes."
+  ],
+  "status": "Exact test-only repairs pending."
+}

@@ -194,6 +194,7 @@ function AppSession() {
     reportPackageRedaction,
     reportPackageRoute,
     handleRun,
+    handleInspectBundledReference,
     handleCancelRun,
     handleRuleCheckAggregate,
     handleProposal,
@@ -593,6 +594,9 @@ function AppSession() {
               <DormantSection active={activeSection === "loads"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
               <LoadCaseManagerPanel
                 model={model}
+                queuedIntents={editorIntents}
+                operationBusy={operationBusy}
+                getPreparationEpoch={getPreparationEpoch}
                 onQueueIntent={handleQueueEditorIntent}
                 onSelect={handleSelectEntity}
                 selection={selection}
@@ -608,6 +612,9 @@ function AppSession() {
               {activeSection === "results" || activatedExpensiveSections.has("results") ? (
               <DormantSection active={activeSection === "results"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`results:${dormantOutputBasis}`}>
+              <button type="button" onClick={() => void handleInspectBundledReference()}>
+                Inspect bundled reference
+              </button>
               {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
                 result={result}
                 knowledge={knowledge}
@@ -889,6 +896,9 @@ function AppSession() {
                 onRun={handleRun}
                 onSolverModeChange={setSolverMode}
               />
+              <button type="button" onClick={() => void handleInspectBundledReference()}>
+                Inspect bundled reference
+              </button>
               <RuleCheckPanel model={model} result={currentSolvedResult} />
               <RuleCheckRunPanel
                 basis={ruleCheckRunBasis}

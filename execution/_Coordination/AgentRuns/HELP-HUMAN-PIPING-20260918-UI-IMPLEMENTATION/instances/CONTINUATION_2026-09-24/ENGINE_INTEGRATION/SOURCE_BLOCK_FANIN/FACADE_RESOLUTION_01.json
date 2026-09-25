@@ -1,0 +1,18 @@
+{
+  "status": "First semantic merge, existing method namespaces only; composite integration still pending",
+  "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+  "before_conflicted_sha256": "191d2df82378c804a43582f197909a419e9e35ea6ae52be920bbe1f2b16de88f",
+  "after_sha256": "2ec20f78068d18d3c76f1473638b35e5af16ad131ad55cc1e6112a2ebc26205f",
+  "conflicts_resolved": 14,
+  "key_joins": [
+    "retain both physical and source-owned case/envelope fields",
+    "complete/tie-aware all-case maxima for exact or source-selected routes",
+    "certified mm nodal components preserved without second projection",
+    "source-owned six support components used directly; no projected-u spring overwrite or 6-vs-3 copy panic",
+    "ordinary exact support vector publication retained",
+    "source-selected end actions bypass K*u; exact mechanical/pressure separation preserved for ordinary route",
+    "source row/envelope secondary-case ID qualification agrees, preserving legacy-source v2 prefix and exact v2 identity",
+    "both physical case evidence and source finalization retained"
+  ],
+  "verification": "Rustfmt parser/static check pending; no compile/public composite claim"
+}

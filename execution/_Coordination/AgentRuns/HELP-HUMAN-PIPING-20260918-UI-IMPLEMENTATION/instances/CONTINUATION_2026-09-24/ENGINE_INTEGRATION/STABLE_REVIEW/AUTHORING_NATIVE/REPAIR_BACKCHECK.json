@@ -1,0 +1,25 @@
+{
+  "method": "Read full repair source and tests, then reverse complete repair patch in memory and require original frozen SHA256; no source mutation or execution",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "reviewed_sha256": "adf95be08d8c5bb81b0572e08122f8736b35a5e41cc5fed61a9875092bbefa29",
+      "reverse_complete_repair_matches_frozen": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "reviewed_sha256": "7d18d0451bce010f2ad799aa4790e2c0480d6e4c907735e62c4b546874797278",
+      "reverse_complete_repair_matches_frozen": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/exact_authoring.rs",
+      "reviewed_sha256": "24cd734bfa9a4ecc9625fc34bf9e966efd5ef22bb26c7db99251a45839353a33",
+      "reverse_complete_repair_matches_frozen": true
+    }
+  ],
+  "findings": {
+    "AN-R1": "Resolved by source repair backcheck plus parent focused8 pass; actual source hashes matched run record",
+    "AN-R2": "previous native one-token reversal matches frozen source; native execution pending",
+    "AN-R3": "Resolved by source repair backcheck plus parent focused8 pass; actual source hashes matched run record"
+  }
+}

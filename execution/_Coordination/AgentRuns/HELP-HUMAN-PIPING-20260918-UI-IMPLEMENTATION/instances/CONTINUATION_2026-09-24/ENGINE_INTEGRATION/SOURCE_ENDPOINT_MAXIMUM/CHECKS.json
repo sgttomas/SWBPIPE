@@ -1,0 +1,50 @@
+{
+  "captured_at_utc": "2026-09-25T06:45:47.876413+00:00",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "checks": [
+    {
+      "command": [
+        "rustfmt",
+        "--version"
+      ],
+      "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM",
+      "exit_code": 0,
+      "stdout": "rustfmt 1.9.0-stable (8bab26f4f6 2026-07-14)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rustfmt",
+        "--check",
+        "endpoint_maximum.rs"
+      ],
+      "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3",
+        "check_reference.py"
+      ],
+      "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM",
+      "exit_code": 0,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"execution\": \"Python arithmetic mirror + exact Fraction oracle; Rust tests NOT executed\",\n  \"python\": \"3.9.6 (default, May 22 2026, 11:13:45) \\n[Clang 21.0.0 (clang-2100.1.1.101)]\",\n  \"platform\": \"macOS-26.6.2-arm64-arm-64bit\",\n  \"criterion\": 1e-09,\n  \"spread_controls\": 48,\n  \"spread_seed\": 25092026,\n  \"oracle_points\": 524\n}\n",
+      "stderr": ""
+    }
+  ],
+  "earlier_observations": [
+    "Initial rustfmt --check failed only on formatting; rustfmt applied and subsequent checks passed.",
+    "No Cargo/rustc/npm/native execution.",
+    "Python arithmetic checks are author verification with an independent Fraction oracle, not independent review."
+  ],
+  "not_executed": [
+    "Rust unit tests",
+    "Rust typecheck",
+    "Cargo tests",
+    "native tests",
+    "actual joined invocation",
+    "independent reviewer backcheck"
+  ]
+}

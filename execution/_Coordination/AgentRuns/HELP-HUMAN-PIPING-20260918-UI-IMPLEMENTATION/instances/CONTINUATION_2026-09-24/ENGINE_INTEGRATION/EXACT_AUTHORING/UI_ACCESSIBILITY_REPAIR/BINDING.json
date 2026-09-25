@@ -1,0 +1,10 @@
+{
+  "defect": "Existing protected dead-controls audit found disabled Queue pressure profile without accessible reason",
+  "discovered_by": "/root/physics_resume/physics_reader_join follow-on96/100 run",
+  "raw_failure": "/private/tmp/piping-browser-standing-ts-02.log",
+  "path": "projects/chirality-piping/apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx",
+  "before_sha256": "db58795b290617f0a1289b2a34b1079c64b7de02ea9f1ba2ec82504ae40ab8c4",
+  "after_sha256": "61f244f1253256322bebd4990a6366fbb07712013456458eebc834e44d795f03",
+  "repair": "Unique useId associates visible disabled explanation via aria-describedby; title repeats reason. Selection and disabled behavior unchanged. Busy state reason separately stated.",
+  "verification": "Existing unchanged audit and final typecheck queued; no new production execution claimed."
+}

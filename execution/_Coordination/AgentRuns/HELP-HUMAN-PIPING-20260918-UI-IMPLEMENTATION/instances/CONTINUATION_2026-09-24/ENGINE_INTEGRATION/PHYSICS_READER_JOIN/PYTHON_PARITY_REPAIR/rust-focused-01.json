@@ -1,0 +1,24 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "core/reporting/result_export/Cargo.toml",
+    "--jobs",
+    "2",
+    "--test",
+    "physics_contract",
+    "--test",
+    "precision_contract"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "environment": {
+    "CARGO_TARGET_DIR": "/private/tmp/piping-physics-result-export-target"
+  },
+  "started_utc": "2026-09-25T06:22:41.323654+00:00",
+  "finished_utc": "2026-09-25T06:22:44.804448+00:00",
+  "exit_code": 0,
+  "log": "rust-focused-01.log",
+  "log_sha256": "7df7e48042358d23fb96042fd0c6d9e0aa2a5d68edc03de3924c7e3e3f708a96"
+}

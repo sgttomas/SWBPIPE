@@ -1,0 +1,49 @@
+{
+  "scope": "Actual producer outputs used only as reader controls, not independent physical oracles or Current authentication.",
+  "runtime": "v24.18.0",
+  "reader_sha256": "35a996ab42c3174ff34ab48f1408e2c2d26c47fdacb99eb338976d9fd778d6c9",
+  "results": [
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/physics_connected_mechanics_sparse.json",
+      "sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2",
+      "mechanics": "MECHANICS_SOLVED",
+      "admission": "accepted",
+      "unchanged": true
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/physics_thermal_ui_mechanics_sparse.json",
+      "sha256": "d0aacc4300c307c7c49204a401c61ef8ba6b60ae6d23591a335023210d04d2f0",
+      "mechanics": "MECHANICS_SOLVED",
+      "admission": "accepted",
+      "unchanged": true
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/physics_connected_mechanics_dense.json",
+      "sha256": "2e3007311d6b5f76172dbf7e9c4a9bbb98ad16382d75ffa63d327c9aab9ebdb6",
+      "mechanics": "MECHANICS_SOLVED",
+      "admission": "accepted",
+      "unchanged": true
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/physics_thermal_ui_mechanics_dense.json",
+      "sha256": "38356d7ce4fa16e994f64c50c63dd9101688b77cd967712be75a9d8e977ab24c",
+      "mechanics": "MECHANICS_SOLVED",
+      "admission": "accepted",
+      "unchanged": true
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/BLOCKED_ACTUAL/missing_nu.raw.json",
+      "sha256": "d2c3d9373b05a898776d887093a090822d93dbe580bf04a04c61fbc7fca43e29",
+      "mechanics": "MODEL_INCOMPLETE",
+      "admission": "accepted",
+      "unchanged": true
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/BLOCKED_ACTUAL/missing_closure.raw.json",
+      "sha256": "cb0300e89d4ba9b7981d380553687e6caaa57b1cddc9ceed32198ec8d8c99227",
+      "mechanics": "MODEL_INCOMPLETE",
+      "admission": "accepted",
+      "unchanged": true
+    }
+  ]
+}

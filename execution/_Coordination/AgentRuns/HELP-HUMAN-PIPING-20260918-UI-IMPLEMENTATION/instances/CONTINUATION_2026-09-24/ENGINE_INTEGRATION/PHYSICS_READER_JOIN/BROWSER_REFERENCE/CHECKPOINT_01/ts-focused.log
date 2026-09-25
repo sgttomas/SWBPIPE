@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/services/previewService.test.ts src/features/result-export/resultExportAdapter.test.ts src/services/ruleCheckService.test.ts src/features/report/reportPackageRequest.test.ts src/features/workspace/resultsSessionState.test.ts src/features/workspace/workspaceSession.shell.test.tsx src/features/results/HistoricalRunContext.test.tsx src/features/results/physicsResultEvidence.parity.test.ts src/features/native-package/NativePackagePanel.test.ts src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx src/features/report/renderedReport.test.tsx --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner
+
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+
+ Test Files  11 passed (11)
+      Tests  198 passed (198)
+   Start at  00:29:00
+   Duration  7.89s (transform 683ms, setup 450ms, import 1.29s, tests 10.68s, environment 2.31s)
+

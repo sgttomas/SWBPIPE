@@ -1,0 +1,18 @@
+{
+  "command": [
+    "cargo",
+    "check",
+    "--manifest-path",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--offline",
+    "--locked",
+    "-j",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-engine-integration-product-target"
+  ],
+  "actual_executor": "/root/physics_resume",
+  "scope": "First source subset fa\u00e7ade join, not composite qualification",
+  "facade_sha256": "2ec20f78068d18d3c76f1473638b35e5af16ad131ad55cc1e6112a2ebc26205f",
+  "exit_code": 0
+}

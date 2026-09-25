@@ -1,0 +1,850 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/App.test.tsx -t suppresses solve proof unless the completed job, result, and exact model version remain bound|inspects bundled rows separately and never saves them as current model results|suppresses a real delayed backend completion when native open commits a new model|surfaces bounded PDU-008 nonlinear, ratio, and rich-diagnostic GUI states|records reference comparison workspace unit policy evidence without conversion|keeps both File-menu report attempts ineligible for a bundled browser reference|keeps queued editor intent context separate while inspecting preserved reference rows|round trips preserved historical review proposal operations through local save and open|renders all preserved reference result families, values and recovery annotations without Current|preserves the original complete reference derivative row, unit and hash protocol oracles|preserves the830-row stress-neutral format as a pure reference projection|retains historical component, pressure-thrust, hanger and review-package numeric oracles|reads recorded knowledge quantities from reference results without invoking a solver|qualifies only a matching captured native unit replay and retires it on reference inspection|links reference diagnostics to preserved model and review-only proposal context|applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model|preserves reference comparison rows through display-unit changes without a Current claim|preserves the specific backend-required failure after a real browser model edit|rejects a delayed rule-check aggregate from a replaced same-ID session basis|does not start an obsolete report-package save or publish stale build state|keeps a newer report-package save busy and rejects stale .* completion state|keeps registered MODEL_INCOMPLETE diagnostics while barring fresh solved-only consumers|cannot publish delayed inactive export or report completions after a project reopen|lets a fresh same-model solve win against a delayed Historical refresh|keeps a same-model Current solve Current after native save --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner
+
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+stderr | src/App.test.tsx > SWBPIPE desktop preview > round trips preserved historical review proposal operations through local save and open
+Native shell state sync failed Error: sync_native_shell_state
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/App.test.tsx:9349:132
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2348:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+Native shell state sync failed Error: sync_native_shell_state
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/App.test.tsx:9349:132
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2348:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+stderr | src/App.test.tsx > SWBPIPE desktop preview > round trips preserved historical review proposal operations through local save and open
+Native shell state sync failed Error: sync_native_shell_state
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/App.test.tsx:9349:132
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2348:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+stderr | src/App.test.tsx > SWBPIPE desktop preview > qualifies only a matching captured native unit replay and retires it on reference inspection
+Native shell state sync failed Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: sync_native_shell_state
+    at invoke (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/test/nativeMechanicsReplay.ts:86:11)
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2348:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+stderr | src/App.test.tsx > workflow current and historical result boundaries > rejects a delayed rule-check aggregate from a replaced same-ID session basis
+Native shell state sync failed Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: sync_native_shell_state
+    at invoke (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/test/nativeMechanicsReplay.ts:86:11)
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2348:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+stderr | src/App.test.tsx > workflow current and historical result boundaries > does not start an obsolete report-package save or publish stale build state
+Native shell state sync failed Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: sync_native_shell_state
+    at invoke (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/test/nativeMechanicsReplay.ts:86:11)
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2348:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+stderr | src/App.test.tsx > workflow current and historical result boundaries > keeps a newer report-package save busy and rejects stale success completion state
+Native shell state sync failed Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: sync_native_shell_state
+    at Object.invoke (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/test/nativeMechanicsReplay.ts:86:11)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/App.test.tsx:14665:23
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2348:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+stderr | src/App.test.tsx > workflow current and historical result boundaries > keeps a newer report-package save busy and rejects stale error completion state
+Native shell state sync failed Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: sync_native_shell_state
+    at Object.invoke (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/test/nativeMechanicsReplay.ts:86:11)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/App.test.tsx:14665:23
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2348:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+
+stderr | src/App.test.tsx > historical lifecycle history transitions > cannot publish delayed inactive export or report completions after a project reopen
+Native shell state sync failed Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: sync_native_shell_state
+    at invoke (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/test/nativeMechanicsReplay.ts:86:11)
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2348:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+stderr | src/App.test.tsx > historical lifecycle history transitions > lets a fresh same-model solve win against a delayed Historical refresh
+Native shell state sync failed Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: sync_native_shell_state
+    at Object.invoke (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/test/nativeMechanicsReplay.ts:86:11)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/App.test.tsx:15224:21
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2348:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+
+stderr | src/App.test.tsx > historical lifecycle history transitions > keeps a same-model Current solve Current after native save
+Native shell state sync failed Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: sync_native_shell_state
+    at invoke (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/test/nativeMechanicsReplay.ts:86:11)
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2348:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+ ❯ src/App.test.tsx (225 tests | 11 failed | 199 skipped) 15410ms
+     × inspects bundled rows separately and never saves them as current model results 750ms
+     × keeps queued editor intent context separate while inspecting preserved reference rows 5ms
+     × round trips preserved historical review proposal operations through local save and open 1311ms
+     × qualifies only a matching captured native unit replay and retires it on reference inspection 1004ms
+     × rejects a delayed rule-check aggregate from a replaced same-ID session basis 1004ms
+     × does not start an obsolete report-package save or publish stale build state 1006ms
+     × keeps a newer report-package save busy and rejects stale success completion state 1005ms
+     × keeps a newer report-package save busy and rejects stale error completion state 1004ms
+     × cannot publish delayed inactive export or report completions after a project reopen 1004ms
+     × lets a fresh same-model solve win against a delayed Historical refresh 1028ms
+     × keeps a same-model Current solve Current after native save 1004ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > inspects bundled rows separately and never saves them as current model results
+SyntaxError: "undefined" is not valid JSON
+ ❯ src/App.test.tsx:591:25
+    589|     const storage = projectStorageAudit();
+    590|     const href = within(storage).getByTestId("project-storage-export-l…
+    591|     const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]…
+       |                         ^
+    592|     expect(packet.summary.persisted_mechanics_result_count).toBe(0);
+    593|     expect(packet.summary.persisted_analysis_run_count).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > keeps queued editor intent context separate while inspecting preserved reference rows
+AssertionError: expected 'available; nodes=5; max=4.927112 mm' to contain 'available; nodes=5; max=4.92711206472…'
+
+Expected: "available; nodes=5; max=4.927112064724528 mm"
+Received: "available; nodes=5; max=4.927112 mm"
+
+ ❯ src/App.test.tsx:7246:38
+    7244|     expect(new Set(displacements.map(row => row.unit))).toEqual(new Se…
+    7245|     const referenceOverlay = buildDeformationOverlay(fixtureModel, fix…
+    7246|     expect(referenceOverlay.summary).toContain(`available; nodes=${nod…
+       |                                      ^
+    7247|     render(<App />);
+    7248|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > round trips preserved historical review proposal operations through local save and open
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  Raw report DOM suppressed by redaction controls
+Received:
+  Run the bounded preview mechanics path to assemble a report packet from computed result and diagnostic IDs.
+ ❯ src/App.test.tsx:9606:68
+    9604|
+    9605|     const report = reportPanel();
+    9606|     expect(within(report).getByTestId("report-redaction-blocked")).toH…
+       |                                                                    ^
+    9607|       "Raw report DOM suppressed by redaction controls",
+    9608|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > qualifies only a matching captured native unit replay and retires it on reference inspection
+TestingLibraryElementError: Unable to find an element by: [data-testid="workspace-toolbar"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ runMechanicsButton src/App.test.tsx:222:16
+    220|
+    221| async function runMechanicsButton() {
+    222|   await screen.findByTestId("workspace-toolbar");
+       |                ^
+    223|   return within(openWorkspaceSection("solve")).getByTestId("run-mechan…
+    224| }
+ ❯ src/App.test.tsx:10895:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  src/App.test.tsx > workflow current and historical result boundaries > rejects a delayed rule-check aggregate from a replaced same-ID session basis
+TestingLibraryElementError: Unable to find an element by: [data-testid="desktop-preview-shell"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/App.test.tsx:14496:18
+    14494|
+    14495|     render(<App />);
+    14496|     await screen.findByTestId("desktop-preview-shell");
+       |                  ^
+    14497|     fireEvent.click(await runMechanicsButton());
+    14498|     await waitFor(() => expectStatusChip("status-pill-mechanics", "MEC…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  src/App.test.tsx > workflow current and historical result boundaries > does not start an obsolete report-package save or publish stale build state
+TestingLibraryElementError: Unable to find an element by: [data-testid="desktop-preview-shell"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/App.test.tsx:14585:20
+    14583|     try {
+    14584|       render(<App />);
+    14585|       await screen.findByTestId("desktop-preview-shell");
+       |                    ^
+    14586|       fireEvent.click(await runMechanicsButton());
+    14587|       await waitFor(() => expectStatusChip("status-pill-mechanics", "M…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  src/App.test.tsx > workflow current and historical result boundaries > keeps a newer report-package save busy and rejects stale success completion state
+ FAIL  src/App.test.tsx > workflow current and historical result boundaries > keeps a newer report-package save busy and rejects stale error completion state
+TestingLibraryElementError: Unable to find an element by: [data-testid="desktop-preview-shell"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/App.test.tsx:14669:20
+    14667|
+    14668|       render(<App />);
+    14669|       await screen.findByTestId("desktop-preview-shell");
+       |                    ^
+    14670|       fireEvent.click(await runMechanicsButton());
+    14671|       await waitFor(() => expectStatusChip("status-pill-mechanics", "M…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  src/App.test.tsx > historical lifecycle history transitions > cannot publish delayed inactive export or report completions after a project reopen
+TestingLibraryElementError: Unable to find an element by: [data-testid="desktop-preview-shell"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/App.test.tsx:14995:20
+    14993|     try {
+    14994|       render(<App />);
+    14995|       await screen.findByTestId("desktop-preview-shell");
+       |                    ^
+    14996|       fireEvent.click(await runMechanicsButton());
+    14997|       await waitFor(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  src/App.test.tsx > historical lifecycle history transitions > lets a fresh same-model solve win against a delayed Historical refresh
+TestingLibraryElementError: Unable to find an element by: [data-testid="desktop-preview-shell"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/App.test.tsx:15227:18
+    15225|     });
+    15226|     render(<App />);
+    15227|     await screen.findByTestId("desktop-preview-shell");
+       |                  ^
+    15228|     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__…
+    15229|     act(() => nativeMenuCommand("file.open-local"));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  src/App.test.tsx > historical lifecycle history transitions > keeps a same-model Current solve Current after native save
+TestingLibraryElementError: Unable to find an element by: [data-testid="desktop-preview-shell"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"loading-screen"[39m
+    [36m>[39m
+      [0mLoading local SWBPIPE preview fixture.[0m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/App.test.tsx:15374:18
+    15372|     const { replay } = installPrecisionReplay();
+    15373|     render(<App />);
+    15374|     await screen.findByTestId("desktop-preview-shell");
+       |                  ^
+    15375|     openWorkspaceSection("solve");
+    15376|     fireEvent.click(await runMechanicsButton());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 8 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: get_local_storage_capability
+ ❯ invoke src/test/nativeMechanicsReplay.ts:86:11
+     84|         result: job.cancelled ? null : structuredClone(job.source), er…
+     85|     }
+     86|     throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+       |           ^
+     87|   };
+     88|   return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE };
+ ❯ Mock ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34
+ ❯ getLocalStorageCapability src/services/projectService.ts:458:10
+ ❯ src/features/workspace/workspaceSession.ts:517:61
+ ❯ Object.react_stack_bottom_frame ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20
+ ❯ runWithFiberInDEV ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ commitHookEffectListMount ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29
+ ❯ commitHookPassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11
+ ❯ commitPassiveMountOnFiber ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13
+ ❯ recursivelyTraversePassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11
+
+This error originated in "src/App.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "qualifies only a matching captured native unit replay and retires it on reference inspection". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: get_local_storage_capability
+ ❯ invoke src/test/nativeMechanicsReplay.ts:86:11
+     84|         result: job.cancelled ? null : structuredClone(job.source), er…
+     85|     }
+     86|     throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+       |           ^
+     87|   };
+     88|   return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE };
+ ❯ Mock ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34
+ ❯ getLocalStorageCapability src/services/projectService.ts:458:10
+ ❯ src/features/workspace/workspaceSession.ts:517:61
+ ❯ Object.react_stack_bottom_frame ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20
+ ❯ runWithFiberInDEV ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ commitHookEffectListMount ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29
+ ❯ commitHookPassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11
+ ❯ commitPassiveMountOnFiber ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13
+ ❯ recursivelyTraversePassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11
+
+This error originated in "src/App.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "rejects a delayed rule-check aggregate from a replaced same-ID session basis". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: get_local_storage_capability
+ ❯ invoke src/test/nativeMechanicsReplay.ts:86:11
+     84|         result: job.cancelled ? null : structuredClone(job.source), er…
+     85|     }
+     86|     throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+       |           ^
+     87|   };
+     88|   return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE };
+ ❯ Mock ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34
+ ❯ getLocalStorageCapability src/services/projectService.ts:458:10
+ ❯ src/features/workspace/workspaceSession.ts:517:61
+ ❯ Object.react_stack_bottom_frame ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20
+ ❯ runWithFiberInDEV ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ commitHookEffectListMount ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29
+ ❯ commitHookPassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11
+ ❯ commitPassiveMountOnFiber ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13
+ ❯ recursivelyTraversePassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11
+
+This error originated in "src/App.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "does not start an obsolete report-package save or publish stale build state". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: get_local_storage_capability
+ ❯ Object.invoke src/test/nativeMechanicsReplay.ts:86:11
+     84|         result: job.cancelled ? null : structuredClone(job.source), er…
+     85|     }
+     86|     throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+       |           ^
+     87|   };
+     88|   return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE };
+ ❯ src/App.test.tsx:14665:23
+ ❯ Mock ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34
+ ❯ getLocalStorageCapability src/services/projectService.ts:458:10
+ ❯ src/features/workspace/workspaceSession.ts:517:61
+ ❯ Object.react_stack_bottom_frame ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20
+ ❯ runWithFiberInDEV ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ commitHookEffectListMount ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29
+ ❯ commitHookPassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11
+ ❯ commitPassiveMountOnFiber ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13
+
+This error originated in "src/App.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "keeps a newer report-package save busy and rejects stale success completion state". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: get_local_storage_capability
+ ❯ Object.invoke src/test/nativeMechanicsReplay.ts:86:11
+     84|         result: job.cancelled ? null : structuredClone(job.source), er…
+     85|     }
+     86|     throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+       |           ^
+     87|   };
+     88|   return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE };
+ ❯ src/App.test.tsx:14665:23
+ ❯ Mock ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34
+ ❯ getLocalStorageCapability src/services/projectService.ts:458:10
+ ❯ src/features/workspace/workspaceSession.ts:517:61
+ ❯ Object.react_stack_bottom_frame ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20
+ ❯ runWithFiberInDEV ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ commitHookEffectListMount ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29
+ ❯ commitHookPassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11
+ ❯ commitPassiveMountOnFiber ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13
+
+This error originated in "src/App.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "keeps a newer report-package save busy and rejects stale error completion state". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: get_local_storage_capability
+ ❯ invoke src/test/nativeMechanicsReplay.ts:86:11
+     84|         result: job.cancelled ? null : structuredClone(job.source), er…
+     85|     }
+     86|     throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+       |           ^
+     87|   };
+     88|   return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE };
+ ❯ Mock ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34
+ ❯ getLocalStorageCapability src/services/projectService.ts:458:10
+ ❯ src/features/workspace/workspaceSession.ts:517:61
+ ❯ Object.react_stack_bottom_frame ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20
+ ❯ runWithFiberInDEV ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ commitHookEffectListMount ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29
+ ❯ commitHookPassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11
+ ❯ commitPassiveMountOnFiber ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13
+ ❯ recursivelyTraversePassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11
+
+This error originated in "src/App.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "cannot publish delayed inactive export or report completions after a project reopen". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: get_local_storage_capability
+ ❯ Object.invoke src/test/nativeMechanicsReplay.ts:86:11
+     84|         result: job.cancelled ? null : structuredClone(job.source), er…
+     85|     }
+     86|     throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+       |           ^
+     87|   };
+     88|   return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE };
+ ❯ src/App.test.tsx:15224:21
+ ❯ Mock ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34
+ ❯ getLocalStorageCapability src/services/projectService.ts:458:10
+ ❯ src/features/workspace/workspaceSession.ts:517:61
+ ❯ Object.react_stack_bottom_frame ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20
+ ❯ runWithFiberInDEV ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ commitHookEffectListMount ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29
+ ❯ commitHookPassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11
+ ❯ commitPassiveMountOnFiber ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13
+
+This error originated in "src/App.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "lets a fresh same-model solve win against a delayed Historical refresh". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: NATIVE_REPLAY_COMMAND_UNSUPPORTED: get_local_storage_capability
+ ❯ invoke src/test/nativeMechanicsReplay.ts:86:11
+     84|         result: job.cancelled ? null : structuredClone(job.source), er…
+     85|     }
+     86|     throw new Error(`NATIVE_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+       |           ^
+     87|   };
+     88|   return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE };
+ ❯ Mock ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34
+ ❯ getLocalStorageCapability src/services/projectService.ts:458:10
+ ❯ src/features/workspace/workspaceSession.ts:517:61
+ ❯ Object.react_stack_bottom_frame ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20
+ ❯ runWithFiberInDEV ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ commitHookEffectListMount ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29
+ ❯ commitHookPassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11
+ ❯ commitPassiveMountOnFiber ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13
+ ❯ recursivelyTraversePassiveMountEffects ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11
+
+This error originated in "src/App.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "keeps a same-model Current solve Current after native save". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed | 15 passed | 199 skipped (225)
+     Errors  8 errors
+   Start at  01:05:39
+   Duration  17.39s (transform 1.38s, setup 61ms, import 1.65s, tests 15.41s, environment 183ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/App.test.tsx -t 'suppresses solve proof unless the completed job, result, and exact model version remain bound|inspects bundled rows separately and never saves them as current model results|suppresses a real delayed backend completion when native open commits a new model|surfaces bounded PDU-008 nonlinear, ratio, and rich-diagnostic GUI states|records reference comparison workspace unit policy evidence without conversion|keeps both File-menu report attempts ineligible for a bundled browser reference|keeps queued editor intent context separate while inspecting preserved reference rows|round trips preserved historical review proposal operations through local save and open|renders all preserved reference result families, values and recovery annotations without Current|preserves the original complete reference derivative row, unit and hash protocol oracles|preserves the830-row stress-neutral format as a pure reference projection|retains historical component, pressure-thrust, hanger and review-package numeric oracles|reads recorded knowledge quantities from reference results without invoking a solver|qualifies only a matching captured native unit replay and retires it on reference inspection|links reference diagnostics to preserved model and review-only proposal context|applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model|preserves reference comparison rows through display-unit changes without a Current claim|preserves the specific backend-required failure after a real browser model edit|rejects a delayed rule-check aggregate from a replaced same-ID session basis|does not start an obsolete report-package save or publish stale build state|keeps a newer report-package save busy and rejects stale .* completion state|keeps registered MODEL_INCOMPLETE diagnostics while barring fresh solved-only consumers|cannot publish delayed inactive export or report completions after a project reopen|lets a fresh same-model solve win against a delayed Historical refresh|keeps a same-model Current solve Current after native save' --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner

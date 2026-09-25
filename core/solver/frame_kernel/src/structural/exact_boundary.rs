@@ -6,6 +6,8 @@
 //! reports from serving as proofs. Projection is explicitly distinct from proof.
 use super::{Expansion, StiffnessContribution, StructuralError, StructuralSystem};
 
+pub mod functionals;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Sign {
     Negative,
@@ -261,6 +263,7 @@ pub struct Context {
     witnesses: Vec<BlockWitness>,
     limits: Limits,
     preparation_operations: usize,
+    functional_attempt: Option<std::sync::Arc<()>>,
 }
 impl Context {
     pub fn new(
@@ -472,6 +475,7 @@ impl Context {
             witnesses,
             limits,
             preparation_operations: w.used - start,
+            functional_attempt: None,
         })
     }
     pub fn free_dofs(&self) -> &[usize] {
@@ -501,59 +505,7 @@ impl Context {
         identity: &str,
         force_basis: ForceBasis<'_>,
     ) -> bool {
-        let same = |a: f64, b: f64| a.to_bits() == b.to_bits();
-        self.source.identity == identity
-            && self.source.stiffness.len() == system.stiffness.len()
-            && self
-                .source
-                .stiffness
-                .iter()
-                .zip(system.stiffness)
-                .all(|(a, b)| a.len() == b.len() && a.iter().zip(b).all(|(&x, &y)| same(x, y)))
-            && self.source.force.len() == system.force.len()
-            && self
-                .source
-                .force
-                .iter()
-                .zip(system.force)
-                .all(|(&x, &y)| same(x, y))
-            && self.source.free == system.free_dofs
-            && self.source.prescribed.len() == system.prescribed.len()
-            && self
-                .source
-                .prescribed
-                .iter()
-                .zip(system.prescribed)
-                .all(|(&(i, x), &(j, y))| i == j && same(x, y))
-            && system.contributions.is_some_and(|cs| {
-                cs.len() == self.source.contributions.len()
-                    && cs
-                        .iter()
-                        .zip(&self.source.contributions)
-                        .all(|(a, b)| a.row == b.row && a.col == b.col && same(a.value, b.value))
-            })
-            && match (&self.source.symmetry, &system.symmetry) {
-                (None, None) => true,
-                (Some((a, counts, basis)), Some(b)) => {
-                    basis == b.basis
-                        && counts == b.operation_counts
-                        && a.len() == b.absolute_roundoff.len()
-                        && a.iter().zip(b.absolute_roundoff).all(|(x, y)| {
-                            x.len() == y.len() && x.iter().zip(y).all(|(&p, &q)| same(p, q))
-                        })
-                }
-                _ => false,
-            }
-            && match (&self.source.force_terms, force_basis) {
-                (None, ForceBasis::DeclaredVector) => true,
-                (Some(a), ForceBasis::IdentifiedContributions(b)) => {
-                    a.len() == b.len()
-                        && a.iter().zip(b).all(|(x, y)| {
-                            x.source == y.source && x.dof == y.dof && same(x.value, y.value)
-                        })
-                }
-                _ => false,
-            }
+        self.source.matches(system, identity, force_basis)
     }
     pub fn solve(&self) -> Result<Response<'_>, Error> {
         let mut w = Work {
@@ -638,6 +590,7 @@ impl Context {
             displacement: u,
             reactions,
             operations: w.used,
+            functional_solve: false,
         })
     }
 }
@@ -647,6 +600,7 @@ pub struct Response<'a> {
     displacement: Vec<Ratio>,
     reactions: Vec<Ratio>,
     operations: usize,
+    functional_solve: bool,
 }
 /// Per-call conservative algorithmic work reservations, not hardware operation
 /// counts. Charges include bounded scalar checks, loops and exact arithmetic.
@@ -711,6 +665,7 @@ pub struct QualifiedProjection<'r, 'a> {
     relative_error: f64,
     relative_limit: f64,
     basis: ProjectionBasis,
+    functional_attempt: Option<std::sync::Arc<()>>,
 }
 impl QualifiedProjection<'_, '_> {
     pub fn value(&self) -> f64 {
@@ -941,6 +896,7 @@ impl<'a> Response<'a> {
                 relative_error: p.relative,
                 relative_limit,
                 basis: p.basis,
+                functional_attempt: None,
             })
         })
     }
@@ -1138,6 +1094,7 @@ impl RetainedContact {
 pub struct GapProof<'r, 'a> {
     response: &'r Response<'a>,
     contact: RetainedContact,
+    functional_attempt: Option<std::sync::Arc<()>>,
 }
 impl GapProof<'_, '_> {
     pub fn contact(&self) -> &RetainedContact {
@@ -1224,6 +1181,64 @@ impl ReplayCheck {
     }
 }
 impl Snapshot {
+    fn matches(
+        &self,
+        system: &StructuralSystem<'_>,
+        identity: &str,
+        force_basis: ForceBasis<'_>,
+    ) -> bool {
+        let same = |a: f64, b: f64| a.to_bits() == b.to_bits();
+        self.identity == identity
+            && self.stiffness.len() == system.stiffness.len()
+            && self
+                .stiffness
+                .iter()
+                .zip(system.stiffness)
+                .all(|(a, b)| a.len() == b.len() && a.iter().zip(b).all(|(&x, &y)| same(x, y)))
+            && self.force.len() == system.force.len()
+            && self
+                .force
+                .iter()
+                .zip(system.force)
+                .all(|(&x, &y)| same(x, y))
+            && self.free == system.free_dofs
+            && self.prescribed.len() == system.prescribed.len()
+            && self
+                .prescribed
+                .iter()
+                .zip(system.prescribed)
+                .all(|(&(i, x), &(j, y))| i == j && same(x, y))
+            && system.contributions.is_some_and(|cs| {
+                cs.len() == self.contributions.len()
+                    && cs
+                        .iter()
+                        .zip(&self.contributions)
+                        .all(|(a, b)| a.row == b.row && a.col == b.col && same(a.value, b.value))
+            })
+            && match (&self.symmetry, &system.symmetry) {
+                (None, None) => true,
+                (Some((a, counts, basis)), Some(b)) => {
+                    basis == b.basis
+                        && counts == b.operation_counts
+                        && a.len() == b.absolute_roundoff.len()
+                        && a.iter().zip(b.absolute_roundoff).all(|(x, y)| {
+                            x.len() == y.len() && x.iter().zip(y).all(|(&p, &q)| same(p, q))
+                        })
+                }
+                _ => false,
+            }
+            && match (&self.force_terms, force_basis) {
+                (None, ForceBasis::DeclaredVector) => true,
+                (Some(a), ForceBasis::IdentifiedContributions(b)) => {
+                    a.len() == b.len()
+                        && a.iter().zip(b).all(|(x, y)| {
+                            x.source == y.source && x.dof == y.dof && same(x.value, y.value)
+                        })
+                }
+                _ => false,
+            }
+    }
+
     fn system(&self) -> StructuralSystem<'_> {
         StructuralSystem {
             stiffness: &self.stiffness,
@@ -1345,6 +1360,7 @@ impl<'a> Response<'a> {
             Ok(GapProof {
                 response: self,
                 contact: contact_charged(self, dof, sense, gap, w)?,
+                functional_attempt: None,
             })
         })
     }

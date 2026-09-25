@@ -1,0 +1,111 @@
+{
+  "task": "/root/physics_resume/physics_reader_join/physics_rust_export",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "mechanism": "delegated-harness-native collaboration.spawn_agent descendant",
+  "role": "TASK",
+  "delegation": "none",
+  "actual_checkout": "/private/tmp/piping-engine-integration-20260925",
+  "base_commit": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "branch": "codex/piping-engine-integration-20260925",
+  "scope": [
+    "projects/chirality-piping/core/reporting/result_export/**",
+    "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RUST_TASK/**"
+  ],
+  "limits": [
+    "No external Git/native/browser",
+    "No delegation",
+    "Bounded per-manifest Rust tests after parent lane coordination; max 2 jobs; isolated target",
+    "No engineering acceptance or release claim"
+  ],
+  "supplied_basis": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BRIEF.md",
+      "sha256": "288ca7792e9749f12bf3c3f768aa79a5332ea1eaa8400a7949fe1e73c3dffd7e"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/RAW02_INTERFACE_ALIGNMENT.md",
+      "sha256": "00ef23b2cbf430309989dc63019aae3daaed331bef146cbb7a28cb4d02520450"
+    },
+    {
+      "origin": "/private/tmp/piping-pressure-stress-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/FREEZE_03/INTERFACE_SCHEMA.md",
+      "sha256": "4da9cc53f515342a3043d32de7e83dfc4005a6bf06e51070dda0aed848974b62"
+    },
+    {
+      "origin": "/private/tmp/piping-pressure-stress-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/CONNECTED_INTEGRATION_HANDOFF.md",
+      "sha256": "72cb687df9ffe5f7a31fa052b6119567e63f96a71fa5a6c0fe5d74627ba3b085"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/physics_connected_mechanics_sparse.json",
+      "sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/physics_connected_mechanics_dense.json",
+      "sha256": "2e3007311d6b5f76172dbf7e9c4a9bbb98ad16382d75ffa63d327c9aab9ebdb6"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/examples/exact_pressure_connected.rs",
+      "sha256": "3c69e30f40dee8219b06c37762c44bbf4794548b83c82036f40672b45867ffe9"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/tests/fixtures/exact_pressure_connected_request.json",
+      "sha256": "466e514b44ea185e74c1c554aa3083595db94b7ffe519b7f859b42b30e934c1e"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/pressure_runtime.rs",
+      "sha256": "5755da52f60893102138d0f0f35b72276caf62fa08f982218da85d675ec5d1aa"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/pressure_material.rs",
+      "sha256": "a7d63cedda6040e03c0583f9c3a7114cf9aff40144ea6a5748252898789de7b2"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "b85630992db2e3a8be9c87f395dee09b0d27c68cf80ea9765cddb57b69768fa0"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/pressure_exact/source_geometry.rs",
+      "sha256": "a023170798a856506f90887df4b421c8979818ad8a8c029e6b334ac53d210143"
+    },
+    {
+      "origin": "/private/tmp/piping-pressure-stress-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/FREEZE_04/RETURN.md",
+      "sha256": "198381ed56ac181a87cb51acec54726b81bd226e8920358283cc00e0d530f617"
+    }
+  ],
+  "tools": {
+    "rustc": "1.97.1 (8bab26f4f 2026-07-14)",
+    "cargo": "1.97.1 (c980f4866 2026-06-30)"
+  },
+  "additional_source_basis": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "f5a2e034ebe87686ce3abc26de0f111c8b1825b0a46ba007a74e0cd2d89c61a5",
+      "scope": "physical result publication and exact_cases evidence construction; facade is concurrently owned by parent",
+      "role_effect": "No role change; implementation contract inspection only"
+    }
+  ],
+  "wider_role_context": {
+    "origin": "PHYSICS_READER_JOIN/BRIEF.md embedded WORKING_ITEMS role",
+    "reason": "Read full supplied launch brief as instructed; TASK remained active role."
+  }
+}

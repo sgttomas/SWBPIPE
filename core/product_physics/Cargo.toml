@@ -9,6 +9,8 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies]
+open_pipe_stress_canonical_json = { path = "../serialization/canonical_json" }
+sha2 = "0.10"
 open_pipe_stress_curved_bend = { path = "../solver/curved_bend" }
 open_pipe_stress_frame_kernel = { path = "../solver/frame_kernel" }
 open_pipe_stress_load_case_algebra = { path = "../loads/load_case_algebra" }

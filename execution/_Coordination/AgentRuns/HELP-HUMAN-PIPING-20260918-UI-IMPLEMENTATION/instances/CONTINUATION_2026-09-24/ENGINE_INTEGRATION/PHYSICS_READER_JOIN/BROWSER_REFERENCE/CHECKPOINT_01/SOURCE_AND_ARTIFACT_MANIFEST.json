@@ -1,0 +1,118 @@
+[
+  {
+    "path": "apps/desktop/src/services/previewService.ts",
+    "sha256": "2cb222ed4e4770388477890034b8c19e4dafa1a6c94b15696ab2b9c38fcaf485"
+  },
+  {
+    "path": "apps/desktop/src/services/ruleCheckService.ts",
+    "sha256": "3ac173a0b5e39d8a480def325a17e1aaedb7a608586a27a2cfde1f3c39a18a07"
+  },
+  {
+    "path": "apps/desktop/src/features/workspace/workspaceSession.ts",
+    "sha256": "7e17298c539b5d31e17de6be7b64fa56caee7b8d3e8d284065c9fd3c141aa40c"
+  },
+  {
+    "path": "apps/desktop/src/features/workspace/resultsSessionState.ts",
+    "sha256": "999fc8a739cf74736e3d79213f248d5004f7d62a9d0c9272e386dcff3f95ec11"
+  },
+  {
+    "path": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "sha256": "86fdbcd5b4e9641acd8aca2c32aee63a7cc5cf74b7e0e1067284b399623a6a5c"
+  },
+  {
+    "path": "apps/desktop/src/features/report/reportPackageRequest.ts",
+    "sha256": "175d0dcb53a5be45a098ab97b37dfdb98c82bd6f39e456e980f40e5feffccf46"
+  },
+  {
+    "path": "apps/desktop/src/App.tsx",
+    "sha256": "9ba4bfa8e7634ff535d69cd5fc670e368d1a6c95e81e5bf6bad7607c40867b5f"
+  },
+  {
+    "path": "apps/desktop/src/features/results/HistoricalRunContext.tsx",
+    "sha256": "1a18b63275eb70418ec8628097cde3ce0f97d298abd07c572ccaded33b5bc0c3"
+  },
+  {
+    "path": "apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+    "sha256": "46f45d7483311c8b1ec9b50e81fd6ec3a33ac01e1628c18fc9f5629d1330fefc"
+  },
+  {
+    "path": "apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+    "sha256": "75d2be07a7f7218e583acdaacd68326c9ff4658aa25508a60d564ccb3a56acac"
+  },
+  {
+    "path": "apps/desktop/src/features/workspace/resultsSessionState.test.ts",
+    "sha256": "8dde878d8ae7b6e71c734a4812d61cdbd1e65c5ab43883602145704e77808a6e"
+  },
+  {
+    "path": "apps/desktop/src/test/nativeMechanicsReplay.ts",
+    "sha256": "69318d88f5ea45bf32d85ce80d8f8e735766227a9e87bd7310c73f1f55996519"
+  },
+  {
+    "path": "apps/desktop/src/services/previewService.test.ts",
+    "sha256": "812126400e0bdd26647cdadefa6d8e951c1a8a4824aca4a4cf53be16149da9bc"
+  },
+  {
+    "path": "apps/desktop/src/services/ruleCheckService.test.ts",
+    "sha256": "d1d1820d91544dec094da516a4a2de49ac4641b8769268191c6e79bb630212ab"
+  },
+  {
+    "path": "apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+    "sha256": "d870f80a965b653c286732373b7dc0d3d9b2adf2d2d06e38ffd3bfd5e1b821d7"
+  },
+  {
+    "path": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+    "sha256": "045632fe3a93aaae03be4393af38a1d1523e5f5152f703f3df9cf8109baff300"
+  },
+  {
+    "path": "apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
+    "sha256": "e1a62a3af8e9cdc636fe925b38e762e5be6965af3e1ab96d3de6403c7b937c4f"
+  },
+  {
+    "path": "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+    "sha256": "45b62857952aeb78e94a20c3f498bd9f9c7ee0f610b7a43a7dd1030a33e8cb96"
+  },
+  {
+    "path": "apps/desktop/src/features/report/renderedReport.test.tsx",
+    "sha256": "e55fb94394f0572884396c2997484fc94aa31ec3a0b72891246ce4be94c2ac80"
+  },
+  {
+    "path": "apps/desktop/src/features/results/physicsResultEvidence.ts",
+    "sha256": "35a996ab42c3174ff34ab48f1408e2c2d26c47fdacb99eb338976d9fd778d6c9"
+  },
+  {
+    "path": "apps/desktop/src/features/results/physicsResultEvidence.parity.test.ts",
+    "sha256": "7eafd3fb2ed3bf005e0d604b7a91bbdaa3c89005a344d79984d73169366c1654"
+  },
+  {
+    "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+    "sha256": "8e8f1a9573875aa7b4864720989eca1b11754c8c274a68e0467d8599bf9cdfc7"
+  },
+  {
+    "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+    "sha256": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8"
+  },
+  {
+    "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+    "sha256": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16"
+  },
+  {
+    "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+    "sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595"
+  },
+  {
+    "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+    "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b"
+  },
+  {
+    "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+    "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3"
+  },
+  {
+    "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+    "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01"
+  },
+  {
+    "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+    "sha256": "e720980f2bb609caa2b2bbb9942c7654e2194ae3f4538cfd29998f476a8aac6c"
+  }
+]

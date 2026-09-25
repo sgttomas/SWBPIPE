@@ -1,0 +1,21 @@
+{
+  "phase": "before batch repair; original reviewer manifest unchanged",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "sha256": "452a8b5c622334742cf998372c892748603fab18dcc4a0a793d12b65cabb109e"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/exact_authoring.rs",
+      "sha256": "40d43f51bf3f672d4528b8bf80e3beab5e5ba76704dc277a6daacfc3069c0a28"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/MANIFEST.json",
+      "sha256": "290dc4bdada41e76e1f4ac684276b5e7c66a7aa4e7a28d02881bc87d04bef0b6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/BRIEF.md",
+      "sha256": "074ab26741f834b2176efa9d21b558520e6e20b2d9f67ac04aafb94cfb6d10a5"
+    }
+  ]
+}

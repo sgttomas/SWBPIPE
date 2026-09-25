@@ -482,7 +482,7 @@ export function buildNativePackageReview({
   };
 }
 
-function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel; result: MechanicsResult }) {
+export function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel; result: MechanicsResult }) {
   const modelQuantityWitnesses: UnitPreservationWitness[] = [];
   const resultQuantityWitnesses: UnitPreservationWitness[] = [];
 
@@ -520,13 +520,31 @@ function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel;
       refId: material.id,
       refType: "material"
     });
-    pushModelWitness({
-      dimension: "stress",
-      fieldPath: "shear_modulus",
-      quantity: material.shear_modulus,
-      refId: material.id,
-      refType: "material"
-    });
+    if (material.shear_modulus) {
+      pushModelWitness({
+        dimension: "stress", fieldPath: "shear_modulus", quantity: material.shear_modulus,
+        refId: material.id, refType: "material"
+      });
+    }
+    if (material.poisson_ratio) {
+      pushModelWitness({
+        dimension: "ratio", fieldPath: "poisson_ratio", quantity: material.poisson_ratio,
+        refId: material.id, refType: "material"
+      });
+    }
+    for (const point of material.temperature_points ?? []) {
+      const pointQuantities = [
+        ["temperature", "temperature", point.temperature],
+        ["elastic_modulus", "stress", point.elastic_modulus],
+        ["shear_modulus", "stress", point.shear_modulus],
+        ["poisson_ratio", "ratio", point.poisson_ratio],
+        ["thermal_expansion_coefficient", "thermal_expansion_coefficient", point.thermal_expansion_coefficient]
+      ] as const;
+      for (const [field, dimension, quantity] of pointQuantities) {
+        if (quantity) pushModelWitness({ dimension, fieldPath: `temperature_points.${point.id}.${field}`,
+          quantity, refId: material.id, refType: "material" });
+      }
+    }
     if (material.thermal_expansion_coefficient) {
       pushModelWitness({
         dimension: "thermal_expansion_coefficient",
@@ -541,7 +559,9 @@ function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel;
 	  for (const segment of model.pipe_segments) {
 	    for (const [field, quantity] of Object.entries(segment.section)) {
 	      pushModelWitness({
-	        dimension: "length",
+        dimension: ["material_density", "contents_density", "insulation_density"].includes(field)
+          ? "density" : ["outside_diameter", "wall_thickness", "mill_tolerance", "insulation_thickness"].includes(field)
+            ? "length" : undefined,
         fieldPath: `section.${field}`,
         quantity,
         refId: segment.id,
@@ -741,6 +761,10 @@ function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel;
   }
 
   for (const loadCase of model.load_cases) {
+    for (const region of loadCase.pressure_regions ?? []) {
+      pushModelWitness({ dimension: "pressure", fieldPath: `pressure_regions.${region.id}.pressure`,
+        quantity: region.pressure, refId: loadCase.id, refType: "load_case" });
+    }
     for (const primitiveLoad of loadCase.primitive_loads ?? []) {
       const quantity = quantityRecord(primitiveLoad.magnitude);
       const primitiveId = typeof primitiveLoad.id === "string" ? primitiveLoad.id : `${loadCase.id}:primitive`;
@@ -863,12 +887,12 @@ function unitPreservationWitness({
       field_path: fieldPath
     },
     source_quantity: {
-      value: round(quantity.value),
+      value: quantity.value,
       unit: quantity.unit,
       ...(dimension ? { dimension } : {})
     },
     target_quantity: {
-      value: round(quantity.value),
+      value: quantity.value,
       unit: quantity.unit,
       ...(dimension ? { dimension } : {})
     },

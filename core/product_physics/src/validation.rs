@@ -151,11 +151,11 @@ fn validate_required_collections(model: &PreviewModel, diagnostics: &mut Vec<Dia
             vec!["pipe_segments".to_string()],
         ));
     }
-    if model
-        .load_cases
-        .iter()
-        .all(|case| case.primitive_loads.is_empty() && case.equivalent_static.is_none())
-    {
+    if model.load_cases.iter().all(|case| {
+        case.primitive_loads.is_empty()
+            && case.equivalent_static.is_none()
+            && case.pressure_regions.is_none()
+    }) {
         diagnostics.push(diag(
             "diagnostic:physics:loads-missing",
             "LOAD_INPUT_MISSING",
@@ -327,16 +327,26 @@ fn validate_units(
             vec![material.id.clone(), "elastic_modulus".to_string()],
             diagnostics,
         );
-        expect_unit(
-            &material.shear_modulus,
-            Dimension::Stress,
-            &format!(
-                "diagnostic:unit:material:{}:shear-modulus",
-                stable_suffix(&material.id)
-            ),
-            vec![material.id.clone(), "shear_modulus".to_string()],
-            diagnostics,
-        );
+        if let Some(shear_modulus) = &material.shear_modulus {
+            expect_unit(
+                shear_modulus,
+                Dimension::Stress,
+                &format!(
+                    "diagnostic:unit:material:{}:shear-modulus",
+                    stable_suffix(&material.id)
+                ),
+                vec![material.id.clone(), "shear_modulus".to_string()],
+                diagnostics,
+            );
+        } else if !crate::pressure_runtime::is_exact(model) {
+            diagnostics.push(diag(
+                "diagnostic:material:missing-g",
+                "MATERIAL_INPUT_MISSING",
+                "blocking",
+                "legacy material requires explicit shear_modulus",
+                vec![material.id.clone()],
+            ));
+        }
         if let Some(coefficient) = &material.thermal_expansion_coefficient {
             expect_unit(
                 coefficient,
@@ -1859,6 +1869,11 @@ fn validate_thermal_inputs(
     materials: &[MaterialInput],
     diagnostics: &mut Vec<Diagnostic>,
 ) {
+    // Exact profile validates alpha at the actual selected common E/nu basis.
+    // Requiring base alpha here would reject a complete selected point.
+    if crate::pressure_runtime::is_exact(model) {
+        return;
+    }
     let material_map = materials
         .iter()
         .map(|material| (material.id.as_str(), material))

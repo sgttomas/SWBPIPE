@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/private/tmp/chirality-piping-review-venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_physics_consumer_contract.py"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "environment": {
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson",
+    "HEADLESS_PHYSICS_OUTPUT_DIR": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/HEADLESS_ACTUAL",
+    "PHYSICS_BLOCKED_OUTPUT_DIR": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/BLOCKED_ACTUAL",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "checked_json_sha256": "bc1343ef45704c0ec65c1c7ac244c50e349af49de3a9b850dc11578bb2fc6c54",
+  "started_utc": "2026-09-25T06:14:18.623149+00:00",
+  "finished_utc": "2026-09-25T06:14:40.487211+00:00",
+  "exit_code": 0,
+  "log": "python-focused-01.log",
+  "log_sha256": "bdd34e4e07aba6170b01f01bf5a5039ded9c68a6b570cb4316bd797160ba090f"
+}

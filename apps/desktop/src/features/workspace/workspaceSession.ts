@@ -1,9 +1,10 @@
-import { sourceContract } from "../results/numericalResultQuality";
+import { hasCurrentSourceContract } from "../results/numericalResultQuality";
 import type React from "react";
 import { isTauriRuntime, syncNativeShellState } from "../../services/nativeMenu";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   canonicalSha256Hex,
+  checkedJsonText,
   computeModelHash,
   computeProjectEnvelopeHash
 } from "../../services/hashService";
@@ -20,9 +21,10 @@ import {
   buildAnalysisRunPreview,
   cancelPreviewMechanicsJob,
   loadDesignKnowledge,
+  loadBundledMechanicsReference,
   loadPreviewModel,
   loadSampleProposal,
-  runPreviewMechanics,
+  hasNativeMechanicsInvocation,
   startPreviewMechanicsJob
 } from "../../services/previewService";
 import {
@@ -52,7 +54,7 @@ import { defaultSelection } from "../model-workspace/modelView";
 import { intentKey } from "../operations/OperationApplyPanel";
 import { buildReportPackageRequest } from "../report/reportPackageRequest";
 import { controlReportPackageRequest } from "../report/reportRedactionProjector";
-import { buildHistoricalRunContext } from "../results/HistoricalRunContext";
+import { buildBundledReferenceContext, buildHistoricalRunContext } from "../results/HistoricalRunContext";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import {
   resolveDiagnosticEntitySelection,
@@ -285,6 +287,23 @@ export function useWorkspaceSession() {
     solveCancellationTombstones,
     comparison
   } = useResultsSessionState();
+  // Reference inspection is a transient view. Keep genuine persistence bytes
+  // separate, scoped to the unchanged model/session, without retaining Current.
+  const referencePersistence = useRef<{
+    model: PreviewModel;
+    generation: number;
+    modelContent: string;
+    history: HistoricalRunContext | null;
+    result: MechanicsResult | null;
+    analysisRun: AnalysisRunEnvelope | null;
+  } | null>(null);
+  function retainedReferencePersistence(requestModel: PreviewModel) {
+    const retained = referencePersistence.current;
+    try {
+      return retained?.model === requestModel && retained.generation === projectSessionGenerationRef.current
+        && retained.modelContent === checkedJsonText(requestModel) ? retained : null;
+    } catch { return null; }
+  }
   const {
     editorIntents, setEditorIntents,
     retainedReviewContext, setRetainedReviewContext,
@@ -524,6 +543,8 @@ export function useWorkspaceSession() {
 
   useLayoutEffect(() => {
     let active = true;
+    const retained = referencePersistence.current;
+    if (retained && (retained.model !== model || retained.generation !== projectSessionGenerationRef.current)) referencePersistence.current = null;
     modelRevision.current += 1;
     solveRunGate.current.invalidate();
     activeSolveJob.current = null;
@@ -545,6 +566,7 @@ export function useWorkspaceSession() {
   }, [model]);
 
   function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
+    referencePersistence.current = null;
     modelHashOwner.current = null;
     viewportViewCommandRef.current?.({ type: "retire-box-gesture" });
     invalidateReportPackageComputedState();
@@ -670,6 +692,41 @@ export function useWorkspaceSession() {
       });
   }
 
+  async function handleInspectBundledReference() {
+    if (!model) return;
+    if (result || analysisRun || historicalRun?.designation === "historical_saved_run"
+      || !retainedReferencePersistence(model)) {
+      referencePersistence.current = {
+        model, generation: projectSessionGenerationRef.current, modelContent: checkedJsonText(model),
+        history: historicalRun?.designation === "historical_saved_run" ? structuredClone(historicalRun) : null,
+        result: result ? structuredClone(result) : null,
+        analysisRun: analysisRun ? structuredClone(analysisRun) : null,
+      };
+    }
+    // Retire any pending backend publication before loading the separate example.
+    handleCancelRun();
+    solveRunGate.current.invalidate();
+    activeSolveJob.current = null;
+    const referenceGeneration = solveRunGate.current.tryStart()!;
+    setRunning(false);
+    setSolveProof(null);
+    invalidateReportPackageComputedState();
+    ruleRevisionGate.current.invalidate();
+    setHistoricalRun(null);
+    setResult(null); setAnalysisRun(null); setInputManifest(null);
+    setRuleCheckAggregate(null); setSolveJob(initialSolveJob());
+    // Review proposals and selected review context remain the user's work;
+    // only current mechanics qualification is retired by reference inspection.
+    try {
+      const reference = await loadBundledMechanicsReference(solverMode);
+      if (!solveRunGate.current.isCurrent(referenceGeneration)) return;
+      setHistoricalRun(buildBundledReferenceContext(reference));
+      setActiveSection("results");
+    } finally {
+      solveRunGate.current.finish(referenceGeneration);
+    }
+  }
+
   async function handleRun() {
     const runGeneration = solveRunGate.current.tryStart();
     if (runGeneration === null) return;
@@ -709,6 +766,11 @@ export function useWorkspaceSession() {
         return;
       }
       const startReceipt = await startPreviewMechanicsJob(solveModel, solverMode);
+      // Reference records never create a fresh solve. Only a real backend job
+      // can publish current result/manifest/proof cells through this path.
+      if (startReceipt.mode !== "backend_job") {
+        throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: a reference-only receipt cannot publish Current mechanics.");
+      }
       const cancellationTombstone = solveCancellationTombstones.current.get(runGeneration);
       if (
         modelRevision.current !== solveModelRevision ||
@@ -775,11 +837,13 @@ export function useWorkspaceSession() {
         }
         output = terminal.result;
       } else {
-        output = await runPreviewMechanics(solveModel, solverMode);
-        if (solveRunGate.current.isCancellationRequested(runGeneration)) return;
+        throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: browser references are not completed solve results.");
       }
-      if (sourceContract(output) !== "precision" || !output.producer) {
-        throw new Error("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED: a fresh result requires the recognized precision producer; historical carriers remain available through saved-run inspection.");
+      if (!hasNativeMechanicsInvocation(output, solveModel, solverMode)) {
+        throw new Error("SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED: the received result is not bound to this actual native model/mode invocation.");
+      }
+      if (!hasCurrentSourceContract(output) || !output.producer) {
+        throw new Error("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED: a fresh result requires a recognized current producer contract; historical and unsupported carriers remain available only through their inspection routes.");
       }
       const manifest = await buildCurrentSessionInputManifest({
         model: solveModel,
@@ -815,6 +879,7 @@ export function useWorkspaceSession() {
           ? completeSolveJob(current, output, runRecord)
           : current
       );
+      referencePersistence.current = null;
       setHistoricalRun(null);
       setResult(output);
       setSelectedReviewTarget(null);
@@ -1517,15 +1582,16 @@ export function useWorkspaceSession() {
     const generation = projectSessionGenerationRef.current;
     const requestRevision = uiModelRevisionRef.current;
     const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
-    const requestHistoricalRun = historicalRun;
+    const retainedRun = retainedReferencePersistence(requestModel);
+    const requestHistoricalRun = historicalRun?.designation === "historical_saved_run" ? historicalRun : retainedRun?.history ?? null;
     const requestMigrationLedgerCount = modelMigrationLedger.length;
     let pendingObservation: { envelope: LocalProjectEnvelope; ordinal: number } | null = null;
     try {
       const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
-      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : result;
-      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : analysisRun;
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? result;
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? analysisRun;
       if (!stillCurrent()) return;
       const computedEnvelopeHash = await computeProjectEnvelopeHash({
         model,
@@ -1536,8 +1602,8 @@ export function useWorkspaceSession() {
         analysis_run: snapshotAnalysisRun,
         model_hash: snapshotModelHash
       });
-      const envelopeHash = historicalRun && computedEnvelopeHash?.value === historicalRun.envelopePayloadHash
-        ? historicalRun.envelopeHash : computedEnvelopeHash;
+      const envelopeHash = requestHistoricalRun && computedEnvelopeHash?.value === requestHistoricalRun.envelopePayloadHash
+        ? requestHistoricalRun.envelopeHash : computedEnvelopeHash;
       if (!stillCurrent()) return;
       const created = await createLocalProject(
         model,
@@ -1845,15 +1911,16 @@ export function useWorkspaceSession() {
     const generation = projectSessionGenerationRef.current;
     const requestRevision = uiModelRevisionRef.current;
     const sameProjectSession = () => generation === projectSessionGenerationRef.current && currentModel.current?.project.id === requestModel.project.id;
-    const requestHistoricalRun = historicalRun;
+    const retainedRun = retainedReferencePersistence(requestModel);
+    const requestHistoricalRun = historicalRun?.designation === "historical_saved_run" ? historicalRun : retainedRun?.history ?? null;
     const requestMigrationLedgerCount = modelMigrationLedger.length;
     let pendingObservation: { envelope: LocalProjectEnvelope; ordinal: number } | null = null;
     try {
       const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
-      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : result;
-      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : analysisRun;
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? result;
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? analysisRun;
       if (!stillCurrent()) return;
       const computedEnvelopeHash = await computeProjectEnvelopeHash({
         model,
@@ -1864,8 +1931,8 @@ export function useWorkspaceSession() {
         analysis_run: snapshotAnalysisRun,
         model_hash: snapshotModelHash
       });
-      const envelopeHash = historicalRun && computedEnvelopeHash?.value === historicalRun.envelopePayloadHash
-        ? historicalRun.envelopeHash : computedEnvelopeHash;
+      const envelopeHash = requestHistoricalRun && computedEnvelopeHash?.value === requestHistoricalRun.envelopePayloadHash
+        ? requestHistoricalRun.envelopeHash : computedEnvelopeHash;
       if (!stillCurrent()) return;
       const saved = await saveLocalProject(
         model,
@@ -2606,6 +2673,7 @@ export function useWorkspaceSession() {
       reportPackageRedaction,
       reportPackageRoute,
       handleRun,
+      handleInspectBundledReference,
       handleCancelRun,
       handleRuleCheckAggregate,
       handleProposal,

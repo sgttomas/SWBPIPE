@@ -123,6 +123,14 @@ pub fn generate_self_weight_operations(
     model: &PreviewModel,
     request: &SelfWeightRequest,
 ) -> Result<SelfWeightOperationPlan, Vec<Diagnostic>> {
+    generate_operations(model, request, false)
+}
+
+fn generate_operations(
+    model: &PreviewModel,
+    request: &SelfWeightRequest,
+    inspection: bool,
+) -> Result<SelfWeightOperationPlan, Vec<Diagnostic>> {
     let mut d = Vec::new();
     for (name, value) in [
         ("case_id", &request.case_id),
@@ -133,15 +141,16 @@ pub fn generate_self_weight_operations(
             invalid(&mut d, name, "explicit nonblank value required");
         }
     }
-    if !request
-        .source_model_hash
-        .strip_prefix("sha256:")
-        .is_some_and(|digest| {
-            digest.len() == 64
-                && digest
-                    .bytes()
-                    .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
-        })
+    if !inspection
+        && !request
+            .source_model_hash
+            .strip_prefix("sha256:")
+            .is_some_and(|digest| {
+                digest.len() == 64
+                    && digest
+                        .bytes()
+                        .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+            })
     {
         invalid(
             &mut d,
@@ -216,33 +225,35 @@ pub fn generate_self_weight_operations(
             continue;
         }
         let pipe = matches[0];
-        if pipe.provenance.as_ref().is_none_or(|s| s.trim().is_empty()) {
+        if !inspection && pipe.provenance.as_ref().is_none_or(|s| s.trim().is_empty()) {
             invalid(&mut d, id, "pipe provenance required");
         }
-        let mut positions = Vec::new();
-        for node_id in [&pipe.from, &pipe.to] {
-            let nodes: Vec<_> = model.nodes.iter().filter(|n| &n.id == node_id).collect();
-            if node_id.trim().is_empty() || nodes.len() != 1 {
-                invalid(&mut d, id, "endpoint must resolve exactly once");
-                continue;
-            }
-            let p = nodes[0].position;
-            if ![p.x, p.y, p.z].iter().all(|v| v.is_finite()) {
-                invalid(&mut d, id, "endpoint position must be finite");
-            }
-            positions.push(p);
-        }
-        if pipe.from == pipe.to
-            || (positions.len() == 2
-                && positions[0].x == positions[1].x
-                && positions[0].y == positions[1].y
-                && positions[0].z == positions[1].z)
         {
-            invalid(
-                &mut d,
-                id,
-                "pipe requires distinct endpoints and nonzero geometric span",
-            );
+            let mut positions = Vec::new();
+            for node_id in [&pipe.from, &pipe.to] {
+                let nodes: Vec<_> = model.nodes.iter().filter(|n| &n.id == node_id).collect();
+                if node_id.trim().is_empty() || nodes.len() != 1 {
+                    invalid(&mut d, id, "endpoint must resolve exactly once");
+                    continue;
+                }
+                let p = nodes[0].position;
+                if ![p.x, p.y, p.z].iter().all(|v| v.is_finite()) {
+                    invalid(&mut d, id, "endpoint position must be finite");
+                }
+                positions.push(p);
+            }
+            if pipe.from == pipe.to
+                || (positions.len() == 2
+                    && positions[0].x == positions[1].x
+                    && positions[0].y == positions[1].y
+                    && positions[0].z == positions[1].z)
+            {
+                invalid(
+                    &mut d,
+                    id,
+                    "pipe requires distinct endpoints and nonzero geometric span",
+                );
+            }
         }
         let generated = format!(
             "load:self-weight:{}:{}:{}:{}",
@@ -276,7 +287,7 @@ pub fn generate_self_weight_operations(
                 .find(|s| &s.id == id)
                 .expect("resolved section")
         });
-        if shared.is_some_and(|s| !provenance_present(&s.provenance)) {
+        if !inspection && shared.is_some_and(|s| !provenance_present(&s.provenance)) {
             invalid(&mut d, &pipe.id, "referenced section provenance required");
         }
         let section = &mut pipe.section;
@@ -327,23 +338,31 @@ pub fn generate_self_weight_operations(
         if !d.is_empty() {
             continue;
         }
-        let Some(mass) = compute_pipe_mass_per_length(pipe, &request.case_id, &mut d) else {
+        let Some(mass) = stable_mass_per_length(pipe, &mut d) else {
             continue;
         };
         let intensity = mass * gravity.value;
-        if !mass.is_finite() || mass <= 0.0 || !intensity.is_finite() {
-            invalid(&mut d, &pipe.id, "computed mass or intensity is invalid");
+        if !mass.is_finite() || mass <= 0.0 || !intensity.is_finite() || intensity == 0.0 {
+            invalid(
+                &mut d,
+                &pipe.id,
+                "computed mass or intensity is outside the representable range",
+            );
+            d.last_mut().unwrap().code = "SELF_WEIGHT_RANGE_INVALID".into();
             continue;
         }
         let s = &original.section;
         let shared_evidence=shared.map(|s|json!({"id":s.id,"name":s.name,"section_type":s.section_type,"provenance":s.provenance,
             "properties":s.properties.iter().map(|(k,v)|(k.clone(),quantity(v))).collect::<serde_json::Map<String,Value>>()}));
-        let e = json!({"method":"pipe_mass_per_length_times_explicit_axis_acceleration/v1","gravity":request.gravity,
+        let mut e = json!({"method":GENERATED_METHOD,"gravity":request.gravity,
             "normalized_acceleration_m_per_s2":gravity.value,"request_provenance":request.provenance,
             "pipe_id":pipe.id,"pipe_provenance":original.provenance,"section_ref":original.section_ref,"referenced_section":shared_evidence,
             "mass_inputs":{"outside_diameter":quantity(&s.outside_diameter),"wall_thickness":quantity(&s.wall_thickness),"mill_tolerance":optional(&s.mill_tolerance),
                 "material_density":optional(&s.material_density),"contents_density":optional(&s.contents_density),"insulation_thickness":optional(&s.insulation_thickness),"insulation_density":optional(&s.insulation_density)},
             "mass_kg_per_m":mass,"contents_absent":s.contents_density.is_none(),"insulation_absent":s.insulation_thickness.is_none() && s.insulation_density.is_none()});
+        e["mass_method"] = json!(STABLE_MASS_METHOD);
+        e["source_model_hash"] = json!(request.source_model_hash);
+        e["normalized_dependencies"] = dependency_projection(&pipe.section, &original.section_ref);
         let id = format!(
             "load:self-weight:{}:{}:{}:{}",
             request.case_id.len(),
@@ -351,8 +370,10 @@ pub fn generate_self_weight_operations(
             pipe.id.len(),
             pipe.id
         );
-        let payload = json!({"id":id,"category":"distributed_force","target":{"type":"element","pipe":pipe.id},"direction":request.gravity.axis,
-            "magnitude":{"value":intensity,"unit":"N/m"},"dimension":"force_per_length","provenance":e.to_string()});
+        let mut payload = json!({"id":id,"category":"distributed_force","target":{"type":"element","pipe":pipe.id},"direction":request.gravity.axis,
+            "magnitude":{"value":intensity,"unit":"N/m"},"dimension":"force_per_length"});
+        e["generated_payload"] = payload.clone();
+        payload["provenance"] = json!(e.to_string());
         loads.push(draft(
             request,
             "create_primitive_load",
@@ -384,6 +405,555 @@ pub fn generate_self_weight_operations(
         source_evidence: evidence,
         scope_label: "selected_pipe_mass_only".into(),
     })
+}
+
+/// Same explicit density participation as legacy generation, with the named
+/// source-area successor. Only annulus_geometry owns the circular area algebra.
+fn stable_mass_per_length(pipe: &super::PreviewPipe, d: &mut Vec<Diagnostic>) -> Option<f64> {
+    use crate::annulus_geometry::{
+        source_bore_area_m2, source_insulation_area_m2, source_wall_area_m2, SourceAreaError,
+    };
+    fn range(d: &mut Vec<Diagnostic>, field: &str, message: &str) {
+        invalid(d, field, message);
+        d.last_mut().unwrap().code = "SELF_WEIGHT_RANGE_INVALID".into();
+    }
+    fn area(
+        value: Result<f64, SourceAreaError>,
+        field: &str,
+        d: &mut Vec<Diagnostic>,
+    ) -> Option<f64> {
+        match value {
+            Ok(value) => Some(value),
+            Err(SourceAreaError::NonRepresentableArea) => {
+                range(
+                    d,
+                    field,
+                    "positive source area is outside the representable range",
+                );
+                None
+            }
+            Err(error) => {
+                invalid(d, field, &format!("invalid source area input: {error:?}"));
+                None
+            }
+        }
+    }
+    fn term(area: f64, density: f64, field: &str, d: &mut Vec<Diagnostic>) -> Option<f64> {
+        if !density.is_finite() || density < 0.0 {
+            invalid(d, field, "density must be finite and nonnegative");
+            return None;
+        }
+        let value = area * density;
+        if !value.is_finite() || (area > 0.0 && density > 0.0 && value == 0.0) {
+            range(
+                d,
+                field,
+                "positive component mass is outside the representable range",
+            );
+            None
+        } else {
+            Some(value)
+        }
+    }
+    let s = &pipe.section;
+    let od = s.outside_diameter.value;
+    let mill = s.mill_tolerance.as_ref().map_or(0.0, |q| q.value);
+    if !mill.is_finite() || mill < 0.0 {
+        invalid(d, &pipe.id, "mill deduction must be finite and nonnegative");
+        return None;
+    }
+    let wall = s.wall_thickness.value - mill;
+    let Some(density) = s.material_density.as_ref().map(|q| q.value) else {
+        invalid(d, &pipe.id, "explicit material density required");
+        return None;
+    };
+    if !density.is_finite() || density <= 0.0 {
+        invalid(d, &pipe.id, "material density must be finite and positive");
+        return None;
+    }
+    let metal = area(source_wall_area_m2(od, wall), &pipe.id, d)?;
+    let mut mass = term(metal, density, &pipe.id, d)?;
+    if let Some(contents) = &s.contents_density {
+        let bore = area(source_bore_area_m2(od, wall), &pipe.id, d)?;
+        mass += term(bore, contents.value, &pipe.id, d)?;
+    }
+    match (&s.insulation_thickness, &s.insulation_density) {
+        (None, None) => {}
+        (Some(thickness), Some(density)) => {
+            let insulation = area(source_insulation_area_m2(od, thickness.value), &pipe.id, d)?;
+            mass += term(insulation, density.value, &pipe.id, d)?;
+        }
+        _ => {
+            invalid(
+                d,
+                &pipe.id,
+                "insulation mass requires both thickness and density",
+            );
+            return None;
+        }
+    }
+    if !mass.is_finite() || mass <= 0.0 {
+        range(
+            d,
+            &pipe.id,
+            "total positive mass is outside the representable range",
+        );
+        None
+    } else {
+        Some(mass)
+    }
+}
+
+pub const STABLE_MASS_METHOD: &str = "source_od_effective_wall_areas/v1";
+pub const GENERATED_METHOD: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v2";
+pub const LEGACY_METHOD: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v1";
+pub const MANUAL_OVERRIDE_METHOD: &str = "manual_override_of_generated_self_weight/v1";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AppliedSelfWeightState {
+    Fresh,
+    Stale,
+    Modified,
+    ManualOverride,
+    Invalid,
+}
+#[derive(Debug, Clone, Serialize)]
+pub struct AppliedSelfWeightStatus {
+    pub case_id: String,
+    pub primitive_index: usize,
+    pub state: AppliedSelfWeightState,
+    pub diagnostics: Vec<Diagnostic>,
+    pub replacement: Option<Value>,
+}
+fn valid_hash(value: &str) -> bool {
+    value.strip_prefix("sha256:").is_some_and(|digest| {
+        digest.len() == 64
+            && digest
+                .bytes()
+                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+    })
+}
+fn dependency_projection(s: &super::PipeSectionInput, reference: &Option<String>) -> Value {
+    json!({"section_ref":reference,
+        "outside_diameter":quantity(&s.outside_diameter),
+        "wall_thickness":quantity(&s.wall_thickness),
+        "mill_tolerance":optional(&s.mill_tolerance),
+        "material_density":optional(&s.material_density),
+        "contents_density":optional(&s.contents_density),
+        "insulation_thickness":optional(&s.insulation_thickness),
+        "insulation_density":optional(&s.insulation_density)})
+}
+fn primitive_payload(load: &super::PreviewPrimitiveLoad) -> Value {
+    let target = match &load.target {
+        super::LoadTargetInput::Node { node } => json!({"type":"node","node":node}),
+        super::LoadTargetInput::Element { pipe } => json!({"type":"element","pipe":pipe}),
+    };
+    json!({"id":load.id,"category":load.category,"target":target,"direction":load.direction,
+        "magnitude":quantity(&load.magnitude),"dimension":load.dimension})
+}
+
+/// Validate the retained generation basis independently of the current source.
+/// This also supplies the conservative v1 dependency and payload reconstruction.
+fn retained_basis(
+    evidence: &Value,
+    case_id: &str,
+) -> Result<(SelfWeightRequest, Value, Value), Vec<Diagnostic>> {
+    let mut d = Vec::new();
+    let fail = || {
+        let mut d = Vec::new();
+        invalid(
+            &mut d,
+            case_id,
+            "generated self-weight provenance is incomplete or inconsistent",
+        );
+        d
+    };
+    let method = evidence["method"].as_str().ok_or_else(fail)?;
+    if !matches!(method, GENERATED_METHOD | LEGACY_METHOD) {
+        return Err(fail());
+    }
+    let pipe_id = evidence["pipe_id"]
+        .as_str()
+        .filter(|s| !s.trim().is_empty())
+        .ok_or_else(fail)?;
+    let provenance = evidence["request_provenance"]
+        .as_str()
+        .filter(|s| !s.trim().is_empty())
+        .ok_or_else(fail)?;
+    let gravity: SelfWeightGravity =
+        serde_json::from_value(evidence["gravity"].clone()).map_err(|_| fail())?;
+    if !matches!(gravity.axis.as_str(), "global_x" | "global_y" | "global_z")
+        || !gravity.value.is_finite()
+        || gravity.value == 0.0
+    {
+        return Err(fail());
+    }
+    let mut acceleration = Quantity {
+        value: gravity.value,
+        unit: gravity.unit.clone(),
+    };
+    normalize_quantity(
+        &mut acceleration,
+        Dimension::Acceleration,
+        "diagnostic:self-weight:gravity",
+        vec![case_id.into()],
+        &mut d,
+    );
+    if !d.is_empty() {
+        return Err(d);
+    }
+    if !acceleration.value.is_finite()
+        || acceleration.value == 0.0
+        || evidence["normalized_acceleration_m_per_s2"].as_f64() != Some(acceleration.value)
+    {
+        return Err(fail());
+    }
+    let reference: Option<String> =
+        serde_json::from_value(evidence.get("section_ref").cloned().ok_or_else(fail)?)
+            .map_err(|_| fail())?;
+    let inputs = evidence["mass_inputs"].as_object().ok_or_else(fail)?;
+    for key in [
+        "outside_diameter",
+        "wall_thickness",
+        "mill_tolerance",
+        "material_density",
+        "contents_density",
+        "insulation_thickness",
+        "insulation_density",
+    ] {
+        if !inputs.contains_key(key) {
+            return Err(fail());
+        }
+    }
+    let mut section: super::PipeSectionInput =
+        serde_json::from_value(Value::Object(inputs.clone())).map_err(|_| fail())?;
+    if let Some(reference) = &reference {
+        let shared = &evidence["referenced_section"];
+        if reference.trim().is_empty()
+            || shared["id"].as_str() != Some(reference.as_str())
+            || shared["section_type"] != "pipe"
+        {
+            return Err(fail());
+        }
+        let props = shared["properties"].as_object().ok_or_else(fail)?;
+        if props.len() != 2
+            || props.get("outside_diameter") != inputs.get("outside_diameter")
+            || props.get("wall_thickness") != inputs.get("wall_thickness")
+        {
+            return Err(fail());
+        }
+    } else if !evidence["referenced_section"].is_null() {
+        return Err(fail());
+    }
+    normalize(
+        &mut section.outside_diameter,
+        Dimension::Length,
+        true,
+        "outside_diameter",
+        &mut d,
+    );
+    normalize(
+        &mut section.wall_thickness,
+        Dimension::Length,
+        true,
+        "wall_thickness",
+        &mut d,
+    );
+    for (name, q, dimension) in [
+        (
+            "mill_tolerance",
+            &mut section.mill_tolerance,
+            Dimension::Length,
+        ),
+        (
+            "contents_density",
+            &mut section.contents_density,
+            Dimension::Density,
+        ),
+        (
+            "insulation_thickness",
+            &mut section.insulation_thickness,
+            Dimension::Length,
+        ),
+        (
+            "insulation_density",
+            &mut section.insulation_density,
+            Dimension::Density,
+        ),
+    ] {
+        if let Some(q) = q {
+            normalize(q, dimension, false, name, &mut d);
+        }
+    }
+    match &mut section.material_density {
+        Some(q) => normalize(q, Dimension::Density, true, "material_density", &mut d),
+        None => return Err(fail()),
+    }
+    if !d.is_empty() {
+        return Err(d);
+    }
+    if evidence["contents_absent"] != json!(section.contents_density.is_none())
+        || evidence["insulation_absent"]
+            != json!(section.insulation_thickness.is_none() && section.insulation_density.is_none())
+    {
+        return Err(fail());
+    }
+    let dependencies = dependency_projection(&section, &reference);
+    let pipe = super::PreviewPipe {
+        id: pipe_id.into(),
+        from: String::new(),
+        to: String::new(),
+        section,
+        section_ref: reference,
+        material: String::new(),
+        y_reference: None,
+        provenance: None,
+    };
+    let mass = if method == LEGACY_METHOD {
+        compute_pipe_mass_per_length(&pipe, case_id, &mut d)
+    } else {
+        if evidence["mass_method"] != STABLE_MASS_METHOD {
+            return Err(fail());
+        }
+        stable_mass_per_length(&pipe, &mut d)
+    };
+    let Some(mass) = mass else {
+        return Err(if d.is_empty() { fail() } else { d });
+    };
+    if !d.is_empty() {
+        return Err(d);
+    }
+    // v1's decimal transport can make its multiplication ambiguous. Preserve
+    // that ambiguity as Modified below rather than adding a rounding tolerance.
+    let retained_mass = evidence["mass_kg_per_m"]
+        .as_f64()
+        .filter(|m| m.is_finite() && *m > 0.0)
+        .ok_or_else(fail)?;
+    let intensity = retained_mass * acceleration.value;
+    if !mass.is_finite() || mass <= 0.0 || !intensity.is_finite() {
+        return Err(fail());
+    }
+    let source_hash = evidence["source_model_hash"].as_str().unwrap_or("");
+    let generated = json!({"id":format!("load:self-weight:{}:{}:{}:{}",case_id.len(),case_id,pipe_id.len(),pipe_id),
+        "category":"distributed_force","target":{"type":"element","pipe":pipe_id},"direction":gravity.axis,
+        "magnitude":{"value":intensity,"unit":"N/m"},"dimension":"force_per_length"});
+    let payload = if method == GENERATED_METHOD {
+        if !valid_hash(source_hash) || evidence["normalized_dependencies"] != dependencies {
+            return Err(fail());
+        }
+        if let Some(legacy) = evidence.get("legacy_generation_provenance") {
+            let legacy: Value =
+                serde_json::from_str(legacy.as_str().ok_or_else(fail)?).map_err(|_| fail())?;
+            if legacy["method"] != LEGACY_METHOD {
+                return Err(fail());
+            }
+            retained_basis(&legacy, case_id)?;
+        }
+        let snapshot = &evidence["generated_payload"];
+        let mut expected = generated.clone();
+        // Recompute independently from retained source quantities; the snapshot
+        // is an exact edit detector, not its own physical-value oracle.
+        let q: Quantity =
+            serde_json::from_value(snapshot["magnitude"].clone()).map_err(|_| fail())?;
+        if q.unit != "N/m" || !q.value.is_finite() || q.value == 0.0 {
+            return Err(fail());
+        }
+        if Some(mass) != Some(retained_mass) || Some(mass * acceleration.value) != Some(q.value) {
+            return Err(fail());
+        }
+        expected["magnitude"] = snapshot["magnitude"].clone();
+        if snapshot != &expected {
+            return Err(fail());
+        }
+        snapshot.clone()
+    } else {
+        generated
+    };
+    Ok((
+        SelfWeightRequest {
+            case_id: case_id.into(),
+            label: "Applied self-weight refresh".into(),
+            pipe_refs: vec![pipe_id.into()],
+            gravity,
+            provenance: provenance.into(),
+            source_model_hash: source_hash.into(),
+        },
+        dependencies,
+        payload,
+    ))
+}
+
+/// Inspect on the original, unnormalized view. Only a caller-authenticated hash
+/// requests replacement data; absence never manufactures provenance or mutates.
+pub fn inspect_applied_self_weight(
+    model: &PreviewModel,
+    source_model_hash: Option<&str>,
+) -> Vec<AppliedSelfWeightStatus> {
+    let mut statuses = Vec::new();
+    for case in &model.load_cases {
+        for (primitive_index, load) in case.primitive_loads.iter().enumerate() {
+            let evidence = load
+                .provenance
+                .as_deref()
+                .and_then(|p| serde_json::from_str::<Value>(p).ok());
+            let method = evidence.as_ref().and_then(|p| p["method"].as_str());
+            let recognized = matches!(
+                method,
+                Some(GENERATED_METHOD | LEGACY_METHOD | MANUAL_OVERRIDE_METHOD)
+            );
+            let claimed_method_family = method.is_some_and(|method| {
+                method == "pipe_mass_per_length_times_explicit_axis_acceleration"
+                    || method.starts_with("pipe_mass_per_length_times_explicit_axis_acceleration/")
+                    || method == "manual_override_of_generated_self_weight"
+                    || method.starts_with("manual_override_of_generated_self_weight/")
+            });
+            let deterministic_identity = match &load.target {
+                super::LoadTargetInput::Element { pipe } => {
+                    load.id
+                        == format!(
+                            "load:self-weight:{}:{}:{}:{}",
+                            case.id.len(),
+                            case.id,
+                            pipe.len(),
+                            pipe
+                        )
+                }
+                super::LoadTargetInput::Node { .. } => false,
+            };
+            let looks_generated = claimed_method_family || deterministic_identity;
+            if !recognized && !looks_generated {
+                continue;
+            }
+            let mut status = AppliedSelfWeightStatus {
+                case_id: case.id.clone(),
+                primitive_index,
+                state: AppliedSelfWeightState::Invalid,
+                diagnostics: Vec::new(),
+                replacement: None,
+            };
+            let result = (|| -> Result<(), Vec<Diagnostic>> {
+                let fail = || {
+                    let mut d = Vec::new();
+                    invalid(&mut d, &load.id, "generated self-weight lineage is invalid; explicit source reconciliation required");
+                    d
+                };
+                let evidence = evidence.as_ref().ok_or_else(fail)?;
+                if method == Some(MANUAL_OVERRIDE_METHOD) {
+                    if evidence["decision"] != "preserve_modified_generated_load"
+                        || !evidence["source_model_hash"]
+                            .as_str()
+                            .is_some_and(valid_hash)
+                    {
+                        return Err(fail());
+                    }
+                    retained_basis(&evidence["original_generation_provenance"], &case.id)?;
+                    status.state = AppliedSelfWeightState::ManualOverride;
+                    return Ok(());
+                }
+                let (mut request, old_dependencies, old_payload) =
+                    retained_basis(evidence, &case.id)?;
+                if let Some(hash) = source_model_hash {
+                    if !valid_hash(hash) {
+                        return Err(fail());
+                    }
+                    request.source_model_hash = hash.into();
+                }
+                let payload_changed = primitive_payload(load) != old_payload;
+                // Legacy provenance did not retain the exact emitted float. An
+                // inconsistent old mass is unverifiable, never auto-refreshable.
+                let legacy_uncertain = method == Some(LEGACY_METHOD)
+                    && evidence["mass_kg_per_m"].as_f64()
+                        != old_dependencies_mass(evidence, &case.id);
+                // A modified primitive can be explicitly detached even when its
+                // former source was removed. Ordinary validation still owns the
+                // current target and physical payload; historical lineage above
+                // must remain valid before preservation can be offered.
+                if payload_changed || legacy_uncertain {
+                    status.state = AppliedSelfWeightState::Modified;
+                    return Ok(());
+                }
+                // Clear only load identity collisions on a clone. Current source
+                // quantities and shared-section cache checks stay authoritative
+                // for primitives that retain their generated physical payload.
+                let mut source = model.clone();
+                source.load_cases.clear();
+                let generated = generate_operations(&source, &request, true)?;
+                let current_evidence = &generated.source_evidence[0];
+                status.state = if method == Some(LEGACY_METHOD)
+                    || current_evidence["normalized_dependencies"] != old_dependencies
+                {
+                    AppliedSelfWeightState::Stale
+                } else {
+                    AppliedSelfWeightState::Fresh
+                };
+                if status.state == AppliedSelfWeightState::Stale && source_model_hash.is_some() {
+                    let mut replacement: Value =
+                        serde_json::from_str(&generated.changes[1].after).map_err(|_| fail())?;
+                    let mut provenance: Value =
+                        serde_json::from_str(replacement["provenance"].as_str().ok_or_else(fail)?)
+                            .map_err(|_| fail())?;
+                    if method == Some(LEGACY_METHOD) {
+                        provenance["legacy_generation_provenance"] =
+                            json!(load.provenance.as_deref().ok_or_else(fail)?);
+                    } else if let Some(legacy) = evidence.get("legacy_generation_provenance") {
+                        provenance["legacy_generation_provenance"] = legacy.clone();
+                    }
+                    replacement["provenance"] = json!(provenance.to_string());
+                    status.replacement = Some(replacement);
+                }
+                Ok(())
+            })();
+            if let Err(mut diagnostics) = result {
+                for diagnostic in &mut diagnostics {
+                    diagnostic.affected_refs.push(case.id.clone());
+                    diagnostic.affected_refs.push(load.id.clone());
+                }
+                status.diagnostics = diagnostics;
+            } else if status.state != AppliedSelfWeightState::Fresh {
+                let (code, severity, message) = match status.state {
+                    AppliedSelfWeightState::Stale if method == Some(LEGACY_METHOD) => ("SELF_WEIGHT_METHOD_REFRESH_REQUIRED", "blocking", "Legacy self-weight requires explicit refresh to the source-area mass method before solving."),
+                    AppliedSelfWeightState::Stale => ("SELF_WEIGHT_INPUTS_STALE", "blocking", "Consumed self-weight inputs changed; explicitly refresh this generated load before solving."),
+                    AppliedSelfWeightState::Modified => ("SELF_WEIGHT_GENERATED_LOAD_MODIFIED", "blocking", "Generated self-weight payload changed or is unverifiable; explicitly preserve it as a manual override before solving."),
+                    AppliedSelfWeightState::ManualOverride => ("SELF_WEIGHT_MANUAL_OVERRIDE", "warning", "Explicitly preserved self-weight is a fixed manual load and will not follow mass input changes."),
+                    _ => unreachable!(),
+                };
+                status.diagnostics.push(Diagnostic {
+                    id: format!("diagnostic:self-weight:{}:{primitive_index}", case.id),
+                    code: code.into(),
+                    severity: severity.into(),
+                    message: message.into(),
+                    source: Some("self_weight".into()),
+                    affected_refs: vec![case.id.clone(), load.id.clone()],
+                });
+            }
+            statuses.push(status);
+        }
+    }
+    statuses
+}
+
+// Reconstructing legacy mass through the same helper avoids using a second
+// physics formula. A mismatch is an explicit-reconciliation requirement.
+fn old_dependencies_mass(evidence: &Value, case_id: &str) -> Option<f64> {
+    let (_, dependencies, _) = retained_basis(evidence, case_id).ok()?;
+    let section = serde_json::from_value(dependencies).ok()?;
+    let pipe = super::PreviewPipe {
+        id: String::new(),
+        from: String::new(),
+        to: String::new(),
+        section,
+        section_ref: None,
+        material: String::new(),
+        y_reference: None,
+        provenance: None,
+    };
+    compute_pipe_mass_per_length(&pipe, case_id, &mut Vec::new())
+}
+pub fn validate_applied_self_weight(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    for status in inspect_applied_self_weight(model, None) {
+        diagnostics.extend(status.diagnostics);
+    }
 }
 
 #[cfg(test)]
@@ -423,6 +993,403 @@ mod tests {
             (a - b).abs() <= 1e-12 * a.abs().max(b.abs()).max(1.0),
             "{a} != {b}"
         );
+    }
+    fn applied() -> (PreviewModel, SelfWeightRequest) {
+        let (mut model, request) = fixture();
+        let plan = generate_self_weight_operations(&model, &request).unwrap();
+        let mut case: Value = serde_json::from_str(&plan.changes[0].after).unwrap();
+        case["primitive_loads"] =
+            json!([serde_json::from_str::<Value>(&plan.changes[1].after).unwrap()]);
+        model.load_cases = serde_json::from_value(json!([case])).unwrap();
+        (model, request)
+    }
+    fn state(model: &PreviewModel) -> AppliedSelfWeightState {
+        inspect_applied_self_weight(model, None)[0].state
+    }
+    #[test]
+    fn applied_self_weight_is_pure_and_density_drift_blocks() {
+        let (mut model, request) = applied();
+        assert_eq!(state(&model), AppliedSelfWeightState::Fresh);
+        model.pipe_segments[0]
+            .section
+            .material_density
+            .as_mut()
+            .unwrap()
+            .value *= 2.0;
+        let before = format!("{model:?}");
+        let checked = inspect_applied_self_weight(&model, None);
+        assert_eq!(checked[0].state, AppliedSelfWeightState::Stale);
+        assert_eq!(checked[0].diagnostics[0].code, "SELF_WEIGHT_INPUTS_STALE");
+        assert!(checked[0].replacement.is_none());
+        assert_eq!(format!("{model:?}"), before);
+        let refreshed = inspect_applied_self_weight(&model, Some(&request.source_model_hash));
+        let replacement = refreshed[0].replacement.clone().unwrap();
+        close(
+            replacement["magnitude"]["value"].as_f64().unwrap(),
+            2.0 * model.load_cases[0].primitive_loads[0].magnitude.value,
+        );
+        model.load_cases[0].primitive_loads[0] = serde_json::from_value(replacement).unwrap();
+        assert_eq!(state(&model), AppliedSelfWeightState::Fresh);
+    }
+    #[test]
+    fn applied_self_weight_ignores_unconsumed_edits_and_equivalent_units() {
+        let (mut model, _) = applied();
+        model.nodes[1].position.x = 3.0;
+        model.nodes[1].position.y = 2.0;
+        model.pipe_segments[0].material = "another stiffness material".into();
+        model.pipe_segments[0].provenance = None;
+        model.project.units = json!({"length":"mm"});
+        model.pipe_segments[0].section.outside_diameter = Quantity {
+            value: 100.0,
+            unit: "mm".into(),
+        };
+        model.pipe_segments[0].section.wall_thickness = Quantity {
+            value: 10.0,
+            unit: "mm".into(),
+        };
+        let mut unselected = model.pipe_segments[0].clone();
+        unselected.id = "unselected".into();
+        unselected.section.material_density = None;
+        unselected.section_ref = Some("missing".into());
+        model.pipe_segments.push(unselected);
+        assert_eq!(state(&model), AppliedSelfWeightState::Fresh);
+    }
+    #[test]
+    fn applied_self_weight_checks_each_consumed_input() {
+        for mode in 0..7 {
+            let (mut model, _) = applied();
+            let section = &mut model.pipe_segments[0].section;
+            match mode {
+                0 => section.outside_diameter.value = 0.11,
+                1 => section.wall_thickness.value = 0.011,
+                2 => section.material_density.as_mut().unwrap().value = 1100.0,
+                3 => {
+                    section.mill_tolerance = Some(Quantity {
+                        value: 0.001,
+                        unit: "m".into(),
+                    })
+                }
+                4 => {
+                    section.contents_density = Some(Quantity {
+                        value: 10.0,
+                        unit: "kg/m^3".into(),
+                    })
+                }
+                _ => {
+                    section.insulation_thickness = Some(Quantity {
+                        value: 0.01,
+                        unit: "m".into(),
+                    });
+                    section.insulation_density = Some(Quantity {
+                        value: if mode == 5 { 10.0 } else { 20.0 },
+                        unit: "kg/m^3".into(),
+                    });
+                }
+            }
+            assert_eq!(state(&model), AppliedSelfWeightState::Stale, "mode {mode}");
+        }
+    }
+    #[test]
+    fn applied_self_weight_invalid_units_and_shared_cache_are_not_stale() {
+        let (mut model, _) = applied();
+        model.pipe_segments[0]
+            .section
+            .material_density
+            .as_mut()
+            .unwrap()
+            .unit = "N".into();
+        assert_eq!(state(&model), AppliedSelfWeightState::Invalid);
+        let (mut model, _) = applied();
+        model.pipe_segments[0].section_ref = Some("s".into());
+        model.sections = serde_json::from_value(json!([{"id":"s","name":"s","section_type":"pipe","properties":{"outside_diameter":{"value":0.2,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"provenance":"source"}])).unwrap();
+        let status = inspect_applied_self_weight(&model, None);
+        assert_eq!(status[0].state, AppliedSelfWeightState::Invalid);
+        assert!(status[0]
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "SECTION_REFERENCE_CACHE_STALE"));
+        model.pipe_segments[0].section.outside_diameter.value = 0.2;
+        assert_eq!(state(&model), AppliedSelfWeightState::Stale);
+    }
+    #[test]
+    fn applied_self_weight_modified_requires_explicit_manual_preservation() {
+        let (mut model, request) = applied();
+        model.load_cases[0].primitive_loads[0].magnitude.value = -123.0;
+        let inspected = inspect_applied_self_weight(&model, Some(&request.source_model_hash));
+        assert_eq!(inspected[0].state, AppliedSelfWeightState::Modified);
+        assert!(inspected[0].replacement.is_none());
+        let load = &mut model.load_cases[0].primitive_loads[0];
+        let original: Value = serde_json::from_str(load.provenance.as_ref().unwrap()).unwrap();
+        load.provenance = Some(json!({"method":MANUAL_OVERRIDE_METHOD,"original_generation_provenance":original,"decision":"preserve_modified_generated_load","source_model_hash":request.source_model_hash}).to_string());
+        model.pipe_segments[0]
+            .section
+            .material_density
+            .as_mut()
+            .unwrap()
+            .value *= 2.0;
+        let checked = inspect_applied_self_weight(&model, None);
+        assert_eq!(checked[0].state, AppliedSelfWeightState::ManualOverride);
+        assert_eq!(checked[0].diagnostics[0].severity, "warning");
+        assert_eq!(
+            model.load_cases[0].primitive_loads[0].magnitude.value,
+            -123.0
+        );
+    }
+    #[test]
+    fn modified_retarget_can_be_preserved_after_original_source_is_removed() {
+        let (mut model, request) = applied();
+        model.pipe_segments[0].id = "new_manual_target".into();
+        let load = &mut model.load_cases[0].primitive_loads[0];
+        load.target = super::super::LoadTargetInput::Element {
+            pipe: "new_manual_target".into(),
+        };
+        let original: Value = serde_json::from_str(load.provenance.as_ref().unwrap()).unwrap();
+        let before = primitive_payload(load);
+        let checked = inspect_applied_self_weight(&model, Some(&request.source_model_hash));
+        assert_eq!(checked[0].state, AppliedSelfWeightState::Modified);
+        assert!(checked[0].replacement.is_none());
+        model.load_cases[0].primitive_loads[0].provenance = Some(json!({
+            "method":MANUAL_OVERRIDE_METHOD,"original_generation_provenance":original,
+            "decision":"preserve_modified_generated_load","source_model_hash":request.source_model_hash
+        }).to_string());
+        assert_eq!(state(&model), AppliedSelfWeightState::ManualOverride);
+        assert_eq!(
+            primitive_payload(&model.load_cases[0].primitive_loads[0]),
+            before
+        );
+        let (mut unmodified, _) = applied();
+        unmodified.pipe_segments.clear();
+        assert_eq!(state(&unmodified), AppliedSelfWeightState::Invalid);
+    }
+    #[test]
+    fn applied_self_weight_fails_closed_for_malformed_lineage_but_ignores_manual() {
+        let (mut model, _) = applied();
+        model.load_cases[0].primitive_loads[0].provenance = None;
+        assert_eq!(state(&model), AppliedSelfWeightState::Invalid);
+        model.load_cases[0].primitive_loads[0].provenance =
+            Some(json!({"method":GENERATED_METHOD}).to_string());
+        assert_eq!(state(&model), AppliedSelfWeightState::Invalid);
+        model.load_cases[0].primitive_loads[0].id = "ordinary_manual".into();
+        model.load_cases[0].primitive_loads[0].provenance = Some("human input".into());
+        assert!(inspect_applied_self_weight(&model, None).is_empty());
+    }
+    #[test]
+    fn ordinary_manual_mentions_and_near_prefixes_are_not_lineage() {
+        let (mut model, _) = applied();
+        let load = &mut model.load_cases[0].primitive_loads[0];
+        load.id.push_str(":manual");
+        for provenance in [
+            "human compared pipe_mass_per_length_times_explicit_axis_acceleration/v2".to_string(),
+            "human compared manual_override_of_generated_self_weight/v1".to_string(),
+            json!({"note":GENERATED_METHOD}).to_string(),
+            json!({"method":"human comparison of pipe_mass_per_length_times_explicit_axis_acceleration/v2"}).to_string(),
+        ] {
+            model.load_cases[0].primitive_loads[0].provenance = Some(provenance);
+            assert!(inspect_applied_self_weight(&model, None).is_empty());
+        }
+        model.load_cases[0].primitive_loads[0].provenance = Some(
+            json!({"method":"pipe_mass_per_length_times_explicit_axis_acceleration/v999"})
+                .to_string(),
+        );
+        assert_eq!(state(&model), AppliedSelfWeightState::Invalid);
+    }
+    #[test]
+    fn applied_self_weight_invalid_current_geometry_is_input_invalid() {
+        for mode in 0..5 {
+            let (mut model, _) = applied();
+            model.pipe_segments[0]
+                .section
+                .material_density
+                .as_mut()
+                .unwrap()
+                .value *= 2.0;
+            match mode {
+                0 => model.nodes.clear(),
+                1 => model.nodes.push(model.nodes[0].clone()),
+                2 => model.nodes[1].position.x = f64::NAN,
+                3 => model.nodes[1].position = model.nodes[0].position,
+                _ => model.pipe_segments[0].to = model.pipe_segments[0].from.clone(),
+            }
+            let status = inspect_applied_self_weight(&model, None);
+            assert_eq!(
+                status[0].state,
+                AppliedSelfWeightState::Invalid,
+                "mode {mode}"
+            );
+            assert!(status[0]
+                .diagnostics
+                .iter()
+                .any(|d| d.code == "SELF_WEIGHT_INPUT_INVALID"));
+        }
+    }
+    #[test]
+    fn applied_self_weight_snapshot_cannot_authenticate_itself() {
+        let (mut model, _) = applied();
+        let load = &mut model.load_cases[0].primitive_loads[0];
+        let mut evidence: Value = serde_json::from_str(load.provenance.as_ref().unwrap()).unwrap();
+        load.magnitude.value *= 2.0;
+        evidence["generated_payload"]["magnitude"]["value"] = json!(load.magnitude.value);
+        evidence["mass_kg_per_m"] = json!(evidence["mass_kg_per_m"].as_f64().unwrap() * 2.0);
+        load.provenance = Some(evidence.to_string());
+        assert_eq!(state(&model), AppliedSelfWeightState::Invalid);
+    }
+    #[test]
+    fn applied_legacy_without_source_hash_is_inspected_without_fabrication() {
+        let (mut model, _) = applied();
+        let load = &mut model.load_cases[0].primitive_loads[0];
+        let mut evidence: Value = serde_json::from_str(load.provenance.as_ref().unwrap()).unwrap();
+        evidence["method"] = json!(LEGACY_METHOD);
+        for key in [
+            "source_model_hash",
+            "generated_payload",
+            "normalized_dependencies",
+        ] {
+            evidence.as_object_mut().unwrap().remove(key);
+        }
+        load.provenance = Some(evidence.to_string());
+        let checked = inspect_applied_self_weight(&model, None);
+        assert!(matches!(
+            checked[0].state,
+            AppliedSelfWeightState::Stale | AppliedSelfWeightState::Modified
+        ));
+        assert!(checked[0].replacement.is_none());
+    }
+    #[test]
+    fn genuine_v1_requires_method_refresh_and_retains_verbatim_history() {
+        let mut model: PreviewModel = serde_json::from_str(include_str!(
+            "../../loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json"
+        ))
+        .unwrap();
+        let original = model.load_cases[0].primitive_loads[0]
+            .provenance
+            .clone()
+            .unwrap();
+        let hash = format!("sha256:{}", "b".repeat(64));
+        let checked = inspect_applied_self_weight(&model, Some(&hash));
+        assert_eq!(checked[0].state, AppliedSelfWeightState::Stale);
+        assert_eq!(
+            checked[0].diagnostics[0].code,
+            "SELF_WEIGHT_METHOD_REFRESH_REQUIRED"
+        );
+        let replacement = checked[0].replacement.clone().unwrap();
+        let evidence: Value =
+            serde_json::from_str(replacement["provenance"].as_str().unwrap()).unwrap();
+        assert_eq!(evidence["mass_method"], STABLE_MASS_METHOD);
+        assert_eq!(evidence["legacy_generation_provenance"], original);
+        model.load_cases[0].primitive_loads[0] = serde_json::from_value(replacement).unwrap();
+        assert_eq!(state(&model), AppliedSelfWeightState::Fresh);
+        model.pipe_segments[0]
+            .section
+            .material_density
+            .as_mut()
+            .unwrap()
+            .value *= 2.0;
+        let checked = inspect_applied_self_weight(&model, Some(&hash));
+        let evidence: Value = serde_json::from_str(
+            checked[0].replacement.as_ref().unwrap()["provenance"]
+                .as_str()
+                .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(evidence["legacy_generation_provenance"], original);
+    }
+    #[test]
+    fn stable_method_tag_is_mandatory_and_not_inferred() {
+        for tag in [Value::Null, json!("unknown/v1")] {
+            let (mut model, _) = applied();
+            let load = &mut model.load_cases[0].primitive_loads[0];
+            let mut evidence: Value =
+                serde_json::from_str(load.provenance.as_ref().unwrap()).unwrap();
+            if tag.is_null() {
+                evidence.as_object_mut().unwrap().remove("mass_method");
+            } else {
+                evidence["mass_method"] = tag;
+            }
+            load.provenance = Some(evidence.to_string());
+            assert_eq!(state(&model), AppliedSelfWeightState::Invalid);
+        }
+    }
+    #[test]
+    fn stable_source_areas_preserve_thin_wall_and_insulation() {
+        let (mut model, mut request) = fixture();
+        request.gravity.value = -1.0;
+        let section = &mut model.pipe_segments[0].section;
+        section.outside_diameter.value = 1.0;
+        section.material_density.as_mut().unwrap().value = 1.0;
+        for wall in [1e-9, 1e-12, 2.0_f64.powi(-55)] {
+            model.pipe_segments[0].section.wall_thickness.value = wall;
+            let q = intensity(&model, &request);
+            assert!(q < 0.0);
+            assert!((q.abs() / (std::f64::consts::PI * wall * (1.0 - wall)) - 1.0).abs() < 1e-12);
+        }
+        model.pipe_segments[0].section.wall_thickness.value = 0.25;
+        let baseline = intensity(&model, &request);
+        let thickness = 2.0_f64.powi(-55);
+        model.pipe_segments[0].section.insulation_thickness = Some(Quantity {
+            value: thickness,
+            unit: "m".into(),
+        });
+        model.pipe_segments[0].section.insulation_density = Some(Quantity {
+            value: 1e15,
+            unit: "kg/m^3".into(),
+        });
+        assert!(intensity(&model, &request) < baseline - 0.08);
+    }
+    #[test]
+    fn stable_mass_ranges_fail_but_actual_optional_zero_is_valid() {
+        for mode in 0..5 {
+            let (mut model, mut request) = fixture();
+            let s = &mut model.pipe_segments[0].section;
+            match mode {
+                0 => {
+                    s.outside_diameter.value = 1e-200;
+                    s.wall_thickness.value = 1e-201;
+                }
+                1 => {
+                    s.material_density.as_mut().unwrap().value = f64::from_bits(1);
+                }
+                2 => {
+                    s.material_density.as_mut().unwrap().value = f64::MAX;
+                    s.outside_diameter.value = 10.0;
+                    s.wall_thickness.value = 1.0;
+                }
+                3 => {
+                    request.gravity.value = f64::from_bits(1);
+                    s.material_density.as_mut().unwrap().value = 1.0;
+                }
+                _ => {
+                    request.gravity.value = f64::MAX;
+                }
+            }
+            let diagnostics = generate_self_weight_operations(&model, &request).unwrap_err();
+            assert!(
+                diagnostics
+                    .iter()
+                    .any(|d| d.code == "SELF_WEIGHT_RANGE_INVALID"),
+                "mode {mode}: {diagnostics:?}"
+            );
+        }
+        let (mut model, request) = fixture();
+        let s = &mut model.pipe_segments[0].section;
+        s.wall_thickness.value = 0.05;
+        s.contents_density = Some(Quantity {
+            value: 1000.0,
+            unit: "kg/m^3".into(),
+        });
+        s.insulation_thickness = Some(Quantity {
+            value: 0.0,
+            unit: "m".into(),
+        });
+        s.insulation_density = Some(Quantity {
+            value: 1000.0,
+            unit: "kg/m^3".into(),
+        });
+        assert!(generate_self_weight_operations(&model, &request).is_ok());
+        model.pipe_segments[0].section.wall_thickness.value = 0.06;
+        assert!(generate_self_weight_operations(&model, &request)
+            .unwrap_err()
+            .iter()
+            .any(|d| d.code == "SELF_WEIGHT_INPUT_INVALID"));
     }
     #[test]
     fn self_weight_rejects_unknown_request_options() {

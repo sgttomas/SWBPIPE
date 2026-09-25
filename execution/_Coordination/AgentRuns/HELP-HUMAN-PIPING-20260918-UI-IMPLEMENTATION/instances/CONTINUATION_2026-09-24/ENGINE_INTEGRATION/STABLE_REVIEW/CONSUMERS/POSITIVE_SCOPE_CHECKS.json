@@ -1,0 +1,122 @@
+{
+  "scope": "Retained actual source/derivative checks only; no new solve, native witness or physical oracle inference.",
+  "p1_sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
+  "physics_sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+  "unchanged_60_rows": true,
+  "rows": 77,
+  "kinds": 57,
+  "signature_ids_unique": true,
+  "signature_keys_unique": true,
+  "sources": [
+    {
+      "path": "fixtures/results/physics_connected_mechanics_dense.json",
+      "sha256": "2e3007311d6b5f76172dbf7e9c4a9bbb98ad16382d75ffa63d327c9aab9ebdb6",
+      "rows": 177,
+      "physical_rows": 55,
+      "all_physical_signatures_found": true,
+      "schema_and_consumer": "pass"
+    },
+    {
+      "path": "fixtures/results/physics_connected_mechanics_sparse.json",
+      "sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2",
+      "rows": 175,
+      "physical_rows": 55,
+      "all_physical_signatures_found": true,
+      "schema_and_consumer": "pass"
+    },
+    {
+      "path": "fixtures/results/physics_connected_ui_mechanics_dense.json",
+      "sha256": "af87670235e7bd4f9f063cef8c505196f3f0e193a4b5f8cb7e3c22268cc331ee",
+      "rows": 177,
+      "physical_rows": 55,
+      "all_physical_signatures_found": true,
+      "schema_and_consumer": "pass"
+    },
+    {
+      "path": "fixtures/results/physics_connected_ui_mechanics_sparse.json",
+      "sha256": "80396de3e4c8339bc923bb5b4d7309227537ac21dffbb43f4a08648ae98b0d45",
+      "rows": 175,
+      "physical_rows": 55,
+      "all_physical_signatures_found": true,
+      "schema_and_consumer": "pass"
+    }
+  ],
+  "headless": [
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/HEADLESS_ACTUAL/dense.raw.json",
+      "raw_sha256": "595e969b3511d38d08d30da09272a7786dd3a0bbea78f1fa2ba50fc4583a2947",
+      "document_sha256": "61b87ef00e447814f0f4c915a7af228f0f4b4304d742f30f38afa17c8d9dd569",
+      "current_canonical_hash": "4f7eec5dc8153242a087cd3df2e9d53325ad8d3e402a85372f7490aa6f38ddaa",
+      "source_binding": "pass",
+      "schema": "pass"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/HEADLESS_ACTUAL/sparse.raw.json",
+      "raw_sha256": "9e63ff141fa48a47999fee16f6823c095e91ffd19b70e6b1e76fd302bec526aa",
+      "document_sha256": "39930a8371af1583be5523a831ebef7d590576b4b2923a205338b1428f006e1c",
+      "current_canonical_hash": "c2ee4b06a895d1642d837ea39be42748b949243441d2c621aeaf7883e3be74b7",
+      "source_binding": "pass",
+      "schema": "pass"
+    }
+  ],
+  "blocked": [
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/BLOCKED_ACTUAL/missing_closure.raw.json",
+      "sha256": "cb0300e89d4ba9b7981d380553687e6caaa57b1cddc9ceed32198ec8d8c99227",
+      "mechanics": "MODEL_INCOMPLETE",
+      "rows": 0,
+      "empty_evidence": true,
+      "analysis_checksum": "match",
+      "numerical_standing": "needs_recompute"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/BLOCKED_ACTUAL/missing_nu.raw.json",
+      "sha256": "d2c3d9373b05a898776d887093a090822d93dbe580bf04a04c61fbc7fca43e29",
+      "mechanics": "MODEL_INCOMPLETE",
+      "rows": 0,
+      "empty_evidence": true,
+      "analysis_checksum": "match",
+      "numerical_standing": "needs_recompute"
+    }
+  ],
+  "input_scope": {
+    "core_request_sha256": "466e514b44ea185e74c1c554aa3083595db94b7ffe519b7f859b42b30e934c1e",
+    "full_ui_model_sha256": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e",
+    "same_project_id": true,
+    "equal_models": false,
+    "core_case_fields": [
+      [
+        "id",
+        "pressure_regions",
+        "primitive_loads",
+        "provenance"
+      ],
+      [
+        "id",
+        "pressure_regions",
+        "primitive_loads",
+        "provenance"
+      ]
+    ],
+    "ui_case_fields": [
+      [
+        "id",
+        "kind",
+        "label",
+        "pressure_regions",
+        "primitive_loads",
+        "provenance",
+        "status"
+      ],
+      [
+        "id",
+        "kind",
+        "label",
+        "pressure_regions",
+        "primitive_loads",
+        "provenance",
+        "status"
+      ]
+    ]
+  }
+}

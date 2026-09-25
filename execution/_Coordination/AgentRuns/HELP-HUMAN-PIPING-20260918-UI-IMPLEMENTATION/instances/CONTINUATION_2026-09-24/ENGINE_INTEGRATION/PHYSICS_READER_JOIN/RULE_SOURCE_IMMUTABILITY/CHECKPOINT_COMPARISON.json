@@ -1,0 +1,90 @@
+[
+  {
+    "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/core/reporting/result_export/tests/physics_contract.rs",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+    "matches_checkpoint": false
+  },
+  {
+    "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/core/analysis_runs/physics_evidence.py",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/tests/test_physics_consumer_contract.py",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/result-export/physicsResultExport.test.ts",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx",
+    "matches_checkpoint": true
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "matches_checkpoint": true
+  }
+]

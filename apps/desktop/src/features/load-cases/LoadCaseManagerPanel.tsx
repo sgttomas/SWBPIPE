@@ -1,3 +1,4 @@
+import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";
 import { ListPlus, Scale, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
@@ -97,12 +98,17 @@ export function LoadCaseManagerPanel({
   model,
   onQueueIntent,
   onSelect,
-  selection
+  selection,
+  queuedIntents, operationBusy, preparationEpoch, getPreparationEpoch
 }: {
   model: PreviewModel;
   onQueueIntent: (intent: EditorOperationIntent) => void;
   onSelect: (selection: EntityRef) => void;
   selection: EntityRef;
+  queuedIntents?: EditorOperationIntent[];
+  operationBusy?: boolean;
+  preparationEpoch?: number;
+  getPreparationEpoch?: () => number;
 }) {
   const primitiveLoads = useMemo(() => primitiveLoadViews(model), [model]);
   const combinationTerms = useMemo(() => combinationTermViews(model), [model]);
@@ -487,6 +493,7 @@ export function LoadCaseManagerPanel({
         unit posture=single_unit_system_preview; saved_project_mutated=false
       </p>
 
+      <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCaseId={selectedLoadCase?.id} />
       <section className="load-case-create-editor" aria-label="Create load case">
         <div className="load-editor-heading" data-testid="load-manager-create-load-case-heading">
           <ListPlus size={14} aria-hidden="true" />

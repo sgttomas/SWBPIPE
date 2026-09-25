@@ -1,0 +1,58 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/result-export/physicsResultExport.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner
+
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/result-export/physicsResultExport.test.ts (30 tests | 3 failed) 41ms
+     × preserves sparse evidence through analysis/checksums, JSON reopen and canonical projection 3ms
+     × preserves dense evidence through analysis/checksums, JSON reopen and canonical projection 1ms
+     × requires existing Current manifest/source proof and retains Sensitive rejection 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > preserves sparse evidence through analysis/checksums, JSON reopen and canonical projection
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > preserves dense evidence through analysis/checksums, JSON reopen and canonical projection
+Error: INPUT-MANIFEST-LOAD-BASIS-INCOMPLETE: complete load-case bases are required.
+ ❯ validateArgs src/services/inputManifestService.ts:204:11
+    202|     )
+    203|   ) {
+    204|     throw new Error(
+       |           ^
+    205|       "INPUT-MANIFEST-LOAD-BASIS-INCOMPLETE: complete load-case bases …
+    206|     );
+ ❯ buildCurrentSessionInputManifest src/services/inputManifestService.ts:77:3
+ ❯ manifest src/features/result-export/physicsResultExport.test.ts:21:10
+ ❯ src/features/result-export/physicsResultExport.test.ts:103:86
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > requires existing Current manifest/source proof and retains Sensitive rejection
+Error: INPUT-MANIFEST-LOAD-BASIS-INCOMPLETE: complete load-case bases are required.
+ ❯ validateArgs src/services/inputManifestService.ts:204:11
+    202|     )
+    203|   ) {
+    204|     throw new Error(
+       |           ^
+    205|       "INPUT-MANIFEST-LOAD-BASIS-INCOMPLETE: complete load-case bases …
+    206|     );
+ ❯ buildCurrentSessionInputManifest src/services/inputManifestService.ts:77:3
+ ❯ manifest src/features/result-export/physicsResultExport.test.ts:21:10
+ ❯ src/features/result-export/physicsResultExport.test.ts:118:49
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 27 passed (30)
+   Start at  22:13:52
+   Duration  619ms (transform 98ms, setup 85ms, import 87ms, tests 41ms, environment 314ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/result-export/physicsResultExport.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner

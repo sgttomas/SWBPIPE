@@ -1,0 +1,25 @@
+{
+  "qualification": "actual blocked producer sources; reference-only analysis, never Current/export",
+  "checks": [
+    {
+      "source": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/BLOCKED_ACTUAL/missing_closure.raw.json",
+      "status": "MODEL_INCOMPLETE",
+      "source_sha256": "e4095ba7b9d0c21afec87b36b38132bfd4a3252c41d98d5e28efe63a1b88b468",
+      "analysis_record_verified": true,
+      "numerical_standing": "needs_recompute",
+      "diagnostic_codes": [
+        "PRESSURE_TERMINAL_CLOSURE_INVALID"
+      ]
+    },
+    {
+      "source": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/BLOCKED_ACTUAL/missing_nu.raw.json",
+      "status": "MODEL_INCOMPLETE",
+      "source_sha256": "9160553b643063be364d3bbaf08f466c27f797fd64882dfc1a012fa3cdf6510b",
+      "analysis_record_verified": true,
+      "numerical_standing": "needs_recompute",
+      "diagnostic_codes": [
+        "EXACT_PRESSURE_POISSON_RATIO_REQUIRED"
+      ]
+    }
+  ]
+}

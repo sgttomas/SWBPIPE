@@ -1,0 +1,13 @@
+{
+  "kind": "fixture traversal plus static source trace; no Rust/runtime execution",
+  "target": "pipe:fixture-span",
+  "current_pipe_primitive_load_references_result": [],
+  "unseen_pressure_region_references": [
+    "case:closed-pressure/region:fixture-pressure"
+  ],
+  "resolver": "operation_applier/src/lib.rs resolve_delete_pipe_run invokes only pipe_primitive_load_references; application publishes deleted_pipe candidate without global reference validation",
+  "impact": "Delete is admitted although region retains now-missing member_pipe_ids reference",
+  "native_future_version_backcheck": "one-token reversal recovers original frozen hash",
+  "optional_G_supplement": "hashes and patch digest matched",
+  "batch_repair": "all AFTER_HASHES matched; source review completed; runtime pending"
+}

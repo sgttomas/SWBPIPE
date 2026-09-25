@@ -1,0 +1,31 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/features/editor-contract/EditorContractPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/editor-contract/EditorContractPanel.tsx
+index 935dcff528..ed288c2c55 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/editor-contract/EditorContractPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/editor-contract/EditorContractPanel.tsx
+@@ -207,10 +207,10 @@ function materialEditors(model: PreviewModel) {
+       ),
+       field(
+         "shear_modulus",
+-        "Shear modulus",
+-        material.shear_modulus.value,
++        !material.shear_modulus && model.pressure_contract?.mode === "exact_straight_pressure_v2" ? "Shear modulus (derived from selected E and nu)" : "Shear modulus",
++        material.shear_modulus?.value ?? "TBD",
+         "stress",
+-        material.shear_modulus.unit,
++        material.shear_modulus?.unit ?? "TBD",
+         material.id
+       ),
+       field(
+diff --git a/projects/chirality-piping/apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx
+index f51ca7fc9d..832e412c7e 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx
+@@ -265,7 +265,7 @@ export function buildExportRepresentation(model: PreviewModel): Record<string, u
+     field_id: material.id,
+     field_class: "material",
+     ...privacyMetadataFor("material", material.provenance),
+-    value: `${material.label}; E=${material.elastic_modulus.value} ${material.elastic_modulus.unit}; G=${material.shear_modulus.value} ${material.shear_modulus.unit}`
++    value: `${material.label}; E=${material.elastic_modulus.value} ${material.elastic_modulus.unit}; G=${material.shear_modulus ? `${material.shear_modulus.value} ${material.shear_modulus.unit}` : model.pressure_contract?.mode === "exact_straight_pressure_v2" ? "not authored (derived from selected E and nu)" : "not authored"}`
+   }));
+ 
+   const components: ExportItem[] = model.components.map((component) => ({

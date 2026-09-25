@@ -19,4 +19,7 @@ __all__ = [
     "validate_analysis_run_v0_3",
     "verify_analysis_run_record",
     "verify_legacy_checksum",
+    "validate_source_blocks",
 ]
+
+from .source_blocks import validate_source_blocks

@@ -93,6 +93,18 @@ fn run_batch(model: &Value, batch: &Value, claimed: Option<&Value>, apply: bool)
         ));
     }
 
+    // Plan basis is independent from the caller's current-model claim and is
+    // checked against the complete initial document, before private simulation.
+    if let Some(source) = batch.get("source_model_hash") {
+        if source != &initial_backend_hash {
+            diagnostics.push(diagnostic(
+                "OP-BATCH-SOURCE-MODEL-HASH-MISMATCH",
+                "The generated plan source model is stale; regenerate and review the plan",
+                vec![batch_id.into()],
+            ));
+        }
+    }
+
     let mut current = model.clone();
     let mut preflight_passed = diagnostics.is_empty();
     if preflight_passed {
@@ -244,7 +256,14 @@ fn boolean(object: &Map<String, Value>, field: &str, expected: bool) -> Result<(
 
 /// Strict proposal import validation; no submitted validation labels are trusted.
 fn preflight(batch: &Value) -> Result<&Vec<Value>, String> {
-    let batch = exact_object(batch, &["batch_id", "operations"], &[])?;
+    let batch = exact_object(batch, &["batch_id", "operations"], &["source_model_hash"])?;
+    if let Some(source) = batch.get("source_model_hash") {
+        let valid = source.as_str().and_then(|s| s.strip_prefix("sha256:")).is_some_and(|s|
+            s.len() == 64 && s.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)));
+        if !valid {
+            return Err("source_model_hash must be sha256: followed by 64 lowercase hexadecimal characters".into());
+        }
+    }
     string(batch, "batch_id", false)?;
     let operations = batch["operations"]
         .as_array()
@@ -325,7 +344,8 @@ fn preflight_operation(value: &Value) -> Result<(), String> {
     string(target, "ref", false)?;
     if !matches!(
         string(target, "object_type", false)?,
-        "Material"
+        "Model"
+            | "Material"
             | "Section"
             | "Node"
             | "Element"

@@ -227,16 +227,14 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   const baseline350Hash = await currentModelHash(page);
   await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-  await page.getByTestId("issues-drawer-toggle").click();
-  await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
-  await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
-  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+  await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
+  await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+  await expectStatusChip(page, "status-pill-mechanics", "failed", "Solver · Not solved");
   // Slice B3: the Analyze page lies over the stage's surfaces; close it to reach the canvas.
   await showCanvas(page);
   await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
   await expect(page.getByTestId("viewport-deformation-summary")).toBeVisible();
-  await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0");
+  await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("not started; result rows=0");
   await expect(page.getByTestId("viewport-deformation-boundary")).toHaveText("scale=not_generated; professional_claim=false");
   await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
   await expect(page.getByTestId("viewport-deformation-summary")).toBeHidden();

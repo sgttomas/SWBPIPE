@@ -1,0 +1,27 @@
+{
+  "command": "npm test --workspace apps/desktop -- src/App.projectHandlers.test.tsx src/App.shell.test.tsx src/App.deadControls.test.tsx src/features/result-export/ResultExportPanel.test.tsx src/features/stress-neutral/StressNeutralExportPanel.test.tsx src/features/solve/SolvePanel.test.tsx --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner",
+  "exit": 1,
+  "passed": 96,
+  "failed": 4,
+  "unhandled_errors": 1,
+  "log_sha256": "dd66ac848afec388073f9199316d3e619262b9c5e4f83ee40ccdf5462ede040d",
+  "failures": [
+    {
+      "test": "projectHandlers rule revision/open-empty",
+      "cause": "Scoped mock omitted actual startup storage capability; shell never loaded; unhandled rejection. Test setup repair, no source bypass."
+    },
+    {
+      "test": "dead-control audit",
+      "cause": "New pressure-authoring disabled profile button lacked accessible reason. Parent source repair; audit unchanged."
+    },
+    {
+      "test": "stress-neutral delayed packet",
+      "cause": "Read href before async decoded payload validator completed. Wait for validation, preserve hash oracle."
+    },
+    {
+      "test": "stress-neutral stale native save",
+      "cause": "Status element always exists; correct stale outcome is empty content. Assert empty element rather than absent."
+    }
+  ],
+  "boundary": "Current source after these repairs and click-time guard additions has not been rerun yet; this failed attempt is preserved."
+}

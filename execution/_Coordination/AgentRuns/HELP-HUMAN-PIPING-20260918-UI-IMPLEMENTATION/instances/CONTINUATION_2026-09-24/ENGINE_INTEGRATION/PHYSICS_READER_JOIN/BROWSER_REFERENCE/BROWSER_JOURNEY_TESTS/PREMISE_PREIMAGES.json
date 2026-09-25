@@ -1,0 +1,117 @@
+{
+  "scope": "Source-only premise adaptation; no browser execution. Original assertions preserved for mapping, not active requirements for fake Current.",
+  "sources": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "9464cf1163a9a78bd2a607297721c65a71c9db8fc44cc174132dfb6cd0bf2ae5",
+      "original_solve_result_assertions": [
+        {
+          "line": 579,
+          "text": "  await expect(page.getByTestId(\"solve-job-summary\")).toContainText(\"state=completed\");"
+        },
+        {
+          "line": 580,
+          "text": "  await expect(page.getByTestId(\"solve-job-summary\")).toContainText(\"result_rows=830\");"
+        },
+        {
+          "line": 583,
+          "text": "  await expect(page.getByTestId(\"solve-job-unit-policy\")).toContainText(\"rows=830\");"
+        },
+        {
+          "line": 588,
+          "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText(\"available; nodes=5; max=4.927112 mm\");"
+        },
+        {
+          "line": 609,
+          "text": "  await expect(auditDrawer.getByTestId(\"run-audit-units\")).toContainText(\"rows=830\");"
+        },
+        {
+          "line": 610,
+          "text": "  await expect(auditDrawer.getByTestId(\"run-audit-units\")).toContainText(\"source=result_envelope\");"
+        },
+        {
+          "line": 614,
+          "text": "  await expect(page.getByTestId(\"knowledge-unit-context\")).toContainText(\"computed_unit_refs=2\");"
+        },
+        {
+          "line": 682,
+          "text": "    \"REPORT-PACKAGE-SAVE-DESKTOP-ONLY\""
+        },
+        {
+          "line": 730,
+          "text": "  await expect(stressNeutralExport.getByTestId(\"stress-neutral-unit-witnesses\")).toContainText(\"count=828\");"
+        },
+        {
+          "line": 739,
+          "text": "  await expect(headlessRunner.getByTestId(\"headless-runner-unit-witnesses\")).toContainText(\"count=830\");"
+        },
+        {
+          "line": 744,
+          "text": "  await expect(handoffPackage.getByTestId(\"handoff-unit-witnesses\")).toContainText(\"count=830\");"
+        },
+        {
+          "line": 760,
+          "text": "    \"result_quantities=832\""
+        },
+        {
+          "line": 876,
+          "text": "  await expectStatusChip(page, \"status-pill-mechanics\", \"MODEL_INCOMPLETE\", \"Solver \u00b7 Model incomplete\");"
+        },
+        {
+          "line": 1054,
+          "text": "  await expect(page.getByTestId(\"solve-job-summary\")).toContainText(\"state=completed\");"
+        },
+        {
+          "line": 1099,
+          "text": "  await expect(page.getByTestId(\"diagnostic-unit-context\")).toContainText(\"linked_results=1\");"
+        },
+        {
+          "line": 1101,
+          "text": "  await expect(page.getByTestId(\"diagnostic-unit-context\")).toContainText(\"source=result_envelope\");"
+        },
+        {
+          "line": 1238,
+          "text": "  await page.getByTestId(\"rule-pack-check-status-MODEL_INCOMPLETE\").first().check();"
+        },
+        {
+          "line": 1240,
+          "text": "  expect(JSON.parse(statusText).check_definitions[0].result_statuses).toContain(\"MODEL_INCOMPLETE\");"
+        },
+        {
+          "line": 1660,
+          "text": "  await expect(page.getByTestId(\"solve-job-summary\")).toContainText(\"state=completed\");"
+        }
+      ]
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "24892f8e86fcb5ded0c45b4c65b67569da595a2c5d04d0aa52c171225eef5261",
+      "original_solve_result_assertions": [
+        {
+          "line": 125,
+          "text": "  await expect(page.getByTestId(\"solve-job-summary\")).toContainText(\"state=completed\");"
+        },
+        {
+          "line": 138,
+          "text": "  await expect(visibleSolveProof).toContainText(\"seam=browser_fixture_no_backend_job\");"
+        },
+        {
+          "line": 286,
+          "text": "  await expect(page.getByTestId(\"solve-job-summary\")).toContainText(\"state=completed\");"
+        },
+        {
+          "line": 288,
+          "text": "  await expectStatusChip(page, \"status-pill-mechanics\", \"MODEL_INCOMPLETE\", \"Solver \u00b7 Model incomplete\");"
+        },
+        {
+          "line": 293,
+          "text": "    \"blocked; mechanics=Solver \u00b7 Model incomplete (MODEL_INCOMPLETE); rows=0\""
+        },
+        {
+          "line": 334,
+          "text": "    await expect(page.getByTestId(\"solve-job-summary\")).toContainText(\"state=completed\");"
+        }
+      ]
+    }
+  ]
+}

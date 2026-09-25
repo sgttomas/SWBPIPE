@@ -1,0 +1,41 @@
+{
+  "aggregate_sha256": "10c019af7d68568de3013ae69555fc0e4dfba8dee8a0353c58299dfc274ea843",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_evidence.py",
+      "sha256": "984463c11fd2e71c6698021b7e910a645b7094a98bf7126c0831fc1c2d66ce2b",
+      "current_match": true,
+      "initial_reconstructed_sha256": "18e392743af2a4a22de33116131b01562654312d3d5087b6f622ac74e800593d"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_physics_consumer_contract.py",
+      "sha256": "17417c3cd765157fa950770d8c5080f5053fe16ae0413d393ecc7c77ce7abeee",
+      "current_match": true,
+      "initial_reconstructed_sha256": "6323afa07c5b88d3babf1b4e8e4155a5681fc2aebb5988f53ee89b1e60ac6756"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "sha256": "35a996ab42c3174ff34ab48f1408e2c2d26c47fdacb99eb338976d9fd778d6c9",
+      "current_match": true,
+      "initial_reconstructed_sha256": "295b31cd32638059c79f2123167c8ad3eab3b55879b057dbd1e25e13b7c6aa6b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.parity.test.ts",
+      "sha256": "7eafd3fb2ed3bf005e0d604b7a91bbdaa3c89005a344d79984d73169366c1654",
+      "current_match": true,
+      "initial_reconstructed_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs",
+      "sha256": "1328a29f1871e81da7125efa0cab9c2fd5046762369c5f1b9310fbb35ec2adbf",
+      "current_match": true,
+      "initial_reconstructed_sha256": "5c58ddd494a6bc909940629277b67bacef9dafaaf2d7a4cbc4fe42c409d673b8"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/physics_contract.rs",
+      "sha256": "64730f75ca6381ff312fe5fd1b7b9e2924d82a2dc7135ffa62faf5e8a9ab8947",
+      "current_match": true,
+      "initial_reconstructed_sha256": "3f1088a478c5cb536affd9f67342dceb267e706724f96f2e727b4e8ec8f46e66"
+    }
+  ]
+}

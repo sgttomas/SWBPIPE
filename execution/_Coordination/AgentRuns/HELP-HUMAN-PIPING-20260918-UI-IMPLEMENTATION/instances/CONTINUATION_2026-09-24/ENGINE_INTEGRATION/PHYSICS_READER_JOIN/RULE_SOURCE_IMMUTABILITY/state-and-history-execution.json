@@ -1,0 +1,23 @@
+{
+  "command": [
+    "npm",
+    "test",
+    "--workspace",
+    "apps/desktop",
+    "--",
+    "src/features/workspace/resultsSessionState.test.ts",
+    "src/features/workspace/workspaceSession.shell.test.tsx",
+    "src/features/results/numericalResultQuality.test.ts",
+    "src/services/previewService.test.ts",
+    "src/services/analysisRunCompatibility.test.ts",
+    "src/features/results/HistoricalRunContext.test.tsx",
+    "--maxWorkers=2",
+    "--config",
+    "/private/tmp/piping-physics-ts-vitest.config.mjs",
+    "--configLoader",
+    "runner"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "exit_code": 1,
+  "elapsed_seconds": 5.219909906387329
+}

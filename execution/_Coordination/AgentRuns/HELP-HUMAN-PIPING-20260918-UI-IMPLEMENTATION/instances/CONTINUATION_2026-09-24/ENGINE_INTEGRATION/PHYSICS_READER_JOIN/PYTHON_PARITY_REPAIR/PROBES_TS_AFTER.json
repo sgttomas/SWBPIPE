@@ -1,0 +1,36 @@
+{
+  "scope": "Direct validator only; no actual fresh producer, Current, native or export claim.",
+  "runtime": "v24.18.0",
+  "reader_sha256": "35a996ab42c3174ff34ab48f1408e2c2d26c47fdacb99eb338976d9fd778d6c9",
+  "fixture_sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2",
+  "results": [
+    {
+      "name": "unmodified_control",
+      "admission": "accepted"
+    },
+    {
+      "name": "rhs_term_coefficient_999",
+      "error": "Error: PHYSICS_EVIDENCE_RHS_TERM_COEFFICIENT"
+    },
+    {
+      "name": "rhs_pressure_moment_999",
+      "error": "Error: PHYSICS_EVIDENCE_RHS_PRESSURE_MOMENT"
+    },
+    {
+      "name": "duplicate_rhs_group",
+      "error": "Error: PHYSICS_EVIDENCE_RHS_GROUP_DUPLICATE"
+    },
+    {
+      "name": "source_annulus_ro_contradiction",
+      "error": "Error: PHYSICS_EVIDENCE_SECTION_INVALID"
+    },
+    {
+      "name": "producer_shape_thermal_consumed_with_pressure_ledger_excluding_thermal",
+      "admission": "accepted"
+    },
+    {
+      "name": "unknown_v2_row",
+      "error": "Error: PHYSICS_EVIDENCE_UNKNOWN_PHYSICAL_KIND"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "core/runner/headless/Cargo.toml",
+    "--jobs",
+    "2",
+    "--lib",
+    "tests::",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "environment": {
+    "CARGO_TARGET_DIR": "/private/tmp/piping-physics-headless-target",
+    "HEADLESS_PHYSICS_OUTPUT_DIR": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/HEADLESS_ACTUAL",
+    "HEADLESS_PRECISION_OUTPUT_DIR": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/HEADLESS_PRECISION",
+    "HEADLESS_BLOCKED_PHYSICS_OUTPUT_DIR": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/BLOCKED_ACTUAL"
+  },
+  "exit_code": 101,
+  "elapsed_seconds": 28.86638903617859
+}

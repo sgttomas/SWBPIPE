@@ -4,6 +4,7 @@ import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
 export type OperationBatch = {
   batch_id: string;
   operations: EditorOperationIntent[];
+  source_model_hash?: string;
 };
 export type OperationBatchStep = {
   index: number;

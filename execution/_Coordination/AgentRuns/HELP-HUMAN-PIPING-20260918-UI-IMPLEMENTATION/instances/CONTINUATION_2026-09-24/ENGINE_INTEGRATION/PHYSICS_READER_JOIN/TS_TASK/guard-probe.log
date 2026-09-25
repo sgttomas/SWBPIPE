@@ -1,0 +1,15 @@
+PASS actual sparse: 175 rows; source unchanged
+PASS actual dense: 177 rows; source unchanged
+PASS rejects missing exact evidence
+PASS rejects duplicate case
+PASS rejects missing unpressurized material
+PASS rejects cross-case region
+PASS rejects missing result binding
+PASS rejects duplicate result binding
+PASS rejects unknown result binding
+PASS rejects contradictory source pressure bits
+PASS rejects contradictory duplicate geometry
+PASS rejects nonfinite material
+PASS rejects unsupported derived row
+PASS rejects source-block namespace
+PASS 14 bounded physical evidence controls

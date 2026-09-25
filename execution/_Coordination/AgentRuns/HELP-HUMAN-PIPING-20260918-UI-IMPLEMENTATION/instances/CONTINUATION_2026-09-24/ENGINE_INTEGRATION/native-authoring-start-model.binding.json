@@ -1,0 +1,16 @@
+{
+  "purpose": "Concrete native authoring setup only, not a solve/current/native witness",
+  "source": "projects/chirality-piping/fixtures/model_operations/exact_pressure_authoring_model.json",
+  "source_sha256": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e",
+  "output": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/native-authoring-start-model.json",
+  "output_sha256": "890ad1e2d45aeddda4a66e0dd1e236282e22c204fb4ad3c971c6285e10cd37ef",
+  "basis": "Exact prestate transformations from exact_authoring_review_apply_serialization_and_real_solve; preserve every other field.",
+  "transformations": [
+    "schema_version 0.3.0 -> 0.2.0",
+    "remove pressure_contract",
+    "remove material0 poisson_ratio and constitutive_basis",
+    "set explicit synthetic material0 shear_modulus to 77GPa",
+    "remove pressure_regions from both load cases"
+  ],
+  "native_ui_note": "Material form retains any existing recorded G. The authored native model may retain G77GPa and therefore differ from no-G captured fixture bytes; actual native invocation must bind the actual authored model. Compare independently derived physical values, never transplant raw source or model hash."
+}

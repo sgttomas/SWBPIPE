@@ -66,7 +66,7 @@ describe("Materials through shared direct/review table", () => {
     try {
       fireEvent.click(within(table()).getByRole("button", { name: "Apply" }));
       await waitFor(() => expect(p.onApplyCellIntent).toHaveBeenCalledTimes(1));
-      expect(p.onApplyCellIntent.mock.calls[0][0].change).toMatchObject({ field_path: "shear_modulus.value", before: String(model.materials![0].shear_modulus.value), unit: model.materials![0].shear_modulus.unit, after: JSON.stringify({ value: 88, unit: model.materials![0].shear_modulus.unit }) });
+      expect(p.onApplyCellIntent.mock.calls[0][0].change).toMatchObject({ field_path: "shear_modulus.value", before: String(model.materials![0].shear_modulus!.value), unit: model.materials![0].shear_modulus!.unit, after: JSON.stringify({ value: 88, unit: model.materials![0].shear_modulus!.unit }) });
     } finally { hold = false; await act(async () => pending.splice(0).forEach((resolve) => resolve())); }
   });
 
@@ -81,9 +81,9 @@ describe("Materials through shared direct/review table", () => {
     await waitFor(() => expect(shearCell().parentElement).toHaveAttribute("aria-readonly", "false"));
     const input = editor("m-a", "shear"); fireEvent.change(input, { target: { value: "88" } });
     hold = true; const changed = structuredClone(model);
-    if (change === "value") changed.materials![0].shear_modulus.value = 4;
-    if (change === "type") (changed.materials![0].shear_modulus as unknown as { value: unknown }).value = String(model.materials![0].shear_modulus.value);
-    if (change === "unit") changed.materials![0].shear_modulus.unit = "MPa";
+    if (change === "value") changed.materials![0].shear_modulus!.value = 4;
+    if (change === "type") (changed.materials![0].shear_modulus as unknown as { value: unknown }).value = String(model.materials![0].shear_modulus!.value);
+    if (change === "unit") changed.materials![0].shear_modulus!.unit = "MPa";
     view.rerender(<ModelTree {...p} model={changed} projectSessionGeneration={change === "generation" ? 1 : 0} />);
     await waitFor(() => expect(pending.length).toBeGreaterThan(0));
     try {

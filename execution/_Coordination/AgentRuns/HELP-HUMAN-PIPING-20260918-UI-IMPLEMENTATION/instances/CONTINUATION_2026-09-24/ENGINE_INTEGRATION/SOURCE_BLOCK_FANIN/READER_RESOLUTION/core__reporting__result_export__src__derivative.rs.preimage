@@ -1,0 +1,855 @@
+//! Pure derivative assembly from separately qualified source evidence.
+//! This module does not authenticate supplied JSON. The headless solve API and
+//! desktop Current adapter own qualification; payload shape never proves origin.
+use crate::semantic_contract::{
+    canonical_metadata_in, complete_metadata, for_source, signature_in,
+};
+use open_pipe_stress_canonical_json::canonical_json;
+use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
+use std::collections::HashSet;
+
+pub const CANONICALIZATION: &str = "openpipestress_jcs_ijson_v1";
+pub fn guard_json(v: &Value) -> Result<(), String> {
+    match v {
+        Value::Number(n) => {
+            let f = n.as_f64().ok_or("UNSUPPORTED_NUMBER")?;
+            if !f.is_finite() || (f.fract() == 0.0 && f.abs() > 9_007_199_254_740_991.0) {
+                return Err("UNSAFE_JSON_NUMBER".into());
+            }
+        }
+        Value::Array(a) => {
+            for x in a {
+                guard_json(x)?;
+            }
+        }
+        Value::Object(o) => {
+            for x in o.values() {
+                guard_json(x)?;
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+pub fn digest(v: &Value) -> Result<String, String> {
+    guard_json(v)?;
+    Ok(format!(
+        "{:x}",
+        Sha256::digest(canonical_json(v).as_bytes())
+    ))
+}
+pub fn reference(kind: &str, id: &str) -> Value {
+    json!({"ref_type":kind,"ref_id":id})
+}
+pub fn checksum(v: &Value, scope: &str, payload_ref: Value) -> Result<Value, String> {
+    Ok(
+        json!({"algorithm":"sha256","canonicalization":CANONICALIZATION,"payload_scope":scope,"payload_ref":payload_ref,"value":digest(v)?}),
+    )
+}
+pub fn legacy_checksum(v: &Value, payload_ref: Value) -> Result<Value, String> {
+    Ok(
+        json!({"algorithm":"sha256","canonicalization":CANONICALIZATION,"payload_ref":payload_ref,"value":digest(v)?}),
+    )
+}
+
+/// `base` carries qualified run/provenance/boundary facts, not numeric mappings.
+/// `origin` is supplied only after the caller's source binding has succeeded.
+pub fn derive_document(
+    mut base: Value,
+    model: &Value,
+    source: &Value,
+    origin: Value,
+    request: Option<&Value>,
+) -> Result<Value, String> {
+    let (table, version) = for_source(source)?;
+    guard_json(model)?;
+    guard_json(source)?;
+    guard_json(&base)?;
+    guard_json(&origin)?;
+    if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
+        return Err("SOURCE_NOT_SOLVED".into());
+    }
+    if model["project"]["id"] != source["model_ref"] {
+        return Err("SOURCE_MODEL_IDENTITY_MISMATCH".into());
+    }
+    let rows = source["results"].as_array().ok_or("SOURCE_ROWS_MISSING")?;
+    if rows.is_empty() {
+        return Err("SOLVED_SOURCE_ROWS_EMPTY".into());
+    }
+    let mut ids = HashSet::new();
+    let mut values = Vec::new();
+    let mut reviews = Vec::new();
+    let mut disclosures = Vec::new();
+    let mut annotations = Vec::new();
+    let mut accounting = Vec::new();
+    let mut witnesses = Vec::new();
+    let e = &mut base["result_envelope"];
+    let mechanics_set = e["result_sets"][0].clone();
+    e["result_sets"] = json!([mechanics_set]);
+    e["schema_version"] = json!(version);
+    if version == "0.3.0" {
+<<<<<<< JOINED_BEFORE
+        for key in ["producer", "numerical_quality", "formulation_basis"] { e[key] = source[key].clone(); }
+        if source["producer"]["semantic_contract_id"] == crate::semantic_contract::PHYSICS_ID { e["contract_evidence"] = source["contract_evidence"].clone(); }
+        e["semantic_contract_ref"] = reference("semantic_contract", source["producer"]["semantic_contract_id"].as_str().unwrap());
+    }
+    e["model_ref"]=reference("model_payload",source["model_ref"].as_str().ok_or("MODEL_REF_MISSING")?);
+    let origin_ref=reference("source_origin_binding",origin["origin_id"].as_str().ok_or("ORIGIN_ID_MISSING")?);
+    let run_basis=e["run_ref"].clone();let provenance=e["provenance"].clone();let unit_system=e["unit_system_ref"].clone();
+    let carrier_ref=origin["received_carrier_checksum"]["payload_ref"].clone();
+    let authentic=origin["authentic_producer_available"].as_bool().ok_or("ORIGIN_AVAILABILITY_MISSING")?;
+    let scope=origin["received_carrier_checksum"]["payload_scope"].as_str().ok_or("ORIGIN_SCOPE_MISSING")?;
+    if origin["received_carrier_checksum"]["value"]!=digest(source)? {return Err("SOURCE_CARRIER_HASH_MISMATCH".into());}
+    if !authentic && !origin["original_producer_checksum"].is_null(){return Err("UNAVAILABLE_PRODUCER_HASH".into());}
+    for (index,row) in rows.iter().enumerate(){
+        let id=row["id"].as_str().filter(|s|!s.is_empty()).ok_or("SOURCE_ID_MISSING")?;
+        if !ids.insert(id){return Err("DUPLICATE_SOURCE_ID".into());}
+        row["value"].as_f64().filter(|x|x.is_finite()).ok_or("SOURCE_VALUE_INVALID")?;
+        let value=row["value"].clone();
+        let unit=row["unit"].as_str().filter(|s|!s.is_empty()).ok_or("SOURCE_UNIT_MISSING")?;
+        let kind=row["kind"].as_str().ok_or("SOURCE_KIND_MISSING")?;let s=signature_in(table, row)?;
+        let category=s.map(|s|s["category"].clone()).unwrap_or(json!("unknown"));
+        let dimension=s.map(|s|s["derivative_target_dimension"].clone()).unwrap_or(Value::Null);
+        let math=s.map(|s|s["source_physical_semantic_dimension"].clone()).unwrap_or(Value::Null);
+        let disposition=s.map(|s|s["canonical_disposition"].as_str().unwrap()).unwrap_or("disclosed");
+        let metadata=canonical_metadata_in(table, row);let family=s.map(|s|s["family"].clone()).unwrap_or(Value::Null);
+        let mandatory=matches!(family.as_str(),Some("force"|"moment"|"section_property"));
+        let review_missing=disposition=="exported_review" && !complete_metadata(row);
+        let physical_missing=disposition=="exported_quantity" && mandatory && metadata.is_none();
+        let actual=if review_missing||physical_missing {"disclosed"} else {disposition};
+        let observed=json!({"present":row.get("dimension").is_some(),"value":row.get("dimension").cloned().unwrap_or(Value::Null)});
+        let path=format!("/results/{index}");let row_scope=match scope {"received_current_legacy_enriched_carrier"=>"received_current_legacy_enriched_row","received_current_dimension_absent_carrier"=>"received_current_dimension_absent_row",_=>"raw_source_row"};
+        let row_hash=checksum(row,row_scope,carrier_ref.clone())?;let original=if authentic{checksum(row,"raw_source_row",origin["original_producer_checksum"]["payload_ref"].clone())?}else{Value::Null};
+        let annotation_id=format!("source-annotation:{index}");let annotation_ref=reference("source_annotation",&annotation_id);let obj=reference("preview_entity",row["entity_ref"].as_str().ok_or("ENTITY_REF_MISSING")?);
+        let basis=row.get("basis_ref").filter(|v|!v.is_null()).cloned().unwrap_or_else(||if actual=="exported_review"{reference("source_basis",row["metadata"]["basis"].as_str().unwrap())}else{run_basis.clone()});
+||||||| ORDINARY_NUM_BASE
+        for key in ["producer", "numerical_quality", "formulation_basis"] { e[key] = source[key].clone(); }
+        e["semantic_contract_ref"] = reference("semantic_contract", source["producer"]["semantic_contract_id"].as_str().unwrap());
+    }
+    e["model_ref"]=reference("model_payload",source["model_ref"].as_str().ok_or("MODEL_REF_MISSING")?);
+    let origin_ref=reference("source_origin_binding",origin["origin_id"].as_str().ok_or("ORIGIN_ID_MISSING")?);
+    let run_basis=e["run_ref"].clone();let provenance=e["provenance"].clone();let unit_system=e["unit_system_ref"].clone();
+    let carrier_ref=origin["received_carrier_checksum"]["payload_ref"].clone();
+    let authentic=origin["authentic_producer_available"].as_bool().ok_or("ORIGIN_AVAILABILITY_MISSING")?;
+    let scope=origin["received_carrier_checksum"]["payload_scope"].as_str().ok_or("ORIGIN_SCOPE_MISSING")?;
+    if origin["received_carrier_checksum"]["value"]!=digest(source)? {return Err("SOURCE_CARRIER_HASH_MISMATCH".into());}
+    if !authentic && !origin["original_producer_checksum"].is_null(){return Err("UNAVAILABLE_PRODUCER_HASH".into());}
+    for (index,row) in rows.iter().enumerate(){
+        let id=row["id"].as_str().filter(|s|!s.is_empty()).ok_or("SOURCE_ID_MISSING")?;
+        if !ids.insert(id){return Err("DUPLICATE_SOURCE_ID".into());}
+        row["value"].as_f64().filter(|x|x.is_finite()).ok_or("SOURCE_VALUE_INVALID")?;
+        let value=row["value"].clone();
+        let unit=row["unit"].as_str().filter(|s|!s.is_empty()).ok_or("SOURCE_UNIT_MISSING")?;
+        let kind=row["kind"].as_str().ok_or("SOURCE_KIND_MISSING")?;let s=signature_in(table, row)?;
+        let category=s.map(|s|s["category"].clone()).unwrap_or(json!("unknown"));
+        let dimension=s.map(|s|s["derivative_target_dimension"].clone()).unwrap_or(Value::Null);
+        let math=s.map(|s|s["source_physical_semantic_dimension"].clone()).unwrap_or(Value::Null);
+        let disposition=s.map(|s|s["canonical_disposition"].as_str().unwrap()).unwrap_or("disclosed");
+        let metadata=canonical_metadata_in(table, row);let family=s.map(|s|s["family"].clone()).unwrap_or(Value::Null);
+        let mandatory=matches!(family.as_str(),Some("force"|"moment"|"section_property"));
+        let review_missing=disposition=="exported_review" && !complete_metadata(row);
+        let physical_missing=disposition=="exported_quantity" && mandatory && metadata.is_none();
+        let actual=if review_missing||physical_missing {"disclosed"} else {disposition};
+        let observed=json!({"present":row.get("dimension").is_some(),"value":row.get("dimension").cloned().unwrap_or(Value::Null)});
+        let path=format!("/results/{index}");let row_scope=match scope {"received_current_legacy_enriched_carrier"=>"received_current_legacy_enriched_row","received_current_dimension_absent_carrier"=>"received_current_dimension_absent_row",_=>"raw_source_row"};
+        let row_hash=checksum(row,row_scope,carrier_ref.clone())?;let original=if authentic{checksum(row,"raw_source_row",origin["original_producer_checksum"]["payload_ref"].clone())?}else{Value::Null};
+        let annotation_id=format!("source-annotation:{index}");let annotation_ref=reference("source_annotation",&annotation_id);let obj=reference("preview_entity",row["entity_ref"].as_str().ok_or("ENTITY_REF_MISSING")?);
+        let basis=row.get("basis_ref").filter(|v|!v.is_null()).cloned().unwrap_or_else(||if actual=="exported_review"{reference("source_basis",row["metadata"]["basis"].as_str().unwrap())}else{run_basis.clone()});
+=======
+        for key in ["producer", "numerical_quality", "formulation_basis"] {
+            e[key] = source[key].clone();
+        }
+        if source["producer"]["semantic_contract_id"] == crate::source_blocks::CONTRACT_ID {
+            e["source_block_recovery"] = source["source_block_recovery"].clone();
+        } else if e.get("source_block_recovery").is_some() {
+            return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
+        }
+        e["semantic_contract_ref"] = reference(
+            "semantic_contract",
+            source["producer"]["semantic_contract_id"].as_str().unwrap(),
+        );
+    }
+    e["model_ref"] = reference(
+        "model_payload",
+        source["model_ref"].as_str().ok_or("MODEL_REF_MISSING")?,
+    );
+    let origin_ref = reference(
+        "source_origin_binding",
+        origin["origin_id"].as_str().ok_or("ORIGIN_ID_MISSING")?,
+    );
+    let run_basis = e["run_ref"].clone();
+    let provenance = e["provenance"].clone();
+    let unit_system = e["unit_system_ref"].clone();
+    let carrier_ref = origin["received_carrier_checksum"]["payload_ref"].clone();
+    let authentic = origin["authentic_producer_available"]
+        .as_bool()
+        .ok_or("ORIGIN_AVAILABILITY_MISSING")?;
+    let scope = origin["received_carrier_checksum"]["payload_scope"]
+        .as_str()
+        .ok_or("ORIGIN_SCOPE_MISSING")?;
+    if origin["received_carrier_checksum"]["value"] != digest(source)? {
+        return Err("SOURCE_CARRIER_HASH_MISMATCH".into());
+    }
+    if !authentic && !origin["original_producer_checksum"].is_null() {
+        return Err("UNAVAILABLE_PRODUCER_HASH".into());
+    }
+    for (index, row) in rows.iter().enumerate() {
+        let id = row["id"]
+            .as_str()
+            .filter(|s| !s.is_empty())
+            .ok_or("SOURCE_ID_MISSING")?;
+        if !ids.insert(id) {
+            return Err("DUPLICATE_SOURCE_ID".into());
+        }
+        row["value"]
+            .as_f64()
+            .filter(|x| x.is_finite())
+            .ok_or("SOURCE_VALUE_INVALID")?;
+        let value = row["value"].clone();
+        let unit = row["unit"]
+            .as_str()
+            .filter(|s| !s.is_empty())
+            .ok_or("SOURCE_UNIT_MISSING")?;
+        let kind = row["kind"].as_str().ok_or("SOURCE_KIND_MISSING")?;
+        let s = signature_in(table, row)?;
+        let category = s.map(|s| s["category"].clone()).unwrap_or(json!("unknown"));
+        let dimension = s
+            .map(|s| s["derivative_target_dimension"].clone())
+            .unwrap_or(Value::Null);
+        let math = s
+            .map(|s| s["source_physical_semantic_dimension"].clone())
+            .unwrap_or(Value::Null);
+        let disposition = s
+            .map(|s| s["canonical_disposition"].as_str().unwrap())
+            .unwrap_or("disclosed");
+        let metadata = canonical_metadata_in(table, row);
+        let family = s.map(|s| s["family"].clone()).unwrap_or(Value::Null);
+        let mandatory = matches!(
+            family.as_str(),
+            Some("force" | "moment" | "section_property")
+        );
+        let review_missing = disposition == "exported_review" && !complete_metadata(row);
+        let physical_missing =
+            disposition == "exported_quantity" && mandatory && metadata.is_none();
+        let actual = if review_missing || physical_missing {
+            "disclosed"
+        } else {
+            disposition
+        };
+        let observed = json!({"present":row.get("dimension").is_some(),"value":row.get("dimension").cloned().unwrap_or(Value::Null)});
+        let path = format!("/results/{index}");
+        let row_scope = match scope {
+            "received_current_legacy_enriched_carrier" => "received_current_legacy_enriched_row",
+            "received_current_dimension_absent_carrier" => "received_current_dimension_absent_row",
+            _ => "raw_source_row",
+        };
+        let row_hash = checksum(row, row_scope, carrier_ref.clone())?;
+        let original = if authentic {
+            checksum(
+                row,
+                "raw_source_row",
+                origin["original_producer_checksum"]["payload_ref"].clone(),
+            )?
+        } else {
+            Value::Null
+        };
+        let annotation_id = format!("source-annotation:{index}");
+        let annotation_ref = reference("source_annotation", &annotation_id);
+        let obj = reference(
+            "preview_entity",
+            row["entity_ref"].as_str().ok_or("ENTITY_REF_MISSING")?,
+        );
+        let basis = row
+            .get("basis_ref")
+            .filter(|v| !v.is_null())
+            .cloned()
+            .unwrap_or_else(|| {
+                if actual == "exported_review" {
+                    reference("source_basis", row["metadata"]["basis"].as_str().unwrap())
+                } else {
+                    run_basis.clone()
+                }
+            });
+>>>>>>> SOURCE_BLOCKS_SUBSET
+        annotations.push(json!({"annotation_id":annotation_id,"source_row_index":index,"source_result_id":id,"metadata":row.get("metadata").cloned().unwrap_or(Value::Null),"basis_ref":row.get("basis_ref").cloned().unwrap_or(Value::Null),"source_result_refs":row.get("source_result_refs").cloned().unwrap_or(json!([])),"observed_carrier_dimension":observed,"source_physical_semantic_dimension":math,"derivative_target_dimension":dimension,"source_origin_ref":origin_ref}));
+        let (target, path_target, target_type, target_scope) = if actual == "exported_quantity" {
+            let mut target = json!({"result_id":id,"family":family,"object_ref":obj,"basis_ref":basis,"magnitude":value,"unit":unit,"dimension":dimension,"provenance":provenance,"source_kind":kind,"source_row_index":index,"source_annotation_ref":annotation_ref});
+            if let Some(md) = metadata {
+                target["metadata"] = md;
+            }
+            let pointer = format!("/result_envelope/result_sets/0/values/{}", values.len());
+            values.push(target.clone());
+            (target, pointer, "quantity_result", "derived_quantity_row")
+        } else if actual == "exported_review" {
+            let target = json!({"evidence_id":id,"source_row_index":index,"source_result_id":id,"source_kind":kind,"evidence_kind":if category=="assembled_load_review"{"assembled_load_review"}else{"user_input_review"},"magnitude":value,"unit":unit,"dimension":dimension,"object_ref":obj,"basis_ref":basis,"location_ref":reference("source_location",row["metadata"]["location"].as_str().unwrap()),"source_annotation_ref":annotation_ref,"provenance":provenance});
+            let pointer = format!("/result_envelope/review_evidence/{}", reviews.len());
+            reviews.push(target.clone());
+            (target, pointer, "review_evidence", "derived_review_row")
+        } else {
+            let reason = if review_missing {
+                "review_metadata_incomplete"
+            } else if physical_missing {
+                "physical_metadata_incomplete"
+            } else if s.is_none() {
+                "unsupported_source_kind"
+            } else if category == "basis_record" {
+                "basis_annotation_not_quantity"
+            } else if category == "diagnostic_relative_ratio" {
+                "diagnostic_relative_ratio_non_governing"
+            } else if matches!(
+                category.as_str(),
+                Some("count" | "state" | "flag" | "solver_mode")
+            ) {
+                "discrete_evidence_not_ratio"
+            } else {
+                "diagnostic_evidence_not_physical_quantity"
+            };
+            let target = json!({"source_row_index":index,"source_result_id":id,"source_kind":kind,"source_value":value,"source_unit":unit,"source_dimension_present":observed["present"],"source_dimension":observed["value"],"declared_semantic_dimension":dimension,"source_physical_semantic_dimension":math,"semantic_category":category,"reason_code":reason,"object_ref":obj,"source_field_path":path,"source_annotation_ref":annotation_ref,"received_carrier_row_checksum":row_hash,"original_producer_row_checksum":original,"message":format!("{kind}: {reason}; source value/unit and annotation retained; non-governing evidence")});
+            let pointer = format!("/result_envelope/row_disclosures/{}", disclosures.len());
+            disclosures.push(target.clone());
+            (target, pointer, "row_disclosure", "derived_disclosure_row")
+        };
+        let target_ref = reference(target_type, id);
+        accounting.push(json!({"source_row_index":index,"source_result_id":id,"source_kind":kind,"source_field_path":path,"received_carrier_row_checksum":row_hash,"original_producer_row_checksum":original,"disposition":actual,"target_ref":target_ref,"target_field_path":path_target}));
+        if actual != "disclosed" {
+            witnesses.push(json!({"witness_id":format!("value-unit-witness:{index}"),"source_result_ref":reference("received_result",id),"source_field_path":path,"source_quantity":{"value":value,"unit":unit,"observed_dimension":observed},"target_result_ref":target_ref,"target_field_path":path_target,"target_quantity":{"value":value,"unit":unit,"dimension":dimension},"target_quantity_policy":"preserve_received_value_and_unit_with_independent_semantic_dimension","export_unit_policy":"no_numerical_conversion_preserve_received_unit","conversion_performed":false,"unit_system_ref":unit_system,"provenance":provenance,"source_row_index":index,"received_carrier_row_checksum":row_hash,"original_producer_row_checksum":original,"source_physical_semantic_dimension":math,"source_origin_ref":origin_ref,"target_row_checksum":checksum(&target,target_scope,reference("derivative_document",e["envelope_id"].as_str().unwrap()))?}));
+        }
+    }
+    e["result_sets"][0]["values"] = json!(values);
+    e["review_evidence"] = json!(reviews);
+    e["row_disclosures"] = json!(disclosures);
+    e["source_annotations"] = json!(annotations);
+    e["row_accounting"] = json!(accounting);
+    e["unit_preservation_witnesses"] = json!(witnesses);
+    e["unit_witness_policy"] =
+        json!("preserve_received_value_and_unit_with_independent_semantic_dimension");
+    e["reproducibility"]["model_hash"] = legacy_checksum(
+        model,
+        reference("model_payload", source["model_ref"].as_str().unwrap()),
+    )?;
+    e["reproducibility"]["raw_source_hashes"] = if authentic {
+        json!([legacy_checksum(
+            source,
+            origin["original_producer_checksum"]["payload_ref"].clone()
+        )?])
+    } else {
+        json!([])
+    };
+    e["reproducibility"]["source_origin_bindings"] = json!([origin]);
+    e["reproducibility"]["request_hash"] = match request {
+        Some(v) => checksum(
+            v,
+            "request_payload",
+            reference(
+                "runner_request",
+                v["request_id"].as_str().unwrap_or("request"),
+            ),
+        )?,
+        None => Value::Null,
+    };
+    e["reproducibility"]["derivative_hash_excludes"] =
+        json!("result_envelope.reproducibility.derivative_hash");
+    e["reproducibility"]
+        .as_object_mut()
+        .unwrap()
+        .remove("derivative_hash");
+    base["schema_version"] = json!(version);
+    let hash = checksum(
+        &base,
+        "derivative_document_excludes_own_hash",
+        reference(
+            "derivative_document",
+            base["result_envelope"]["envelope_id"].as_str().unwrap(),
+        ),
+    )?;
+    base["result_envelope"]["reproducibility"]["derivative_hash"] = hash;
+    validate_document(&base, source)?;
+    Ok(base)
+}
+
+/// Independent structural/value/hash accounting check. Strict whole schema is
+/// additionally exercised by the version-dispatched schema validation gate.
+pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
+    guard_json(doc)?;
+    guard_json(source)?;
+    let (table, version) = for_source(source)?;
+    if source["producer"]["semantic_contract_id"] == crate::source_blocks::CONTRACT_ID {
+        if doc["result_envelope"]["source_block_recovery"] != source["source_block_recovery"] {
+            return Err("SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH".into());
+        }
+    } else if doc["result_envelope"]
+        .get("source_block_recovery")
+        .is_some()
+    {
+        return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
+    }
+    if version == "0.3.0" {
+        for key in ["producer", "numerical_quality", "formulation_basis"] {
+<<<<<<< JOINED_BEFORE
+            if doc["result_envelope"][key] != source[key] { return Err("SOURCE_METADATA_BINDING_MISMATCH".into()); }
+        }
+        if doc["result_envelope"].get("contract_evidence") != source.get("contract_evidence").filter(|v| !v.is_null()) { return Err("SOURCE_CONTRACT_EVIDENCE_BINDING_MISMATCH".into()); }
+        if doc["result_envelope"]["semantic_contract_ref"] != reference("semantic_contract", source["producer"]["semantic_contract_id"].as_str().unwrap()) { return Err("SEMANTIC_CONTRACT_BINDING_MISMATCH".into()); }
+    }
+    if version == "0.2.0" && ["producer", "numerical_quality", "formulation_basis", "semantic_contract_ref", "contract_evidence"].iter().any(|key| doc["result_envelope"].get(key).is_some()) { return Err("LEGACY_DERIVATIVE_METADATA_CONTRADICTION".into()); }
+    if doc["schema_version"]!=version||doc["result_envelope"]["schema_version"]!=version{return Err("DERIVATIVE_VERSION_MISMATCH".into());}
+    let e=&doc["result_envelope"];let rows=source["results"].as_array().ok_or("SOURCE_ROWS_MISSING")?;
+    let accounts=e["row_accounting"].as_array().ok_or("ACCOUNTING_MISSING")?;
+    let annotations=e["source_annotations"].as_array().ok_or("ANNOTATIONS_MISSING")?;
+    let sets=e["result_sets"].as_array().ok_or("RESULT_SETS_MISSING")?;
+    let reviews=e["review_evidence"].as_array().ok_or("REVIEW_EVIDENCE_MISSING")?;
+    let disclosures=e["row_disclosures"].as_array().ok_or("DISCLOSURES_MISSING")?;
+    let witnesses=e["unit_preservation_witnesses"].as_array().ok_or("WITNESSES_MISSING")?;
+    let origins=e["reproducibility"]["source_origin_bindings"].as_array().ok_or("ORIGINS_MISSING")?;
+    if origins.len()!=1{return Err("ORIGIN_CARDINALITY".into());}let origin=&origins[0];
+    let envelope_id=e["envelope_id"].as_str().ok_or("ENVELOPE_ID_MISSING")?;
+    let origin_ref=reference("source_origin_binding",origin["origin_id"].as_str().ok_or("ORIGIN_ID_MISSING")?);
+    let model_ref=source["model_ref"].as_str().ok_or("MODEL_REF_MISSING")?;
+    if origin["actual_model_ref"]!=reference("model_payload",model_ref)||e["model_ref"]!=reference("model_payload",model_ref)||origin["mechanics_run_ref"]!=reference("mechanics_run",source["run_id"].as_str().ok_or("MECHANICS_RUN_MISSING")?){return Err("ORIGIN_IDENTITY_MISMATCH".into());}
+    let authentic=origin["authentic_producer_available"].as_bool().ok_or("ORIGIN_AVAILABILITY_MISSING")?;
+    let carrier_scope=origin["received_carrier_checksum"]["payload_scope"].as_str().ok_or("ORIGIN_SCOPE_MISSING")?;
+    let row_scope=match carrier_scope{"received_current_legacy_enriched_carrier"=>"received_current_legacy_enriched_row","received_current_dimension_absent_carrier"=>"received_current_dimension_absent_row","attested_headless_producer_carrier"=>"raw_source_row",_=>return Err("ORIGIN_SCOPE_INVALID".into())};
+    let carrier_ref=origin["received_carrier_checksum"]["payload_ref"].clone();
+    if origin["received_carrier_checksum"]!=checksum(source,carrier_scope,carrier_ref.clone())?{return Err("SOURCE_CARRIER_HASH_MISMATCH".into());}
+    if authentic {if origin["original_producer_checksum"]!=origin["received_carrier_checksum"]{return Err("ORIGINAL_PRODUCER_BINDING_MISMATCH".into());}}else if !origin["original_producer_checksum"].is_null(){return Err("UNAVAILABLE_PRODUCER_HASH".into());}
+    if accounts.len()!=rows.len()||annotations.len()!=rows.len(){return Err("ROW_ACCOUNTING_CARDINALITY".into());}
+    let mut total=reviews.len()+disclosures.len();for set in sets{total+=set["values"].as_array().ok_or("QUANTITIES_MISSING")?.len();}
+    if total!=rows.len(){return Err("TARGET_ACCOUNTING_CARDINALITY".into());}
+    let mut pointers=HashSet::new();let mut source_ids=HashSet::new();let mut expected_witnesses=Vec::new();
+    for (i,(a,row)) in accounts.iter().zip(rows).enumerate(){
+        let id=row["id"].as_str().ok_or("SOURCE_ID_MISSING")?;
+        if !source_ids.insert(id)||a["source_row_index"]!=i||a["source_result_id"]!=row["id"]||a["source_kind"]!=row["kind"]||a["source_field_path"]!=format!("/results/{i}"){return Err("SOURCE_ACCOUNTING_IDENTITY_MISMATCH".into());}
+        let path=a["target_field_path"].as_str().ok_or("TARGET_POINTER_MISSING")?;if !pointers.insert(path){return Err("TARGET_DUPLICATE".into());}let target=doc.pointer(path).ok_or("TARGET_POINTER_UNRESOLVED")?;
+        let s=signature_in(table, row)?;let md=canonical_metadata_in(table, row);let family=s.map(|s|s["family"].clone()).unwrap_or(Value::Null);let category=s.map(|s|s["category"].clone()).unwrap_or(json!("unknown"));
+        let mut disposition=s.map(|s|s["canonical_disposition"].as_str().unwrap()).unwrap_or("disclosed");
+        if (disposition=="exported_review"&&!complete_metadata(row))||(disposition=="exported_quantity"&&matches!(family.as_str(),Some("force"|"moment"|"section_property"))&&md.is_none()){disposition="disclosed";}
+        let (target_type,prefix,target_id,target_scope)=match disposition{"exported_quantity"=>("quantity_result","/result_envelope/result_sets/0/values/",&target["result_id"],"derived_quantity_row"),"exported_review"=>("review_evidence","/result_envelope/review_evidence/",&target["evidence_id"],"derived_review_row"),_=>("row_disclosure","/result_envelope/row_disclosures/",&target["source_result_id"],"derived_disclosure_row")};
+        if a["disposition"]!=disposition||!path.starts_with(prefix)||path[prefix.len()..].parse::<usize>().is_err()||target_id!=&row["id"]||a["target_ref"]!=reference(target_type,id)||target["source_row_index"]!=i||target["source_kind"]!=row["kind"]{return Err("TARGET_IDENTITY_OR_DISPOSITION_MISMATCH".into());}
+        let math=s.map(|s|s["source_physical_semantic_dimension"].clone()).unwrap_or(Value::Null);let dimension=s.map(|s|s["derivative_target_dimension"].clone()).unwrap_or(Value::Null);
+        let observed=json!({"present":row.get("dimension").is_some(),"value":row.get("dimension").cloned().unwrap_or(Value::Null)});
+        let ann_id=format!("source-annotation:{i}");let ann_ref=reference("source_annotation",&ann_id);let ann=&annotations[i];
+        if ann["annotation_id"]!=ann_id||ann["source_row_index"]!=i||ann["source_result_id"]!=row["id"]||ann["metadata"]!=row.get("metadata").cloned().unwrap_or(Value::Null)||ann["basis_ref"]!=row.get("basis_ref").cloned().unwrap_or(Value::Null)||ann["source_result_refs"]!=row.get("source_result_refs").cloned().unwrap_or(json!([]))||ann["observed_carrier_dimension"]!=observed||ann["source_physical_semantic_dimension"]!=math||ann["derivative_target_dimension"]!=dimension||ann["source_origin_ref"]!=origin_ref||target["source_annotation_ref"]!=ann_ref{return Err("SOURCE_ANNOTATION_MISMATCH".into());}
+        let row_hash=checksum(row,row_scope,carrier_ref.clone())?;let original=if authentic{checksum(row,"raw_source_row",origin["original_producer_checksum"]["payload_ref"].clone())?}else{Value::Null};
+        if a["received_carrier_row_checksum"]!=row_hash||a["original_producer_row_checksum"]!=original{return Err("SOURCE_ROW_HASH_BINDING_MISMATCH".into());}
+        let (value,unit)=if disposition=="disclosed"{(&target["source_value"],&target["source_unit"])}else{(&target["magnitude"],&target["unit"])};
+        if value!=&row["value"]||unit!=&row["unit"]||target["object_ref"]!=reference("preview_entity",row["entity_ref"].as_str().ok_or("ENTITY_REF_MISSING")?){return Err("SOURCE_TARGET_VALUE_OR_HASH_MISMATCH".into());}
+        let basis=row.get("basis_ref").filter(|v|!v.is_null()).cloned().unwrap_or_else(||if disposition=="exported_review"{reference("source_basis",row["metadata"]["basis"].as_str().unwrap())}else{e["run_ref"].clone()});
+        if disposition!="disclosed" && (target["basis_ref"]!=basis||target["provenance"]!=e["provenance"]){return Err("TARGET_BASIS_OR_PROVENANCE_MISMATCH".into());}
+        if disposition=="exported_review" && (target["source_result_id"]!=row["id"]||target["location_ref"]!=reference("source_location",row["metadata"]["location"].as_str().unwrap())||target["evidence_kind"]!=if category=="assembled_load_review"{json!("assembled_load_review")}else{json!("user_input_review")}){return Err("REVIEW_METADATA_MISMATCH".into());}
+        if disposition=="disclosed"{if target["declared_semantic_dimension"]!=dimension||target["source_physical_semantic_dimension"]!=math||target["semantic_category"]!=category||target["source_dimension_present"]!=observed["present"]||target["source_dimension"]!=observed["value"]||target["source_field_path"]!=a["source_field_path"]||target["received_carrier_row_checksum"]!=row_hash||target["original_producer_row_checksum"]!=original{return Err("DISCLOSURE_SEMANTICS_MISMATCH".into());}}
+        else {
+            if target["dimension"]!=dimension{return Err("TARGET_DIMENSION_MISMATCH".into());}
+            if disposition=="exported_quantity"&&(target["family"]!=family||target.get("metadata").cloned()!=md){return Err("PHYSICAL_SEMANTICS_MISMATCH".into());}
+            expected_witnesses.push((i,a,target,target_scope,row_hash,original,observed,math,dimension));
+        }
+    }
+    if witnesses.len()!=expected_witnesses.len(){return Err("WITNESS_CARDINALITY".into());}
+    for (w,(i,a,target,scope,row_hash,original,observed,math,dimension)) in witnesses.iter().zip(expected_witnesses){let row=&rows[i];
+        if w["witness_id"]!=format!("value-unit-witness:{i}")||w["source_row_index"]!=i||w["source_result_ref"]!=reference("received_result",row["id"].as_str().unwrap())||w["source_field_path"]!=a["source_field_path"]||w["source_quantity"]!=json!({"value":row["value"],"unit":row["unit"],"observed_dimension":observed})||w["target_result_ref"]!=a["target_ref"]||w["target_field_path"]!=a["target_field_path"]||w["target_quantity"]!=json!({"value":row["value"],"unit":row["unit"],"dimension":dimension})||w["received_carrier_row_checksum"]!=row_hash||w["original_producer_row_checksum"]!=original||w["source_physical_semantic_dimension"]!=math||w["source_origin_ref"]!=origin_ref||w["unit_system_ref"]!=e["unit_system_ref"]||w["provenance"]!=e["provenance"]||w["conversion_performed"]!=false||w["target_quantity_policy"]!="preserve_received_value_and_unit_with_independent_semantic_dimension"||w["export_unit_policy"]!="no_numerical_conversion_preserve_received_unit"||w["target_row_checksum"]!=checksum(target,scope,reference("derivative_document",envelope_id))?{return Err("WITNESS_MISMATCH".into());}
+    }
+    let mut payload=doc.clone();payload["result_envelope"]["reproducibility"].as_object_mut().ok_or("REPRODUCIBILITY_MISSING")?.remove("derivative_hash");
+    if e["reproducibility"]["derivative_hash"]!=checksum(&payload,"derivative_document_excludes_own_hash",reference("derivative_document",envelope_id))?{return Err("DERIVATIVE_HASH_MISMATCH".into());}Ok(())
+||||||| ORDINARY_NUM_BASE
+            if doc["result_envelope"][key] != source[key] { return Err("SOURCE_METADATA_BINDING_MISMATCH".into()); }
+        }
+        if doc["result_envelope"]["semantic_contract_ref"] != reference("semantic_contract", source["producer"]["semantic_contract_id"].as_str().unwrap()) { return Err("SEMANTIC_CONTRACT_BINDING_MISMATCH".into()); }
+    }
+    if version == "0.2.0" && ["producer", "numerical_quality", "formulation_basis", "semantic_contract_ref"].iter().any(|key| doc["result_envelope"].get(key).is_some()) { return Err("LEGACY_DERIVATIVE_METADATA_CONTRADICTION".into()); }
+    if doc["schema_version"]!=version||doc["result_envelope"]["schema_version"]!=version{return Err("DERIVATIVE_VERSION_MISMATCH".into());}
+    let e=&doc["result_envelope"];let rows=source["results"].as_array().ok_or("SOURCE_ROWS_MISSING")?;
+    let accounts=e["row_accounting"].as_array().ok_or("ACCOUNTING_MISSING")?;
+    let annotations=e["source_annotations"].as_array().ok_or("ANNOTATIONS_MISSING")?;
+    let sets=e["result_sets"].as_array().ok_or("RESULT_SETS_MISSING")?;
+    let reviews=e["review_evidence"].as_array().ok_or("REVIEW_EVIDENCE_MISSING")?;
+    let disclosures=e["row_disclosures"].as_array().ok_or("DISCLOSURES_MISSING")?;
+    let witnesses=e["unit_preservation_witnesses"].as_array().ok_or("WITNESSES_MISSING")?;
+    let origins=e["reproducibility"]["source_origin_bindings"].as_array().ok_or("ORIGINS_MISSING")?;
+    if origins.len()!=1{return Err("ORIGIN_CARDINALITY".into());}let origin=&origins[0];
+    let envelope_id=e["envelope_id"].as_str().ok_or("ENVELOPE_ID_MISSING")?;
+    let origin_ref=reference("source_origin_binding",origin["origin_id"].as_str().ok_or("ORIGIN_ID_MISSING")?);
+    let model_ref=source["model_ref"].as_str().ok_or("MODEL_REF_MISSING")?;
+    if origin["actual_model_ref"]!=reference("model_payload",model_ref)||e["model_ref"]!=reference("model_payload",model_ref)||origin["mechanics_run_ref"]!=reference("mechanics_run",source["run_id"].as_str().ok_or("MECHANICS_RUN_MISSING")?){return Err("ORIGIN_IDENTITY_MISMATCH".into());}
+    let authentic=origin["authentic_producer_available"].as_bool().ok_or("ORIGIN_AVAILABILITY_MISSING")?;
+    let carrier_scope=origin["received_carrier_checksum"]["payload_scope"].as_str().ok_or("ORIGIN_SCOPE_MISSING")?;
+    let row_scope=match carrier_scope{"received_current_legacy_enriched_carrier"=>"received_current_legacy_enriched_row","received_current_dimension_absent_carrier"=>"received_current_dimension_absent_row","attested_headless_producer_carrier"=>"raw_source_row",_=>return Err("ORIGIN_SCOPE_INVALID".into())};
+    let carrier_ref=origin["received_carrier_checksum"]["payload_ref"].clone();
+    if origin["received_carrier_checksum"]!=checksum(source,carrier_scope,carrier_ref.clone())?{return Err("SOURCE_CARRIER_HASH_MISMATCH".into());}
+    if authentic {if origin["original_producer_checksum"]!=origin["received_carrier_checksum"]{return Err("ORIGINAL_PRODUCER_BINDING_MISMATCH".into());}}else if !origin["original_producer_checksum"].is_null(){return Err("UNAVAILABLE_PRODUCER_HASH".into());}
+    if accounts.len()!=rows.len()||annotations.len()!=rows.len(){return Err("ROW_ACCOUNTING_CARDINALITY".into());}
+    let mut total=reviews.len()+disclosures.len();for set in sets{total+=set["values"].as_array().ok_or("QUANTITIES_MISSING")?.len();}
+    if total!=rows.len(){return Err("TARGET_ACCOUNTING_CARDINALITY".into());}
+    let mut pointers=HashSet::new();let mut source_ids=HashSet::new();let mut expected_witnesses=Vec::new();
+    for (i,(a,row)) in accounts.iter().zip(rows).enumerate(){
+        let id=row["id"].as_str().ok_or("SOURCE_ID_MISSING")?;
+        if !source_ids.insert(id)||a["source_row_index"]!=i||a["source_result_id"]!=row["id"]||a["source_kind"]!=row["kind"]||a["source_field_path"]!=format!("/results/{i}"){return Err("SOURCE_ACCOUNTING_IDENTITY_MISMATCH".into());}
+        let path=a["target_field_path"].as_str().ok_or("TARGET_POINTER_MISSING")?;if !pointers.insert(path){return Err("TARGET_DUPLICATE".into());}let target=doc.pointer(path).ok_or("TARGET_POINTER_UNRESOLVED")?;
+        let s=signature_in(table, row)?;let md=canonical_metadata_in(table, row);let family=s.map(|s|s["family"].clone()).unwrap_or(Value::Null);let category=s.map(|s|s["category"].clone()).unwrap_or(json!("unknown"));
+        let mut disposition=s.map(|s|s["canonical_disposition"].as_str().unwrap()).unwrap_or("disclosed");
+        if (disposition=="exported_review"&&!complete_metadata(row))||(disposition=="exported_quantity"&&matches!(family.as_str(),Some("force"|"moment"|"section_property"))&&md.is_none()){disposition="disclosed";}
+        let (target_type,prefix,target_id,target_scope)=match disposition{"exported_quantity"=>("quantity_result","/result_envelope/result_sets/0/values/",&target["result_id"],"derived_quantity_row"),"exported_review"=>("review_evidence","/result_envelope/review_evidence/",&target["evidence_id"],"derived_review_row"),_=>("row_disclosure","/result_envelope/row_disclosures/",&target["source_result_id"],"derived_disclosure_row")};
+        if a["disposition"]!=disposition||!path.starts_with(prefix)||path[prefix.len()..].parse::<usize>().is_err()||target_id!=&row["id"]||a["target_ref"]!=reference(target_type,id)||target["source_row_index"]!=i||target["source_kind"]!=row["kind"]{return Err("TARGET_IDENTITY_OR_DISPOSITION_MISMATCH".into());}
+        let math=s.map(|s|s["source_physical_semantic_dimension"].clone()).unwrap_or(Value::Null);let dimension=s.map(|s|s["derivative_target_dimension"].clone()).unwrap_or(Value::Null);
+        let observed=json!({"present":row.get("dimension").is_some(),"value":row.get("dimension").cloned().unwrap_or(Value::Null)});
+        let ann_id=format!("source-annotation:{i}");let ann_ref=reference("source_annotation",&ann_id);let ann=&annotations[i];
+        if ann["annotation_id"]!=ann_id||ann["source_row_index"]!=i||ann["source_result_id"]!=row["id"]||ann["metadata"]!=row.get("metadata").cloned().unwrap_or(Value::Null)||ann["basis_ref"]!=row.get("basis_ref").cloned().unwrap_or(Value::Null)||ann["source_result_refs"]!=row.get("source_result_refs").cloned().unwrap_or(json!([]))||ann["observed_carrier_dimension"]!=observed||ann["source_physical_semantic_dimension"]!=math||ann["derivative_target_dimension"]!=dimension||ann["source_origin_ref"]!=origin_ref||target["source_annotation_ref"]!=ann_ref{return Err("SOURCE_ANNOTATION_MISMATCH".into());}
+        let row_hash=checksum(row,row_scope,carrier_ref.clone())?;let original=if authentic{checksum(row,"raw_source_row",origin["original_producer_checksum"]["payload_ref"].clone())?}else{Value::Null};
+        if a["received_carrier_row_checksum"]!=row_hash||a["original_producer_row_checksum"]!=original{return Err("SOURCE_ROW_HASH_BINDING_MISMATCH".into());}
+        let (value,unit)=if disposition=="disclosed"{(&target["source_value"],&target["source_unit"])}else{(&target["magnitude"],&target["unit"])};
+        if value!=&row["value"]||unit!=&row["unit"]||target["object_ref"]!=reference("preview_entity",row["entity_ref"].as_str().ok_or("ENTITY_REF_MISSING")?){return Err("SOURCE_TARGET_VALUE_OR_HASH_MISMATCH".into());}
+        let basis=row.get("basis_ref").filter(|v|!v.is_null()).cloned().unwrap_or_else(||if disposition=="exported_review"{reference("source_basis",row["metadata"]["basis"].as_str().unwrap())}else{e["run_ref"].clone()});
+        if disposition!="disclosed" && (target["basis_ref"]!=basis||target["provenance"]!=e["provenance"]){return Err("TARGET_BASIS_OR_PROVENANCE_MISMATCH".into());}
+        if disposition=="exported_review" && (target["source_result_id"]!=row["id"]||target["location_ref"]!=reference("source_location",row["metadata"]["location"].as_str().unwrap())||target["evidence_kind"]!=if category=="assembled_load_review"{json!("assembled_load_review")}else{json!("user_input_review")}){return Err("REVIEW_METADATA_MISMATCH".into());}
+        if disposition=="disclosed"{if target["declared_semantic_dimension"]!=dimension||target["source_physical_semantic_dimension"]!=math||target["semantic_category"]!=category||target["source_dimension_present"]!=observed["present"]||target["source_dimension"]!=observed["value"]||target["source_field_path"]!=a["source_field_path"]||target["received_carrier_row_checksum"]!=row_hash||target["original_producer_row_checksum"]!=original{return Err("DISCLOSURE_SEMANTICS_MISMATCH".into());}}
+        else {
+            if target["dimension"]!=dimension{return Err("TARGET_DIMENSION_MISMATCH".into());}
+            if disposition=="exported_quantity"&&(target["family"]!=family||target.get("metadata").cloned()!=md){return Err("PHYSICAL_SEMANTICS_MISMATCH".into());}
+            expected_witnesses.push((i,a,target,target_scope,row_hash,original,observed,math,dimension));
+        }
+    }
+    if witnesses.len()!=expected_witnesses.len(){return Err("WITNESS_CARDINALITY".into());}
+    for (w,(i,a,target,scope,row_hash,original,observed,math,dimension)) in witnesses.iter().zip(expected_witnesses){let row=&rows[i];
+        if w["witness_id"]!=format!("value-unit-witness:{i}")||w["source_row_index"]!=i||w["source_result_ref"]!=reference("received_result",row["id"].as_str().unwrap())||w["source_field_path"]!=a["source_field_path"]||w["source_quantity"]!=json!({"value":row["value"],"unit":row["unit"],"observed_dimension":observed})||w["target_result_ref"]!=a["target_ref"]||w["target_field_path"]!=a["target_field_path"]||w["target_quantity"]!=json!({"value":row["value"],"unit":row["unit"],"dimension":dimension})||w["received_carrier_row_checksum"]!=row_hash||w["original_producer_row_checksum"]!=original||w["source_physical_semantic_dimension"]!=math||w["source_origin_ref"]!=origin_ref||w["unit_system_ref"]!=e["unit_system_ref"]||w["provenance"]!=e["provenance"]||w["conversion_performed"]!=false||w["target_quantity_policy"]!="preserve_received_value_and_unit_with_independent_semantic_dimension"||w["export_unit_policy"]!="no_numerical_conversion_preserve_received_unit"||w["target_row_checksum"]!=checksum(target,scope,reference("derivative_document",envelope_id))?{return Err("WITNESS_MISMATCH".into());}
+    }
+    let mut payload=doc.clone();payload["result_envelope"]["reproducibility"].as_object_mut().ok_or("REPRODUCIBILITY_MISSING")?.remove("derivative_hash");
+    if e["reproducibility"]["derivative_hash"]!=checksum(&payload,"derivative_document_excludes_own_hash",reference("derivative_document",envelope_id))?{return Err("DERIVATIVE_HASH_MISMATCH".into());}Ok(())
+=======
+            if doc["result_envelope"][key] != source[key] {
+                return Err("SOURCE_METADATA_BINDING_MISMATCH".into());
+            }
+        }
+        if doc["result_envelope"]["semantic_contract_ref"]
+            != reference(
+                "semantic_contract",
+                source["producer"]["semantic_contract_id"].as_str().unwrap(),
+            )
+        {
+            return Err("SEMANTIC_CONTRACT_BINDING_MISMATCH".into());
+        }
+    }
+    if version == "0.2.0"
+        && [
+            "producer",
+            "numerical_quality",
+            "formulation_basis",
+            "semantic_contract_ref",
+        ]
+        .iter()
+        .any(|key| doc["result_envelope"].get(key).is_some())
+    {
+        return Err("LEGACY_DERIVATIVE_METADATA_CONTRADICTION".into());
+    }
+    if doc["schema_version"] != version || doc["result_envelope"]["schema_version"] != version {
+        return Err("DERIVATIVE_VERSION_MISMATCH".into());
+    }
+    let e = &doc["result_envelope"];
+    let rows = source["results"].as_array().ok_or("SOURCE_ROWS_MISSING")?;
+    let accounts = e["row_accounting"].as_array().ok_or("ACCOUNTING_MISSING")?;
+    let annotations = e["source_annotations"]
+        .as_array()
+        .ok_or("ANNOTATIONS_MISSING")?;
+    let sets = e["result_sets"].as_array().ok_or("RESULT_SETS_MISSING")?;
+    let reviews = e["review_evidence"]
+        .as_array()
+        .ok_or("REVIEW_EVIDENCE_MISSING")?;
+    let disclosures = e["row_disclosures"]
+        .as_array()
+        .ok_or("DISCLOSURES_MISSING")?;
+    let witnesses = e["unit_preservation_witnesses"]
+        .as_array()
+        .ok_or("WITNESSES_MISSING")?;
+    let origins = e["reproducibility"]["source_origin_bindings"]
+        .as_array()
+        .ok_or("ORIGINS_MISSING")?;
+    if origins.len() != 1 {
+        return Err("ORIGIN_CARDINALITY".into());
+    }
+    let origin = &origins[0];
+    let envelope_id = e["envelope_id"].as_str().ok_or("ENVELOPE_ID_MISSING")?;
+    let origin_ref = reference(
+        "source_origin_binding",
+        origin["origin_id"].as_str().ok_or("ORIGIN_ID_MISSING")?,
+    );
+    let model_ref = source["model_ref"].as_str().ok_or("MODEL_REF_MISSING")?;
+    if origin["actual_model_ref"] != reference("model_payload", model_ref)
+        || e["model_ref"] != reference("model_payload", model_ref)
+        || origin["mechanics_run_ref"]
+            != reference(
+                "mechanics_run",
+                source["run_id"].as_str().ok_or("MECHANICS_RUN_MISSING")?,
+            )
+    {
+        return Err("ORIGIN_IDENTITY_MISMATCH".into());
+    }
+    let authentic = origin["authentic_producer_available"]
+        .as_bool()
+        .ok_or("ORIGIN_AVAILABILITY_MISSING")?;
+    let carrier_scope = origin["received_carrier_checksum"]["payload_scope"]
+        .as_str()
+        .ok_or("ORIGIN_SCOPE_MISSING")?;
+    let row_scope = match carrier_scope {
+        "received_current_legacy_enriched_carrier" => "received_current_legacy_enriched_row",
+        "received_current_dimension_absent_carrier" => "received_current_dimension_absent_row",
+        "attested_headless_producer_carrier" => "raw_source_row",
+        _ => return Err("ORIGIN_SCOPE_INVALID".into()),
+    };
+    let carrier_ref = origin["received_carrier_checksum"]["payload_ref"].clone();
+    if origin["received_carrier_checksum"] != checksum(source, carrier_scope, carrier_ref.clone())?
+    {
+        return Err("SOURCE_CARRIER_HASH_MISMATCH".into());
+    }
+    if authentic {
+        if origin["original_producer_checksum"] != origin["received_carrier_checksum"] {
+            return Err("ORIGINAL_PRODUCER_BINDING_MISMATCH".into());
+        }
+    } else if !origin["original_producer_checksum"].is_null() {
+        return Err("UNAVAILABLE_PRODUCER_HASH".into());
+    }
+    if accounts.len() != rows.len() || annotations.len() != rows.len() {
+        return Err("ROW_ACCOUNTING_CARDINALITY".into());
+    }
+    let mut total = reviews.len() + disclosures.len();
+    for set in sets {
+        total += set["values"].as_array().ok_or("QUANTITIES_MISSING")?.len();
+    }
+    if total != rows.len() {
+        return Err("TARGET_ACCOUNTING_CARDINALITY".into());
+    }
+    let mut pointers = HashSet::new();
+    let mut source_ids = HashSet::new();
+    let mut expected_witnesses = Vec::new();
+    for (i, (a, row)) in accounts.iter().zip(rows).enumerate() {
+        let id = row["id"].as_str().ok_or("SOURCE_ID_MISSING")?;
+        if !source_ids.insert(id)
+            || a["source_row_index"] != i
+            || a["source_result_id"] != row["id"]
+            || a["source_kind"] != row["kind"]
+            || a["source_field_path"] != format!("/results/{i}")
+        {
+            return Err("SOURCE_ACCOUNTING_IDENTITY_MISMATCH".into());
+        }
+        let path = a["target_field_path"]
+            .as_str()
+            .ok_or("TARGET_POINTER_MISSING")?;
+        if !pointers.insert(path) {
+            return Err("TARGET_DUPLICATE".into());
+        }
+        let target = doc.pointer(path).ok_or("TARGET_POINTER_UNRESOLVED")?;
+        let s = signature_in(table, row)?;
+        let md = canonical_metadata_in(table, row);
+        let family = s.map(|s| s["family"].clone()).unwrap_or(Value::Null);
+        let category = s.map(|s| s["category"].clone()).unwrap_or(json!("unknown"));
+        let mut disposition = s
+            .map(|s| s["canonical_disposition"].as_str().unwrap())
+            .unwrap_or("disclosed");
+        if (disposition == "exported_review" && !complete_metadata(row))
+            || (disposition == "exported_quantity"
+                && matches!(
+                    family.as_str(),
+                    Some("force" | "moment" | "section_property")
+                )
+                && md.is_none())
+        {
+            disposition = "disclosed";
+        }
+        let (target_type, prefix, target_id, target_scope) = match disposition {
+            "exported_quantity" => (
+                "quantity_result",
+                "/result_envelope/result_sets/0/values/",
+                &target["result_id"],
+                "derived_quantity_row",
+            ),
+            "exported_review" => (
+                "review_evidence",
+                "/result_envelope/review_evidence/",
+                &target["evidence_id"],
+                "derived_review_row",
+            ),
+            _ => (
+                "row_disclosure",
+                "/result_envelope/row_disclosures/",
+                &target["source_result_id"],
+                "derived_disclosure_row",
+            ),
+        };
+        if a["disposition"] != disposition
+            || !path.starts_with(prefix)
+            || path[prefix.len()..].parse::<usize>().is_err()
+            || target_id != &row["id"]
+            || a["target_ref"] != reference(target_type, id)
+            || target["source_row_index"] != i
+            || target["source_kind"] != row["kind"]
+        {
+            return Err("TARGET_IDENTITY_OR_DISPOSITION_MISMATCH".into());
+        }
+        let math = s
+            .map(|s| s["source_physical_semantic_dimension"].clone())
+            .unwrap_or(Value::Null);
+        let dimension = s
+            .map(|s| s["derivative_target_dimension"].clone())
+            .unwrap_or(Value::Null);
+        let observed = json!({"present":row.get("dimension").is_some(),"value":row.get("dimension").cloned().unwrap_or(Value::Null)});
+        let ann_id = format!("source-annotation:{i}");
+        let ann_ref = reference("source_annotation", &ann_id);
+        let ann = &annotations[i];
+        if ann["annotation_id"] != ann_id
+            || ann["source_row_index"] != i
+            || ann["source_result_id"] != row["id"]
+            || ann["metadata"] != row.get("metadata").cloned().unwrap_or(Value::Null)
+            || ann["basis_ref"] != row.get("basis_ref").cloned().unwrap_or(Value::Null)
+            || ann["source_result_refs"]
+                != row.get("source_result_refs").cloned().unwrap_or(json!([]))
+            || ann["observed_carrier_dimension"] != observed
+            || ann["source_physical_semantic_dimension"] != math
+            || ann["derivative_target_dimension"] != dimension
+            || ann["source_origin_ref"] != origin_ref
+            || target["source_annotation_ref"] != ann_ref
+        {
+            return Err("SOURCE_ANNOTATION_MISMATCH".into());
+        }
+        let row_hash = checksum(row, row_scope, carrier_ref.clone())?;
+        let original = if authentic {
+            checksum(
+                row,
+                "raw_source_row",
+                origin["original_producer_checksum"]["payload_ref"].clone(),
+            )?
+        } else {
+            Value::Null
+        };
+        if a["received_carrier_row_checksum"] != row_hash
+            || a["original_producer_row_checksum"] != original
+        {
+            return Err("SOURCE_ROW_HASH_BINDING_MISMATCH".into());
+        }
+        let (value, unit) = if disposition == "disclosed" {
+            (&target["source_value"], &target["source_unit"])
+        } else {
+            (&target["magnitude"], &target["unit"])
+        };
+        if value != &row["value"]
+            || unit != &row["unit"]
+            || target["object_ref"]
+                != reference(
+                    "preview_entity",
+                    row["entity_ref"].as_str().ok_or("ENTITY_REF_MISSING")?,
+                )
+        {
+            return Err("SOURCE_TARGET_VALUE_OR_HASH_MISMATCH".into());
+        }
+        let basis = row
+            .get("basis_ref")
+            .filter(|v| !v.is_null())
+            .cloned()
+            .unwrap_or_else(|| {
+                if disposition == "exported_review" {
+                    reference("source_basis", row["metadata"]["basis"].as_str().unwrap())
+                } else {
+                    e["run_ref"].clone()
+                }
+            });
+        if disposition != "disclosed"
+            && (target["basis_ref"] != basis || target["provenance"] != e["provenance"])
+        {
+            return Err("TARGET_BASIS_OR_PROVENANCE_MISMATCH".into());
+        }
+        if disposition == "exported_review"
+            && (target["source_result_id"] != row["id"]
+                || target["location_ref"]
+                    != reference(
+                        "source_location",
+                        row["metadata"]["location"].as_str().unwrap(),
+                    )
+                || target["evidence_kind"]
+                    != if category == "assembled_load_review" {
+                        json!("assembled_load_review")
+                    } else {
+                        json!("user_input_review")
+                    })
+        {
+            return Err("REVIEW_METADATA_MISMATCH".into());
+        }
+        if disposition == "disclosed" {
+            if target["declared_semantic_dimension"] != dimension
+                || target["source_physical_semantic_dimension"] != math
+                || target["semantic_category"] != category
+                || target["source_dimension_present"] != observed["present"]
+                || target["source_dimension"] != observed["value"]
+                || target["source_field_path"] != a["source_field_path"]
+                || target["received_carrier_row_checksum"] != row_hash
+                || target["original_producer_row_checksum"] != original
+            {
+                return Err("DISCLOSURE_SEMANTICS_MISMATCH".into());
+            }
+        } else {
+            if target["dimension"] != dimension {
+                return Err("TARGET_DIMENSION_MISMATCH".into());
+            }
+            if disposition == "exported_quantity"
+                && (target["family"] != family || target.get("metadata").cloned() != md)
+            {
+                return Err("PHYSICAL_SEMANTICS_MISMATCH".into());
+            }
+            expected_witnesses.push((
+                i,
+                a,
+                target,
+                target_scope,
+                row_hash,
+                original,
+                observed,
+                math,
+                dimension,
+            ));
+        }
+    }
+    if witnesses.len() != expected_witnesses.len() {
+        return Err("WITNESS_CARDINALITY".into());
+    }
+    for (w, (i, a, target, scope, row_hash, original, observed, math, dimension)) in
+        witnesses.iter().zip(expected_witnesses)
+    {
+        let row = &rows[i];
+        if w["witness_id"] != format!("value-unit-witness:{i}")
+            || w["source_row_index"] != i
+            || w["source_result_ref"] != reference("received_result", row["id"].as_str().unwrap())
+            || w["source_field_path"] != a["source_field_path"]
+            || w["source_quantity"]
+                != json!({"value":row["value"],"unit":row["unit"],"observed_dimension":observed})
+            || w["target_result_ref"] != a["target_ref"]
+            || w["target_field_path"] != a["target_field_path"]
+            || w["target_quantity"]
+                != json!({"value":row["value"],"unit":row["unit"],"dimension":dimension})
+            || w["received_carrier_row_checksum"] != row_hash
+            || w["original_producer_row_checksum"] != original
+            || w["source_physical_semantic_dimension"] != math
+            || w["source_origin_ref"] != origin_ref
+            || w["unit_system_ref"] != e["unit_system_ref"]
+            || w["provenance"] != e["provenance"]
+            || w["conversion_performed"] != false
+            || w["target_quantity_policy"]
+                != "preserve_received_value_and_unit_with_independent_semantic_dimension"
+            || w["export_unit_policy"] != "no_numerical_conversion_preserve_received_unit"
+            || w["target_row_checksum"]
+                != checksum(target, scope, reference("derivative_document", envelope_id))?
+        {
+            return Err("WITNESS_MISMATCH".into());
+        }
+    }
+    let mut payload = doc.clone();
+    payload["result_envelope"]["reproducibility"]
+        .as_object_mut()
+        .ok_or("REPRODUCIBILITY_MISSING")?
+        .remove("derivative_hash");
+    if e["reproducibility"]["derivative_hash"]
+        != checksum(
+            &payload,
+            "derivative_document_excludes_own_hash",
+            reference("derivative_document", envelope_id),
+        )?
+    {
+        return Err("DERIVATIVE_HASH_MISMATCH".into());
+    }
+    Ok(())
+>>>>>>> SOURCE_BLOCKS_SUBSET
+}

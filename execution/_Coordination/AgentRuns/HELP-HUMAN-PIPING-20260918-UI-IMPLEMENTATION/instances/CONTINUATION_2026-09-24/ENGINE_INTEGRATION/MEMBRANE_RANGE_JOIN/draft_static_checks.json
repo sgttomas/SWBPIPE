@@ -1,0 +1,20 @@
+{
+  "original_fixture_helpers_byte_identical_in_both_drafts": true,
+  "private_direct_calls_to_both_repaired_subjects": true,
+  "independent_reference_and_relative_tolerance_retained": true,
+  "no_private_public_solve_invocation": true,
+  "rust_compilation_and_runtime": "not performed; parent gate",
+  "prior_unchanged_source_assertion": "failed at completion because concurrent writes changed two source paths; diagnostic snapshot retained; parent notified",
+  "concurrent_source_changes": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": {
+      "inspected_sha256": "959d56276b8ff9d070519d67b77c14801b7ac4be981b2318c2c66563a44908e3",
+      "completion_sha256": "5d437e259293f5b880291ad906f3a3647669f8c8c221c9e563ef2e1db1100e23"
+    },
+    "projects/chirality-piping/core/product_physics/tests/pressure_membrane_range.rs": {
+      "inspected_sha256": "53b461e708f092cd9b35717f9aa242ddfd288e2f742c61456fbf46fa0ec620ea",
+      "completion_sha256": "07c285abe55c2758270408704a58a2da25b540abf87c664a540f5db2017255ff"
+    }
+  },
+  "all_other_inspected_hashes_still_match": true,
+  "parent_integration_confirmation": "Parent /root/physics_resume confirmed by harness message: applied proposed public delta, copied private test module to src/membrane_publication_range.rs and added cfg(test) declaration; no test execution yet; independent final review separate."
+}

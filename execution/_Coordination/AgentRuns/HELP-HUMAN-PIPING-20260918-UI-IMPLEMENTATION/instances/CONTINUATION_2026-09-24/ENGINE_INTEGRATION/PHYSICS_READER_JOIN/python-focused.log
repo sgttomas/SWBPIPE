@@ -1,0 +1,14 @@
+Command: ["/private/tmp/chirality-piping-review-venv/bin/python", "-m", "pytest", "-q", "tests/test_physics_consumer_contract.py", "tests/test_precision_consumer_contract.py", "tests/test_analysis_run_compatibility.py"]
+CWD: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping
+OPENPIPESTRESS_CHECKED_JSON_BIN=/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson
+..................................s..................................... [ 62%]
+...........................................                              [100%]
+=============================== warnings summary ===============================
+tests/test_physics_consumer_contract.py: 4 warnings
+tests/test_precision_consumer_contract.py: 6 warnings
+tests/test_analysis_run_compatibility.py: 82 warnings
+  /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/schema_validation.py:54: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import RefResolver
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+114 passed, 1 skipped, 92 warnings in 23.48s

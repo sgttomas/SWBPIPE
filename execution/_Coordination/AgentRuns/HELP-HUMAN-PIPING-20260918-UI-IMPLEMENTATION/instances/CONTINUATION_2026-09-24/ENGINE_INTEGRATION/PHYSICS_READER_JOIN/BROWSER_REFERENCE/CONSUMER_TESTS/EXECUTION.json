@@ -1,0 +1,148 @@
+{
+  "recorded_utc": "2026-09-25T06:19:23.201459+00:00",
+  "role": "TASK",
+  "agent": "/root/physics_resume/physics_reader_join/physics_ts_readers",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "mechanism": "delegated-harness-native followup task",
+  "delegated_children": [],
+  "scope": [
+    "apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+    "apps/desktop/src/services/ruleCheckService.test.ts",
+    "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+    "apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
+    "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+    "apps/desktop/src/features/report/renderedReport.test.tsx"
+  ],
+  "source_edits_outside_scope": false,
+  "actual_native_ui_qualification": false,
+  "notes": [
+    "Actual full-UI pairs supply narrowly scoped mocked native Current premises; no native UI qualification claimed.",
+    "Original fixture-specific enriched dimensions, transport numbers, historical component provenance and hanger390/375N oracles remain in pure reference/history projection tests.",
+    "Exact hash/semantic/corruption negatives are retained rather than replaced with generic missing-invocation errors.",
+    "Await parent-owned report physics-route admission and reference-origin contract decision before validation."
+  ],
+  "paired_capture": {
+    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/UI_PRODUCER_CAPTURE.json",
+    "sha256": "53d46cf09e6f15299f19dcc80a8ee94b09a5873a2c63859eb9f3418a398b4915",
+    "bindings": [
+      {
+        "path": "projects/chirality-piping/fixtures/model_operations/exact_pressure_authoring_model.json",
+        "expected": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e",
+        "actual": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e",
+        "match": true
+      },
+      {
+        "path": "projects/chirality-piping/fixtures/results/physics_connected_ui_mechanics_sparse.json",
+        "expected": "80396de3e4c8339bc923bb5b4d7309227537ac21dffbb43f4a08648ae98b0d45",
+        "actual": "80396de3e4c8339bc923bb5b4d7309227537ac21dffbb43f4a08648ae98b0d45",
+        "match": true
+      },
+      {
+        "path": "projects/chirality-piping/fixtures/model_operations/exact_pressure_authoring_model.json",
+        "expected": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e",
+        "actual": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e",
+        "match": true
+      },
+      {
+        "path": "projects/chirality-piping/fixtures/results/physics_connected_ui_mechanics_dense.json",
+        "expected": "af87670235e7bd4f9f063cef8c505196f3f0e193a4b5f8cb7e3c22268cc331ee",
+        "actual": "af87670235e7bd4f9f063cef8c505196f3f0e193a4b5f8cb7e3c22268cc331ee",
+        "match": true
+      }
+    ]
+  },
+  "owned_snapshot": [
+    {
+      "path": "apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "d870f80a965b653c286732373b7dc0d3d9b2adf2d2d06e38ffd3bfd5e1b821d7"
+    },
+    {
+      "path": "apps/desktop/src/services/ruleCheckService.test.ts",
+      "sha256": "d1d1820d91544dec094da516a4a2de49ac4641b8769268191c6e79bb630212ab"
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "sha256": "045632fe3a93aaae03be4393af38a1d1523e5f5152f703f3df9cf8109baff300"
+    },
+    {
+      "path": "apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
+      "sha256": "e1a62a3af8e9cdc636fe925b38e762e5be6965af3e1ab96d3de6403c7b937c4f"
+    },
+    {
+      "path": "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+      "sha256": "45b62857952aeb78e94a20c3f498bd9f9c7ee0f610b7a43a7dd1030a33e8cb96"
+    },
+    {
+      "path": "apps/desktop/src/features/report/renderedReport.test.tsx",
+      "sha256": "e55fb94394f0572884396c2997484fc94aa31ec3a0b72891246ce4be94c2ac80"
+    }
+  ],
+  "checks": [
+    {
+      "kind": "read-only TypeScript AST parse",
+      "result": "0 syntax diagnostics for owned files"
+    },
+    {
+      "kind": "git diff --check scoped",
+      "exit_code": 0
+    }
+  ],
+  "test_execution": "Static-ready only:0 AST syntax diagnostics and scoped diffcheck pass. No npm/Cargo/tsc run; parent coordinates parity/WASM then focused validation.",
+  "instruction_basis": "Same full TASK/Root/Piping/LOOP_INIT basis preserved in PHYSICS_READER_JOIN/TS_TASK/EXECUTION.json; new scoped instructions supplied by parent messages.",
+  "precision_pair_capture": {
+    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PRECISION_UI_COMPANION.json",
+    "sha256": "bb4be0275646652e62e95a5caffd60e7e3def08f0ed11f892f68111b6ab21013",
+    "verified_bindings": [
+      {
+        "path": "projects/chirality-piping/fixtures/model_operations/precision_connected_ui_model.json",
+        "expected": "dda6f24f80a4cae57c45b11d84ffcc46c9435acd02f11c3d16f55eedf2c02035",
+        "actual": "dda6f24f80a4cae57c45b11d84ffcc46c9435acd02f11c3d16f55eedf2c02035",
+        "match": true
+      },
+      {
+        "path": "projects/chirality-piping/fixtures/results/precision_connected_ui_mechanics_sparse.json",
+        "expected": "f986a8d8bfc319a66bce2184119675245dca85ad86cb6977742c3a73c319ec92",
+        "actual": "f986a8d8bfc319a66bce2184119675245dca85ad86cb6977742c3a73c319ec92",
+        "match": true
+      },
+      {
+        "path": "projects/chirality-piping/fixtures/results/precision_connected_ui_mechanics_dense.json",
+        "expected": "ba693531531fe865a99d4076e0b30812609c913a65cbd65777b2124458878007",
+        "actual": "ba693531531fe865a99d4076e0b30812609c913a65cbd65777b2124458878007",
+        "match": true
+      }
+    ]
+  },
+  "profile_helper_api": [
+    "nativeMechanicsReplayPair(mode?, {profile:\"precision\"})",
+    "createNativeMechanicsReplay({profile:\"precision\",jobIdPrefix?})",
+    "profile defaults to physics; no source/header/quality mutation"
+  ],
+  "resolved_parent_directions": [
+    "Qualified physics report-package transport remains explicitly unavailable; canonical physics export remains supported.",
+    "Positive report Current premises use actual ordinary precision full-UI pair.",
+    "Historical component/hanger/unknown-row oracles use only projectReceivedReportResults and buildRenderableReportInput; no qualified package invocation.",
+    "Existing accepted received_current_* origin enums remain only in clearly unqualified historical-format protocol tests, with fixture qualification_ref, no authentic original producer, explicit noCurrent origin_limit and no qualified export call."
+  ],
+  "received_hash_inspection_followup": {
+    "parent_authorized_paths": [
+      "apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
+      "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+      "apps/desktop/src/features/report/renderedReport.test.tsx"
+    ],
+    "method": "Replace only currentPrecisionSession helper/imports/titles with explicit reference loader and low-level V03 analysis using a hashed reference basis. No Current manifest or native replay is constructed for these pure received-hash tests.",
+    "added_assertions": [
+      "standing reference_only",
+      "current_use_eligible false",
+      "hasNativeMechanicsInvocation false"
+    ],
+    "preserved_assertions": [
+      "received_result hash selection",
+      "analysis schema0.3",
+      "unknown version diagnostics/refusal",
+      "source immutability",
+      "unrelated numeric/history/panel tests"
+    ],
+    "checks": "0 syntax diagnostics and scoped diffcheck pass; no npm/Cargo/tsc run"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "scope": "Reader admission and immutable analysis construction only; no authentic producer/current/native qualification is claimed.",
+  "source_sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2",
+  "reader_sha256": "18e392743af2a4a22de33116131b01562654312d3d5087b6f622ac74e800593d",
+  "results": [
+    {
+      "name": "unmodified_control",
+      "source_contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "numerical_use_standing": "numerically_eligible",
+      "public_analysis_builder_error": "RuntimeError: CHECKED-JSON-AUTHORITY-MISSING: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson; build explicitly with tools/serialization/build_checked_json.py"
+    },
+    {
+      "name": "unbound_extremum_headline_100000000_25",
+      "source_contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "numerical_use_standing": "numerically_eligible",
+      "public_analysis_builder_error": "RuntimeError: CHECKED-JSON-AUTHORITY-MISSING: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson; build explicitly with tools/serialization/build_checked_json.py"
+    },
+    {
+      "name": "gap_zero_despite_nonzero_global_minus_lower",
+      "source_contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "numerical_use_standing": "numerically_eligible",
+      "public_analysis_builder_error": "RuntimeError: CHECKED-JSON-AUTHORITY-MISSING: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson; build explicitly with tools/serialization/build_checked_json.py"
+    },
+    {
+      "name": "unknown_extrema_coefficient_basis",
+      "source_contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "numerical_use_standing": "numerically_eligible",
+      "public_analysis_builder_error": "RuntimeError: CHECKED-JSON-AUTHORITY-MISSING: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson; build explicitly with tools/serialization/build_checked_json.py"
+    },
+    {
+      "name": "closure_transfer_disagreement",
+      "source_contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "numerical_use_standing": "numerically_eligible",
+      "public_analysis_builder_error": "RuntimeError: CHECKED-JSON-AUTHORITY-MISSING: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson; build explicitly with tools/serialization/build_checked_json.py"
+    },
+    {
+      "name": "duplicate_terminal",
+      "source_contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "numerical_use_standing": "numerically_eligible",
+      "public_analysis_builder_error": "RuntimeError: CHECKED-JSON-AUTHORITY-MISSING: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson; build explicitly with tools/serialization/build_checked_json.py"
+    },
+    {
+      "name": "rhs_term_coefficient_999",
+      "source_contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "numerical_use_standing": "numerically_eligible",
+      "public_analysis_builder_error": "RuntimeError: CHECKED-JSON-AUTHORITY-MISSING: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson; build explicitly with tools/serialization/build_checked_json.py"
+    },
+    {
+      "name": "rhs_pressure_moment_999",
+      "source_contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "numerical_use_standing": "numerically_eligible",
+      "public_analysis_builder_error": "RuntimeError: CHECKED-JSON-AUTHORITY-MISSING: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson; build explicitly with tools/serialization/build_checked_json.py"
+    },
+    {
+      "name": "duplicate_rhs_group",
+      "source_contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "numerical_use_standing": "numerically_eligible",
+      "public_analysis_builder_error": "RuntimeError: CHECKED-JSON-AUTHORITY-MISSING: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson; build explicitly with tools/serialization/build_checked_json.py"
+    },
+    {
+      "name": "cyclic_non_v2_operand",
+      "source_contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "numerical_use_standing": "numerically_eligible",
+      "public_analysis_builder_error": "RuntimeError: CHECKED-JSON-AUTHORITY-MISSING: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson; build explicitly with tools/serialization/build_checked_json.py"
+    }
+  ]
+}

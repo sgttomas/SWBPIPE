@@ -1,0 +1,56 @@
+Command: ["npm", "test", "--workspace", "apps/desktop", "--", "src/features/workspace/resultsSessionState.test.ts", "src/features/workspace/workspaceSession.shell.test.tsx", "src/features/results/numericalResultQuality.test.ts", "src/services/previewService.test.ts", "src/services/analysisRunCompatibility.test.ts", "src/features/results/HistoricalRunContext.test.tsx", "--maxWorkers=2", "--config", "/private/tmp/piping-physics-ts-vitest.config.mjs", "--configLoader", "runner"]
+CWD: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/resultsSessionState.test.ts src/features/workspace/workspaceSession.shell.test.tsx src/features/results/numericalResultQuality.test.ts src/services/previewService.test.ts src/services/analysisRunCompatibility.test.ts src/features/results/HistoricalRunContext.test.tsx --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner
+
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/workspaceSession.shell.test.tsx (12 tests | 1 failed) 1894ms
+     × leaves the undo stack, the applied operation and the run made after it identical 1074ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/workspaceSession.shell.test.tsx > a stage or view switch is a presentation change > leaves the undo stack, the applied operation and the run made after it identical
+AssertionError: expected 'failed' to be 'completed' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html[39m
+  [33mdata-theme[39m=[32m"light"[39m
+[36m>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+Expected: "completed"
+Received: "failed"
+
+ ❯ src/features/workspace/workspaceSession.shell.test.tsx:203:71
+    201|     });
+    202|     // The browser fixture's run of an edited model completes without …
+    203|     await waitFor(() => expect(result.current.results.solveJob.state).…
+       |                                                                       ^
+    204|     expect(result.current.results.result).not.toBeNull();
+    205|     await switchEveryStageAndView(result);
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../../../../../../Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  1 failed | 105 passed (106)
+   Start at  23:08:27
+   Duration  4.66s (transform 506ms, setup 291ms, import 764ms, tests 6.17s, environment 1.38s)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/workspace/resultsSessionState.test.ts src/features/workspace/workspaceSession.shell.test.tsx src/features/results/numericalResultQuality.test.ts src/services/previewService.test.ts src/services/analysisRunCompatibility.test.ts src/features/results/HistoricalRunContext.test.tsx --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner

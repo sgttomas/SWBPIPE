@@ -1,0 +1,3080 @@
+{
+  "description": "Synthetic receipt statement consistency only. Hash placeholders are sealed in tests through the real checked authority, never used as physical/runtime solver evidence.",
+  "source": {
+    "schema_version": "0.2.0",
+    "producer": {
+      "component_name": "open_pipe_stress_product_physics",
+      "component_version": "0.2.0",
+      "semantic_contract_id": "openpipestress.result_semantics/0.3.0/source-blocks-1"
+    },
+    "numerical_quality": {
+      "value_representation": "finite_binary64",
+      "publication_quantization": "none",
+      "integrity_policy": "M03-INTEGRITY-v1",
+      "status": "checks_passed",
+      "cases": [
+        {
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "synthetic-case"
+          },
+          "structural_status": "passive_model_basis",
+          "solve_quality": "checks_passed",
+          "model_matrix_fidelity": "represented_equations_retained",
+          "accuracy_evidence": "not_claimed",
+          "evidence_refs": [
+            "synthetic-report"
+          ]
+        }
+      ]
+    },
+    "formulation_basis": {
+      "profile_id": "product_preview_mechanics_v1",
+      "limitations": [
+        "Synthetic statement consistency control; no solver or physical proof."
+      ]
+    },
+    "document_kind": "openpipestress.product_preview.mechanics",
+    "run_id": "synthetic-run",
+    "model_ref": "synthetic-model",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "not_provided"
+    },
+    "summary": {
+      "node_count": 2,
+      "segment_count": 1,
+      "support_count": 1,
+      "load_case_count": 1,
+      "component_stress_modifier_count": 0,
+      "component_user_stiffness_macro_element_count": 0,
+      "component_pressure_thrust_load_count": 0,
+      "spring_hanger_user_input_count": 0,
+      "max_displacement": {
+        "value": 0.0,
+        "unit": "mm",
+        "location_ref": "synthetic-root",
+        "result_ref": "synthetic:6"
+      },
+      "max_open_formula_stress": {
+        "value": 0.0,
+        "unit": "MPa",
+        "location_ref": "synthetic-member",
+        "result_ref": "synthetic:64"
+      }
+    },
+    "results": [
+      {
+        "id": "synthetic:0",
+        "kind": "global_nodal_displacement_x",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "synthetic-root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_displacement_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:1",
+        "kind": "global_nodal_displacement_y",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "synthetic-root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_displacement_y",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:2",
+        "kind": "global_nodal_displacement_z",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "synthetic-root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_displacement_z",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:3",
+        "kind": "global_nodal_rotation_x",
+        "value": 0.0,
+        "unit": "rad",
+        "entity_ref": "synthetic-root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_rotation_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:4",
+        "kind": "global_nodal_rotation_y",
+        "value": 0.0,
+        "unit": "rad",
+        "entity_ref": "synthetic-root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_rotation_y",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:5",
+        "kind": "global_nodal_rotation_z",
+        "value": 0.0,
+        "unit": "rad",
+        "entity_ref": "synthetic-root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_rotation_z",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:6",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "synthetic-root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        }
+      },
+      {
+        "id": "synthetic:7",
+        "kind": "global_nodal_displacement_x",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "synthetic-tip",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_displacement_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:8",
+        "kind": "global_nodal_displacement_y",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "synthetic-tip",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_displacement_y",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:9",
+        "kind": "global_nodal_displacement_z",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "synthetic-tip",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_displacement_z",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:10",
+        "kind": "global_nodal_rotation_x",
+        "value": 0.0,
+        "unit": "rad",
+        "entity_ref": "synthetic-tip",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_rotation_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:11",
+        "kind": "global_nodal_rotation_y",
+        "value": 0.0,
+        "unit": "rad",
+        "entity_ref": "synthetic-tip",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_rotation_y",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:12",
+        "kind": "global_nodal_rotation_z",
+        "value": 0.0,
+        "unit": "rad",
+        "entity_ref": "synthetic-tip",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "nodal_rotation_z",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:13",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "synthetic-tip",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        }
+      },
+      {
+        "id": "synthetic:14",
+        "kind": "element_local_axial_force",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:15",
+        "kind": "element_local_shear_force_y",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:16",
+        "kind": "element_local_shear_force_z",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "shear_force_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:17",
+        "kind": "element_local_torsional_moment",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "torsional_moment",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:18",
+        "kind": "element_local_bending_moment_y",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_moment_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:19",
+        "kind": "element_local_bending_moment_z",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:20",
+        "kind": "element_local_axial_normal_stress",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:21",
+        "kind": "element_local_bending_normal_stress_y",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:22",
+        "kind": "element_local_bending_normal_stress_z",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:23",
+        "kind": "element_local_torsional_shear_stress",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:24",
+        "kind": "element_local_axial_force",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:25",
+        "kind": "element_local_shear_force_y",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:26",
+        "kind": "element_local_shear_force_z",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "shear_force_z",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:27",
+        "kind": "element_local_torsional_moment",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "torsional_moment",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:28",
+        "kind": "element_local_bending_moment_y",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_moment_y",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:29",
+        "kind": "element_local_bending_moment_z",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:30",
+        "kind": "element_local_axial_normal_stress",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:31",
+        "kind": "element_local_bending_normal_stress_y",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:32",
+        "kind": "element_local_bending_normal_stress_z",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:33",
+        "kind": "element_local_torsional_shear_stress",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:34",
+        "kind": "element_local_axial_force",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:35",
+        "kind": "element_local_shear_force_y",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:36",
+        "kind": "element_local_shear_force_z",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "shear_force_z",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:37",
+        "kind": "element_local_torsional_moment",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "torsional_moment",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:38",
+        "kind": "element_local_bending_moment_y",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_moment_y",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:39",
+        "kind": "element_local_bending_moment_z",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:40",
+        "kind": "element_local_axial_normal_stress",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:41",
+        "kind": "element_local_bending_normal_stress_y",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:42",
+        "kind": "element_local_bending_normal_stress_z",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:43",
+        "kind": "element_local_torsional_shear_stress",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:44",
+        "kind": "element_local_axial_force",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:45",
+        "kind": "element_local_shear_force_y",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:46",
+        "kind": "element_local_shear_force_z",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "shear_force_z",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:47",
+        "kind": "element_local_torsional_moment",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "torsional_moment",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:48",
+        "kind": "element_local_bending_moment_y",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_moment_y",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:49",
+        "kind": "element_local_bending_moment_z",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:50",
+        "kind": "element_local_axial_normal_stress",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:51",
+        "kind": "element_local_bending_normal_stress_y",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:52",
+        "kind": "element_local_bending_normal_stress_z",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:53",
+        "kind": "element_local_torsional_shear_stress",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:54",
+        "kind": "element_local_axial_force",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:55",
+        "kind": "element_local_shear_force_y",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:56",
+        "kind": "element_local_shear_force_z",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "shear_force_z",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:57",
+        "kind": "element_local_torsional_moment",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "torsional_moment",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:58",
+        "kind": "element_local_bending_moment_y",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_moment_y",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:59",
+        "kind": "element_local_bending_moment_z",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:60",
+        "kind": "element_local_axial_normal_stress",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:61",
+        "kind": "element_local_bending_normal_stress_y",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:62",
+        "kind": "element_local_bending_normal_stress_z",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:63",
+        "kind": "element_local_torsional_shear_stress",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "synthetic_statement_control_not_a_physics_witness"
+        }
+      },
+      {
+        "id": "synthetic:64",
+        "kind": "open_formula_stress_summary",
+        "value": 0.0,
+        "unit": "MPa",
+        "entity_ref": "synthetic-member",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        }
+      },
+      {
+        "id": "synthetic:65",
+        "kind": "support_reaction_component_v2",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-anchor",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+        }
+      },
+      {
+        "id": "synthetic:66",
+        "kind": "support_reaction_component_v2",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-anchor",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+        }
+      },
+      {
+        "id": "synthetic:67",
+        "kind": "support_reaction_component_v2",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-anchor",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+        }
+      },
+      {
+        "id": "synthetic:68",
+        "kind": "support_reaction_component_v2",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-anchor",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+        }
+      },
+      {
+        "id": "synthetic:69",
+        "kind": "support_reaction_component_v2",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-anchor",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+        }
+      },
+      {
+        "id": "synthetic:70",
+        "kind": "support_reaction_component_v2",
+        "value": 0.0,
+        "unit": "N*m",
+        "entity_ref": "synthetic-anchor",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+        }
+      },
+      {
+        "id": "synthetic:71",
+        "kind": "reaction_resultant",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "synthetic-anchor",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "synthetic-case"
+        }
+      }
+    ],
+    "diagnostics": [
+      {
+        "id": "synthetic-report",
+        "code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        "severity": "info",
+        "message": "Synthetic test statement only; no performed solve.",
+        "affected_refs": [
+          "synthetic-case"
+        ]
+      }
+    ],
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false
+    },
+    "accepted_model_state_mutated": false,
+    "source_block_recovery": {
+      "body": {
+        "receipt_version": "1.0.0",
+        "policy": "SOURCE-BLOCKS-1",
+        "status": "qualified",
+        "invocation": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_scope": "source_blocks_invocation_v1",
+          "value": "0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "publication_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "cases": [
+          {
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "synthetic-case"
+            },
+            "outcome": "qualified",
+            "requested_mode": "dense_scrutiny",
+            "selected_method": "retained_source_blocks_exact_v1",
+            "ordinary_attempt": {
+              "requested_mode": "dense_scrutiny",
+              "outcome": "checks_passed",
+              "structural_report_diagnostic_ref": "synthetic-report",
+              "failure": null,
+              "quality_case_index": 0
+            },
+            "source": {
+              "level": "complete_identified_represented_contributions",
+              "normalized_source_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+              "functional_plan_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+              "dof_count": 12,
+              "stiffness_term_count": 144,
+              "force_term_count": 0,
+              "functional_count": 60,
+              "free_dofs": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "prescribed_dofs": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "free_blocks": [
+                [
+                  6
+                ],
+                [
+                  7,
+                  11
+                ],
+                [
+                  8,
+                  10
+                ],
+                [
+                  9
+                ]
+              ],
+              "member_ids": [
+                "synthetic-member"
+              ],
+              "support_ids": [
+                "synthetic-anchor"
+              ]
+            },
+            "projections": [
+              {
+                "projection_id": "p:0",
+                "functional_id": "f:0",
+                "result_id": "synthetic:0",
+                "quantity": "nodal_translation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "mm",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:1",
+                "functional_id": "f:1",
+                "result_id": "synthetic:1",
+                "quantity": "nodal_translation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "mm",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:2",
+                "functional_id": "f:2",
+                "result_id": "synthetic:2",
+                "quantity": "nodal_translation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "mm",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:3",
+                "functional_id": "f:3",
+                "result_id": "synthetic:3",
+                "quantity": "nodal_rotation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "rad",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:4",
+                "functional_id": "f:4",
+                "result_id": "synthetic:4",
+                "quantity": "nodal_rotation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "rad",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:5",
+                "functional_id": "f:5",
+                "result_id": "synthetic:5",
+                "quantity": "nodal_rotation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "rad",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:6",
+                "functional_id": "f:6",
+                "result_id": "synthetic:7",
+                "quantity": "nodal_translation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "mm",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:7",
+                "functional_id": "f:7",
+                "result_id": "synthetic:8",
+                "quantity": "nodal_translation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "mm",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:8",
+                "functional_id": "f:8",
+                "result_id": "synthetic:9",
+                "quantity": "nodal_translation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "mm",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:9",
+                "functional_id": "f:9",
+                "result_id": "synthetic:10",
+                "quantity": "nodal_rotation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "rad",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:10",
+                "functional_id": "f:10",
+                "result_id": "synthetic:11",
+                "quantity": "nodal_rotation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "rad",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:11",
+                "functional_id": "f:11",
+                "result_id": "synthetic:12",
+                "quantity": "nodal_rotation",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "rad",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:12",
+                "functional_id": "f:12",
+                "result_id": "synthetic:14",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:13",
+                "functional_id": "f:13",
+                "result_id": "synthetic:15",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:14",
+                "functional_id": "f:14",
+                "result_id": "synthetic:16",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:15",
+                "functional_id": "f:15",
+                "result_id": "synthetic:17",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:16",
+                "functional_id": "f:16",
+                "result_id": "synthetic:18",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:17",
+                "functional_id": "f:17",
+                "result_id": "synthetic:19",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:18",
+                "functional_id": "f:18",
+                "result_id": "synthetic:24",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:19",
+                "functional_id": "f:19",
+                "result_id": "synthetic:25",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:20",
+                "functional_id": "f:20",
+                "result_id": "synthetic:26",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:21",
+                "functional_id": "f:21",
+                "result_id": "synthetic:27",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:22",
+                "functional_id": "f:22",
+                "result_id": "synthetic:28",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:23",
+                "functional_id": "f:23",
+                "result_id": "synthetic:29",
+                "quantity": "member_end_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:24",
+                "functional_id": "f:24",
+                "result_id": "synthetic:34",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:25",
+                "functional_id": "f:25",
+                "result_id": "synthetic:35",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:26",
+                "functional_id": "f:26",
+                "result_id": "synthetic:36",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:27",
+                "functional_id": "f:27",
+                "result_id": "synthetic:37",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:28",
+                "functional_id": "f:28",
+                "result_id": "synthetic:38",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:29",
+                "functional_id": "f:29",
+                "result_id": "synthetic:39",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:30",
+                "functional_id": "f:30",
+                "result_id": "synthetic:44",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:31",
+                "functional_id": "f:31",
+                "result_id": "synthetic:45",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:32",
+                "functional_id": "f:32",
+                "result_id": "synthetic:46",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:33",
+                "functional_id": "f:33",
+                "result_id": "synthetic:47",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:34",
+                "functional_id": "f:34",
+                "result_id": "synthetic:48",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:35",
+                "functional_id": "f:35",
+                "result_id": "synthetic:49",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:36",
+                "functional_id": "f:36",
+                "result_id": "synthetic:54",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:37",
+                "functional_id": "f:37",
+                "result_id": "synthetic:55",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:38",
+                "functional_id": "f:38",
+                "result_id": "synthetic:56",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:39",
+                "functional_id": "f:39",
+                "result_id": "synthetic:57",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:40",
+                "functional_id": "f:40",
+                "result_id": "synthetic:58",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:41",
+                "functional_id": "f:41",
+                "result_id": "synthetic:59",
+                "quantity": "member_station_action",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:42",
+                "functional_id": "f:42",
+                "result_id": "synthetic:65",
+                "quantity": "support_action_component",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:43",
+                "functional_id": "f:43",
+                "result_id": "synthetic:66",
+                "quantity": "support_action_component",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:44",
+                "functional_id": "f:44",
+                "result_id": "synthetic:67",
+                "quantity": "support_action_component",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:45",
+                "functional_id": "f:45",
+                "result_id": "synthetic:68",
+                "quantity": "support_action_component",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:46",
+                "functional_id": "f:46",
+                "result_id": "synthetic:69",
+                "quantity": "support_action_component",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              },
+              {
+                "projection_id": "p:47",
+                "functional_id": "f:47",
+                "result_id": "synthetic:70",
+                "quantity": "support_action_component",
+                "value": 0.0,
+                "value_bits": "0000000000000000",
+                "unit": "N*m",
+                "interval": [
+                  0.0,
+                  0.0
+                ],
+                "absolute_error_bound": 0.0,
+                "relative_error_bound": 0.0,
+                "relative_limit": 1e-09,
+                "basis": "exact_zero"
+              }
+            ],
+            "rows": [
+              {
+                "result_id": "synthetic:0",
+                "treatment": "qualified_projection",
+                "projection_id": "p:0",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:1",
+                "treatment": "qualified_projection",
+                "projection_id": "p:1",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:2",
+                "treatment": "qualified_projection",
+                "projection_id": "p:2",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:3",
+                "treatment": "qualified_projection",
+                "projection_id": "p:3",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:4",
+                "treatment": "qualified_projection",
+                "projection_id": "p:4",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:5",
+                "treatment": "qualified_projection",
+                "projection_id": "p:5",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:6",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "translation_norm_v1",
+                "input_result_ids": [
+                  "synthetic:0",
+                  "synthetic:1",
+                  "synthetic:2"
+                ]
+              },
+              {
+                "result_id": "synthetic:7",
+                "treatment": "qualified_projection",
+                "projection_id": "p:6",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:8",
+                "treatment": "qualified_projection",
+                "projection_id": "p:7",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:9",
+                "treatment": "qualified_projection",
+                "projection_id": "p:8",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:10",
+                "treatment": "qualified_projection",
+                "projection_id": "p:9",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:11",
+                "treatment": "qualified_projection",
+                "projection_id": "p:10",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:12",
+                "treatment": "qualified_projection",
+                "projection_id": "p:11",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:13",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "translation_norm_v1",
+                "input_result_ids": [
+                  "synthetic:7",
+                  "synthetic:8",
+                  "synthetic:9"
+                ]
+              },
+              {
+                "result_id": "synthetic:14",
+                "treatment": "qualified_projection",
+                "projection_id": "p:12",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:15",
+                "treatment": "qualified_projection",
+                "projection_id": "p:13",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:16",
+                "treatment": "qualified_projection",
+                "projection_id": "p:14",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:17",
+                "treatment": "qualified_projection",
+                "projection_id": "p:15",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:18",
+                "treatment": "qualified_projection",
+                "projection_id": "p:16",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:19",
+                "treatment": "qualified_projection",
+                "projection_id": "p:17",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:20",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:14",
+                  "synthetic:15",
+                  "synthetic:16",
+                  "synthetic:17",
+                  "synthetic:18",
+                  "synthetic:19"
+                ]
+              },
+              {
+                "result_id": "synthetic:21",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:14",
+                  "synthetic:15",
+                  "synthetic:16",
+                  "synthetic:17",
+                  "synthetic:18",
+                  "synthetic:19"
+                ]
+              },
+              {
+                "result_id": "synthetic:22",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:14",
+                  "synthetic:15",
+                  "synthetic:16",
+                  "synthetic:17",
+                  "synthetic:18",
+                  "synthetic:19"
+                ]
+              },
+              {
+                "result_id": "synthetic:23",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:14",
+                  "synthetic:15",
+                  "synthetic:16",
+                  "synthetic:17",
+                  "synthetic:18",
+                  "synthetic:19"
+                ]
+              },
+              {
+                "result_id": "synthetic:24",
+                "treatment": "qualified_projection",
+                "projection_id": "p:18",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:25",
+                "treatment": "qualified_projection",
+                "projection_id": "p:19",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:26",
+                "treatment": "qualified_projection",
+                "projection_id": "p:20",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:27",
+                "treatment": "qualified_projection",
+                "projection_id": "p:21",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:28",
+                "treatment": "qualified_projection",
+                "projection_id": "p:22",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:29",
+                "treatment": "qualified_projection",
+                "projection_id": "p:23",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:30",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:24",
+                  "synthetic:25",
+                  "synthetic:26",
+                  "synthetic:27",
+                  "synthetic:28",
+                  "synthetic:29"
+                ]
+              },
+              {
+                "result_id": "synthetic:31",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:24",
+                  "synthetic:25",
+                  "synthetic:26",
+                  "synthetic:27",
+                  "synthetic:28",
+                  "synthetic:29"
+                ]
+              },
+              {
+                "result_id": "synthetic:32",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:24",
+                  "synthetic:25",
+                  "synthetic:26",
+                  "synthetic:27",
+                  "synthetic:28",
+                  "synthetic:29"
+                ]
+              },
+              {
+                "result_id": "synthetic:33",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:24",
+                  "synthetic:25",
+                  "synthetic:26",
+                  "synthetic:27",
+                  "synthetic:28",
+                  "synthetic:29"
+                ]
+              },
+              {
+                "result_id": "synthetic:34",
+                "treatment": "qualified_projection",
+                "projection_id": "p:24",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:35",
+                "treatment": "qualified_projection",
+                "projection_id": "p:25",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:36",
+                "treatment": "qualified_projection",
+                "projection_id": "p:26",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:37",
+                "treatment": "qualified_projection",
+                "projection_id": "p:27",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:38",
+                "treatment": "qualified_projection",
+                "projection_id": "p:28",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:39",
+                "treatment": "qualified_projection",
+                "projection_id": "p:29",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:40",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:34",
+                  "synthetic:35",
+                  "synthetic:36",
+                  "synthetic:37",
+                  "synthetic:38",
+                  "synthetic:39"
+                ]
+              },
+              {
+                "result_id": "synthetic:41",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:34",
+                  "synthetic:35",
+                  "synthetic:36",
+                  "synthetic:37",
+                  "synthetic:38",
+                  "synthetic:39"
+                ]
+              },
+              {
+                "result_id": "synthetic:42",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:34",
+                  "synthetic:35",
+                  "synthetic:36",
+                  "synthetic:37",
+                  "synthetic:38",
+                  "synthetic:39"
+                ]
+              },
+              {
+                "result_id": "synthetic:43",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:34",
+                  "synthetic:35",
+                  "synthetic:36",
+                  "synthetic:37",
+                  "synthetic:38",
+                  "synthetic:39"
+                ]
+              },
+              {
+                "result_id": "synthetic:44",
+                "treatment": "qualified_projection",
+                "projection_id": "p:30",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:45",
+                "treatment": "qualified_projection",
+                "projection_id": "p:31",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:46",
+                "treatment": "qualified_projection",
+                "projection_id": "p:32",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:47",
+                "treatment": "qualified_projection",
+                "projection_id": "p:33",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:48",
+                "treatment": "qualified_projection",
+                "projection_id": "p:34",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:49",
+                "treatment": "qualified_projection",
+                "projection_id": "p:35",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:50",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:44",
+                  "synthetic:45",
+                  "synthetic:46",
+                  "synthetic:47",
+                  "synthetic:48",
+                  "synthetic:49"
+                ]
+              },
+              {
+                "result_id": "synthetic:51",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:44",
+                  "synthetic:45",
+                  "synthetic:46",
+                  "synthetic:47",
+                  "synthetic:48",
+                  "synthetic:49"
+                ]
+              },
+              {
+                "result_id": "synthetic:52",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:44",
+                  "synthetic:45",
+                  "synthetic:46",
+                  "synthetic:47",
+                  "synthetic:48",
+                  "synthetic:49"
+                ]
+              },
+              {
+                "result_id": "synthetic:53",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:44",
+                  "synthetic:45",
+                  "synthetic:46",
+                  "synthetic:47",
+                  "synthetic:48",
+                  "synthetic:49"
+                ]
+              },
+              {
+                "result_id": "synthetic:54",
+                "treatment": "qualified_projection",
+                "projection_id": "p:36",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:55",
+                "treatment": "qualified_projection",
+                "projection_id": "p:37",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:56",
+                "treatment": "qualified_projection",
+                "projection_id": "p:38",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:57",
+                "treatment": "qualified_projection",
+                "projection_id": "p:39",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:58",
+                "treatment": "qualified_projection",
+                "projection_id": "p:40",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:59",
+                "treatment": "qualified_projection",
+                "projection_id": "p:41",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:60",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:54",
+                  "synthetic:55",
+                  "synthetic:56",
+                  "synthetic:57",
+                  "synthetic:58",
+                  "synthetic:59"
+                ]
+              },
+              {
+                "result_id": "synthetic:61",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:54",
+                  "synthetic:55",
+                  "synthetic:56",
+                  "synthetic:57",
+                  "synthetic:58",
+                  "synthetic:59"
+                ]
+              },
+              {
+                "result_id": "synthetic:62",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:54",
+                  "synthetic:55",
+                  "synthetic:56",
+                  "synthetic:57",
+                  "synthetic:58",
+                  "synthetic:59"
+                ]
+              },
+              {
+                "result_id": "synthetic:63",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "straight_open_stress_v1",
+                "input_result_ids": [
+                  "synthetic:54",
+                  "synthetic:55",
+                  "synthetic:56",
+                  "synthetic:57",
+                  "synthetic:58",
+                  "synthetic:59"
+                ]
+              },
+              {
+                "result_id": "synthetic:64",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "reviewed_stress_summary_v1",
+                "input_result_ids": [
+                  "synthetic:20",
+                  "synthetic:21",
+                  "synthetic:22",
+                  "synthetic:23",
+                  "synthetic:30",
+                  "synthetic:31",
+                  "synthetic:32",
+                  "synthetic:33",
+                  "synthetic:40",
+                  "synthetic:41",
+                  "synthetic:42",
+                  "synthetic:43",
+                  "synthetic:50",
+                  "synthetic:51",
+                  "synthetic:52",
+                  "synthetic:53",
+                  "synthetic:60",
+                  "synthetic:61",
+                  "synthetic:62",
+                  "synthetic:63"
+                ]
+              },
+              {
+                "result_id": "synthetic:65",
+                "treatment": "qualified_projection",
+                "projection_id": "p:42",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:66",
+                "treatment": "qualified_projection",
+                "projection_id": "p:43",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:67",
+                "treatment": "qualified_projection",
+                "projection_id": "p:44",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:68",
+                "treatment": "qualified_projection",
+                "projection_id": "p:45",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:69",
+                "treatment": "qualified_projection",
+                "projection_id": "p:46",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:70",
+                "treatment": "qualified_projection",
+                "projection_id": "p:47",
+                "recipe_id": null,
+                "input_result_ids": []
+              },
+              {
+                "result_id": "synthetic:71",
+                "treatment": "checked_derived",
+                "projection_id": null,
+                "recipe_id": "support_force_norm_v1",
+                "input_result_ids": [
+                  "synthetic:65",
+                  "synthetic:66",
+                  "synthetic:67"
+                ]
+              }
+            ],
+            "supports": [
+              {
+                "support_id": "synthetic-anchor",
+                "node_id": "synthetic-root",
+                "attribution": "unique_source_owned",
+                "components": [
+                  {
+                    "component": "Fx",
+                    "result_id": "synthetic:65",
+                    "functional_id": "f:42",
+                    "action_terms": [
+                      {
+                        "kind": "ideal_constraint",
+                        "source_id": "synthetic-anchor",
+                        "global_dof": 0
+                      }
+                    ]
+                  },
+                  {
+                    "component": "Fy",
+                    "result_id": "synthetic:66",
+                    "functional_id": "f:43",
+                    "action_terms": [
+                      {
+                        "kind": "ideal_constraint",
+                        "source_id": "synthetic-anchor",
+                        "global_dof": 1
+                      }
+                    ]
+                  },
+                  {
+                    "component": "Fz",
+                    "result_id": "synthetic:67",
+                    "functional_id": "f:44",
+                    "action_terms": [
+                      {
+                        "kind": "ideal_constraint",
+                        "source_id": "synthetic-anchor",
+                        "global_dof": 2
+                      }
+                    ]
+                  },
+                  {
+                    "component": "Mx",
+                    "result_id": "synthetic:68",
+                    "functional_id": "f:45",
+                    "action_terms": [
+                      {
+                        "kind": "ideal_constraint",
+                        "source_id": "synthetic-anchor",
+                        "global_dof": 3
+                      }
+                    ]
+                  },
+                  {
+                    "component": "My",
+                    "result_id": "synthetic:69",
+                    "functional_id": "f:46",
+                    "action_terms": [
+                      {
+                        "kind": "ideal_constraint",
+                        "source_id": "synthetic-anchor",
+                        "global_dof": 4
+                      }
+                    ]
+                  },
+                  {
+                    "component": "Mz",
+                    "result_id": "synthetic:70",
+                    "functional_id": "f:47",
+                    "action_terms": [
+                      {
+                        "kind": "ideal_constraint",
+                        "source_id": "synthetic-anchor",
+                        "global_dof": 5
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "failure": null,
+            "work": {
+              "limit": 2000000,
+              "charged": 1,
+              "rejected_reservation": {
+                "kind": "finite",
+                "amount": 0
+              },
+              "reserved_unobserved_failure": 0
+            }
+          }
+        ],
+        "envelope_observation_result_ids": [],
+        "invocation_work": {
+          "limit": 64000000,
+          "charged": 1,
+          "publication_charged": 0
+        }
+      },
+      "receipt_sha256": "636746f5a0643f70d23ee910097c7bba2762427caf933a08d8ba37fdbf1b18c1"
+    }
+  },
+  "context": {
+    "request": {
+      "model": {
+        "project": {
+          "id": "synthetic-model"
+        },
+        "nodes": [
+          {
+            "id": "synthetic-root"
+          },
+          {
+            "id": "synthetic-tip"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "id": "synthetic-member",
+            "from": "synthetic-root",
+            "to": "synthetic-tip"
+          }
+        ],
+        "supports": [
+          {
+            "id": "synthetic-anchor",
+            "node": "synthetic-root",
+            "family": "anchor",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          }
+        ],
+        "load_cases": [
+          {
+            "id": "synthetic-case",
+            "primitive_loads": []
+          }
+        ],
+        "components": [],
+        "combinations": []
+      },
+      "materials": []
+    },
+    "solver_mode": "dense_scrutiny"
+  }
+}

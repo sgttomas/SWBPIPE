@@ -1,0 +1,24 @@
+{
+  "qualification": "reference-only analysis/source preservation; no Current or new rule-engine invocation claimed",
+  "source": "fixtures/results/physics_connected_mechanics_sparse.json",
+  "checks": [
+    {
+      "rule": "RULE_INPUTS_INCOMPLETE",
+      "received_source_sha256": "e66fa002a3c55e63c06a134495e59d67c2f1071cb8f960ca70b08624a01591f6",
+      "analysis_record_sha256": "814d72ae17779beb89e539f09f287484b81ef0bf17802f8cbe467a2063165a94",
+      "raw_rule_status": "RULE_INPUTS_INCOMPLETE"
+    },
+    {
+      "rule": "USER_RULE_CHECKED",
+      "received_source_sha256": "e66fa002a3c55e63c06a134495e59d67c2f1071cb8f960ca70b08624a01591f6",
+      "analysis_record_sha256": "514e6891778cc1e5208635fb785e1e0613aedbbd81b055d74f6a3d4db6d27d2e",
+      "raw_rule_status": "RULE_INPUTS_INCOMPLETE"
+    },
+    {
+      "rule": "USER_RULE_FAILED",
+      "received_source_sha256": "e66fa002a3c55e63c06a134495e59d67c2f1071cb8f960ca70b08624a01591f6",
+      "analysis_record_sha256": "2ddba1aa15a9eedc4322e6b34481f85852cb426c2c2e8754676aacf26ba2e816",
+      "raw_rule_status": "RULE_INPUTS_INCOMPLETE"
+    }
+  ]
+}

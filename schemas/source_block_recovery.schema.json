@@ -1,0 +1,763 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpipestress.source_block_receipt/1.0.0",
+  "title": "Source-blocks-1 closed recovery receipt; semantic invariants require executable validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "body",
+    "receipt_sha256"
+  ],
+  "properties": {
+    "body": {
+      "$ref": "#/$defs/receipt_body"
+    },
+    "receipt_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "$defs": {
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "const": "load_case"
+        },
+        "ref_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "work": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "limit",
+        "charged",
+        "rejected_reservation",
+        "reserved_unobserved_failure"
+      ],
+      "properties": {
+        "limit": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4000000
+        },
+        "charged": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "description": "Known metered/reserved work; excludes the separate reserved_unobserved_failure amount."
+        },
+        "rejected_reservation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "amount"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "finite",
+                "overflow"
+              ]
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "reserved_unobserved_failure": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "description": "Additional conservative reservation for failure work without a returned meter. It is not included in charged and is debited exactly once. Current fully metered implementation emits zero."
+        }
+      },
+      "description": "SOURCE-BLOCKS-1 implementation policy: at most 4,000,000 reservations per case, with charged plus reserved-unobserved failure work summed across the invocation at most 64,000,000. Generic and strict-gap helper limits are separate."
+    },
+    "failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage",
+        "code",
+        "diagnostic_ref",
+        "block_order"
+      ],
+      "properties": {
+        "stage": {
+          "enum": [
+            "eligibility",
+            "source_capture",
+            "source_validation",
+            "exact_solve",
+            "functional_evaluation",
+            "projection",
+            "derived_rows",
+            "finalization"
+          ]
+        },
+        "code": {
+          "enum": [
+            "unsupported_family",
+            "unsupported_block",
+            "unsupported_source_closure",
+            "unsupported_derived_quantity",
+            "support_attribution_ambiguous",
+            "invalid_source",
+            "source_mismatch",
+            "not_positive_definite",
+            "arithmetic_range",
+            "budget",
+            "projection_unresolved",
+            "coverage_incomplete",
+            "invocation_mismatch"
+          ]
+        },
+        "diagnostic_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "block_order": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ordinary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requested_mode",
+        "outcome",
+        "structural_report_diagnostic_ref",
+        "failure",
+        "quality_case_index"
+      ],
+      "properties": {
+        "requested_mode": {
+          "enum": [
+            "dense_scrutiny",
+            "sparse_interactive"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "not_attempted",
+            "checks_passed",
+            "sensitive",
+            "rejected"
+          ]
+        },
+        "structural_report_diagnostic_ref": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "failure": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "stage",
+                "diagnostic_ref"
+              ],
+              "properties": {
+                "stage": {
+                  "enum": [
+                    "assembly",
+                    "geometry",
+                    "factorization",
+                    "condition",
+                    "residual",
+                    "range",
+                    "input"
+                  ]
+                },
+                "diagnostic_ref": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quality_case_index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "normalized_source_sha256",
+        "functional_plan_sha256",
+        "dof_count",
+        "stiffness_term_count",
+        "force_term_count",
+        "functional_count",
+        "free_dofs",
+        "prescribed_dofs",
+        "free_blocks",
+        "member_ids",
+        "support_ids"
+      ],
+      "properties": {
+        "level": {
+          "const": "complete_identified_represented_contributions"
+        },
+        "normalized_source_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "functional_plan_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "dof_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "stiffness_term_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "force_term_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "functional_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "free_dofs": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "prescribed_dofs": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "free_blocks": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "member_ids": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "support_ids": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "projection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "projection_id",
+        "functional_id",
+        "result_id",
+        "quantity",
+        "value",
+        "value_bits",
+        "unit",
+        "interval",
+        "absolute_error_bound",
+        "relative_error_bound",
+        "relative_limit",
+        "basis"
+      ],
+      "properties": {
+        "projection_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "functional_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "result_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantity": {
+          "enum": [
+            "nodal_translation",
+            "nodal_rotation",
+            "member_end_action",
+            "member_station_action",
+            "support_action_component",
+            "constraint_reaction"
+          ]
+        },
+        "value": {
+          "type": "number"
+        },
+        "value_bits": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{16}$"
+        },
+        "unit": {
+          "enum": [
+            "m",
+            "mm",
+            "rad",
+            "N",
+            "N*m"
+          ]
+        },
+        "interval": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          }
+        },
+        "absolute_error_bound": {
+          "type": "number",
+          "minimum": 0
+        },
+        "relative_error_bound": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1e-09
+        },
+        "relative_limit": {
+          "const": 1e-09
+        },
+        "basis": {
+          "enum": [
+            "exact_zero",
+            "exact_identity",
+            "outward_interval"
+          ]
+        }
+      }
+    },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_id",
+        "treatment",
+        "projection_id",
+        "recipe_id",
+        "input_result_ids"
+      ],
+      "properties": {
+        "result_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "treatment": {
+          "enum": [
+            "qualified_projection",
+            "checked_derived",
+            "ordinary_checked",
+            "inspection_only"
+          ]
+        },
+        "projection_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recipe_id": {
+          "anyOf": [
+            {
+              "enum": [
+                "translation_norm_scaled_v1",
+                "support_force_norm_scaled_v1",
+                "straight_open_stress_v1",
+                "reviewed_stress_summary_v1",
+                "section_property_from_source_v1"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_result_ids": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "support_component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component",
+        "result_id",
+        "functional_id",
+        "action_terms"
+      ],
+      "properties": {
+        "component": {
+          "enum": [
+            "Fx",
+            "Fy",
+            "Fz",
+            "Mx",
+            "My",
+            "Mz"
+          ]
+        },
+        "result_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "functional_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "action_terms": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "source_id",
+              "global_dof"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "ideal_constraint",
+                  "ground_spring",
+                  "structural_zero"
+                ]
+              },
+              "source_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "global_dof": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            }
+          }
+        }
+      }
+    },
+    "support": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "support_id",
+        "node_id",
+        "attribution",
+        "components"
+      ],
+      "properties": {
+        "support_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attribution": {
+          "const": "unique_source_owned"
+        },
+        "components": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/support_component"
+          }
+        }
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis_ref",
+        "outcome",
+        "requested_mode",
+        "selected_method",
+        "ordinary_attempt",
+        "source",
+        "projections",
+        "rows",
+        "supports",
+        "failure",
+        "work"
+      ],
+      "properties": {
+        "basis_ref": {
+          "$ref": "#/$defs/basis"
+        },
+        "outcome": {
+          "enum": [
+            "qualified",
+            "unsupported",
+            "failed"
+          ]
+        },
+        "requested_mode": {
+          "enum": [
+            "dense_scrutiny",
+            "sparse_interactive"
+          ]
+        },
+        "selected_method": {
+          "anyOf": [
+            {
+              "enum": [
+                "retained_source_blocks_exact_v1",
+                "ordinary_dense_structural_v1",
+                "ordinary_sparse_structural_v1"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ordinary_attempt": {
+          "$ref": "#/$defs/ordinary"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/source"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "projections": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "$ref": "#/$defs/projection"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "supports": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "$ref": "#/$defs/support"
+          }
+        },
+        "failure": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/failure"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "work": {
+          "$ref": "#/$defs/work"
+        }
+      }
+    },
+    "invocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "const": "openpipestress_jcs_ijson_v1"
+        },
+        "payload_scope": {
+          "const": "source_blocks_invocation_v1"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "receipt_body": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_version",
+        "policy",
+        "status",
+        "invocation",
+        "publication_sha256",
+        "cases",
+        "envelope_observation_result_ids",
+        "invocation_work"
+      ],
+      "properties": {
+        "receipt_version": {
+          "const": "1.0.0"
+        },
+        "policy": {
+          "const": "SOURCE-BLOCKS-1"
+        },
+        "status": {
+          "enum": [
+            "qualified",
+            "partial",
+            "unavailable"
+          ]
+        },
+        "invocation": {
+          "$ref": "#/$defs/invocation"
+        },
+        "publication_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "cases": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "$ref": "#/$defs/case"
+          }
+        },
+        "envelope_observation_result_ids": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "invocation_work": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "limit",
+            "charged",
+            "publication_charged"
+          ],
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 64000000
+            },
+            "charged": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 64000000
+            },
+            "publication_charged": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 64000000
+            }
+          }
+        }
+      }
+    }
+  }
+}

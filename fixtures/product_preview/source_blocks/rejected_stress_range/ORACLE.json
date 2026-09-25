@@ -1,0 +1,100 @@
+{
+  "records": [
+    {
+      "raw": "dense_scrutiny.raw.json",
+      "raw_sha256": "85124a39b1920e3254f791ac28b2aeb3abafba42845bf82abe3346f0920ab877",
+      "request": "dense_scrutiny.request.json",
+      "request_sha256": "dcf0a626355add1d26146026c8a46e3843acae459def146901188e90f49f2413",
+      "status": "qualified",
+      "area_represented": 5.969026041820605e+29,
+      "source_force_represented": 1e-282,
+      "oracle": "Fraction.from_float(F)/Fraction.from_float(A)/1000000; A is independent replay of represented selected annulus formula, not exact primitive pi",
+      "samples": [
+        {
+          "id": "result:stress:pipe:end-i:axial-normal",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        },
+        {
+          "id": "result:stress:pipe:end-j:axial-normal",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        },
+        {
+          "id": "result:stress:pipe:quarter-1:axial-normal",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        },
+        {
+          "id": "result:stress:pipe:midspan:axial-normal",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        },
+        {
+          "id": "result:stress:pipe:quarter-3:axial-normal",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        },
+        {
+          "id": "result:stress:pipe",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        }
+      ]
+    },
+    {
+      "raw": "sparse_interactive.raw.json",
+      "raw_sha256": "e14b0f257f45efc6ec5824527bbc2a60118d2026a72a36c261e42f73ccef5a04",
+      "request": "sparse_interactive.request.json",
+      "request_sha256": "dcf0a626355add1d26146026c8a46e3843acae459def146901188e90f49f2413",
+      "status": "qualified",
+      "area_represented": 5.969026041820605e+29,
+      "source_force_represented": 1e-282,
+      "oracle": "Fraction.from_float(F)/Fraction.from_float(A)/1000000; A is independent replay of represented selected annulus formula, not exact primitive pi",
+      "samples": [
+        {
+          "id": "result:stress:pipe:end-i:axial-normal",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        },
+        {
+          "id": "result:stress:pipe:end-j:axial-normal",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        },
+        {
+          "id": "result:stress:pipe:quarter-1:axial-normal",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        },
+        {
+          "id": "result:stress:pipe:midspan:axial-normal",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        },
+        {
+          "id": "result:stress:pipe:quarter-3:axial-normal",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        },
+        {
+          "id": "result:stress:pipe",
+          "value": 1.675317e-318,
+          "unit": "MPa",
+          "relative_error_against_represented_F_A_MPa": 1.2694501751682153e-06
+        }
+      ]
+    }
+  ]
+}

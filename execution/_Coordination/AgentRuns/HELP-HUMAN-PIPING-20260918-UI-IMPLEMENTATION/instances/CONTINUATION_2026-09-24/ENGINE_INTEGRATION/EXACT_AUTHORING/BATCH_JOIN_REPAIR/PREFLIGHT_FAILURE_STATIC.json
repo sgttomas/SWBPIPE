@@ -1,0 +1,8 @@
+{
+  "kind": "static source counterexample; no Cargo execution claimed",
+  "trigger": "complete reviewed batch containing Model/set_field/pressure_profile",
+  "observed_target_gate": "    let target = exact_object(&op[\"target\"], &[\"object_type\", \"ref\"], &[])?;\n    string(target, \"ref\", false)?;\n    if !matches!(\n        string(target, \"object_type\", false)?,\n        \"Material\"\n            | \"Section\"\n            | \"Node\"\n            | \"Element\"\n            | \"Component\"\n            | \"Support\"\n            | \"Load\"\n            | \"Combination\"\n    ) {\n        return Err(\"Unsupported target object_type\".into());\n    }\n",
+  "expected_diagnostic": "OP-BATCH-PREFLIGHT-INVALID",
+  "reason": "Model target rejected by strict preflight before any private simulation",
+  "source_sha256": "452a8b5c622334742cf998372c892748603fab18dcc4a0a793d12b65cabb109e"
+}

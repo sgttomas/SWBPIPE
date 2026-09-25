@@ -1,0 +1,22 @@
+[
+  {
+    "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "sha256": "c19089839ae35d07296648e4c2a8d071dbaa1c5252f29a77d2ae57e411060d8e"
+  },
+  {
+    "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+    "sha256": "502171089592d8bb6aa743ca439cffdb89d1847324f0d61be3b7a07a85c28eb8"
+  },
+  {
+    "path": "apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+    "sha256": "af0b99687679bc2b76093cab4173a82975379c83b0309d3d109e859f3d3dd72b"
+  },
+  {
+    "path": "apps/desktop/src/features/solve/SolvePanel.tsx",
+    "sha256": "e5bd20ba1ba873c7add676bca9d9be189abbe31b338c658e8f89217968f0f6a1"
+  },
+  {
+    "path": "apps/desktop/src/features/solve/SolvePanel.test.tsx",
+    "sha256": "e153cfaca82491f765285193d03c5284255ba73827c8e7ba1cb08fd3f1a9bb11"
+  }
+]

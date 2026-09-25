@@ -1,0 +1,22 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--offline",
+    "--locked",
+    "-j",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-engine-integration-product-target",
+    "--lib",
+    "--tests",
+    "--",
+    "--test-threads=2"
+  ],
+  "started_utc": "2026-09-25T04:19:12.745547+00:00",
+  "source_lib_sha256": "f5a2e034ebe87686ce3abc26de0f111c8b1825b0a46ba007a74e0cd2d89c61a5",
+  "exit_code": 101,
+  "finished_utc": "2026-09-25T04:19:18.003820+00:00"
+}

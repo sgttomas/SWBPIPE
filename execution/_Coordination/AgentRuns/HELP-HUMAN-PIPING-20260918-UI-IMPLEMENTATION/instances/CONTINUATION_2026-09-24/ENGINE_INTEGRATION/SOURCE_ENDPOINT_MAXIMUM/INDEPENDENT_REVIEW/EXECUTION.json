@@ -1,0 +1,24 @@
+{
+  "actor": "/root/physics_resume/joined_producer_review",
+  "parent": "/root/physics_resume",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native",
+  "independent_from_author": "/root/physics_resume/source_endpoint_maximum",
+  "instruction_origins": {
+    "/private/tmp/piping-engine-integration-20260925/AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+    "/private/tmp/piping-engine-integration-20260925/.agents/skills/software-code-review/SKILL.md": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+  },
+  "assignment_origin": "parent followup_task in current harness transcript; source/draft read-only, sole writes this review directory",
+  "candidate_sha256": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6",
+  "checks": "Read-only static + own exact-Fraction Python oracle; inspected parent standalone Rust results without reattribution",
+  "standalone_evidence": {
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/STANDALONE_EXECUTION.json": "fdf140fcc15260aa3f4108220de7346ec03b263e88e5418bf67590340d1d8280",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/standalone_tests.rs": "660fb37f754683278cad37e3feaa220a733bd34bbb14a8483b97e133269ff2b5",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/standalone-01.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/standalone-02.log": "41886aca7bdd46e254e6bd985544d48edb3dedc43174c5a308fd18fb325ca255"
+  },
+  "recorded_utc": "2026-09-25T06:54:12.581653+00:00"
+}

@@ -1,0 +1,5 @@
+{
+  "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+  "sha256": "9973a951a5fe23ef686565cfebf43d14a9ec7514cc44c90e6cea0b9d9d8a1239",
+  "authority": "Parent physics_resume explicitly authorized lib.rs-only raw immutability repair after bounded read-only audit. All frontend files remain read-only."
+}

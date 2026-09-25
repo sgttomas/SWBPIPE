@@ -102,7 +102,21 @@ export type EquivalentStaticGenerationInput = {
   provenance?: string;
 };
 
+export type PressureRegionInput = {
+  id: string;
+  member_pipe_ids: string[];
+  pressure_basis: string;
+  pressure: QuantityValue;
+  terminals: Array<{
+    node_ref: string;
+    closure_transfer: "transfers_to_wall" | "separately_supported_or_compensated";
+    provenance: string;
+  }>;
+  provenance: string;
+};
+
 export type PreviewModel = {
+  pressure_contract?: { version: string; mode: string };
   schema_version: string;
   document_kind: string;
   data_boundary: Record<string, string>;
@@ -121,13 +135,16 @@ export type PreviewModel = {
     id: string;
     label: string;
     elastic_modulus: { value: number; unit: string };
-    shear_modulus: { value: number; unit: string };
+    shear_modulus?: { value: number; unit: string };
+    constitutive_basis?: string;
+    poisson_ratio?: QuantityValue;
     thermal_expansion_coefficient?: { value: number; unit: string };
     temperature_points?: Array<{
       id: string;
       temperature?: QuantityValue;
       elastic_modulus?: QuantityValue;
       shear_modulus?: QuantityValue;
+      poisson_ratio?: QuantityValue;
       thermal_expansion_coefficient?: QuantityValue;
       provenance?: string;
     }>;
@@ -227,6 +244,7 @@ export type PreviewModel = {
     status: string;
     provenance: string;
     primitive_loads?: Array<Record<string, unknown>>;
+    pressure_regions?: PressureRegionInput[];
     /** Optional exact user-entered modulus basis (DEC-068 item 1). */
     modulus_basis_ref?: string;
     /** Optional DEC-077 solve temperature for bounded E/alpha interpolation. */
@@ -300,6 +318,7 @@ export type NumericalQuality = {
   }>;
 };
 export type MechanicsResult = {
+  contract_evidence?: Record<string, unknown>;
   producer?: { component_name: string; component_version: string; semantic_contract_id: string };
   numerical_quality?: NumericalQuality;
   formulation_basis?: { profile_id: string; limitations: string[] };
@@ -645,6 +664,7 @@ export type AgentProposal = {
 };
 
 export type EditorOperationObjectType =
+  | "Model"
   | "Material"
   | "Section"
   | "Node"

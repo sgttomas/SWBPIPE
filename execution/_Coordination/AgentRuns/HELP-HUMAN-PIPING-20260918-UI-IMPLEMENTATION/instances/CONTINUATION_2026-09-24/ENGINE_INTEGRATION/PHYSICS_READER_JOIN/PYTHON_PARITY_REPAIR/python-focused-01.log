@@ -1,0 +1,16 @@
+........................................................................ [ 86%]
+...........                                                              [100%]
+=============================== warnings summary ===============================
+tests/test_physics_consumer_contract.py::test_actual_physics_source_analysis_round_trip[sparse]
+tests/test_physics_consumer_contract.py::test_actual_physics_source_analysis_round_trip[sparse]
+tests/test_physics_consumer_contract.py::test_actual_physics_source_analysis_round_trip[dense]
+tests/test_physics_consumer_contract.py::test_actual_physics_source_analysis_round_trip[dense]
+tests/test_physics_consumer_contract.py::test_actual_headless_physics_derivative_and_analysis_share_the_full_source
+tests/test_physics_consumer_contract.py::test_actual_headless_physics_derivative_and_analysis_share_the_full_source
+tests/test_physics_consumer_contract.py::test_actual_headless_physics_derivative_and_analysis_share_the_full_source
+tests/test_physics_consumer_contract.py::test_actual_headless_physics_derivative_and_analysis_share_the_full_source
+  /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/schema_validation.py:54: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import RefResolver
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+83 passed, 8 warnings in 21.68s

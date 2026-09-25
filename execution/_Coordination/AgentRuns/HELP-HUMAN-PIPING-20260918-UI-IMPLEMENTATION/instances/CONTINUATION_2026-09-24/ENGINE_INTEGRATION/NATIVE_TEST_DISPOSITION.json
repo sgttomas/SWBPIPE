@@ -1,0 +1,9 @@
+{
+  "reviewer": "/root/physics_resume/joined_authoring_review",
+  "finding": "Existing future-version refusal control used newly admitted model0.3.0; it would fail for intended newly supported input",
+  "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+  "before_sha256": "0af98e3c921834f74a9f32339561f82ad8bcad030e1cdd11df29fbcd2beb2b97",
+  "after_sha256": "a26e1ce2fbe6dce8068be4319f64d4529229e7fda4785dcd5f74e42472b7be31",
+  "change": "Only local future-version fixture changes 0.3.0 to unsupported 0.3.1; refusal assertions unchanged. Explicit0.3 positive controls retained.",
+  "verification": "Independent source backcheck requested; native compilation/execution pending."
+}

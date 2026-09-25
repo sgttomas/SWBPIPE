@@ -1,0 +1,22 @@
+[
+  {
+    "path": "apps/desktop/e2e/result-compatibility.spec.ts",
+    "sha256": "8fb074b54a95e8f119508f2424369d111e9b248614f2c838113043778c9d8530"
+  },
+  {
+    "path": "apps/desktop/e2e/result-compatibility-dist.spec.ts",
+    "sha256": "9771f4ad668841a474c13120bd709484400cd1296c8566510479e2cec7019548"
+  },
+  {
+    "path": "apps/desktop/e2e/report-package-dist.spec.ts",
+    "sha256": "8c7a51165ce1d8838440899d6466aa015bda0019fde803ca4856d05f86da9721"
+  },
+  {
+    "path": "apps/desktop/e2e/c3-viewport-visibility.spec.ts",
+    "sha256": "1a2c4fe58c875f42df82b84bc8b01e27f310eb883eba6d60fb1f63f49462ede6"
+  },
+  {
+    "path": "apps/desktop/e2e/linear-authoring.spec.ts",
+    "sha256": "77ebb93ddcd5959b7e31cde04a8072d8792325296bf4772636dcea4a51fa19cd"
+  }
+]

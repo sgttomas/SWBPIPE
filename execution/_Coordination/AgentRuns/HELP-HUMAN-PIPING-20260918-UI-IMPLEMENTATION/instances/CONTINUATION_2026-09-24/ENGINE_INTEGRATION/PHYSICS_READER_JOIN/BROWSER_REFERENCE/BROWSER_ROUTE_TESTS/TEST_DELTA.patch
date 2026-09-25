@@ -1,0 +1,286 @@
+diff --git a/projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts b/projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts
+index 2c350abc74..ac9d64fd28 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts
+@@ -276,31 +276,34 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
+   await expect(page.getByTestId("viewport-hidden-count")).toHaveCount(0);
+ });
+ 
+-test("C3 visibility leaves Current results current and never revives Historical overlays", async ({ page }) => {
++test("C3 visibility never gives bundled references a current overlay or saved-model association", async ({ page }) => {
+   await page.goto("/");
+   await openWorkspaceSection(page, "solve");
+   await expect(page.getByTestId("run-mechanics-preview")).toBeEnabled();
+   await page.getByTestId("run-mechanics-preview").click();
+-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
++  await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
++  await openWorkspaceSection(page, "results");
++  await page.getByRole("button", { name: "Inspect bundled reference", exact: true }).click();
++  await expect(page.getByRole("region", { name: "Bundled reference — not a solve for the current model" })).toBeVisible();
+   await showCanvas(page);
+   await selectTreeRow(page, "pipe", "pipe:P-100");
+   await control(page, "Isolate").click();
+   await control(page, "Hide").click();
+   await control(page, "Show All").click();
++  await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
+   await openWorkspaceSection(page, "results");
+-  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
++  await expect(page.getByTestId("historical-run-context")).toBeVisible();
++  // The separate bundled example is not persisted as this model's solved run.
+   await projectCommand(page, "save-local", true);
+   await expect(page.getByTestId("local-project-message")).toContainText("Saved");
+   await projectCommand(page, "open-local", true);
+   await openWorkspaceSection(page, "results");
+-  await expect(page.getByTestId("historical-run-context")).toBeVisible();
++  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
+   await showCanvas(page);
+   await selectTreeRow(page, "pipe", "pipe:P-100");
+   await control(page, "Isolate").click();
+   await control(page, "Show All").click();
+   await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
+-  await openWorkspaceSection(page, "results");
+-  await expect(page.getByTestId("historical-run-context")).toBeVisible();
+   await openWorkspaceSection(page, "evidence");
+   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+ });
+diff --git a/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts b/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
+index 80895bd23e..ea6d6e500c 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
+@@ -227,16 +227,14 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
+   const baseline350Hash = await currentModelHash(page);
+   await openWorkspaceSection(page, "solve");
+   await page.getByTestId("run-mechanics-preview").click();
+-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+-  await page.getByTestId("issues-drawer-toggle").click();
+-  await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+-  await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
+-  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
++  await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
++  await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
++  await expectStatusChip(page, "status-pill-mechanics", "failed", "Solver · Not solved");
+   // Slice B3: the Analyze page lies over the stage's surfaces; close it to reach the canvas.
+   await showCanvas(page);
+   await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
+   await expect(page.getByTestId("viewport-deformation-summary")).toBeVisible();
+-  await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0");
++  await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("not started; result rows=0");
+   await expect(page.getByTestId("viewport-deformation-boundary")).toHaveText("scale=not_generated; professional_claim=false");
+   await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
+   await expect(page.getByTestId("viewport-deformation-summary")).toBeHidden();
+diff --git a/projects/chirality-piping/apps/desktop/e2e/report-package-dist.spec.ts b/projects/chirality-piping/apps/desktop/e2e/report-package-dist.spec.ts
+index b720b617b2..810ac2e4b9 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/report-package-dist.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/report-package-dist.spec.ts
+@@ -1,29 +1,22 @@
+ import { expect, test } from "@playwright/test";
+ import { openWorkspaceSection } from "./workspace-driver";
+ 
+-test("production dist exposes the report-package File route and fails honestly in browser mode", async ({ page }) => {
++test("production browser keeps the report-package route unavailable for bundled references", async ({ page }) => {
+   await page.goto("/");
+   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+-
+   await page.getByTestId("menu-file").click();
+   await expect(page.getByTestId("menu-item-file.save-report-package")).toBeDisabled();
+   await page.getByTestId("app-menu-backdrop").click();
+-
+   await openWorkspaceSection(page, "solve");
+   await page.getByTestId("run-mechanics-preview").click();
+-  await expect(page.getByTestId("readiness-mechanics")).toContainText("computed result rows");
+-
++  await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
++  await openWorkspaceSection(page, "results");
++  await page.getByRole("button", { name: "Inspect bundled reference", exact: true }).click();
++  await expect(page.getByRole("region", { name: "Bundled reference — not a solve for the current model" })).toBeVisible();
+   await openWorkspaceSection(page, "report");
+   await page.getByTestId("report-package-private-intent").check();
+   await page.getByTestId("menu-file").click();
+-  await page.getByTestId("menu-item-file.save-report-package").click();
+-
+-  await expect(page.getByTestId("report-package-redaction-summary")).toContainText(
+-    "route=DREP-PACKAGE-SAVE-009"
+-  );
+-  await expect(page.getByTestId("report-package-redaction-summary")).toContainText("blocked=false");
+-  await expect(page.getByTestId("report-package-save-status")).toContainText(
+-    "REPORT-PACKAGE-SAVE-DESKTOP-ONLY"
+-  );
++  await expect(page.getByTestId("menu-item-file.save-report-package")).toBeDisabled();
++  await expect(page.getByTestId("report-package-save-status")).toHaveCount(0);
+   await expect(page.locator("a[download$='.opsproj']")).toHaveCount(0);
+ });
+diff --git a/projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts b/projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts
+index 04a7374225..38d693cd1b 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts
+@@ -1,52 +1,29 @@
+-import { expect, test, type Page } from "@playwright/test";
++import { expect, test } from "@playwright/test";
+ import { openWorkspaceSection as openSection } from "./workspace-driver";
+ 
+-async function replaceCurrentSource(page: Page) {
+-  await openSection(page, "solve");
+-  await page.getByTestId("solver-mode-dense").click();
+-  await expect(page.getByTestId("solver-mode-dense")).toHaveAttribute("aria-pressed", "true");
+-}
+-
+-test("built dist carries checked 0.2 Current and stress-neutral packages", async ({ page }) => {
++// The retained 830-row / 828-witness package oracles remain in
++// StressNeutralExportPanel.test.tsx's pure compatibility projection tests.
++// A real browser can inspect preserved rows, but cannot create native Current.
++test("built browser keeps preserved references separate from native Current exports", async ({ page }) => {
+   await page.goto("/");
+   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+-  await openSection(page, "solve");
+-  await page.getByTestId("run-mechanics-preview").click();
+-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+-  await openSection(page, "exports");
+-  await expect(page.getByTestId("stress-neutral-export-link-local-private-intent")).toBeVisible();
+-  await expect(page.getByTestId("stress-neutral-export-link")).not.toHaveAttribute("href");
+-  await expect(page.getByTestId("stress-neutral-csv-link")).not.toHaveAttribute("href");
+-  await page.getByTestId("stress-neutral-export-link-local-private-intent").check();
+-  await expect(page.getByTestId("stress-neutral-export-link")).toHaveAttribute("href", /^data:application\/json/);
+-  const href = await page.getByTestId("stress-neutral-export-link").getAttribute("href");
+-  expect(href).toBeTruthy();
+-  const packet = JSON.parse(decodeURIComponent(href!.slice(href!.indexOf(",") + 1)));
+-  expect(packet.schema_version).toBe("0.2.0");
+-  expect(packet.manifest.package_members.map((item: any) => item.filename)).toEqual([
+-    "manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json",
+-    "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"
+-  ]);
+-  expect(packet.package_checksum.canonicalization).toBe("openpipestress_jcs_ijson_v1");
+-  expect(packet.export_profile).toMatchObject({ profile_id: "ops.stress_neutral.v2", profile_version: "0.2.0" });
+-  expect(packet.manifest.export_profile_ref.ref).toBe("ops.stress_neutral.v2");
+-  expect(packet.result_rows).toHaveLength(830);
+-  expect(packet.unit_preservation_witnesses).toHaveLength(828);
+-  expect(packet.diagnostics.filter((item: any) => item.code === "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK")).toHaveLength(2);
+-  await expect(page.getByTestId("stress-neutral-csv-link")).not.toHaveAttribute("href");
+-
+-  await replaceCurrentSource(page);
+-  await openSection(page, "solve");
+-  await page.getByTestId("run-mechanics-preview").click();
+-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+-  await openSection(page, "exports");
+-  await expect(page.getByTestId("stress-neutral-export-link-local-private-intent")).toBeVisible();
+-  await expect(page.getByTestId("stress-neutral-export-link")).not.toHaveAttribute("href");
+-  await page.getByTestId("stress-neutral-export-link-local-private-intent").check();
+-  await expect(page.getByTestId("stress-neutral-export-link")).toHaveAttribute("href", /^data:application\/json/);
+-  const replacementHref = await page.getByTestId("stress-neutral-export-link").getAttribute("href");
+-  const replacement = JSON.parse(decodeURIComponent(replacementHref!.slice(replacementHref!.indexOf(",") + 1)));
+-  expect(replacementHref).not.toBe(href);
+-  expect(replacement.package_checksum.value).not.toBe(packet.package_checksum.value);
+-  await expect(page.getByTestId("stress-neutral-state-binding")).toContainText(replacement.source_result_ref.ref);
++  for (const mode of ["sparse", "dense"]) {
++    await openSection(page, "solve");
++    await page.getByTestId(`solver-mode-${mode}`).click();
++    await expect(page.getByTestId(`solver-mode-${mode}`)).toHaveAttribute("aria-pressed", "true");
++    await page.getByTestId("run-mechanics-preview").click();
++    await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
++    await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED");
++    await openSection(page, "results");
++    await page.getByRole("button", { name: "Inspect bundled reference", exact: true }).click();
++    await expect(page.getByRole("region", { name: "Bundled reference — not a solve for the current model" })).toBeVisible();
++    await expect(page.getByTestId("result-filter-summary")).toContainText(mode === "sparse" ? "830" : "832");
++    await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
++    await openSection(page, "exports");
++    await expect(page.getByTestId("result-export-empty")).toBeVisible();
++    await expect(page.getByTestId("stress-neutral-empty")).toBeVisible();
++    await expect(page.getByTestId("result-export-link")).toHaveCount(0);
++    await expect(page.getByTestId("stress-neutral-export-link")).toHaveCount(0);
++    await expect(page.getByTestId("stress-neutral-csv-link")).toHaveCount(0);
++  }
+ });
+diff --git a/projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts b/projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts
+index 3d420176ca..1237258f9f 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts
+@@ -1,65 +1,29 @@
+-import { expect, test, type Page } from "@playwright/test";
++import { expect, test } from "@playwright/test";
+ import { openWorkspaceSection as openSection } from "./workspace-driver";
+ 
+-function dataJson(href: string) {
+-  return JSON.parse(decodeURIComponent(href.slice(href.indexOf(",") + 1)));
+-}
+-
+-async function replaceCurrentSource(page: Page) {
+-  await openSection(page, "solve");
+-  await page.getByTestId("solver-mode-dense").click();
+-  await expect(page.getByTestId("solver-mode-dense")).toHaveAttribute("aria-pressed", "true");
+-}
+-
+-test("fresh Current exports strict 0.2 result and stress-neutral evidence", async ({ page }) => {
++// The retained 830-row / 828-witness package oracles remain in
++// StressNeutralExportPanel.test.tsx's pure compatibility projection tests.
++// A real browser can inspect preserved rows, but cannot create native Current.
++test("browser references remain inspectable and cannot publish qualified result or stress-neutral exports", async ({ page }) => {
+   await page.goto("/");
+   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+-  await openSection(page, "solve");
+-  await page.getByTestId("run-mechanics-preview").click();
+-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+-  await openSection(page, "exports");
+-
+-  await expect(page.getByTestId("result-export-link")).not.toHaveAttribute("href");
+-  await page.getByTestId("result-export-link-local-private-intent").check();
+-  const resultHref = await page.getByTestId("result-export-link").getAttribute("href");
+-  expect(resultHref).toBeTruthy();
+-  const result = dataJson(resultHref!);
+-  expect(result.schema_version).toBe("0.2.0");
+-  expect(result.result_envelope.reproducibility.run_hashes.map((item: any) => item.payload_ref.ref_id)).toContain("run:preview-linear-static-001");
+-
+-  await expect(page.getByTestId("stress-neutral-export-link")).not.toHaveAttribute("href");
+-  await expect(page.getByTestId("stress-neutral-csv-link")).not.toHaveAttribute("href");
+-  await page.getByTestId("stress-neutral-export-link-local-private-intent").check();
+-  await expect(page.getByTestId("stress-neutral-export-link")).toHaveAttribute("href", /^data:application\/json/);
+-  const stressHref = await page.getByTestId("stress-neutral-export-link").getAttribute("href");
+-  expect(stressHref).toBeTruthy();
+-  const stress = dataJson(stressHref!);
+-  expect(stress.schema_version).toBe("0.2.0");
+-  expect(stress.manifest.package_members).toHaveLength(9);
+-  expect(stress.manifest.checksums).toHaveLength(9);
+-  expect(stress.export_profile).toMatchObject({ profile_id: "ops.stress_neutral.v2", profile_version: "0.2.0" });
+-  expect(stress.manifest.export_profile_ref).toEqual({ object_type: "StressNeutralExportProfile", ref: "ops.stress_neutral.v2" });
+-  expect(stress.package_checksum.payload_scope).toBe("complete_package_excluding_self_checksum");
+-  expect(stress.received_source_checksums.map((item: any) => item.payload_scope)).toContain("received_result");
+-  expect(stress.result_rows).toHaveLength(830);
+-  expect(stress.unit_preservation_witnesses).toHaveLength(828);
+-  expect(stress.diagnostics.filter((item: any) => item.code === "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK")).toHaveLength(2);
+-  await expect(page.getByTestId("stress-neutral-csv-link")).not.toHaveAttribute("href");
+-  await expect(page.getByTestId("stress-neutral-unit-witnesses")).toContainText("count=828");
+-
+-  await replaceCurrentSource(page);
+-  await openSection(page, "solve");
+-  await page.getByTestId("run-mechanics-preview").click();
+-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+-  await openSection(page, "exports");
+-  await expect(page.getByTestId("stress-neutral-export-link-local-private-intent")).toBeVisible();
+-  await expect(page.getByTestId("stress-neutral-export-link")).not.toHaveAttribute("href");
+-  await page.getByTestId("stress-neutral-export-link-local-private-intent").check();
+-  await expect(page.getByTestId("stress-neutral-export-link")).toHaveAttribute("href", /^data:application\/json/);
+-  const replacementHref = await page.getByTestId("stress-neutral-export-link").getAttribute("href");
+-  const replacement = dataJson(replacementHref!);
+-  expect(replacementHref).not.toBe(stressHref);
+-  expect(replacement.package_checksum.value).not.toBe(stress.package_checksum.value);
+-  expect(replacement.source_model_ref).toEqual(stress.source_model_ref);
+-  await expect(page.getByTestId("stress-neutral-state-binding")).toContainText(replacement.source_result_ref.ref);
++  for (const mode of ["sparse", "dense"]) {
++    await openSection(page, "solve");
++    await page.getByTestId(`solver-mode-${mode}`).click();
++    await expect(page.getByTestId(`solver-mode-${mode}`)).toHaveAttribute("aria-pressed", "true");
++    await page.getByTestId("run-mechanics-preview").click();
++    await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
++    await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED");
++    await openSection(page, "results");
++    await page.getByRole("button", { name: "Inspect bundled reference", exact: true }).click();
++    await expect(page.getByRole("region", { name: "Bundled reference — not a solve for the current model" })).toBeVisible();
++    await expect(page.getByTestId("result-filter-summary")).toContainText(mode === "sparse" ? "830" : "832");
++    await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
++    await openSection(page, "exports");
++    await expect(page.getByTestId("result-export-empty")).toBeVisible();
++    await expect(page.getByTestId("stress-neutral-empty")).toBeVisible();
++    await expect(page.getByTestId("result-export-link")).toHaveCount(0);
++    await expect(page.getByTestId("stress-neutral-export-link")).toHaveCount(0);
++    await expect(page.getByTestId("stress-neutral-csv-link")).toHaveCount(0);
++  }
+ });

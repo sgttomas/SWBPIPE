@@ -1,0 +1,12 @@
+# Composed product test dispositions
+
+product-regressions-01 failed compilation because inherited pressure_section_geometry tests referenced five dated AgentRuns expectation files outside the selected21 source paths. PORTABLE_REFERENCE_JOIN.json records relocation of exact unchanged qualified JSON bytes to maintained fixtures; only include paths changed.
+
+product-regressions-02 ran241 library tests:238pass,3fail. Two NUM case-identity/evidence controls inherited incidental nonzero legacy pressures and reached PRESSURE_MODEL_REAUTHOR_REQUIRED before their intended assertions. Their named local copies now use the same enumerated four-pressure isolation as the earlier36 current-purpose controls, before case IDs change. All original identity/quality/component-warning assertions remain unchanged; shared request/fixture and public refusal stay unchanged.
+
+The new current composite reference test expected six-decimal publication, while the reviewed ordinary NUM join preserves raw finitebinary64. It now uses the already frozen independent full-precision Decimal reference constants at the existing relative1e-9 analytic criterion, rather than quantized targets. Nonzero displacement/normal/friction/stop-force values were not derived from product output. The analyticallyzero released-stop reaction is checked at1e-9 times the authored Y-load scale (350/125N), with no display-quantum allowance; fixed prescribed zero displacement remains exact. Normal/source-resultant linkage remains direct exact equality, since they read the same supported DOF. The prejoin213-pass historical source/test/oracles remain immutable ataf412. This is a prospective publication-policy composition, not a changed physical expected solution or weakened tolerance.
+
+Headless reader’s separate two incidental-pressure current controls are described in PHYSICS_READER_JOIN, with original failures and a new public legacy refusal control preserved. All current-source/opaque invocation/Sensitive/history predicates remain their original intended checks. Independent final review must cover these specific dispositions.
+
+
+Native independent review found the future-version refusal control still used newly supported model0.3.0. Parent changed only that local input to genuinely future0.3.1, keeping refusal assertions and explicit0.3 positive controls. This is input applicability to the existing test purpose, not a physical oracle change. Source hashes and reviewer attribution: NATIVE_TEST_DISPOSITION.json. Native execution remains pending.

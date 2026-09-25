@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/results.v0.3.schema.yaml",
   "title": "Precision-preserving derivative result export 0.3",
-  "description": "Source-bound precision-1 semantics; full numerical metadata retained without engineering qualification.",
+  "description": "Source-bound precision-1 and physics-1 semantics; numerical and physical evidence retained without engineering qualification.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -655,7 +655,24 @@
             "nodal_displacement_z",
             "nodal_rotation_x",
             "nodal_rotation_y",
-            "nodal_rotation_z"
+            "nodal_rotation_z",
+            "Fx",
+            "Fy",
+            "Fz",
+            "Mx",
+            "My",
+            "Mz",
+            "force_magnitude",
+            "moment_magnitude",
+            "maximum_absolute_normal_stress",
+            "wall_axial_end_action",
+            "wall_axial_force",
+            "effective_axial_force",
+            "axial_membrane_stress",
+            "lame_inner_radial_stress",
+            "lame_outer_radial_stress",
+            "lame_inner_hoop_stress",
+            "lame_outer_hoop_stress"
           ]
         },
         "coordinate_system": {
@@ -677,7 +694,8 @@
             "midspan",
             "quarter_3",
             "summary",
-            "TBD"
+            "TBD",
+            "governing_station"
           ]
         },
         "basis": {
@@ -694,7 +712,8 @@
             "explicit_user_range_envelope",
             "stress_recovery_summary",
             "rule_pack_evaluation",
-            "TBD"
+            "TBD",
+            "recovered_from_assembled_support_law"
           ]
         },
         "sign_convention": {
@@ -927,7 +946,10 @@
               "const": "0.2.0"
             },
             "semantic_contract_id": {
-              "const": "openpipestress.result_semantics/0.3.0/precision-1"
+              "enum": [
+                "openpipestress.result_semantics/0.3.0/precision-1",
+                "openpipestress.result_semantics/0.3.0/physics-1"
+              ]
             }
           }
         },
@@ -943,7 +965,10 @@
               "const": "semantic_contract"
             },
             "ref_id": {
-              "const": "openpipestress.result_semantics/0.3.0/precision-1"
+              "enum": [
+                "openpipestress.result_semantics/0.3.0/precision-1",
+                "openpipestress.result_semantics/0.3.0/physics-1"
+              ]
             }
           }
         },
@@ -956,7 +981,10 @@
           ],
           "properties": {
             "profile_id": {
-              "const": "product_preview_mechanics_v1"
+              "enum": [
+                "product_preview_mechanics_v1",
+                "exact_straight_pressure_v2"
+              ]
             },
             "limitations": {
               "type": "array",
@@ -1057,8 +1085,71 @@
               }
             }
           }
+        },
+        "contract_evidence": {
+          "$ref": "#/$defs/PhysicsContractEvidence"
         }
-      }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "producer": {
+              "properties": {
+                "semantic_contract_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/precision-1"
+                }
+              }
+            },
+            "semantic_contract_ref": {
+              "properties": {
+                "ref_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/precision-1"
+                }
+              }
+            },
+            "formulation_basis": {
+              "properties": {
+                "profile_id": {
+                  "const": "product_preview_mechanics_v1"
+                }
+              }
+            }
+          },
+          "not": {
+            "required": [
+              "contract_evidence"
+            ]
+          }
+        },
+        {
+          "required": [
+            "contract_evidence"
+          ],
+          "properties": {
+            "producer": {
+              "properties": {
+                "semantic_contract_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/physics-1"
+                }
+              }
+            },
+            "semantic_contract_ref": {
+              "properties": {
+                "ref_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/physics-1"
+                }
+              }
+            },
+            "formulation_basis": {
+              "properties": {
+                "profile_id": {
+                  "const": "exact_straight_pressure_v2"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "ResultFamily": {
       "type": "string",
@@ -1805,6 +1896,787 @@
         "boolean",
         "null"
       ]
+    },
+    "PhysicsMaterial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pipe_id",
+        "material_id",
+        "E_pa",
+        "nu",
+        "G_pa",
+        "constitutive_basis",
+        "thermal_consumed",
+        "alpha_per_kelvin",
+        "provenance"
+      ],
+      "properties": {
+        "pipe_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "material_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "E_pa": {
+          "type": "number"
+        },
+        "nu": {
+          "type": "number"
+        },
+        "G_pa": {
+          "type": "number"
+        },
+        "constitutive_basis": {
+          "const": "homogeneous_isotropic_E_nu_v1"
+        },
+        "thermal_consumed": {
+          "type": "boolean"
+        },
+        "alpha_per_kelvin": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "PhysicsGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outside_diameter_m",
+        "effective_wall_thickness_m",
+        "ri_m",
+        "ro_m",
+        "Ai_m2",
+        "As_m2",
+        "I_m4",
+        "J_m4",
+        "Z_m3",
+        "pipe_id",
+        "geometry_basis"
+      ],
+      "properties": {
+        "outside_diameter_m": {
+          "type": "number"
+        },
+        "effective_wall_thickness_m": {
+          "type": "number"
+        },
+        "ri_m": {
+          "type": "number"
+        },
+        "ro_m": {
+          "type": "number"
+        },
+        "Ai_m2": {
+          "type": "number"
+        },
+        "As_m2": {
+          "type": "number"
+        },
+        "I_m4": {
+          "type": "number"
+        },
+        "J_m4": {
+          "type": "number"
+        },
+        "Z_m3": {
+          "type": "number"
+        },
+        "pipe_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "geometry_basis": {
+          "const": "authored_normalized_od_wall_v1"
+        }
+      }
+    },
+    "PhysicsContractEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pressure",
+        "connector",
+        "exact_cases"
+      ],
+      "properties": {
+        "pressure": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "load_case_id",
+              "region_id",
+              "profile_mode",
+              "profile_version",
+              "pressure_basis",
+              "p_pa",
+              "external_pressure_increment_pa",
+              "member_pipe_ids",
+              "geometry",
+              "materials",
+              "terminals",
+              "applied_loads",
+              "approximation",
+              "provenance",
+              "geometry_representation_guard",
+              "result_ids"
+            ],
+            "properties": {
+              "load_case_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "region_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "profile_mode": {
+                "const": "exact_straight_pressure_v2"
+              },
+              "profile_version": {
+                "const": "2.0.0"
+              },
+              "pressure_basis": {
+                "const": "internal_differential_zero_external_v1"
+              },
+              "p_pa": {
+                "type": "number"
+              },
+              "external_pressure_increment_pa": {
+                "const": 0
+              },
+              "member_pipe_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "geometry": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "outside_diameter_m",
+                    "effective_wall_thickness_m",
+                    "ri_m",
+                    "ro_m",
+                    "Ai_m2",
+                    "As_m2",
+                    "I_m4",
+                    "J_m4",
+                    "Z_m3",
+                    "pipe_id",
+                    "geometry_basis",
+                    "traversal_forward"
+                  ],
+                  "properties": {
+                    "outside_diameter_m": {
+                      "type": "number"
+                    },
+                    "effective_wall_thickness_m": {
+                      "type": "number"
+                    },
+                    "ri_m": {
+                      "type": "number"
+                    },
+                    "ro_m": {
+                      "type": "number"
+                    },
+                    "Ai_m2": {
+                      "type": "number"
+                    },
+                    "As_m2": {
+                      "type": "number"
+                    },
+                    "I_m4": {
+                      "type": "number"
+                    },
+                    "J_m4": {
+                      "type": "number"
+                    },
+                    "Z_m3": {
+                      "type": "number"
+                    },
+                    "pipe_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "geometry_basis": {
+                      "const": "authored_normalized_od_wall_v1"
+                    },
+                    "traversal_forward": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "materials": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pipe_id",
+                    "material_id",
+                    "E_pa",
+                    "nu",
+                    "G_pa",
+                    "constitutive_basis",
+                    "thermal_consumed",
+                    "alpha_per_kelvin",
+                    "provenance",
+                    "temperature_basis"
+                  ],
+                  "properties": {
+                    "pipe_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "material_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "E_pa": {
+                      "type": "number"
+                    },
+                    "nu": {
+                      "type": "number"
+                    },
+                    "G_pa": {
+                      "type": "number"
+                    },
+                    "constitutive_basis": {
+                      "const": "homogeneous_isotropic_E_nu_v1"
+                    },
+                    "thermal_consumed": {
+                      "type": "boolean"
+                    },
+                    "alpha_per_kelvin": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "temperature_basis": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "selection"
+                          ],
+                          "properties": {
+                            "selection": {
+                              "const": "base_material"
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "selection",
+                            "point_id"
+                          ],
+                          "properties": {
+                            "selection": {
+                              "const": "exact_point"
+                            },
+                            "point_id": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "selection",
+                            "temperature_value",
+                            "temperature_unit"
+                          ],
+                          "properties": {
+                            "selection": {
+                              "const": "interpolation"
+                            },
+                            "temperature_value": {
+                              "type": "number"
+                            },
+                            "temperature_unit": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "terminals": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "node_ref",
+                    "closure_transfer",
+                    "provenance",
+                    "closure_pressure_load_global_n",
+                    "pipe_cap_transfer_global_n",
+                    "remote_closure_excluded_from_pipe_solve",
+                    "remote_closure_support_reaction_global_n"
+                  ],
+                  "properties": {
+                    "node_ref": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "closure_transfer": {
+                      "enum": [
+                        "transfers_to_wall",
+                        "separately_supported_or_compensated"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "closure_pressure_load_global_n": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "pipe_cap_transfer_global_n": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "remote_closure_excluded_from_pipe_solve": {
+                      "type": "boolean"
+                    },
+                    "remote_closure_support_reaction_global_n": {
+                      "oneOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "array",
+                          "minItems": 3,
+                          "maxItems": 3,
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "applied_loads": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pipe_id",
+                    "eigenload_pair_local_n",
+                    "local_x_global",
+                    "mathematical_cap_pair_local_n",
+                    "thermal_included"
+                  ],
+                  "properties": {
+                    "pipe_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "eigenload_pair_local_n": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "local_x_global": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "mathematical_cap_pair_local_n": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "thermal_included": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "approximation": {
+                "const": "long_straight_annulus_small_strain_v2"
+              },
+              "provenance": {
+                "type": "string",
+                "minLength": 1
+              },
+              "geometry_representation_guard": {
+                "const": {
+                  "epsilon_multiplier": 64,
+                  "meaning": "arithmetic_representation_only"
+                }
+              },
+              "result_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "connector": {
+          "const": []
+        },
+        "exact_cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "load_case_id",
+              "profile_mode",
+              "material_basis",
+              "pipe_materials",
+              "pipe_sections",
+              "pipe_stress_extrema",
+              "stress_maximum_coverage",
+              "pressure_rhs_assembly"
+            ],
+            "properties": {
+              "load_case_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "profile_mode": {
+                "const": "exact_straight_pressure_v2"
+              },
+              "material_basis": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pipe_materials": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/PhysicsMaterial"
+                }
+              },
+              "pipe_sections": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/PhysicsGeometry"
+                }
+              },
+              "pipe_stress_extrema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pipe_id",
+                    "result_id",
+                    "station_fraction",
+                    "span_index",
+                    "local_fraction",
+                    "value_lower_pa",
+                    "value_upper_pa",
+                    "global_upper_bound_pa",
+                    "certified_gap_pa",
+                    "subdivisions",
+                    "approximation",
+                    "coefficient_basis",
+                    "enclosure_scope"
+                  ],
+                  "properties": {
+                    "pipe_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "result_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "station_fraction": {
+                      "type": "number"
+                    },
+                    "span_index": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "local_fraction": {
+                      "type": "number"
+                    },
+                    "value_lower_pa": {
+                      "type": "number"
+                    },
+                    "value_upper_pa": {
+                      "type": "number"
+                    },
+                    "global_upper_bound_pa": {
+                      "type": "number"
+                    },
+                    "certified_gap_pa": {
+                      "type": "number"
+                    },
+                    "subdivisions": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 131072
+                    },
+                    "approximation": {
+                      "const": "piecewise_quadratic_straight_section_statics"
+                    },
+                    "coefficient_basis": {
+                      "const": "j_side_section_equilibrium_binary64"
+                    },
+                    "enclosure_scope": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "stress_maximum_coverage": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "complete",
+                  "unavailable_pipe_ids"
+                ],
+                "properties": {
+                  "complete": {
+                    "type": "boolean"
+                  },
+                  "unavailable_pipe_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "pressure_rhs_assembly": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "method",
+                  "load_case_id",
+                  "node_order",
+                  "dof_order",
+                  "dof_units",
+                  "assembled_pressure_rhs_global",
+                  "rounded_cap_rhs_global",
+                  "rounded_poisson_rhs_global",
+                  "groups",
+                  "rounded_cap_and_eigen_ledgers_are_observational",
+                  "cancellation_screen",
+                  "screen_limit",
+                  "screen_roundoff_multiplier",
+                  "screen_is_not_numerical_qualification"
+                ],
+                "properties": {
+                  "method": {
+                    "const": "source_factor_grouped_pressure_rhs_v1"
+                  },
+                  "load_case_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "node_order": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "dof_order": {
+                    "const": [
+                      "Fx",
+                      "Fy",
+                      "Fz",
+                      "Mx",
+                      "My",
+                      "Mz"
+                    ]
+                  },
+                  "dof_units": {
+                    "const": [
+                      "N",
+                      "N",
+                      "N",
+                      "N*m",
+                      "N*m",
+                      "N*m"
+                    ]
+                  },
+                  "assembled_pressure_rhs_global": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "rounded_cap_rhs_global": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "rounded_poisson_rhs_global": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "groups": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "node_ref",
+                        "component",
+                        "pressure_bits",
+                        "source_inner_radius_hi_bits",
+                        "source_inner_radius_lo_bits",
+                        "direction_component_magnitude",
+                        "coefficient_sum",
+                        "assembled_force_n",
+                        "terms"
+                      ],
+                      "properties": {
+                        "node_ref": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "component": {
+                          "enum": [
+                            "Fx",
+                            "Fy",
+                            "Fz"
+                          ]
+                        },
+                        "pressure_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "source_inner_radius_hi_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "source_inner_radius_lo_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "direction_component_magnitude": {
+                          "type": "number"
+                        },
+                        "coefficient_sum": {
+                          "type": "number"
+                        },
+                        "assembled_force_n": {
+                          "type": "number"
+                        },
+                        "terms": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "coefficient",
+                              "region_id",
+                              "pipe_id",
+                              "kind"
+                            ],
+                            "properties": {
+                              "coefficient": {
+                                "type": "number"
+                              },
+                              "region_id": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "pipe_id": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "kind": {
+                                "enum": [
+                                  "poisson_eigen",
+                                  "terminal_cap"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "rounded_cap_and_eigen_ledgers_are_observational": {
+                    "const": true
+                  },
+                  "cancellation_screen": {
+                    "type": "number"
+                  },
+                  "screen_limit": {
+                    "const": 1e-09
+                  },
+                  "screen_roundoff_multiplier": {
+                    "const": 32
+                  },
+                  "screen_is_not_numerical_qualification": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

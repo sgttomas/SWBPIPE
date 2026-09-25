@@ -1,0 +1,23 @@
+warning: function `is_exact_pressure_result_kind` is never used
+    --> /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/lib.rs:7212:4
+     |
+7212 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_product_physics` (lib) generated 1 warning
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/model_operations/operation_applier)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.73s
+     Running tests/create_pipe_section_inputs.rs (/private/tmp/piping-create-section-inputs-target/debug/deps/create_pipe_section_inputs-d92a6d0db117fe81)
+
+running 6 tests
+test creation_rejects_shared_section_reference_instead_of_silently_detaching ... ok
+test original_native_density_survives_public_create_and_self_weight_planning ... ok
+test absent_null_and_incomplete_inputs_are_preserved_without_defaults ... ok
+test creation_matches_set_field_for_all_optional_section_quantities ... ok
+test late_invalid_creation_rolls_back_prior_creation_atomically ... ok
+test invalid_optional_quantities_and_unknown_section_fields_are_rejected ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

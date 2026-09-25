@@ -1,0 +1,20 @@
+--- before/App.tsx
++++ after/App.tsx
+@@ -194,6 +194,7 @@
+     reportPackageRedaction,
+     reportPackageRoute,
+     handleRun,
++    handleInspectBundledReference,
+     handleCancelRun,
+     handleRuleCheckAggregate,
+     handleProposal,
+@@ -611,6 +612,9 @@
+               {activeSection === "results" || activatedExpensiveSections.has("results") ? (
+               <DormantSection active={activeSection === "results"} sessionGeneration={projectSessionGeneration}>
+               <Fragment key={`results:${dormantOutputBasis}`}>
++              <button type="button" onClick={() => void handleInspectBundledReference()}>
++                Inspect bundled reference
++              </button>
+               {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
+                 result={result}
+                 knowledge={knowledge}

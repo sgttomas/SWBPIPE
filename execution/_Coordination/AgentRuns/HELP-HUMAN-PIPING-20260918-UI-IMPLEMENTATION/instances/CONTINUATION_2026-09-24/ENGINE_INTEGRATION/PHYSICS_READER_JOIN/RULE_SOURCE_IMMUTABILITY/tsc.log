@@ -1,0 +1,2 @@
+Command: ["./node_modules/.bin/tsc", "-p", "apps/desktop/tsconfig.json", "--noEmit"]
+CWD: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping

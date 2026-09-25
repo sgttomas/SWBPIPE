@@ -1,0 +1,31 @@
+{
+  "actual_executor": "/root/physics_resume",
+  "reviewer": "/root/physics_resume/joined_authoring_review",
+  "result": "8 passed;0failed;0ignored; exit0",
+  "run_record_path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/EXACT_AUTHORING/BATCH_JOIN_REPAIR/focused-01.json",
+  "run_record_sha256": "ca6f8dc06345bee5cb273fd6a8cbf4bb7b11f5f0666ae278db04a0d54c04d0ba",
+  "raw_log_sha256": "a06e1d5e057b7d5e318b6909465481ecab20f716041d8b2be84d3a7673afcbcd",
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+    "--offline",
+    "--locked",
+    "-j",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-create-section-inputs-target",
+    "--test",
+    "exact_authoring",
+    "--",
+    "--nocapture"
+  ],
+  "bound_source_sha256": {
+    "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs": "adf95be08d8c5bb81b0572e08122f8736b35a5e41cc5fed61a9875092bbefa29",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs": "7d18d0451bce010f2ad799aa4790e2c0480d6e4c907735e62c4b546874797278",
+    "projects/chirality-piping/core/model_operations/operation_applier/tests/exact_authoring.rs": "24cd734bfa9a4ecc9625fc34bf9e966efd5ef22bb26c7db99251a45839353a33"
+  },
+  "current_hashes_match": true,
+  "native_execution": false
+}

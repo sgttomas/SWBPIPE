@@ -1,0 +1,14 @@
+{
+  "reason": "Two stable optional-G consumers omitted from initial authoring glob; complete changed source review coverage supplement.",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+      "sha256": "2956208c38de311e91ab0115c15243c427c75087f750b584486c24285cd17012"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx",
+      "sha256": "e6ca619b18500f2251e458bbbc0338e3bcff3ead58cd52530da30278dc7b40b5"
+    }
+  ],
+  "patch_sha256": "82b775f222a89ecb14f099e9caea4c614c1e5824493da822c4328e68838b73d1"
+}

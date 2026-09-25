@@ -52,6 +52,7 @@ export function SolvePanel({
           {packet.summary.result_row_count}; cancellation_requested={String(packet.summary.cancellation_requested)}
         </span>
       </div>
+      {solveJob.error_message ? <p role="status" data-testid="solve-job-error">{solveJob.error_message}</p> : null}
       <div className="report-list solve-job-list" data-testid="solve-job-audit">
         <SolveLine label="Solver mode" value={solverModeSummary(packet)} testId="solve-job-solver-mode" />
         <SolveLine label="Progress" value={progressSummary(packet)} testId="solve-job-progress" />

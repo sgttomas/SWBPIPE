@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/result-export/physicsResultExport.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner
+
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  30 passed (30)
+   Start at  22:15:53
+   Duration  821ms (transform 92ms, setup 55ms, import 81ms, tests 432ms, environment 174ms)
+

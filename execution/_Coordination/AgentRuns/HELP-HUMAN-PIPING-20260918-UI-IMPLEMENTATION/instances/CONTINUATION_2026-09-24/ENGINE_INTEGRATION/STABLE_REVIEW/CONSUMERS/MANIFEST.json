@@ -1,0 +1,77 @@
+{
+  "actual_parent": "/root/physics_resume",
+  "role": "TASK Type2",
+  "scope": "Stable Rust/Python/schema/table/raw-fixture consumer integration; later frontend supplement pending",
+  "base": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "caece39db29a97e4beca9ae25ff125ca4de4790c067f45e5ed562db91cf97b92"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_evidence.py",
+      "sha256": "18e392743af2a4a22de33116131b01562654312d3d5087b6f622ac74e800593d"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "sha256": "3b2ec7fe0bb82d5e9eba54c7efa7b80db7eefa9e96742295a8a4f11ed77030a5"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "sha256": "45a41a26c220ea43f9e1fb7aad87d5f8c2a4f95b704c795f77593f2bd7718e6a"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs",
+      "sha256": "5c58ddd494a6bc909940629277b67bacef9dafaaf2d7a4cbc4fe42c409d673b8"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "2135f894aa0a8f0dd2114a9226bb61350e6136eaa5a10ce009f14db8e30002c7"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/physics_contract.rs",
+      "sha256": "3f1088a478c5cb536affd9f67342dceb267e706724f96f2e727b4e8ec8f46e66"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "c311cd57d7e86a45e071953c8a4c2ae367d24b57d413ca5e626895517c5ec588"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "d10a4f1e4672d4c27654fd40949ec00f17346eee3fe964ba2b8784e3612353f8"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_connected_mechanics_dense.json",
+      "sha256": "2e3007311d6b5f76172dbf7e9c4a9bbb98ad16382d75ffa63d327c9aab9ebdb6"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_connected_mechanics_sparse.json",
+      "sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_connected_ui_mechanics_dense.json",
+      "sha256": "af87670235e7bd4f9f063cef8c505196f3f0e193a4b5f8cb7e3c22268cc331ee"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_connected_ui_mechanics_sparse.json",
+      "sha256": "80396de3e4c8339bc923bb5b4d7309227537ac21dffbb43f4a08648ae98b0d45"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+      "sha256": "ea306a75a8c9281966a830d3e72279eece0f35a60a81afdb0d62ec0873e21ad0"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "b27725b76ef18834b407cf463cb9ed99f37c44f185a0b6741ca51c5feecbbe64"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_physics_consumer_contract.py",
+      "sha256": "6323afa07c5b88d3babf1b4e8e4155a5681fc2aebb5988f53ee89b1e60ac6756"
+    }
+  ],
+  "patch_sha256": "e88b305aad2d5fee938c664e86de2daca0d189fd18f5a0560d1e5866052ecfe7"
+}

@@ -1,0 +1,9 @@
+# Rule/source immutability and capability return
+
+Implemented the parent-authorized repair in `core/runner/headless/src/lib.rs`: raw producer data and its received checksum stay unchanged across rule aggregates; only the runner/derived analysis status changes. The exact before/after patch is `HEADLESS_DELTA.patch`. Added only the delegated state test path for actual physics capability and no-Current containment; `STATE_TEST_DELTA.patch` and `OWNED_DELTA_MANIFEST.json` bind both owned paths. Parent owns the three production frontend gate/API edits and the blocked producer namespace repair.
+
+`AUDIT.md` provides exact mutation sites, compatible rule/history/export hooks, source-block-only token coordination, and the four explicit pressure-incidental current test call sites. Shared fixtures and the general preview_request helper are unchanged. No source-block method/table/receipt union, generic framework or fake Current proof was added.
+
+Checks: all38 distinct headless tests passed across the original37-pass batch and its one focused repaired-callsite rerun; all7 delegated state tests passed; 105/106 broader state/history tests passed; 11 selected lifecycle tests passed; tsc passed. Actual missing-nu/closure outputs preserve their source hashes through schema-valid blocked analysis and are interpreted as physics with needs_recompute by Rust/Python/TypeScript. They cannot produce canonical export or private solved proof. See `CHECKS.json`, logs, actual input/output files and probe records.
+
+One outside-scope test remains for the parent: `workspaceSession.shell.test.tsx:203` expects an edited browser fixture solve to complete, contrary to the existing real-backend-required refusal. No change was made to that file. This is not reported as a passing check. The build lane is released; no Cargo/npm work remains active here. Independent integrated review, parent test disposition and actual native workflow verification remain open.

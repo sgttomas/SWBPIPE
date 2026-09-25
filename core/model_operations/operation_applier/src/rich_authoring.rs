@@ -1,6 +1,7 @@
 //! Validated, atomic rich-authoring replacements. No physics is computed here.
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
 use serde_json::{json, Map, Value};
+use open_pipe_stress_product_physics::{PreviewModel, self_weight::{inspect_applied_self_weight, AppliedSelfWeightState}};
 use std::collections::{BTreeMap, HashSet};
 
 #[derive(Debug, Clone)]
@@ -77,6 +78,52 @@ fn nonnegative(v: &Value, dim: Dimension) -> Result<f64> {
     }
     Ok(n)
 }
+
+/// Check explicit inline source inputs without normalizing their stored JSON.
+/// The return value marks an incomplete insulation pair, which remains
+/// authorable but cannot supply insulation mass until both inputs are present.
+pub(crate) fn validate_pipe_section_inputs(section: &Value) -> Result<bool> {
+    let record = object(
+        section,
+        &[
+            "outside_diameter",
+            "wall_thickness",
+            "material_density",
+            "mill_tolerance",
+            "contents_density",
+            "insulation_thickness",
+            "insulation_density",
+        ],
+    )?;
+    quantity(&section["outside_diameter"], Dimension::Length, true)?;
+    let wall = quantity(&section["wall_thickness"], Dimension::Length, true)?;
+    for (key, dimension, positive) in [
+        ("material_density", Dimension::Density, true),
+        ("mill_tolerance", Dimension::Length, false),
+        ("contents_density", Dimension::Density, false),
+        ("insulation_thickness", Dimension::Length, false),
+        ("insulation_density", Dimension::Density, false),
+    ] {
+        if let Some(value) = record.get(key).filter(|v| !v.is_null()) {
+            let normalized = if positive {
+                quantity(value, dimension, true)
+            } else {
+                nonnegative(value, dimension)
+            }
+            .map_err(|error| err(format!("section.{key}: {}", error.message)))?;
+            if key == "mill_tolerance" && wall - normalized <= 0.0 {
+                return Err(err("Mill tolerance must leave a positive effective wall"));
+            }
+        }
+    }
+    Ok(record
+        .get("insulation_thickness")
+        .is_some_and(|v| !v.is_null())
+        != record
+            .get("insulation_density")
+            .is_some_and(|v| !v.is_null()))
+}
+
 fn entity<'a>(model: &'a Value, collection: &str, id: &str) -> Result<&'a Value> {
     let list = model
         .get(collection)
@@ -124,6 +171,9 @@ pub(crate) fn resolve(
     unit: &str,
     dimension: &str,
 ) -> Result<Option<RichEdit>> {
+    if object_type == "Load" && field_path == "generated_self_weight" {
+        return generated_self_weight(model, target_ref, before, after, unit, dimension).map(Some);
+    }
     let collection = match (object_type, field_path) {
         ("Support", "configuration") => "supports",
         ("Material", "temperature_points") => "materials",
@@ -543,6 +593,8 @@ fn validate_temperature_points(
     points: &Value,
     warnings: &mut Vec<String>,
 ) -> Result<()> {
+    let exact_profile = model["schema_version"] == "0.3.0" && model.pointer("/pressure_contract/mode").is_some_and(|v| v == "exact_straight_pressure_v2");
+    let modulus_pair_field = if exact_profile { "poisson_ratio" } else { "shear_modulus" };
     let points = points
         .as_array()
         .ok_or_else(|| err("temperature_points must be an array"))?;
@@ -556,6 +608,7 @@ fn validate_temperature_points(
                 "temperature",
                 "elastic_modulus",
                 "shear_modulus",
+                "poisson_ratio",
                 "thermal_expansion_coefficient",
                 "provenance",
             ],
@@ -564,6 +617,7 @@ fn validate_temperature_points(
             return Err(err("Duplicate material temperature point id"));
         }
         optional_text(o, &["provenance"])?;
+        if let Some(nu) = o.get("poisson_ratio") { crate::pressure_authoring::validate_nu(nu)?; }
         for (key, dim, positive) in [
             ("temperature", Dimension::Temperature, false),
             ("elastic_modulus", Dimension::Stress, true),
@@ -584,7 +638,7 @@ fn validate_temperature_points(
         if [
             "temperature",
             "elastic_modulus",
-            "shear_modulus",
+            modulus_pair_field,
             "thermal_expansion_coefficient",
         ]
         .iter()
@@ -630,7 +684,7 @@ fn validate_temperature_points(
                 .iter()
                 .find(|p| p["id"].as_str() == Some(id))
                 .ok_or_else(|| err(format!("Selected modulus basis {id} cannot be deleted")))?;
-            for k in ["elastic_modulus", "shear_modulus"] {
+            for k in ["elastic_modulus", modulus_pair_field] {
                 if p.get(k).is_none() {
                     return Err(err(format!("Selected point {id} requires {k}")));
                 }
@@ -639,13 +693,14 @@ fn validate_temperature_points(
         if let Some(t) = temp {
             let t = quantity(t, Dimension::Temperature, false)?;
             let bracket=temperatures.windows(2).find(|w|w[0].0<t && t<w[1].0).ok_or_else(||err("Selected solve temperature requires a strict adjacent bracket; no extrapolation"))?;
+            let thermal_required = !exact_profile || case["primitive_loads"].as_array().is_some_and(|loads| loads.iter().any(|load| {
+                load["category"] == "thermal" && model["pipe_segments"].as_array().is_some_and(|pipes| pipes.iter().any(|pipe| pipe["id"] == load["target"]["pipe"] && pipe["material"] == material["id"]))
+            }));
+            let mut required_fields = vec!["elastic_modulus", modulus_pair_field];
+            if thermal_required { required_fields.push("thermal_expansion_coefficient"); }
             for (_, p) in bracket {
-                for k in [
-                    "elastic_modulus",
-                    "shear_modulus",
-                    "thermal_expansion_coefficient",
-                ] {
-                    if p.get(k).is_none() {
+                for k in &required_fields {
+                    if p.get(*k).is_none() {
                         return Err(err(format!("Interpolation point requires {k}")));
                     }
                 }
@@ -969,4 +1024,199 @@ mod tests {
         after["exposed_spans"][0]["end_fraction"] = q(1.0, "m");
         assert!(edit(&m, "Load", "l", "equivalent_static.wind.exposure", &after).is_err());
     }
+}
+
+
+const GENERATED_V1: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v1";
+const GENERATED_V2: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v2";
+const MANUAL_WEIGHT: &str = "manual_override_of_generated_self_weight/v1";
+const GENERATED_BODY: &[&str] = &["id", "category", "target", "direction", "magnitude", "dimension"];
+fn generation_record(load: &Value) -> Result<Value> {
+    serde_json::from_str(text(load.get("provenance"), "provenance")?)
+        .map_err(|_| err("Generated provenance must contain a JSON record"))
+}
+fn without(value: &Value, keys: &[&str]) -> Result<Value> {
+    let mut body = value.as_object().ok_or_else(|| err("Primitive must be an object"))?.clone();
+    for key in keys { body.remove(*key); }
+    Ok(Value::Object(body))
+}
+fn generated_self_weight(model: &Value, target: &str, before: &str, after: &str, unit: &str, dimension: &str) -> Result<RichEdit> {
+    if unit != "none" || dimension != "dimensionless" {
+        return Err(err("Generated replacement requires unit none and dimension dimensionless"));
+    }
+    let case = entity(model, "load_cases", target)?;
+    let current = case.get("primitive_loads").and_then(Value::as_array)
+        .ok_or_else(|| err("Missing primitive_loads array"))?;
+    let current_display = crate::canonical_json(&case["primitive_loads"]);
+    if before != current_display {
+        return Err(RichError { code: "OP-BEFORE-VALUE-MISMATCH", message: "Generated replacement before value is stale".into() });
+    }
+    let replacement: Value = serde_json::from_str(after).map_err(|_| err("Invalid replacement JSON"))?;
+    if crate::canonical_json(&replacement) != after { return Err(err("Replacement must be canonical JSON")); }
+    let next = replacement.as_array().ok_or_else(|| err("Replacement must be an array"))?;
+    if next.len() != current.len() { return Err(err("Generated replacement must preserve primitive count")); }
+    // Delegate source-owned mass and lineage checks; never reimplement their
+    // formula or turn submitted provenance into proof of source consistency.
+    let typed_before: PreviewModel = serde_json::from_value(model.clone())
+        .map_err(|e| err(format!("Cannot inspect generated source model: {e}")))?;
+    let before_states = inspect_applied_self_weight(&typed_before, None);
+    let mut required_after = Vec::new();
+    let mut ids = HashSet::new();
+    let mut changed = false;
+    let mut preserved = current.clone();
+    for (index, (old, new)) in current.iter().zip(next).enumerate() {
+        let id = text(old.get("id"), "primitive id")?;
+        if !ids.insert(id) || old.get("id") != new.get("id") { return Err(err("Primitive identities and order must be unique and unchanged")); }
+        if crate::canonical_json(old) == crate::canonical_json(new) { continue; }
+        changed = true;
+        let prior = generation_record(old)?;
+        if !matches!(prior.get("method").and_then(Value::as_str), Some(GENERATED_V1 | GENERATED_V2)) {
+            return Err(err("Only recognized generated records may be reconciled"));
+        }
+        validate_generation_record(&prior)?;
+        let record = generation_record(new)?;
+        if new["category"] != "distributed_force" || new["dimension"] != "force_per_length" {
+            return Err(err("Generated self-weight must remain a distributed force"));
+        }
+        if new.pointer("/target/type").and_then(Value::as_str) != Some("element") { return Err(err("Generated target must be an element")); }
+        enum_text(new.get("direction"), "direction", &["global_x", "global_y", "global_z"])?;
+        quantity(&new["magnitude"], Dimension::ForcePerLength, false)?;
+        entity(model, "pipe_segments", text(new.pointer("/target/pipe"), "target.pipe")?)?;
+        let before_state = before_states.iter().find(|status| status.case_id == target && status.primitive_index == index)
+            .map(|status| status.state).ok_or_else(|| err("Generated record has no source inspection state"))?;
+        match record.get("method").and_then(Value::as_str) {
+            Some(GENERATED_V2) => {
+                if !matches!(before_state, AppliedSelfWeightState::Fresh | AppliedSelfWeightState::Stale) {
+                    return Err(err("Managed refresh requires an unmodified valid generated source record"));
+                }
+                required_after.push((index, AppliedSelfWeightState::Fresh));
+                if prior.get("pipe_id") != old.pointer("/target/pipe") {
+                    return Err(err("Generated provenance pipe identity does not match primitive"));
+                }
+                validate_generation_record(&record)?;
+                if crate::canonical_json(&record["gravity"]) != crate::canonical_json(&prior["gravity"])
+                    || crate::canonical_json(&record["normalized_acceleration_m_per_s2"]) != crate::canonical_json(&prior["normalized_acceleration_m_per_s2"]) {
+                    return Err(err("Managed refresh must preserve the original explicit gravity and normalized acceleration"));
+                }
+                if record.get("request_provenance") != prior.get("request_provenance") {
+                    return Err(err("Managed refresh must preserve original user generation provenance"));
+                }
+                let expected_legacy = if prior["method"] == GENERATED_V1 {
+                    old.get("provenance")
+                } else {
+                    prior.get("legacy_generation_provenance")
+                };
+                if record.get("legacy_generation_provenance") != expected_legacy {
+                    return Err(err("Refresh must retain the original legacy provenance verbatim without introducing new lineage"));
+                }
+                if crate::canonical_json(&without(old, &["magnitude", "provenance"])?) != crate::canonical_json(&without(new, &["magnitude", "provenance"])?)
+                    || old.pointer("/magnitude/unit") != new.pointer("/magnitude/unit") {
+                    return Err(err("Refresh may change only magnitude value and generated provenance"));
+                }
+                if record.get("generated_payload").map(crate::canonical_json) != Some(crate::canonical_json(&projection(new, GENERATED_BODY)))
+                    || record.get("pipe_id") != prior.get("pipe_id")
+                    || !record.get("normalized_dependencies").is_some_and(Value::is_object) {
+                    return Err(err("Refreshed provenance must bind the generated payload and dependency projection"));
+                }
+            }
+            Some(MANUAL_WEIGHT) => {
+                if before_state != AppliedSelfWeightState::Modified {
+                    return Err(err("Manual preservation requires an explicitly modified generated record"));
+                }
+                required_after.push((index, AppliedSelfWeightState::ManualOverride));
+                object(&record, &["method", "original_generation_provenance", "decision", "source_model_hash"])?;
+                if crate::canonical_json(&without(old, &["provenance"])?) != crate::canonical_json(&without(new, &["provenance"])?)
+                    || record.get("original_generation_provenance") != Some(&prior)
+                    || record["decision"] != "preserve_modified_generated_load" {
+                    return Err(err("Manual preservation requires exact physical payload and original lineage"));
+                }
+            }
+            _ => return Err(err("Unsupported generated replacement method")),
+        }
+        let source = text(record.get("source_model_hash"), "source_model_hash")?;
+        let expected = format!("sha256:{}", crate::sha256_hex(&crate::canonical_json(model)));
+        if source != expected { return Err(err("Replacement provenance source hash does not match current model")); }
+        // Preserve original representations and every unmodified field. Canonical
+        // transport may parse an integral float as an integer, without a change
+        // to its exact JSON numeric payload. Only permitted changed fields cross
+        // this boundary; there is no numerical tolerance or approximate match.
+        if record["method"] == GENERATED_V2 && crate::canonical_json(&old["magnitude"]["value"]) != crate::canonical_json(&new["magnitude"]["value"]) {
+            preserved[index]["magnitude"]["value"] = new["magnitude"]["value"].clone();
+        }
+        preserved[index]["provenance"] = new["provenance"].clone();
+    }
+    if !changed { return Err(err("No generated self-weight refresh is needed")); }
+    let mut candidate = model.clone();
+    let candidate_case = candidate["load_cases"].as_array_mut().ok_or_else(|| err("Missing load_cases"))?
+        .iter_mut().find(|case| case.get("id").and_then(Value::as_str) == Some(target))
+        .ok_or_else(|| err("Missing target load case"))?;
+    candidate_case["primitive_loads"] = Value::Array(preserved.clone());
+    let typed_after: PreviewModel = serde_json::from_value(candidate)
+        .map_err(|e| err(format!("Cannot inspect generated candidate model: {e}")))?;
+    let after_states = inspect_applied_self_weight(&typed_after, None);
+    if after_states.iter().any(|status| status.case_id == target
+        && !matches!(status.state, AppliedSelfWeightState::Fresh | AppliedSelfWeightState::ManualOverride)) {
+        return Err(err("Generated reconciliation must leave every managed record in the target case fresh or explicitly preserved"));
+    }
+    for (index, required) in required_after {
+        if !after_states.iter().any(|status| status.case_id == target && status.primitive_index == index && status.state == required) {
+            return Err(err("Generated replacement is inconsistent with actual current mass inputs or preserved manual lineage"));
+        }
+    }
+    Ok(RichEdit { writes: vec![(vec!["primitive_loads".into()], Some(Value::Array(preserved)))], current_display, warnings: vec![] })
+}
+
+fn validate_generation_record(record: &Value) -> Result<()> {
+    text(record.get("pipe_id"), "pipe_id")?;
+    text(record.get("request_provenance"), "request_provenance")?;
+    let gravity = record.get("gravity").ok_or_else(|| err("Missing gravity"))?;
+    object(gravity, &["value", "unit", "axis"])?;
+    enum_text(gravity.get("axis"), "gravity.axis", &["global_x", "global_y", "global_z"])?;
+    let acceleration = quantity(&projection(gravity, &["value", "unit"]), Dimension::Acceleration, false)?;
+    if acceleration == 0.0 { return Err(err("Gravity must be nonzero")); }
+    for (key, positive) in [("normalized_acceleration_m_per_s2", false), ("mass_kg_per_m", true)] {
+        let n = record.get(key).and_then(Value::as_f64).filter(|v| v.is_finite())
+            .ok_or_else(|| err(format!("Missing finite {key}")))?;
+        if n == 0.0 || (positive && n < 0.0) { return Err(err(format!("Invalid {key}"))); }
+    }
+    let section = record.get("section_ref").ok_or_else(|| err("Missing section_ref"))?;
+    let mass = record.get("mass_inputs").and_then(Value::as_object).ok_or_else(|| err("Missing mass_inputs"))?;
+    for (key, dim, required) in [
+        ("outside_diameter", Dimension::Length, true), ("wall_thickness", Dimension::Length, true),
+        ("material_density", Dimension::Density, true), ("mill_tolerance", Dimension::Length, false),
+        ("contents_density", Dimension::Density, false), ("insulation_thickness", Dimension::Length, false),
+        ("insulation_density", Dimension::Density, false)] {
+        let value = mass.get(key).ok_or_else(|| err(format!("Missing mass input {key}")))?;
+        if required || !value.is_null() { nonnegative(value, dim)?; }
+    }
+    if section.is_null() {
+        if record.get("referenced_section") != Some(&Value::Null) { return Err(err("Unexpected referenced section")); }
+    } else {
+        text(Some(section), "section_ref")?;
+        let shared = record.get("referenced_section").ok_or_else(|| err("Missing referenced section"))?;
+        if shared.get("id") != Some(section) || shared["section_type"] != "pipe"
+            || shared.pointer("/properties/outside_diameter") != mass.get("outside_diameter")
+            || shared.pointer("/properties/wall_thickness") != mass.get("wall_thickness") {
+            return Err(err("Referenced section lineage does not match mass inputs"));
+        }
+    }
+    if record["method"] == GENERATED_V2 {
+        if record["mass_method"] != "source_od_effective_wall_areas/v1" {
+            return Err(err("Unsupported generated self-weight mass method"));
+        }
+        if let Some(legacy) = record.get("legacy_generation_provenance") {
+            text(Some(legacy), "legacy_generation_provenance")?;
+        }
+        let payload = object(record.get("generated_payload").ok_or_else(|| err("Missing generated payload"))?, GENERATED_BODY)?;
+        if GENERATED_BODY.iter().any(|key| !payload.contains_key(*key)) { return Err(err("Incomplete generated payload")); }
+        let source = text(record.get("source_model_hash"), "source_model_hash")?;
+        if !source.strip_prefix("sha256:").is_some_and(|s| s.len() == 64 && s.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))) {
+            return Err(err("Malformed generated source hash"));
+        }
+        let deps = record.get("normalized_dependencies").and_then(Value::as_object).ok_or_else(|| err("Missing normalized dependencies"))?;
+        for key in ["section_ref", "outside_diameter", "wall_thickness", "material_density", "mill_tolerance", "contents_density", "insulation_thickness", "insulation_density"] {
+            if !deps.contains_key(key) { return Err(err(format!("Missing normalized dependency {key}"))); }
+        }
+    }
+    Ok(())
 }

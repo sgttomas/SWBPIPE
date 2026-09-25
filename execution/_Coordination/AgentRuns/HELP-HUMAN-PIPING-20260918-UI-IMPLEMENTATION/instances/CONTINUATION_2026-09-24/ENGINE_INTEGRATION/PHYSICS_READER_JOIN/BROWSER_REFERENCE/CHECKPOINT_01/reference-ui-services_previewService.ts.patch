@@ -1,0 +1,23 @@
+--- before/services/previewService.ts
++++ after/services/previewService.ts
+@@ -654,6 +654,7 @@
+ 
+ export type BundledMechanicsReference = {
+   standing: "reference_only";
++  model: PreviewModel;
+   source: MechanicsResult;
+   provenance: {
+     origin: "preserved_bundled_producer_record";
+@@ -672,9 +673,11 @@
+   solverMode: PreviewSolverMode = "sparse_interactive",
+ ): Promise<BundledMechanicsReference> {
+   assertPreviewSolverMode(solverMode);
+-  const source = validateBrowserMechanicsFixture(await loadMechanicsFixture(solverMode), solverMode, await loadModelFixture());
++  const model = await loadModelFixture();
++  const source = validateBrowserMechanicsFixture(await loadMechanicsFixture(solverMode), solverMode, model);
+   return {
+     standing: "reference_only",
++    model,
+     source,
+     provenance: {
+       origin: "preserved_bundled_producer_record",

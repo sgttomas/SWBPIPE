@@ -1,0 +1,113 @@
+{
+  "scope": "Actual retained producer source through public numerical standing; no Current/native provenance claim.",
+  "results": [
+    {
+      "path": "fixtures/results/physics_connected_ui_mechanics_sparse.json",
+      "sha256": "80396de3e4c8339bc923bb5b4d7309227537ac21dffbb43f4a08648ae98b0d45",
+      "model": "fixtures/model_operations/exact_pressure_authoring_model.json",
+      "model_sha256": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e",
+      "standing": {
+        "contract": "physics",
+        "status": "integrity_checked",
+        "eligible": true,
+        "findings": []
+      },
+      "raw_unchanged": true
+    },
+    {
+      "path": "fixtures/results/physics_connected_ui_mechanics_dense.json",
+      "sha256": "af87670235e7bd4f9f063cef8c505196f3f0e193a4b5f8cb7e3c22268cc331ee",
+      "model": "fixtures/model_operations/exact_pressure_authoring_model.json",
+      "model_sha256": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e",
+      "standing": {
+        "contract": "physics",
+        "status": "integrity_checked",
+        "eligible": true,
+        "findings": []
+      },
+      "raw_unchanged": true
+    },
+    {
+      "path": "fixtures/results/physics_thermal_ui_mechanics_sparse.json",
+      "sha256": "d0aacc4300c307c7c49204a401c61ef8ba6b60ae6d23591a335023210d04d2f0",
+      "model": "fixtures/model_operations/physics_thermal_ui_model.json",
+      "model_sha256": "9a566d8de6d8742245e81bc1cc284a0d38d0200c30cf289aaccbbcce4c2d92e0",
+      "standing": {
+        "contract": "physics",
+        "status": "integrity_checked",
+        "eligible": true,
+        "findings": []
+      },
+      "raw_unchanged": true
+    },
+    {
+      "path": "fixtures/results/physics_thermal_ui_mechanics_dense.json",
+      "sha256": "38356d7ce4fa16e994f64c50c63dd9101688b77cd967712be75a9d8e977ab24c",
+      "model": "fixtures/model_operations/physics_thermal_ui_model.json",
+      "model_sha256": "9a566d8de6d8742245e81bc1cc284a0d38d0200c30cf289aaccbbcce4c2d92e0",
+      "standing": {
+        "contract": "physics",
+        "status": "integrity_checked",
+        "eligible": true,
+        "findings": []
+      },
+      "raw_unchanged": true
+    },
+    {
+      "path": "fixtures/results/precision_connected_ui_mechanics_sparse.json",
+      "sha256": "f986a8d8bfc319a66bce2184119675245dca85ad86cb6977742c3a73c319ec92",
+      "model": "fixtures/model_operations/precision_connected_ui_model.json",
+      "model_sha256": "dda6f24f80a4cae57c45b11d84ffcc46c9435acd02f11c3d16f55eedf2c02035",
+      "standing": {
+        "contract": "precision",
+        "status": "integrity_checked",
+        "eligible": true,
+        "findings": []
+      },
+      "raw_unchanged": true
+    },
+    {
+      "path": "fixtures/results/precision_connected_ui_mechanics_dense.json",
+      "sha256": "ba693531531fe865a99d4076e0b30812609c913a65cbd65777b2124458878007",
+      "model": "fixtures/model_operations/precision_connected_ui_model.json",
+      "model_sha256": "dda6f24f80a4cae57c45b11d84ffcc46c9435acd02f11c3d16f55eedf2c02035",
+      "standing": {
+        "contract": "precision",
+        "status": "integrity_checked",
+        "eligible": true,
+        "findings": []
+      },
+      "raw_unchanged": true
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/BLOCKED_ACTUAL/missing_nu.raw.json",
+      "sha256": "d2c3d9373b05a898776d887093a090822d93dbe580bf04a04c61fbc7fca43e29",
+      "standing": {
+        "contract": "physics",
+        "status": "needs_recompute",
+        "eligible": false,
+        "findings": [
+          "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+          "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
+          "MECHANICS_NOT_SOLVED"
+        ]
+      },
+      "raw_unchanged": true
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/BLOCKED_ACTUAL/missing_closure.raw.json",
+      "sha256": "cb0300e89d4ba9b7981d380553687e6caaa57b1cddc9ceed32198ec8d8c99227",
+      "standing": {
+        "contract": "physics",
+        "status": "needs_recompute",
+        "eligible": false,
+        "findings": [
+          "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+          "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
+          "MECHANICS_NOT_SOLVED"
+        ]
+      },
+      "raw_unchanged": true
+    }
+  ]
+}

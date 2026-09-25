@@ -1,0 +1,12 @@
+
+running 7 tests
+test endpoint_maximum::tests::cancellation_sensitive_action_is_bounded_not_recovered_from_displacements ... ok
+test endpoint_maximum::tests::axial_and_zero_constant_fields_are_not_unique_endpoint_maxima ... ok
+test endpoint_maximum::tests::extreme_normal_and_subnormal_projection_controls ... ok
+test endpoint_maximum::tests::invalid_numeric_inputs_and_contradicted_constant_n_are_refused ... ok
+test endpoint_maximum::tests::primitive_criterion_does_not_automatically_qualify_the_derived_recipe ... ok
+test endpoint_maximum::tests::projection_uncertainty_is_composed_and_not_reported_as_exact_equality ... ok
+test endpoint_maximum::tests::pure_biaxial_opposite_and_strict_controls ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

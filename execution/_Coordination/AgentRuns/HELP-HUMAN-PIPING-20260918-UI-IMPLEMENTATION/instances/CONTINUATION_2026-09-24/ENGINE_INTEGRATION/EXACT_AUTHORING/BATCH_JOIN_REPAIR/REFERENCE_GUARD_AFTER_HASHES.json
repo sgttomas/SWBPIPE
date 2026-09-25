@@ -1,0 +1,17 @@
+{
+  "phase": "complete batch admission and pressure reference guards; tests not run (coordinated lane pending)",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "sha256": "adf95be08d8c5bb81b0572e08122f8736b35a5e41cc5fed61a9875092bbefa29"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "7d18d0451bce010f2ad799aa4790e2c0480d6e4c907735e62c4b546874797278"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/exact_authoring.rs",
+      "sha256": "24cd734bfa9a4ecc9625fc34bf9e966efd5ef22bb26c7db99251a45839353a33"
+    }
+  ]
+}

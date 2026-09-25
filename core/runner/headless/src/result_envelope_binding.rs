@@ -440,9 +440,23 @@ mod tests {
 
  const PREVIEW_MODEL_FIXTURE:&str=include_str!("../../../../fixtures/product_preview/invented_preview_model.json");
  fn cases()->Value{serde_json::from_str(include_str!("../../../../fixtures/results/invented/result_export_v0_2.json")).unwrap()}
+ // These tests exercise source/proof/derivative binding. Pressure is not an
+ // oracle for those assertions. Keep the historical fixtures unchanged and
+ // declare a zero-pressure current companion before invoking the public solver.
+ fn unpressurized_binding_model(mut model: Value) -> Value {
+   for case in model["load_cases"].as_array_mut().unwrap() {
+     for load in case["primitive_loads"].as_array_mut().unwrap() {
+       if load["category"] == "pressure" || load["dimension"] == "pressure" {
+         load["magnitude"]["value"] = serde_json::json!(0.0);
+       }
+     }
+   }
+   model
+ }
  #[test] fn qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity(){
    for case in cases()["producer_cases"].as_array().unwrap(){
-     let output=run_preview_model_value(request(),serde_json::json!({"model":case["model"],"materials":[]})).unwrap();
+     let model = unpressurized_binding_model(case["model"].clone());
+     let output=run_preview_model_value(request(),serde_json::json!({"model":model,"materials":[]})).unwrap();
      let mechanics=output.mechanics_envelope.as_ref().unwrap();
      assert_eq!(mechanics.status.mechanics,case["expected_status"].as_str().unwrap(),"{}",case["case_id"]);
      if mechanics.status.mechanics!="MECHANICS_SOLVED"{
@@ -491,6 +505,41 @@ mod tests {
    }
  }
  #[test]
+ fn connected_physics_actual_solve_preserves_case_evidence_and_qualified_export() {
+   let payload: Value = serde_json::from_str(include_str!("../../../product_physics/tests/fixtures/exact_pressure_connected_request.json")).unwrap();
+   for (name, mode) in [("sparse", open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive), ("dense", open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny)] {
+     let output = crate::run_preview_model_value_with_mode(request(), payload.clone(), mode).unwrap();
+     let mechanics = output.mechanics_envelope.as_ref().unwrap();
+     assert_eq!(mechanics.status.mechanics, "MECHANICS_SOLVED");
+     assert_eq!(mechanics.numerical_quality.status, open_pipe_stress_product_physics::NumericalQualityStatus::ChecksPassed);
+     let raw = serde_json::to_value(mechanics).unwrap();
+     assert_eq!(raw["producer"]["semantic_contract_id"], export::semantic_contract::PHYSICS_ID);
+     export::semantic_contract::validate_physics_evidence(&raw).unwrap();
+     let doc = output.result_envelope_document.as_ref().unwrap_or_else(|| panic!("{name}: {:?}", output.canonical_export_unavailability));
+     export::derivative::validate_document(doc, &raw).unwrap();
+     for key in ["producer", "numerical_quality", "formulation_basis", "contract_evidence"] {
+       assert_eq!(doc["result_envelope"][key], raw[key]);
+     }
+     assert_eq!(doc["result_envelope"]["row_accounting"].as_array().unwrap().len(), mechanics.results.len());
+     assert_eq!(raw["contract_evidence"]["exact_cases"].as_array().unwrap().len(), 2);
+     assert_eq!(raw["contract_evidence"]["pressure"].as_array().unwrap().len(), 1);
+     let validation = crate::validate_result_with_optional_envelope_payload(&output.runner_result, Some(doc));
+     assert!(!validation.has_blocking_diagnostics(), "{name}: {:?}", validation.diagnostics);
+     let proof = output.qualified_preview_evidence.as_ref().unwrap();
+     let mut corrupted = mechanics.clone();
+     corrupted.contract_evidence.as_mut().unwrap()["pressure"][0]["result_ids"] = serde_json::json!([]);
+     assert!(build_result_export_document_with_evidence(&request(), &output.runner_result, &corrupted, proof).is_err());
+     let mut unsupported = doc.clone();
+     unsupported["result_envelope"]["producer"]["semantic_contract_id"] = serde_json::json!("openpipestress.result_semantics/0.3.0/source-blocks-1");
+     assert!(crate::validate_result_with_optional_envelope_payload(&output.runner_result, Some(&unsupported)).has_blocking_diagnostics());
+     if let Ok(dir) = std::env::var("HEADLESS_PHYSICS_OUTPUT_DIR") {
+       let dir = std::path::Path::new(&dir); std::fs::create_dir_all(dir).unwrap();
+       std::fs::write(dir.join(format!("{name}.raw.json")), serde_json::to_vec_pretty(&raw).unwrap()).unwrap();
+       std::fs::write(dir.join(format!("{name}.document.json")), serde_json::to_vec_pretty(doc).unwrap()).unwrap();
+     }
+   }
+ }
+ #[test]
  fn sensitive_actual_source_cannot_mint_qualified_canonical_export() {
    let model: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/numerical_sensitive_torsion_model.json")).unwrap();
    for mode in [open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny, open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive] {
@@ -504,7 +553,24 @@ mod tests {
      assert!(output.canonical_export_unavailability.as_deref().unwrap().contains("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE"));
    }
  }
+ #[test]
+ fn public_nonzero_legacy_pressure_refuses_before_opaque_proof_or_export() {
+   for name in ["straight-full", "curved-pressure-full"] {
+     let fixtures = cases();
+     let case = fixtures["producer_cases"].as_array().unwrap().iter().find(|case| case["case_id"] == name).unwrap();
+     let original = case["model"].clone();
+     let output = run_preview_model_value(request(), serde_json::json!({"model": original, "materials": []})).unwrap();
+     let mechanics = output.mechanics_envelope.as_ref().unwrap();
+     assert_eq!(mechanics.status.mechanics, "MODEL_INCOMPLETE");
+     assert!(mechanics.diagnostics.iter().any(|d| d.code == "PRESSURE_MODEL_REAUTHOR_REQUIRED"), "{name}");
+     assert!(mechanics.results.is_empty());
+     assert!(output.result_envelope_document.is_none());
+     assert!(output.qualified_preview_evidence.is_none());
+     assert_eq!(output.canonical_export_unavailability.as_deref(), Some("SOURCE_NOT_SOLVED"));
+     assert_eq!(case["model"], original);
+   }
+ }
  #[test]fn typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes(){
-   let model:Value=serde_json::from_str(PREVIEW_MODEL_FIXTURE).unwrap();let typed:LinearStaticPreviewRequest=serde_json::from_value(serde_json::json!({"model":model,"materials":[]})).unwrap();let output=run_preview_in_memory(request(),typed);assert_eq!(output.runner_result.job.state,JobStateKind::Completed);assert!(output.runner_result.diagnostics.is_empty());assert!(output.result_envelope_document.is_none());assert_eq!(output.canonical_export_unavailability.as_deref(),Some("EXACT_SOLVED_MODEL_EVIDENCE_UNAVAILABLE"));
+   let model=unpressurized_binding_model(serde_json::from_str(PREVIEW_MODEL_FIXTURE).unwrap());let typed:LinearStaticPreviewRequest=serde_json::from_value(serde_json::json!({"model":model,"materials":[]})).unwrap();let output=run_preview_in_memory(request(),typed);assert_eq!(output.runner_result.job.state,JobStateKind::Completed);assert!(output.runner_result.diagnostics.is_empty());assert!(output.result_envelope_document.is_none());assert_eq!(output.canonical_export_unavailability.as_deref(),Some("EXACT_SOLVED_MODEL_EVIDENCE_UNAVAILABLE"));
  }
 }

@@ -1,0 +1,41 @@
+warning: function `is_exact_pressure_result_kind` is never used
+    --> /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/lib.rs:7212:4
+     |
+7212 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_product_physics` (lib) generated 1 warning
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/model_operations/operation_applier)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.33s
+     Running tests/create_pipe_section_inputs.rs (/private/tmp/piping-create-section-inputs-target/debug/deps/create_pipe_section_inputs-d92a6d0db117fe81)
+
+running 6 tests
+test creation_rejects_shared_section_reference_instead_of_silently_detaching ... ok
+
+thread 'late_invalid_creation_rolls_back_prior_creation_atomically' (79915358) panicked at tests/create_pipe_section_inputs.rs:256:9:
+assertion `left == right` failed
+  left: 0
+ right: 2
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'original_native_density_survives_public_create_and_self_weight_planning' (79915359) panicked at tests/create_pipe_section_inputs.rs:84:5:
+assertion `left == right` failed: {"acceptance":null,"application_route":"structured_operation_batch","applied_model":null,"applied_model_backend_hash":null,"audit_boundary":{"agent_runtime_binding":"held_D58","applied_model_is_new_document":false,"direct_model_mutation_allowed":false,"input_model_mutated_in_place":false,"mutation_route":"structured_operations_only","requires_user_acceptance":true,"source_identity_verification":"not_performed_asserted_metadata_only"},"batch_hash":"sha256:68bb938a32e01d7e1b4973416d30f566949324010096aa5f13834cdec064f681","batch_id":"batch:original-density","diagnostics":[{"affected_refs":["batch:original-density"],"code":"OP-BATCH-MODEL-HASH-REQUIRED","id":"diagnostic:batch:OP-BATCH-MODEL-HASH-REQUIRED","message":"Atomic batches require complete current model hash evidence","remediation":"Refresh the current model hash and provide a complete draft structured batch; review before applying.","severity":"blocking","source":"operation_batch_preflight"}],"document_kind":"openpipestress.desktop.operation_batch_outcome","initial_backend_hash":"sha256:6c59aaefb55443654a08a9cc77c9469a4ea380c1860bc8e6554e16ab43fc9caf","initial_model_hash":{"algorithm":"sha256","canonicalization":"rfc8785_jcs","hash_status":"computed_local_preview","payload_ref":"model:local_batch_input","payload_scope":"model_payload","value":"sha256:6c59aaefb55443654a08a9cc77c9469a4ea380c1860bc8e6554e16ab43fc9caf"},"input_backend_hash":"sha256:6c59aaefb55443654a08a9cc77c9469a4ea380c1860bc8e6554e16ab43fc9caf","input_model_unchanged":true,"mode":"apply","operation_outcomes":[],"professional_boundary":{"human_review_required":true,"software_makes_approval_claim":false,"software_makes_authentication_claim":false,"software_makes_certification_claim":false,"software_makes_compliance_claim":false,"software_makes_sealing_claim":false},"schema_version":"0.1.0","simulation_disposition":"rolled_back_no_model_published","submitted_initial_model_hash":null,"submitted_operations":[{"audit_boundary":{"direct_model_mutation_allowed":false,"mutates_accepted_model_state":false,"mutation_route":"structured_operations_only","requires_user_acceptance":true},"author_type":"user","change":{"after":"{\"from\":\"node:root\",\"id\":\"pipe:beam\",\"label\":\"Invented beam\",\"material\":\"material:invented\",\"provenance\":\"invented native M35 witness\",\"section\":{\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1000},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"to\":\"node:tip\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}","before":"not_present","change_id":"change:explicit-section","change_kind":"connect_pipe_run","dimension":"length","field_label":"pipe_segments","field_path":"pipe_segments","source_note":"Explicit invented fixture","unit":"m"},"operation_id":"operation:explicit-section","operation_kind":"connect","operation_status":"proposed","professional_boundary":{"human_review_required":true,"software_makes_approval_claim":false,"software_makes_authentication_claim":false,"software_makes_certification_claim":false,"software_makes_compliance_claim":false,"software_makes_sealing_claim":false},"rationale":"Explicit invented fixture","target":{"object_type":"Element","ref":"pipe:beam"},"validation":{"application_status":"not_applied","constraint_validation":"not_run","diff_preview_status":"not_generated","schema_validation":"not_run","unit_validation":"not_run"}}],"submitted_operations_trust":"untrusted_submitted_metadata_not_validation_evidence","validation":{"application_status":"blocked","batch_validation_status":"blocked","diff_preview_status":"blocked_by_validation","schema_validation":"blocked"}}
+  left: Null
+ right: Object {"material_density": Object {"unit": String("kg/m^3"), "value": Number(1000)}, "outside_diameter": Object {"unit": String("m"), "value": Number(0.1)}, "wall_thickness": Object {"unit": String("m"), "value": Number(0.01)}}
+test late_invalid_creation_rolls_back_prior_creation_atomically ... FAILED
+test original_native_density_survives_public_create_and_self_weight_planning ... FAILED
+test creation_matches_set_field_for_all_optional_section_quantities ... ok
+test absent_null_and_incomplete_inputs_are_preserved_without_defaults ... ok
+test invalid_optional_quantities_and_unknown_section_fields_are_rejected ... ok
+
+failures:
+
+failures:
+    late_invalid_creation_rolls_back_prior_creation_atomically
+    original_native_density_survives_public_create_and_self_weight_planning
+
+test result: FAILED. 4 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `--test create_pipe_section_inputs`

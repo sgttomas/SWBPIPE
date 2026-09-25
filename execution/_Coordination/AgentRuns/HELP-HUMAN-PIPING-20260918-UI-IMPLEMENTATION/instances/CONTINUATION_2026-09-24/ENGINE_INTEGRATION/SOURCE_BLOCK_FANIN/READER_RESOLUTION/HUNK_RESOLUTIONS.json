@@ -1,0 +1,22 @@
+[
+  {
+    "path": "core/analysis_runs/compatibility.py",
+    "hunks": 9,
+    "resolution": "Union explicit identities and legacy namespace exclusions; retain repaired physics dispatch and ordinary quality path; source-block receipt-only metadata and independent-context standing stay separate."
+  },
+  {
+    "path": "core/reporting/result_export/src/lib.rs",
+    "hunks": 1,
+    "resolution": "Keep private physics validator module and public source-block statement/context validator module."
+  },
+  {
+    "path": "core/reporting/result_export/src/semantic_contract.rs",
+    "hunks": 4,
+    "resolution": "Three exact IDs; profile-specific header dispatch without raw validation; full raw dispatch invokes disjoint immutable validators; receipt presence never downgrades into physics or precision; preserve context-only source-block standing."
+  },
+  {
+    "path": "core/reporting/result_export/src/derivative.rs",
+    "hunks": 2,
+    "resolution": "Compared joined vs ordinary-base hunk deltas: physics namespace copy/binding and legacy exclusion. Composed those exact deltas into NUM common formatted bodies while preserving receipt copy/binding and downgrade rejection; no row/value/hash logic replaced."
+  }
+]

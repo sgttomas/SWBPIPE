@@ -1,0 +1,33 @@
+{
+  "candidate": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "source_sha256": "566f9d9a37b009f0d40bcabb99a92069aa026e40ffb025ba789dd69173d4d73a",
+  "typecheck": {
+    "command": "./node_modules/.bin/tsc -p apps/desktop/tsconfig.json --noEmit",
+    "exit": 0,
+    "log": "tsc-07-pass.log"
+  },
+  "queued_case": {
+    "exit": 0,
+    "passed": 1,
+    "excluded": 224,
+    "log": "queued-01-pass.log"
+  },
+  "app_changed": {
+    "exit": 0,
+    "passed": 26,
+    "excluded": 199,
+    "test_selection": "../APP_TESTS/changed-test-name-pattern.txt",
+    "log": "app-changed-04-pass.log",
+    "maxWorkers": 2,
+    "config": "/private/tmp/piping-physics-ts-vitest.config.mjs",
+    "configLoader": "runner"
+  },
+  "previous_failures": "All prior failed attempts retained at CHECKPOINT_02 and APP_TESTS; no test skipping introduced. Excluded counts are name-filter selection.",
+  "qualification": "Scoped unit transport simulation and UI/session tests, not actual native/browser/composite qualification.",
+  "log_hashes": {
+    "app-changed-03-failed.log": "ac59f12fac4cfa8c7136af0326f73cc703e87cf4de2cff2f59a7b912228eeb3e",
+    "tsc-07-pass.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "queued-01-pass.log": "8552993351c9afd66b941994c848cefa02b190e4188b0aaed66cefad399ab3ce",
+    "app-changed-04-pass.log": "4d1457fd05a02340981b989e239fa9f5f0e03269bd72ef4e72077748309661d7"
+  }
+}

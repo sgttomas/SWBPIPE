@@ -1,0 +1,58 @@
+[
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+    "sha256": "6a113eeaef876c6d7f3d0968b63a7a97da7fd7e4c42cfae00c871f3f058bf674"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+    "sha256": "c92030018f057c8e826d0486db33a5c78246114d220fa0a062d87a3e21a94ac8"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/solveProof.ts",
+    "sha256": "86f33e407d6e40a0c470acd1288c0c4a04d849b41bb095e0b9feff1455630080"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+    "sha256": "fd692788d9f1318cad28a5248ea9d9b1c3722498a55084cf21ed3a31fd4f2e49"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "sha256": "96bbf7d3e96406a596672fbb0cf9416e90ae639bc3a086c4c68fb1270035a5fc"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/projectService.ts",
+    "sha256": "d0305330b8c4d428347896ba99332800815a98cbc084aa19faa492bfe74d6c1b"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+    "sha256": "0dc01b84279b1e89c007b73fb3961e1cf16c9faf3baeef51669fc7485fa92618"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+    "sha256": "98155f7143932269f877688198733d6bdb85dbb5672b07d862a93c2f9e499531"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "sha256": "0d57195f49dc0fcd4c940fb570fb6dfeeef25fb458a53f3b9faddd12e4eb998f"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+    "sha256": "0af98e3c921834f74a9f32339561f82ad8bcad030e1cdd11df29fbcd2beb2b97"
+  },
+  {
+    "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+    "sha256": "05aac360afd0c701dda03a81bed71d99756eb0d38eb49210754392c9aec46e92"
+  },
+  {
+    "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+    "sha256": "d10a4f1e4672d4c27654fd40949ec00f17346eee3fe964ba2b8784e3612353f8"
+  },
+  {
+    "path": "projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+    "sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee"
+  },
+  {
+    "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+    "sha256": "caece39db29a97e4beca9ae25ff125ca4de4790c067f45e5ed562db91cf97b92"
+  }
+]

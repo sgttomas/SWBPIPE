@@ -1,0 +1,7 @@
+{
+  "kind": "static reference enumeration counterexample; no Cargo execution claimed",
+  "pipe_trigger": "delete pipe referenced only by pressure_regions[*].member_pipe_ids",
+  "node_trigger": "delete otherwise unreferenced node retained by pressure_regions[*].terminals[*].node_ref in an incomplete imported model",
+  "observed": "Neither existing enumerator scans pressure_regions; primitive-only traversal cannot report those dependencies.",
+  "source_sha256": "e1fe7eb0d4fd2ecd5e21b40f714d7115dfd90aa3bd6870c83615efe3a0386c05"
+}

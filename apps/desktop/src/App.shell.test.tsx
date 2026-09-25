@@ -7,7 +7,9 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import { App } from "./App";
 import * as previewService from "./services/previewService";
 import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
-import { buildAnalysisRunPreview, loadPreviewModel, runPreviewMechanics } from "./services/previewService";
+import { loadBundledMechanicsReference, loadPreviewModel } from "./services/previewService";
+import { buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "./test/nativeMechanicsReplay";
 import type { LocalProjectEnvelope, PreviewModel } from "./types";
 
 // Slice B3: the shell through the product. The rules themselves are unit-tested
@@ -41,7 +43,25 @@ async function renderShell(width = 1440) {
   return screen.getByTestId("modeling-workspace");
 }
 
+async function renderCurrentReplayShell(width = 1440) {
+  // Only Current-premise tests install this exact captured input/output pair.
+  // IPC is simulated; subsequent browser chrome assertions are not native UI evidence.
+  const pair = nativeMechanicsReplayPair();
+  const replay = createNativeMechanicsReplay();
+  vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(pair.model);
+  invokeMock.mockImplementation(async (command: string, args?: unknown) => {
+    if (command === "sync_native_shell_state") return undefined;
+    const result = await replay.invoke(command, args);
+    // Registration still occurs inside previewService from the actual mocked
+    // start/poll path. Restore browser chrome before the terminal render.
+    if (command === "poll_preview_mechanics_job" && result.state === "completed") setTauriRuntime(false);
+    return result;
+  });
+  return renderShell(width);
+}
+
 async function solve() {
+  setTauriRuntime(true);
   fireEvent.click(screen.getByTestId("toolbar-run"));
   await waitFor(() => expect(chipFaces()).toContain("Solver · Mechanics solved"), { timeout: 30_000 });
 }
@@ -111,23 +131,35 @@ function inventedOpenEnvelope(model: PreviewModel): LocalProjectEnvelope {
   };
 }
 
-async function openHistoricalRun() {
-  const envelope = inventedOpenEnvelope(await loadPreviewModel());
-  const result = structuredClone(await runPreviewMechanics());
-  result.model_ref = envelope.model.project.id;
-  const inputManifest = await buildCurrentSessionInputManifest({
-    model: envelope.model,
-    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0", solver_mode: "sparse_interactive", settings: {} },
-    active_rule_packs: [], external_assets: []
-  });
+async function openHistoricalRun(recordedToken?: string) {
+  const reference = await loadBundledMechanicsReference();
+  const envelope = inventedOpenEnvelope(reference.model);
+  envelope.model = structuredClone(reference.model);
+  envelope.summary.project_id = envelope.model.project.id;
+  envelope.summary.project_name = envelope.model.project.name;
+  const result = reference.source;
+  // An explicitly invented recorded token is inspected as saved history, never
+  // returned from a mocked fresh solve or promoted through a current manifest.
+  if (recordedToken !== undefined) result.status.mechanics = recordedToken;
   envelope.mechanics_result = result;
-  envelope.analysis_run = await buildAnalysisRunPreview(result, { inputManifest });
+  if (recordedToken === undefined) {
+    const inputManifest = await buildCurrentSessionInputManifest({
+      model: reference.model,
+      solver: { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: `${result.producer!.component_name}@${result.producer!.component_version}`, solver_mode: "sparse_interactive", settings: {} },
+      active_rule_packs: [], external_assets: []
+    });
+    // Reference-contract projection, not native/session admission.
+    envelope.analysis_run = await buildAnalysisRunV03(result, inputManifest, undefined, modelLoadBasisRefs(reference.model));
+  } else {
+    envelope.summary.persisted_analysis_run_count = 0;
+  }
   invokeMock.mockImplementation((command: string) =>
     command === "open_local_project" ? Promise.resolve(envelope) : Promise.reject(new Error(`Unexpected command ${command}`)));
   setTauriRuntime(true);
   act(() => nativeMenuCommand("file.open-local"));
   await waitFor(() => expect(screen.getByTestId("historical-run-context")).toHaveTextContent(result.run_id));
 }
+
 
 describe("the rail's states through the product", () => {
   it("before a run: Results and Review are disabled with No run yet, reachable by focus, and do nothing", async () => {
@@ -155,7 +187,7 @@ describe("the rail's states through the product", () => {
   });
 
   it("after a solved run: both stages open, with no caption", async () => {
-    await renderShell();
+    await renderCurrentReplayShell();
     await solve();
     for (const stage of ["results", "review"] as const) {
       expect(railState(stage)).toMatchObject({ disabled: false, reason: null, caption: null });
@@ -207,7 +239,7 @@ describe("the status chip policy through the product (§5.4)", () => {
   });
 
   it("rules 3 and 4 with no rule pack: Solver alone off Review; Solver and Human on Review, and on no page over it", async () => {
-    await renderShell();
+    await renderCurrentReplayShell();
     await solve();
     for (const stage of ["model", "loads", "results"] as const) {
       fireEvent.click(rail(stage));
@@ -224,7 +256,7 @@ describe("the status chip policy through the product (§5.4)", () => {
   });
 
   it("rules 3 and 4 with a rule pack: two chips off Review, three on it", async () => {
-    await renderShell();
+    await renderCurrentReplayShell();
     await solve();
     invokeMock.mockImplementation((command: string) => {
       if (command === "get_unit_catalog") return Promise.reject(new Error("Invented catalog unavailable"));
@@ -271,7 +303,7 @@ describe("the status chip policy through the product (§5.4)", () => {
   });
 
   it("rule 5, as this tranche reads it: a model change drops the chips with the run", async () => {
-    await renderShell();
+    await renderCurrentReplayShell();
     await solve();
     expect(chipFaces()).toEqual(["Solver · Mechanics solved"]);
     fireEvent.click(screen.getByTestId("menu-file"));
@@ -282,7 +314,7 @@ describe("the status chip policy through the product (§5.4)", () => {
   });
 
   it("a chip is read, never clicked to change anything: the click opens the raw token and the domain", async () => {
-    await renderShell();
+    await renderCurrentReplayShell();
     await solve();
     const chip = screen.getByTestId("status-pill-mechanics");
     expect(chip).toHaveAttribute("title", "MECHANICS_SOLVED");
@@ -299,7 +331,7 @@ describe("the status chip policy through the product (§5.4)", () => {
 
 describe("views, stages and mounted panels", () => {
   it("keeps the canvas, the inspector and all ten sections mounted, with their state, across every stage and view", async () => {
-    const surfaces = await renderShell();
+    const surfaces = await renderCurrentReplayShell();
     await solve();
     // State to keep: a tree filter, a solver-mode choice on the Analyze page, an inspector tab.
     fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: "N-1" } });
@@ -346,7 +378,7 @@ describe("views, stages and mounted panels", () => {
   });
 
   it("opens each stage in its first-open view and restores the view each was left in", async () => {
-    const surfaces = await renderShell();
+    const surfaces = await renderCurrentReplayShell();
     await solve();
     const firstOpen = { model: "both", loads: "table", results: "both", review: "table" } as const;
     for (const stage of ["model", "loads", "results", "review"] as const) {
@@ -501,7 +533,7 @@ describe("the toolbar band", () => {
 
 describe("the pointer rule: a key only accelerates a visible control", () => {
   it("⌘1 ⌘2 ⌘3 do what the view switch's segments do, and nothing where a segment is disabled", async () => {
-    const surfaces = await renderShell();
+    const surfaces = await renderCurrentReplayShell();
     for (const [key, view] of [["1", "table"], ["2", "model"], ["3", "both"]] as const) {
       const segment = screen.getByTestId(`view-switch-${view}`);
       expect(segment).toHaveAttribute("title", expect.stringContaining(`(⌘${key})`));
@@ -796,14 +828,14 @@ describe("New Blank starts a fresh shell context", () => {
 
 
 describe("B3A recorded solver fallback through the product", () => {
-  it.each(["BLOCKED_custom", "USER_RULE_FAILED", "blocked by custom: rule / 1"])("keeps invented recorded result %s exact in tooltip, popover and Analyze", async (token) => {
+  it.each(["BLOCKED_custom", "USER_RULE_FAILED", "blocked by custom: rule / 1"])("keeps invented recorded token %s exact in model labels and saved history", async (token) => {
     const model = await loadPreviewModel();
-    const result = await runPreviewMechanics(model);
-    result.status.mechanics = token;
-    vi.spyOn(previewService, "runPreviewMechanics").mockResolvedValue(result);
+    // Synthetic recorded model status exercises the generic label without
+    // claiming a native solve produced this arbitrary token.
+    model.analysis_status.mechanics = token;
+    vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(model);
     await renderShell();
-    fireEvent.click(screen.getByTestId("toolbar-run"));
-    await waitFor(() => expect(chipFaces()).toEqual(["Solver · Not solved"]));
+    expect(chipFaces()).toEqual(["Solver · Not solved"]);
     const chip = screen.getByTestId("status-pill-mechanics");
     expect(chip).toHaveAttribute("title", token);
     fireEvent.click(chip);
@@ -811,6 +843,9 @@ describe("B3A recorded solver fallback through the product", () => {
     expect(document.getElementById(chip.getAttribute("aria-controls")!)).toBe(screen.getByTestId("status-pill-mechanics-popover"));
     act(() => nativeMenuCommand("view.section.solve"));
     expect(screen.getByTestId("solve-readiness-summary")).toHaveTextContent(`Solver · Not solved (${token})`);
+    await openHistoricalRun(token);
+    expect(screen.getByTestId("historical-run-context")).toHaveTextContent(`mechanics=${token}`);
+    expect(chipFaces()).toEqual([]);
   });
 
   it("shows a recorded blocked model without inventing a completed result or run", async () => {

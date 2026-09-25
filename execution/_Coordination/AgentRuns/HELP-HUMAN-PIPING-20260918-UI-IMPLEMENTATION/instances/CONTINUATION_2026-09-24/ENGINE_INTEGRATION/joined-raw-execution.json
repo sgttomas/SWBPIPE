@@ -1,0 +1,64 @@
+{
+  "checkpoint_basis": "0a438 + M35selected23 + af412physics21; integration not yet committed",
+  "runs": [
+    {
+      "command": [
+        "cargo",
+        "run",
+        "--manifest-path",
+        "projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--target-dir",
+        "/private/tmp/piping-engine-integration-product-target",
+        "--example",
+        "exact_pressure_connected",
+        "--",
+        "sparse"
+      ],
+      "actor": "/root/physics_resume",
+      "started_utc": "2026-09-25T03:47:30.101688+00:00",
+      "inputs": {
+        "projects/chirality-piping/core/product_physics/src/lib.rs": "f5a2e034ebe87686ce3abc26de0f111c8b1825b0a46ba007a74e0cd2d89c61a5",
+        "projects/chirality-piping/core/product_physics/examples/exact_pressure_connected.rs": "3c69e30f40dee8219b06c37762c44bbf4794548b83c82036f40672b45867ffe9",
+        "projects/chirality-piping/core/product_physics/tests/fixtures/exact_pressure_connected_request.json": "466e514b44ea185e74c1c554aa3083595db94b7ffe519b7f859b42b30e934c1e"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-09-25T03:47:38.217709+00:00",
+      "raw_sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2",
+      "raw_output_path": "projects/chirality-piping/fixtures/results/physics_connected_mechanics_sparse.json"
+    },
+    {
+      "command": [
+        "cargo",
+        "run",
+        "--manifest-path",
+        "projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--target-dir",
+        "/private/tmp/piping-engine-integration-product-target",
+        "--example",
+        "exact_pressure_connected",
+        "--",
+        "dense"
+      ],
+      "actor": "/root/physics_resume",
+      "started_utc": "2026-09-25T03:47:38.218694+00:00",
+      "inputs": {
+        "projects/chirality-piping/core/product_physics/src/lib.rs": "f5a2e034ebe87686ce3abc26de0f111c8b1825b0a46ba007a74e0cd2d89c61a5",
+        "projects/chirality-piping/core/product_physics/examples/exact_pressure_connected.rs": "3c69e30f40dee8219b06c37762c44bbf4794548b83c82036f40672b45867ffe9",
+        "projects/chirality-piping/core/product_physics/tests/fixtures/exact_pressure_connected_request.json": "466e514b44ea185e74c1c554aa3083595db94b7ffe519b7f859b42b30e934c1e"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-09-25T03:47:38.701161+00:00",
+      "raw_sha256": "2e3007311d6b5f76172dbf7e9c4a9bbb98ad16382d75ffa63d327c9aab9ebdb6",
+      "raw_output_path": "projects/chirality-piping/fixtures/results/physics_connected_mechanics_dense.json"
+    }
+  ],
+  "artifact_location": "Moved exact emitted bytes to maintained fixtures/results for consumer regression tests; no row/quality mutation and no dated evidence dependency in maintained tests."
+}

@@ -1,0 +1,76 @@
+{
+  "task": "/root/physics_resume/physics_reader_join/physics_rust_export",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native followup assignment; no further delegation",
+  "frozen_at_utc": "2026-09-25T07:02:19.558033+00:00",
+  "owned_files": [
+    {
+      "path": "apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "408a839a1c4003d84bfa13577b3a7734eb3804535d727af7015888e464ec1128"
+    },
+    {
+      "path": "apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "9915292ddde4afc2c1549e0fd77519e1c53f8a8486e3570a76a63e543be83bd1"
+    },
+    {
+      "path": "apps/desktop/src/App.projectHandlers.test.tsx",
+      "sha256": "db9ce5f7836bd9f67e7b9b6dd3651e287e8da266b0beea369a0a7b674d1759b4"
+    },
+    {
+      "path": "apps/desktop/src/App.deadControls.test.tsx",
+      "sha256": "74f72d50d6ecc2c4c9d5fd2747b893ceb7deea346fb2ca47bff72185a38922a1"
+    }
+  ],
+  "consulted_basis": [
+    {
+      "path": "apps/desktop/src/App.tsx",
+      "sha256": "fd23115f857667048d7fa546b482e27bed864710fdda4f4a49ef512336c56363"
+    },
+    {
+      "path": "apps/desktop/src/services/previewService.ts",
+      "sha256": "2cb222ed4e4770388477890034b8c19e4dafa1a6c94b15696ab2b9c38fcaf485"
+    },
+    {
+      "path": "apps/desktop/src/features/solve/SolvePanel.tsx",
+      "sha256": "e5bd20ba1ba873c7add676bca9d9be189abbe31b338c658e8f89217968f0f6a1"
+    },
+    {
+      "path": "apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "1a18b63275eb70418ec8628097cde3ce0f97d298abd07c572ccaded33b5bc0c3"
+    },
+    {
+      "path": "apps/desktop/src/test/nativeMechanicsReplay.ts",
+      "sha256": "69318d88f5ea45bf32d85ce80d8f8e735766227a9e87bd7310c73f1f55996519"
+    },
+    {
+      "path": "apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+      "sha256": "9306de22eafe9d8b2c69f3ee91b416c026705c50692f8febafc944b6275eb9fb"
+    },
+    {
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "sha256": "89b8ac371c3c5076861ddebf397ce2c29bd2163f635db7b9a70870d8b9a21def"
+    },
+    {
+      "path": "fixtures/product_preview/invented_preview_model.json",
+      "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"
+    },
+    {
+      "path": "fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"
+    },
+    {
+      "path": "fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6"
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/TEST_INVENTORY/INVENTORY.md",
+      "sha256": "7be95d858f1ce26640408006075775e90db0aa6353d6638ca2ca073eb733c439"
+    }
+  ],
+  "runtime_checks": "Parent-owned; syntax only performed by this TASK.",
+  "old_failures": "Parent /private/tmp/piping-browser-standing-ts-02.log retained; this TASK read reported failure block, repaired replay startup only, and did not weaken dead-control audit."
+}

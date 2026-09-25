@@ -1,0 +1,263 @@
+{
+  "role": "TASK",
+  "actual_mechanism": "delegated-harness-native descendant",
+  "agent": "/root/physics_resume/physics_reader_join/physics_ts_readers",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "delegated_children": [],
+  "checkout": "/private/tmp/piping-engine-integration-20260925",
+  "base_revision": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "boundaries": "Own results semantic/quality readers + result-export adapter/tests + required analysisRunCompatibility/previewService result handling. No shared types.ts writes, producer writes, external Git, native/browser operations or broad builds. Shared bounded test lane required.",
+  "wider_role_consultation": "Read full parent BRIEF.md containing WORKING_ITEMS role for assignment context; active role remains TASK.",
+  "instruction_sources": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BRIEF.md",
+      "sha256": "288ca7792e9749f12bf3c3f768aa79a5332ea1eaa8400a7949fe1e73c3dffd7e"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/RAW02_INTERFACE_ALIGNMENT.md",
+      "sha256": "00ef23b2cbf430309989dc63019aae3daaed331bef146cbb7a28cb4d02520450"
+    },
+    {
+      "origin": "/private/tmp/piping-pressure-stress-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/FREEZE_03/INTERFACE_SCHEMA.md",
+      "sha256": "4da9cc53f515342a3043d32de7e83dfc4005a6bf06e51070dda0aed848974b62"
+    },
+    {
+      "origin": "/private/tmp/piping-pressure-stress-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/CONNECTED_INTEGRATION_HANDOFF.md",
+      "sha256": "72cb687df9ffe5f7a31fa052b6119567e63f96a71fa5a6c0fe5d74627ba3b085"
+    },
+    {
+      "origin": "/private/tmp/piping-pressure-stress-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/FREEZE_04/RETURN.md",
+      "sha256": "198381ed56ac181a87cb51acec54726b81bd226e8920358283cc00e0d530f617"
+    }
+  ],
+  "implementation_notes": [
+    "Explicit physics-1 source/table binding preserves precision-1 table/hash.",
+    "Physical evidence guard checks closed supported shape, finite inputs, actual case/member/region/result ownership, duplicate geometry/material agreement, temperature-selection mode, pressure-group bit identity, extrema midpoint and coverage, complete pressure rows and headline binding.",
+    "Source headers do not authenticate producer. NUM/Sensitive/Current manifest gates remain independent.",
+    "Canonical0.3 copies contract_evidence unchanged and validates source equality. Analysis0.3 hash binds entire received source and dynamic table identity.",
+    "Actual producer fixtures consumed without changing headers or quality. Native/save/reopen application witness remains integration-owned.",
+    "Includes exact physical sign text, complete37-row pressure station grids and8-row support bundles; pressure/source-bore bits checked against referenced region source geometry without recomputing assembled RHS.",
+    "NUM evidence refs resolve to their actual row load case or diagnostic affected_refs; source-block recovery/carrier namespaces remain unsupported.",
+    "Raw precision1 contract_evidence:null remains compatible; nonnull physical evidence cannot be relabeled precision1.",
+    "The actual core request omits UI load-case kind/status. Tests preserve the resulting Current-session manifest refusal; low-level analysis tests use an explicitly reference-only manifest, and canonical projection remains unattested.",
+    "Canonical JSON/JCS normalizes signed zero; tests verify exact in-memory evidence cloning and equal canonical evidence hashes after JSON reopen. No governing rows are reconstructed."
+  ],
+  "validation_status": "Complete bounded TS checks:9 unchanged focused files136tests passed; final newphysics file30tests passed; separately requested NativePackagePanel file2tests passed (aggregate11files168tests). Final tsc exit0. Actual current-source operation/selfweight WASM build exit0. Initial setup/typecheck/test-assumption failures retained in logs. Native application solve/inspect/save/reopen/export witness remains parent-owned.",
+  "additional_authorized_scope": "Parent message explicitly allocated missing/derived-G display projection sites only in features/redaction-controls/RedactionExportControlsPanel.tsx and features/editor-contract/EditorContractPanel.tsx; no authored G was synthesized.",
+  "runtime": {
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "vitest": "4.1.10",
+    "typescript": "5.9.3",
+    "candidate_dependency_link": "projects/chirality-piping/node_modules -> /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules",
+    "shared_dependency_mutation": false,
+    "vitest_config": "/private/tmp/piping-physics-ts-vitest.config.mjs",
+    "vitest_cache": "/private/tmp/piping-physics-ts-vite-cache",
+    "config_loader": "runner",
+    "generated_vitest_config_text": "import base from '/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/vite.config.ts';\nexport default {...base, root: '/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop', cacheDir: \"/private/tmp/piping-physics-ts-vite-cache\"};\n",
+    "test_setup": "Unmodified candidate src/test/setup.ts prewarms freshly built candidate WASM."
+  },
+  "checks": [
+    {
+      "command": "node projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/TS_TASK/guard-probe.mjs",
+      "cwd": "repository root",
+      "exit_code": 0,
+      "log": "guard-probe.log",
+      "result": "14 physical source controls passed"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/features/results/numericalResultQuality.test.ts src/features/results/resultSemantics.test.ts src/features/result-export/resultExportAdapter.test.ts src/features/result-export/physicsResultExport.test.ts src/services/analysisRunCompatibility.test.ts src/services/previewService.test.ts src/features/pressure-authoring/PressureAuthoringPanel.test.tsx src/features/rich-authoring/richForms.test.tsx src/features/load-cases/LoadCaseManagerPanel.units.test.tsx src/services/projectService.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner",
+      "cwd": "projects/chirality-piping",
+      "observed_exit_code": 1,
+      "log": "vitest-focused.log",
+      "result": "all10 suites blocked in global setup; no tests ran; WASM-ENGINE-ASSET-ABSENT"
+    },
+    {
+      "command": "./node_modules/.bin/tsc -p apps/desktop/tsconfig.json --noEmit",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 2,
+      "log": "tsc.log",
+      "result": "8 type errors recorded; own test assertion repaired afterward;7 shared optionalG consequences returned to parent"
+    },
+    {
+      "command": "env -u CARGO_TARGET_DIR CARGO_BUILD_JOBS=2 npm run build:wasm --workspace apps/desktop",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "log": "wasm-build.log",
+      "artifacts": "WASM_ARTIFACTS.json"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/features/results/numericalResultQuality.test.ts src/features/results/resultSemantics.test.ts src/features/result-export/resultExportAdapter.test.ts src/features/result-export/physicsResultExport.test.ts src/services/analysisRunCompatibility.test.ts src/services/previewService.test.ts src/features/pressure-authoring/PressureAuthoringPanel.test.tsx src/features/rich-authoring/richForms.test.tsx src/features/load-cases/LoadCaseManagerPanel.units.test.tsx src/services/projectService.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "log": "vitest-focused-rerun.log",
+      "result": "9files136tests passed; new30tests failed at Vite-rewritten fileURL fixture reads, repaired to filesystem paths"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/features/result-export/physicsResultExport.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "log": "vitest-physics-rerun.log",
+      "result": "27/30 pass; remaining3 exposed honest Current manifest refusal for core fixture missing UI kind/status; tests moved to explicit reference-only low-level analysis and retained Current refusal assertion"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/features/result-export/physicsResultExport.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "log": "vitest-physics-final.log",
+      "result": "28/30 pass; remaining2 asserted signed-zero object identity after JSON serialization. Final tests separately assert exact in-memory clone and canonical JCS evidence hash equality on reopen."
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/features/result-export/physicsResultExport.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "log": "vitest-physics-final-rerun.log",
+      "result": "30/30 pass"
+    },
+    {
+      "command": "./node_modules/.bin/tsc -p apps/desktop/tsconfig.json --noEmit",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "log": "tsc-final.log",
+      "result": "no diagnostics"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/features/native-package/NativePackagePanel.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "log": "vitest-native-package.log",
+      "result": "parent-requested package source/witness tests2/2 pass"
+    }
+  ],
+  "owned_source_manifest": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "d4b75fe2498becfbe728d4ef605776628832e45cb9594611831cbdc9fb0476d1"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "afa90f3ba207de0cd4a571ec4223af35820ed363e8c4426f45509aeacb17c85c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "sha256": "295b31cd32638059c79f2123167c8ad3eab3b55879b057dbd1e25e13b7c6aa6b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "0d57195f49dc0fcd4c940fb570fb6dfeeef25fb458a53f3b9faddd12e4eb998f"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/physicsResultExport.test.ts",
+      "sha256": "7dd3e7833dc3bc97771532ee1abbd6177ce0a4232e52c4d80177ddcc4e1a0866"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "0dc01b84279b1e89c007b73fb3961e1cf16c9faf3baeef51669fc7485fa92618"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "96bbf7d3e96406a596672fbb0cf9416e90ae639bc3a086c4c68fb1270035a5fc"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx",
+      "sha256": "e6ca619b18500f2251e458bbbc0338e3bcff3ead58cd52530da30278dc7b40b5"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+      "sha256": "2956208c38de311e91ab0115c15243c427c75087f750b584486c24285cd17012"
+    }
+  ],
+  "shared_input_manifest": [
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_connected_mechanics_sparse.json",
+      "sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_connected_mechanics_dense.json",
+      "sha256": "2e3007311d6b5f76172dbf7e9c4a9bbb98ad16382d75ffa63d327c9aab9ebdb6"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/fixtures/exact_pressure_connected_request.json",
+      "sha256": "466e514b44ea185e74c1c554aa3083595db94b7ffe519b7f859b42b30e934c1e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "sha256": "333a5cd0231bd2869823574a555153367b10e11c310bcd229b12043eec97e065"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/test/setup.ts",
+      "sha256": "65c02a3ba648174d681c4389b61707c58e8ee02cc7228b9446074a2ac1772e38"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/vite.config.ts",
+      "sha256": "9e59361cfb4e89b53d2ce1acfe7a9b000b6d87c38fd7cae283019efc13d04bf9"
+    }
+  ],
+  "evidence_logs": [
+    {
+      "path": "guard-probe.log",
+      "sha256": "633ba6b9db8d592dbb1f9d6b47b9c54be3c0002cd525a7b5ab8fe132bfe54638"
+    },
+    {
+      "path": "tsc-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tsc.log",
+      "sha256": "400962989c44b959126475ad2d0445edbecb0e006105df7a8f6196708fd471a3"
+    },
+    {
+      "path": "vitest-focused-rerun.log",
+      "sha256": "337d251c00399590a30b5473580308484942f07735a08cefd99c27c5198d8d26"
+    },
+    {
+      "path": "vitest-focused.log",
+      "sha256": "78d3e59071e677dc4a4f756f4b3a5ad11414d0b72d81200ef1473e5f0a065742"
+    },
+    {
+      "path": "vitest-native-package.log",
+      "sha256": "115c009e38bd12186de3b13e72cec93a1098047e62bf96f0174d0d3c2a905fda"
+    },
+    {
+      "path": "vitest-physics-final-rerun.log",
+      "sha256": "79e5c922d57a277605f457b2e3a517bdd5a54a888487df3ec200f28046841aa6"
+    },
+    {
+      "path": "vitest-physics-final.log",
+      "sha256": "eb23d5dc088eb0c9112fd9d127d75c2a6536b10f3853e9cdbc5a1303649fcf28"
+    },
+    {
+      "path": "vitest-physics-rerun.log",
+      "sha256": "94f0eb4a05a3bb5c6ff7acc68a380f72ce360d3b5d26ae12d1f5641824647ade"
+    },
+    {
+      "path": "wasm-build.log",
+      "sha256": "1e1c239a13e09f2140dc7d18a4416a208233fec6f6d2f89907f0bfde73527c3b"
+    }
+  ],
+  "limits": "Hashes bind selected supplied/owned/shared files and logged checks, not an exhaustive transitive build closure. No independent-review, native UI, Current producer authentication, engineering acceptance or release claim."
+}

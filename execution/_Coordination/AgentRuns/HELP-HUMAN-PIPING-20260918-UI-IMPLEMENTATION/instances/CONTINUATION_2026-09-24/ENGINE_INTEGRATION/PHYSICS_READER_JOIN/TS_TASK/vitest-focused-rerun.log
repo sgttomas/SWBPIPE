@@ -1,0 +1,186 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/results/numericalResultQuality.test.ts src/features/results/resultSemantics.test.ts src/features/result-export/resultExportAdapter.test.ts src/features/result-export/physicsResultExport.test.ts src/services/analysisRunCompatibility.test.ts src/services/previewService.test.ts src/features/pressure-authoring/PressureAuthoringPanel.test.tsx src/features/rich-authoring/richForms.test.tsx src/features/load-cases/LoadCaseManagerPanel.units.test.tsx src/services/projectService.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner
+
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/result-export/physicsResultExport.test.ts (30 tests | 30 failed) 8ms
+     × dispatches sparse source with complete cases and preserves source bytes 3ms
+     × dispatches dense source with complete cases and preserves source bytes 0ms
+     × pins the additive table and retains frozen precision table bytes 0ms
+     × rejects unknown/reserved and mismatched profile dispatch without falling back 0ms
+     × rejects cross-case NUM evidence 0ms
+     × rejects wrong force sign 0ms
+     × rejects source bore contradiction 0ms
+     × rejects missing support component 0ms
+     × rejects missing evidence 0ms
+     × rejects unknown namespace 0ms
+     × rejects duplicate case 0ms
+     × rejects missing no-pressure material 0ms
+     × rejects contradictory duplicate material 0ms
+     × rejects contradictory duplicate geometry 0ms
+     × rejects cross-case binding 0ms
+     × rejects duplicate binding 0ms
+     × rejects missing binding 0ms
+     × rejects fabricated binding 0ms
+     × rejects missing row and its binding 0ms
+     × rejects pressure bit contradiction 0ms
+     × rejects unknown RHS method 0ms
+     × rejects nonfinite physical input 0ms
+     × rejects fake extrema midpoint 0ms
+     × rejects derived pressure row 0ms
+     × rejects misdimensioned reaction 0ms
+     × withholds a headline for incomplete extrema but retains valid signed rows 0ms
+     × keeps Sensitive evidence inspectable without promoting its accuracy claim 0ms
+     × preserves sparse evidence through analysis/checksums, JSON reopen and canonical projection 0ms
+     × preserves dense evidence through analysis/checksums, JSON reopen and canonical projection 0ms
+     × requires existing Current manifest/source proof and retains Sensitive rejection 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 30 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > dispatches sparse source with complete cases and preserves source bytes
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > dispatches dense source with complete cases and preserves source bytes
+TypeError: The URL must be of scheme file
+ ❯ json src/features/result-export/physicsResultExport.test.ts:15:43
+     13| // production. Loading them here does not create native invocation or …
+     14| const project = new URL("../../../../../", import.meta.url);
+     15| const json = (path: string) => JSON.parse(readFileSync(new URL(path, p…
+       |                                           ^
+     16| const raw = (mode = "sparse"): MechanicsResult => json(`fixtures/resul…
+     17| const model = (): PreviewModel => json("core/product_physics/tests/fix…
+ ❯ raw src/features/result-export/physicsResultExport.test.ts:16:51
+ ❯ src/features/result-export/physicsResultExport.test.ts:31:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/30]⎯
+
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > pins the additive table and retains frozen precision table bytes
+TypeError: The URL must be of scheme file
+ ❯ src/features/result-export/physicsResultExport.test.ts:44:42
+     42|   it("pins the additive table and retains frozen precision table bytes…
+     43|     for (const [name, expected] of [["physics", PHYSICS_CONTRACT_SHA25…
+     44|       expect(createHash("sha256").update(readFileSync(new URL(`fixture…
+       |                                          ^
+     45|   });
+     46|   it("rejects unknown/reserved and mismatched profile dispatch without…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/30]⎯
+
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects unknown/reserved and mismatched profile dispatch without falling back
+TypeError: The URL must be of scheme file
+ ❯ json src/features/result-export/physicsResultExport.test.ts:15:43
+     13| // production. Loading them here does not create native invocation or …
+     14| const project = new URL("../../../../../", import.meta.url);
+     15| const json = (path: string) => JSON.parse(readFileSync(new URL(path, p…
+       |                                           ^
+     16| const raw = (mode = "sparse"): MechanicsResult => json(`fixtures/resul…
+     17| const model = (): PreviewModel => json("core/product_physics/tests/fix…
+ ❯ raw src/features/result-export/physicsResultExport.test.ts:16:51
+ ❯ src/features/result-export/physicsResultExport.test.ts:48:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/30]⎯
+
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects cross-case NUM evidence
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects wrong force sign
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects source bore contradiction
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects missing support component
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects missing evidence
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects unknown namespace
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects duplicate case
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects missing no-pressure material
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects contradictory duplicate material
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects contradictory duplicate geometry
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects cross-case binding
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects duplicate binding
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects missing binding
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects fabricated binding
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects missing row and its binding
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects pressure bit contradiction
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects unknown RHS method
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects nonfinite physical input
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects fake extrema midpoint
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects derived pressure row
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > rejects misdimensioned reaction
+TypeError: The URL must be of scheme file
+ ❯ json src/features/result-export/physicsResultExport.test.ts:15:43
+     13| // production. Loading them here does not create native invocation or …
+     14| const project = new URL("../../../../../", import.meta.url);
+     15| const json = (path: string) => JSON.parse(readFileSync(new URL(path, p…
+       |                                           ^
+     16| const raw = (mode = "sparse"): MechanicsResult => json(`fixtures/resul…
+     17| const model = (): PreviewModel => json("core/product_physics/tests/fix…
+ ❯ raw src/features/result-export/physicsResultExport.test.ts:16:51
+ ❯ src/features/result-export/physicsResultExport.test.ts:85:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/30]⎯
+
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > withholds a headline for incomplete extrema but retains valid signed rows
+TypeError: The URL must be of scheme file
+ ❯ json src/features/result-export/physicsResultExport.test.ts:15:43
+     13| // production. Loading them here does not create native invocation or …
+     14| const project = new URL("../../../../../", import.meta.url);
+     15| const json = (path: string) => JSON.parse(readFileSync(new URL(path, p…
+       |                                           ^
+     16| const raw = (mode = "sparse"): MechanicsResult => json(`fixtures/resul…
+     17| const model = (): PreviewModel => json("core/product_physics/tests/fix…
+ ❯ raw src/features/result-export/physicsResultExport.test.ts:16:51
+ ❯ src/features/result-export/physicsResultExport.test.ts:90:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/30]⎯
+
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > keeps Sensitive evidence inspectable without promoting its accuracy claim
+TypeError: The URL must be of scheme file
+ ❯ json src/features/result-export/physicsResultExport.test.ts:15:43
+     13| // production. Loading them here does not create native invocation or …
+     14| const project = new URL("../../../../../", import.meta.url);
+     15| const json = (path: string) => JSON.parse(readFileSync(new URL(path, p…
+       |                                           ^
+     16| const raw = (mode = "sparse"): MechanicsResult => json(`fixtures/resul…
+     17| const model = (): PreviewModel => json("core/product_physics/tests/fix…
+ ❯ raw src/features/result-export/physicsResultExport.test.ts:16:51
+ ❯ src/features/result-export/physicsResultExport.test.ts:98:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/30]⎯
+
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > preserves sparse evidence through analysis/checksums, JSON reopen and canonical projection
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > preserves dense evidence through analysis/checksums, JSON reopen and canonical projection
+TypeError: The URL must be of scheme file
+ ❯ json src/features/result-export/physicsResultExport.test.ts:15:43
+     13| // production. Loading them here does not create native invocation or …
+     14| const project = new URL("../../../../../", import.meta.url);
+     15| const json = (path: string) => JSON.parse(readFileSync(new URL(path, p…
+       |                                           ^
+     16| const raw = (mode = "sparse"): MechanicsResult => json(`fixtures/resul…
+     17| const model = (): PreviewModel => json("core/product_physics/tests/fix…
+ ❯ raw src/features/result-export/physicsResultExport.test.ts:16:51
+ ❯ src/features/result-export/physicsResultExport.test.ts:102:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/30]⎯
+
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > requires existing Current manifest/source proof and retains Sensitive rejection
+TypeError: The URL must be of scheme file
+ ❯ json src/features/result-export/physicsResultExport.test.ts:15:43
+     13| // production. Loading them here does not create native invocation or …
+     14| const project = new URL("../../../../../", import.meta.url);
+     15| const json = (path: string) => JSON.parse(readFileSync(new URL(path, p…
+       |                                           ^
+     16| const raw = (mode = "sparse"): MechanicsResult => json(`fixtures/resul…
+     17| const model = (): PreviewModel => json("core/product_physics/tests/fix…
+ ❯ raw src/features/result-export/physicsResultExport.test.ts:16:51
+ ❯ src/features/result-export/physicsResultExport.test.ts:117:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/30]⎯
+
+
+ Test Files  1 failed | 9 passed (10)
+      Tests  30 failed | 136 passed (166)
+   Start at  22:13:02
+   Duration  7.36s (transform 397ms, setup 413ms, import 628ms, tests 7.05s, environment 2.11s)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/results/numericalResultQuality.test.ts src/features/results/resultSemantics.test.ts src/features/result-export/resultExportAdapter.test.ts src/features/result-export/physicsResultExport.test.ts src/services/analysisRunCompatibility.test.ts src/services/previewService.test.ts src/features/pressure-authoring/PressureAuthoringPanel.test.tsx src/features/rich-authoring/richForms.test.tsx src/features/load-cases/LoadCaseManagerPanel.units.test.tsx src/services/projectService.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner

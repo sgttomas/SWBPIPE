@@ -1,0 +1,213 @@
+{
+  "status": "Review allocation only, not a source freeze or review completion",
+  "stable_producer_paths": 29,
+  "stable_authoring_native_paths": 26,
+  "remaining_current_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/physicsResultExport.test.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.test.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/test/nativeMechanicsReplay.ts",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_evidence.py",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/tests/applied_self_weight.rs",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/physics_contract.rs",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_connected_mechanics_dense.json",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_connected_mechanics_sparse.json",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_connected_ui_mechanics_dense.json",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_connected_ui_mechanics_sparse.json",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_physics_consumer_contract.py",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock",
+      "planned_coverage": "Final source/consumer review",
+      "M35_dependency_bytes_unchanged": false
+    }
+  ],
+  "note": "Final complete candidate reviewer checks all changed-source coverage, stable review findings/backchecks and later deltas. Active reader/test paths remain mutable until their return."
+}

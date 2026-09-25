@@ -1,0 +1,12 @@
+[
+  {
+    "path": "fixtures/results/invented/result_export_v0_2.json",
+    "sha256": "ef09b38c1619e06c3fbf2082a331a8cb94936f4b8d1b8ecd025e0f424424cff2",
+    "matches_HEAD": true
+  },
+  {
+    "path": "fixtures/product_preview/invented_preview_model.json",
+    "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+    "matches_HEAD": true
+  }
+]

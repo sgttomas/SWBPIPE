@@ -1,0 +1,9 @@
+apps/desktop/src/features/model-tree/MaterialTable.test.tsx(69,125): error TS2532: Object is possibly 'undefined'.
+apps/desktop/src/features/model-tree/MaterialTable.test.tsx(69,173): error TS2532: Object is possibly 'undefined'.
+apps/desktop/src/features/model-tree/MaterialTable.test.tsx(69,254): error TS2532: Object is possibly 'undefined'.
+apps/desktop/src/features/model-tree/MaterialTable.test.tsx(84,29): error TS2532: Object is possibly 'undefined'.
+apps/desktop/src/features/model-tree/MaterialTable.test.tsx(85,114): error TS2532: Object is possibly 'undefined'.
+apps/desktop/src/features/model-tree/MaterialTable.test.tsx(86,28): error TS2532: Object is possibly 'undefined'.
+apps/desktop/src/features/native-package/NativePackagePanel.tsx(526,7): error TS2322: Type '{ value: number; unit: string; } | undefined' is not assignable to type 'QuantityRecord'.
+  Type 'undefined' is not assignable to type 'QuantityRecord'.
+apps/desktop/src/features/result-export/physicsResultExport.test.ts(104,12): error TS18048: 'analysis.analysis_run.reproducibility.semantic_contract' is possibly 'undefined'.

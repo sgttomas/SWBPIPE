@@ -1,0 +1,91 @@
+{
+  "recorded_utc": "2026-09-25T05:32:54.393830+00:00",
+  "agent": "/root/physics_resume/physics_reader_join/physics_ts_readers",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native followup task",
+  "delegated_children": [],
+  "authority_basis": "ROOT decision transferred by parent in task message; no new owner decision inferred by TASK",
+  "request": "Read-only inventory of runPreviewMechanics/startPreviewMechanicsJob/browser fixture callers by purpose. New ROOT decision conveyed by parent: bundled mechanics fixtures are reference/history-only, never fresh Current, rule eligibility or qualified export even for unchanged model; actual supported native invocation required. No source/test edits, no Cargo/npm, no delegation; write only BROWSER_REFERENCE/TEST_INVENTORY.",
+  "request_sha256": "f971f86cda55b80832342e15de5dbc9920cb1872448b7b7c743d223501c62843",
+  "unchanged_instruction_basis": {
+    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/TS_TASK/EXECUTION.json",
+    "sha256": "16897a68e3951e4fdf4abd2bde9a26414eedc7249e9dc93e032beb9b223950fc"
+  },
+  "methods": [
+    "ripgrep direct call/control discovery",
+    "bounded source/test body reads",
+    "read-only TypeScript AST parsing using existing dependency runtime",
+    "JSON input/result pair and generation-record comparison"
+  ],
+  "source_or_test_edits": false,
+  "cargo_or_npm_or_browser_or_native_execution": false,
+  "output_files": [
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/TEST_INVENTORY/INVENTORY.md",
+      "sha256": "7be95d858f1ce26640408006075775e90db0aa6353d6638ca2ca073eb733c439"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/TEST_INVENTORY/DISCOVERY.json",
+      "sha256": "0fd3a1782b8aef3e8f988798b8a45c5e79871794b483b174db444110e7a059fe"
+    }
+  ],
+  "additional_source_snapshots": [
+    {
+      "path": "apps/desktop/src/services/previewService.ts",
+      "sha256": "e6fc897f9204f43cac85a5e056c8037f70ded1bb4e8536f1b1ad7520148eec47"
+    },
+    {
+      "path": "apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "f57c248be6a70e6d0c5d753bcdafa44140110089bdd811b13ae51ba9b09a38b7"
+    },
+    {
+      "path": "apps/desktop/src/features/workspace/solveJobAudit.ts",
+      "sha256": "df1e5ae7c5110bedf98a49dfee36bf1f98e07479e7dc96b5c4ac778ec0f6c755"
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.ts",
+      "sha256": "c578188d59d457bd31a5f169ebcec39acc530841bace94df0824415cf0b41d94"
+    },
+    {
+      "path": "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "sha256": "6f2cf3701c8cc988f7b83d25b777431607f344dc8d9684d5f3a666cb046555a3"
+    },
+    {
+      "path": "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "sha256": "aa9d6f0cf50e98136489915c827d659f944173eba6cb11a872b2ed7b206350ad"
+    },
+    {
+      "path": "fixtures/product_preview/precision_fixture_generation.json",
+      "sha256": "b68d5b799d39ce1c195e6630e89bdd65adad68d91bb4f134642888ac7ff43725"
+    },
+    {
+      "path": "core/product_physics/tests/fixtures/exact_pressure_connected_request.json",
+      "sha256": "466e514b44ea185e74c1c554aa3083595db94b7ffe519b7f859b42b30e934c1e"
+    },
+    {
+      "path": "fixtures/model_operations/exact_pressure_authoring_model.json",
+      "sha256": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e"
+    },
+    {
+      "path": "fixtures/results/physics_connected_mechanics_sparse.json",
+      "sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2"
+    },
+    {
+      "path": "fixtures/results/physics_connected_mechanics_dense.json",
+      "sha256": "2e3007311d6b5f76172dbf7e9c4a9bbb98ad16382d75ffa63d327c9aab9ebdb6"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/joined-raw-execution.json",
+      "sha256": "ed1421121b7aa353ffdda25e0681a880f7180d6cd316fb4810d607cfcf5bea61"
+    }
+  ],
+  "observations": {
+    "matched_test_declarations": 89,
+    "matched_test_files": 19,
+    "additional_helper_case": "App.deadControls.test.tsx prepareScenario(solved) -> every button responsive or disabled with stated reason",
+    "actual_core_model_equals_authoring_ui_model": false,
+    "core_pair_current_manifest_limit": "exact core request cases omit UI kind/status; authoring fixture adds them, so a native invocation for full UI model must bind its own actual source before claiming positive Current"
+  },
+  "limits": "Inventory only; no test results, implementation, native witness or independent review asserted. Runtime sources may be edited concurrently by parent; snapshot hashes and line references locate observed evidence."
+}

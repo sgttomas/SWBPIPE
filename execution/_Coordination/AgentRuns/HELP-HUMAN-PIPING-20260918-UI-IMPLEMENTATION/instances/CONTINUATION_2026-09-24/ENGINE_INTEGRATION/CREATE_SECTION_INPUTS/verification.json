@@ -1,0 +1,56 @@
+{
+  "recorded_at_utc": "2026-09-25T03:53:51.495699+00:00",
+  "worktree": "/private/tmp/piping-engine-integration-20260925",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "test_lane": "Parent granted serialized operation_applier lane; max 2 Cargo jobs and isolated target; released after focused run. No broader test run.",
+  "checks": [
+    {
+      "log": "red-original-density.log",
+      "exit_code": 101,
+      "result": "Original density assertion fails: applied section lacks explicit material_density.",
+      "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-create-section-inputs-target cargo test --offline --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml --test create_pipe_section_inputs original_native_density_survives_public_create_and_self_weight_planning -- --exact --nocapture",
+      "log_sha256": "3fff213115ca963b919694bf52d57693f09161b08891820349aa466fc0009377"
+    },
+    {
+      "log": "green-section-inputs.log",
+      "exit_code": 101,
+      "result": "4 pass, 2 supplemental batch setup failures: OP-BATCH-MODEL-HASH-REQUIRED. Density preservation itself passes; batch fixtures corrected by supplying existing current-model claim, without source guard changes.",
+      "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-create-section-inputs-target cargo test --offline --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml --test create_pipe_section_inputs -- --nocapture",
+      "log_sha256": "04edc8c4eec9fecfa8a850b8de9999cd7ef19c4c85e493106696fc5f23c5d60e"
+    },
+    {
+      "log": "green-section-inputs-r2.log",
+      "exit_code": 0,
+      "result": "6 pass; no failures.",
+      "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-create-section-inputs-target cargo test --offline --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml --test create_pipe_section_inputs -- --nocapture",
+      "log_sha256": "7d22e32cc5bab47af1136f467ba8fe2eb79f29d23306191fb283a50a1ae07abe"
+    }
+  ],
+  "source_state_at_return": [
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "27cc8f6da46930345dabb07b5cd3f59445503e6958646a710125ce1eb6c4f4b6"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+      "sha256": "b2276908a7e7892b9aee88e0c60f81f8e6086b9da5d14eef20242e7270f2ca7a"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/create_pipe_section_inputs.rs",
+      "sha256": "e6cc8c401c17ede192a2ab1ea2b9e2a64ced9894e8d98e4d2761530d2218a9f0"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+      "sha256": "70e097d01dd76a5dac7e5e6bc6e2f33bfd60742c0ac9ebf00a400cdeace98dfa"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "f5a2e034ebe87686ce3abc26de0f111c8b1825b0a46ba007a74e0cd2d89c61a5"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261"
+    }
+  ],
+  "scope_limit": "Snapshot source functions identify bounded implemented behavior if parent subsequently edits other lib.rs functions. Parent owns independent review, broader sweep, native re-witness, Git integration."
+}

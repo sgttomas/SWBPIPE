@@ -1,0 +1,61 @@
+{
+  "recorded_at_utc": "2026-09-25T04:07:32.632309+00:00",
+  "state": "bounded_rust_consumer_checks_passed",
+  "files": [
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "2135f894aa0a8f0dd2114a9226bb61350e6136eaa5a10ce009f14db8e30002c7"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs",
+      "sha256": "5c58ddd494a6bc909940629277b67bacef9dafaaf2d7a4cbc4fe42c409d673b8"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "sha256": "3b2ec7fe0bb82d5e9eba54c7efa7b80db7eefa9e96742295a8a4f11ed77030a5"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "sha256": "45a41a26c220ea43f9e1fb7aad87d5f8c2a4f95b704c795f77593f2bd7718e6a"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/physics_contract.rs",
+      "sha256": "3f1088a478c5cb536affd9f67342dceb267e706724f96f2e727b4e8ec8f46e66"
+    }
+  ],
+  "static_checks": [
+    {
+      "command": "rustfmt --edition 2021 --check projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs projects/chirality-piping/core/reporting/result_export/tests/physics_contract.rs",
+      "exit_code": 0,
+      "note": "Final formatting check exit0; no production/test changes after passing Cargo run."
+    },
+    {
+      "command": "git diff --check -- projects/chirality-piping/core/reporting/result_export projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "exit_code": 0
+    }
+  ],
+  "test_execution": {
+    "exit_code": 0,
+    "physics_contract": {
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0
+    },
+    "precision_contract": {
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    "derivative_contract": {
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0
+    },
+    "command_and_log": "cargo-consumer-tests-01.json",
+    "lane": "Parent authorized after ROOT M35 and authoring bounded run; returned immediately after exit for parent headless tests."
+  }
+}

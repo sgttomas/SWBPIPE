@@ -1,0 +1,34 @@
+{
+  "python_command": "/private/tmp/chirality-piping-review-venv/bin/python -B ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/probe_python_admission.py OUTPUT_PATH",
+  "python_environment": {
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson"
+  },
+  "node_version": "v24.18.0",
+  "node_commands": [
+    "node ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/probe_ts_admission.mjs OUTPUT_PATH",
+    "node PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/probe_actual_ts.mjs"
+  ],
+  "exits": "All probe processes exit0; per-source admission/refusal outcomes retained in their JSON outputs. Malformed sources passing before repair are recorded failures, not successful validation.",
+  "outputs": [
+    {
+      "path": "PROBES_BEFORE.json",
+      "sha256": "36c502558c67d672e33ac6dbfcd0a20f668417cf6c822f04ab02a4162a47e7d2"
+    },
+    {
+      "path": "PROBES_AFTER.json",
+      "sha256": "ff669c545f84e42e4e996b8127179ccbec3ff656eb56fa7cdf8d2771ec3d5135"
+    },
+    {
+      "path": "PROBES_TS_BEFORE.json",
+      "sha256": "7b0e9cfdbb398c365f1967d18acb167a3f7f01eb25fed4f44de1efadccb0cd9c"
+    },
+    {
+      "path": "PROBES_TS_AFTER.json",
+      "sha256": "a55879fa656d42885d5fd8d305374969fe487615ba7a2bf41c35757fa557ea1d"
+    },
+    {
+      "path": "ACTUAL_TS_AFTER.json",
+      "sha256": "0e6be8911eac8fa1710bdf88bb469c144283eed21185b6788a3ccfd4557358bf"
+    }
+  ]
+}

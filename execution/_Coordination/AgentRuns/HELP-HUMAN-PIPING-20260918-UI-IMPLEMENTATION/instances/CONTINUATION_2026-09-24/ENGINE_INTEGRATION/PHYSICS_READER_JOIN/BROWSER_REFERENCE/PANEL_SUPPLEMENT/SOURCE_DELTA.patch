@@ -1,0 +1,259 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx b/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx
+index 3c618235ca..aca31c154a 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx
+@@ -1,46 +1,64 @@
+ import {act,fireEvent,render,screen,waitFor} from '@testing-library/react';
+ import {afterEach,it,expect,vi} from 'vitest';
+-import modelJson from '../../../../../fixtures/product_preview/invented_preview_model.json';
+-import resultJson from '../../../../../fixtures/product_preview/invented_mechanics_result.json';
+-import type {PreviewModel,MechanicsResult} from '../../types';
+-import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
+-import {buildAnalysisRunPreview,bindSourceResultDimensions} from '../../services/previewService';
+-import {resultDigest} from './resultExportAdapter';
+-import {ResultExportPanel} from './ResultExportPanel';
+-it('only makes Current proof-bound JSON downloadable and invalidates it on same-id edit',async()=>{
+- const model=structuredClone(modelJson) as PreviewModel,result=bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult);
+- const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'open_pipe_stress_product_physics',solver_version:'0.1.0',solver_build_ref:'local_preview',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
+- const analysisRun=await buildAnalysisRunPreview(result,{inputManifest}),props={model,result,analysisRun,inputManifest};const view=render(<ResultExportPanel {...props}/>);
+- const link=await screen.findByTestId('result-export-link',{}, {timeout:20000});expect(link.getAttribute('href')).toBeNull();fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));const packet=JSON.parse(decodeURIComponent(screen.getByTestId('result-export-link').getAttribute('href')!.split(',')[1]));expect(packet.schema_version).toBe('0.2.0');expect(packet.export_format_status.additional_formats).toBe('TBD');const payload=structuredClone(packet);delete payload.result_envelope.reproducibility.derivative_hash;expect(packet.result_envelope.reproducibility.derivative_hash.value).toBe(await resultDigest(payload));
+- const changed=structuredClone(model);(changed as any).unknown_metadata='edited';view.rerender(<ResultExportPanel {...props} model={changed}/>);expect(screen.queryByTestId('result-export-link')).toBeNull();await waitFor(()=>expect(screen.getByTestId('result-export-empty').textContent).toContain('MISMATCH'));
+-});
+-
+-
+ import {invoke} from '@tauri-apps/api/core';
++import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
++import {buildAnalysisRunPreview,loadBundledMechanicsReference,runPreviewMechanics} from '../../services/previewService';
++import {buildCurrentResultExport,resultDigest} from './resultExportAdapter';
++import {ResultExportPanel,jsonDataHref} from './ResultExportPanel';
++import {createNativeMechanicsReplay,nativeMechanicsReplayPair} from '../../test/nativeMechanicsReplay';
+ vi.mock('@tauri-apps/api/core',()=>({invoke:vi.fn()}));
+ afterEach(()=>{delete (window as any).__TAURI_INTERNALS__;vi.mocked(invoke).mockReset();});
++
++// Scoped IPC simulation of a genuine supported input/output pair, not a native
++// product witness. Registration goes through the production invocation path.
+ async function currentProps(){
+- const model=structuredClone(modelJson) as PreviewModel,result=bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult);
+- const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'open_pipe_stress_product_physics',solver_version:'0.1.0',solver_build_ref:'local_preview',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
+- const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});return {model,result,analysisRun,inputManifest};
++ const {model}=nativeMechanicsReplayPair();
++ (window as any).__TAURI_INTERNALS__={};
++ vi.mocked(invoke).mockImplementation(createNativeMechanicsReplay().invoke);
++ const result=await runPreviewMechanics(model);
++ const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'open_pipe_stress_product_physics@0.2.0',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
++ const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
++ vi.mocked(invoke).mockReset();
++ return {model,result,analysisRun,inputManifest};
+ }
+-it('native caller retains actual Current proof and exact browser serialized href, then suppresses stale edit completion',async()=>{
++
++it('only exposes invocation-bound JSON and invalidates it on same-id edit',async()=>{
+  const props=await currentProps(),view=render(<ResultExportPanel {...props}/>);
+- await screen.findByTestId('result-export-link',{}, {timeout:20000});fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
+- const originalHref=screen.getByTestId('result-export-link').getAttribute('href')!,originalName=screen.getByTestId('result-export-link').getAttribute('download')!;
+- (window as any).__TAURI_INTERNALS__={};view.rerender(<ResultExportPanel {...props}/>);
++ const button=await screen.findByTestId('result-export-link');expect(button).toBeDisabled();
++ fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));expect(button).toBeEnabled();
++ expect(button).not.toHaveAttribute('href');
++ const packet=await buildCurrentResultExport(props);expect(packet.schema_version).toBe('0.3.0');
++ expect(packet.export_format_status.additional_formats).toBe('TBD');
++ const payload=structuredClone(packet);delete payload.result_envelope.reproducibility.derivative_hash;
++ expect(packet.result_envelope.reproducibility.derivative_hash.value).toBe(await resultDigest(payload));
++ const changed=structuredClone(props.model);(changed as any).unknown_metadata='edited';
++ view.rerender(<ResultExportPanel {...props} model={changed}/>);expect(screen.queryByTestId('result-export-link')).toBeNull();
++ await waitFor(()=>expect(screen.getByTestId('result-export-empty').textContent).toContain('MISMATCH'));
++});
++
++it('native save sends exact serialized bytes and suppresses a stale edit completion',async()=>{
++ const props=await currentProps();const originalHref=jsonDataHref(await buildCurrentResultExport(props));
++ const view=render(<ResultExportPanel {...props}/>);
++ await screen.findByTestId('result-export-link');fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
+  const button=screen.getByTestId('result-export-link');expect(button.tagName).toBe('BUTTON');expect(button).not.toHaveAttribute('href');expect(button).not.toHaveAttribute('download');
+  let finish!:(value:unknown)=>void;vi.mocked(invoke).mockImplementation((()=>new Promise<unknown>(resolve=>{finish=resolve;})) as typeof invoke);fireEvent.click(button);
+- expect(invoke).toHaveBeenCalledTimes(1);const request=(vi.mocked(invoke).mock.calls[0][1] as any).request;expect(request.href).toBe(originalHref);expect(request.file_name).toBe(originalName);expect(request.screening.exact_payload_match).toBe(true);
+- const doc=JSON.parse(decodeURIComponent(request.href.slice(request.href.indexOf(',')+1)));expect(doc.schema_version).toBe('0.2.0');expect(doc.result_envelope.model_ref.ref_id).toBe(props.model.project.id);expect(doc.result_envelope.run_ref.ref_id).toBe(props.result.run_id);expect(doc.result_envelope.row_accounting.map((row:any)=>row.source_result_id)).toEqual(props.result.results.map(row=>row.id));
++ expect(invoke).toHaveBeenCalledTimes(1);const request=(vi.mocked(invoke).mock.calls[0][1] as any).request;
++ expect(request.href).toBe(originalHref);expect(request.file_name).toMatch(/^openpipestress-preview-results-.*\.json$/);expect(request.screening.exact_payload_match).toBe(true);
++ const doc=JSON.parse(decodeURIComponent(request.href.slice(request.href.indexOf(',')+1)));expect(doc.schema_version).toBe('0.3.0');expect(doc.result_envelope.model_ref.ref_id).toBe(props.model.project.id);expect(doc.result_envelope.run_ref.ref_id).toBe(props.result.run_id);expect(doc.result_envelope.row_accounting.map((row:any)=>row.source_result_id)).toEqual(props.result.results.map(row=>row.id));
+  const payload=structuredClone(doc);delete payload.result_envelope.reproducibility.derivative_hash;expect(doc.result_envelope.reproducibility.derivative_hash.value).toBe(await resultDigest(payload));
+  const changed=structuredClone(props.model);(changed as any).unknown_metadata='same-id edited';view.rerender(<ResultExportPanel {...props} model={changed}/>);expect(screen.queryByTestId('result-export-link')).toBeNull();
+- await act(async()=>{finish({outcome:'saved',file_name:originalName,byte_count:123,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});expect(screen.queryByTestId('result-export-link-native-save-status')).toBeNull();await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('MISMATCH'));
++ await act(async()=>{finish({outcome:'saved',file_name:request.file_name,byte_count:123,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});expect(screen.queryByTestId('result-export-link-native-save-status')).toBeNull();await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('MISMATCH'));
+ });
+-it('Historical or absent Current manifest cannot expose native caller and invalidates an admitted pending completion',async()=>{
+- (window as any).__TAURI_INTERNALS__={};const props=await currentProps();const view=render(<ResultExportPanel {...props}/>);await screen.findByTestId('result-export-link',{}, {timeout:20000});fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
++it('Historical or absent Current manifest cannot expose native save or publish an earlier completion',async()=>{
++ const props=await currentProps();const view=render(<ResultExportPanel {...props}/>);await screen.findByTestId('result-export-link');fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
+  let finish!:(value:unknown)=>void;vi.mocked(invoke).mockImplementation((()=>new Promise<unknown>(resolve=>{finish=resolve;})) as typeof invoke);fireEvent.click(screen.getByTestId('result-export-link'));const request=(vi.mocked(invoke).mock.calls[0][1] as any).request;
+- // Historical restored records have no Current input-manifest proof. Do not
+- // manufacture it from the stored result or analysis-run record.
+  view.rerender(<ResultExportPanel {...props} inputManifest={null}/>);expect(screen.queryByTestId('result-export-link')).toBeNull();await act(async()=>{finish({outcome:'saved',file_name:request.file_name,byte_count:123,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('CURRENT_INPUT_MANIFEST_UNAVAILABLE'));expect(screen.queryByRole('button',{name:'Local result JSON'})).toBeNull();expect(screen.queryByTestId('result-export-link-native-save-status')).toBeNull();
+ });
++it('a bundled record stays unavailable even with a correctly bound reference analysis',async()=>{
++ const {model,source:result}=await loadBundledMechanicsReference();
++ const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'reference-only',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
++ const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
++ render(<ResultExportPanel model={model} result={result} analysisRun={analysisRun} inputManifest={inputManifest}/>);
++ await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('CURRENT_NATIVE_INVOCATION_REQUIRED'));
++ expect(screen.queryByTestId('result-export-link')).toBeNull();
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx b/projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx
+index 571c15b66f..78f5f77446 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx
+@@ -52,6 +52,7 @@ export function SolvePanel({
+           {packet.summary.result_row_count}; cancellation_requested={String(packet.summary.cancellation_requested)}
+         </span>
+       </div>
++      {solveJob.error_message ? <p role="status" data-testid="solve-job-error">{solveJob.error_message}</p> : null}
+       <div className="report-list solve-job-list" data-testid="solve-job-audit">
+         <SolveLine label="Solver mode" value={solverModeSummary(packet)} testId="solve-job-solver-mode" />
+         <SolveLine label="Progress" value={progressSummary(packet)} testId="solve-job-progress" />
+diff --git a/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx b/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
+index 20f706e625..7d2ea582e1 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
+@@ -1,3 +1,6 @@
++import { invoke } from "@tauri-apps/api/core";
++import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
++vi.mock("@tauri-apps/api/core",()=>({invoke:vi.fn()}));
+ import { buildAnalysisRunV02, modelLoadBasisRefs, analysisRecordProjection, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
+ import transport from "../../../../../fixtures/results/precision_transport_v0_3.json";
+ import { PRECISION_CONTRACT_ID } from "../results/numericalResultQuality";
+@@ -9,14 +12,14 @@ import path from 'node:path';
+ import modelJson from '../../../../../fixtures/product_preview/invented_preview_model.json';
+ import resultJson from '../../../../../fixtures/product_preview/invented_mechanics_result.json';
+ import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
+-import {buildAnalysisRunPreview,bindSourceResultDimensions} from '../../services/previewService';
++import {buildAnalysisRunPreview,bindSourceResultDimensions,runPreviewMechanics,loadBundledMechanicsReference} from '../../services/previewService';
+ import {buildStressNeutralExportPacket,validateStressNeutralExportPacket,precisionStressRow} from './StressNeutralExportPanel';
+ import {StressNeutralExportPanel} from './StressNeutralExportPanel';
+ import {canonicalSha256HexCheckedV1,canonicalJsonCheckedV1} from '../../services/hashService';
+ import type {PreviewModel,MechanicsResult} from '../../types';
+ import {isNativeResultSaveRuntime,saveNativeResultJson} from '../result-export/nativeResultSave';
+ vi.mock('../result-export/nativeResultSave',()=>({isNativeResultSaveRuntime:vi.fn(()=>false),saveNativeResultJson:vi.fn()}));
+-afterEach(()=>{vi.mocked(isNativeResultSaveRuntime).mockReturnValue(false);vi.mocked(saveNativeResultJson).mockReset();});
++afterEach(()=>{delete (window as any).__TAURI_INTERNALS__;vi.mocked(invoke).mockReset();vi.mocked(isNativeResultSaveRuntime).mockReturnValue(false);vi.mocked(saveNativeResultJson).mockReset();});
+ it('retains every native-shaped source row and hash while deriving 828 semantic witnesses and two diagnostic-work withholdings',async()=>{
+  const model=modelJson as PreviewModel,result=structuredClone(resultJson) as unknown as MechanicsResult;
+  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'fixture',solver_version:'1',solver_build_ref:'fixture',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
+@@ -84,27 +87,50 @@ it('rejects duplicate missing path checksum metadata member divergence and packa
+  for(const [mutate,error] of cases){const packet=structuredClone(base);mutate(packet);await expect(validateStressNeutralExportPacket(packet)).rejects.toThrow(error);}
+ });
+ 
++// Native IPC simulation only; these exact two modes were emitted from the
++// maintained ordinary input. Neither old legacy rows nor run IDs are rewritten.
++async function currentPrecision(mode: "sparse_interactive" | "dense_scrutiny" = "sparse_interactive") {
++ const {model}=nativeMechanicsReplayPair(mode,{profile:"precision"});
++ (window as any).__TAURI_INTERNALS__={};
++ vi.mocked(invoke).mockImplementation(createNativeMechanicsReplay({profile:"precision"}).invoke);
++ const result=await runPreviewMechanics(model,mode);
++ const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'unit-transport-replay',solver_mode:mode,settings:{}},active_rule_packs:[],external_assets:[]});
++ const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
++ return {model,result,analysisRun};
++}
+ it('does not publish a delayed packet after its source result is replaced',async()=>{
+- const model=modelJson as PreviewModel,first=bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult);const second=structuredClone(first);second.run_id='run:replacement-stress-neutral';
+- const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'fixture',solver_version:'1',solver_build_ref:'fixture',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});const firstRun=await buildAnalysisRunV02(first,inputManifest),secondRun=await buildAnalysisRunV02(second,inputManifest);
++ const first=await currentPrecision(),second=await currentPrecision("dense_scrutiny");
++ const expected=await buildStressNeutralExportPacket(second);
+  const original=crypto.subtle.digest.bind(crypto.subtle);let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});let calls=0;
+  vi.spyOn(crypto.subtle,'digest').mockImplementation(async (algorithm:any,data:any)=>{calls+=1;if(calls===1)await gate;return original(algorithm,data);});
+- const view=render(<StressNeutralExportPanel model={model} result={first} analysisRun={firstRun}/>);await waitFor(()=>expect(calls).toBe(1));view.rerender(<StressNeutralExportPanel model={model} result={second} analysisRun={secondRun}/>);
+- await waitFor(()=>expect(screen.getByTestId('stress-neutral-state-binding').textContent).toContain('result-envelope:run:replacement-stress-neutral'));release();await waitFor(()=>expect(calls).toBeGreaterThan(1));await Promise.resolve();expect(screen.getByTestId('stress-neutral-state-binding').textContent).toContain('result-envelope:run:replacement-stress-neutral');vi.restoreAllMocks();
++ const view=render(<StressNeutralExportPanel {...first}/>);await waitFor(()=>expect(calls).toBe(1));view.rerender(<StressNeutralExportPanel {...second}/>);
++ await screen.findByTestId('stress-neutral-state-binding');fireEvent.click(screen.getByTestId('stress-neutral-export-link-local-private-intent'));
++ const href=screen.getByTestId('stress-neutral-export-link').getAttribute('href')!;
++ expect(JSON.parse(decodeURIComponent(href.slice(href.indexOf(',')+1))).package_checksum.value).toBe(expected.package_checksum.value);
++ release();await waitFor(()=>expect(calls).toBeGreaterThan(1));await Promise.resolve();
++ expect(screen.getByTestId('stress-neutral-export-link').getAttribute('href')).toBe(href);vi.restoreAllMocks();
+ });
+-
+-it('saves native stress JSON only after validation and intent and invalidates a pending source generation',async()=>{
++it('saves native stress JSON after validation and intent and invalidates a pending source generation',async()=>{
+  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);
+- const model=modelJson as PreviewModel,first=bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult),second=structuredClone(first);second.run_id='run:replacement-stress-neutral';
+- const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'fixture',solver_version:'1',solver_build_ref:'fixture',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});const firstRun=await buildAnalysisRunV02(first,inputManifest),secondRun=await buildAnalysisRunV02(second,inputManifest);
++ const first=await currentPrecision(),second=await currentPrecision("dense_scrutiny");
+  let finishOld!:(value:any)=>void;vi.mocked(saveNativeResultJson).mockImplementationOnce(()=>new Promise(resolve=>{finishOld=resolve;}));
+- const view=render(<StressNeutralExportPanel model={model} result={first} analysisRun={firstRun}/>);
++ const view=render(<StressNeutralExportPanel {...first}/>);
+  const firstButton=await screen.findByRole('button',{name:/Package JSON/},{timeout:10_000});expect(firstButton).toBeDisabled();expect(saveNativeResultJson).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByTestId('stress-neutral-export-link-local-private-intent'));await waitFor(()=>expect(firstButton).toBeEnabled());fireEvent.click(firstButton);
+  expect(saveNativeResultJson).toHaveBeenCalledTimes(1);const firstRequest=vi.mocked(saveNativeResultJson).mock.calls[0][0];expect(firstRequest.screening.route_id).toBe('DOTH-FORMAT-003');expect(firstRequest.file_name).toMatch(/^openpipestress-preview-stress-neutral-[a-z0-9-]+\.json$/);expect(firstRequest.local_first.route_id).toBe('DOTH-FORMAT-003');
+- view.rerender(<StressNeutralExportPanel model={model} result={second} analysisRun={secondRun}/>);await waitFor(()=>expect(screen.getByTestId('stress-neutral-state-binding')).toHaveTextContent('result-envelope:run:replacement-stress-neutral'));const secondButton=screen.getByRole('button',{name:/Package JSON/});expect(secondButton).toBeDisabled();
+- await act(async()=>{finishOld({outcome:'saved',file_name:firstRequest.file_name,byte_count:10,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});expect(secondButton).toBeDisabled();expect(screen.getByTestId('stress-neutral-export-link-native-save-status')).not.toHaveTextContent('Saved');fireEvent.click(screen.getByTestId('stress-neutral-export-link-local-private-intent'));await waitFor(()=>expect(secondButton).toBeEnabled());
+- vi.mocked(saveNativeResultJson).mockResolvedValueOnce({outcome:'saved',file_name:'openpipestress-preview-stress-neutral-result-envelope-run-replacement-stress-neutral.json',byte_count:10,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});fireEvent.click(secondButton);await waitFor(()=>expect(saveNativeResultJson).toHaveBeenCalledTimes(2));expect(vi.mocked(saveNativeResultJson).mock.calls[1][0].file_name).toContain('replacement-stress-neutral');
++ view.rerender(<StressNeutralExportPanel {...second}/>);await waitFor(()=>expect(screen.getByTestId('stress-neutral-summary')).toHaveTextContent(`rows=${second.result.results.length}`));
++ const secondButton=screen.getByRole('button',{name:/Package JSON/});expect(secondButton).toBeDisabled();
++ await act(async()=>{finishOld({outcome:'saved',file_name:firstRequest.file_name,byte_count:10,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});expect(screen.queryByTestId('stress-neutral-export-link-native-save-status')).toBeNull();
++ expect(saveNativeResultJson).toHaveBeenCalledTimes(1);expect(secondButton).not.toHaveAttribute('href');
++});
++it('keeps preserved references available only to the pure packet projector',async()=>{
++ const {model,source:result}=await loadBundledMechanicsReference();
++ const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'reference-only',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
++ const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
++ expect((await buildStressNeutralExportPacket({model,result,analysisRun})).result_rows).toHaveLength(result.results.length);
++ render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun}/>);
++ expect(screen.getByTestId('stress-neutral-empty')).toHaveTextContent('Bundled references');
++ expect(screen.queryByTestId('stress-neutral-export-link')).toBeNull();
+ });
+ 
+ it('binds precision v3 metadata and preserves shared f64 bits in CSV and JSON',async()=>{
+@@ -303,3 +329,11 @@ it('refuses precision header presence on rehashed legacy packets without alterin
+  expect(JSON.stringify(base)).toBe(original);
+  await expect(validateStressNeutralExportPacket(base)).resolves.toBeUndefined();
+ });
++
++it('refuses physics projection instead of labeling physical evidence as legacy',async()=>{
++ const {model,source:result}=nativeMechanicsReplayPair();
++ const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'received-physics-reference',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
++ const analysisRun=await buildAnalysisRunPreview(result,{inputManifest}),before=JSON.stringify(result);
++ await expect(buildStressNeutralExportPacket({model,result,analysisRun})).rejects.toThrow('SN-PHYSICS-PROJECTION-UNAVAILABLE');
++ expect(JSON.stringify(result)).toBe(before);
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
+index 105248b013..21dabb6bf1 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
+@@ -1,3 +1,4 @@
++import { hasNativeMechanicsInvocation } from "../../services/previewService";
+ import { sourceContract, numericalResultStanding, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../results/numericalResultQuality";
+ import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
+ import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
+@@ -82,14 +83,15 @@ export function StressNeutralExportPanel({
+   const [packet, setPacket] = useState<Awaited<ReturnType<typeof buildStressNeutralExportPacket>> | null>(null);
+   const [binding, setBinding] = useState<[PreviewModel, MechanicsResult, AnalysisRunEnvelope] | null>(null);
+   const currentPacket = binding?.[0] === model && binding?.[1] === result && binding?.[2] === analysisRun
++    && hasNativeMechanicsInvocation(result, model)
+     ? packet
+     : null;
+   useEffect(() => {
+     let current = true;
+     setPacket(null);
+     setBinding(null);
+-    if (result && analysisRun) buildStressNeutralExportPacket({ model, result, analysisRun }).then((built) => {
+-      if (current) {
++    if (result && analysisRun && hasNativeMechanicsInvocation(result, model)) buildStressNeutralExportPacket({ model, result, analysisRun }).then((built) => {
++      if (current && hasNativeMechanicsInvocation(result, model)) {
+         setPacket(built);
+         setBinding([model, result, analysisRun]);
+       }
+@@ -175,8 +177,7 @@ export function StressNeutralExportPanel({
+         </>
+       ) : (
+         <p className="muted" data-testid="stress-neutral-empty">
+-          Run mechanics preview to assemble a stress-neutral CSV/JSON package for local review and downstream adapter
+-          development.
++          Run mechanics with the native backend to assemble a stress-neutral CSV/JSON package. Bundled references and restored history are unavailable for qualified export.
+         </p>
+       )}
+       <small className="report-note">
+@@ -435,6 +436,7 @@ function strictWithholdingDiagnostic(disposition: Exclude<StrictWitnessDispositi
+ export async function buildStressNeutralExportPacket(args: { model: PreviewModel; result: MechanicsResult; analysisRun: AnalysisRunEnvelope }) {
+   const route = sourceContract(args.result);
+   if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
++  if (route === "physics") throw new Error("SN-PHYSICS-PROJECTION-UNAVAILABLE");
+   const precision = route === "precision";
+   const version = precision ? "0.3.0" : STRESS_NEUTRAL_EXPORT_VERSION;
+   const profile = precision ? "ops.stress_neutral.v3" : STRESS_NEUTRAL_EXPORT_PROFILE;

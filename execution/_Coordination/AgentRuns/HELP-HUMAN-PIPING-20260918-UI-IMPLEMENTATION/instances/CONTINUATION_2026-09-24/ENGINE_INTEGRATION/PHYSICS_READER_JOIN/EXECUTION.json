@@ -1,0 +1,75 @@
+{
+  "role": "WORKING_ITEMS",
+  "mechanism": "delegated-harness-native",
+  "parent": "/root/physics_resume",
+  "agent": "/root/physics_resume/physics_reader_join",
+  "children": [
+    {
+      "agent": "physics_rust_export",
+      "role": "TASK",
+      "scope": "new semantic table and core/reporting/result_export source/tests"
+    },
+    {
+      "agent": "physics_ts_readers",
+      "role": "TASK",
+      "scope": "desktop result semantic/quality/export/compatibility readers; parent-added optional-G display sites"
+    }
+  ],
+  "enforcement": "Inherited host permissions; path ownership is coordination, not stronger filesystem enforcement. No external Git/main/native. Build lane serialized by ROOT. Type2 children do not delegate.",
+  "basis": [
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BRIEF.md",
+      "sha256": "288ca7792e9749f12bf3c3f768aa79a5332ea1eaa8400a7949fe1e73c3dffd7e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/RAW02_INTERFACE_ALIGNMENT.md",
+      "sha256": "00ef23b2cbf430309989dc63019aae3daaed331bef146cbb7a28cb4d02520450"
+    },
+    {
+      "path": "/private/tmp/piping-pressure-stress-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/FREEZE_03/INTERFACE_SCHEMA.md",
+      "sha256": "4da9cc53f515342a3043d32de7e83dfc4005a6bf06e51070dda0aed848974b62"
+    },
+    {
+      "path": "/private/tmp/piping-pressure-stress-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/CONNECTED_INTEGRATION_HANDOFF.md",
+      "sha256": "72cb687df9ffe5f7a31fa052b6119567e63f96a71fa5a6c0fe5d74627ba3b085"
+    }
+  ],
+  "pending": [
+    "Independent complete connected diff review, registered candidate checks/CI and native authored Current/save/reopen/export witness owned by parent."
+  ],
+  "preliminary_checked_json_tool": {
+    "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+    "sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+    "use": "unchanged prebuilt canonical JSON authority only; not new reader validation",
+    "limitation": "Superseded for final checks: stale parser binary disagreed with current Rust source digest; preserved failure in python-headless-join.log."
+  },
+  "checked_json_tool": {
+    "path": "/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson",
+    "sha256": "bc1343ef45704c0ec65c1c7ac244c50e349af49de3a9b850dc11578bb2fc6c54",
+    "use": "NUM supplied current prebuilt canonical JSON authority with float_roundtrip; matches live joined Rust carrier hashes"
+  },
+  "checks": {
+    "rust_export": "16 passed; RUST_TASK/cargo-consumer-tests-01.log",
+    "headless": "5 passed; headless-regressions-final.log; both actual physics modes and p1 source/proof controls",
+    "typescript": "168 focused tests across11files; final tsc passed; TS_TASK evidence",
+    "python": "116 distinct focused tests passed: python-current-canonical.log (115 plus1 optional skip) and python-headless-precision-final.log (that optional actual-headless precision test passed after artifacts were emitted).",
+    "wasm": "both engines built from current candidate; TS_TASK/WASM_ARTIFACTS.json"
+  },
+  "source_manifest": "OWNED_SOURCE_MANIFEST.json"
+}

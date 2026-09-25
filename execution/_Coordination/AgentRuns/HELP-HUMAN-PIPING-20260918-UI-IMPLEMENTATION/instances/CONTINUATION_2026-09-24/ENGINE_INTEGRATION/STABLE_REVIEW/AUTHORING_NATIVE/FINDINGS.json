@@ -1,0 +1,44 @@
+{
+  "findings": [
+    {
+      "id": "AN-R1",
+      "priority": "P2",
+      "file": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "lines": "344-361 original candidate",
+      "trigger": "Review/apply an otherwise valid ordered batch containing Model/set_field/pressure_profile",
+      "impact": "OP-BATCH-PREFLIGHT-INVALID prevents atomic explicit-profile adoption even though the single operation is supported",
+      "evidence": "Original closed target allowlist lacks Model; preflight executes before private simulation",
+      "remediation": "Add Model target while retaining rich profile target/kind/hash guards; cover positive ordered authoring, late-invalid rollback, stale caller and source hashes",
+      "status": "Resolved: source repair independently backchecked; parent focused8 pass inspected with matching source hashes"
+    },
+    {
+      "id": "AN-R2",
+      "priority": "P2",
+      "file": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "lines": "7091-7099",
+      "trigger": "Run persist_preparation_refuses_newer_and_unsupported_model_documents",
+      "impact": "Existing test expects Err for explicit0.3 now supported by migration evaluator, so native suite will fail at expect_err",
+      "evidence": "Evaluator accepts explicit0.3 drafts; test sends0.3 and expects newer_than_supported",
+      "remediation": "Use unsupported future0.3.1; preserve assertion, unversioned case, and explicit0.3 positives",
+      "status": "Source repair independently backchecked; native runtime pending"
+    },
+    {
+      "id": "AN-R3",
+      "priority": "P2",
+      "file": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "lines": "3813 and8517-8548",
+      "trigger": "Delete pipe:fixture-span from maintained exact authoring fixture",
+      "impact": "Delete operation publishes model with pressure region still referencing deleted pipe; later solve is incomplete/refused and user-authored model connectivity has been invalidated",
+      "evidence": "Existing guard only scans primitive_loads target.pipe; fixture has no such target but does have case:closed-pressure/region:fixture-pressure member reference; apply branch does not globally revalidate",
+      "remediation": "Include pressure-region member and terminal-node references in respective guards; require explicit region edit/removal before deletion, with direct/batch no-publication and positive explicit-removal controls",
+      "status": "Resolved: source repair independently backchecked; parent focused8 pass inspected with matching source hashes"
+    }
+  ],
+  "rejected_hypotheses": [
+    {
+      "claim": "native actual ordinary cantilever must emit physics-1",
+      "disposition": "withdrawn",
+      "reason": "mechanics_producer_for_model selects physics-1 only when pressure_runtime::is_exact; native precision_model explicitly sets schema0.2 and correctly remains precision-1; no assertion edit warranted"
+    }
+  ]
+}

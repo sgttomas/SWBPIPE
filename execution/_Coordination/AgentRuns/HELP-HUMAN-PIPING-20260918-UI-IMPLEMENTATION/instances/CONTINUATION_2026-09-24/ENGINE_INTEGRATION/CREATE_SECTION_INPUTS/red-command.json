@@ -1,0 +1,23 @@
+{
+  "started_at_utc": "2026-09-25T03:50:07.900137+00:00",
+  "source_sha256": "f3a7995fefd6d591a11edc12f0d141a9308e2cd875f05460ec479fd251bee254",
+  "rich_authoring_sha256": "d5756175e7d5d8a3b1c998e827e02c2e934d575425f1e3d58ae3882329da621d",
+  "test_sha256": "68866ced6e948c94bd13ec55424b0d87cd1f6b624e3e36aad51be3902d17ccd6",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+    "--test",
+    "create_pipe_section_inputs",
+    "original_native_density_survives_public_create_and_self_weight_planning",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "environment": {
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_TARGET_DIR": "/private/tmp/piping-create-section-inputs-target"
+  }
+}

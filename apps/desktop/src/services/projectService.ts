@@ -378,12 +378,23 @@ function unitRoundTripSummary(model: PreviewModel): {
   for (const material of model.materials ?? []) {
     collectQuantityUnit(unitRefs, missingRefs, `materials.${material.id}.elastic_modulus`, material.elastic_modulus);
     collectQuantityUnit(unitRefs, missingRefs, `materials.${material.id}.shear_modulus`, material.shear_modulus);
+    collectQuantityUnit(unitRefs, missingRefs, `materials.${material.id}.poisson_ratio`, material.poisson_ratio);
+    for (const point of material.temperature_points ?? []) {
+      for (const field of ["temperature", "elastic_modulus", "shear_modulus", "poisson_ratio", "thermal_expansion_coefficient"] as const) {
+        collectQuantityUnit(unitRefs, missingRefs, `materials.${material.id}.temperature_points.${point.id}.${field}`, point[field]);
+      }
+    }
     collectQuantityUnit(
       unitRefs,
       missingRefs,
       `materials.${material.id}.thermal_expansion_coefficient`,
       material.thermal_expansion_coefficient
     );
+  }
+  for (const loadCase of model.load_cases) {
+    for (const region of loadCase.pressure_regions ?? []) {
+      collectQuantityUnit(unitRefs, missingRefs, `load_cases.${loadCase.id}.pressure_regions.${region.id}.pressure`, region.pressure);
+    }
   }
   for (const section of model.sections ?? []) {
     for (const [field, quantity] of Object.entries(section.properties ?? {})) {

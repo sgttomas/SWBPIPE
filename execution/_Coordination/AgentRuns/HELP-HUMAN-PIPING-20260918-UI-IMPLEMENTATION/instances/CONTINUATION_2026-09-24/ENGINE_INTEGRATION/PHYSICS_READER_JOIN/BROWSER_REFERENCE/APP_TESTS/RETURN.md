@@ -1,0 +1,19 @@
+# App reference/current tests — frozen source handoff
+
+Only App.test.tsx changed. CHANGED_TESTS.json binds the frozen SHA and25 changed test declarations, with original renamed/retired monolithic title mappings. changed-test-name-pattern.txt is the exact Vitest regex (the parameterized %s title expands with a wildcard). AST syntax parsing and scoped whitespace checks pass. No App runtime test or typecheck was run by this TASK; the parent owns that queued lane.
+
+The mixed830-row browser Current path is split by purpose. Original row-family/pagination/recovery annotations, canonical row/unit/hash/witness loops,830-row stress-neutral format, exact21600/27000N pressure-thrust,1.22/1.31 SIF,15/15000000/850000 stiffness,390/375N hanger and other recorded fixture values remain executable reference rendering/projection oracles. Live Current controls/races use actual captured precision input/output through explicitly simulated IPC. The ReportPanel observation retains its real redaction verdict and does not publish unredacted content. No old source is relabeled or authenticated.
+
+Browser inspection is reached through the production Solve section's Inspect bundled reference action. It retains its own model context, cannot drive active overlays/rule checks/comparisons/report readiness, and is not saved onto the current model. Existing historical review operations are exercised as saved history; scalar/reference comparison display remains tested through real readout components. A separate native-transport unit scenario exercises Current→Inspect retirement. Actual native UI qualification remains outstanding to the parent, not established by these mocks.
+
+## Changed subset01 repair
+
+The parent’s26-case run passed15 and failed11, with8 unhandled storage-bootstrap rejections. The exact log is preserved as app-changed-01.log with its hash in EXECUTION.json. Only App.test.tsx was repaired: scoped explicit bootstrap replies plus awaited replay setup; mandatory audit private intent; exact4.927112 display oracle; and inactive historical report/package controls with their prior format/numeric assertions retained in separate direct reference renders. No test was skipped, no raw/header/quality was relabeled, and no production guard or privacy policy was bypassed. Static parsing and whitespace checks pass. No runtime/typecheck rerun was performed by this TASK.
+
+## Changed subset02 repair
+
+The parent’s second run passed24/26 with0 unhandled errors; tsc05 passed. app-changed-02.log preserves the exact failure output. App-only repairs retain ineligible handoff UI while projecting the actual queued intent observed through the unchanged diff component, and inspect the native save request bytes from the actual save button instead of an absent browser href. The scoped mock returns a valid receipt but performs no filesystem write. All prior schema0.3/row-accounting/producer assertions remain. Syntax/diff checks pass; no runtime/typecheck rerun by TASK.
+
+## Changed subset03 whole-case repair
+
+The third parent run passed25/26 with0 unhandled errors; tsc06 passed. app-changed-03.log preserves the full remaining failure. The complete queued-intent case was inspected, including its DiffPreview, OperationLedger and29-record ExportReview dependency chain. Its live App phase now asserts unchanged model, actual retained queue and cleared active analysis. After unmounting App, the unchanged production components render the captured intents with explicit low-level reference analysis. All remaining state-ref/hash/unit/redaction/manifest assertions stay executable in that reference-format context, with immutable input and no-native-invocation checks. No new UI workflow, source edit, fake producer or policy bypass was introduced. Static checks pass; parent owns the next single-case/full-subset run.

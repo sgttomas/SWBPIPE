@@ -1,0 +1,52 @@
+Command: ["cargo", "test", "--offline", "--manifest-path", "core/runner/headless/Cargo.toml", "--jobs", "2", "--lib", "result_envelope_binding::tests::", "--", "--nocapture"]
+CWD: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping
+warning: function `is_exact_pressure_result_kind` is never used
+    --> /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/lib.rs:7212:4
+     |
+7212 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_product_physics` (lib) generated 1 warning
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (/private/tmp/piping-physics-headless-target/debug/deps/open_pipe_stress_headless_runner-a43c302ebadb4d6d)
+
+running 4 tests
+
+thread 'result_envelope_binding::tests::typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes' (80049531) panicked at src/result_envelope_binding.rs:543:414:
+assertion `left == right` failed
+  left: Some("SOURCE_NOT_SOLVED")
+ right: Some("EXACT_SOLVED_MODEL_EVIDENCE_UNAVAILABLE")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'result_envelope_binding::tests::qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity' (80049529) panicked at src/result_envelope_binding.rs:447:6:
+assertion `left == right` failed: "straight-full"
+  left: "MODEL_INCOMPLETE"
+ right: "MECHANICS_SOLVED"
+test result_envelope_binding::tests::typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes ... FAILED
+test result_envelope_binding::tests::qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity ... FAILED
+test result_envelope_binding::tests::sensitive_actual_source_cannot_mint_qualified_canonical_export ... ok
+test result_envelope_binding::tests::connected_physics_actual_solve_preserves_case_evidence_and_qualified_export ... ok
+
+failures:
+
+failures:
+    result_envelope_binding::tests::qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity
+    result_envelope_binding::tests::typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 31 filtered out; finished in 1.36s
+
+error: test failed, to rerun pass `--lib`

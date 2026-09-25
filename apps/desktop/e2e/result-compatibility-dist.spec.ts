@@ -1,52 +1,29 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { openWorkspaceSection as openSection } from "./workspace-driver";
 
-async function replaceCurrentSource(page: Page) {
-  await openSection(page, "solve");
-  await page.getByTestId("solver-mode-dense").click();
-  await expect(page.getByTestId("solver-mode-dense")).toHaveAttribute("aria-pressed", "true");
-}
-
-test("built dist carries checked 0.2 Current and stress-neutral packages", async ({ page }) => {
+// The retained 830-row / 828-witness package oracles remain in
+// StressNeutralExportPanel.test.tsx's pure compatibility projection tests.
+// A real browser can inspect preserved rows, but cannot create native Current.
+test("built browser keeps preserved references separate from native Current exports", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await openSection(page, "solve");
-  await page.getByTestId("run-mechanics-preview").click();
-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-  await openSection(page, "exports");
-  await expect(page.getByTestId("stress-neutral-export-link-local-private-intent")).toBeVisible();
-  await expect(page.getByTestId("stress-neutral-export-link")).not.toHaveAttribute("href");
-  await expect(page.getByTestId("stress-neutral-csv-link")).not.toHaveAttribute("href");
-  await page.getByTestId("stress-neutral-export-link-local-private-intent").check();
-  await expect(page.getByTestId("stress-neutral-export-link")).toHaveAttribute("href", /^data:application\/json/);
-  const href = await page.getByTestId("stress-neutral-export-link").getAttribute("href");
-  expect(href).toBeTruthy();
-  const packet = JSON.parse(decodeURIComponent(href!.slice(href!.indexOf(",") + 1)));
-  expect(packet.schema_version).toBe("0.2.0");
-  expect(packet.manifest.package_members.map((item: any) => item.filename)).toEqual([
-    "manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json",
-    "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"
-  ]);
-  expect(packet.package_checksum.canonicalization).toBe("openpipestress_jcs_ijson_v1");
-  expect(packet.export_profile).toMatchObject({ profile_id: "ops.stress_neutral.v2", profile_version: "0.2.0" });
-  expect(packet.manifest.export_profile_ref.ref).toBe("ops.stress_neutral.v2");
-  expect(packet.result_rows).toHaveLength(830);
-  expect(packet.unit_preservation_witnesses).toHaveLength(828);
-  expect(packet.diagnostics.filter((item: any) => item.code === "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK")).toHaveLength(2);
-  await expect(page.getByTestId("stress-neutral-csv-link")).not.toHaveAttribute("href");
-
-  await replaceCurrentSource(page);
-  await openSection(page, "solve");
-  await page.getByTestId("run-mechanics-preview").click();
-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-  await openSection(page, "exports");
-  await expect(page.getByTestId("stress-neutral-export-link-local-private-intent")).toBeVisible();
-  await expect(page.getByTestId("stress-neutral-export-link")).not.toHaveAttribute("href");
-  await page.getByTestId("stress-neutral-export-link-local-private-intent").check();
-  await expect(page.getByTestId("stress-neutral-export-link")).toHaveAttribute("href", /^data:application\/json/);
-  const replacementHref = await page.getByTestId("stress-neutral-export-link").getAttribute("href");
-  const replacement = JSON.parse(decodeURIComponent(replacementHref!.slice(replacementHref!.indexOf(",") + 1)));
-  expect(replacementHref).not.toBe(href);
-  expect(replacement.package_checksum.value).not.toBe(packet.package_checksum.value);
-  await expect(page.getByTestId("stress-neutral-state-binding")).toContainText(replacement.source_result_ref.ref);
+  for (const mode of ["sparse", "dense"]) {
+    await openSection(page, "solve");
+    await page.getByTestId(`solver-mode-${mode}`).click();
+    await expect(page.getByTestId(`solver-mode-${mode}`)).toHaveAttribute("aria-pressed", "true");
+    await page.getByTestId("run-mechanics-preview").click();
+    await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
+    await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED");
+    await openSection(page, "results");
+    await page.getByRole("button", { name: "Inspect bundled reference", exact: true }).click();
+    await expect(page.getByRole("region", { name: "Bundled reference — not a solve for the current model" })).toBeVisible();
+    await expect(page.getByTestId("result-filter-summary")).toContainText(mode === "sparse" ? "830" : "832");
+    await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+    await openSection(page, "exports");
+    await expect(page.getByTestId("result-export-empty")).toBeVisible();
+    await expect(page.getByTestId("stress-neutral-empty")).toBeVisible();
+    await expect(page.getByTestId("result-export-link")).toHaveCount(0);
+    await expect(page.getByTestId("stress-neutral-export-link")).toHaveCount(0);
+    await expect(page.getByTestId("stress-neutral-csv-link")).toHaveCount(0);
+  }
 });

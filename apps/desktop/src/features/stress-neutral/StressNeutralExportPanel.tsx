@@ -1,9 +1,10 @@
-import { sourceContract, numericalResultStanding, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../results/numericalResultQuality";
+import { hasNativeMechanicsInvocation } from "../../services/previewService";
+import { sourceContract, hasCurrentSourceContract, numericalResultStanding, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../results/numericalResultQuality";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
 import { Download, FileJson } from "lucide-react";
 import { useEffect, useState } from "react";
-import { canonicalSha256HexCheckedV1, canonicalJsonCheckedV1 } from "../../services/hashService";
+import { canonicalSha256HexCheckedV1, canonicalJsonCheckedV1, checkedJsonText } from "../../services/hashService";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ResultBasisRef, ObjectRef } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
@@ -70,6 +71,16 @@ type StressNeutralUnitPreservationWitness = {
   provenance: ReturnType<typeof previewProvenance>;
 };
 
+// Same small publication binding as the source-recovery reader: private live
+// invocation plus immutable checked contents, never a serializable proof flag.
+function liveStressBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null): string | null {
+  try {
+    if (!result || !analysisRun || !hasNativeMechanicsInvocation(result, model)
+      || !hasCurrentSourceContract(result) || !numericalResultStanding(result, model).eligible) return null;
+    return checkedJsonText({ model, result, analysisRun });
+  } catch { return null; }
+}
+
 export function StressNeutralExportPanel({
   model,
   result,
@@ -81,17 +92,23 @@ export function StressNeutralExportPanel({
 }) {
   const [packet, setPacket] = useState<Awaited<ReturnType<typeof buildStressNeutralExportPacket>> | null>(null);
   const [binding, setBinding] = useState<[PreviewModel, MechanicsResult, AnalysisRunEnvelope] | null>(null);
+  const [publicationFingerprint, setPublicationFingerprint] = useState<string | null>(null);
+  const currentFingerprint = liveStressBinding(model, result, analysisRun);
   const currentPacket = binding?.[0] === model && binding?.[1] === result && binding?.[2] === analysisRun
+    && currentFingerprint !== null && currentFingerprint === publicationFingerprint
     ? packet
     : null;
   useEffect(() => {
     let current = true;
     setPacket(null);
     setBinding(null);
-    if (result && analysisRun) buildStressNeutralExportPacket({ model, result, analysisRun }).then((built) => {
-      if (current) {
+    setPublicationFingerprint(null);
+    const capturedFingerprint = liveStressBinding(model, result, analysisRun);
+    if (result && analysisRun && capturedFingerprint !== null) buildStressNeutralExportPacket({ model, result, analysisRun }).then((built) => {
+      if (current && liveStressBinding(model, result, analysisRun) === capturedFingerprint) {
         setPacket(built);
         setBinding([model, result, analysisRun]);
+        setPublicationFingerprint(capturedFingerprint);
       }
     }).catch(() => { if (current) { setPacket(null); setBinding(null); } });
     return () => { current = false; };
@@ -108,7 +125,13 @@ export function StressNeutralExportPanel({
       </div>
       {currentPacket ? (
         <>
-          <div className="report-actions">
+          <div className="report-actions" onClickCapture={(event) => {
+            // A same-object edit may not render before JSON or CSV activation.
+            if (liveStressBinding(model, result, analysisRun) !== publicationFingerprint) {
+              event.preventDefault(); event.stopPropagation();
+              setPacket(null); setBinding(null); setPublicationFingerprint(null);
+            }
+          }}>
         <ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-export-link"
@@ -175,8 +198,9 @@ export function StressNeutralExportPanel({
         </>
       ) : (
         <p className="muted" data-testid="stress-neutral-empty">
-          Run mechanics preview to assemble a stress-neutral CSV/JSON package for local review and downstream adapter
-          development.
+          {result && sourceContract(result) === "physics"
+            ? "Stress-neutral export is not available for this physical method. Canonical result JSON remains available for a qualified current run."
+            : "Run mechanics with the native backend to assemble a stress-neutral CSV/JSON package. Bundled references and restored history are unavailable for qualified export."}
         </p>
       )}
       <small className="report-note">
@@ -435,6 +459,7 @@ function strictWithholdingDiagnostic(disposition: Exclude<StrictWitnessDispositi
 export async function buildStressNeutralExportPacket(args: { model: PreviewModel; result: MechanicsResult; analysisRun: AnalysisRunEnvelope }) {
   const route = sourceContract(args.result);
   if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
+  if (route === "physics") throw new Error("SN-PHYSICS-PROJECTION-UNAVAILABLE");
   const precision = route === "precision";
   const version = precision ? "0.3.0" : STRESS_NEUTRAL_EXPORT_VERSION;
   const profile = precision ? "ops.stress_neutral.v3" : STRESS_NEUTRAL_EXPORT_PROFILE;

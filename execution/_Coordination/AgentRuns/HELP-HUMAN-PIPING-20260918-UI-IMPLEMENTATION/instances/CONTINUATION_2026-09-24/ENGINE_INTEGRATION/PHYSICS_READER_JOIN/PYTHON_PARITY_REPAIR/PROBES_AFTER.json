@@ -1,0 +1,68 @@
+{
+  "scope": "Reader admission and immutable analysis construction only; no authentic producer/current/native qualification is claimed.",
+  "source_sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2",
+  "reader_sha256": "984463c11fd2e71c6698021b7e910a645b7094a98bf7126c0831fc1c2d66ce2b",
+  "results": [
+    {
+      "name": "unmodified_control",
+      "source_contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "numerical_use_standing": "numerically_eligible",
+      "public_analysis_builder": "accepted",
+      "record_checksum_verification": "match"
+    },
+    {
+      "name": "unbound_extremum_headline_100000000_25",
+      "source_contract_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: duplicate physical result slot",
+      "numerical_use_standing": "unsupported",
+      "public_analysis_builder_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: duplicate physical result slot"
+    },
+    {
+      "name": "gap_zero_despite_nonzero_global_minus_lower",
+      "source_contract_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: extrema bounds",
+      "numerical_use_standing": "unsupported",
+      "public_analysis_builder_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: extrema bounds"
+    },
+    {
+      "name": "unknown_extrema_coefficient_basis",
+      "source_contract_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: extrema witness",
+      "numerical_use_standing": "unsupported",
+      "public_analysis_builder_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: extrema witness"
+    },
+    {
+      "name": "closure_transfer_disagreement",
+      "source_contract_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: terminal wall transfer disagreement",
+      "numerical_use_standing": "unsupported",
+      "public_analysis_builder_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: terminal wall transfer disagreement"
+    },
+    {
+      "name": "duplicate_terminal",
+      "source_contract_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: closure terminals",
+      "numerical_use_standing": "unsupported",
+      "public_analysis_builder_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: closure terminals"
+    },
+    {
+      "name": "rhs_term_coefficient_999",
+      "source_contract_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: RHS term coefficient binding",
+      "numerical_use_standing": "unsupported",
+      "public_analysis_builder_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: RHS term coefficient binding"
+    },
+    {
+      "name": "rhs_pressure_moment_999",
+      "source_contract_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: unsupported pressure moment",
+      "numerical_use_standing": "unsupported",
+      "public_analysis_builder_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: unsupported pressure moment"
+    },
+    {
+      "name": "duplicate_rhs_group",
+      "source_contract_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: duplicate pressure RHS group",
+      "numerical_use_standing": "unsupported",
+      "public_analysis_builder_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: duplicate pressure RHS group"
+    },
+    {
+      "name": "cyclic_non_v2_operand",
+      "source_contract_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: unsupported direct-row derivation",
+      "numerical_use_standing": "unsupported",
+      "public_analysis_builder_error": "ValueError: SOURCE_PHYSICS_EVIDENCE_INVALID: unsupported direct-row derivation"
+    }
+  ]
+}

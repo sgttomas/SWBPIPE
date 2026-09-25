@@ -13,6 +13,12 @@ export type SelfWeightRequest = {
   provenance: string;
   source_model_hash: string;
 };
+export type SelfWeightRefreshRequest = {
+  mode: "refresh";
+  case_id: string;
+  source_model_hash: string;
+  manual_overrides: "block" | "preserve";
+};
 export type SelfWeightOperationDraft = {
   object_type: string;
   target_ref: string;
@@ -50,7 +56,7 @@ export type SelfWeightPlanOutcome = {
 };
 export async function generateSelfWeightPlan(
   model: PreviewModel,
-  request: SelfWeightRequest
+  request: SelfWeightRequest | SelfWeightRefreshRequest
 ): Promise<SelfWeightPlanOutcome> {
   if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
     return invoke("generate_self_weight_operation_plan", { model, request });

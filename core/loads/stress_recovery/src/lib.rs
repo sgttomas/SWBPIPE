@@ -6,6 +6,9 @@
 //! standards content, proprietary data, rule-pack checks, or professional
 //! approval.
 
+pub mod elastic_extrema;
+pub mod elastic_section;
+
 use open_pipe_stress_primitive_loads::{
     BoundaryMetadataError, BoundaryQuantityRecord, BoundaryRecordRef, CanonicalDimension,
     CanonicalSchemaBinding, QuantityUnitMetadata,

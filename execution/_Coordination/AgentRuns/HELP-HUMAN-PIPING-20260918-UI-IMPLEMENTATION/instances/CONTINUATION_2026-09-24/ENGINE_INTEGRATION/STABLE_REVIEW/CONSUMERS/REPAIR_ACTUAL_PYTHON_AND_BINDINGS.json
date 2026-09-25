@@ -1,0 +1,65 @@
+{
+  "scope": "Actual retained source admission/analysis; captures verified, no solver/native rerun",
+  "captures": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/THERMAL_UI_CAPTURE.json",
+      "sha256": "0ade681ab3de4fe414e553d4b358c4f9e54765cc3d118750fe99e329a9894eac",
+      "input_and_output_and_producer_source_hashes": "match"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PRECISION_UI_COMPANION.json",
+      "sha256": "bb4be0275646652e62e95a5caffd60e7e3def08f0ed11f892f68111b6ab21013",
+      "input_and_output_and_producer_source_hashes": "match"
+    }
+  ],
+  "results": [
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_thermal_ui_mechanics_sparse.json",
+      "sha256": "d0aacc4300c307c7c49204a401c61ef8ba6b60ae6d23591a335023210d04d2f0",
+      "contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "analysis_checksum": "match",
+      "numerical_standing": "numerically_eligible",
+      "raw_unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/physics_thermal_ui_mechanics_dense.json",
+      "sha256": "38356d7ce4fa16e994f64c50c63dd9101688b77cd967712be75a9d8e977ab24c",
+      "contract": "openpipestress.result_semantics/0.3.0/physics-1",
+      "analysis_checksum": "match",
+      "numerical_standing": "numerically_eligible",
+      "raw_unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/precision_connected_ui_mechanics_sparse.json",
+      "sha256": "f986a8d8bfc319a66bce2184119675245dca85ad86cb6977742c3a73c319ec92",
+      "contract": "openpipestress.result_semantics/0.3.0/precision-1",
+      "analysis_checksum": "match",
+      "numerical_standing": "numerically_eligible",
+      "raw_unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/precision_connected_ui_mechanics_dense.json",
+      "sha256": "ba693531531fe865a99d4076e0b30812609c913a65cbd65777b2124458878007",
+      "contract": "openpipestress.result_semantics/0.3.0/precision-1",
+      "analysis_checksum": "match",
+      "numerical_standing": "numerically_eligible",
+      "raw_unchanged": true
+    }
+  ],
+  "implementer_checks_verified": [
+    {
+      "metadata_sha256": "9f488b37b16606be01b7653fb61292445c6e5533fe3546769d4d290ad437e650",
+      "log_sha256": "bdd34e4e07aba6170b01f01bf5a5039ded9c68a6b570cb4316bd797160ba090f",
+      "exit_code": 0,
+      "raw_log": "tests/test_physics_consumer_contract.py::test_actual_headless_physics_derivative_and_analysis_share_the_full_source\ntests/test_physics_consumer_contract.py::test_actual_headless_physics_derivative_and_analysis_share_the_full_source\ntests/test_physics_consumer_contract.py::test_actual_headless_physics_derivative_and_analysis_share_the_full_source\n  /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/schema_validation.py:54: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.\n    from jsonschema import RefResolver\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n83 passed, 8 warnings in 21.68s\n"
+    },
+    {
+      "metadata_sha256": "d51afe95626dcdd21ef76ac47762b6332d92f59ca1f1f18a32ec5b517d57804a",
+      "log_sha256": "7df7e48042358d23fb96042fd0c6d9e0aa2a5d68edc03de3924c7e3e3f708a96",
+      "exit_code": 0,
+      "raw_log": "lify_missing_raw_evidence_or_reserved_methods ... ok\ntest explicit_unavailable_extrema_preserve_signed_rows_and_withhold_headline ... ok\ntest canonical_physical_evidence_is_source_bound_even_after_rehash ... ok\ntest physical_case_member_material_region_and_extrema_tampering_is_rejected ... ok\ntest actual_joined_outputs_admit_preserve_and_validate_physics_derivatives ... ok\n\ntest result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.24s\n\n     Running tests/precision_contract.rs (/private/tmp/piping-physics-result-export-target/debug/deps/precision_contract-9bbd81e8f07741e3)\n\nrunning 4 tests\ntest rule_eligibility_requires_actual_case_coverage_and_resolving_evidence ... ok\ntest historical_hash_vectors_and_rows_are_unchanged ... ok\ntest explicit_dispatch_metadata_binding_and_unchanged_ijson_limit ... ok\ntest same_unit_bits_survive_json_derive_read_and_hash ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s\n\n"
+    }
+  ],
+  "p1_table_sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
+  "physics_table_sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+}

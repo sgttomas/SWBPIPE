@@ -1,0 +1,67 @@
+{
+  "recorded_utc": "2026-09-25T07:34:22.170507+00:00",
+  "role": "TASK",
+  "agent": "/root/physics_resume/physics_reader_join/physics_ts_readers",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "mechanism": "delegated-harness-native followup",
+  "delegated_children": [],
+  "scope": [
+    "apps/desktop/src/App.test.tsx"
+  ],
+  "source_sha256": "566f9d9a37b009f0d40bcabb99a92069aa026e40ffb025ba789dd69173d4d73a",
+  "static_checks": {
+    "typescript_ast_parse_diagnostics": 0,
+    "scoped_git_diff_check_exit": 0
+  },
+  "runtime_checks": "Not run by this TASK; parent owns queued whole-typecheck and changed-test subset.",
+  "changed_test_inventory": "CHANGED_TESTS.json",
+  "changed_test_count": 25,
+  "vitest_test_name_pattern": "changed-test-name-pattern.txt",
+  "purpose_dispositions": [
+    "Direct source acquisition uses explicit bundled reference loading; the actual App Inspect route is Solve\u2192Inspect\u2192Results and cannot grant Current.",
+    "Native positive race/menu/report/Current premises use exact supported captured precision model/source via bounded IPC replay; these are unit simulations, not native UI qualification.",
+    "The obsolete3600-line mixed browser Current test is split into6 executable tests preserving830-row families/pagination/recovery, canonical per-row unit/hash/witness/accounting, stress-neutral830/9members/11columns/828-witness basis, exact legacy component/pressure/hanger inputs, and knowledge readouts.",
+    "Report physical oracles observe the real ReportPanel pre-redaction payload then return the unchanged real policy result; no privacy bypass or fake qualified export was added.",
+    "Unavailable reference UI behaviors (live deformation, Current diagnostics/global model selection, rule/report readiness and browser completed job proof) are tested separately from immutable reference numerical/format oracles.",
+    "Historical review-proposal roundtrip starts from a coherent saved reference/proposal context; bundled inspection itself never saves reference source on the current model.",
+    "Real native UI authoring/solve/inspect/save/reopen/export remains parent-owned evidence."
+  ],
+  "limits": "No production, source fixture, source header, source quality or other test files edited in this App scope. Earlier consumer/service test source remained stable. No npm/Cargo/tsc executed in App scope.",
+  "prior_source_sha256": "df0936e0807293561ba5bcc01b93fe5388288a4e2540a67625dee8fedf24986f",
+  "typecheck03_repair": {
+    "parent_report": "handoff.comparison_summary possibly null",
+    "change": "Explicit non-null assertion and throw/narrowing before unchanged comparable_result_pairs===261 oracle. No broad cast or fabricated data.",
+    "checks": "Scoped diffcheck exit0; no test/npm/tsc run by TASK."
+  },
+  "parent_changed_subset_run_01": {
+    "original_log": "/private/tmp/piping-browser-standing-app-changed-01.log",
+    "preserved_log": "app-changed-01.log",
+    "sha256": "7eded1f16cb34341da19ea324e4ea4b424fc7cd832b14e5a218d4a85dee21665",
+    "outcome": "26 runtime cases:15passed11failed;8 unhandled bootstrap rejections. Parent reports tsc04 exit0 before run.",
+    "repairs": [
+      "Native replay preloads actual browser capability/knowledge; explicitly handles get_local_storage_capability, load_design_knowledge and sync_native_shell_state, whitelists known mechanics commands, and rejects other commands. All callers await installation.",
+      "Project storage audit uses its required local-private intent before reading a data URL; an explicit data URL assertion precedes parse.",
+      "Preserves exact original six-decimal display oracle4.927112, separately checking raw maximum.toFixed(6).",
+      "Historical proposal state does not activate current report/native-package controls. Original report/native-package view oracles are exercised via separate direct preserved-reference renders with real policy, unmounted before continuing actual App history actions."
+    ],
+    "rerun": "Not run by TASK; parent next lane required."
+  },
+  "parent_changed_subset_run_02": {
+    "log": "app-changed-02.log",
+    "sha256": "2a859b2db077f0de290afd4a2e629a78c61b2fecbb460b02c7d61ccc3f112253",
+    "outcome": "24/26 pass;0 unhandled; parent tsc05 passed",
+    "repairs": [
+      "Actual App handoff stays empty/ineligible while queued operation remains. Test observes real editorIntents passed into unchanged DiffPreviewPanel, then applies buildHandoffPackage and the real route redaction controller as a pure reference projection, retaining operation and redaction assertions.",
+      "Native Current export is a BUTTON. Test clicks it with private intent, captures the screened save_local_result_json request, returns a labeled unit receipt without writing a file, and checks exactschema0.3, row accounting and producer using request bytes."
+    ],
+    "rerun": "Not executed by TASK; parent next lane required."
+  },
+  "parent_changed_subset_run_03": {
+    "log": "app-changed-03.log",
+    "sha256": "ac59f12fac4cfa8c7136af0326f73cc703e87cf4de2cff2f59a7b912228eeb3e",
+    "outcome": "25/26 pass;0 unhandled; parent tsc06 passed",
+    "diagnosis": "The entire remaining1345-line queued-intent case still coupled DiffPreview, OperationLedger and ExportReview metadata to the active analysis intentionally cleared by reference inspection.",
+    "repair": "One coherent split inside the exact case: actual App model/queue/current-ineligibility assertions first; unmount App; unchanged production DiffPreview/OperationLedger/ExportReview render immutable captured intents and explicit reference analysis for every remaining state-ref/hash/unit/redaction/manifest oracle. No statement is disabled or weakened to an absence-only replacement.",
+    "checks": "AST0 and scoped diffcheck0; no runtime/typecheck rerun by TASK."
+  }
+}

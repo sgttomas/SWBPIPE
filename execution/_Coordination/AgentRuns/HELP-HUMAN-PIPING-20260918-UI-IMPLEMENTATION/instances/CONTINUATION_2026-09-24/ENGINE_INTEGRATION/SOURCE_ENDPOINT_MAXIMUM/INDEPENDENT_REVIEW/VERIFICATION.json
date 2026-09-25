@@ -1,0 +1,3326 @@
+{
+  "actor": "/root/physics_resume/joined_producer_review",
+  "parent": "/root/physics_resume",
+  "mechanism": "delegated-harness-native TASK Type2",
+  "candidate_sha256": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6",
+  "oracle": "Exact Fraction full continuous component-box bounds and exact squared-norm/location/error comparisons; no floating sqrt oracle",
+  "subject": "Read-only author Python mirror checked against inspected Rust statements; this is not independent Rust execution",
+  "recorded_successful_cases_checked": 13,
+  "recorded_expected_refusals": 6,
+  "additional_cases": 329,
+  "additional_successes": 194,
+  "additional_refusals": 135,
+  "random_seed": 202609250701,
+  "assertions": 3049,
+  "results": [
+    {
+      "name": "same rounded norm unequal exact norm",
+      "outcome": "bounded",
+      "value": 1.0,
+      "interval": [
+        1.0,
+        1.0000000000000002
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "equal norms unequal component magnitudes",
+      "outcome": "bounded",
+      "value": 5.0,
+      "interval": [
+        5.0,
+        5.000000000000003
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "same ray affine nonconstant",
+      "outcome": "bounded",
+      "value": 12.0,
+      "interval": [
+        11.999999999999993,
+        12.000000000000007
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "dominating axial hides norm difference",
+      "outcome": "bounded",
+      "value": 1e+300,
+      "interval": [
+        9.999999999999999e+299,
+        1.0000000000000002e+300
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "uncertain sign-crossing small axial",
+      "outcome": "bounded",
+      "value": 5.0,
+      "interval": [
+        4.999999999999997,
+        5.0000000000000036
+      ],
+      "locations": {
+        "kind": "WholeSpanConstant"
+      }
+    },
+    {
+      "name": "subnormal bending scales normal",
+      "outcome": "bounded",
+      "value": 1.4142135623730951,
+      "interval": [
+        1.4142135623730947,
+        1.4142135623730954
+      ],
+      "locations": {
+        "kind": "WholeSpanConstant"
+      }
+    },
+    {
+      "name": "maximum identities",
+      "outcome": "bounded",
+      "value": 2.0,
+      "interval": [
+        1.9999999999999998,
+        2.0000000000000004
+      ],
+      "locations": {
+        "kind": "WholeSpanConstant"
+      }
+    },
+    {
+      "name": "normal boundary exact identity",
+      "outcome": "bounded",
+      "value": 2.2250738585072014e-308,
+      "interval": [
+        2.2250738585072014e-308,
+        2.2250738585072014e-308
+      ],
+      "locations": {
+        "kind": "WholeSpanConstant"
+      }
+    },
+    {
+      "name": "normal boundary outward conservative refusal",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 0",
+      "outcome": "bounded",
+      "value": 2.4438058187802843e-56,
+      "interval": [
+        2.443805818780282e-56,
+        2.4438058187802866e-56
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 1",
+      "outcome": "bounded",
+      "value": 3.4748656536296884e+28,
+      "interval": [
+        3.4748656536293388e+28,
+        3.474865653630039e+28
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 2",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 3",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 4",
+      "outcome": "bounded",
+      "value": 1.0835424680249683e+269,
+      "interval": [
+        1.0835424680249675e+269,
+        1.0835424680249692e+269
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 5",
+      "outcome": "bounded",
+      "value": 1.3155162394621483e+121,
+      "interval": [
+        1.3155162394620162e+121,
+        1.3155162394622804e+121
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 6",
+      "outcome": "bounded",
+      "value": 2.623807847700573e+133,
+      "interval": [
+        2.6238078469134274e+133,
+        2.6238078484877167e+133
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 7",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 8",
+      "outcome": "bounded",
+      "value": 288301891778451.94,
+      "interval": [
+        288301891778451.7,
+        288301891778452.2
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 9",
+      "outcome": "bounded",
+      "value": 1.5223664717601509e-150,
+      "interval": [
+        1.522366471759998e-150,
+        1.5223664717603036e-150
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 10",
+      "outcome": "bounded",
+      "value": 1.477884815684277e+89,
+      "interval": [
+        1.4778848152409103e+89,
+        1.477884816127644e+89
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 11",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 12",
+      "outcome": "bounded",
+      "value": 6.680686456995495e-31,
+      "interval": [
+        6.68068645699549e-31,
+        6.680686456995498e-31
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 13",
+      "outcome": "bounded",
+      "value": 7.239389361865384e+206,
+      "interval": [
+        7.239389361864657e+206,
+        7.239389361866111e+206
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 14",
+      "outcome": "bounded",
+      "value": 5.091127652041262e+83,
+      "interval": [
+        5.091127650513921e+83,
+        5.091127653568603e+83
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 15",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 16",
+      "outcome": "bounded",
+      "value": 5.494148377986128e+27,
+      "interval": [
+        5.494148377986127e+27,
+        5.49414837798613e+27
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 17",
+      "outcome": "bounded",
+      "value": 4.914826387958086e+184,
+      "interval": [
+        4.914826387957593e+184,
+        4.914826387958579e+184
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 18",
+      "outcome": "bounded",
+      "value": 6.55124510608126e+48,
+      "interval": [
+        6.551245104115884e+48,
+        6.551245108046637e+48
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 19",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 20",
+      "outcome": "bounded",
+      "value": 6.185334000280946e-75,
+      "interval": [
+        6.18533400028094e-75,
+        6.185334000280951e-75
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 21",
+      "outcome": "bounded",
+      "value": 1.4567123762259105e-214,
+      "interval": [
+        1.4567123762257638e-214,
+        1.4567123762260573e-214
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 22",
+      "outcome": "bounded",
+      "value": 4.087680740745499e-32,
+      "interval": [
+        4.0876807395191937e-32,
+        4.087680741971804e-32
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 23",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 24",
+      "outcome": "bounded",
+      "value": 1.0028820395254704e+208,
+      "interval": [
+        1.0028820395254698e+208,
+        1.0028820395254713e+208
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 25",
+      "outcome": "bounded",
+      "value": 5.769334673862807e+146,
+      "interval": [
+        5.769334673862228e+146,
+        5.769334673863386e+146
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 26",
+      "outcome": "bounded",
+      "value": 1.2060010557090219e+147,
+      "interval": [
+        1.2060010553472209e+147,
+        1.2060010560708229e+147
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 27",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 28",
+      "outcome": "bounded",
+      "value": 1.393112101944475e+102,
+      "interval": [
+        1.3931121019444738e+102,
+        1.393112101944476e+102
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 29",
+      "outcome": "bounded",
+      "value": 1.1716305018196057e+130,
+      "interval": [
+        1.171630501819488e+130,
+        1.1716305018197232e+130
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 30",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 31",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 32",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 33",
+      "outcome": "bounded",
+      "value": 1.8021905823788366e-216,
+      "interval": [
+        1.8021905823786553e-216,
+        1.802190582379018e-216
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 34",
+      "outcome": "bounded",
+      "value": 3.974502176497685e+181,
+      "interval": [
+        3.9745021753053336e+181,
+        3.974502177690037e+181
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 35",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 36",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 37",
+      "outcome": "bounded",
+      "value": 4.971161653953231e-25,
+      "interval": [
+        4.971161653952733e-25,
+        4.971161653953731e-25
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 38",
+      "outcome": "bounded",
+      "value": 4.760601553327743e-23,
+      "interval": [
+        4.760601551899558e-23,
+        4.760601554755926e-23
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 39",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 40",
+      "outcome": "bounded",
+      "value": 9.73180907598934e+192,
+      "interval": [
+        9.73180907598933e+192,
+        9.731809075989348e+192
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 41",
+      "outcome": "bounded",
+      "value": 9.229662212197765e+174,
+      "interval": [
+        9.229662212196834e+174,
+        9.229662212198697e+174
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 42",
+      "outcome": "bounded",
+      "value": 7.063795451316332e+239,
+      "interval": [
+        7.063795449197186e+239,
+        7.063795453435475e+239
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 43",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 44",
+      "outcome": "bounded",
+      "value": 2.8737331437837176e+299,
+      "interval": [
+        2.8737331437837154e+299,
+        2.8737331437837195e+299
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 45",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 46",
+      "outcome": "bounded",
+      "value": 1.2866861874167582e+177,
+      "interval": [
+        1.286686187030752e+177,
+        1.2866861878027646e+177
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 47",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 48",
+      "outcome": "bounded",
+      "value": 5.887325845821197e+107,
+      "interval": [
+        5.887325845821195e+107,
+        5.8873258458212e+107
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 49",
+      "outcome": "bounded",
+      "value": 9.746094115467039e+295,
+      "interval": [
+        9.746094115466053e+295,
+        9.74609411546802e+295
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 50",
+      "outcome": "bounded",
+      "value": 2.6934975459534643e+136,
+      "interval": [
+        2.6934975451454143e+136,
+        2.6934975467615143e+136
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 51",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 52",
+      "outcome": "bounded",
+      "value": 3.964644824542988e-102,
+      "interval": [
+        3.964644824542985e-102,
+        3.964644824542992e-102
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 53",
+      "outcome": "bounded",
+      "value": 5.286959045656762e+39,
+      "interval": [
+        5.2869590456562295e+39,
+        5.286959045657295e+39
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 54",
+      "outcome": "bounded",
+      "value": 7.177637952308132e-151,
+      "interval": [
+        7.177637950154837e-151,
+        7.177637954461427e-151
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 55",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 56",
+      "outcome": "bounded",
+      "value": 1.3927614465144157e+103,
+      "interval": [
+        1.3927614465144147e+103,
+        1.392761446514417e+103
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 57",
+      "outcome": "bounded",
+      "value": 2.089627902533942e-29,
+      "interval": [
+        2.0896279025337324e-29,
+        2.0896279025341517e-29
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 58",
+      "outcome": "bounded",
+      "value": 8.183308925457287e-122,
+      "interval": [
+        8.183308923002289e-122,
+        8.183308927912286e-122
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 59",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 60",
+      "outcome": "bounded",
+      "value": 4.882416748679639e+67,
+      "interval": [
+        4.882416748679636e+67,
+        4.882416748679643e+67
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 61",
+      "outcome": "bounded",
+      "value": 3.2412669810503373e+177,
+      "interval": [
+        3.2412669810500124e+177,
+        3.2412669810506625e+177
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 62",
+      "outcome": "bounded",
+      "value": 1.9964450160757996e-199,
+      "interval": [
+        1.9964450154768648e-199,
+        1.9964450166747346e-199
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 63",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 64",
+      "outcome": "bounded",
+      "value": 5.0159426178624606e+141,
+      "interval": [
+        5.0159426178624565e+141,
+        5.0159426178624646e+141
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 65",
+      "outcome": "bounded",
+      "value": 3.920909231963729e+264,
+      "interval": [
+        3.920909231963334e+264,
+        3.9209092319641228e+264
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 66",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 67",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 68",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 69",
+      "outcome": "bounded",
+      "value": 7.179176921036435e+67,
+      "interval": [
+        7.179176921035715e+67,
+        7.179176921037155e+67
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 70",
+      "outcome": "bounded",
+      "value": 1.9633468697628392e-19,
+      "interval": [
+        1.9633468691738347e-19,
+        1.9633468703518437e-19
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 71",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 72",
+      "outcome": "bounded",
+      "value": 1.0475724534566856e+91,
+      "interval": [
+        1.047572453456685e+91,
+        1.0475724534566867e+91
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 73",
+      "outcome": "bounded",
+      "value": 1.220837929362042e-80,
+      "interval": [
+        1.2208379293619188e-80,
+        1.220837929362165e-80
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 74",
+      "outcome": "bounded",
+      "value": 2.790949161724566e+199,
+      "interval": [
+        2.7909491608872786e+199,
+        2.790949162561853e+199
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 75",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 76",
+      "outcome": "bounded",
+      "value": 8.798456181156836e-142,
+      "interval": [
+        8.798456181156829e-142,
+        8.798456181156845e-142
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 77",
+      "outcome": "bounded",
+      "value": 2.880717308212659e+191,
+      "interval": [
+        2.880717308212369e+191,
+        2.88071730821295e+191
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 78",
+      "outcome": "bounded",
+      "value": 9.436701476231468e-129,
+      "interval": [
+        9.436701473400449e-129,
+        9.436701479062485e-129
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 79",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 80",
+      "outcome": "bounded",
+      "value": 1.5895485458143004e+182,
+      "interval": [
+        1.5895485458142998e+182,
+        1.589548545814301e+182
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 81",
+      "outcome": "bounded",
+      "value": 8.790022251638673e+94,
+      "interval": [
+        8.790022251637791e+94,
+        8.790022251639555e+94
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 82",
+      "outcome": "bounded",
+      "value": 5.933586869159293e+235,
+      "interval": [
+        5.933586867379216e+235,
+        5.933586870939371e+235
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 83",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 84",
+      "outcome": "bounded",
+      "value": 1.3078678947014755e+260,
+      "interval": [
+        1.307867894701474e+260,
+        1.3078678947014766e+260
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 85",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 86",
+      "outcome": "bounded",
+      "value": 2.9857941109939716e+64,
+      "interval": [
+        2.985794110098232e+64,
+        2.985794111889711e+64
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 87",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 88",
+      "outcome": "bounded",
+      "value": 9.153392398755804e+108,
+      "interval": [
+        9.153392398755802e+108,
+        9.153392398755806e+108
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 89",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 90",
+      "outcome": "bounded",
+      "value": 3.4981189175349757e-100,
+      "interval": [
+        3.498118916485537e-100,
+        3.4981189185844136e-100
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 91",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 92",
+      "outcome": "bounded",
+      "value": 3.646407465036536e+223,
+      "interval": [
+        3.6464074650365337e+223,
+        3.6464074650365393e+223
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 93",
+      "outcome": "bounded",
+      "value": 3.591533495625943e+202,
+      "interval": [
+        3.5915334956255812e+202,
+        3.591533495626305e+202
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 94",
+      "outcome": "bounded",
+      "value": 4.3827108319808025e+224,
+      "interval": [
+        4.382710830665984e+224,
+        4.382710833295619e+224
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 95",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 96",
+      "outcome": "bounded",
+      "value": 1.2307739690531239e-37,
+      "interval": [
+        1.2307739690531226e-37,
+        1.230773969053125e-37
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 97",
+      "outcome": "bounded",
+      "value": 2.0959870229596718e+84,
+      "interval": [
+        2.0959870229594617e+84,
+        2.0959870229598823e+84
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 98",
+      "outcome": "bounded",
+      "value": 1.206850219527627e+44,
+      "interval": [
+        1.206850219165571e+44,
+        1.206850219889683e+44
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 99",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 100",
+      "outcome": "bounded",
+      "value": 3.928228741644289e+209,
+      "interval": [
+        3.9282287416442875e+209,
+        3.9282287416442904e+209
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 101",
+      "outcome": "bounded",
+      "value": 1.1411278345743437e+292,
+      "interval": [
+        1.141127834574229e+292,
+        1.1411278345744582e+292
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 102",
+      "outcome": "bounded",
+      "value": 4.6810038668527743e-20,
+      "interval": [
+        4.681003865448473e-20,
+        4.6810038682570764e-20
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 103",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 104",
+      "outcome": "bounded",
+      "value": 3.727709718562912e+88,
+      "interval": [
+        3.72770971856291e+88,
+        3.727709718562913e+88
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 105",
+      "outcome": "bounded",
+      "value": 8.922937161389762e-42,
+      "interval": [
+        8.922937161388866e-42,
+        8.922937161390656e-42
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 106",
+      "outcome": "bounded",
+      "value": 7.451703039725362e-19,
+      "interval": [
+        7.451703037489851e-19,
+        7.451703041960875e-19
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 107",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 108",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 109",
+      "outcome": "bounded",
+      "value": 2.311946103422519e+47,
+      "interval": [
+        2.3119461034222854e+47,
+        2.3119461034227523e+47
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 110",
+      "outcome": "bounded",
+      "value": 1.844943213391645e-50,
+      "interval": [
+        1.8449432128381616e-50,
+        1.8449432139451285e-50
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 111",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 112",
+      "outcome": "bounded",
+      "value": 2.08335301755417e+31,
+      "interval": [
+        2.0833530175541696e+31,
+        2.083353017554171e+31
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 113",
+      "outcome": "bounded",
+      "value": 1.6133137948171732e-54,
+      "interval": [
+        1.6133137948170112e-54,
+        1.613313794817335e-54
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 114",
+      "outcome": "bounded",
+      "value": 1.1385991418261318e-267,
+      "interval": [
+        1.1385991414845515e-267,
+        1.1385991421677125e-267
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 115",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 116",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 117",
+      "outcome": "bounded",
+      "value": 1.4351393349908165e+235,
+      "interval": [
+        1.435139334990672e+235,
+        1.4351393349909614e+235
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 118",
+      "outcome": "bounded",
+      "value": 5.435043554563549e+230,
+      "interval": [
+        5.435043552933033e+230,
+        5.435043556194067e+230
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 119",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 120",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 121",
+      "outcome": "bounded",
+      "value": 2.0944854840079476e+240,
+      "interval": [
+        2.0944854840077355e+240,
+        2.0944854840081582e+240
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 122",
+      "outcome": "bounded",
+      "value": 3.071088977570494e+278,
+      "interval": [
+        3.071088976649166e+278,
+        3.071088978491822e+278
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 123",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 124",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 125",
+      "outcome": "bounded",
+      "value": 103778487655.72076,
+      "interval": [
+        103778487655.71031,
+        103778487655.73125
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 126",
+      "outcome": "bounded",
+      "value": 5.828737253805013e-306,
+      "interval": [
+        5.828737252056388e-306,
+        5.82873725555364e-306
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 127",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 128",
+      "outcome": "bounded",
+      "value": 2.0720308022224596e+63,
+      "interval": [
+        2.072030802222459e+63,
+        2.0720308022224604e+63
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 129",
+      "outcome": "bounded",
+      "value": 2.6440532398198253e-34,
+      "interval": [
+        2.6440532398195584e-34,
+        2.6440532398200917e-34
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 130",
+      "outcome": "bounded",
+      "value": 3.3932586011727836e+117,
+      "interval": [
+        3.393258600154805e+117,
+        3.3932586021907627e+117
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 131",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 132",
+      "outcome": "bounded",
+      "value": 8.570297731405906e-55,
+      "interval": [
+        8.570297731405899e-55,
+        8.570297731405912e-55
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 133",
+      "outcome": "bounded",
+      "value": 390683106034702.9,
+      "interval": [
+        390683106034663.5,
+        390683106034742.2
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 134",
+      "outcome": "bounded",
+      "value": 5.4544427081269e+117,
+      "interval": [
+        5.454442706490563e+117,
+        5.454442709763237e+117
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 135",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 136",
+      "outcome": "bounded",
+      "value": 1.5181883460282682e+142,
+      "interval": [
+        1.5181883460282677e+142,
+        1.5181883460282688e+142
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 137",
+      "outcome": "bounded",
+      "value": 6.150191453654515e+249,
+      "interval": [
+        6.150191453653898e+249,
+        6.1501914536551325e+249
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 138",
+      "outcome": "bounded",
+      "value": 3.608645324108451e+277,
+      "interval": [
+        3.608645323025854e+277,
+        3.608645325191048e+277
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 139",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 140",
+      "outcome": "bounded",
+      "value": 3.9842382203477614e+223,
+      "interval": [
+        3.9842382203477604e+223,
+        3.9842382203477624e+223
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 141",
+      "outcome": "bounded",
+      "value": 1.8477332730810631e+118,
+      "interval": [
+        1.8477332730808772e+118,
+        1.847733273081249e+118
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 142",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 143",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 144",
+      "outcome": "bounded",
+      "value": 9.726994885413632e-110,
+      "interval": [
+        9.726994885413627e-110,
+        9.72699488541364e-110
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 145",
+      "outcome": "bounded",
+      "value": 7.18059107616936e-266,
+      "interval": [
+        7.180591076168641e-266,
+        7.180591076170081e-266
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 146",
+      "outcome": "bounded",
+      "value": 7.427767588502352e-76,
+      "interval": [
+        7.42776758627402e-76,
+        7.427767590730684e-76
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 147",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 148",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 149",
+      "outcome": "bounded",
+      "value": 1.2740815131367682e+245,
+      "interval": [
+        1.27408151313664e+245,
+        1.2740815131368973e+245
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 150",
+      "outcome": "bounded",
+      "value": 2.019879097817736e-199,
+      "interval": [
+        2.0198790972117709e-199,
+        2.0198790984237012e-199
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 151",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 152",
+      "outcome": "bounded",
+      "value": 6.524520782029184e-62,
+      "interval": [
+        6.524520782029179e-62,
+        6.524520782029189e-62
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 153",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 154",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 155",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 156",
+      "outcome": "bounded",
+      "value": 4.2497569482437214e-42,
+      "interval": [
+        4.249756948243718e-42,
+        4.249756948243725e-42
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 157",
+      "outcome": "bounded",
+      "value": 3.612381557590363e+212,
+      "interval": [
+        3.61238155759e+212,
+        3.612381557590726e+212
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 158",
+      "outcome": "bounded",
+      "value": 2.939271355770601e+286,
+      "interval": [
+        2.939271354888819e+286,
+        2.939271356652383e+286
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 159",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 160",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 161",
+      "outcome": "bounded",
+      "value": 1.1092519165076458e-83,
+      "interval": [
+        1.1092519165075346e-83,
+        1.109251916507757e-83
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 162",
+      "outcome": "bounded",
+      "value": 9.028765727557741e-18,
+      "interval": [
+        9.028765724849102e-18,
+        9.02876573026638e-18
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 163",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 164",
+      "outcome": "bounded",
+      "value": 3.3316780005607953e+103,
+      "interval": [
+        3.331678000560793e+103,
+        3.3316780005607976e+103
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 165",
+      "outcome": "bounded",
+      "value": 2206578746634453.5,
+      "interval": [
+        2206578746634232.2,
+        2206578746634674.8
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 166",
+      "outcome": "bounded",
+      "value": 7.507121616992777e+264,
+      "interval": [
+        7.507121614740633e+264,
+        7.507121619244918e+264
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 167",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 168",
+      "outcome": "bounded",
+      "value": 2.3929062334943592e+76,
+      "interval": [
+        2.3929062334943586e+76,
+        2.39290623349436e+76
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 169",
+      "outcome": "bounded",
+      "value": 869.4307964423588,
+      "interval": [
+        869.4307964422716,
+        869.430796442446
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 170",
+      "outcome": "bounded",
+      "value": 2.376353066254445e+44,
+      "interval": [
+        2.376353065541537e+44,
+        2.376353066967353e+44
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 171",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 172",
+      "outcome": "bounded",
+      "value": 1.4526340653626229e+51,
+      "interval": [
+        1.452634065362622e+51,
+        1.452634065362624e+51
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 173",
+      "outcome": "bounded",
+      "value": 1.5689931415469713e-24,
+      "interval": [
+        1.5689931415468136e-24,
+        1.5689931415471295e-24
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 174",
+      "outcome": "bounded",
+      "value": 4.855759730734773e+241,
+      "interval": [
+        4.8557597292780433e+241,
+        4.8557597321915016e+241
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 175",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 176",
+      "outcome": "bounded",
+      "value": 1.226423904858246e+85,
+      "interval": [
+        1.2264239048582457e+85,
+        1.2264239048582464e+85
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 177",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 178",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 179",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 180",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 181",
+      "outcome": "bounded",
+      "value": 3.5733233050129435e+133,
+      "interval": [
+        3.573323305012583e+133,
+        3.573323305013303e+133
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 182",
+      "outcome": "bounded",
+      "value": 5.124564058222019e-102,
+      "interval": [
+        5.124564056684647e-102,
+        5.124564059759392e-102
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 183",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 184",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 185",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 186",
+      "outcome": "bounded",
+      "value": 1.4136572564801838e+279,
+      "interval": [
+        1.4136572560560863e+279,
+        1.4136572569042814e+279
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 187",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 188",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 189",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 190",
+      "outcome": "bounded",
+      "value": 2.0288886212861115e-75,
+      "interval": [
+        2.0288886206774443e-75,
+        2.0288886218947784e-75
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 191",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 192",
+      "outcome": "bounded",
+      "value": 1.381555537780834e-245,
+      "interval": [
+        1.3815555377808339e-245,
+        1.3815555377808345e-245
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 193",
+      "outcome": "bounded",
+      "value": 7298291970394826.0,
+      "interval": [
+        7298291970394095.0,
+        7298291970395558.0
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 194",
+      "outcome": "bounded",
+      "value": 8.291141415425025e+33,
+      "interval": [
+        8.291141412937681e+33,
+        8.29114141791237e+33
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 195",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 196",
+      "outcome": "bounded",
+      "value": 3.0205204274692325e+47,
+      "interval": [
+        3.020520427469232e+47,
+        3.0205204274692334e+47
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 197",
+      "outcome": "bounded",
+      "value": 9.046011065638467e+213,
+      "interval": [
+        9.046011065637559e+213,
+        9.046011065639373e+213
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 198",
+      "outcome": "bounded",
+      "value": 4501054174267.276,
+      "interval": [
+        4501054172916.958,
+        4501054175617.594
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 199",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 200",
+      "outcome": "bounded",
+      "value": 1.273003527090456e-254,
+      "interval": [
+        1.2730035270904557e-254,
+        1.2730035270904564e-254
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 201",
+      "outcome": "bounded",
+      "value": 1.5490944143266575e-73,
+      "interval": [
+        1.549094414326502e-73,
+        1.5490944143268127e-73
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 202",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 203",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 204",
+      "outcome": "bounded",
+      "value": 2.448252027390782e+73,
+      "interval": [
+        2.448252027390781e+73,
+        2.4482520273907843e+73
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 205",
+      "outcome": "bounded",
+      "value": 1.5220921957024307e+169,
+      "interval": [
+        1.522092195702277e+169,
+        1.5220921957025842e+169
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 206",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 207",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 208",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 209",
+      "outcome": "bounded",
+      "value": 6.394049461565101e+157,
+      "interval": [
+        6.394049461564459e+157,
+        6.394049461565742e+157
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 210",
+      "outcome": "bounded",
+      "value": 1.651097918901592e-40,
+      "interval": [
+        1.6510979184062615e-40,
+        1.6510979193969226e-40
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 211",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 212",
+      "outcome": "bounded",
+      "value": 3.036807264252251e+64,
+      "interval": [
+        3.03680726425225e+64,
+        3.0368072642522525e+64
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 213",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 214",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 215",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 216",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 217",
+      "outcome": "bounded",
+      "value": 5.584465209066092e+239,
+      "interval": [
+        5.5844652090655315e+239,
+        5.584465209066652e+239
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 218",
+      "outcome": "bounded",
+      "value": 3.339739459572563e-222,
+      "interval": [
+        3.3397394585706393e-222,
+        3.3397394605744875e-222
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 219",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 220",
+      "outcome": "bounded",
+      "value": 8.858682873151014e+264,
+      "interval": [
+        8.85868287315101e+264,
+        8.858682873151018e+264
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 221",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 222",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 223",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 224",
+      "outcome": "bounded",
+      "value": 5.774682492582674e+160,
+      "interval": [
+        5.774682492582672e+160,
+        5.774682492582677e+160
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 225",
+      "outcome": "bounded",
+      "value": 8.564482838771429e+293,
+      "interval": [
+        8.564482838770569e+293,
+        8.564482838772288e+293
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 226",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 227",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 228",
+      "outcome": "bounded",
+      "value": 4.752712262279669e-90,
+      "interval": [
+        4.752712262279667e-90,
+        4.7527122622796705e-90
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 229",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 230",
+      "outcome": "bounded",
+      "value": 1.682884071088384e+98,
+      "interval": [
+        1.6828840705835185e+98,
+        1.68288407159325e+98
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 231",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 232",
+      "outcome": "bounded",
+      "value": 3.8564181818749615e-25,
+      "interval": [
+        3.8564181818749583e-25,
+        3.8564181818749634e-25
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 233",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 234",
+      "outcome": "bounded",
+      "value": 5.677896296606912e+280,
+      "interval": [
+        5.677896294903539e+280,
+        5.6778962983102855e+280
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 235",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 236",
+      "outcome": "bounded",
+      "value": 6.071082896137102e-28,
+      "interval": [
+        6.071082896137096e-28,
+        6.071082896137105e-28
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 237",
+      "outcome": "bounded",
+      "value": 1.9641047670827065e-126,
+      "interval": [
+        1.9641047670825087e-126,
+        1.9641047670829046e-126
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 238",
+      "outcome": "bounded",
+      "value": 2.210883906819366e+211,
+      "interval": [
+        2.210883906156099e+211,
+        2.2108839074826334e+211
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 239",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 240",
+      "outcome": "bounded",
+      "value": 4.1661093784327633e-57,
+      "interval": [
+        4.166109378432761e-57,
+        4.1661093784327667e-57
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 241",
+      "outcome": "bounded",
+      "value": 7.191825365269647e-164,
+      "interval": [
+        7.191825365268925e-164,
+        7.191825365270369e-164
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 242",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 243",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 244",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 245",
+      "outcome": "bounded",
+      "value": 1.3372553042157738e+198,
+      "interval": [
+        1.3372553042156397e+198,
+        1.337255304215908e+198
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 246",
+      "outcome": "bounded",
+      "value": 1.2632845851144517e-220,
+      "interval": [
+        1.2632845847354658e-220,
+        1.263284585493438e-220
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 247",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 248",
+      "outcome": "bounded",
+      "value": 7.242681657151033e-209,
+      "interval": [
+        7.242681657151031e-209,
+        7.242681657151035e-209
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 249",
+      "outcome": "bounded",
+      "value": 5.451860436169195e-28,
+      "interval": [
+        5.451860436168643e-28,
+        5.451860436169744e-28
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 250",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 251",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 252",
+      "outcome": "bounded",
+      "value": 2.0228119368785456e+71,
+      "interval": [
+        2.0228119368785447e+71,
+        2.0228119368785474e+71
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 253",
+      "outcome": "bounded",
+      "value": 2.5310434320069547e+63,
+      "interval": [
+        2.5310434320067015e+63,
+        2.5310434320072086e+63
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 254",
+      "outcome": "bounded",
+      "value": 321878.9840188293,
+      "interval": [
+        321878.98392226535,
+        321878.9841153933
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 255",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 256",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 257",
+      "outcome": "bounded",
+      "value": 2.7802184874130437e+93,
+      "interval": [
+        2.7802184874127626e+93,
+        2.780218487413324e+93
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 258",
+      "outcome": "bounded",
+      "value": 2.9980023055973954e+181,
+      "interval": [
+        2.998002304697994e+181,
+        2.998002306496797e+181
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 259",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 260",
+      "outcome": "bounded",
+      "value": 1.587001816051741e-152,
+      "interval": [
+        1.5870018160517402e-152,
+        1.5870018160517423e-152
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 261",
+      "outcome": "bounded",
+      "value": 1.6843758102978161e+75,
+      "interval": [
+        1.6843758102976474e+75,
+        1.6843758102979849e+75
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 262",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 263",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 264",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 265",
+      "outcome": "bounded",
+      "value": 1.044210387106265e+307,
+      "interval": [
+        1.04421038710616e+307,
+        1.0442103871063702e+307
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 266",
+      "outcome": "bounded",
+      "value": 2.758051992835125e+118,
+      "interval": [
+        2.7580519920077073e+118,
+        2.7580519936625427e+118
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 267",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 268",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 269",
+      "outcome": "bounded",
+      "value": 4.1889679244574833e+40,
+      "interval": [
+        4.1889679244570626e+40,
+        4.1889679244579055e+40
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 270",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 271",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 272",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 273",
+      "outcome": "bounded",
+      "value": 6.68830726870807e-19,
+      "interval": [
+        6.688307268707396e-19,
+        6.688307268708743e-19
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 274",
+      "outcome": "bounded",
+      "value": 3.2294792154637054e-46,
+      "interval": [
+        3.2294792144948605e-46,
+        3.22947921643255e-46
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 275",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 276",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 277",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 278",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 279",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 280",
+      "outcome": "bounded",
+      "value": 9.251991709800576e+169,
+      "interval": [
+        9.251991709800575e+169,
+        9.251991709800579e+169
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 281",
+      "outcome": "bounded",
+      "value": 1.5540974052857404e-68,
+      "interval": [
+        1.5540974052855843e-68,
+        1.5540974052858963e-68
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 282",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 283",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 284",
+      "outcome": "bounded",
+      "value": 8.042540227353231e+214,
+      "interval": [
+        8.042540227353225e+214,
+        8.042540227353238e+214
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 285",
+      "outcome": "bounded",
+      "value": 8.723529391661632e-29,
+      "interval": [
+        8.723529391660754e-29,
+        8.72352939166251e-29
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 286",
+      "outcome": "bounded",
+      "value": 1.851133758571421e+110,
+      "interval": [
+        1.8511337580160802e+110,
+        1.851133759126762e+110
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 287",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 288",
+      "outcome": "bounded",
+      "value": 1.1131792338606482e-159,
+      "interval": [
+        1.1131792338606479e-159,
+        1.1131792338606484e-159
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 289",
+      "outcome": "bounded",
+      "value": 5.157290576351208e-192,
+      "interval": [
+        5.157290576350689e-192,
+        5.157290576351727e-192
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 290",
+      "outcome": "bounded",
+      "value": 5.945955891456583e+43,
+      "interval": [
+        5.945955889672795e+43,
+        5.945955893240373e+43
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 291",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 292",
+      "outcome": "bounded",
+      "value": 9.964066294381395e+43,
+      "interval": [
+        9.96406629438139e+43,
+        9.964066294381399e+43
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 293",
+      "outcome": "bounded",
+      "value": 3.66275071875074e+123,
+      "interval": [
+        3.6627507187503725e+123,
+        3.662750718751107e+123
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 294",
+      "outcome": "bounded",
+      "value": 1.0668655837814025e+93,
+      "interval": [
+        1.0668655834613418e+93,
+        1.0668655841014632e+93
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 295",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 296",
+      "outcome": "bounded",
+      "value": 1.2399109069556e+70,
+      "interval": [
+        1.2399109069555992e+70,
+        1.2399109069556008e+70
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 297",
+      "outcome": "bounded",
+      "value": 2.5554048409923348e+293,
+      "interval": [
+        2.5554048409920774e+293,
+        2.555404840992593e+293
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 298",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 299",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 300",
+      "outcome": "bounded",
+      "value": 25995295.047266077,
+      "interval": [
+        25995295.047266074,
+        25995295.047266085
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 301",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 302",
+      "outcome": "bounded",
+      "value": 1.3144919931396637e-237,
+      "interval": [
+        1.314491992745315e-237,
+        1.3144919935340123e-237
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 303",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 304",
+      "outcome": "bounded",
+      "value": 5.73800005734793e-72,
+      "interval": [
+        5.738000057347926e-72,
+        5.738000057347935e-72
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 305",
+      "outcome": "bounded",
+      "value": 4.806165450549426e+186,
+      "interval": [
+        4.806165450548944e+186,
+        4.806165450549909e+186
+      ],
+      "locations": {
+        "kind": "EndpointCandidates",
+        "exact_tie_proven": false,
+        "interior_equal_possible": false
+      }
+    },
+    {
+      "name": "spread 306",
+      "outcome": "bounded",
+      "value": 2.742775072553323e+270,
+      "interval": [
+        2.742775071730488e+270,
+        2.7427750733761575e+270
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 307",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 308",
+      "outcome": "bounded",
+      "value": 6469449221854.288,
+      "interval": [
+        6469449221854.282,
+        6469449221854.292
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 309",
+      "outcome": "bounded",
+      "value": 4.343194150866115e-56,
+      "interval": [
+        4.343194150865679e-56,
+        4.343194150866551e-56
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 310",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 311",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 312",
+      "outcome": "bounded",
+      "value": 1.187295994041761e-10,
+      "interval": [
+        1.1872959940417603e-10,
+        1.1872959940417624e-10
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "I"
+      }
+    },
+    {
+      "name": "spread 313",
+      "outcome": "bounded",
+      "value": 2.7143799584268143e+121,
+      "interval": [
+        2.7143799584265405e+121,
+        2.714379958427088e+121
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 314",
+      "outcome": "bounded",
+      "value": 1.7048247455267834e+123,
+      "interval": [
+        1.7048247450153348e+123,
+        1.704824746038232e+123
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 315",
+      "outcome": "refused",
+      "reason": "ProtectedCriterionUnestablished"
+    },
+    {
+      "name": "spread 316",
+      "outcome": "bounded",
+      "value": 4.967884754630728e+291,
+      "interval": [
+        4.967884754630723e+291,
+        4.96788475463073e+291
+      ],
+      "locations": {
+        "kind": "StrictEndpoint",
+        "endpoint": "J"
+      }
+    },
+    {
+      "name": "spread 317",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    },
+    {
+      "name": "spread 318",
+      "outcome": "refused",
+      "reason": "ArithmeticRange"
+    },
+    {
+      "name": "spread 319",
+      "outcome": "refused",
+      "reason": "PublicationRange"
+    }
+  ],
+  "final_frozen_hashes": [
+    {
+      "path": "BRIEF.md",
+      "sha256": "c004002a845c02a34c838fa692667fa11b5df38310b75eb90052d9463aed5a2a"
+    },
+    {
+      "path": "endpoint_maximum.rs",
+      "sha256": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6"
+    },
+    {
+      "path": "check_reference.py",
+      "sha256": "0acd11da82f57a209e9a2fa49ed2c1d927f960f807dfa020a07a8f10f452f860"
+    },
+    {
+      "path": "REFERENCE_RESULTS.json",
+      "sha256": "8ececdb686ce425a8c1531b383f2203b0f0b95afe19da694c654cc04a5e41dae"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "ca1ceb9cec4795d7a1f6550d862e0dee9e75bd04ebea1f82c1be2ad93a347a85"
+    },
+    {
+      "path": "INPUT_ORIGINS.json",
+      "sha256": "e4146df6a80269306f9d120c22ea048794af3b55381271c1fcae0c52e2abbee7"
+    },
+    {
+      "path": "CHECKS.json",
+      "sha256": "9a93bf965214367cf8d8fea8c2434ea61532e4c84fe3ab5f1b1ce9e6108b337b"
+    }
+  ]
+}

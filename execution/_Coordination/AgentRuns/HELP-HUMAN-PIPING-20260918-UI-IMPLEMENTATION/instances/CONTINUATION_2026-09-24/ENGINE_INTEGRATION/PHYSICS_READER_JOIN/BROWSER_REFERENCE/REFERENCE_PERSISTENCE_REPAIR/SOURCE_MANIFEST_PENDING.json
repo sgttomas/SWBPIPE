@@ -1,0 +1,10 @@
+[
+  {
+    "path": "apps/desktop/src/features/workspace/workspaceSession.ts",
+    "sha256": "3b7d221a875cdae83f7937d9d2ae5018efc55619498f76f4a18de7e4a8e86668"
+  },
+  {
+    "path": "apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+    "sha256": "9306de22eafe9d8b2c69f3ee91b416c026705c50692f8febafc944b6275eb9fb"
+  }
+]

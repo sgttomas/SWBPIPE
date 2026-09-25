@@ -265,7 +265,7 @@ export function buildExportRepresentation(model: PreviewModel): Record<string, u
     field_id: material.id,
     field_class: "material",
     ...privacyMetadataFor("material", material.provenance),
-    value: `${material.label}; E=${material.elastic_modulus.value} ${material.elastic_modulus.unit}; G=${material.shear_modulus.value} ${material.shear_modulus.unit}`
+    value: `${material.label}; E=${material.elastic_modulus.value} ${material.elastic_modulus.unit}; G=${material.shear_modulus ? `${material.shear_modulus.value} ${material.shear_modulus.unit}` : model.pressure_contract?.mode === "exact_straight_pressure_v2" ? "not authored (derived from selected E and nu)" : "not authored"}`
   }));
 
   const components: ExportItem[] = model.components.map((component) => ({

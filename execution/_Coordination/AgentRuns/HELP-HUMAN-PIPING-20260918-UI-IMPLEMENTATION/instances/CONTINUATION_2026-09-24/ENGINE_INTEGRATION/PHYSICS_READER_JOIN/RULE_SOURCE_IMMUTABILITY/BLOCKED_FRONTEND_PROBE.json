@@ -1,0 +1,33 @@
+{
+  "method": "Direct unmodified TypeScript module execution through Node24 stripping; resolver adds .ts suffix only; no Current manifest or invocation registration",
+  "checks": [
+    {
+      "name": "missing_nu",
+      "route": "physics",
+      "standing": {
+        "contract": "physics",
+        "status": "needs_recompute",
+        "eligible": false,
+        "findings": [
+          "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+          "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
+          "MECHANICS_NOT_SOLVED"
+        ]
+      }
+    },
+    {
+      "name": "missing_closure",
+      "route": "physics",
+      "standing": {
+        "contract": "physics",
+        "status": "needs_recompute",
+        "eligible": false,
+        "findings": [
+          "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+          "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
+          "MECHANICS_NOT_SOLVED"
+        ]
+      }
+    }
+  ]
+}

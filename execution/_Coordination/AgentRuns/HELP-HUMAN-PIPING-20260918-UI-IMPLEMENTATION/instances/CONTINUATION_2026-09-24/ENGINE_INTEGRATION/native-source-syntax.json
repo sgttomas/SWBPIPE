@@ -1,0 +1,37 @@
+{
+  "scope": "syntax parse only; no native compile/test or UI witness",
+  "checks": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "0af98e3c921834f74a9f32339561f82ad8bcad030e1cdd11df29fbcd2beb2b97",
+      "command": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--config",
+        "skip_children=true",
+        "--emit",
+        "stdout",
+        "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs"
+      ],
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs",
+      "sha256": "2a716bf0e39a09dfc033ce526655cea897ff9701f437a026b9610ff696ab42d7",
+      "command": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--config",
+        "skip_children=true",
+        "--emit",
+        "stdout",
+        "projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs"
+      ],
+      "exit_code": 0,
+      "stderr": ""
+    }
+  ]
+}

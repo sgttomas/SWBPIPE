@@ -1,0 +1,2869 @@
+diff --git a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+index b54fe7293c..1946004b1d 100644
+--- a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
++++ b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+@@ -1333,6 +1333,25 @@ fn unit_round_trip_summary(model: &Value) -> (String, usize, String) {
+                 format!("materials.{material_id}.shear_modulus"),
+                 material.get("shear_modulus"),
+             );
++            collect_quantity_unit(
++                &mut unit_refs,
++                &mut missing_refs,
++                format!("materials.{material_id}.poisson_ratio"),
++                material.get("poisson_ratio"),
++            );
++            if let Some(points) = material.get("temperature_points").and_then(Value::as_array) {
++                for point in points {
++                    let point_id = value_id(point);
++                    for field in ["temperature", "elastic_modulus", "shear_modulus", "poisson_ratio", "thermal_expansion_coefficient"] {
++                        collect_quantity_unit(
++                            &mut unit_refs,
++                            &mut missing_refs,
++                            format!("materials.{material_id}.temperature_points.{point_id}.{field}"),
++                            point.get(field),
++                        );
++                    }
++                }
++            }
+             collect_quantity_unit(
+                 &mut unit_refs,
+                 &mut missing_refs,
+@@ -1374,6 +1393,17 @@ fn unit_round_trip_summary(model: &Value) -> (String, usize, String) {
+     if let Some(load_cases) = model.get("load_cases").and_then(Value::as_array) {
+         for load_case in load_cases {
+             let load_case_id = value_id(load_case);
++            if let Some(regions) = load_case.get("pressure_regions").and_then(Value::as_array) {
++                for region in regions {
++                    let region_id = value_id(region);
++                    collect_quantity_unit(
++                        &mut unit_refs,
++                        &mut missing_refs,
++                        format!("load_cases.{load_case_id}.pressure_regions.{region_id}.pressure"),
++                        region.get("pressure"),
++                    );
++                }
++            }
+             if let Some(primitive_loads) =
+                 load_case.get("primitive_loads").and_then(Value::as_array)
+             {
+@@ -5851,6 +5881,50 @@ mod tests {
+         );
+     }
+ 
++    #[test]
++    fn explicit_exact_model_round_trips_native_store_and_unit_metadata_without_migration() {
++        let mut connection = Connection::open_in_memory().unwrap();
++        apply_store_migrations(&connection).unwrap();
++        let model: Value = serde_json::from_str(include_str!(
++            "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
++        )).unwrap();
++        let project_id = model["project"]["id"].as_str().unwrap();
++        let (prepared, migration, ledger, transition) = prepare_model_document_for_persist(
++            &connection, project_id, model.clone(), &Value::Null,
++        ).unwrap();
++        assert_eq!(prepared, model);
++        assert_eq!(migration.status, "current");
++        assert_eq!(migration.target_schema_version, "0.3.0");
++        assert!(transition.is_none());
++        assert_eq!(ledger, json!([]));
++        upsert_project(
++            &mut connection, project_id, "Explicit exact-profile fixture", &prepared,
++            &json!([]), &Value::Null, &Value::Null, &Value::Null, &Value::Null,
++            &Value::Null, &Value::Null, &ledger,
++        ).unwrap();
++        let loaded = load_project(&connection, Some(project_id)).unwrap().unwrap();
++        assert_eq!(loaded.model, model);
++        let reopened = evaluate_model_document(&loaded.model, &model_document_migrations());
++        assert_eq!(reopened.status.status, "current");
++        assert_eq!(reopened.status.target_schema_version, "0.3.0");
++        assert!(reopened.migrated_document.is_none());
++        let (status, _, signature) = unit_round_trip_summary(&loaded.model);
++        assert_eq!(status, "unit_metadata_preserved_in_local_project_envelope");
++        assert!(signature.contains("poisson_ratio=1"));
++        assert!(signature.contains("pressure_regions.region:fixture-pressure.pressure=kPa"));
++        assert!(!signature.contains("shear_modulus"));
++        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
++            let request: LinearStaticPreviewRequest = serde_json::from_value(json!({
++                "model": loaded.model.clone(), "materials": [],
++            })).unwrap();
++            let result = run_linear_static_preview_with_mode(request, mode);
++            assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
++            assert_eq!(result.producer.semantic_contract_id,
++                "openpipestress.result_semantics/0.3.0/physics-1");
++            assert_eq!(result.contract_evidence.as_ref().unwrap()["exact_cases"].as_array().unwrap().len(), 2);
++        }
++    }
++
+     #[test]
+     fn local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot() {
+         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+diff --git a/projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs b/projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs
+index 4d68667bf0..dde1c081ba 100644
+--- a/projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs
++++ b/projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs
+@@ -14,11 +14,15 @@
+ use serde::Serialize;
+ use serde_json::{json, Value};
+ 
+-/// Current model-document schema version this application can author.
++/// Automatic migration target for legacy model documents. Explicit pressure
++/// profiles use the separately supported 0.3.0 identity below; legacy documents
++/// are never silently assigned a pressure formulation or closure inputs.
+ /// DEC-033 (2026-06-12): 0.2.0 adds the optional combination shape fields
+ /// introduced by TP-APP-R2-COMBEXPR-001; any change to what a document can
+ /// contain bumps minor, with patch reserved for non-shape changes.
+ pub const SUPPORTED_MODEL_SCHEMA_VERSION: &str = "0.2.0";
++/// Explicitly authored model namespace, supported without an automatic migration.
++pub const EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION: &str = "0.3.0";
+ /// Framework label fixed by `schemas/project_persistence.schema.yaml` and
+ /// accepted in DEC-019.
+ pub const MODEL_MIGRATION_FRAMEWORK: &str = "application_service_separate_db_and_product_schema";
+@@ -127,6 +131,21 @@ pub fn evaluate_model_document(
+         };
+     };
+ 
++    if document_version == parse_semver(EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION).unwrap() {
++        let mut current = status(
++            "current",
++            &raw_version,
++            Vec::new(),
++            "stored_document_current",
++            "Explicit model 0.3.0 is retained without migration; pressure-profile inputs and solve eligibility are validated separately.".to_string(),
++        );
++        current.target_schema_version = EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION.to_string();
++        return EvaluatedModelDocument {
++            migrated_document: None,
++            status: current,
++        };
++    }
++
+     if document_version == supported {
+         return EvaluatedModelDocument {
+             migrated_document: None,
+@@ -149,7 +168,7 @@ pub fn evaluate_model_document(
+                 Vec::new(),
+                 "not_applicable_document_refused",
+                 format!(
+-                    "Model document schema_version {raw_version} is newer than the supported {SUPPORTED_MODEL_SCHEMA_VERSION}; refusing to open for editing (no down-migration)."
++                    "Model document schema_version {raw_version} is newer than the legacy migration target {SUPPORTED_MODEL_SCHEMA_VERSION} and does not match the separately supported explicit {EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION}; refusing to open for editing (no down-migration)."
+                 ),
+             ),
+         };
+@@ -325,7 +344,7 @@ mod tests {
+ 
+     #[test]
+     fn newer_documents_are_refused_without_down_migration() {
+-        for version in ["0.3.0", "1.0.0", "0.2.1"] {
++        for version in ["0.3.1", "1.0.0", "0.2.1"] {
+             let evaluated = evaluate_model_document(&document(version), &test_chain());
+             assert_eq!(
+                 evaluated.status.status, "newer_than_supported",
+@@ -336,6 +355,44 @@ mod tests {
+         }
+     }
+ 
++    #[test]
++    fn explicit_pressure_profile_is_retained_without_reinterpreting_legacy_documents() {
++        let mut exact = document("0.3.0");
++        exact["pressure_contract"] = json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
++        exact["load_cases"] = json!([{"id":"case:p","pressure_regions":[],"primitive_loads":[]}]);
++        exact["materials"] = json!([{"id":"material:m","constitutive_basis":"homogeneous_isotropic_E_nu_v1","elastic_modulus":{"value":200e9,"unit":"Pa"},"poisson_ratio":{"value":0.3,"unit":"1"}}]);
++        let before = exact.clone();
++        let evaluated = evaluate_model_document(&exact, &model_document_migrations());
++        assert_eq!(evaluated.status.status, "current");
++        assert_eq!(evaluated.status.target_schema_version, "0.3.0");
++        assert!(evaluated.status.applied_migration_ids.is_empty());
++        assert!(evaluated.migrated_document.is_none());
++        assert_eq!(exact, before);
++
++        let mut legacy = document("0.1.0");
++        legacy["load_cases"] = json!([{"id":"case:old","primitive_loads":[{"category":"pressure","magnitude":{"value":1000.0,"unit":"Pa"}}]}]);
++        let original = legacy.clone();
++        let migrated = evaluate_model_document(&legacy, &model_document_migrations())
++            .migrated_document
++            .unwrap();
++        assert_eq!(migrated["schema_version"], "0.2.0");
++        assert_eq!(migrated["load_cases"], original["load_cases"]);
++        assert!(migrated.get("pressure_contract").is_none());
++        assert!(migrated["load_cases"][0].get("pressure_regions").is_none());
++        assert_eq!(legacy, original);
++    }
++
++    #[test]
++    fn explicit_version_drafts_remain_editable_without_claiming_solve_readiness() {
++        let draft = document("0.3.0");
++        let evaluated = evaluate_model_document(&draft, &model_document_migrations());
++        assert_eq!(evaluated.status.status, "current");
++        assert_eq!(evaluated.status.target_schema_version, "0.3.0");
++        assert!(evaluated.migrated_document.is_none());
++        assert!(draft.get("pressure_contract").is_none());
++        assert!(evaluated.status.detail.contains("solve eligibility"));
++    }
++
+     #[test]
+     fn invalid_or_missing_versions_are_unsupported_not_coerced() {
+         let mut missing = document("x");
+@@ -419,13 +476,8 @@ mod tests {
+     #[test]
+     fn ledger_records_carry_pre_and_post_hashes_and_no_claims() {
+         let evaluated = evaluate_model_document(&document("0.0.9"), &test_chain());
+-        let record = migration_ledger_record(
+-            &evaluated.status,
+-            "sha256:pre",
+-            "sha256:post",
+-            1234,
+-            None,
+-        );
++        let record =
++            migration_ledger_record(&evaluated.status, "sha256:pre", "sha256:post", 1234, None);
+         assert_eq!(record["pre_migration_model_hash"], json!("sha256:pre"));
+         assert_eq!(record["post_migration_model_hash"], json!("sha256:post"));
+         assert_eq!(record["source_schema_version"], json!("0.0.9"));
+diff --git a/projects/chirality-piping/apps/desktop/src/App.tsx b/projects/chirality-piping/apps/desktop/src/App.tsx
+index 5f0fd89187..d53a5831ac 100644
+--- a/projects/chirality-piping/apps/desktop/src/App.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.tsx
+@@ -593,6 +593,9 @@ function AppSession() {
+               <DormantSection active={activeSection === "loads"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
+               <LoadCaseManagerPanel
+                 model={model}
++                queuedIntents={editorIntents}
++                operationBusy={operationBusy}
++                getPreparationEpoch={getPreparationEpoch}
+                 onQueueIntent={handleQueueEditorIntent}
+                 onSelect={handleSelectEntity}
+                 selection={selection}
+diff --git a/projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx
+index 7065975de9..27099f29ff 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx
+@@ -1,3 +1,4 @@
++import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";
+ import { ListPlus, Scale, SlidersHorizontal, Trash2 } from "lucide-react";
+ import { useEffect, useMemo, useState } from "react";
+ import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
+@@ -97,12 +98,17 @@ export function LoadCaseManagerPanel({
+   model,
+   onQueueIntent,
+   onSelect,
+-  selection
++  selection,
++  queuedIntents, operationBusy, preparationEpoch, getPreparationEpoch
+ }: {
+   model: PreviewModel;
+   onQueueIntent: (intent: EditorOperationIntent) => void;
+   onSelect: (selection: EntityRef) => void;
+   selection: EntityRef;
++  queuedIntents?: EditorOperationIntent[];
++  operationBusy?: boolean;
++  preparationEpoch?: number;
++  getPreparationEpoch?: () => number;
+ }) {
+   const primitiveLoads = useMemo(() => primitiveLoadViews(model), [model]);
+   const combinationTerms = useMemo(() => combinationTermViews(model), [model]);
+@@ -487,6 +493,7 @@ export function LoadCaseManagerPanel({
+         unit posture=single_unit_system_preview; saved_project_mutated=false
+       </p>
+ 
++      <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCaseId={selectedLoadCase?.id} />
+       <section className="load-case-create-editor" aria-label="Create load case">
+         <div className="load-editor-heading" data-testid="load-manager-create-load-case-heading">
+           <ListPlus size={14} aria-hidden="true" />
+diff --git a/projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx b/projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx
+index 4a7db230a3..5953206576 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx
+@@ -1,3 +1,4 @@
++import { MaterialConstitutiveForm } from "../pressure-authoring/PressureAuthoringPanel";
+ import { useEffect, useState } from "react";
+ import { clone, parseQuantities, QueueFeedback, QuantityField, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
+ type Material = NonNullable<RichFormProps["model"]["materials"]>[number] & {
+@@ -5,11 +6,11 @@ type Material = NonNullable<RichFormProps["model"]["materials"]>[number] & {
+ };
+ export function MaterialTemperatureForm(props: RichFormProps) {
+   const material = props.selection.type === "material" ? props.model.materials?.find(m => m.id === props.selection.id) as Material | undefined : undefined;
+-  return material ? <TemperatureEditor
++  return material ? <><MaterialConstitutiveForm {...props} /><TemperatureEditor
+     key={material.id}
+     {...props}
+     material={material}
+-  /> : null;
++  /></> : null;
+ }
+ function TemperatureEditor(props: RichFormProps & {
+   material: Material;
+@@ -60,8 +61,8 @@ function TemperatureEditor(props: RichFormProps & {
+           value={row.id}
+           onChange={value => update(index, "id", value)}
+         />
+-        {([['temperature', 'Temperature'], ['elastic_modulus', 'Elastic modulus'], ['shear_modulus', 'Shear modulus'], ['thermal_expansion_coefficient', 'Thermal expansion coefficient']] as const).map(([key, label]) => <QuantityField
+-          dimension={key === "temperature" ? "temperature" : key === "thermal_expansion_coefficient" ? "inverse temperature" : "stress"}
++        {([['temperature', 'Temperature'], ['elastic_modulus', 'Elastic modulus'], ['shear_modulus', 'Shear modulus'], ['poisson_ratio', 'Poisson ratio (unit 1)'], ['thermal_expansion_coefficient', 'Thermal expansion coefficient']] as const).map(([key, label]) => <QuantityField
++          dimension={key === "poisson_ratio" ? "dimensionless" : key === "temperature" ? "temperature" : key === "thermal_expansion_coefficient" ? "inverse temperature" : "stress"}
+           key={key}
+           label={`Point ${index + 1} ${label}`}
+           value={row[key]}
+diff --git a/projects/chirality-piping/apps/desktop/src/features/model-tree/MaterialTable.test.tsx b/projects/chirality-piping/apps/desktop/src/features/model-tree/MaterialTable.test.tsx
+index 9fa7771e5f..385ab0a403 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/model-tree/MaterialTable.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/model-tree/MaterialTable.test.tsx
+@@ -66,7 +66,7 @@ describe("Materials through shared direct/review table", () => {
+     try {
+       fireEvent.click(within(table()).getByRole("button", { name: "Apply" }));
+       await waitFor(() => expect(p.onApplyCellIntent).toHaveBeenCalledTimes(1));
+-      expect(p.onApplyCellIntent.mock.calls[0][0].change).toMatchObject({ field_path: "shear_modulus.value", before: String(model.materials![0].shear_modulus.value), unit: model.materials![0].shear_modulus.unit, after: JSON.stringify({ value: 88, unit: model.materials![0].shear_modulus.unit }) });
++      expect(p.onApplyCellIntent.mock.calls[0][0].change).toMatchObject({ field_path: "shear_modulus.value", before: String(model.materials![0].shear_modulus!.value), unit: model.materials![0].shear_modulus!.unit, after: JSON.stringify({ value: 88, unit: model.materials![0].shear_modulus!.unit }) });
+     } finally { hold = false; await act(async () => pending.splice(0).forEach((resolve) => resolve())); }
+   });
+ 
+@@ -81,9 +81,9 @@ describe("Materials through shared direct/review table", () => {
+     await waitFor(() => expect(shearCell().parentElement).toHaveAttribute("aria-readonly", "false"));
+     const input = editor("m-a", "shear"); fireEvent.change(input, { target: { value: "88" } });
+     hold = true; const changed = structuredClone(model);
+-    if (change === "value") changed.materials![0].shear_modulus.value = 4;
+-    if (change === "type") (changed.materials![0].shear_modulus as unknown as { value: unknown }).value = String(model.materials![0].shear_modulus.value);
+-    if (change === "unit") changed.materials![0].shear_modulus.unit = "MPa";
++    if (change === "value") changed.materials![0].shear_modulus!.value = 4;
++    if (change === "type") (changed.materials![0].shear_modulus as unknown as { value: unknown }).value = String(model.materials![0].shear_modulus!.value);
++    if (change === "unit") changed.materials![0].shear_modulus!.unit = "MPa";
+     view.rerender(<ModelTree {...p} model={changed} projectSessionGeneration={change === "generation" ? 1 : 0} />);
+     await waitFor(() => expect(pending.length).toBeGreaterThan(0));
+     try {
+diff --git a/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx b/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx
+index 7ffd2230e4..35228568e4 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx
+@@ -1573,10 +1573,10 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
+       quantityField(
+         "Shear modulus",
+         "shear_modulus.value",
+-        material.shear_modulus.value,
++        material.shear_modulus?.value ?? "TBD",
+         "Material",
+         "stress",
+-        material.shear_modulus.unit,
++        material.shear_modulus?.unit ?? "TBD",
+         "set_field",
+         true
+       ),
+diff --git a/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.test.ts b/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.test.ts
+index 57a82cd723..de672ba173 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.test.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.test.ts
+@@ -1,5 +1,5 @@
+ import { describe, expect, it } from "vitest";
+-import { buildNativePackageReview } from "./NativePackagePanel";
++import { buildNativePackageReview, buildUnitPreservationEvidence } from "./NativePackagePanel";
+ import { loadPreviewModel, runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
+ import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+ 
+@@ -32,3 +32,23 @@ describe("native review package received-result hash binding", () => {
+     expect(unsupported.manifest.package_members.find(item => item.path === "results/result_envelope_ref.json")?.hash_status).toBe("TBD_analysis_record_version_unsupported");
+   });
+ });
++
++
++it("retains explicit exact-profile quantities without inventing an authored shear modulus", async () => {
++  const modelModule = await import("../../../../../fixtures/model_operations/exact_pressure_authoring_model.json");
++  const resultModule = await import("../../../../../fixtures/results/physics_connected_mechanics_sparse.json");
++  const model = structuredClone(modelModule.default) as import("../../types").PreviewModel;
++  const result = resultModule.default as unknown as import("../../types").MechanicsResult;
++  model.pipe_segments[0].section.material_density = { value: 1000.123456789, unit: "kg/m³" };
++  const before = JSON.stringify(model);
++  const evidence = buildUnitPreservationEvidence({ model, result });
++  const rows = evidence.model_quantity_witnesses;
++  expect(rows.some(row => row.source_ref.field_path === "shear_modulus")).toBe(false);
++  expect(rows.find(row => row.source_ref.field_path === "poisson_ratio")?.source_quantity)
++    .toEqual({ value: 0.3, unit: "1", dimension: "ratio" });
++  expect(rows.find(row => row.source_ref.field_path === "section.material_density")?.source_quantity)
++    .toEqual({ value: 1000.123456789, unit: "kg/m³", dimension: "density" });
++  expect(rows.find(row => row.source_ref.field_path === "pressure_regions.region:fixture-pressure.pressure")?.source_quantity)
++    .toEqual({ value: 2000, unit: "kPa", dimension: "pressure" });
++  expect(JSON.stringify(model)).toBe(before);
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx b/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx
+index 37a08584f4..38bde3005b 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx
+@@ -482,7 +482,7 @@ export function buildNativePackageReview({
+   };
+ }
+ 
+-function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel; result: MechanicsResult }) {
++export function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel; result: MechanicsResult }) {
+   const modelQuantityWitnesses: UnitPreservationWitness[] = [];
+   const resultQuantityWitnesses: UnitPreservationWitness[] = [];
+ 
+@@ -520,13 +520,31 @@ function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel;
+       refId: material.id,
+       refType: "material"
+     });
+-    pushModelWitness({
+-      dimension: "stress",
+-      fieldPath: "shear_modulus",
+-      quantity: material.shear_modulus,
+-      refId: material.id,
+-      refType: "material"
+-    });
++    if (material.shear_modulus) {
++      pushModelWitness({
++        dimension: "stress", fieldPath: "shear_modulus", quantity: material.shear_modulus,
++        refId: material.id, refType: "material"
++      });
++    }
++    if (material.poisson_ratio) {
++      pushModelWitness({
++        dimension: "ratio", fieldPath: "poisson_ratio", quantity: material.poisson_ratio,
++        refId: material.id, refType: "material"
++      });
++    }
++    for (const point of material.temperature_points ?? []) {
++      const pointQuantities = [
++        ["temperature", "temperature", point.temperature],
++        ["elastic_modulus", "stress", point.elastic_modulus],
++        ["shear_modulus", "stress", point.shear_modulus],
++        ["poisson_ratio", "ratio", point.poisson_ratio],
++        ["thermal_expansion_coefficient", "thermal_expansion_coefficient", point.thermal_expansion_coefficient]
++      ] as const;
++      for (const [field, dimension, quantity] of pointQuantities) {
++        if (quantity) pushModelWitness({ dimension, fieldPath: `temperature_points.${point.id}.${field}`,
++          quantity, refId: material.id, refType: "material" });
++      }
++    }
+     if (material.thermal_expansion_coefficient) {
+       pushModelWitness({
+         dimension: "thermal_expansion_coefficient",
+@@ -541,7 +559,9 @@ function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel;
+ 	  for (const segment of model.pipe_segments) {
+ 	    for (const [field, quantity] of Object.entries(segment.section)) {
+ 	      pushModelWitness({
+-	        dimension: "length",
++        dimension: ["material_density", "contents_density", "insulation_density"].includes(field)
++          ? "density" : ["outside_diameter", "wall_thickness", "mill_tolerance", "insulation_thickness"].includes(field)
++            ? "length" : undefined,
+         fieldPath: `section.${field}`,
+         quantity,
+         refId: segment.id,
+@@ -741,6 +761,10 @@ function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel;
+   }
+ 
+   for (const loadCase of model.load_cases) {
++    for (const region of loadCase.pressure_regions ?? []) {
++      pushModelWitness({ dimension: "pressure", fieldPath: `pressure_regions.${region.id}.pressure`,
++        quantity: region.pressure, refId: loadCase.id, refType: "load_case" });
++    }
+     for (const primitiveLoad of loadCase.primitive_loads ?? []) {
+       const quantity = quantityRecord(primitiveLoad.magnitude);
+       const primitiveId = typeof primitiveLoad.id === "string" ? primitiveLoad.id : `${loadCase.id}:primitive`;
+@@ -863,12 +887,12 @@ function unitPreservationWitness({
+       field_path: fieldPath
+     },
+     source_quantity: {
+-      value: round(quantity.value),
++      value: quantity.value,
+       unit: quantity.unit,
+       ...(dimension ? { dimension } : {})
+     },
+     target_quantity: {
+-      value: round(quantity.value),
++      value: quantity.value,
+       unit: quantity.unit,
+       ...(dimension ? { dimension } : {})
+     },
+diff --git a/projects/chirality-piping/apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.test.tsx b/projects/chirality-piping/apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.test.tsx
+new file mode 100644
+index 0000000000..af8146a5ef
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.test.tsx
+@@ -0,0 +1,49 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, expect, it, vi } from "vitest";
++import { MaterialConstitutiveForm, PressureAuthoringPanel } from "./PressureAuthoringPanel";
++import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
++import type { PreviewModel, EditorOperationIntent } from "../../types";
++import fixture from "../../../../../fixtures/model_operations/exact_pressure_authoring_model.json";
++vi.mock("../../services/hashService", () => ({ canonicalJsonString: vi.fn(async (value: unknown) => JSON.stringify(value)) }));
++afterEach(cleanup);
++const model = fixture as PreviewModel;
++const change = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
++it("requires explicit profile choice and queues only the profile projection", async () => {
++  const legacy = structuredClone(model); legacy.schema_version = "0.2.0"; delete legacy.pressure_contract;
++  const queue = vi.fn(); render(<PressureAuthoringPanel model={legacy} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
++  expect((screen.getByRole("button", { name: "Queue pressure profile" }) as HTMLButtonElement).disabled).toBe(true);
++  change("Pressure profile", "exact_straight_pressure_v2"); fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
++  await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++  const intent = queue.mock.calls[0][0] as EditorOperationIntent;
++  expect(intent.target).toEqual({ object_type: "Model", ref: model.project.id });
++  expect(JSON.parse(intent.change.after)).toEqual({ schema_version: "0.3.0", pressure_contract: model.pressure_contract });
++  expect(legacy.load_cases).toEqual(model.load_cases);
++});
++it("retains regions and ordered terminal declarations through an edit", async () => {
++  const queue = vi.fn(); render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={queue} />);
++  change("Region 1 terminal 2 closure transfer", "separately_supported_or_compensated");
++  fireEvent.click(screen.getByRole("button", { name: "Queue pressure regions" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++  const intent = queue.mock.calls[0][0] as EditorOperationIntent; const after = JSON.parse(intent.change.after);
++  expect(after[0].pressure).toEqual({ value: 2000, unit: "kPa" });
++  expect(after[0].terminals.map((t: { node_ref: string }) => t.node_ref)).toEqual(model.load_cases[0].pressure_regions![0].terminals.map(t => t.node_ref));
++  expect(after[0].terminals[1].closure_transfer).toBe("separately_supported_or_compensated");
++  expect(after[0].provenance).toBe(model.load_cases[0].pressure_regions![0].provenance);
++});
++it("queues explicit empty regions for an undeclared case without changing its loads", async () => {
++  const input = structuredClone(model); delete input.load_cases[1].pressure_regions;
++  const queue = vi.fn(); render(<PressureAuthoringPanel model={input} selection={{ type: "load", id: input.load_cases[1].id }} loadCaseId={input.load_cases[1].id} onQueueIntent={queue} />);
++  fireEvent.click(screen.getByRole("button", { name: "Queue explicit empty pressure regions" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++  expect(queue.mock.calls[0][0].change.before).toBe("not_present"); expect(queue.mock.calls[0][0].change.after).toBe("[]");
++  expect(input.load_cases[1].primitive_loads).toEqual(model.load_cases[1].primitive_loads);
++});
++it("allows explicit negative nu and does not synthesize G", async () => {
++  const queue = vi.fn(); render(<MaterialConstitutiveForm model={model} selection={{ type: "material", id: model.materials![0].id }} onQueueIntent={queue} />);
++  change("Poisson ratio nu value", "-0.2"); fireEvent.click(screen.getByRole("button", { name: "Queue constitutive properties" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++  const after = JSON.parse(queue.mock.calls[0][0].change.after); expect(after.poisson_ratio).toEqual({ value: -0.2, unit: "1" }); expect(after.shear_modulus).toBeUndefined();
++});
++it("preserves explicitly authored temperature-point nu", async () => {
++  const input = structuredClone(model); input.materials![0].temperature_points = [{ id: "point:a", elastic_modulus: { value: 200, unit: "GPa" }, poisson_ratio: { value: -0.2, unit: "1" }, provenance: "synthetic" }];
++  const queue = vi.fn(); render(<MaterialTemperatureForm model={input} selection={{ type: "material", id: input.materials![0].id }} onQueueIntent={queue} />);
++  fireEvent.click(screen.getByRole("button", { name: "Queue temperature points" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++  expect(JSON.parse(queue.mock.calls[0][0].change.after)[0].poisson_ratio).toEqual({ value: -0.2, unit: "1" });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx
+new file mode 100644
+index 0000000000..15d2cc63d1
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx
+@@ -0,0 +1,125 @@
++import { useEffect, useState } from "react";
++import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
++import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
++
++export const EXACT_PROFILE = { schema_version: "0.3.0", pressure_contract: { version: "2.0.0", mode: "exact_straight_pressure_v2" } };
++export const MATERIAL_KEYS = ["constitutive_basis", "elastic_modulus", "shear_modulus", "poisson_ratio", "provenance"] as const;
++export function materialProjection(material: object): DraftRecord {
++  const value = material as DraftRecord;
++  return Object.fromEntries(MATERIAL_KEYS.filter(key => value[key] !== undefined).map(key => [key, value[key]]));
++}
++function checkedMaterial(draft: DraftRecord) {
++  const after = record(parseQuantities(draft));
++  requireText(after.provenance, "Material provenance");
++  if (after.constitutive_basis !== "homogeneous_isotropic_E_nu_v1") throw new Error("Select the explicit E/nu constitutive basis.");
++  if (typeof record(after.elastic_modulus).value !== "number" || Number(record(after.elastic_modulus).value) <= 0) throw new Error("Explicit positive elastic modulus is required.");
++  const nu = record(after.poisson_ratio);
++  if (nu.unit !== "1" || typeof nu.value !== "number" || nu.value <= -1 || nu.value >= 0.5) throw new Error("Poisson ratio requires unit 1 and -1 < nu < 0.5.");
++  return after;
++}
++function MaterialInputs({ draft, update }: { draft: DraftRecord; update: (key: string, value: unknown) => void }) {
++  return <>
++    <TextField label="Constitutive basis" value={draft.constitutive_basis} choices={["homogeneous_isotropic_E_nu_v1"]} onChange={v => update("constitutive_basis", v)} />
++    <QuantityField label="Elastic modulus E" dimension="stress" value={draft.elastic_modulus} onChange={v => update("elastic_modulus", v)} />
++    <QuantityField label="Poisson ratio nu" dimension="dimensionless; unit 1; -1 < nu < 0.5" value={draft.poisson_ratio} onChange={v => update("poisson_ratio", v)} />
++    <TextField label="Constitutive provenance" value={draft.provenance} onChange={v => update("provenance", v)} />
++    <p>The exact profile derives G from the selected E/nu pair. Any existing G remains recorded and is nonauthoritative in that profile.</p>
++  </>;
++}
++export function MaterialConstitutiveForm(props: RichFormProps) {
++  const material = props.model.materials?.find(m => props.selection.type === "material" && m.id === props.selection.id);
++  return material ? <ExistingMaterialEditor key={material.id} {...props} material={material} /> : null;
++}
++function ExistingMaterialEditor(props: RichFormProps & { material: NonNullable<RichFormProps["model"]["materials"]>[number] }) {
++  const [draft, setDraft] = useState(() => materialProjection(props.material));
++  useEffect(() => setDraft(materialProjection(props.material)), [props.material]);
++  const state = useRichQueue(props);
++  async function submit() { try {
++    await state.queue({ object_type: "Material", ref: props.material.id }, "set_field", "constitutive_properties", materialProjection(props.material), checkedMaterial(draft), "Constitutive properties");
++  } catch (e) { state.setError(String(e)); } }
++  return <section aria-label="Exact material constitutive inputs"><h3>Exact material E/nu</h3><fieldset disabled={state.busy}>
++    <MaterialInputs draft={draft} update={(k, v) => setDraft(current => setMember(current, k, v))} />
++    <button type="button" onClick={() => void submit()}>Queue constitutive properties</button>
++  </fieldset><QueueFeedback {...state} /></section>;
++}
++function CreateExactMaterial(props: RichFormProps) {
++  const [draft, setDraft] = useState<DraftRecord>({});
++  const state = useRichQueue({ ...props, onQueueIntent: intent => {
++    const after = JSON.parse(intent.change.after) as DraftRecord;
++    props.onQueueIntent({ ...intent, operation_kind: "create", change: { ...intent.change, dimension: "stress", unit: String(record(after.elastic_modulus).unit) } });
++  } });
++  const update = (k: string, v: unknown) => setDraft(current => setMember(current, k, v));
++  async function submit() { try {
++    const after = checkedMaterial(draft);
++    const id = requireText(after.id, "Material ID"); requireText(after.label, "Material label");
++    if (props.model.materials?.some(m => m.id === id)) throw new Error("Material ID already exists.");
++    await state.queue({ object_type: "Material", ref: id }, "create_material", "materials", undefined, after, "Exact E/nu material", true);
++  } catch (e) { state.setError(String(e)); } }
++  return <details><summary>Create explicit E/nu material</summary><fieldset disabled={state.busy}>
++    <TextField label="Exact material ID" value={draft.id} onChange={v => update("id", v)} />
++    <TextField label="Exact material label" value={draft.label} onChange={v => update("label", v)} />
++    <MaterialInputs draft={draft} update={update} />
++    <button type="button" onClick={() => void submit()}>Queue exact material</button>
++  </fieldset><QueueFeedback {...state} /></details>;
++}
++export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: string }) {
++  const state = useRichQueue(props);
++  const [profile, setProfile] = useState("");
++  const currentProfile = { schema_version: props.model.schema_version, ...(props.model.pressure_contract ? { pressure_contract: props.model.pressure_contract } : {}) };
++  const loadCase = props.model.load_cases.find(c => c.id === props.loadCaseId);
++  return <section aria-label="Exact pressure authoring"><h3>Pressure mechanics profile</h3>
++    <p>Current model: {props.model.schema_version}; pressure mode: {props.model.pressure_contract?.mode ?? (props.model.schema_version === "0.3.0" ? "not declared" : "legacy")}. Every exact-profile case needs an explicit pressure-region array, including an explicitly reviewed empty array for unpressurized cases. Existing pressure primitives must be removed explicitly before this profile can be applied. Unsupported combinations, fittings and nonlinear cases remain subject to solver diagnostics.</p>
++    <p>Pressure is uniform within each region. Structural line loads act as entered; a contents-density value does not imply hydrostatic pressure head or a coupled static-fluid pressure and weight state.</p>
++    <fieldset disabled={state.busy}>
++      <TextField label="Pressure profile" value={profile} choices={["exact_straight_pressure_v2"]} onChange={setProfile} />
++      <button type="button" disabled={profile !== "exact_straight_pressure_v2"} onClick={() => void state.queue({ object_type: "Model", ref: props.model.project.id }, "set_field", "pressure_profile", currentProfile, EXACT_PROFILE, "Exact pressure profile")}>Queue pressure profile</button>
++    </fieldset><QueueFeedback {...state} />
++    <CreateExactMaterial {...props} />
++    {loadCase && <PressureRegionsEditor key={loadCase.id} {...props} loadCase={loadCase} />}
++  </section>;
++}
++function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFormProps["model"]["load_cases"][number] }) {
++  const [rows, setRows] = useState<DraftRecord[]>(() => clone(props.loadCase.pressure_regions ?? []) as DraftRecord[]);
++  useEffect(() => setRows(clone(props.loadCase.pressure_regions ?? []) as DraftRecord[]), [props.loadCase]);
++  const state = useRichQueue(props);
++  const update = (index: number, key: string, value: unknown) => setRows(current => current.map((row, i) => i === index ? setMember(row, key, value) : row));
++  const pipes = props.model.pipe_segments.map(p => ({ value: p.id, label: p.label || p.id }));
++  async function submit() { try {
++    const after = parseQuantities(rows) as DraftRecord[];
++    const ids = after.map(row => requireText(row.id, "Region ID"));
++    if (new Set(ids).size !== ids.length) throw new Error("Region IDs must be unique.");
++    for (const row of after) {
++      requireText(row.provenance, "Region provenance");
++      requireText(row.pressure_basis, "Pressure basis");
++      if (!Array.isArray(row.member_pipe_ids) || !row.member_pipe_ids.length) throw new Error("Select region member pipes.");
++      if (!row.pressure) throw new Error("Enter explicit pressure, including zero if intended.");
++      for (const terminal of row.terminals as DraftRecord[]) {
++        requireText(terminal.node_ref, "Terminal node"); requireText(terminal.closure_transfer, "Terminal closure transfer"); requireText(terminal.provenance, "Terminal provenance");
++      }
++    }
++    await state.queue({ object_type: "Load", ref: props.loadCase.id }, "update_load", "pressure_regions", props.loadCase.pressure_regions, after, "Pressure regions", props.loadCase.pressure_regions === undefined);
++  } catch (e) { state.setError(String(e)); } }
++  return <section aria-label="Case pressure regions"><h4>Pressure regions — {props.loadCase.label || props.loadCase.id}</h4>
++    <p>{props.loadCase.pressure_regions === undefined ? "No pressure-region declaration has been applied." : `${props.loadCase.pressure_regions.length} applied regions.`} Terminal order and closure transfer are user-authored. The solver checks continuity, straightness and physical compatibility.</p>
++    <fieldset disabled={state.busy}>{rows.map((row, index) => <fieldset key={index}><legend>Region {index + 1}</legend>
++      <TextField label={`Region ${index + 1} ID`} value={row.id} onChange={v => update(index, "id", v)} />
++      <VirtualMultiTargetPicker label={`Region ${index + 1} member pipes`} options={pipes} values={Array.isArray(row.member_pipe_ids) ? row.member_pipe_ids as string[] : []} onChange={v => update(index, "member_pipe_ids", v)} />
++      <TextField label={`Region ${index + 1} pressure basis`} value={row.pressure_basis} choices={["internal_differential_zero_external_v1"]} onChange={v => update(index, "pressure_basis", v)} />
++      <QuantityField label={`Region ${index + 1} pressure`} dimension="pressure" value={row.pressure} onChange={v => update(index, "pressure", v)} />
++      {[0, 1].map(t => {
++        const terminals = Array.isArray(row.terminals) ? row.terminals as DraftRecord[] : [{}, {}]; const terminal = terminals[t] ?? {};
++        const edit = (key: string, value: string) => update(index, "terminals", [0, 1].map(i => i === t ? setMember(terminal, key, value) : terminals[i] ?? {}));
++        return <fieldset key={t}><legend>Ordered terminal {t + 1}</legend>
++          <TextField label={`Region ${index + 1} terminal ${t + 1} node`} value={terminal.node_ref} choices={props.model.nodes.map(n => n.id)} onChange={v => edit("node_ref", v)} />
++          <TextField label={`Region ${index + 1} terminal ${t + 1} closure transfer`} value={terminal.closure_transfer} choices={["transfers_to_wall", "separately_supported_or_compensated"]} onChange={v => edit("closure_transfer", v)} />
++          <TextField label={`Region ${index + 1} terminal ${t + 1} provenance`} value={terminal.provenance} onChange={v => edit("provenance", v)} />
++        </fieldset>;
++      })}
++      <TextField label={`Region ${index + 1} provenance`} value={row.provenance} onChange={v => update(index, "provenance", v)} />
++      <button type="button" onClick={() => setRows(rows.filter((_, i) => i !== index))}>Remove region {index + 1}</button>
++    </fieldset>)}
++      <button type="button" onClick={() => setRows([...rows, { terminals: [{}, {}] }])}>Add pressure region</button>
++      <button type="button" onClick={() => void submit()}>{rows.length ? "Queue pressure regions" : "Queue explicit empty pressure regions"}</button>
++    </fieldset><QueueFeedback {...state} />
++  </section>;
++}
+diff --git a/projects/chirality-piping/apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx
+index e9a494a961..fc25956f34 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx
+@@ -638,7 +638,7 @@ function unitMetadataPresent(model: PreviewModel): boolean {
+     Object.values(model.project.units).every((unit) => unit.length > 0) &&
+     countUnitBearingRecords(model) > 0 &&
+ 	    model.pipe_segments.every((segment) => Object.values(segment.section).every((quantity) => hasUnit(quantity))) &&
+-	    (model.materials ?? []).every((material) => hasUnit(material.elastic_modulus) && hasUnit(material.shear_modulus)) &&
++	    (model.materials ?? []).every((material) => hasUnit(material.elastic_modulus) && (model.schema_version === "0.3.0" && model.pressure_contract?.mode === "exact_straight_pressure_v2" ? material.constitutive_basis === "homogeneous_isotropic_E_nu_v1" && hasUnit(material.poisson_ratio) && material.poisson_ratio.unit === "1" : hasUnit(material.shear_modulus))) &&
+ 	    model.supports.every((support) =>
+ 	      supportUnitQuantities(support).every((quantity) => !quantity || hasUnit(quantity))
+ 	    ) &&
+@@ -650,7 +650,8 @@ function unitMetadataPresent(model: PreviewModel): boolean {
+ 
+ function loadPayloadsHaveUnits(model: PreviewModel): boolean {
+   return model.load_cases.every((loadCase) =>
+-    (loadCase.primitive_loads ?? []).every((primitiveLoad) => hasUnit(primitiveLoad.magnitude))
++    (loadCase.primitive_loads ?? []).every((primitiveLoad) => hasUnit(primitiveLoad.magnitude)) &&
++    (loadCase.pressure_regions ?? []).every(region => hasUnit(region.pressure))
+   );
+ }
+ 
+@@ -665,12 +666,14 @@ function countUnitBearingRecords(model: PreviewModel): number {
+   const materialQuantities = (model.materials ?? []).flatMap((material) => [
+     material.elastic_modulus,
+     material.shear_modulus,
++    material.poisson_ratio,
+     material.thermal_expansion_coefficient
+   ]);
+   const supportQuantities = model.supports.flatMap(supportUnitQuantities);
+   const componentQuantities = model.components.flatMap(componentUnitQuantities);
+   const loadQuantities = model.load_cases.flatMap((loadCase) =>
+-    (loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude)
++    [...(loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude),
++      ...(loadCase.pressure_regions ?? []).map(region => region.pressure)]
+   );
+   return [
+     ...pipeSectionQuantities,
+@@ -731,7 +734,8 @@ function provenanceRecords(model: PreviewModel): Array<{ provenance?: string }>
+     ...model.components,
+     ...model.load_cases,
+     ...(model.combinations ?? []),
+-    ...model.load_cases.flatMap((loadCase) => loadCase.primitive_loads ?? [])
++    ...model.load_cases.flatMap((loadCase) => loadCase.primitive_loads ?? []),
++    ...model.load_cases.flatMap(loadCase => (loadCase.pressure_regions ?? []).flatMap(region => [region, ...region.terminals]))
+   ];
+ }
+ 
+diff --git a/projects/chirality-piping/apps/desktop/src/services/projectService.ts b/projects/chirality-piping/apps/desktop/src/services/projectService.ts
+index 6a279e1071..5778b7995c 100644
+--- a/projects/chirality-piping/apps/desktop/src/services/projectService.ts
++++ b/projects/chirality-piping/apps/desktop/src/services/projectService.ts
+@@ -378,6 +378,12 @@ function unitRoundTripSummary(model: PreviewModel): {
+   for (const material of model.materials ?? []) {
+     collectQuantityUnit(unitRefs, missingRefs, `materials.${material.id}.elastic_modulus`, material.elastic_modulus);
+     collectQuantityUnit(unitRefs, missingRefs, `materials.${material.id}.shear_modulus`, material.shear_modulus);
++    collectQuantityUnit(unitRefs, missingRefs, `materials.${material.id}.poisson_ratio`, material.poisson_ratio);
++    for (const point of material.temperature_points ?? []) {
++      for (const field of ["temperature", "elastic_modulus", "shear_modulus", "poisson_ratio", "thermal_expansion_coefficient"] as const) {
++        collectQuantityUnit(unitRefs, missingRefs, `materials.${material.id}.temperature_points.${point.id}.${field}`, point[field]);
++      }
++    }
+     collectQuantityUnit(
+       unitRefs,
+       missingRefs,
+@@ -385,6 +391,11 @@ function unitRoundTripSummary(model: PreviewModel): {
+       material.thermal_expansion_coefficient
+     );
+   }
++  for (const loadCase of model.load_cases) {
++    for (const region of loadCase.pressure_regions ?? []) {
++      collectQuantityUnit(unitRefs, missingRefs, `load_cases.${loadCase.id}.pressure_regions.${region.id}.pressure`, region.pressure);
++    }
++  }
+   for (const section of model.sections ?? []) {
+     for (const [field, quantity] of Object.entries(section.properties ?? {})) {
+       collectQuantityUnit(unitRefs, missingRefs, `sections.${section.id}.${field}`, quantity);
+diff --git a/projects/chirality-piping/apps/desktop/src/types.ts b/projects/chirality-piping/apps/desktop/src/types.ts
+index 199fb115c5..83440c1d9a 100644
+--- a/projects/chirality-piping/apps/desktop/src/types.ts
++++ b/projects/chirality-piping/apps/desktop/src/types.ts
+@@ -102,7 +102,21 @@ export type EquivalentStaticGenerationInput = {
+   provenance?: string;
+ };
+ 
++export type PressureRegionInput = {
++  id: string;
++  member_pipe_ids: string[];
++  pressure_basis: string;
++  pressure: QuantityValue;
++  terminals: Array<{
++    node_ref: string;
++    closure_transfer: "transfers_to_wall" | "separately_supported_or_compensated";
++    provenance: string;
++  }>;
++  provenance: string;
++};
++
+ export type PreviewModel = {
++  pressure_contract?: { version: string; mode: string };
+   schema_version: string;
+   document_kind: string;
+   data_boundary: Record<string, string>;
+@@ -121,13 +135,16 @@ export type PreviewModel = {
+     id: string;
+     label: string;
+     elastic_modulus: { value: number; unit: string };
+-    shear_modulus: { value: number; unit: string };
++    shear_modulus?: { value: number; unit: string };
++    constitutive_basis?: string;
++    poisson_ratio?: QuantityValue;
+     thermal_expansion_coefficient?: { value: number; unit: string };
+     temperature_points?: Array<{
+       id: string;
+       temperature?: QuantityValue;
+       elastic_modulus?: QuantityValue;
+       shear_modulus?: QuantityValue;
++      poisson_ratio?: QuantityValue;
+       thermal_expansion_coefficient?: QuantityValue;
+       provenance?: string;
+     }>;
+@@ -227,6 +244,7 @@ export type PreviewModel = {
+     status: string;
+     provenance: string;
+     primitive_loads?: Array<Record<string, unknown>>;
++    pressure_regions?: PressureRegionInput[];
+     /** Optional exact user-entered modulus basis (DEC-068 item 1). */
+     modulus_basis_ref?: string;
+     /** Optional DEC-077 solve temperature for bounded E/alpha interpolation. */
+@@ -300,6 +318,7 @@ export type NumericalQuality = {
+   }>;
+ };
+ export type MechanicsResult = {
++  contract_evidence?: Record<string, unknown>;
+   producer?: { component_name: string; component_version: string; semantic_contract_id: string };
+   numerical_quality?: NumericalQuality;
+   formulation_basis?: { profile_id: string; limitations: string[] };
+@@ -645,6 +664,7 @@ export type AgentProposal = {
+ };
+ 
+ export type EditorOperationObjectType =
++  | "Model"
+   | "Material"
+   | "Section"
+   | "Node"
+diff --git a/projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock b/projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock
+index da1f142c66..9766c8e4d2 100644
+--- a/projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock
++++ b/projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock
+@@ -95,11 +95,56 @@ dependencies = [
+  "serde_json",
+ ]
+ 
++[[package]]
++name = "open_pipe_stress_curved_bend"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++]
++
++[[package]]
++name = "open_pipe_stress_frame_kernel"
++version = "0.1.0"
++
++[[package]]
++name = "open_pipe_stress_linear_supports"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++]
++
++[[package]]
++name = "open_pipe_stress_load_case_algebra"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_primitive_loads",
++]
++
++[[package]]
++name = "open_pipe_stress_nonlinear_integration"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_curved_bend",
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_nonlinear_supports",
++ "open_pipe_stress_solver_diagnostics",
++ "open_pipe_stress_sparse_direct",
++]
++
++[[package]]
++name = "open_pipe_stress_nonlinear_supports"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_linear_supports",
++ "open_pipe_stress_solver_diagnostics",
++]
++
+ [[package]]
+ name = "open_pipe_stress_operation_applier"
+ version = "0.1.0"
+ dependencies = [
+  "open_pipe_stress_canonical_json",
++ "open_pipe_stress_product_physics",
+  "open_pipe_stress_units",
+  "serde",
+  "serde_json",
+@@ -107,6 +152,66 @@ dependencies = [
+  "wasm-bindgen",
+ ]
+ 
++[[package]]
++name = "open_pipe_stress_primitive_loads"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_linear_supports",
++]
++
++[[package]]
++name = "open_pipe_stress_product_physics"
++version = "0.2.0"
++dependencies = [
++ "open_pipe_stress_curved_bend",
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_linear_supports",
++ "open_pipe_stress_load_case_algebra",
++ "open_pipe_stress_nonlinear_integration",
++ "open_pipe_stress_nonlinear_supports",
++ "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_solver_diagnostics",
++ "open_pipe_stress_sparse_direct",
++ "open_pipe_stress_straight_pipe",
++ "open_pipe_stress_stress_recovery",
++ "open_pipe_stress_units",
++ "serde",
++ "serde_json",
++]
++
++[[package]]
++name = "open_pipe_stress_solver_diagnostics"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_linear_supports",
++ "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_sparse_direct",
++]
++
++[[package]]
++name = "open_pipe_stress_sparse_direct"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++]
++
++[[package]]
++name = "open_pipe_stress_straight_pipe"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++]
++
++[[package]]
++name = "open_pipe_stress_stress_recovery"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_straight_pipe",
++]
++
+ [[package]]
+ name = "open_pipe_stress_units"
+ version = "0.1.0"
+diff --git a/projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml b/projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml
+index 76244741c9..6d0c3d7814 100644
+--- a/projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml
++++ b/projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml
+@@ -17,6 +17,7 @@ crate-type = ["cdylib", "rlib"]
+ wasm = ["dep:wasm-bindgen"]
+ 
+ [dependencies]
++open_pipe_stress_product_physics = { path = "../../product_physics" }
+ # RFC 8785 (JCS) canonical JSON text — the single canonicalization for every
+ # hash seam (completion-plan H5); this crate re-exports its `canonical_json`.
+ open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
+diff --git a/projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs b/projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs
+index 33c8a9dc43..2920b8474c 100644
+--- a/projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs
++++ b/projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs
+@@ -93,6 +93,18 @@ fn run_batch(model: &Value, batch: &Value, claimed: Option<&Value>, apply: bool)
+         ));
+     }
+ 
++    // Plan basis is independent from the caller's current-model claim and is
++    // checked against the complete initial document, before private simulation.
++    if let Some(source) = batch.get("source_model_hash") {
++        if source != &initial_backend_hash {
++            diagnostics.push(diagnostic(
++                "OP-BATCH-SOURCE-MODEL-HASH-MISMATCH",
++                "The generated plan source model is stale; regenerate and review the plan",
++                vec![batch_id.into()],
++            ));
++        }
++    }
++
+     let mut current = model.clone();
+     let mut preflight_passed = diagnostics.is_empty();
+     if preflight_passed {
+@@ -244,7 +256,14 @@ fn boolean(object: &Map<String, Value>, field: &str, expected: bool) -> Result<(
+ 
+ /// Strict proposal import validation; no submitted validation labels are trusted.
+ fn preflight(batch: &Value) -> Result<&Vec<Value>, String> {
+-    let batch = exact_object(batch, &["batch_id", "operations"], &[])?;
++    let batch = exact_object(batch, &["batch_id", "operations"], &["source_model_hash"])?;
++    if let Some(source) = batch.get("source_model_hash") {
++        let valid = source.as_str().and_then(|s| s.strip_prefix("sha256:")).is_some_and(|s|
++            s.len() == 64 && s.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)));
++        if !valid {
++            return Err("source_model_hash must be sha256: followed by 64 lowercase hexadecimal characters".into());
++        }
++    }
+     string(batch, "batch_id", false)?;
+     let operations = batch["operations"]
+         .as_array()
+diff --git a/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs b/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs
+index d274a60137..a82048530d 100644
+--- a/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs
++++ b/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs
+@@ -24,6 +24,7 @@ mod boundary_association;
+ mod display_units;
+ mod geometry_operations;
+ mod rich_authoring;
++mod pressure_authoring;
+ mod section_bindings;
+ pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
+ pub use display_units::convert_display_quantities;
+@@ -1207,10 +1208,26 @@ fn run_with_context(
+     // underspecified viewport gestures are held rather than invented.
+     let rich_kind = match (object_type.as_str(), field_path.as_str()) {
+         ("Support", "configuration") => Some("update_support"),
+-        ("Material", "temperature_points") => Some("set_field"),
+-        ("Load", "equivalent_static.wind.exposure") => Some("update_load"),
++        ("Model", "pressure_profile") | ("Material", "constitutive_properties" | "temperature_points") => Some("set_field"),
++        ("Load", "pressure_regions") => Some("update_load"),
++        ("Load", "equivalent_static.wind.exposure" | "generated_self_weight") => Some("update_load"),
+         _ => None,
+     };
++    if object_type == "Load" && field_path == "generated_self_weight"
++        && claimed_model_hash.is_none_or(Value::is_null)
++    {
++        checker.schema_blocked = true;
++        checker.push(
++            "OP-SELF-WEIGHT-MODEL-HASH-REQUIRED", "blocking",
++            "Generated self-weight replacements require current complete model-hash evidence.".into(),
++            "Refresh the complete model hash before applying the reviewed replacement.",
++            vec![target_ref.clone()],
++        );
++    }
++    if pressure_authoring::owns(&object_type, &field_path) && claimed_model_hash.is_none_or(Value::is_null) {
++        checker.schema_blocked = true;
++        checker.push("OP-PRESSURE-MODEL-HASH-REQUIRED", "blocking", "Explicit pressure/material replacements require the current complete model hash.".into(), "Refresh the model basis before review and application.", vec![target_ref.clone()]);
++    }
+     let mut rich_model: Option<Value> = None;
+     if let Some(expected_kind) = rich_kind {
+         if change_kind != expected_kind {
+@@ -1223,7 +1240,8 @@ fn run_with_context(
+                 vec![target_ref.clone()],
+             );
+         } else if !checker.schema_blocked {
+-            match rich_authoring::resolve(
++            let resolver = if pressure_authoring::owns(&object_type, &field_path) { pressure_authoring::resolve } else { rich_authoring::resolve };
++            match resolver(
+                 model,
+                 &object_type,
+                 &target_ref,
+@@ -1242,9 +1260,9 @@ fn run_with_context(
+                         &mut checker,
+                     );
+                     let mut candidate = model.clone();
+-                    let target = collection_for(&object_type).and_then(|collection| {
++                    let target = if object_type == "Model" { Some(&mut candidate) } else { collection_for(&object_type).and_then(|collection| {
+                         find_entity_mut(&mut candidate, collection, &target_ref)
+-                    });
++                    }) };
+                     let mut written = true;
+                     if let Some(target) = target {
+                         for (segments, value) in &edit.writes {
+@@ -3367,6 +3385,17 @@ fn resolve_connect_pipe_run(
+         return None;
+     };
+ 
++    if record.contains_key("section_ref") {
++        checker.push(
++            "OP-CONNECT-PIPE-PAYLOAD-INVALID",
++            "blocking",
++            "Connect-pipe creates explicit local section inputs; use assign_section after creation to bind a shared section.".into(),
++            "Create the pipe with local section inputs, then apply the explicit shared-section assignment.",
++            vec![target_ref.to_string()],
++        );
++        return None;
++    }
++
+     let id = record
+         .get("id")
+         .and_then(Value::as_str)
+@@ -3470,6 +3499,19 @@ fn resolve_connect_pipe_run(
+         );
+         return None;
+     }
++    let incomplete_insulation = match rich_authoring::validate_pipe_section_inputs(&record["section"]) {
++        Ok(incomplete) => incomplete,
++        Err(error) => {
++            checker.push(
++                "OP-CONNECT-PIPE-PAYLOAD-INVALID",
++                "blocking",
++                error.message,
++                "Supply supported explicit section quantities with accepted units and valid values.",
++                vec![target_ref.to_string()],
++            );
++            return None;
++        }
++    };
+     if find_entity(model, "nodes", from).is_none() || find_entity(model, "nodes", to).is_none() {
+         checker.reference_state = "blocked";
+         checker.push(
+@@ -3494,16 +3536,23 @@ fn resolve_connect_pipe_run(
+     }
+     checker.reference_state = "passed";
+ 
++    if incomplete_insulation {
++        checker.push(
++            "OP-MASS-NOT-SOLVE-READY",
++            "warning",
++            "Insulation mass requires both explicit thickness and density; no missing quantity is defaulted.".into(),
++            "Supply the paired insulation quantity before solving.",
++            vec![target_ref.to_string()],
++        );
++    }
++
+     let (yrx, yry, yrz) = y_reference.unwrap();
+     Some(serde_json::json!({
+         "id": id,
+         "label": label,
+         "from": from,
+         "to": to,
+-        "section": {
+-            "outside_diameter": { "value": outside_diameter.value, "unit": outside_diameter.unit },
+-            "wall_thickness": { "value": wall_thickness.value, "unit": wall_thickness.unit }
+-        },
++        "section": record["section"].clone(),
+         "material": material,
+         "y_reference": { "x": yrx, "y": yry, "z": yrz },
+         "provenance": provenance,
+@@ -4133,11 +4182,18 @@ fn resolve_create_material(
+     let elastic_modulus =
+         dimensioned_quantity(record, &["elastic_modulus"], Dimension::Stress, true);
+     let shear_modulus = dimensioned_quantity(record, &["shear_modulus"], Dimension::Stress, true);
++    let exact_material = record.contains_key("constitutive_basis") || record.contains_key("poisson_ratio");
++    if exact_material {
++        if let Err(error) = pressure_authoring::validate_create_material(&payload) {
++            checker.push(error.code, "blocking", error.message, "Supply explicit E/nu constitutive inputs.", vec![target_ref.to_string()]);
++            return None;
++        }
++    }
+     if id != target_ref
+         || label.is_empty()
+         || provenance.is_empty()
+         || elastic_modulus.is_none()
+-        || shear_modulus.is_none()
++        || (!exact_material && shear_modulus.is_none())
+     {
+         checker.push(
+             "OP-CREATE-MATERIAL-PAYLOAD-INVALID",
+@@ -4149,15 +4205,17 @@ fn resolve_create_material(
+         return None;
+     }
+     let elastic_modulus = elastic_modulus.unwrap();
+-    let shear_modulus = shear_modulus.unwrap();
+-
+     let mut material = serde_json::json!({
+         "id": id,
+         "label": label,
+         "elastic_modulus": { "value": elastic_modulus.value, "unit": elastic_modulus.unit },
+-        "shear_modulus": { "value": shear_modulus.value, "unit": shear_modulus.unit },
+         "provenance": provenance,
+     });
++    if let Some(g) = shear_modulus { material["shear_modulus"] = serde_json::json!({"value":g.value,"unit":g.unit}); }
++    if exact_material {
++        material["constitutive_basis"] = payload["constitutive_basis"].clone();
++        material["poisson_ratio"] = payload["poisson_ratio"].clone();
++    }
+     if record.get("thermal_expansion_coefficient").is_some() {
+         let Some(stored_temperature_unit) =
+             value_at(model, &["project", "units", "temperature"]).and_then(Value::as_str)
+diff --git a/projects/chirality-piping/core/model_operations/operation_applier/src/pressure_authoring.rs b/projects/chirality-piping/core/model_operations/operation_applier/src/pressure_authoring.rs
+new file mode 100644
+index 0000000000..4c83413a01
+--- /dev/null
++++ b/projects/chirality-piping/core/model_operations/operation_applier/src/pressure_authoring.rs
+@@ -0,0 +1,305 @@
++//! Explicit pressure-profile inputs, carried through the common operation seam.
++use crate::rich_authoring::{RichEdit, RichError};
++use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
++use serde_json::{Map, Value};
++use std::collections::HashSet;
++type Result<T> = std::result::Result<T, RichError>;
++const MATERIAL_KEYS: &[&str] = &[
++    "constitutive_basis",
++    "elastic_modulus",
++    "shear_modulus",
++    "poisson_ratio",
++    "provenance",
++];
++const PROFILE_KEYS: &[&str] = &["schema_version", "pressure_contract"];
++fn err(message: impl Into<String>) -> RichError {
++    RichError {
++        code: "OP-PRESSURE-PAYLOAD-INVALID",
++        message: message.into(),
++    }
++}
++fn object<'a>(v: &'a Value, keys: &[&str]) -> Result<&'a Map<String, Value>> {
++    let o = v.as_object().ok_or_else(|| err("Expected an object"))?;
++    if let Some(k) = o.keys().find(|k| !keys.contains(&k.as_str())) {
++        return Err(err(format!("Unknown field {k}")));
++    }
++    Ok(o)
++}
++fn text<'a>(v: &'a Value, key: &str) -> Result<&'a str> {
++    v.get(key)
++        .and_then(Value::as_str)
++        .filter(|s| !s.trim().is_empty())
++        .ok_or_else(|| err(format!("{key} is required")))
++}
++fn quantity(v: &Value, dim: Dimension) -> Result<f64> {
++    object(v, &["value", "unit"])?;
++    let value = v["value"]
++        .as_f64()
++        .filter(|v| v.is_finite())
++        .ok_or_else(|| err("Quantity must be finite"))?;
++    let from = unit_by_symbol(text(v, "unit")?, dim).map_err(|e| err(e.to_string()))?;
++    let normalized = convert_for_dimension(
++        value,
++        dim,
++        from,
++        canonical_unit(dim).ok_or_else(|| err("Canonical unit unavailable"))?,
++    )
++    .map_err(|e| err(e.to_string()))?;
++    if !normalized.is_finite() {
++        return Err(err("Normalized quantity must be finite"));
++    }
++    Ok(normalized)
++}
++pub(crate) fn validate_nu(v: &Value) -> Result<()> {
++    object(v, &["value", "unit"])?;
++    if v["unit"] != "1"
++        || !v["value"]
++            .as_f64()
++            .is_some_and(|n| n.is_finite() && n > -1.0 && n < 0.5)
++    {
++        return Err(err(
++            "Poisson ratio requires explicit unit 1 and -1 < nu < 0.5",
++        ));
++    }
++    Ok(())
++}
++pub(crate) fn validate_material(v: &Value) -> Result<()> {
++    let e = quantity(&v["elastic_modulus"], Dimension::Stress)?;
++    if e <= 0.0 {
++        return Err(err("Elastic modulus must be positive"));
++    }
++    text(v, "provenance")?;
++    if v["constitutive_basis"] == "homogeneous_isotropic_E_nu_v1" {
++        validate_nu(&v["poisson_ratio"])?;
++        let g = e / (2.0 * (1.0 + v["poisson_ratio"]["value"].as_f64().unwrap()));
++        if !g.is_finite() || g <= 0.0 {
++            return Err(err("E/nu must produce finite positive G"));
++        }
++        if let Some(g) = v.get("shear_modulus") {
++            if quantity(g, Dimension::Stress)? <= 0.0 {
++                return Err(err("Retained shear modulus must be positive"));
++            }
++        }
++    } else {
++        if v.get("constitutive_basis").is_some() || v.get("poisson_ratio").is_some() {
++            return Err(err("E/nu authoring requires homogeneous_isotropic_E_nu_v1"));
++        }
++        if quantity(&v["shear_modulus"], Dimension::Stress)? <= 0.0 {
++            return Err(err("Legacy material requires positive shear modulus"));
++        }
++    }
++    Ok(())
++}
++pub(crate) fn validate_create_material(v: &Value) -> Result<()> {
++    object(
++        v,
++        &[
++            "id",
++            "label",
++            "constitutive_basis",
++            "elastic_modulus",
++            "shear_modulus",
++            "poisson_ratio",
++            "thermal_expansion_coefficient",
++            "provenance",
++        ],
++    )?;
++    validate_material(v)
++}
++fn entity<'a>(model: &'a Value, collection: &str, id: &str) -> Result<&'a Value> {
++    let mut found = model[collection]
++        .as_array()
++        .ok_or_else(|| err(format!("Missing {collection}")))?
++        .iter()
++        .filter(|v| v["id"] == id);
++    let value = found
++        .next()
++        .ok_or_else(|| err(format!("Unknown {collection} reference {id}")))?;
++    if found.next().is_some() {
++        return Err(err(format!("Ambiguous {collection} reference {id}")));
++    }
++    Ok(value)
++}
++fn projection(v: &Value, keys: &[&str]) -> Value {
++    Value::Object(
++        keys.iter()
++            .filter_map(|k| v.get(*k).map(|v| ((*k).to_string(), v.clone())))
++            .collect(),
++    )
++}
++pub(crate) fn owns(object_type: &str, path: &str) -> bool {
++    matches!(
++        (object_type, path),
++        ("Model", "pressure_profile")
++            | ("Material", "constitutive_properties")
++            | ("Load", "pressure_regions")
++    )
++}
++fn validate_regions(model: &Value, value: &Value) -> Result<()> {
++    let regions = value
++        .as_array()
++        .ok_or_else(|| err("pressure_regions must be an explicit array"))?;
++    let mut ids = HashSet::new();
++    let mut owned_pipes = HashSet::new();
++    for region in regions {
++        object(
++            region,
++            &[
++                "id",
++                "member_pipe_ids",
++                "pressure_basis",
++                "pressure",
++                "terminals",
++                "provenance",
++            ],
++        )?;
++        if !ids.insert(text(region, "id")?) {
++            return Err(err("Duplicate region ID"));
++        }
++        text(region, "provenance")?;
++        if region["pressure_basis"] != "internal_differential_zero_external_v1" {
++            return Err(err(
++                "Explicit internal differential zero-external pressure basis is required",
++            ));
++        }
++        if quantity(&region["pressure"], Dimension::Stress)? < 0.0 {
++            return Err(err("Pressure must be nonnegative"));
++        }
++        let pipes = region["member_pipe_ids"]
++            .as_array()
++            .filter(|p| !p.is_empty())
++            .ok_or_else(|| err("Region requires member pipe IDs"))?;
++        let mut nodes = HashSet::new();
++        for id in pipes {
++            let id = id
++                .as_str()
++                .ok_or_else(|| err("Member pipe ID must be a string"))?;
++            if !owned_pipes.insert(id) {
++                return Err(err(
++                    "A pipe can belong to only one pressure region in a case",
++                ));
++            }
++            let pipe = entity(model, "pipe_segments", id)?;
++            nodes.insert(text(pipe, "from")?);
++            nodes.insert(text(pipe, "to")?);
++        }
++        let terminals = region["terminals"]
++            .as_array()
++            .filter(|t| t.len() == 2)
++            .ok_or_else(|| err("Region requires exactly two ordered terminals"))?;
++        let mut terminal_ids = HashSet::new();
++        for terminal in terminals {
++            object(terminal, &["node_ref", "closure_transfer", "provenance"])?;
++            let id = text(terminal, "node_ref")?;
++            entity(model, "nodes", id)?;
++            if !nodes.contains(id) || !terminal_ids.insert(id) {
++                return Err(err(
++                    "Terminals must be distinct nodes on the authored member pipes",
++                ));
++            }
++            if !matches!(
++                text(terminal, "closure_transfer")?,
++                "transfers_to_wall" | "separately_supported_or_compensated"
++            ) {
++                return Err(err("Each terminal requires explicit closure transfer"));
++            }
++            text(terminal, "provenance")?;
++        }
++    }
++    Ok(())
++}
++#[allow(clippy::too_many_arguments)]
++pub(crate) fn resolve(
++    model: &Value,
++    object_type: &str,
++    target: &str,
++    path: &str,
++    before: &str,
++    after: &str,
++    unit: &str,
++    dimension: &str,
++) -> Result<Option<RichEdit>> {
++    if !owns(object_type, path) {
++        return Ok(None);
++    }
++    if unit != "none" || dimension != "dimensionless" {
++        return Err(err(
++            "Structured input envelope requires unit none and dimension dimensionless",
++        ));
++    }
++    let current = match object_type {
++        "Model" => {
++            if model.pointer("/project/id").and_then(Value::as_str) != Some(target) {
++                return Err(err("Profile target must be the current project ID"));
++            }
++            projection(model, PROFILE_KEYS)
++        }
++        "Material" => projection(entity(model, "materials", target)?, MATERIAL_KEYS),
++        _ => entity(model, "load_cases", target)?
++            .get("pressure_regions")
++            .cloned()
++            .unwrap_or(Value::Null),
++    };
++    let current_display = if current.is_null() {
++        "not_present".to_string()
++    } else {
++        crate::canonical_json(&current)
++    };
++    if before != current_display {
++        return Err(RichError {
++            code: "OP-BEFORE-VALUE-MISMATCH",
++            message: "Explicit input before-value is stale; refresh the draft".into(),
++        });
++    }
++    let after: Value = serde_json::from_str(after).map_err(|e| err(e.to_string()))?;
++    let writes = match object_type {
++        "Model" => {
++            object(&after, PROFILE_KEYS)?;
++            if after["schema_version"] != "0.3.0"
++                || after["pressure_contract"]
++                    != serde_json::json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"})
++            {
++                return Err(err(
++                    "Select explicit model 0.3.0 / exact_straight_pressure_v2 version 2.0.0",
++                ));
++            }
++            for case in model["load_cases"]
++                .as_array()
++                .ok_or_else(|| err("Missing load cases"))?
++            {
++                validate_regions(model, &case["pressure_regions"])?;
++                if case["primitive_loads"]
++                    .as_array()
++                    .is_some_and(|loads| loads.iter().any(|l| l["category"] == "pressure"))
++                {
++                    return Err(err("Exact profile admits no pressure primitives, including zero. Review and remove those loads explicitly before changing profile"));
++                }
++            }
++            PROFILE_KEYS
++                .iter()
++                .map(|k| (vec![(*k).into()], after.get(*k).cloned()))
++                .collect()
++        }
++        "Material" => {
++            object(&after, MATERIAL_KEYS)?;
++            validate_material(&after)?;
++            MATERIAL_KEYS
++                .iter()
++                .map(|k| (vec![(*k).into()], after.get(*k).cloned()))
++                .collect()
++        }
++        _ => {
++            validate_regions(model, &after)?;
++            vec![(vec!["pressure_regions".into()], Some(after.clone()))]
++        }
++    };
++    Ok(Some(RichEdit {
++        writes: if crate::canonical_json(&after) == current_display {
++            vec![]
++        } else {
++            writes
++        },
++        current_display,
++        warnings: vec![],
++    }))
++}
+diff --git a/projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs b/projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs
+index 30890abf49..539a0d9b45 100644
+--- a/projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs
++++ b/projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs
+@@ -1,6 +1,7 @@
+ //! Validated, atomic rich-authoring replacements. No physics is computed here.
+ use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
+ use serde_json::{json, Map, Value};
++use open_pipe_stress_product_physics::{PreviewModel, self_weight::{inspect_applied_self_weight, AppliedSelfWeightState}};
+ use std::collections::{BTreeMap, HashSet};
+ 
+ #[derive(Debug, Clone)]
+@@ -77,6 +78,52 @@ fn nonnegative(v: &Value, dim: Dimension) -> Result<f64> {
+     }
+     Ok(n)
+ }
++
++/// Check explicit inline source inputs without normalizing their stored JSON.
++/// The return value marks an incomplete insulation pair, which remains
++/// authorable but cannot supply insulation mass until both inputs are present.
++pub(crate) fn validate_pipe_section_inputs(section: &Value) -> Result<bool> {
++    let record = object(
++        section,
++        &[
++            "outside_diameter",
++            "wall_thickness",
++            "material_density",
++            "mill_tolerance",
++            "contents_density",
++            "insulation_thickness",
++            "insulation_density",
++        ],
++    )?;
++    quantity(&section["outside_diameter"], Dimension::Length, true)?;
++    let wall = quantity(&section["wall_thickness"], Dimension::Length, true)?;
++    for (key, dimension, positive) in [
++        ("material_density", Dimension::Density, true),
++        ("mill_tolerance", Dimension::Length, false),
++        ("contents_density", Dimension::Density, false),
++        ("insulation_thickness", Dimension::Length, false),
++        ("insulation_density", Dimension::Density, false),
++    ] {
++        if let Some(value) = record.get(key).filter(|v| !v.is_null()) {
++            let normalized = if positive {
++                quantity(value, dimension, true)
++            } else {
++                nonnegative(value, dimension)
++            }
++            .map_err(|error| err(format!("section.{key}: {}", error.message)))?;
++            if key == "mill_tolerance" && wall - normalized <= 0.0 {
++                return Err(err("Mill tolerance must leave a positive effective wall"));
++            }
++        }
++    }
++    Ok(record
++        .get("insulation_thickness")
++        .is_some_and(|v| !v.is_null())
++        != record
++            .get("insulation_density")
++            .is_some_and(|v| !v.is_null()))
++}
++
+ fn entity<'a>(model: &'a Value, collection: &str, id: &str) -> Result<&'a Value> {
+     let list = model
+         .get(collection)
+@@ -124,6 +171,9 @@ pub(crate) fn resolve(
+     unit: &str,
+     dimension: &str,
+ ) -> Result<Option<RichEdit>> {
++    if object_type == "Load" && field_path == "generated_self_weight" {
++        return generated_self_weight(model, target_ref, before, after, unit, dimension).map(Some);
++    }
+     let collection = match (object_type, field_path) {
+         ("Support", "configuration") => "supports",
+         ("Material", "temperature_points") => "materials",
+@@ -543,6 +593,8 @@ fn validate_temperature_points(
+     points: &Value,
+     warnings: &mut Vec<String>,
+ ) -> Result<()> {
++    let exact_profile = model["schema_version"] == "0.3.0" && model.pointer("/pressure_contract/mode").is_some_and(|v| v == "exact_straight_pressure_v2");
++    let modulus_pair_field = if exact_profile { "poisson_ratio" } else { "shear_modulus" };
+     let points = points
+         .as_array()
+         .ok_or_else(|| err("temperature_points must be an array"))?;
+@@ -556,6 +608,7 @@ fn validate_temperature_points(
+                 "temperature",
+                 "elastic_modulus",
+                 "shear_modulus",
++                "poisson_ratio",
+                 "thermal_expansion_coefficient",
+                 "provenance",
+             ],
+@@ -564,6 +617,7 @@ fn validate_temperature_points(
+             return Err(err("Duplicate material temperature point id"));
+         }
+         optional_text(o, &["provenance"])?;
++        if let Some(nu) = o.get("poisson_ratio") { crate::pressure_authoring::validate_nu(nu)?; }
+         for (key, dim, positive) in [
+             ("temperature", Dimension::Temperature, false),
+             ("elastic_modulus", Dimension::Stress, true),
+@@ -584,7 +638,7 @@ fn validate_temperature_points(
+         if [
+             "temperature",
+             "elastic_modulus",
+-            "shear_modulus",
++            modulus_pair_field,
+             "thermal_expansion_coefficient",
+         ]
+         .iter()
+@@ -630,7 +684,7 @@ fn validate_temperature_points(
+                 .iter()
+                 .find(|p| p["id"].as_str() == Some(id))
+                 .ok_or_else(|| err(format!("Selected modulus basis {id} cannot be deleted")))?;
+-            for k in ["elastic_modulus", "shear_modulus"] {
++            for k in ["elastic_modulus", modulus_pair_field] {
+                 if p.get(k).is_none() {
+                     return Err(err(format!("Selected point {id} requires {k}")));
+                 }
+@@ -639,13 +693,14 @@ fn validate_temperature_points(
+         if let Some(t) = temp {
+             let t = quantity(t, Dimension::Temperature, false)?;
+             let bracket=temperatures.windows(2).find(|w|w[0].0<t && t<w[1].0).ok_or_else(||err("Selected solve temperature requires a strict adjacent bracket; no extrapolation"))?;
++            let thermal_required = !exact_profile || case["primitive_loads"].as_array().is_some_and(|loads| loads.iter().any(|load| {
++                load["category"] == "thermal" && model["pipe_segments"].as_array().is_some_and(|pipes| pipes.iter().any(|pipe| pipe["id"] == load["target"]["pipe"] && pipe["material"] == material["id"]))
++            }));
++            let mut required_fields = vec!["elastic_modulus", modulus_pair_field];
++            if thermal_required { required_fields.push("thermal_expansion_coefficient"); }
+             for (_, p) in bracket {
+-                for k in [
+-                    "elastic_modulus",
+-                    "shear_modulus",
+-                    "thermal_expansion_coefficient",
+-                ] {
+-                    if p.get(k).is_none() {
++                for k in &required_fields {
++                    if p.get(*k).is_none() {
+                         return Err(err(format!("Interpolation point requires {k}")));
+                     }
+                 }
+@@ -970,3 +1025,198 @@ mod tests {
+         assert!(edit(&m, "Load", "l", "equivalent_static.wind.exposure", &after).is_err());
+     }
+ }
++
++
++const GENERATED_V1: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v1";
++const GENERATED_V2: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v2";
++const MANUAL_WEIGHT: &str = "manual_override_of_generated_self_weight/v1";
++const GENERATED_BODY: &[&str] = &["id", "category", "target", "direction", "magnitude", "dimension"];
++fn generation_record(load: &Value) -> Result<Value> {
++    serde_json::from_str(text(load.get("provenance"), "provenance")?)
++        .map_err(|_| err("Generated provenance must contain a JSON record"))
++}
++fn without(value: &Value, keys: &[&str]) -> Result<Value> {
++    let mut body = value.as_object().ok_or_else(|| err("Primitive must be an object"))?.clone();
++    for key in keys { body.remove(*key); }
++    Ok(Value::Object(body))
++}
++fn generated_self_weight(model: &Value, target: &str, before: &str, after: &str, unit: &str, dimension: &str) -> Result<RichEdit> {
++    if unit != "none" || dimension != "dimensionless" {
++        return Err(err("Generated replacement requires unit none and dimension dimensionless"));
++    }
++    let case = entity(model, "load_cases", target)?;
++    let current = case.get("primitive_loads").and_then(Value::as_array)
++        .ok_or_else(|| err("Missing primitive_loads array"))?;
++    let current_display = crate::canonical_json(&case["primitive_loads"]);
++    if before != current_display {
++        return Err(RichError { code: "OP-BEFORE-VALUE-MISMATCH", message: "Generated replacement before value is stale".into() });
++    }
++    let replacement: Value = serde_json::from_str(after).map_err(|_| err("Invalid replacement JSON"))?;
++    if crate::canonical_json(&replacement) != after { return Err(err("Replacement must be canonical JSON")); }
++    let next = replacement.as_array().ok_or_else(|| err("Replacement must be an array"))?;
++    if next.len() != current.len() { return Err(err("Generated replacement must preserve primitive count")); }
++    // Delegate source-owned mass and lineage checks; never reimplement their
++    // formula or turn submitted provenance into proof of source consistency.
++    let typed_before: PreviewModel = serde_json::from_value(model.clone())
++        .map_err(|e| err(format!("Cannot inspect generated source model: {e}")))?;
++    let before_states = inspect_applied_self_weight(&typed_before, None);
++    let mut required_after = Vec::new();
++    let mut ids = HashSet::new();
++    let mut changed = false;
++    let mut preserved = current.clone();
++    for (index, (old, new)) in current.iter().zip(next).enumerate() {
++        let id = text(old.get("id"), "primitive id")?;
++        if !ids.insert(id) || old.get("id") != new.get("id") { return Err(err("Primitive identities and order must be unique and unchanged")); }
++        if crate::canonical_json(old) == crate::canonical_json(new) { continue; }
++        changed = true;
++        let prior = generation_record(old)?;
++        if !matches!(prior.get("method").and_then(Value::as_str), Some(GENERATED_V1 | GENERATED_V2)) {
++            return Err(err("Only recognized generated records may be reconciled"));
++        }
++        validate_generation_record(&prior)?;
++        let record = generation_record(new)?;
++        if new["category"] != "distributed_force" || new["dimension"] != "force_per_length" {
++            return Err(err("Generated self-weight must remain a distributed force"));
++        }
++        if new.pointer("/target/type").and_then(Value::as_str) != Some("element") { return Err(err("Generated target must be an element")); }
++        enum_text(new.get("direction"), "direction", &["global_x", "global_y", "global_z"])?;
++        quantity(&new["magnitude"], Dimension::ForcePerLength, false)?;
++        entity(model, "pipe_segments", text(new.pointer("/target/pipe"), "target.pipe")?)?;
++        let before_state = before_states.iter().find(|status| status.case_id == target && status.primitive_index == index)
++            .map(|status| status.state).ok_or_else(|| err("Generated record has no source inspection state"))?;
++        match record.get("method").and_then(Value::as_str) {
++            Some(GENERATED_V2) => {
++                if !matches!(before_state, AppliedSelfWeightState::Fresh | AppliedSelfWeightState::Stale) {
++                    return Err(err("Managed refresh requires an unmodified valid generated source record"));
++                }
++                required_after.push((index, AppliedSelfWeightState::Fresh));
++                if prior.get("pipe_id") != old.pointer("/target/pipe") {
++                    return Err(err("Generated provenance pipe identity does not match primitive"));
++                }
++                validate_generation_record(&record)?;
++                if crate::canonical_json(&record["gravity"]) != crate::canonical_json(&prior["gravity"])
++                    || crate::canonical_json(&record["normalized_acceleration_m_per_s2"]) != crate::canonical_json(&prior["normalized_acceleration_m_per_s2"]) {
++                    return Err(err("Managed refresh must preserve the original explicit gravity and normalized acceleration"));
++                }
++                if record.get("request_provenance") != prior.get("request_provenance") {
++                    return Err(err("Managed refresh must preserve original user generation provenance"));
++                }
++                let expected_legacy = if prior["method"] == GENERATED_V1 {
++                    old.get("provenance")
++                } else {
++                    prior.get("legacy_generation_provenance")
++                };
++                if record.get("legacy_generation_provenance") != expected_legacy {
++                    return Err(err("Refresh must retain the original legacy provenance verbatim without introducing new lineage"));
++                }
++                if crate::canonical_json(&without(old, &["magnitude", "provenance"])?) != crate::canonical_json(&without(new, &["magnitude", "provenance"])?)
++                    || old.pointer("/magnitude/unit") != new.pointer("/magnitude/unit") {
++                    return Err(err("Refresh may change only magnitude value and generated provenance"));
++                }
++                if record.get("generated_payload").map(crate::canonical_json) != Some(crate::canonical_json(&projection(new, GENERATED_BODY)))
++                    || record.get("pipe_id") != prior.get("pipe_id")
++                    || !record.get("normalized_dependencies").is_some_and(Value::is_object) {
++                    return Err(err("Refreshed provenance must bind the generated payload and dependency projection"));
++                }
++            }
++            Some(MANUAL_WEIGHT) => {
++                if before_state != AppliedSelfWeightState::Modified {
++                    return Err(err("Manual preservation requires an explicitly modified generated record"));
++                }
++                required_after.push((index, AppliedSelfWeightState::ManualOverride));
++                object(&record, &["method", "original_generation_provenance", "decision", "source_model_hash"])?;
++                if crate::canonical_json(&without(old, &["provenance"])?) != crate::canonical_json(&without(new, &["provenance"])?)
++                    || record.get("original_generation_provenance") != Some(&prior)
++                    || record["decision"] != "preserve_modified_generated_load" {
++                    return Err(err("Manual preservation requires exact physical payload and original lineage"));
++                }
++            }
++            _ => return Err(err("Unsupported generated replacement method")),
++        }
++        let source = text(record.get("source_model_hash"), "source_model_hash")?;
++        let expected = format!("sha256:{}", crate::sha256_hex(&crate::canonical_json(model)));
++        if source != expected { return Err(err("Replacement provenance source hash does not match current model")); }
++        // Preserve original representations and every unmodified field. Canonical
++        // transport may parse an integral float as an integer, without a change
++        // to its exact JSON numeric payload. Only permitted changed fields cross
++        // this boundary; there is no numerical tolerance or approximate match.
++        if record["method"] == GENERATED_V2 && crate::canonical_json(&old["magnitude"]["value"]) != crate::canonical_json(&new["magnitude"]["value"]) {
++            preserved[index]["magnitude"]["value"] = new["magnitude"]["value"].clone();
++        }
++        preserved[index]["provenance"] = new["provenance"].clone();
++    }
++    if !changed { return Err(err("No generated self-weight refresh is needed")); }
++    let mut candidate = model.clone();
++    let candidate_case = candidate["load_cases"].as_array_mut().ok_or_else(|| err("Missing load_cases"))?
++        .iter_mut().find(|case| case.get("id").and_then(Value::as_str) == Some(target))
++        .ok_or_else(|| err("Missing target load case"))?;
++    candidate_case["primitive_loads"] = Value::Array(preserved.clone());
++    let typed_after: PreviewModel = serde_json::from_value(candidate)
++        .map_err(|e| err(format!("Cannot inspect generated candidate model: {e}")))?;
++    let after_states = inspect_applied_self_weight(&typed_after, None);
++    if after_states.iter().any(|status| status.case_id == target
++        && !matches!(status.state, AppliedSelfWeightState::Fresh | AppliedSelfWeightState::ManualOverride)) {
++        return Err(err("Generated reconciliation must leave every managed record in the target case fresh or explicitly preserved"));
++    }
++    for (index, required) in required_after {
++        if !after_states.iter().any(|status| status.case_id == target && status.primitive_index == index && status.state == required) {
++            return Err(err("Generated replacement is inconsistent with actual current mass inputs or preserved manual lineage"));
++        }
++    }
++    Ok(RichEdit { writes: vec![(vec!["primitive_loads".into()], Some(Value::Array(preserved)))], current_display, warnings: vec![] })
++}
++
++fn validate_generation_record(record: &Value) -> Result<()> {
++    text(record.get("pipe_id"), "pipe_id")?;
++    text(record.get("request_provenance"), "request_provenance")?;
++    let gravity = record.get("gravity").ok_or_else(|| err("Missing gravity"))?;
++    object(gravity, &["value", "unit", "axis"])?;
++    enum_text(gravity.get("axis"), "gravity.axis", &["global_x", "global_y", "global_z"])?;
++    let acceleration = quantity(&projection(gravity, &["value", "unit"]), Dimension::Acceleration, false)?;
++    if acceleration == 0.0 { return Err(err("Gravity must be nonzero")); }
++    for (key, positive) in [("normalized_acceleration_m_per_s2", false), ("mass_kg_per_m", true)] {
++        let n = record.get(key).and_then(Value::as_f64).filter(|v| v.is_finite())
++            .ok_or_else(|| err(format!("Missing finite {key}")))?;
++        if n == 0.0 || (positive && n < 0.0) { return Err(err(format!("Invalid {key}"))); }
++    }
++    let section = record.get("section_ref").ok_or_else(|| err("Missing section_ref"))?;
++    let mass = record.get("mass_inputs").and_then(Value::as_object).ok_or_else(|| err("Missing mass_inputs"))?;
++    for (key, dim, required) in [
++        ("outside_diameter", Dimension::Length, true), ("wall_thickness", Dimension::Length, true),
++        ("material_density", Dimension::Density, true), ("mill_tolerance", Dimension::Length, false),
++        ("contents_density", Dimension::Density, false), ("insulation_thickness", Dimension::Length, false),
++        ("insulation_density", Dimension::Density, false)] {
++        let value = mass.get(key).ok_or_else(|| err(format!("Missing mass input {key}")))?;
++        if required || !value.is_null() { nonnegative(value, dim)?; }
++    }
++    if section.is_null() {
++        if record.get("referenced_section") != Some(&Value::Null) { return Err(err("Unexpected referenced section")); }
++    } else {
++        text(Some(section), "section_ref")?;
++        let shared = record.get("referenced_section").ok_or_else(|| err("Missing referenced section"))?;
++        if shared.get("id") != Some(section) || shared["section_type"] != "pipe"
++            || shared.pointer("/properties/outside_diameter") != mass.get("outside_diameter")
++            || shared.pointer("/properties/wall_thickness") != mass.get("wall_thickness") {
++            return Err(err("Referenced section lineage does not match mass inputs"));
++        }
++    }
++    if record["method"] == GENERATED_V2 {
++        if record["mass_method"] != "source_od_effective_wall_areas/v1" {
++            return Err(err("Unsupported generated self-weight mass method"));
++        }
++        if let Some(legacy) = record.get("legacy_generation_provenance") {
++            text(Some(legacy), "legacy_generation_provenance")?;
++        }
++        let payload = object(record.get("generated_payload").ok_or_else(|| err("Missing generated payload"))?, GENERATED_BODY)?;
++        if GENERATED_BODY.iter().any(|key| !payload.contains_key(*key)) { return Err(err("Incomplete generated payload")); }
++        let source = text(record.get("source_model_hash"), "source_model_hash")?;
++        if !source.strip_prefix("sha256:").is_some_and(|s| s.len() == 64 && s.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))) {
++            return Err(err("Malformed generated source hash"));
++        }
++        let deps = record.get("normalized_dependencies").and_then(Value::as_object).ok_or_else(|| err("Missing normalized dependencies"))?;
++        for key in ["section_ref", "outside_diameter", "wall_thickness", "material_density", "mill_tolerance", "contents_density", "insulation_thickness", "insulation_density"] {
++            if !deps.contains_key(key) { return Err(err(format!("Missing normalized dependency {key}"))); }
++        }
++    }
++    Ok(())
++}
+diff --git a/projects/chirality-piping/core/model_operations/operation_applier/tests/create_pipe_section_inputs.rs b/projects/chirality-piping/core/model_operations/operation_applier/tests/create_pipe_section_inputs.rs
+new file mode 100644
+index 0000000000..79649659e7
+--- /dev/null
++++ b/projects/chirality-piping/core/model_operations/operation_applier/tests/create_pipe_section_inputs.rs
+@@ -0,0 +1,263 @@
++//! Public operation coverage for explicitly authored pipe section inputs.
++use open_pipe_stress_operation_applier::{
++    apply_operation, apply_operation_batch, canonical_json, sha256_hex, validate_operation,
++    validate_operation_batch,
++};
++use open_pipe_stress_product_physics::{
++    self_weight::{generate_self_weight_operations, SelfWeightRequest},
++    PreviewModel,
++};
++use serde_json::{json, Value};
++
++fn model() -> Value {
++    json!({"schema_version":"0.1.0","document_kind":"openpipestress.product_preview.model",
++        "project":{"id":"project:invented","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","temperature":"K"}},
++        "analysis_status":{"mechanics":"not_run","rule_check":"not_run","professional_acceptance":"not_reviewed"},
++        "nodes":[
++            {"id":"node:root","position":{"x":0,"y":0,"z":0},"provenance":"invented"},
++            {"id":"node:tip","position":{"x":2,"y":0,"z":0},"provenance":"invented"}],
++        "materials":[{"id":"material:invented","label":"Invented elastic material","elastic_modulus":{"value":200000000000.0,"unit":"Pa"},"shear_modulus":{"value":77000000000.0,"unit":"Pa"},"provenance":"invented native M35 witness, no material standard"}],
++        "supports":[],"sections":[],"pipe_segments":[],"components":[],"load_cases":[],"combinations":[]})
++}
++
++fn pipe() -> Value {
++    // Original explicit connect payload from the native M35 witness.
++    json!({"id":"pipe:beam","label":"Invented beam","from":"node:root","to":"node:tip","material":"material:invented","y_reference":{"x":0,"y":1,"z":0},"provenance":"invented native M35 witness","section":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"},"material_density":{"value":1000,"unit":"kg/m^3"}}})
++}
++
++fn operation(payload: &Value) -> Value {
++    json!({"operation_id":"operation:explicit-section","operation_kind":"connect","operation_status":"proposed","author_type":"user","target":{"object_type":"Element","ref":"pipe:beam"},"change":{"change_id":"change:explicit-section","change_kind":"connect_pipe_run","field_label":"pipe_segments","field_path":"pipe_segments","before":"not_present","after":payload.to_string(),"unit":"m","dimension":"length","source_note":"Explicit invented fixture"},"validation":{"schema_validation":"not_run","constraint_validation":"not_run","unit_validation":"not_run","diff_preview_status":"not_generated","application_status":"not_applied"},"audit_boundary":{"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,"requires_user_acceptance":true,"mutates_accepted_model_state":false},"professional_boundary":{"human_review_required":true,"software_makes_compliance_claim":false,"software_makes_certification_claim":false,"software_makes_sealing_claim":false,"software_makes_approval_claim":false,"software_makes_authentication_claim":false},"rationale":"Explicit invented fixture"})
++}
++
++fn claim(model: &Value) -> Value {
++    json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","value":format!("sha256:{}",sha256_hex(&canonical_json(model)))})
++}
++
++fn accepted(payload: &Value) -> Value {
++    let m = model();
++    let before = m.clone();
++    let op = operation(payload);
++    let hash = claim(&m);
++    let validation = validate_operation(&m, &op, Some(&hash));
++    let outcome = apply_operation(&m, &op, Some(&hash));
++    assert!(validation.applied_model.is_none());
++    assert_eq!(
++        serde_json::to_value(&validation.diff_preview).unwrap(),
++        serde_json::to_value(&outcome.diff_preview).unwrap()
++    );
++    let applied = outcome
++        .applied_model
++        .unwrap_or_else(|| panic!("{:?}", outcome.diagnostics));
++    assert_eq!(m, before);
++    assert_eq!(applied["pipe_segments"][0]["section"], payload["section"]);
++    let preview: Value = serde_json::from_str(&outcome.diff_preview[0].after).unwrap();
++    assert_eq!(
++        canonical_json(&preview["section"]),
++        canonical_json(&payload["section"])
++    );
++    applied
++}
++
++fn rejected(payload: &Value) {
++    let m = model();
++    let before = m.clone();
++    let op = operation(payload);
++    for outcome in [
++        validate_operation(&m, &op, None),
++        apply_operation(&m, &op, None),
++    ] {
++        assert!(
++            outcome.applied_model.is_none(),
++            "accepted invalid payload {payload}"
++        );
++        assert!(outcome.diff_preview.is_empty());
++        assert!(outcome.diagnostics.iter().any(|d| d.severity == "blocking"));
++    }
++    assert_eq!(m, before);
++}
++
++#[test]
++fn original_native_density_survives_public_create_and_self_weight_planning() {
++    let applied = accepted(&pipe());
++    let batch = json!({"batch_id":"batch:original-density","operations":[operation(&pipe())]});
++    let batched = apply_operation_batch(&model(), &batch, Some(&claim(&model())));
++    assert_eq!(
++        batched["applied_model"]["pipe_segments"][0]["section"],
++        applied["pipe_segments"][0]["section"],
++        "{batched}"
++    );
++    let request: SelfWeightRequest = serde_json::from_value(json!({"case_id":"case:weight","label":"Invented self weight","pipe_refs":["pipe:beam"],"gravity":{"value":-7,"unit":"m/s^2","axis":"global_y"},"provenance":"explicit invented gravity","source_model_hash":claim(&applied)["value"]})).unwrap();
++    let typed: PreviewModel = serde_json::from_value(applied).unwrap();
++    let result = generate_self_weight_operations(&typed, &request);
++    assert!(result.is_ok(), "{result:?}");
++}
++
++#[test]
++fn creation_matches_set_field_for_all_optional_section_quantities() {
++    let quantities = [
++        (
++            "material_density",
++            "density",
++            json!({"value":0.04,"unit":"lb/in^3"}),
++        ),
++        ("mill_tolerance", "length", json!({"value":1.0,"unit":"mm"})),
++        (
++            "contents_density",
++            "density",
++            json!({"value":0.0,"unit":"kg/m^3"}),
++        ),
++        (
++            "insulation_thickness",
++            "length",
++            json!({"value":0.0,"unit":"in"}),
++        ),
++        (
++            "insulation_density",
++            "density",
++            json!({"value":0.0,"unit":"lb/in^3"}),
++        ),
++    ];
++    let mut payload = pipe();
++    payload["section"]
++        .as_object_mut()
++        .unwrap()
++        .remove("material_density");
++    let mut via_edits = accepted(&payload);
++    for (key, dimension, quantity) in quantities {
++        payload["section"][key] = quantity.clone();
++        let mut edit = operation(&payload);
++        edit["operation_kind"] = json!("modify");
++        edit["change"]["change_kind"] = json!("set_field");
++        edit["change"]["field_path"] = json!(format!("section.{key}.value"));
++        edit["change"]["before"] = json!("TBD");
++        edit["change"]["after"] = json!(quantity.to_string());
++        edit["change"]["unit"] = quantity["unit"].clone();
++        edit["change"]["dimension"] = json!(dimension);
++        let outcome = apply_operation(&via_edits, &edit, None);
++        via_edits = outcome
++            .applied_model
++            .unwrap_or_else(|| panic!("{:?}", outcome.diagnostics));
++    }
++    let created = accepted(&payload);
++    assert_eq!(
++        created["pipe_segments"][0]["section"],
++        via_edits["pipe_segments"][0]["section"]
++    );
++}
++
++#[test]
++fn absent_null_and_incomplete_inputs_are_preserved_without_defaults() {
++    let mut payload = pipe();
++    payload["section"]
++        .as_object_mut()
++        .unwrap()
++        .remove("material_density");
++    accepted(&payload);
++    for key in [
++        "material_density",
++        "mill_tolerance",
++        "contents_density",
++        "insulation_thickness",
++        "insulation_density",
++    ] {
++        payload["section"][key] = Value::Null;
++    }
++    accepted(&payload);
++    for key in ["insulation_thickness", "insulation_density"] {
++        let mut payload = pipe();
++        payload["section"][key] =
++            json!({"value":0,"unit":if key == "insulation_thickness" { "mm" } else { "kg/m^3" }});
++        accepted(&payload);
++        let outcome = apply_operation(&model(), &operation(&payload), None);
++        assert!(outcome
++            .diagnostics
++            .iter()
++            .any(|d| d.code == "OP-MASS-NOT-SOLVE-READY"));
++    }
++}
++
++#[test]
++fn invalid_optional_quantities_and_unknown_section_fields_are_rejected() {
++    for key in [
++        "material_density",
++        "mill_tolerance",
++        "contents_density",
++        "insulation_thickness",
++        "insulation_density",
++    ] {
++        let unit = if matches!(key, "mill_tolerance" | "insulation_thickness") {
++            "mm"
++        } else {
++            "kg/m^3"
++        };
++        for invalid in [
++            json!({"value":-1,"unit":unit}),
++            json!({"value":1,"unit":"Pa"}),
++            json!({"value":"1","unit":unit}),
++            json!({"value":1}),
++            json!({"unit":unit}),
++            json!({"value":1,"unit":unit,"unknown":true}),
++            json!(1),
++        ] {
++            let mut payload = pipe();
++            payload["section"][key] = invalid;
++            rejected(&payload);
++        }
++    }
++    for (key, invalid) in [
++        ("material_density", json!({"value":0,"unit":"kg/m^3"})),
++        ("mill_tolerance", json!({"value":10,"unit":"mm"})),
++        ("mill_tolerance", json!({"value":11,"unit":"mm"})),
++        (
++            "unrecognized_density",
++            json!({"value":1000,"unit":"kg/m^3"}),
++        ),
++    ] {
++        let mut payload = pipe();
++        payload["section"][key] = invalid;
++        rejected(&payload);
++    }
++}
++
++#[test]
++fn creation_rejects_shared_section_reference_instead_of_silently_detaching() {
++    let mut payload = pipe();
++    payload["section_ref"] = json!("section:authored");
++    rejected(&payload);
++    let outcome = apply_operation(&model(), &operation(&payload), None);
++    assert!(outcome
++        .diagnostics
++        .iter()
++        .any(|d| d.message.contains("assign_section")));
++}
++
++#[test]
++fn late_invalid_creation_rolls_back_prior_creation_atomically() {
++    let m = model();
++    let first = operation(&pipe());
++    let mut invalid = pipe();
++    invalid["id"] = json!("pipe:second");
++    invalid["section"]["material_density"] = json!({"value":0,"unit":"kg/m^3"});
++    let mut second = operation(&invalid);
++    second["operation_id"] = json!("operation:second");
++    second["change"]["change_id"] = json!("change:second");
++    second["target"]["ref"] = json!("pipe:second");
++    let batch = json!({"batch_id":"batch:explicit-section","operations":[first,second]});
++    for outcome in [
++        validate_operation_batch(&m, &batch, Some(&claim(&m))),
++        apply_operation_batch(&m, &batch, Some(&claim(&m))),
++    ] {
++        assert_eq!(
++            outcome["simulation_disposition"],
++            "rolled_back_no_model_published"
++        );
++        assert!(outcome["applied_model"].is_null());
++        assert!(outcome["acceptance"].is_null());
++        assert_eq!(outcome["operation_outcomes"].as_array().unwrap().len(), 2);
++        assert_eq!(
++            outcome["operation_outcomes"][0]["simulation_status"],
++            "validated_on_temporary_state"
++        );
++    }
++    assert!(m["pipe_segments"].as_array().unwrap().is_empty());
++}
+diff --git a/projects/chirality-piping/core/model_operations/operation_applier/tests/exact_authoring.rs b/projects/chirality-piping/core/model_operations/operation_applier/tests/exact_authoring.rs
+new file mode 100644
+index 0000000000..f669446782
+--- /dev/null
++++ b/projects/chirality-piping/core/model_operations/operation_applier/tests/exact_authoring.rs
+@@ -0,0 +1,208 @@
++use open_pipe_stress_operation_applier::{
++    apply_operation, canonical_json, sha256_hex, validate_operation,
++};
++use open_pipe_stress_product_physics::{
++    run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewSolverMode,
++};
++use serde_json::{json, Value};
++fn fixture() -> Value {
++    serde_json::from_str(include_str!(
++        "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
++    ))
++    .unwrap()
++}
++fn hash(model: &Value) -> Value {
++    json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","value":format!("sha256:{}",sha256_hex(&canonical_json(model)))})
++}
++fn intent(object: &str, id: &str, path: &str, before: Option<&Value>, after: &Value) -> Value {
++    json!({"operation_id":format!("op:author:{id}:{path}"),"operation_kind":"modify","operation_status":"proposed","author_type":"user","target":{"object_type":object,"ref":id},
++      "change":{"change_id":format!("change:author:{id}:{path}"),"change_kind":if object=="Load" {"update_load"} else {"set_field"},"field_label":path,"field_path":path,"before":before.map(canonical_json).unwrap_or("not_present".into()),"after":canonical_json(after),"unit":"none","dimension":"dimensionless","source_note":"Synthetic explicitly entered fixture values"},
++      "audit_boundary":{"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,"requires_user_acceptance":true,"mutates_accepted_model_state":false},
++      "professional_boundary":{"human_review_required":true,"software_makes_compliance_claim":false,"software_makes_certification_claim":false,"software_makes_sealing_claim":false,"software_makes_approval_claim":false,"software_makes_authentication_claim":false}})
++}
++fn apply(model: &Value, intent: &Value) -> Value {
++    let claim = hash(model);
++    let preview = validate_operation(model, intent, Some(&claim));
++    assert!(preview.applied_model.is_none());
++    assert_eq!(preview.diff_preview.len(), 1, "{:?}", preview.diagnostics);
++    let outcome = apply_operation(model, intent, Some(&claim));
++    outcome
++        .applied_model
++        .expect(&format!("{:?}", outcome.diagnostics))
++}
++fn projection(value: &Value, keys: &[&str]) -> Value {
++    Value::Object(
++        keys.iter()
++            .filter_map(|k| value.get(*k).map(|v| ((*k).into(), v.clone())))
++            .collect(),
++    )
++}
++#[test]
++fn exact_authoring_review_apply_serialization_and_real_solve() {
++    let expected = fixture();
++    let mut model = expected.clone();
++    model["schema_version"] = json!("0.2.0");
++    model.as_object_mut().unwrap().remove("pressure_contract");
++    let expected_material = model["materials"][0].clone();
++    model["materials"][0]
++        .as_object_mut()
++        .unwrap()
++        .remove("poisson_ratio");
++    model["materials"][0]
++        .as_object_mut()
++        .unwrap()
++        .remove("constitutive_basis");
++    model["materials"][0]["shear_modulus"] = json!({"value":7.7e10,"unit":"Pa"});
++    for case in model["load_cases"].as_array_mut().unwrap() {
++        case.as_object_mut().unwrap().remove("pressure_regions");
++    }
++    let keys = [
++        "constitutive_basis",
++        "elastic_modulus",
++        "shear_modulus",
++        "poisson_ratio",
++        "provenance",
++    ];
++    let op = intent(
++        "Material",
++        expected_material["id"].as_str().unwrap(),
++        "constitutive_properties",
++        Some(&projection(&model["materials"][0], &keys)),
++        &projection(&expected_material, &keys),
++    );
++    model = apply(&model, &op);
++    for case in expected["load_cases"].as_array().unwrap() {
++        let op = intent(
++            "Load",
++            case["id"].as_str().unwrap(),
++            "pressure_regions",
++            None,
++            &case["pressure_regions"],
++        );
++        model = apply(&model, &op);
++    }
++    let op = intent(
++        "Model",
++        expected["project"]["id"].as_str().unwrap(),
++        "pressure_profile",
++        Some(&json!({"schema_version":"0.2.0"})),
++        &projection(&expected, &["schema_version", "pressure_contract"]),
++    );
++    model = apply(&model, &op);
++    assert_eq!(canonical_json(&model), canonical_json(&expected));
++    // Plain JSON transport preserves the authored namespace; native store is checked by integration.
++    let restored: Value = serde_json::from_str(&serde_json::to_string(&model).unwrap()).unwrap();
++    assert_eq!(canonical_json(&restored), canonical_json(&expected));
++    for mode in [
++        PreviewSolverMode::SparseInteractive,
++        PreviewSolverMode::DenseScrutiny,
++    ] {
++        let request: LinearStaticPreviewRequest =
++            serde_json::from_value(json!({"model":restored,"materials":[]})).unwrap();
++        let result = run_linear_static_preview_with_mode(request, mode);
++        assert_eq!(
++            result.status.mechanics, "MECHANICS_SOLVED",
++            "{:?}",
++            result.diagnostics
++        );
++        let row = result
++            .results
++            .iter()
++            .find(|r| {
++                r.basis_ref
++                    .as_ref()
++                    .is_some_and(|b| b.ref_id == "case:closed-pressure")
++                    && r.entity_ref == "node:fixture-tip"
++                    && r.kind == "global_nodal_displacement_x"
++            })
++            .unwrap();
++        // Closed ends: axial strain = p*ri^2/(ro^2-ri^2)*(1-2nu)/E, L=1 m.
++        assert_eq!(row.unit, "mm");
++        let expected = 1000.0 * 2e6 * 0.05_f64.powi(2) / (0.06_f64.powi(2) - 0.05_f64.powi(2)) * 0.4 / 2e11;
++        assert!(
++            (row.value - expected).abs() < expected * 1e-9,
++            "{} vs {}",
++            row.value,
++            expected
++        );
++    }
++}
++#[test]
++fn exact_authoring_blocks_missing_explicit_inputs_and_stale_basis() {
++    let model = fixture();
++    let profile = projection(&model, &["schema_version", "pressure_contract"]);
++    let op = intent(
++        "Model",
++        model["project"]["id"].as_str().unwrap(),
++        "pressure_profile",
++        Some(&profile),
++        &profile,
++    );
++    assert!(apply_operation(&model, &op, None).applied_model.is_none());
++    let mut missing = model.clone();
++    missing["load_cases"][0]
++        .as_object_mut()
++        .unwrap()
++        .remove("pressure_regions");
++    assert!(apply_operation(&missing, &op, Some(&hash(&missing)))
++        .applied_model
++        .is_none());
++    let mut primitive = model.clone();
++    primitive["load_cases"][0]["primitive_loads"] =
++        json!([{"category":"pressure","magnitude":{"value":0,"unit":"Pa"}}]);
++    assert!(apply_operation(&primitive, &op, Some(&hash(&primitive)))
++        .applied_model
++        .is_none());
++    let mut region = model["load_cases"][0]["pressure_regions"].clone();
++    region[0]["terminals"][0]
++        .as_object_mut()
++        .unwrap()
++        .remove("closure_transfer");
++    let op = intent(
++        "Load",
++        "case:closed-pressure",
++        "pressure_regions",
++        Some(&model["load_cases"][0]["pressure_regions"]),
++        &region,
++    );
++    assert!(apply_operation(&model, &op, Some(&hash(&model)))
++        .applied_model
++        .is_none());
++}
++#[test]
++fn negative_nu_temperature_points_and_exact_material_creation_keep_values() {
++    let mut model = fixture();
++    let mut material = model["materials"][0].clone();
++    material["id"] = json!("material:new");
++    material["poisson_ratio"]["value"] = json!(-0.2);
++    let mut op = intent("Material", "material:new", "materials", None, &material);
++    op["operation_kind"] = json!("create");
++    op["change"]["change_kind"] = json!("create_material");
++    op["change"]["unit"] = json!("Pa");
++    op["change"]["dimension"] = json!("stress");
++    model = apply(&model, &op);
++    assert_eq!(model["materials"][1], material);
++    assert!(model["materials"][1].get("shear_modulus").is_none());
++    let points = json!([{"id":"point:auxetic","temperature":{"value":20,"unit":"degC"},"elastic_modulus":{"value":200,"unit":"GPa"},"poisson_ratio":{"value":-0.2,"unit":"1"},"provenance":"synthetic"}]);
++    let op = intent(
++        "Material",
++        "material:new",
++        "temperature_points",
++        None,
++        &points,
++    );
++    model = apply(&model, &op);
++    assert_eq!(model["materials"][1]["temperature_points"], points);
++    let mut invalid = points.clone();
++    invalid[0]["poisson_ratio"]["value"] = json!(-1);
++    let op = intent(
++        "Material",
++        "material:new",
++        "temperature_points",
++        Some(&points),
++        &invalid,
++    );
++    assert!(apply_operation(&model, &op, Some(&hash(&model)))
++        .applied_model
++        .is_none());
++}
+diff --git a/projects/chirality-piping/core/model_operations/operation_applier/tests/generated_self_weight.rs b/projects/chirality-piping/core/model_operations/operation_applier/tests/generated_self_weight.rs
+new file mode 100644
+index 0000000000..cb5b680b75
+--- /dev/null
++++ b/projects/chirality-piping/core/model_operations/operation_applier/tests/generated_self_weight.rs
+@@ -0,0 +1,324 @@
++use open_pipe_stress_operation_applier::{apply_operation, apply_operation_batch, canonical_json, sha256_hex};
++use serde_json::{json, Value};
++use open_pipe_stress_product_physics::{PreviewModel, self_weight::{inspect_applied_self_weight, generate_self_weight_operations, SelfWeightRequest, AppliedSelfWeightState}};
++fn operation(payload: &Value, before: &str, create: bool, id: &str) -> Value {
++    json!({"operation_id":format!("operation:{id}"),"operation_kind":if create{"create"}else{"modify"},"operation_status":"proposed","author_type":"user","target":{"object_type":"Load","ref":"load:s"},"change":{"change_id":format!("change:{id}"),"change_kind":if create{"create_support"}else{"update_load"},"field_label":"Load","field_path":if create{"supports"}else{"generated_self_weight"},"before":before,"after":canonical_json(payload),"unit":"none","dimension":"dimensionless","source_note":"Explicit fixture"},"validation":{"schema_validation":"not_run","constraint_validation":"not_run","unit_validation":"not_run","diff_preview_status":"not_generated","application_status":"not_applied"},"audit_boundary":{"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,"requires_user_acceptance":true,"mutates_accepted_model_state":false},"professional_boundary":{"human_review_required":true,"software_makes_compliance_claim":false,"software_makes_certification_claim":false,"software_makes_sealing_claim":false,"software_makes_approval_claim":false,"software_makes_authentication_claim":false},"rationale":"Explicit fixture"})
++}
++fn claim(m: &Value) -> Value {
++    json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","value":format!("sha256:{}",sha256_hex(&canonical_json(m)))})
++}
++
++fn legacy_model() -> Value {
++    let mut model: Value = serde_json::from_str(include_str!("../../../loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json")).unwrap();
++    model["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().truncate(1);
++    model["load_cases"][0]["primitive_loads"][0]["annotation"] = json!("preserve exactly");
++    model
++}
++fn refresh(m: &Value) -> Value {
++    let typed: PreviewModel = serde_json::from_value(m.clone()).unwrap();
++    let hash = claim(m)["value"].as_str().unwrap().to_owned();
++    let states = inspect_applied_self_weight(&typed, Some(&hash));
++    let mut next = m["load_cases"][0]["primitive_loads"].clone();
++    for status in states.iter().filter(|s| s.case_id == m["load_cases"][0]["id"].as_str().unwrap()) {
++        if let Some(replacement) = &status.replacement {
++            next[status.primitive_index]["magnitude"] = replacement["magnitude"].clone();
++            next[status.primitive_index]["provenance"] = replacement["provenance"].clone();
++        }
++    }
++    assert_ne!(next,m["load_cases"][0]["primitive_loads"],"{states:?}");
++    next
++}
++fn fixture() -> (Value, Value) { let model = legacy_model(); let next = refresh(&model); (model,next) }
++fn generated_model(mill: bool) -> Value {
++    let mut model = legacy_model(); model["load_cases"] = json!([]);
++    if mill { model["pipe_segments"][0]["section"]["mill_tolerance"] = json!({"value":0.5,"unit":"mm"}); }
++    let request: SelfWeightRequest = serde_json::from_value(json!({"case_id":"case:weight","label":"Invented self weight","pipe_refs":["pipe:beam"],"gravity":{"value":-7,"unit":"m/s^2","axis":"global_y"},"provenance":"explicit invented gravity","source_model_hash":claim(&model)["value"]})).unwrap();
++    let typed: PreviewModel = serde_json::from_value(model.clone()).unwrap();
++    let plan = generate_self_weight_operations(&typed,&request).unwrap();
++    let mut case: Value = serde_json::from_str(&plan.changes[0].after).unwrap();
++    let primitive: Value = serde_json::from_str(&plan.changes[1].after).unwrap();
++    case["primitive_loads"] = json!([primitive]); model["load_cases"] = json!([case]); model
++}
++fn edit(m: &Value, next: &Value, id: &str) -> Value {
++    let mut op = operation(next,&canonical_json(&m["load_cases"][0]["primitive_loads"]),false,id);
++    op["target"]["ref"] = m["load_cases"][0]["id"].clone(); op
++}
++#[test]
++fn refresh_needs_current_hash_and_preserves_identity() {
++    let (m,next)=fixture(); let op=edit(&m,&next,"refresh");
++    assert!(apply_operation(&m,&op,None).applied_model.is_none());
++    let out=apply_operation(&m,&op,Some(&claim(&m)));
++    assert_eq!(out.applied_model.as_ref().unwrap()["load_cases"][0]["primitive_loads"],next,"{:?}",out.diagnostics);
++    let mut altered=next.clone(); altered[0]["annotation"]=json!("changed");
++    assert!(apply_operation(&m,&edit(&m,&altered,"bad"),Some(&claim(&m))).applied_model.is_none());
++    let mut duplicate=next.clone(); duplicate.as_array_mut().unwrap().push(next[0].clone());
++    assert!(apply_operation(&m,&edit(&m,&duplicate,"dup"),Some(&claim(&m))).applied_model.is_none());
++}
++#[test]
++fn manual_detach_preserves_every_physical_field() {
++    let (mut m,_)=fixture(); m["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(-70.0);
++    let mut next=m["load_cases"][0]["primitive_loads"].clone();
++    let prior: Value=serde_json::from_str(next[0]["provenance"].as_str().unwrap()).unwrap();
++    next[0]["provenance"]=json!(json!({"method":"manual_override_of_generated_self_weight/v1","original_generation_provenance":prior,"decision":"preserve_modified_generated_load","source_model_hash":claim(&m)["value"]}).to_string());
++    assert!(apply_operation(&m,&edit(&m,&next,"manual"),Some(&claim(&m))).applied_model.is_some());
++    next[0]["magnitude"]["value"]=json!(-99);
++    assert!(apply_operation(&m,&edit(&m,&next,"bad"),Some(&claim(&m))).applied_model.is_none());
++}
++#[test]
++fn source_plan_guard_and_late_failure_publish_no_model() {
++    let (m,next)=fixture(); let op=edit(&m,&next,"one");
++    let mut batch=json!({"batch_id":"batch","source_model_hash":claim(&m)["value"],"operations":[op.clone()]});
++    assert!(apply_operation_batch(&m,&batch,Some(&claim(&m)))["applied_model"].is_object());
++    batch["source_model_hash"]=json!(format!("sha256:{}","0".repeat(64)));
++    let failed=apply_operation_batch(&m,&batch,Some(&claim(&m)));
++    assert!(failed["applied_model"].is_null()); assert_eq!(failed["operation_outcomes"],json!([]));
++    batch["source_model_hash"]=claim(&m)["value"].clone();
++    batch["operations"].as_array_mut().unwrap().push(edit(&m,&next,"two"));
++    let failed=apply_operation_batch(&m,&batch,Some(&claim(&m)));
++    assert!(failed["applied_model"].is_null()); assert_eq!(failed["operation_outcomes"].as_array().unwrap().len(),2);
++    batch["source_model_hash"]=json!("malformed");
++    assert!(apply_operation_batch(&m,&batch,Some(&claim(&m)))["operation_outcomes"].as_array().unwrap().is_empty());
++}
++
++
++#[test]
++fn canonical_transport_preserves_integral_float_manual_records_and_detached_physics() {
++    let (mut m, mut next) = fixture();
++    let manual = json!({"id":"manual-tip","category":"concentrated_force","target":{"type":"node","node":"node:tip"},"direction":"global_y","magnitude":{"value":-11.0,"unit":"N"},"dimension":"force","provenance":"ordinary manual input","extra":{"number":2.0}});
++    m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(manual.clone());
++    next.as_array_mut().unwrap().push(manual.clone());
++    m["load_cases"][0]["primitive_loads"][0]["extra"] = json!({"number":3.0});
++    next[0]["extra"] = json!({"number":3.0});
++    let mut record: Value = serde_json::from_str(next[0]["provenance"].as_str().unwrap()).unwrap();
++    record["source_model_hash"] = claim(&m)["value"].clone();
++    next[0]["provenance"] = json!(record.to_string());
++    let out = apply_operation(&m, &edit(&m,&next,"refresh-float"), Some(&claim(&m)));
++    let applied = out.applied_model.as_ref().unwrap_or_else(|| panic!("{:?}",out.diagnostics));
++    assert_eq!(applied["load_cases"][0]["primitive_loads"][1], manual);
++    assert_eq!(applied["load_cases"][0]["primitive_loads"][0]["extra"], m["load_cases"][0]["primitive_loads"][0]["extra"]);
++    next[1]["magnitude"]["value"] = json!(-12);
++    assert!(apply_operation(&m,&edit(&m,&next,"changed-manual"),Some(&claim(&m))).applied_model.is_none());
++
++    m["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(-99.0);
++    let original = m["load_cases"][0]["primitive_loads"][0].clone();
++    let prior: Value = serde_json::from_str(original["provenance"].as_str().unwrap()).unwrap();
++    let mut detached = m["load_cases"][0]["primitive_loads"].clone();
++    detached[0]["provenance"] = json!(json!({"method":"manual_override_of_generated_self_weight/v1","original_generation_provenance":prior,"decision":"preserve_modified_generated_load","source_model_hash":claim(&m)["value"]}).to_string());
++    let out = apply_operation(&m,&edit(&m,&detached,"detach-float"),Some(&claim(&m)));
++    let applied = out.applied_model.as_ref().unwrap_or_else(|| panic!("{:?}",out.diagnostics));
++    let mut expected = original.clone(); expected["provenance"] = detached[0]["provenance"].clone();
++    assert_eq!(applied["load_cases"][0]["primitive_loads"][0], expected);
++    assert_eq!(applied["load_cases"][0]["primitive_loads"][1], manual);
++}
++
++
++fn manual_preservation(m: &Value) -> Value {
++    let mut next = m["load_cases"][0]["primitive_loads"].clone();
++    let prior: Value = serde_json::from_str(next[0]["provenance"].as_str().unwrap()).unwrap();
++    next[0]["provenance"] = json!(json!({"method":"manual_override_of_generated_self_weight/v1","original_generation_provenance":prior,"decision":"preserve_modified_generated_load","source_model_hash":claim(m)["value"]}).to_string());
++    next
++}
++
++#[test]
++fn explicit_manual_preservation_allows_existing_retarget_with_deleted_original_pipe() {
++    let (mut m, _) = fixture();
++    m["pipe_segments"][0]["id"] = json!("pipe:retarget");
++    m["load_cases"][0]["primitive_loads"][0]["target"]["pipe"] = json!("pipe:retarget");
++    let next = manual_preservation(&m);
++    let out = apply_operation(&m,&edit(&m,&next,"preserve-retarget"),Some(&claim(&m)));
++    assert_eq!(out.applied_model.as_ref().unwrap_or_else(|| panic!("{:?}",out.diagnostics))["load_cases"][0]["primitive_loads"],next);
++    let mut nonexistent = m.clone(); nonexistent["pipe_segments"] = json!([]);
++    assert!(apply_operation(&nonexistent,&edit(&nonexistent,&manual_preservation(&nonexistent),"missing-retarget"),Some(&claim(&nonexistent))).applied_model.is_none());
++    let mut other = m["pipe_segments"][0].clone(); other["id"] = json!("pipe:other");
++    m["pipe_segments"].as_array_mut().unwrap().push(other);
++    let mut overwritten = manual_preservation(&m); overwritten[0]["target"]["pipe"] = json!("pipe:other");
++    assert!(apply_operation(&m,&edit(&m,&overwritten,"overwrite-retarget"),Some(&claim(&m))).applied_model.is_none());
++}
++
++#[test]
++fn mill_tolerance_uses_absolute_length_for_refresh_and_preservation() {
++    let mut m = generated_model(true);
++    m["pipe_segments"][0]["section"]["material_density"]["value"] = json!(2000);
++    let next = refresh(&m);
++    let out = apply_operation(&m,&edit(&m,&next,"refresh-mill"),Some(&claim(&m)));
++    assert!(out.applied_model.is_some(),"{:?}",out.diagnostics);
++    m["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(-99.0);
++    let preserved = manual_preservation(&m);
++    let out = apply_operation(&m,&edit(&m,&preserved,"preserve-mill"),Some(&claim(&m)));
++    assert!(out.applied_model.is_some(),"{:?}",out.diagnostics);
++    let mut prior: Value = serde_json::from_str(m["load_cases"][0]["primitive_loads"][0]["provenance"].as_str().unwrap()).unwrap();
++    prior["mass_inputs"]["mill_tolerance"]["unit"] = json!("1");
++    m["load_cases"][0]["primitive_loads"][0]["provenance"] = json!(prior.to_string());
++    assert!(apply_operation(&m,&edit(&m,&manual_preservation(&m),"dimensionless-mill"),Some(&claim(&m))).applied_model.is_none());
++}
++
++#[test]
++fn stable_mass_method_and_verbatim_legacy_lineage_are_required() {
++    let (m, next) = fixture();
++    let original = m["load_cases"][0]["primitive_loads"][0]["provenance"].clone();
++    let record: Value = serde_json::from_str(next[0]["provenance"].as_str().unwrap()).unwrap();
++    assert_eq!(record["legacy_generation_provenance"], original);
++    for key in ["mass_method", "legacy_generation_provenance"] {
++        let mut bad = next.clone(); let mut changed = record.clone();
++        changed.as_object_mut().unwrap().remove(key);
++        bad[0]["provenance"] = json!(changed.to_string());
++        assert!(apply_operation(&m,&edit(&m,&bad,key),Some(&claim(&m))).applied_model.is_none());
++    }
++    // Even semantically identical reserialization of historical provenance is
++    // not verbatim lineage retention.
++    let mut bad = next.clone(); let mut changed = record.clone();
++    changed["legacy_generation_provenance"] = json!(format!(" {}",original.as_str().unwrap()));
++    bad[0]["provenance"] = json!(changed.to_string());
++    assert!(apply_operation(&m,&edit(&m,&bad,"rewritten-legacy"),Some(&claim(&m))).applied_model.is_none());
++    let first = apply_operation(&m,&edit(&m,&next,"first"),Some(&claim(&m))).applied_model.unwrap();
++    let mut subsequent = first["load_cases"][0]["primitive_loads"].clone();
++    let mut refreshed: Value = serde_json::from_str(subsequent[0]["provenance"].as_str().unwrap()).unwrap();
++    refreshed["source_model_hash"] = claim(&first)["value"].clone();
++    subsequent[0]["provenance"] = json!(refreshed.to_string());
++    assert!(apply_operation(&first,&edit(&first,&subsequent,"later"),Some(&claim(&first))).applied_model.is_some());
++    let mut native_v2 = first.clone();
++    let mut native_record: Value = serde_json::from_str(native_v2["load_cases"][0]["primitive_loads"][0]["provenance"].as_str().unwrap()).unwrap();
++    native_record.as_object_mut().unwrap().remove("legacy_generation_provenance");
++    native_v2["load_cases"][0]["primitive_loads"][0]["provenance"] = json!(native_record.to_string());
++    let mut invented = native_v2["load_cases"][0]["primitive_loads"].clone();
++    native_record["source_model_hash"] = claim(&native_v2)["value"].clone();
++    native_record["legacy_generation_provenance"] = original;
++    invented[0]["provenance"] = json!(native_record.to_string());
++    assert!(apply_operation(&native_v2,&edit(&native_v2,&invented,"invented-lineage"),Some(&claim(&native_v2))).applied_model.is_none());
++    refreshed["legacy_generation_provenance"] = first["load_cases"][0]["primitive_loads"][0]["provenance"].clone();
++    subsequent[0]["provenance"] = json!(refreshed.to_string());
++    assert!(apply_operation(&first,&edit(&first,&subsequent,"nested"),Some(&claim(&first))).applied_model.is_none());
++}
++
++
++fn assert_direct_and_imported_blocked(m: &Value, next: &Value, id: &str) {
++    let op = edit(m,next,id);
++    assert!(apply_operation(m,&op,Some(&claim(m))).applied_model.is_none());
++    let batch = json!({"batch_id":id,"source_model_hash":claim(m)["value"],"operations":[op]});
++    let out = apply_operation_batch(m,&batch,Some(&claim(m)));
++    assert!(out["applied_model"].is_null(),"{out}");
++}
++#[test]
++fn source_inspection_prevents_direct_and_imported_override_replacement() {
++    let mut m = generated_model(false);
++    m["pipe_segments"][0]["section"]["material_density"]["value"] = json!(2000);
++    let mut next = refresh(&m);
++    m["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(-123.0);
++    let mut provenance: Value = serde_json::from_str(next[0]["provenance"].as_str().unwrap()).unwrap();
++    provenance["source_model_hash"] = claim(&m)["value"].clone();
++    next[0]["provenance"] = json!(provenance.to_string());
++    assert_direct_and_imported_blocked(&m,&next,"overwrite-v2");
++    let detached = manual_preservation(&m);
++    let out = apply_operation(&m,&edit(&m,&detached,"preserve-v2"),Some(&claim(&m)));
++    assert!(out.applied_model.is_some(),"{:?}",out.diagnostics);
++    let pristine = generated_model(false);
++    assert_direct_and_imported_blocked(&pristine,&manual_preservation(&pristine),"detach-unmodified");
++}
++#[test]
++fn source_inspection_rejects_forged_or_stale_after_basis_even_with_current_hash() {
++    let mut m = generated_model(false);
++    m["pipe_segments"][0]["section"]["material_density"]["value"] = json!(2000);
++    let mut stale = m["load_cases"][0]["primitive_loads"].clone();
++    let mut record: Value = serde_json::from_str(stale[0]["provenance"].as_str().unwrap()).unwrap();
++    record["source_model_hash"] = claim(&m)["value"].clone();
++    stale[0]["provenance"] = json!(record.to_string());
++    assert_direct_and_imported_blocked(&m,&stale,"stale-after");
++    let mut forged = refresh(&m);
++    let mut record: Value = serde_json::from_str(forged[0]["provenance"].as_str().unwrap()).unwrap();
++    forged[0]["magnitude"]["value"] = json!(-999.0);
++    record["generated_payload"]["magnitude"] = forged[0]["magnitude"].clone();
++    forged[0]["provenance"] = json!(record.to_string());
++    assert_direct_and_imported_blocked(&m,&forged,"forged-after");
++    let mut forged = refresh(&m);
++    let mut record: Value = serde_json::from_str(forged[0]["provenance"].as_str().unwrap()).unwrap();
++    record["normalized_dependencies"]["material_density"]["value"] = json!(3000.0);
++    forged[0]["provenance"] = json!(record.to_string());
++    assert_direct_and_imported_blocked(&m,&forged,"forged-dependencies");
++}
++#[test]
++fn changed_or_ambiguous_legacy_record_cannot_be_managed_refreshed() {
++    for ambiguous in [false,true] {
++        let (mut m,mut next) = fixture();
++        if ambiguous {
++            let mut prior: Value = serde_json::from_str(m["load_cases"][0]["primitive_loads"][0]["provenance"].as_str().unwrap()).unwrap();
++            prior["mass_kg_per_m"] = json!(3.0);
++            m["load_cases"][0]["primitive_loads"][0]["provenance"] = json!(prior.to_string());
++        } else { m["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(-123.0); }
++        let mut record: Value = serde_json::from_str(next[0]["provenance"].as_str().unwrap()).unwrap();
++        record["source_model_hash"] = claim(&m)["value"].clone();
++        record["legacy_generation_provenance"] = m["load_cases"][0]["primitive_loads"][0]["provenance"].clone();
++        next[0]["provenance"] = json!(record.to_string());
++        assert_direct_and_imported_blocked(&m,&next,"legacy-override");
++        let typed: PreviewModel = serde_json::from_value(m.clone()).unwrap();
++        assert_eq!(inspect_applied_self_weight(&typed,None)[0].state,AppliedSelfWeightState::Modified);
++    }
++}
++
++
++#[test]
++fn internally_valid_doubled_gravity_cannot_replace_original_explicit_gravity() {
++    let m = generated_model(false);
++    let original = m.clone();
++    // Generate a fully source-consistent record using an unauthorized new
++    // gravity. Neither hash freshness nor candidate self-consistency grants
++    // authority to replace the original user's acceleration during refresh.
++    let mut generation_source = m.clone(); generation_source["load_cases"] = json!([]);
++    let request: SelfWeightRequest = serde_json::from_value(json!({"case_id":"case:weight","label":"Invented self weight","pipe_refs":["pipe:beam"],"gravity":{"value":-14,"unit":"m/s^2","axis":"global_y"},"provenance":"explicit invented gravity","source_model_hash":claim(&m)["value"]})).unwrap();
++    let typed: PreviewModel = serde_json::from_value(generation_source).unwrap();
++    let plan = generate_self_weight_operations(&typed,&request).unwrap();
++    let regenerated: Value = serde_json::from_str(&plan.changes[1].after).unwrap();
++    let mut replacement = m["load_cases"][0]["primitive_loads"].clone();
++    replacement[0]["magnitude"] = regenerated["magnitude"].clone();
++    replacement[0]["provenance"] = regenerated["provenance"].clone();
++    let mut consistent_candidate = m.clone();
++    consistent_candidate["load_cases"][0]["primitive_loads"] = replacement.clone();
++    let typed_candidate: PreviewModel = serde_json::from_value(consistent_candidate).unwrap();
++    assert_eq!(inspect_applied_self_weight(&typed_candidate,None)[0].state,AppliedSelfWeightState::Fresh);
++    assert_direct_and_imported_blocked(&m,&replacement,"unauthorized-gravity");
++    assert_eq!(m,original);
++}
++
++
++#[test]
++fn managed_refresh_cannot_rewrite_original_user_generation_provenance() {
++    let mut m = generated_model(false);
++    m["pipe_segments"][0]["section"]["material_density"]["value"] = json!(2000);
++    let original = m.clone();
++    let mut replacement = refresh(&m);
++    let mut provenance: Value = serde_json::from_str(replacement[0]["provenance"].as_str().unwrap()).unwrap();
++    provenance["request_provenance"] = json!("rewritten user intent");
++    replacement[0]["provenance"] = json!(provenance.to_string());
++    let mut candidate = m.clone(); candidate["load_cases"][0]["primitive_loads"] = replacement.clone();
++    let typed: PreviewModel = serde_json::from_value(candidate).unwrap();
++    assert_eq!(inspect_applied_self_weight(&typed,None)[0].state,AppliedSelfWeightState::Fresh);
++    assert_direct_and_imported_blocked(&m,&replacement,"rewritten-generation-intent");
++    assert_eq!(m,original);
++}
++
++
++#[test]
++fn target_case_requires_complete_reconciliation_of_all_generated_records() {
++    let mut model = legacy_model(); model["load_cases"] = json!([]);
++    let mut second = model["pipe_segments"][0].clone(); second["id"] = json!("pipe:second");
++    model["pipe_segments"].as_array_mut().unwrap().push(second);
++    let request: SelfWeightRequest = serde_json::from_value(json!({"case_id":"case:weight","label":"Invented two-pipe self weight","pipe_refs":["pipe:beam","pipe:second"],"gravity":{"value":-7,"unit":"m/s^2","axis":"global_y"},"provenance":"explicit invented gravity","source_model_hash":claim(&model)["value"]})).unwrap();
++    let typed: PreviewModel = serde_json::from_value(model.clone()).unwrap();
++    let plan = generate_self_weight_operations(&typed,&request).unwrap();
++    let mut case: Value = serde_json::from_str(&plan.changes[0].after).unwrap();
++    let primitives: Vec<Value> = plan.changes.iter().skip(1).map(|change| serde_json::from_str(&change.after).unwrap()).collect();
++    assert_eq!(primitives.len(),2);
++    case["primitive_loads"] = Value::Array(primitives); model["load_cases"] = json!([case]);
++    for pipe in model["pipe_segments"].as_array_mut().unwrap() { pipe["section"]["material_density"]["value"] = json!(2000); }
++    let original = model.clone();
++    let full = refresh(&model);
++    let mut partial = full.clone(); partial[1] = model["load_cases"][0]["primitive_loads"][1].clone();
++    assert_direct_and_imported_blocked(&model,&partial,"partial-case-refresh");
++    assert_eq!(model,original);
++    let op = edit(&model,&full,"full-case-refresh");
++    let direct = apply_operation(&model,&op,Some(&claim(&model)));
++    assert!(direct.applied_model.is_some(),"{:?}",direct.diagnostics);
++    let batch = json!({"batch_id":"full-case","source_model_hash":claim(&model)["value"],"operations":[op]});
++    let imported = apply_operation_batch(&model,&batch,Some(&claim(&model)));
++    assert!(imported["applied_model"].is_object(),"{imported}");
++    assert_eq!(model,original);
++}
+diff --git a/projects/chirality-piping/fixtures/model_operations/exact_pressure_authoring_model.json b/projects/chirality-piping/fixtures/model_operations/exact_pressure_authoring_model.json
+new file mode 100644
+index 0000000000..d237234d31
+--- /dev/null
++++ b/projects/chirality-piping/fixtures/model_operations/exact_pressure_authoring_model.json
+@@ -0,0 +1,248 @@
++{
++  "schema_version": "0.3.0",
++  "document_kind": "openpipestress.product_preview.model",
++  "pressure_contract": {
++    "version": "2.0.0",
++    "mode": "exact_straight_pressure_v2"
++  },
++  "project": {
++    "id": "project:exact-pressure-connected-fixture",
++    "units": {
++      "length": "m",
++      "force": "N",
++      "angle": "rad",
++      "pressure": "Pa",
++      "stress": "Pa",
++      "temperature": "degC"
++    },
++    "name": "Synthetic exact-pressure authoring control",
++    "description": "Synthetic user-input fixture; no library or code-rule data."
++  },
++  "analysis_status": {
++    "mechanics": "ready_for_preview_diagnostics",
++    "rule_check": "not_performed_user_rule_inputs_missing",
++    "professional_acceptance": "not_provided"
++  },
++  "nodes": [
++    {
++      "id": "node:fixture-root",
++      "position": {
++        "x": 0,
++        "y": 0,
++        "z": 0
++      },
++      "provenance": "synthetic_integration_input_not_library_data",
++      "label": "fixture-root"
++    },
++    {
++      "id": "node:fixture-tip",
++      "position": {
++        "x": 1,
++        "y": 0,
++        "z": 0
++      },
++      "provenance": "synthetic_integration_input_not_library_data",
++      "label": "fixture-tip"
++    }
++  ],
++  "pipe_segments": [
++    {
++      "id": "pipe:fixture-span",
++      "from": "node:fixture-root",
++      "to": "node:fixture-tip",
++      "section": {
++        "outside_diameter": {
++          "value": 0.12,
++          "unit": "m"
++        },
++        "wall_thickness": {
++          "value": 0.01,
++          "unit": "m"
++        }
++      },
++      "material": "material:fixture-isotropic",
++      "y_reference": {
++        "x": 0,
++        "y": 1,
++        "z": 0
++      },
++      "provenance": "synthetic_integration_input_not_library_data",
++      "label": "fixture-span"
++    }
++  ],
++  "materials": [
++    {
++      "id": "material:fixture-isotropic",
++      "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
++      "elastic_modulus": {
++        "value": 200000000000.0,
++        "unit": "Pa"
++      },
++      "poisson_ratio": {
++        "value": 0.3,
++        "unit": "1"
++      },
++      "provenance": "synthetic_integration_input_not_library_data",
++      "label": "fixture-isotropic"
++    }
++  ],
++  "supports": [
++    {
++      "id": "support:fixture-root",
++      "node": "node:fixture-root",
++      "family": "anchor",
++      "restraints": [
++        "UX",
++        "UY",
++        "UZ",
++        "RX",
++        "RY",
++        "RZ"
++      ],
++      "provenance": "synthetic_integration_input_not_library_data",
++      "label": "fixture-root"
++    }
++  ],
++  "components": [],
++  "load_cases": [
++    {
++      "id": "case:closed-pressure",
++      "primitive_loads": [],
++      "pressure_regions": [
++        {
++          "id": "region:fixture-pressure",
++          "member_pipe_ids": [
++            "pipe:fixture-span"
++          ],
++          "pressure_basis": "internal_differential_zero_external_v1",
++          "pressure": {
++            "value": 2000,
++            "unit": "kPa"
++          },
++          "terminals": [
++            {
++              "node_ref": "node:fixture-root",
++              "closure_transfer": "transfers_to_wall",
++              "provenance": "synthetic_integration_input_not_library_data"
++            },
++            {
++              "node_ref": "node:fixture-tip",
++              "closure_transfer": "transfers_to_wall",
++              "provenance": "synthetic_integration_input_not_library_data"
++            }
++          ],
++          "provenance": "synthetic_integration_input_not_library_data"
++        }
++      ],
++      "provenance": "synthetic_integration_input_not_library_data",
++      "label": "closed-pressure",
++      "kind": "primitive_user_load",
++      "status": "preview_only"
++    },
++    {
++      "id": "case:six-component-load",
++      "primitive_loads": [
++        {
++          "id": "load:fixture-global_x",
++          "category": "concentrated_force",
++          "target": {
++            "type": "node",
++            "node": "node:fixture-tip"
++          },
++          "direction": "global_x",
++          "magnitude": {
++            "value": 1000,
++            "unit": "N"
++          },
++          "dimension": "force",
++          "provenance": "synthetic_integration_input_not_library_data"
++        },
++        {
++          "id": "load:fixture-global_y",
++          "category": "concentrated_force",
++          "target": {
++            "type": "node",
++            "node": "node:fixture-tip"
++          },
++          "direction": "global_y",
++          "magnitude": {
++            "value": 2000,
++            "unit": "N"
++          },
++          "dimension": "force",
++          "provenance": "synthetic_integration_input_not_library_data"
++        },
++        {
++          "id": "load:fixture-global_z",
++          "category": "concentrated_force",
++          "target": {
++            "type": "node",
++            "node": "node:fixture-tip"
++          },
++          "direction": "global_z",
++          "magnitude": {
++            "value": -3000,
++            "unit": "N"
++          },
++          "dimension": "force",
++          "provenance": "synthetic_integration_input_not_library_data"
++        },
++        {
++          "id": "load:fixture-rotation_x",
++          "category": "concentrated_moment",
++          "target": {
++            "type": "node",
++            "node": "node:fixture-tip"
++          },
++          "direction": "rotation_x",
++          "magnitude": {
++            "value": 400,
++            "unit": "N*m"
++          },
++          "dimension": "moment",
++          "provenance": "synthetic_integration_input_not_library_data"
++        },
++        {
++          "id": "load:fixture-rotation_y",
++          "category": "concentrated_moment",
++          "target": {
++            "type": "node",
++            "node": "node:fixture-tip"
++          },
++          "direction": "rotation_y",
++          "magnitude": {
++            "value": -500,
++            "unit": "N*m"
++          },
++          "dimension": "moment",
++          "provenance": "synthetic_integration_input_not_library_data"
++        },
++        {
++          "id": "load:fixture-rotation_z",
++          "category": "concentrated_moment",
++          "target": {
++            "type": "node",
++            "node": "node:fixture-tip"
++          },
++          "direction": "rotation_z",
++          "magnitude": {
++            "value": 600,
++            "unit": "N*m"
++          },
++          "dimension": "moment",
++          "provenance": "synthetic_integration_input_not_library_data"
++        }
++      ],
++      "pressure_regions": [],
++      "provenance": "synthetic_integration_input_not_library_data",
++      "label": "six-component-load",
++      "kind": "primitive_user_load",
++      "status": "preview_only"
++    }
++  ],
++  "combinations": [],
++  "data_boundary": {
++    "source": "synthetic_integration_input_not_library_data"
++  },
++  "diagnostics": []
++}

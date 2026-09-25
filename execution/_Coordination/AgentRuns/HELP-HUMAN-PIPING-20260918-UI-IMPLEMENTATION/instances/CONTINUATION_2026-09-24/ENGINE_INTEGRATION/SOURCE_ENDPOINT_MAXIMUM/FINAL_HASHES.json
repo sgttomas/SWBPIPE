@@ -1,0 +1,41 @@
+{
+  "frozen_at_utc": "2026-09-25T06:45:47.887120+00:00",
+  "status": "author draft frozen; no production integration or independent review claimed",
+  "files": [
+    {
+      "path": "BRIEF.md",
+      "sha256": "c004002a845c02a34c838fa692667fa11b5df38310b75eb90052d9463aed5a2a",
+      "bytes": 4735
+    },
+    {
+      "path": "endpoint_maximum.rs",
+      "sha256": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6",
+      "bytes": 16885
+    },
+    {
+      "path": "check_reference.py",
+      "sha256": "0acd11da82f57a209e9a2fa49ed2c1d927f960f807dfa020a07a8f10f452f860",
+      "bytes": 11577
+    },
+    {
+      "path": "REFERENCE_RESULTS.json",
+      "sha256": "8ececdb686ce425a8c1531b383f2203b0f0b95afe19da694c654cc04a5e41dae",
+      "bytes": 24271
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "ca1ceb9cec4795d7a1f6550d862e0dee9e75bd04ebea1f82c1be2ad93a347a85",
+      "bytes": 13403
+    },
+    {
+      "path": "INPUT_ORIGINS.json",
+      "sha256": "e4146df6a80269306f9d120c22ea048794af3b55381271c1fcae0c52e2abbee7",
+      "bytes": 8121
+    },
+    {
+      "path": "CHECKS.json",
+      "sha256": "9a93bf965214367cf8d8fea8c2434ea61532e4c84fe3ab5f1b1ce9e6108b337b",
+      "bytes": 2230
+    }
+  ]
+}

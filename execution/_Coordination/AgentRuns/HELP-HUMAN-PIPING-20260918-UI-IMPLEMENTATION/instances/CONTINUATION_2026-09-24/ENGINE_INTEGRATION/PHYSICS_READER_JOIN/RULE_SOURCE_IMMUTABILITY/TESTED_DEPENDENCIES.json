@@ -1,0 +1,18 @@
+[
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "sha256": "ee98463c29ece7abe5d3873e2e06931edc42cf8ec7b82b376de5ebcf7c92ba44"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+    "sha256": "3794d4c472ca3c688f4ccea9d02e89f3d2963eb91949f43b4bbef0c6ac5ca557"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+    "sha256": "8a23c917df392984bb0b24e6709d2d2a0e0176d17836938fbf3928c1f334877f"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+    "sha256": "1721f2b5308f8ac224d506e1fe7f5b0a1510336929f91e1f31370e4b74847a64"
+  }
+]

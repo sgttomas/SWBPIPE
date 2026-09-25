@@ -1,0 +1,48 @@
+{
+  "operation_id": "op:native-m35-setup-4",
+  "operation_kind": "connect",
+  "operation_status": "proposed",
+  "author_type": "agent",
+  "target": {
+    "object_type": "Element",
+    "ref": "pipe:beam"
+  },
+  "change": {
+    "change_id": "change:native-m35-setup-4",
+    "change_kind": "connect_pipe_run",
+    "field_label": "pipe_segments",
+    "field_path": "pipe_segments",
+    "before": "not_present",
+    "after": "{\"id\":\"pipe:beam\",\"label\":\"Invented beam\",\"from\":\"node:root\",\"to\":\"node:tip\",\"material\":\"material:invented\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"invented native M35 witness\",\"section\":{\"outside_diameter\":{\"value\":0.1,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"},\"material_density\":{\"value\":1000,\"unit\":\"kg/m^3\"}}}",
+    "unit": "m",
+    "dimension": "length",
+    "source_note": "Invented native solver witness, explicitly authored by Codex under test authorization"
+  },
+  "validation": {
+    "schema_validation": "not_run",
+    "constraint_validation": "not_run",
+    "unit_validation": "not_run",
+    "diff_preview_status": "not_generated",
+    "application_status": "not_applied"
+  },
+  "audit_boundary": {
+    "mutation_route": "structured_operations_only",
+    "direct_model_mutation_allowed": false,
+    "requires_user_acceptance": true,
+    "mutates_accepted_model_state": false
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  },
+  "rationale": "Invented 2m cantilever for native self-weight verification",
+  "source": {
+    "source_ref": "codex:HELP-HUMAN-PIPING-M35-native-witness",
+    "source_channel": "offline_json",
+    "source_role": "HELP_HUMAN"
+  }
+}

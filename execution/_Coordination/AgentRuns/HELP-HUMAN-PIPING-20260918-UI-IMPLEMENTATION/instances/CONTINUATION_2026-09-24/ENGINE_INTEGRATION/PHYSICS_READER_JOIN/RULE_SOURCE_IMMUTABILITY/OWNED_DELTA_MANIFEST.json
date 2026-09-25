@@ -1,0 +1,10 @@
+[
+  {
+    "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+    "sha256": "c311cd57d7e86a45e071953c8a4c2ae367d24b57d413ca5e626895517c5ec588"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.test.ts",
+    "sha256": "e0a42f0cfde0325909509ae25215bd3421e3ced2bfa8aa8e3382508984912dfb"
+  }
+]

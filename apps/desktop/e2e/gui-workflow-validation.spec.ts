@@ -40,7 +40,7 @@ const modelFixturePath = fileURLToPath(
   new URL("../../../fixtures/product_preview/invented_preview_model.json", import.meta.url)
 );
 const resultFixturePath = fileURLToPath(
-  new URL("../../../fixtures/product_preview/invented_mechanics_result.json", import.meta.url)
+  new URL("../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json", import.meta.url)
 );
 const modelFixture = JSON.parse(readFileSync(modelFixturePath, "utf8")) as WorkflowModelFixture;
 const resultFixture = JSON.parse(readFileSync(resultFixturePath, "utf8")) as WorkflowResultFixture;
@@ -87,6 +87,23 @@ async function ensureRailExpanded(page: Page, testId: "toggle-tree" | "toggle-in
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
 }
 
+async function inspectBundledReference(page: Page): Promise<void> {
+  await openWorkspaceSection(page, "solve");
+  await page.getByTestId("workspace-section-solve").getByRole("button", { name: "Inspect bundled reference", exact: true }).click();
+  await expect(page.getByTestId("historical-run-context")).toContainText("Bundled reference — not a solve for the current model");
+  await expect(page.getByTestId("historical-run-context")).toContainText("NO_CURRENT_MODEL_INVOCATION");
+  await expect(page.getByTestId("result-filter-summary")).toContainText(`${resultFixture.results.length} of ${resultFixture.results.length} results match filter`);
+}
+
+async function expectBackendRefusal(page: Page, edited = false): Promise<void> {
+  await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
+  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
+  await expect(page.getByTestId("solve-job-error")).toHaveAttribute("role", "status");
+  await expect(page.getByTestId("solve-job-error")).toContainText(edited ? "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL" : "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
+  await expectStatusChip(page, "status-pill-mechanics", "Solve job state: failed", "Solver · Not solved");
+  await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+}
+
 test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions", async ({ page }) => {
   const externalRequests: string[] = [];
   page.on("request", (request) => {
@@ -120,46 +137,29 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(page.getByTestId("solve-job-boundary")).toContainText("protected content=false");
   await expect(page.getByTestId("solve-job-boundary")).toContainText("human review required");
 
-  // Establish the fixture's solved state and prove result rows become visible.
+  // A browser invocation refuses honestly, including the unchanged model.
   await page.getByTestId("run-mechanics-preview").click();
-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-  await expect(page.getByTestId("solve-job-summary")).toContainText(`result_rows=${resultFixture.results.length}`);
-  // §5.4 rule 3: after a solved run, off Review and with no rule pack set, the Solver chip alone.
-  // The run's recorded rule-check value stays readable in the Analyze page's readiness summary.
+  await expectBackendRefusal(page);
+  // Recorded rows are loaded through their explicit, separate inspection route.
   expect(resultFixture.status.mechanics).toBe("MECHANICS_SOLVED");
-  await expectStatusChip(page, "status-pill-mechanics", resultFixture.status.mechanics, "Solver · Mechanics solved");
-  await expectNoStatusChip(page, "status-pill-rule-check");
-  await expectRecordedStatusOnAnalyzePage(page, "rule", resultFixture.status.rule_check);
-  // The solve proof left the status bar; it is read on the Results stage's Evidence tab.
+  await inspectBundledReference(page);
+  for (const id of ["status-pill-mechanics", "status-pill-rule-check", "status-pill-professional"]) await expectNoStatusChip(page, id);
   await openWorkspaceSection(page, "evidence");
-  const visibleSolveProof = page.getByTestId("status-pill-solve-proof");
-  await setDisclosure(visibleSolveProof);
-  await expect(visibleSolveProof.locator("code")).toBeVisible();
-  await expect(visibleSolveProof).toContainText("seam=browser_fixture_no_backend_job");
-  await expect(visibleSolveProof).toContainText(`project=${modelFixture.project.id}`);
-  await expect(visibleSolveProof).toContainText(`result_model=${modelFixture.project.id}`);
-  await expect(visibleSolveProof).toContainText("identity=match");
-  await expect(visibleSolveProof).toContainText(`rows=${resultFixture.results.length}`);
-  await expect(visibleSolveProof).toContainText("job=job:preview-linear-static:");
-  await expect(visibleSolveProof).toContainText("model_sha256=sha256:");
-  await expect(visibleSolveProof).toContainText("input_manifest_sha256=");
-  await setDisclosure(visibleSolveProof, false);
+  await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+  await expect(page.getByTestId("run-audit-empty")).toBeVisible();
   await openWorkspaceSection(page, "results");
-  await expect(page.getByTestId("result-filter-summary")).toContainText(
-    `${resultFixture.results.length} of ${resultFixture.results.length} results match filter`
-  );
 
-  // The same solved state keeps missing rule inputs, provenance warnings, and
-  // professional assumptions visible and textually distinct from mechanics.
+  // Inspecting reference rows does not alter the current model's missing-data
+  // inputs, provenance warnings, or professional boundaries.
   await page.getByTestId("issues-drawer-toggle").click();
   const solvedIssues = page.getByTestId("issues-home");
   await expect(solvedIssues.getByTestId("missing-data-summary")).toContainText("solve_blocked=false");
   await expect(solvedIssues.getByTestId("missing-data-summary")).toContainText("rule_blocked=true");
   await expect(solvedIssues.getByTestId("missing-data-status-separation")).toContainText(
-    `mechanics=${resultFixture.status.mechanics}`
+    `mechanics=${modelFixture.analysis_status.mechanics}`
   );
   await expect(solvedIssues.getByTestId("missing-data-status-separation")).toContainText(
-    `rule_check=${resultFixture.status.rule_check}`
+    `rule_check=${modelFixture.analysis_status.rule_check}`
   );
   await expect(solvedIssues.getByTestId("missing-data-warning-rule-check-required-inputs")).toContainText(
     "RULE_CHECK_BLOCKING"
@@ -190,6 +190,13 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await closeWorkspacePanels(page);
   await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
   await expect(page.getByTestId("workspace-section-solve")).toBeHidden();
+
+  await (await projectButton(page, "save-local")).click();
+  await expect(page.getByTestId("local-project-message")).toContainText("Saved local browser-preview project snapshot");
+  await (await projectButton(page, "open-local")).click();
+  await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project snapshot");
+  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
+  await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
 
   // Edit explicit invented load data through the visible inspector and apply it
   // through the product's local WASM operation engine.
@@ -278,38 +285,26 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(editor.getByTestId("editor-intent-value")).toHaveValue("-225");
   await expect(editor.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "N/m");
 
-  // Browser Playwright intentionally has no native solver fallback for an
-  // edited model. Validate the user-visible blocking state instead of allowing
-  // stale fixture results to masquerade as a successful re-solve.
+  // The edited model has the same native-backend requirement; no synthetic
+  // MODEL_INCOMPLETE result or diagnostic is created for this failed job.
   await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
-  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
-  // Slice B3: the Analyze page lies over the stage's surfaces; close it to reach the canvas.
+  await expectBackendRefusal(page, true);
   await page.getByTestId("workspace-dock-close").click();
   await setDisclosure(page.getByTestId("viewport-deformation-status"));
-  await expect(page.getByTestId("viewport-deformation-status")).toContainText(
-    "blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0"
-  );
+  await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
   await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
   await page.getByTestId("issues-drawer-toggle").click();
-  await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toBeVisible();
   const blockedIssues = page.getByTestId("issues-home");
-  await expect(blockedIssues.getByTestId("missing-data-summary")).toContainText("solve_blocked=true");
+  await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toHaveCount(0);
   await expect(blockedIssues.getByTestId("missing-data-summary")).toContainText("rule_blocked=true");
-  await expect(blockedIssues.getByTestId("missing-data-warning-solve-required-physical-inputs")).toContainText(
-    "SOLVE_BLOCKING"
-  );
-  await expect(blockedIssues.getByTestId("missing-data-warning-solve-required-physical-inputs")).toContainText(
-    "Mechanics solve-required data is incomplete."
-  );
+  await expect(blockedIssues.getByTestId("missing-data-boundary")).toContainText("silent_defaults=false");
+  await expect(blockedIssues.getByTestId("missing-data-boundary")).toContainText("auto_fill=false");
   await blockedIssues.getByRole("button", { name: /Close/i }).click();
   await expect(blockedIssues).toHaveCount(0);
-
   await openWorkspaceSection(page, "results");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("0 of 0 results match filter");
-  await expect(page.getByTestId("result-filter-empty")).toContainText("No computed preview result rows");
+  await expect(page.getByTestId("results-panel")).toContainText("Run the bounded preview mechanics path to populate result summaries.");
+  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
 
   await page.getByTestId("audit-drawer-toggle").click();
   const finalAudit = page.getByTestId("audit-boundary-drawer");
@@ -329,10 +324,7 @@ for (const { drawerId, toggleId, contentId, contentText } of [
   test(`shared drawer menu overlap preserves ordinary Close and active menu priority: ${drawerId}`, async ({ page }, testInfo) => {
     await page.goto("/");
     await ensureEngineReady(page);
-    await openWorkspaceSection(page, "solve");
-    await page.getByTestId("run-mechanics-preview").click();
-    await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-    await expect(page.getByTestId("solve-job-summary")).toContainText(`result_rows=${resultFixture.results.length}`);
+    await inspectBundledReference(page);
 
     const drawer = page.getByTestId(drawerId);
     const close = drawer.getByRole("button", { name: /Close/i });

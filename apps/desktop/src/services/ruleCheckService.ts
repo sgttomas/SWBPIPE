@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { MechanicsResult, PreviewModel } from "../types";
 import type { RulePackDocument } from "./rulePackService";
+import { hasNativeMechanicsInvocation, runPreviewMechanics } from "./previewService";
 
 // Rule-check runner seam (Phase C4, TP-C4-CHECKGUI-001). Running a rule pack's
 // checks against a solved model routes through the desktop (Tauri)
@@ -111,8 +112,10 @@ export async function runRuleChecks(args: {
   // omitted so the backend treats those inputs as unsupplied (never a silent
   // pass). `projectId` scopes the private-library lookup for
   // `private_library_value` inputs (resolved backend-side from the local store).
-  const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument };
-  if (args.solvedEnvelope) invokeArgs.solvedEnvelope = args.solvedEnvelope;
+  if (!args.model) throw new Error("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply the actual current model.");
+  const source = args.solvedEnvelope ?? await runPreviewMechanics(args.model);
+  if (!hasNativeMechanicsInvocation(source, args.model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
+  const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, solvedEnvelope: source };
   if (args.model) invokeArgs.model = args.model;
   if (args.solverResultBindings && args.solverResultBindings.length > 0) {
     invokeArgs.solverResultBindings = args.solverResultBindings;

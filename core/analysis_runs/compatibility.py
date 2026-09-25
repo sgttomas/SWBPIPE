@@ -7,6 +7,9 @@ import json
 from typing import Any, Callable, Mapping
 
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
+from .source_blocks import (CONTRACT_ID as SOURCE_BLOCKS_CONTRACT_ID,
+    CONTRACT_SHA256 as SOURCE_BLOCKS_CONTRACT_SHA256, CONTRACT_PATH as _SOURCE_BLOCKS_CONTRACT_PATH,
+    validate_source_blocks, validate_receipt_shape, domain_hash)
 
 SCHEMA_VERSION = "0.2.0"
 PROFILE = "openpipestress_jcs_ijson_v1"
@@ -74,7 +77,7 @@ def _build_analysis_run(
 ) -> dict[str, Any]:
     received = deepcopy(dict(mechanics_result))
     if record_version == "0.2.0":
-        if any(key in received for key in ("producer", "numerical_quality", "formulation_basis")):
+        if any(key in received for key in ("producer", "numerical_quality", "formulation_basis", "contract_evidence", "source_block_recovery")):
             raise ValueError("ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN")
         source_version = received.get("schema_version")
         if type(source_version) is not str or source_version not in ("0.1.0", "0.2.0"):
@@ -82,7 +85,7 @@ def _build_analysis_run(
         contract_id, contract_hash, contract_path = SEMANTIC_CONTRACT_ID, SEMANTIC_CONTRACT_SHA256, _CONTRACT_PATH
     else:
         contract_id, contract_hash, contract_path = _source_contract(received)
-        if contract_id != PRECISION_CONTRACT_ID:
+        if contract_id not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID}:
             raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
     run_id = str(received.get("run_id", "run:unknown"))
     rows = [deepcopy(dict(row)) for row in received.get("results", []) if isinstance(row, Mapping)]
@@ -154,6 +157,8 @@ def _build_analysis_run(
             "provenance": provenance,
         },
     }
+    if contract_id == SOURCE_BLOCKS_CONTRACT_ID:
+        envelope["analysis_run"]["source_block_recovery"] = deepcopy(received["source_block_recovery"])
     envelope["analysis_run"]["hashes"].insert(0, _checksum("analysis_run_record", run_ref, analysis_record_projection(envelope), hash_fn))
     return envelope
 
@@ -177,20 +182,32 @@ def verify_analysis_run_record(envelope: Mapping[str, Any], hash_fn: Callable[[A
 PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1"
 PRECISION_CONTRACT_SHA256 = "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
 _PRECISION_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_precision_1.json")
+PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-1"
+PHYSICS_CONTRACT_SHA256 = "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+_PHYSICS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_1.json")
 
 
-def _source_contract(source: Mapping[str, Any]) -> tuple[str, str, Path]:
+def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -> tuple[str, str, Path]:
     """Interpretation dispatch does not authenticate a producer or qualify Current."""
     version = source.get("schema_version")
+    # A source-block receipt belongs only to its explicit method branch below;
+    # the unrelated carrier namespace remains unsupported for every profile.
+    if "carrier_evidence" in source:
+        raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     if version == "0.1.0":
-        if any(key in source for key in ("producer", "numerical_quality", "formulation_basis")):
+        if any(key in source for key in ("producer", "numerical_quality", "formulation_basis", "contract_evidence", "source_block_recovery")):
             raise ValueError("LEGACY_SOURCE_METADATA_CONTRADICTION")
         return SEMANTIC_CONTRACT_ID, SEMANTIC_CONTRACT_SHA256, _CONTRACT_PATH
     if version != "0.2.0":
         raise ValueError("SOURCE_SCHEMA_VERSION_UNSUPPORTED")
     producer = source.get("producer")
-    if producer != {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": PRECISION_CONTRACT_ID}:
+    if not isinstance(producer, Mapping) or not isinstance(producer.get("semantic_contract_id"), str) or producer.get("semantic_contract_id") not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID} or producer != {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": producer.get("semantic_contract_id")}:
         raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    physics = producer["semantic_contract_id"] == PHYSICS_CONTRACT_ID
+    if not physics and source.get("contract_evidence") is not None:
+        raise ValueError("SOURCE_PHYSICS_CONTRACT_MISMATCH")
+    if producer["semantic_contract_id"] != SOURCE_BLOCKS_CONTRACT_ID and "source_block_recovery" in source:
+        raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
     quality = source.get("numerical_quality")
     if not isinstance(quality, Mapping) or set(quality) != {"value_representation", "publication_quantization", "integrity_policy", "status", "cases"} or quality.get("value_representation") != "finite_binary64" or quality.get("publication_quantization") != "none" or quality.get("integrity_policy") != "M03-INTEGRITY-v1" or quality.get("status") not in {"not_assessed", "checks_passed", "sensitive", "unresolved", "failed"} or not isinstance(quality.get("cases"), list):
         raise ValueError("SOURCE_NUMERICAL_QUALITY_INVALID")
@@ -202,12 +219,27 @@ def _source_contract(source: Mapping[str, Any]) -> tuple[str, str, Path]:
         if not isinstance(basis, Mapping) or set(basis) != {"ref_type", "ref_id"} or not all(isinstance(value, str) and value for value in basis.values()) or case.get("solve_quality") not in statuses or case.get("structural_status") not in {"passive_model_basis", "physical_mechanism_witnessed", "negative_energy_witnessed", "numerically_unresolved"} or case.get("model_matrix_fidelity") not in {"represented_equations_retained", "assembly_loss_detected", "assembly_uncertainty", "not_assessed"} or case.get("accuracy_evidence") not in {"not_claimed", "reference_verified", "unresolved"} or not isinstance(case.get("evidence_refs"), list) or not all(isinstance(item, str) and item for item in case["evidence_refs"]):
             raise ValueError("SOURCE_NUMERICAL_CASE_INVALID")
     formulation = source.get("formulation_basis")
-    if not isinstance(formulation, Mapping) or set(formulation) != {"profile_id", "limitations"} or formulation.get("profile_id") != "product_preview_mechanics_v1" or not isinstance(formulation.get("limitations"), list) or not formulation["limitations"] or not all(isinstance(item, str) and item for item in formulation["limitations"]):
+    if not isinstance(formulation, Mapping) or set(formulation) != {"profile_id", "limitations"} or formulation.get("profile_id") != ("exact_straight_pressure_v2" if physics else "product_preview_mechanics_v1") or not isinstance(formulation.get("limitations"), list) or not formulation["limitations"] or not all(isinstance(item, str) and item for item in formulation["limitations"]):
         raise ValueError("SOURCE_FORMULATION_BASIS_UNSUPPORTED")
+    if physics:
+        from .physics_evidence import validate_physics_evidence
+        validate_physics_evidence(source)
+        return PHYSICS_CONTRACT_ID, PHYSICS_CONTRACT_SHA256, _PHYSICS_CONTRACT_PATH
+    if producer["semantic_contract_id"] == SOURCE_BLOCKS_CONTRACT_ID:
+        if check_receipt:
+            validate_source_blocks(source)
+        else:
+            # Transport metadata cannot recompute the unavailable raw publication.
+            # It validates its retained body, never numerical standing.
+            receipt = source.get("source_block_recovery")
+            validate_receipt_shape(receipt)
+            if receipt["receipt_sha256"] != domain_hash("source_blocks_receipt_v1", receipt["body"]):
+                raise ValueError("SOURCE_BLOCKS_RECEIPT_HASH")
+        return SOURCE_BLOCKS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_SHA256, _SOURCE_BLOCKS_CONTRACT_PATH
     return PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256, _PRECISION_CONTRACT_PATH
 
 
-def numerical_use_standing(source: Mapping[str, Any], requested_basis_refs: list[Mapping[str, str]]) -> str:
+def numerical_use_standing(source: Mapping[str, Any], requested_basis_refs: list[Mapping[str, str]], source_block_context: Mapping[str, Any] | None = None) -> str:
     """Derived numerical eligibility only; never mutates an authentic historical record.
 
     A positive result still requires the caller's existing model/input/build/source
@@ -215,9 +247,16 @@ def numerical_use_standing(source: Mapping[str, Any], requested_basis_refs: list
     """
     try:
         contract, _, _ = _source_contract(source)
-    except ValueError:
+    except (ValueError, KeyError, TypeError, AttributeError):
         return "unsupported"
-    if contract != PRECISION_CONTRACT_ID:
+    if contract == SOURCE_BLOCKS_CONTRACT_ID:
+        if not requested_basis_refs or requested_basis_refs != [case["basis_ref"] for case in source["source_block_recovery"]["body"]["cases"]]:
+            return "needs_recompute"
+        try:
+            return "numerically_eligible" if validate_source_blocks(source, source_block_context) else "needs_recompute"
+        except ValueError:
+            return "unsupported"
+    if contract not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID}:
         return "needs_recompute"
     quality = source["numerical_quality"]
     # Sensitive evidence remains inspectable but does not qualify source-answer accuracy.
@@ -307,7 +346,7 @@ def _expected_load_basis(source: Mapping[str, Any], expected_basis_refs: list[Ma
 
 
 def build_analysis_run_v0_3(mechanics_result: Mapping[str, Any], *, expected_basis_refs: list[Mapping[str, str]] | None = None, **kwargs: Any) -> dict[str, Any]:
-    """Strict precision-1 record; optional basis is independently supplied evidence."""
+    """Strict source-bound 0.3 record; optional basis is independent evidence."""
     _source_contract(mechanics_result)
     _validate_source_reference_fields(mechanics_result)
     producer = mechanics_result["producer"]
@@ -331,7 +370,7 @@ def build_analysis_run_v0_3(mechanics_result: Mapping[str, Any], *, expected_bas
 
 def build_analysis_run(mechanics_result: Mapping[str, Any], **kwargs: Any) -> dict[str, Any]:
     contract, _, _ = _source_contract(mechanics_result)
-    return build_analysis_run_v0_3(mechanics_result, **kwargs) if contract == PRECISION_CONTRACT_ID else build_analysis_run_v0_2(mechanics_result, **kwargs)
+    return build_analysis_run_v0_3(mechanics_result, **kwargs) if contract in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID} else build_analysis_run_v0_2(mechanics_result, **kwargs)
 
 
 def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str, Any], *, hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1, expected_basis_refs: list[Mapping[str, str]] | None = None) -> None:
@@ -341,9 +380,14 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
     """
     contract_id, contract_hash, path = _source_contract(source)
     _validate_source_reference_fields(source)
-    if contract_id != PRECISION_CONTRACT_ID or envelope.get("schema_version") != "0.3.0" or envelope.get("run_contract_status", {}).get("record_contract") != "strict_analysis_run_v0_3":
+    if contract_id not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID} or envelope.get("schema_version") != "0.3.0" or envelope.get("run_contract_status", {}).get("record_contract") != "strict_analysis_run_v0_3":
         raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
     run = envelope.get("analysis_run", {})
+    if contract_id == SOURCE_BLOCKS_CONTRACT_ID:
+        if run.get("source_block_recovery") != source["source_block_recovery"]:
+            raise ValueError("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH")
+    elif "source_block_recovery" in run:
+        raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
     if run.get("diagnostics") != [{"source_annotation": deepcopy(item)} for item in source.get("diagnostics", [])]:
         raise ValueError("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH")
     statuses = run.get("analysis_status")

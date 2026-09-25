@@ -1,0 +1,523 @@
+--- frozen/projects/chirality-piping/core/analysis_runs/physics_evidence.py
++++ repair/projects/chirality-piping/core/analysis_runs/physics_evidence.py
+@@ -101,6 +101,7 @@
+         _require(bool(cases) and set(cases) == set(numerical_ids), "case coverage")
+     materials: dict[str, dict[str, Any]] = {}
+     geometries: dict[str, dict[str, Any]] = {}
++    extrema_ids: set[str] = set()
+     for cid, case in cases.items():
+         _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"}, "case shape")
+         _require(case["profile_mode"] == PROFILE and _text(case["material_basis"]), "case profile/material basis")
+@@ -129,12 +130,14 @@
+         _require(set(extrema) == set(geometries[cid]) - missing, "maximum member coverage")
+         for pid, extremum in extrema.items():
+             _shape(extremum, {"pipe_id", "result_id", "approximation", "coefficient_basis", "enclosure_scope", "station_fraction", "span_index", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa", "subdivisions"}, "extrema shape")
++            _require(_text(extremum["result_id"]) and extremum["result_id"] not in extrema_ids, "duplicate extrema result binding")
++            extrema_ids.add(extremum["result_id"])
+             row = rows.get(extremum["result_id"], {})
+             _require(row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") == pid and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}, "extrema result binding")
+             _require(row.get("value") == extremum["value_lower_pa"] + 0.5 * (extremum["value_upper_pa"] - extremum["value_lower_pa"]), "extrema published witness")
+             _require(all(_number(extremum[k]) for k in ("station_fraction", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa")), "extrema numeric values")
+-            _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1 and 0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"] <= extremum["global_upper_bound_pa"] and 0 <= extremum["certified_gap_pa"] <= 1e-12 + 1e-12 * extremum["value_lower_pa"], "extrema bounds")
+-            _require(type(extremum["span_index"]) is int and extremum["span_index"] >= 0 and type(extremum["subdivisions"]) is int and 0 <= extremum["subdivisions"] <= 131072 and all(_text(extremum[k]) for k in ("approximation", "coefficient_basis", "enclosure_scope")), "extrema witness")
++            _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1 and 0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"] <= extremum["global_upper_bound_pa"] and 0 <= extremum["global_upper_bound_pa"] - extremum["value_lower_pa"] <= extremum["certified_gap_pa"] <= 1e-12 + 1e-12 * extremum["value_lower_pa"], "extrema bounds")
++            _require(type(extremum["span_index"]) is int and extremum["span_index"] >= 0 and type(extremum["subdivisions"]) is int and 0 <= extremum["subdivisions"] <= 131072 and extremum["approximation"] == "piecewise_quadratic_straight_section_statics" and extremum["coefficient_basis"] == "j_side_section_equilibrium_binary64" and extremum["enclosure_scope"] == "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate", "extrema witness")
+         _validate_rhs(case["pressure_rhs_assembly"], cid)
+     owners: dict[tuple[str, str], str] = {}
+     bindings: set[str] = set()
+@@ -165,14 +168,18 @@
+             _temperature_basis(mm[pid]["temperature_basis"], cases[cid]["material_basis"], mm[pid]["material_id"])
+             _require(isinstance(mm[pid]["temperature_basis"], Mapping) and _text(mm[pid]["temperature_basis"].get("selection")) and {k:v for k,v in mm[pid].items() if k != "temperature_basis"} == materials[cid][pid], "material disagreement")
+             _shape(loads[pid], {"pipe_id", "eigenload_pair_local_n", "local_x_global", "mathematical_cap_pair_local_n", "thermal_included"}, "applied load shape")
+-            _require(_vector(loads[pid]["local_x_global"], 3) and all(_vector(loads[pid][k], 2) for k in ("eigenload_pair_local_n", "mathematical_cap_pair_local_n")) and type(loads[pid]["thermal_included"]) is bool, "applied load vectors")
++            _require(_vector(loads[pid]["local_x_global"], 3) and all(_vector(loads[pid][k], 2) for k in ("eigenload_pair_local_n", "mathematical_cap_pair_local_n")) and loads[pid]["thermal_included"] is False, "applied load vectors")
+         terminals = region["terminals"]
+-        _require(isinstance(terminals, list) and len(terminals) == 2, "closure terminals")
++        _require(isinstance(terminals, list) and len(terminals) == 2 and _strings([terminal.get("node_ref") for terminal in terminals]), "closure terminals")
+         for terminal in terminals:
+             _shape(terminal, {"node_ref", "closure_transfer", "provenance", "closure_pressure_load_global_n", "pipe_cap_transfer_global_n", "remote_closure_excluded_from_pipe_solve", "remote_closure_support_reaction_global_n"}, "terminal shape")
+             _require(_text(terminal["node_ref"]) and _text(terminal["provenance"]) and terminal["closure_transfer"] in {"transfers_to_wall", "separately_supported_or_compensated"} and all(_vector(terminal[k], 3) for k in ("closure_pressure_load_global_n", "pipe_cap_transfer_global_n")), "terminal closure")
+             remote = terminal["closure_transfer"] == "separately_supported_or_compensated"
+             _require(terminal["remote_closure_excluded_from_pipe_solve"] is remote and (_vector(terminal["remote_closure_support_reaction_global_n"], 3) if remote else terminal["remote_closure_support_reaction_global_n"] is None), "terminal remote closure")
++            if remote:
++                _require(all(value == 0 for value in terminal["pipe_cap_transfer_global_n"]) and terminal["remote_closure_support_reaction_global_n"] == [-value for value in terminal["closure_pressure_load_global_n"]], "terminal remote transfer disagreement")
++            else:
++                _require(terminal["pipe_cap_transfer_global_n"] == terminal["closure_pressure_load_global_n"], "terminal wall transfer disagreement")
+         for pid in members:
+             physical = [row for row in rows.values() if row.get("entity_ref") == pid and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} and row.get("kind") in PIPE_KINDS - {"pipe_elastic_normal_stress_maximum_v2"}]
+             observed = [(row.get("metadata", {}).get("location"), row.get("metadata", {}).get("component")) for row in physical]
+@@ -184,10 +191,14 @@
+         bindings.update(ids)
+     table = json.loads((Path(__file__).resolve().parents[2] / "fixtures/results/semantic_contract_v0_3_physics_1.json").read_text())
+     support_components: dict[tuple[str, str], list[str]] = {}
++    physical_slots: set[tuple[str, str, str, str, str]] = set()
+     for row in rows.values():
+         _require(_number(row.get("value")), "nonfinite source row")
+         basis = row.get("basis_ref")
+-        _require(isinstance(basis, Mapping) and basis.get("ref_type") == "load_case" and basis.get("ref_id") in cases, "row case scope")
++        _shape(basis, {"ref_type", "ref_id"}, "row case reference")
++        _require(basis["ref_type"] == "load_case" and basis["ref_id"] in cases, "row case scope")
++        _require(all(_text(row.get(key)) for key in ("kind", "entity_ref", "unit")), "source row identity")
++        _require(row.get("source_result_refs", []) == [], "unsupported direct-row derivation")
+         if row.get("kind", "").endswith("_v2"):
+             _require(row.get("kind") in PIPE_KINDS or row.get("kind", "").startswith("support_reaction_"), "unknown physical kind")
+             metadata = row.get("metadata")
+@@ -198,7 +209,10 @@
+             force = row["kind"] in {"pipe_wall_endpoint_action_v2", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2"}
+             _require(metadata["coordinate_system"] == ("global" if support else "element_local" if force else "pipe_section") and metadata["basis"] == ("recovered_from_assembled_support_law" if support else "recovered_from_local_element_stiffness" if force else "recovered_from_open_mechanics_stress_components"), "physical recovery basis")
+             locations = {"node"} if support else {"governing_station"} if row["kind"] == "pipe_elastic_normal_stress_maximum_v2" else {"end_i", "end_j"} if row["kind"] == "pipe_wall_endpoint_action_v2" else {"end_i", "end_j", "quarter_1", "midspan", "quarter_3"}
+-            _require(metadata["location"] in locations and not row.get("source_result_refs"), "physical location/derivation")
++            _require(metadata["location"] in locations, "physical location/derivation")
++            slot = (basis["ref_id"], row["entity_ref"], row["kind"], metadata["component"], metadata["location"])
++            _require(slot not in physical_slots, "duplicate physical result slot")
++            physical_slots.add(slot)
+             if support:
+                 support_components.setdefault((basis["ref_id"], row["entity_ref"]), []).append(metadata["component"])
+                 if metadata["component"] in {"force_magnitude", "moment_magnitude"}:
+@@ -206,7 +220,9 @@
+         if row.get("kind") in PIPE_KINDS:
+             cid, pid = basis["ref_id"], row.get("entity_ref")
+             _require(pid in geometries[cid], "row member scope")
+-            if row["kind"] != "pipe_elastic_normal_stress_maximum_v2":
++            if row["kind"] == "pipe_elastic_normal_stress_maximum_v2":
++                _require(row["id"] in extrema_ids, "unbound extrema row")
++            else:
+                 _require((cid, pid) in owners and row["id"] in bindings, "unbound pressure row")
+     for components in support_components.values():
+         _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
+@@ -215,6 +231,7 @@
+     if not complete:
+         _require(headline is None, "incomplete stress maximum headline")
+     elif headline is not None:
++        _shape(headline, {"value", "unit", "location_ref", "result_ref"}, "stress maximum headline")
+         maximum_rows = [row for row in rows.values() if row.get("kind") == "pipe_elastic_normal_stress_maximum_v2"]
+         selected = rows.get(headline.get("result_ref"), {})
+         _require(bool(maximum_rows) and selected in maximum_rows and headline.get("value") == selected["value"] == max(row["value"] for row in maximum_rows) and headline.get("unit") == selected["unit"] and headline.get("location_ref") == selected["entity_ref"], "stress maximum headline binding")
+@@ -222,6 +239,8 @@
+         for group in case["pressure_rhs_assembly"]["groups"]:
+             for term in group["terms"]:
+                 _require(owners.get((cid, term["pipe_id"])) == term["region_id"], "RHS term region/member binding")
++                expected_magnitude = 1 if term["kind"] == "terminal_cap" else abs(2 * materials[cid][term["pipe_id"]]["nu"])
++                _require(abs(term["coefficient"]) == expected_magnitude, "RHS term coefficient binding")
+                 _require(group["pressure_bits"] == struct.pack(">d", region_pressures[cid, term["region_id"]]).hex(), "RHS source pressure bits")
+                 geometry = geometries[cid][term["pipe_id"]]
+                 a, b = geometry["outside_diameter_m"] * 0.5, geometry["effective_wall_thickness_m"]
+@@ -263,10 +282,17 @@
+     _require(rhs["method"] == "source_factor_grouped_pressure_rhs_v1" and rhs["load_case_id"] == cid and _strings(rhs["node_order"], True) and rhs["dof_order"] == ["Fx", "Fy", "Fz", "Mx", "My", "Mz"] and rhs["dof_units"] == ["N", "N", "N", "N*m", "N*m", "N*m"], "pressure RHS basis")
+     _require(rhs["rounded_cap_and_eigen_ledgers_are_observational"] is True and rhs["screen_is_not_numerical_qualification"] is True and rhs["screen_limit"] == 1e-9 and rhs["screen_roundoff_multiplier"] == 32 and _number(rhs["cancellation_screen"]) and 0 <= rhs["cancellation_screen"] <= rhs["screen_limit"], "pressure RHS screen")
+     _require(all(_vector(rhs[k], 6 * len(rhs["node_order"])) for k in ("assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global")) and isinstance(rhs["groups"], list), "pressure RHS vectors")
++    for key in ("assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global"):
++        _require(all(value == 0 for index, value in enumerate(rhs[key]) if index % 6 >= 3), "unsupported pressure moment")
++    groups: set[tuple[Any, ...]] = set()
+     for group in rhs["groups"]:
+         _shape(group, {"node_ref", "component", "pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits", "direction_component_magnitude", "coefficient_sum", "assembled_force_n", "terms"}, "pressure RHS group")
+         _require(group["node_ref"] in rhs["node_order"] and group["component"] in ["Fx", "Fy", "Fz"] and all(isinstance(group[k], str) and len(group[k]) == 16 and all(c in "0123456789abcdef" for c in group[k]) for k in ("pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits")), "pressure RHS group source")
+         _require(all(_number(group[k]) for k in ("direction_component_magnitude", "coefficient_sum", "assembled_force_n")) and 0 < group["direction_component_magnitude"] <= 1 and isinstance(group["terms"], list) and bool(group["terms"]), "pressure RHS group values")
++        key = (group["node_ref"], group["component"], group["pressure_bits"], group["source_inner_radius_hi_bits"], group["source_inner_radius_lo_bits"], group["direction_component_magnitude"])
++        _require(key not in groups, "duplicate pressure RHS group")
++        groups.add(key)
++        _require(all(math.isfinite(struct.unpack(">d", bytes.fromhex(group[field]))[0]) for field in ("pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits")), "nonfinite pressure RHS source bits")
+         for term in group["terms"]:
+             _shape(term, {"coefficient", "region_id", "pipe_id", "kind"}, "pressure RHS term")
+             _require(_number(term["coefficient"]) and _text(term["region_id"]) and _text(term["pipe_id"]) and term["kind"] in {"poisson_eigen", "terminal_cap"}, "pressure RHS term values")
+--- frozen/projects/chirality-piping/tests/test_physics_consumer_contract.py
++++ repair/projects/chirality-piping/tests/test_physics_consumer_contract.py
+@@ -151,3 +151,91 @@
+         assert envelope["reproducibility"]["source_origin_bindings"][0]["received_carrier_checksum"]["value"] == received["value"] == source_hash
+         assert envelope["semantic_contract_ref"]["ref_id"] == PHYSICS_CONTRACT_ID
+         assert len(envelope["row_accounting"]) == len(source["results"])
++
++
++def _inject_unbound_maximum(source):
++    case_id = source["contract_evidence"]["exact_cases"][1]["load_case_id"]
++    row = deepcopy(next(row for row in source["results"] if row["kind"] == "pipe_elastic_normal_stress_maximum_v2" and row["basis_ref"]["ref_id"] == case_id))
++    row.update(id="unbound:maximum", value=100000000.25)
++    source["results"].append(row)
++    source["summary"]["max_open_formula_stress"] = {"value": row["value"], "unit": row["unit"], "location_ref": row["entity_ref"], "result_ref": row["id"]}
++
++
++def _cyclic_nonphysical_operand(source):
++    row = next(row for row in source["results"] if not row["kind"].endswith("_v2"))
++    row["source_result_refs"] = [{"ref_type": "result_value", "ref_id": row["id"]}]
++
++
++def _duplicate_rhs_group(source):
++    groups = source["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"]
++    groups.append(deepcopy(groups[0]))
++
++
++def _remote_closure_contradiction(source):
++    terminal = source["contract_evidence"]["pressure"][0]["terminals"][0]
++    terminal.update(closure_transfer="separately_supported_or_compensated", remote_closure_excluded_from_pipe_solve=True, pipe_cap_transfer_global_n=[0, 0, 0], remote_closure_support_reaction_global_n=[999, 0, 0])
++
++
++@pytest.mark.parametrize("mode", ["sparse", "dense"])
++@pytest.mark.parametrize("change", [
++    pytest.param(_inject_unbound_maximum, id="unbound-maximum-headline"),
++    pytest.param(lambda s: s["contract_evidence"]["exact_cases"][1]["pipe_stress_extrema"][0].update(certified_gap_pa=0), id="false-zero-gap"),
++    pytest.param(lambda s: s["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0].update(coefficient_basis="source_blocks_recovery_v1"), id="foreign-coefficient-basis"),
++    pytest.param(lambda s: s["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0].update(approximation="unknown"), id="foreign-extrema-approximation"),
++    pytest.param(lambda s: s["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0].update(enclosure_scope="unknown"), id="foreign-enclosure-scope"),
++    pytest.param(lambda s: s["contract_evidence"]["pressure"][0]["terminals"][0].update(pipe_cap_transfer_global_n=[999, 0, 0]), id="wall-closure-transfer"),
++    pytest.param(lambda s: s["contract_evidence"]["pressure"][0]["terminals"].__setitem__(1, deepcopy(s["contract_evidence"]["pressure"][0]["terminals"][0])), id="duplicate-terminals"),
++    pytest.param(_remote_closure_contradiction, id="remote-closure-reaction"),
++    pytest.param(lambda s: s["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"][0]["terms"][0].update(coefficient=999), id="poisson-coefficient"),
++    pytest.param(lambda s: next(t for t in s["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"][0]["terms"] if t["kind"] == "terminal_cap").update(coefficient=999), id="cap-coefficient"),
++    pytest.param(_duplicate_rhs_group, id="duplicate-rhs-group"),
++    pytest.param(_cyclic_nonphysical_operand, id="cyclic-generic-row"),
++    pytest.param(lambda s: s["results"][0].update(source_result_refs={}), id="malformed-generic-operands"),
++    pytest.param(lambda s: s["contract_evidence"]["pressure"][0]["materials"][0].update(temperature_basis={"selection": "exact_point", "point_id": "missing"}), id="contradictory-temperature-selection"),
++    pytest.param(lambda s: s["contract_evidence"]["pressure"][0]["applied_loads"][0].update(thermal_included=True), id="thermal-in-pressure-only-ledger"),
++])
++def test_review_corruptions_refused_before_record_or_numerical_admission(mode, change):
++    source = actual(mode)
++    change(source)
++    with pytest.raises(ValueError, match="SOURCE_PHYSICS_EVIDENCE_INVALID"):
++        validate_physics_evidence(source)
++    with pytest.raises(ValueError, match="SOURCE_PHYSICS_EVIDENCE_INVALID"):
++        build(source)
++    assert numerical_use_standing(source, bases(source)) == "unsupported"
++
++
++@pytest.mark.parametrize("field", ["assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global"])
++@pytest.mark.parametrize("slot", [3, 4, 5, 9, 10, 11])
++def test_pressure_rhs_force_only_vectors_reject_moments(field, slot):
++    source = actual()
++    source["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"][field][slot] = 999
++    with pytest.raises(ValueError, match="pressure moment"):
++        validate_physics_evidence(source)
++
++
++@pytest.mark.parametrize("mode", ["sparse", "dense"])
++def test_actual_pressure_and_thermal_source_preserves_pressure_only_ledger(mode):
++    source = json.loads((PROJECT / f"fixtures/results/physics_thermal_ui_mechanics_{mode}.json").read_text())
++    original = deepcopy(source)
++    assert source["status"]["mechanics"] == "MECHANICS_SOLVED"
++    region = source["contract_evidence"]["pressure"][0]
++    assert region["materials"][0]["thermal_consumed"] is True
++    assert region["applied_loads"][0]["thermal_included"] is False
++    validate_physics_evidence(source)
++    assert verify_analysis_run_record(build(source)) == "match"
++    assert numerical_use_standing(source, bases(source)) == "numerically_eligible"
++    assert source == original
++
++
++@pytest.mark.parametrize("name", ["missing_nu", "missing_closure"])
++def test_actual_blocked_empty_evidence_remains_inspectable(name):
++    import os
++    folder = os.environ.get("PHYSICS_BLOCKED_OUTPUT_DIR")
++    if not folder:
++        pytest.skip("Requires actual blocked producer controls from the focused product lane")
++    source = json.loads((Path(folder) / f"{name}.raw.json").read_text())
++    assert source["status"]["mechanics"] != "MECHANICS_SOLVED"
++    assert source["contract_evidence"] == {"pressure": [], "connector": [], "exact_cases": []}
++    validate_physics_evidence(source)
++    assert verify_analysis_run_record(build(source)) == "match"
++    assert numerical_use_standing(source, bases(source)) != "numerically_eligible"
+--- frozen/projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts
++++ repair/projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts
+@@ -76,7 +76,7 @@
+     const t = m.temperature_basis;
+     if (t?.selection === "base_material") shape(t, ["selection"], "TEMPERATURE_BASIS");
+     else if (t?.selection === "exact_point") { shape(t, ["selection", "point_id"], "TEMPERATURE_BASIS"); demand(text(t.point_id), "TEMPERATURE_BASIS"); }
+-    else { shape(t, ["selection", "temperature_value", "temperature_unit"], "TEMPERATURE_BASIS"); demand(t.selection === "interpolation" && finite(t.temperature_value) && text(t.temperature_unit), "TEMPERATURE_BASIS"); }
++    else { shape(t, ["selection", "temperature_value", "temperature_unit"], "TEMPERATURE_BASIS"); demand(t.selection === "interpolation" && finite(t.temperature_value) && ["K", "degC", "degF"].includes(t.temperature_unit), "TEMPERATURE_BASIS"); }
+   }
+ }
+ function section(s: unknown, region = false): asserts s is RecordValue {
+@@ -84,6 +84,7 @@
+   demand(text(s.pipe_id) && s.geometry_basis === "authored_normalized_od_wall_v1"
+     && sectionFields.slice(2).every(k => finite(s[k]) && s[k] > 0)
+     && s.effective_wall_thickness_m < s.outside_diameter_m / 2 && s.ri_m < s.ro_m
++    && s.ro_m === s.outside_diameter_m * 0.5 && s.ri_m === s.outside_diameter_m * 0.5 - s.effective_wall_thickness_m
+     && (!region || typeof s.traversal_forward === "boolean"), "SECTION_INVALID");
+ }
+ 
+@@ -91,6 +92,7 @@
+  * This never recomputes membrane/effective actions from rounded published rows,
+  * authenticates a producer, or substitutes for the numerical quality gate. */
+ export function validatePhysicsEvidence(source: MechanicsResult, model?: Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>): void {
++  demand(!Object.hasOwn(source, "source_block_recovery") && !Object.hasOwn(source, "carrier_evidence"), "UNSUPPORTED_SOURCE_NAMESPACE");
+   const evidence = source.contract_evidence;
+   shape(evidence, ["pressure", "connector", "exact_cases"], "SHAPE");
+   demand(finiteTree(evidence) && source.results.every(row => finite(row.value)), "NONFINITE");
+@@ -122,7 +124,7 @@
+   for (const r of regions) {
+     shape(r, pressureFields, "PRESSURE_SHAPE");
+     demand(text(r.region_id) && caseIds.includes(r.load_case_id) && r.profile_version === "2.0.0" && r.profile_mode === PROFILE
+-      && r.pressure_basis === "internal_differential_zero_external_v1" && finite(r.p_pa) && r.external_pressure_increment_pa === 0
++      && r.pressure_basis === "internal_differential_zero_external_v1" && finite(r.p_pa) && r.p_pa >= 0 && r.external_pressure_increment_pa === 0
+       && r.approximation === "long_straight_annulus_small_strain_v2" && text(r.provenance)
+       && unique(r.member_pipe_ids) && r.member_pipe_ids.length > 0 && unique(r.result_ids), "PRESSURE_INVALID");
+     const key = JSON.stringify([r.load_case_id, r.region_id]); demand(!regionKeys.has(key), "REGION_ID_AMBIGUOUS"); regionKeys.add(key);
+@@ -150,7 +152,9 @@
+     for (const l of r.applied_loads) {
+       shape(l, ["pipe_id", "eigenload_pair_local_n", "local_x_global", "mathematical_cap_pair_local_n", "thermal_included"], "APPLIED_LOADS");
+       demand(vector(l.eigenload_pair_local_n, 2) && vector(l.local_x_global, 3) && vector(l.mathematical_cap_pair_local_n, 2)
+-        && l.thermal_included === r.materials.find((m: RecordValue) => m.pipe_id === l.pipe_id).thermal_consumed, "APPLIED_LOADS");
++        // This ledger carries only pressure cap/Poisson loads. Thermal mechanics
++        // consume the selected material separately, even in a mixed load case.
++        && l.thermal_included === false, "APPLIED_LOADS");
+     }
+     demand(Array.isArray(r.terminals) && r.terminals.length === 2 && unique(r.terminals.map((t: RecordValue) => t.node_ref)), "TERMINALS");
+     for (const t of r.terminals) {
+@@ -193,9 +197,14 @@
+   }
+   const physicalSignatures = new Set<string>();
+   for (const row of source.results) {
+-    demand(row.basis_ref?.ref_type === "load_case" && caseIds.includes(row.basis_ref.ref_id) && (!row.source_result_refs || row.source_result_refs.length === 0), "UNSUPPORTED_DERIVATION");
+-    const rule = physicalKinds[row.kind]; if (!rule) continue;
++    shape(row.basis_ref, ["ref_type", "ref_id"], "ROW_CASE_REFERENCE");
++    demand(row.basis_ref.ref_type === "load_case" && caseIds.includes(row.basis_ref.ref_id)
++      && (!Object.hasOwn(row, "source_result_refs") || (Array.isArray(row.source_result_refs) && row.source_result_refs.length === 0)), "UNSUPPORTED_DERIVATION");
++    demand(text(row.kind) && text(row.entity_ref) && text(row.unit), "ROW_IDENTITY");
++    demand(!row.kind.endsWith("_v2") || Object.hasOwn(physicalKinds, row.kind), "UNKNOWN_PHYSICAL_KIND");
++    const rule = Object.hasOwn(physicalKinds, row.kind) ? physicalKinds[row.kind] : undefined; if (!rule) continue;
+     const md = row.metadata;
++    shape(md, ["component", "coordinate_system", "location", "basis", "sign_convention"], "ROW_METADATA_SHAPE");
+     const unit = row.kind === "support_reaction_component_v2" ? (md?.component.startsWith("M") ? "N*m" : "N") : rule[1];
+     demand(md && rule[0].includes(md.component) && row.unit === unit && md.coordinate_system === rule[2] && md.basis === rule[3] && rule[4].includes(md.location) && md.sign_convention === physicalSigns[row.kind], "ROW_SEMANTICS");
+     if (row.kind.endsWith("_magnitude_v2")) demand(row.value >= 0, "ROW_SEMANTICS");
+@@ -241,12 +250,17 @@
+     && [rhs.assembled_pressure_rhs_global, rhs.rounded_cap_rhs_global, rhs.rounded_poisson_rhs_global].every(v => vector(v, 6 * rhs.node_order.length))
+     && rhs.rounded_cap_and_eigen_ledgers_are_observational === true && rhs.screen_is_not_numerical_qualification === true
+     && rhs.screen_limit === 1e-9 && rhs.screen_roundoff_multiplier === 32 && finite(rhs.cancellation_screen) && rhs.cancellation_screen >= 0 && rhs.cancellation_screen <= rhs.screen_limit && Array.isArray(rhs.groups), "RHS_INVALID");
++  for (const values of [rhs.assembled_pressure_rhs_global, rhs.rounded_cap_rhs_global, rhs.rounded_poisson_rhs_global])
++    demand(values.every((value: number, index: number) => index % 6 < 3 || value === 0), "RHS_PRESSURE_MOMENT");
++  const groups = new Set<string>();
+   for (const group of rhs.groups) {
+     shape(group, ["node_ref", "component", "pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits", "direction_component_magnitude", "coefficient_sum", "assembled_force_n", "terms"], "RHS_GROUP");
+     demand(rhs.node_order.includes(group.node_ref) && ["Fx", "Fy", "Fz"].includes(group.component)
+       && [group.pressure_bits, group.source_inner_radius_hi_bits, group.source_inner_radius_lo_bits].every(s => typeof s === "string" && /^[0-9a-f]{16}$/.test(s))
+       && finite(group.direction_component_magnitude) && group.direction_component_magnitude > 0 && group.direction_component_magnitude <= 1
+       && finite(group.coefficient_sum) && finite(group.assembled_force_n) && Array.isArray(group.terms) && group.terms.length > 0, "RHS_GROUP");
++    const identity = JSON.stringify([group.node_ref, group.component, group.pressure_bits, group.source_inner_radius_hi_bits, group.source_inner_radius_lo_bits, group.direction_component_magnitude]);
++    demand(!groups.has(identity), "RHS_GROUP_DUPLICATE"); groups.add(identity);
+     for (const term of group.terms) {
+       shape(term, ["coefficient", "region_id", "pipe_id", "kind"], "RHS_TERM");
+       const region = regions.find(r => r.load_case_id === caseId && r.region_id === term.region_id);
+@@ -255,6 +269,8 @@
+       demand(region && region.member_pipe_ids.includes(term.pipe_id) && group.pressure_bits === binary64Bits(region.p_pa)
+         && bore && group.source_inner_radius_hi_bits === bore[0] && group.source_inner_radius_lo_bits === bore[1] && finite(term.coefficient)
+         && ["poisson_eigen", "terminal_cap"].includes(term.kind), "RHS_TERM");
+-    }
+-  }
+-}
++      const material = region.materials.find((m: RecordValue) => m.pipe_id === term.pipe_id);
++      demand(material && Math.abs(term.coefficient) === (term.kind === "terminal_cap" ? 1 : Math.abs(2 * material.nu)), "RHS_TERM_COEFFICIENT");
++    }
++  }
++}
+--- frozen/projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.parity.test.ts
++++ repair/projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.parity.test.ts
+@@ -0,0 +1,56 @@
++import { describe, expect, it } from "vitest";
++import sparse from "../../../../../fixtures/results/physics_connected_mechanics_sparse.json";
++import dense from "../../../../../fixtures/results/physics_connected_mechanics_dense.json";
++import thermalSparse from "../../../../../fixtures/results/physics_thermal_ui_mechanics_sparse.json";
++import thermalDense from "../../../../../fixtures/results/physics_thermal_ui_mechanics_dense.json";
++import type { MechanicsResult } from "../../types";
++import { validatePhysicsEvidence } from "./physicsResultEvidence";
++
++type Probe = Record<string, any>;
++const actual = (source: unknown) => structuredClone(source) as MechanicsResult;
++const group = (s: Probe) => s.contract_evidence.exact_cases[0].pressure_rhs_assembly.groups[0];
++const changes: [string, (source: Probe) => void][] = [
++  ["Poisson coefficient", s => { group(s).terms[0].coefficient = 999; }],
++  ["terminal cap coefficient", s => { group(s).terms.find((t: Probe) => t.kind === "terminal_cap").coefficient = 999; }],
++  ["duplicate source group", s => { s.contract_evidence.exact_cases[0].pressure_rhs_assembly.groups.push(structuredClone(group(s))); }],
++  ["source annulus contradiction", s => { s.contract_evidence.exact_cases[0].pipe_sections[0].ro_m = 0.1; s.contract_evidence.pressure[0].geometry[0].ro_m = 0.1; }],
++  ["unknown physical kind", s => { const row = structuredClone(s.results.find((r: Probe) => r.kind.endsWith("_v2"))); row.id = "unknown:v2"; row.kind = "pipe_unknown_v2"; s.results.push(row); }],
++  ["source-block namespace", s => { s.source_block_recovery = {}; }],
++  ["pressure-only ledger thermal claim", s => { s.contract_evidence.pressure[0].applied_loads[0].thermal_included = true; }],
++  ["malformed generic operands", s => { s.results[0].source_result_refs = {}; }],
++  ["cyclic generic operand", s => { const row = s.results.find((r: Probe) => !r.kind.endsWith("_v2")); row.source_result_refs = [{ ref_type: "result_value", ref_id: row.id }]; }],
++  ["unbound maximum and headline", s => {
++    const row = structuredClone(s.results.find((r: Probe) => r.kind === "pipe_elastic_normal_stress_maximum_v2" && r.basis_ref.ref_id === s.contract_evidence.exact_cases[1].load_case_id));
++    row.id = "unbound:maximum"; row.value = 100000000.25; s.results.push(row);
++    s.summary.max_open_formula_stress = { result_ref: row.id, location_ref: row.entity_ref, value: row.value, unit: row.unit };
++  }],
++];
++
++describe.each([["sparse", sparse], ["dense", dense]] as const)("physics evidence parity: %s", (_mode, fixture) => {
++  it("admits actual joined source without mutation", () => {
++    const source = actual(fixture), before = structuredClone(source);
++    expect(() => validatePhysicsEvidence(source)).not.toThrow();
++    expect(source).toEqual(before);
++  });
++  it.each(changes)("rejects %s", (_name, mutate) => {
++    const source = actual(fixture); mutate(source);
++    expect(() => validatePhysicsEvidence(source)).toThrow(/PHYSICS_EVIDENCE_/);
++  });
++  it.each(["assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global"])("rejects pressure moments in %s", field => {
++    for (const slot of [3, 4, 5, 9, 10, 11]) {
++      const source = actual(fixture);
++      (source.contract_evidence as Probe).exact_cases[0].pressure_rhs_assembly[field][slot] = 999;
++      expect(() => validatePhysicsEvidence(source)).toThrow(/RHS_PRESSURE_MOMENT/);
++    }
++  });
++});
++
++it.each([["sparse", thermalSparse], ["dense", thermalDense]] as const)("admits actual %s pressure and thermal mechanics with separate ledgers", (_mode, fixture) => {
++  const source = actual(fixture), before = structuredClone(source);
++  const region = (source.contract_evidence as Probe).pressure[0];
++  expect(source.status.mechanics).toBe("MECHANICS_SOLVED");
++  expect(region.materials[0].thermal_consumed).toBe(true);
++  expect(region.applied_loads[0].thermal_included).toBe(false);
++  expect(() => validatePhysicsEvidence(source)).not.toThrow();
++  expect(source).toEqual(before);
++});
+--- frozen/projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs
++++ repair/projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs
+@@ -154,13 +154,19 @@
+         "GEOMETRY_SOURCE_BINDING",
+     )
+ }
+-fn temperature(v: &Value) -> Check {
++fn temperature(v: &Value, case_basis: &str, material_id: &str) -> Check {
+     match v["selection"].as_str() {
+-        Some("base_material") => require(keys(v, &["selection"]), "TEMPERATURE_SHAPE"),
++        Some("base_material") => {
++            require(keys(v, &["selection"]), "TEMPERATURE_SHAPE")?;
++            require(
++                case_basis == "base_material_common_E_nu",
++                "TEMPERATURE_CASE_BINDING",
++            )
++        }
+         Some("exact_point") => {
+             require(keys(v, &["selection", "point_id"]), "TEMPERATURE_SHAPE")?;
+-            text(&v["point_id"])?;
+-            Ok(())
++            let point = text(&v["point_id"])?;
++            require(case_basis.contains(&format!("material={material_id};common_E_nu_basis=point:{point};G=E/[2(1+nu)];alpha_same_basis=")), "TEMPERATURE_CASE_BINDING")
+         }
+         Some("interpolation") => {
+             require(
+@@ -169,8 +175,12 @@
+             )?;
+             number(&v["temperature_value"])?;
+             require(
+-                matches!(v["temperature_unit"].as_str(), Some("degC" | "degF" | "K")),
+-                "TEMPERATURE_UNIT",
++                matches!(v["temperature_unit"].as_str(), Some("degC" | "degF" | "K"))
++                    && case_basis.contains(&format!(
++                        "material={material_id};common_E_nu_basis=interpolated:"
++                    ))
++                    && case_basis.contains(";temperature_kelvin="),
++                "TEMPERATURE_CASE_BINDING",
+             )
+         }
+         _ => Err("SOURCE_PHYSICS_TEMPERATURE_BASIS".into()),
+@@ -610,7 +620,11 @@
+                 if field == "geometry" {
+                     require(duplicate[extra].is_boolean(), "TRAVERSAL_FLAG")?;
+                 } else {
+-                    temperature(&duplicate[extra])?;
++                    temperature(
++                        &duplicate[extra],
++                        text(&exact["material_basis"])?,
++                        text(&duplicate["material_id"])?,
++                    )?;
+                 }
+             }
+         }
+@@ -636,10 +650,7 @@
+             vector(&item["eigenload_pair_local_n"], 2)?;
+             vector(&item["mathematical_cap_pair_local_n"], 2)?;
+             vector(&item["local_x_global"], 3)?;
+-            require(
+-                item["thermal_included"].is_boolean(),
+-                "APPLIED_THERMAL_FLAG",
+-            )?;
++            require(item["thermal_included"] == false, "APPLIED_THERMAL_FLAG")?;
+         }
+         let terminals = array(&region["terminals"])?;
+         require(
+@@ -683,6 +694,16 @@
+                         "TERMINAL_TRANSFER",
+                     )?;
+                     vector(&terminal["remote_closure_support_reaction_global_n"], 3)?;
++                    for (reaction, closure) in
++                        array(&terminal["remote_closure_support_reaction_global_n"])?
++                            .iter()
++                            .zip(array(&terminal["closure_pressure_load_global_n"])?)
++                    {
++                        require(
++                            number(reaction)? == -number(closure)?,
++                            "TERMINAL_REMOTE_REACTION",
++                        )?;
++                    }
+                 }
+                 _ => return Err("SOURCE_PHYSICS_TERMINAL_CLOSURE".into()),
+             }
+--- frozen/projects/chirality-piping/core/reporting/result_export/tests/physics_contract.rs
++++ repair/projects/chirality-piping/core/reporting/result_export/tests/physics_contract.rs
+@@ -365,3 +365,68 @@
+         .unwrap_err()
+         .contains("INCOMPLETE_STRESS_HEADLINE"));
+ }
++
++#[test]
++fn actual_pressure_thermal_cases_retain_distinct_pressure_only_ledgers() {
++    for bytes in [
++        include_str!("../../../../fixtures/results/physics_thermal_ui_mechanics_sparse.json"),
++        include_str!("../../../../fixtures/results/physics_thermal_ui_mechanics_dense.json"),
++    ] {
++        let raw: Value = serde_json::from_str(bytes).unwrap();
++        assert_eq!(
++            raw["contract_evidence"]["pressure"][0]["materials"][0]["thermal_consumed"],
++            true
++        );
++        assert_eq!(
++            raw["contract_evidence"]["pressure"][0]["applied_loads"][0]["thermal_included"],
++            false
++        );
++        s::for_source(&raw).unwrap();
++        assert_eq!(
++            s::numerical_use_standing(&raw, &bases(&raw)),
++            "numerically_eligible"
++        );
++    }
++}
++
++#[test]
++fn temperature_selection_must_bind_the_exact_case_material_basis() {
++    let mut raw = source(false);
++    raw["contract_evidence"]["pressure"][0]["materials"][0]["temperature_basis"] =
++        json!({"selection":"exact_point","point_id":"missing"});
++    assert!(s::for_source(&raw)
++        .unwrap_err()
++        .contains("TEMPERATURE_CASE_BINDING"));
++}
++
++#[test]
++fn remote_closure_reaction_must_oppose_the_closure_load() {
++    // A closure-shape probe only; these mutations are not new solved evidence.
++    let mut raw = source(false);
++    let terminal = &mut raw["contract_evidence"]["pressure"][0]["terminals"][0];
++    terminal["closure_transfer"] = json!("separately_supported_or_compensated");
++    terminal["remote_closure_excluded_from_pipe_solve"] = json!(true);
++    terminal["pipe_cap_transfer_global_n"] = json!([0, 0, 0]);
++    terminal["remote_closure_support_reaction_global_n"] = json!(terminal
++        ["closure_pressure_load_global_n"]
++        .as_array()
++        .unwrap()
++        .iter()
++        .map(|v| -v.as_f64().unwrap())
++        .collect::<Vec<_>>());
++    s::for_source(&raw).unwrap();
++    raw["contract_evidence"]["pressure"][0]["terminals"][0]
++        ["remote_closure_support_reaction_global_n"][0] = json!(999);
++    assert!(s::for_source(&raw)
++        .unwrap_err()
++        .contains("TERMINAL_REMOTE_REACTION"));
++}
++
++#[test]
++fn pressure_ledger_cannot_claim_to_include_thermal_actions() {
++    let mut raw = source(false);
++    raw["contract_evidence"]["pressure"][0]["applied_loads"][0]["thermal_included"] = json!(true);
++    assert!(s::for_source(&raw)
++        .unwrap_err()
++        .contains("APPLIED_THERMAL_FLAG"));
++}

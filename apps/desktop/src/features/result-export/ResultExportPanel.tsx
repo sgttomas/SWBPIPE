@@ -1,8 +1,20 @@
+import { checkedJsonText } from "../../services/hashService";
+import { hasNativeMechanicsInvocation } from "../../services/previewService";
+import { hasCurrentSourceContract, numericalResultStanding } from "../results/numericalResultQuality";
 import { useEffect, useState } from "react";
 import { buildCurrentResultExport, type JsonObject } from "./resultExportAdapter";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { Download, FileJson } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
+
+function liveResultBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null, inputManifest?: CurrentSessionInputManifestEvidence | null): string | null {
+  try {
+    if (!result || !analysisRun || !inputManifest || !hasCurrentSourceContract(result)
+      || !hasNativeMechanicsInvocation(result, model, inputManifest.manifest.solver_basis.solver_mode)
+      || !numericalResultStanding(result, model).eligible) return null;
+    return checkedJsonText({ model, result, analysisRun, inputManifest });
+  } catch { return null; }
+}
 
 export function ResultExportPanel({
   model,
@@ -20,9 +32,13 @@ export function ResultExportPanel({
   // Bind completed packet to the exact props so an edit cannot expose a stale
   // downloadable document while the asynchronous proof check is running.
   const [binding,setBinding] = useState<object[]|null>(null);
-  const currentPacket = binding?.[0]===model && binding?.[1]===result && binding?.[2]===analysisRun && binding?.[3]===inputManifest ? packet : null;
-  useEffect(()=>{let active=true;setPacket(null);setFinding(null);setBinding(null);
-    if(result&&analysisRun)buildCurrentResultExport({model,result,analysisRun,inputManifest}).then(doc=>{if(active){setPacket(doc);setBinding([model,result,analysisRun,inputManifest!]);}}).catch(error=>{if(active)setFinding(String(error));});
+  const [publicationFingerprint, setPublicationFingerprint] = useState<string|null>(null);
+  const currentFingerprint = liveResultBinding(model, result, analysisRun, inputManifest);
+  const currentPacket = binding?.[0]===model && binding?.[1]===result && binding?.[2]===analysisRun && binding?.[3]===inputManifest
+    && currentFingerprint !== null && currentFingerprint === publicationFingerprint ? packet : null;
+  useEffect(()=>{let active=true;setPacket(null);setFinding(null);setBinding(null);setPublicationFingerprint(null);
+    const capturedFingerprint = liveResultBinding(model, result, analysisRun, inputManifest);
+    if(result&&analysisRun)buildCurrentResultExport({model,result,analysisRun,inputManifest}).then(doc=>{if(active && capturedFingerprint !== null && liveResultBinding(model,result,analysisRun,inputManifest) === capturedFingerprint){setPacket(doc);setBinding([model,result,analysisRun,inputManifest!]);setPublicationFingerprint(capturedFingerprint);}}).catch(error=>{if(active)setFinding(String(error));});
     return ()=>{active=false;};
   },[model,result,analysisRun,inputManifest]);
   return (
@@ -33,7 +49,12 @@ export function ResultExportPanel({
       </div>
       {currentPacket ? (
         <>
-          <div className="report-actions">
+          <div className="report-actions" onClickCapture={(event) => {
+            if (liveResultBinding(model,result,analysisRun,inputManifest) !== publicationFingerprint) {
+              event.preventDefault(); event.stopPropagation();
+              setPacket(null); setBinding(null); setPublicationFingerprint(null);
+            }
+          }}>
         <ControlledExportLink
               className="report-export-link"
               data-testid="result-export-link"

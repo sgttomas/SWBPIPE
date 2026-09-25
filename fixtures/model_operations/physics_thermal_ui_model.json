@@ -1,0 +1,268 @@
+{
+  "schema_version": "0.3.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "pressure_contract": {
+    "version": "2.0.0",
+    "mode": "exact_straight_pressure_v2"
+  },
+  "project": {
+    "id": "project:physics-pressure-thermal-fixture",
+    "units": {
+      "length": "m",
+      "force": "N",
+      "angle": "rad",
+      "pressure": "Pa",
+      "stress": "Pa",
+      "temperature": "degC"
+    },
+    "name": "Synthetic combined pressure and thermal consumer control",
+    "description": "Synthetic user-input fixture; no library or code-rule data."
+  },
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+    {
+      "id": "node:fixture-root",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "synthetic_integration_input_not_library_data",
+      "label": "fixture-root"
+    },
+    {
+      "id": "node:fixture-tip",
+      "position": {
+        "x": 1,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "synthetic_integration_input_not_library_data",
+      "label": "fixture-tip"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:fixture-span",
+      "from": "node:fixture-root",
+      "to": "node:fixture-tip",
+      "section": {
+        "outside_diameter": {
+          "value": 0.12,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.01,
+          "unit": "m"
+        }
+      },
+      "material": "material:fixture-isotropic",
+      "y_reference": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "provenance": "synthetic_integration_input_not_library_data",
+      "label": "fixture-span"
+    }
+  ],
+  "materials": [
+    {
+      "id": "material:fixture-isotropic",
+      "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+      "elastic_modulus": {
+        "value": 200000000000.0,
+        "unit": "Pa"
+      },
+      "poisson_ratio": {
+        "value": 0.3,
+        "unit": "1"
+      },
+      "provenance": "synthetic_integration_input_not_library_data",
+      "label": "fixture-isotropic",
+      "thermal_expansion_coefficient": {
+        "value": 1.2e-05,
+        "unit": "1/degC"
+      }
+    }
+  ],
+  "supports": [
+    {
+      "id": "support:fixture-root",
+      "node": "node:fixture-root",
+      "family": "anchor",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "synthetic_integration_input_not_library_data",
+      "label": "fixture-root"
+    }
+  ],
+  "components": [],
+  "load_cases": [
+    {
+      "id": "case:closed-pressure",
+      "primitive_loads": [
+        {
+          "id": "load:fixture-thermal",
+          "category": "thermal",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:fixture-span"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 50,
+            "unit": "degC"
+          },
+          "dimension": "temperature_interval",
+          "provenance": "synthetic_explicit_constant_alpha_and_temperature_interval"
+        }
+      ],
+      "pressure_regions": [
+        {
+          "id": "region:fixture-pressure",
+          "member_pipe_ids": [
+            "pipe:fixture-span"
+          ],
+          "pressure_basis": "internal_differential_zero_external_v1",
+          "pressure": {
+            "value": 2000,
+            "unit": "kPa"
+          },
+          "terminals": [
+            {
+              "node_ref": "node:fixture-root",
+              "closure_transfer": "transfers_to_wall",
+              "provenance": "synthetic_integration_input_not_library_data"
+            },
+            {
+              "node_ref": "node:fixture-tip",
+              "closure_transfer": "transfers_to_wall",
+              "provenance": "synthetic_integration_input_not_library_data"
+            }
+          ],
+          "provenance": "synthetic_integration_input_not_library_data"
+        }
+      ],
+      "provenance": "synthetic_integration_input_not_library_data",
+      "label": "closed-pressure",
+      "kind": "primitive_user_load",
+      "status": "preview_only"
+    },
+    {
+      "id": "case:six-component-load",
+      "primitive_loads": [
+        {
+          "id": "load:fixture-global_x",
+          "category": "concentrated_force",
+          "target": {
+            "type": "node",
+            "node": "node:fixture-tip"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 1000,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "synthetic_integration_input_not_library_data"
+        },
+        {
+          "id": "load:fixture-global_y",
+          "category": "concentrated_force",
+          "target": {
+            "type": "node",
+            "node": "node:fixture-tip"
+          },
+          "direction": "global_y",
+          "magnitude": {
+            "value": 2000,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "synthetic_integration_input_not_library_data"
+        },
+        {
+          "id": "load:fixture-global_z",
+          "category": "concentrated_force",
+          "target": {
+            "type": "node",
+            "node": "node:fixture-tip"
+          },
+          "direction": "global_z",
+          "magnitude": {
+            "value": -3000,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "synthetic_integration_input_not_library_data"
+        },
+        {
+          "id": "load:fixture-rotation_x",
+          "category": "concentrated_moment",
+          "target": {
+            "type": "node",
+            "node": "node:fixture-tip"
+          },
+          "direction": "rotation_x",
+          "magnitude": {
+            "value": 400,
+            "unit": "N*m"
+          },
+          "dimension": "moment",
+          "provenance": "synthetic_integration_input_not_library_data"
+        },
+        {
+          "id": "load:fixture-rotation_y",
+          "category": "concentrated_moment",
+          "target": {
+            "type": "node",
+            "node": "node:fixture-tip"
+          },
+          "direction": "rotation_y",
+          "magnitude": {
+            "value": -500,
+            "unit": "N*m"
+          },
+          "dimension": "moment",
+          "provenance": "synthetic_integration_input_not_library_data"
+        },
+        {
+          "id": "load:fixture-rotation_z",
+          "category": "concentrated_moment",
+          "target": {
+            "type": "node",
+            "node": "node:fixture-tip"
+          },
+          "direction": "rotation_z",
+          "magnitude": {
+            "value": 600,
+            "unit": "N*m"
+          },
+          "dimension": "moment",
+          "provenance": "synthetic_integration_input_not_library_data"
+        }
+      ],
+      "pressure_regions": [],
+      "provenance": "synthetic_integration_input_not_library_data",
+      "label": "six-component-load",
+      "kind": "primitive_user_load",
+      "status": "preview_only"
+    }
+  ],
+  "combinations": [],
+  "data_boundary": {
+    "source": "synthetic_integration_input_not_library_data"
+  },
+  "diagnostics": []
+}

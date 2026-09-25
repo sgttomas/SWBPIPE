@@ -1,0 +1,71 @@
+{
+  "actor": "/root/physics_resume",
+  "actual_harness_parent": "/root",
+  "purpose": "Genuine current producer results from maintained full-UI model, not old raw relabeled with metadata; transport-test basis only, not actual native UI witness",
+  "runs": [
+    {
+      "command": [
+        "cargo",
+        "run",
+        "--manifest-path",
+        "projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--target-dir",
+        "/private/tmp/piping-engine-integration-product-target",
+        "--example",
+        "exact_pressure_connected",
+        "--",
+        "sparse",
+        "--model",
+        "projects/chirality-piping/fixtures/model_operations/exact_pressure_authoring_model.json"
+      ],
+      "started_utc": "2026-09-25T05:40:57.565983+00:00",
+      "model_path": "projects/chirality-piping/fixtures/model_operations/exact_pressure_authoring_model.json",
+      "model_sha256": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e",
+      "source": {
+        "projects/chirality-piping/core/product_physics/src/lib.rs": "ee98463c29ece7abe5d3873e2e06931edc42cf8ec7b82b376de5ebcf7c92ba44",
+        "projects/chirality-piping/core/product_physics/Cargo.toml": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542",
+        "projects/chirality-piping/core/product_physics/examples/exact_pressure_connected.rs": "801a9985ddc8265383fb8c7883e8f8780cedeeed8ee424a991a40cded1073e85"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-09-25T05:40:59.305130+00:00",
+      "result_path": "projects/chirality-piping/fixtures/results/physics_connected_ui_mechanics_sparse.json",
+      "result_sha256": "80396de3e4c8339bc923bb5b4d7309227537ac21dffbb43f4a08648ae98b0d45"
+    },
+    {
+      "command": [
+        "cargo",
+        "run",
+        "--manifest-path",
+        "projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--target-dir",
+        "/private/tmp/piping-engine-integration-product-target",
+        "--example",
+        "exact_pressure_connected",
+        "--",
+        "dense",
+        "--model",
+        "projects/chirality-piping/fixtures/model_operations/exact_pressure_authoring_model.json"
+      ],
+      "started_utc": "2026-09-25T05:40:59.306431+00:00",
+      "model_path": "projects/chirality-piping/fixtures/model_operations/exact_pressure_authoring_model.json",
+      "model_sha256": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e",
+      "source": {
+        "projects/chirality-piping/core/product_physics/src/lib.rs": "ee98463c29ece7abe5d3873e2e06931edc42cf8ec7b82b376de5ebcf7c92ba44",
+        "projects/chirality-piping/core/product_physics/Cargo.toml": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542",
+        "projects/chirality-piping/core/product_physics/examples/exact_pressure_connected.rs": "801a9985ddc8265383fb8c7883e8f8780cedeeed8ee424a991a40cded1073e85"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-09-25T05:40:59.843541+00:00",
+      "result_path": "projects/chirality-piping/fixtures/results/physics_connected_ui_mechanics_dense.json",
+      "result_sha256": "af87670235e7bd4f9f063cef8c505196f3f0e193a4b5f8cb7e3c22268cc331ee"
+    }
+  ]
+}

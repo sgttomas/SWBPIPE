@@ -1,0 +1,28 @@
+   Compiling open_pipe_stress_result_export v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/reporting/result_export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.25s
+     Running tests/physics_contract.rs (/private/tmp/piping-physics-result-export-target/debug/deps/physics_contract-462dc8cc509cc8f7)
+
+running 10 tests
+test additive_table_retains_frozen_precision_bytes_and_semantics ... ok
+test pressure_ledger_cannot_claim_to_include_thermal_actions ... ok
+test temperature_selection_must_bind_the_exact_case_material_basis ... ok
+test remote_closure_reaction_must_oppose_the_closure_load ... ok
+test actual_pressure_thermal_cases_retain_distinct_pressure_only_ledgers ... ok
+test metadata_only_dispatch_cannot_qualify_missing_raw_evidence_or_reserved_methods ... ok
+test explicit_unavailable_extrema_preserve_signed_rows_and_withhold_headline ... ok
+test canonical_physical_evidence_is_source_bound_even_after_rehash ... ok
+test physical_case_member_material_region_and_extrema_tampering_is_rejected ... ok
+test actual_joined_outputs_admit_preserve_and_validate_physics_derivatives ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.24s
+
+     Running tests/precision_contract.rs (/private/tmp/piping-physics-result-export-target/debug/deps/precision_contract-9bbd81e8f07741e3)
+
+running 4 tests
+test rule_eligibility_requires_actual_case_coverage_and_resolving_evidence ... ok
+test historical_hash_vectors_and_rows_are_unchanged ... ok
+test explicit_dispatch_metadata_binding_and_unchanged_ijson_limit ... ok
+test same_unit_bits_survive_json_derive_read_and_hash ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+

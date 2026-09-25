@@ -14,11 +14,15 @@
 use serde::Serialize;
 use serde_json::{json, Value};
 
-/// Current model-document schema version this application can author.
+/// Automatic migration target for legacy model documents. Explicit pressure
+/// profiles use the separately supported 0.3.0 identity below; legacy documents
+/// are never silently assigned a pressure formulation or closure inputs.
 /// DEC-033 (2026-06-12): 0.2.0 adds the optional combination shape fields
 /// introduced by TP-APP-R2-COMBEXPR-001; any change to what a document can
 /// contain bumps minor, with patch reserved for non-shape changes.
 pub const SUPPORTED_MODEL_SCHEMA_VERSION: &str = "0.2.0";
+/// Explicitly authored model namespace, supported without an automatic migration.
+pub const EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION: &str = "0.3.0";
 /// Framework label fixed by `schemas/project_persistence.schema.yaml` and
 /// accepted in DEC-019.
 pub const MODEL_MIGRATION_FRAMEWORK: &str = "application_service_separate_db_and_product_schema";
@@ -127,6 +131,21 @@ pub fn evaluate_model_document(
         };
     };
 
+    if document_version == parse_semver(EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION).unwrap() {
+        let mut current = status(
+            "current",
+            &raw_version,
+            Vec::new(),
+            "stored_document_current",
+            "Explicit model 0.3.0 is retained without migration; pressure-profile inputs and solve eligibility are validated separately.".to_string(),
+        );
+        current.target_schema_version = EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION.to_string();
+        return EvaluatedModelDocument {
+            migrated_document: None,
+            status: current,
+        };
+    }
+
     if document_version == supported {
         return EvaluatedModelDocument {
             migrated_document: None,
@@ -149,7 +168,7 @@ pub fn evaluate_model_document(
                 Vec::new(),
                 "not_applicable_document_refused",
                 format!(
-                    "Model document schema_version {raw_version} is newer than the supported {SUPPORTED_MODEL_SCHEMA_VERSION}; refusing to open for editing (no down-migration)."
+                    "Model document schema_version {raw_version} is newer than the legacy migration target {SUPPORTED_MODEL_SCHEMA_VERSION} and does not match the separately supported explicit {EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION}; refusing to open for editing (no down-migration)."
                 ),
             ),
         };
@@ -325,7 +344,7 @@ mod tests {
 
     #[test]
     fn newer_documents_are_refused_without_down_migration() {
-        for version in ["0.3.0", "1.0.0", "0.2.1"] {
+        for version in ["0.3.1", "1.0.0", "0.2.1"] {
             let evaluated = evaluate_model_document(&document(version), &test_chain());
             assert_eq!(
                 evaluated.status.status, "newer_than_supported",
@@ -334,6 +353,44 @@ mod tests {
             assert!(evaluated.migrated_document.is_none());
             assert!(evaluated.status.detail.contains("no down-migration"));
         }
+    }
+
+    #[test]
+    fn explicit_pressure_profile_is_retained_without_reinterpreting_legacy_documents() {
+        let mut exact = document("0.3.0");
+        exact["pressure_contract"] = json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
+        exact["load_cases"] = json!([{"id":"case:p","pressure_regions":[],"primitive_loads":[]}]);
+        exact["materials"] = json!([{"id":"material:m","constitutive_basis":"homogeneous_isotropic_E_nu_v1","elastic_modulus":{"value":200e9,"unit":"Pa"},"poisson_ratio":{"value":0.3,"unit":"1"}}]);
+        let before = exact.clone();
+        let evaluated = evaluate_model_document(&exact, &model_document_migrations());
+        assert_eq!(evaluated.status.status, "current");
+        assert_eq!(evaluated.status.target_schema_version, "0.3.0");
+        assert!(evaluated.status.applied_migration_ids.is_empty());
+        assert!(evaluated.migrated_document.is_none());
+        assert_eq!(exact, before);
+
+        let mut legacy = document("0.1.0");
+        legacy["load_cases"] = json!([{"id":"case:old","primitive_loads":[{"category":"pressure","magnitude":{"value":1000.0,"unit":"Pa"}}]}]);
+        let original = legacy.clone();
+        let migrated = evaluate_model_document(&legacy, &model_document_migrations())
+            .migrated_document
+            .unwrap();
+        assert_eq!(migrated["schema_version"], "0.2.0");
+        assert_eq!(migrated["load_cases"], original["load_cases"]);
+        assert!(migrated.get("pressure_contract").is_none());
+        assert!(migrated["load_cases"][0].get("pressure_regions").is_none());
+        assert_eq!(legacy, original);
+    }
+
+    #[test]
+    fn explicit_version_drafts_remain_editable_without_claiming_solve_readiness() {
+        let draft = document("0.3.0");
+        let evaluated = evaluate_model_document(&draft, &model_document_migrations());
+        assert_eq!(evaluated.status.status, "current");
+        assert_eq!(evaluated.status.target_schema_version, "0.3.0");
+        assert!(evaluated.migrated_document.is_none());
+        assert!(draft.get("pressure_contract").is_none());
+        assert!(evaluated.status.detail.contains("solve eligibility"));
     }
 
     #[test]
@@ -419,13 +476,8 @@ mod tests {
     #[test]
     fn ledger_records_carry_pre_and_post_hashes_and_no_claims() {
         let evaluated = evaluate_model_document(&document("0.0.9"), &test_chain());
-        let record = migration_ledger_record(
-            &evaluated.status,
-            "sha256:pre",
-            "sha256:post",
-            1234,
-            None,
-        );
+        let record =
+            migration_ledger_record(&evaluated.status, "sha256:pre", "sha256:post", 1234, None);
         assert_eq!(record["pre_migration_model_hash"], json!("sha256:pre"));
         assert_eq!(record["post_migration_model_hash"], json!("sha256:post"));
         assert_eq!(record["source_schema_version"], json!("0.0.9"));

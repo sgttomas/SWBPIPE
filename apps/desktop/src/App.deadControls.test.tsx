@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "./App";
 
@@ -16,12 +16,13 @@ import { App } from "./App";
 //
 // Method: controls are normalized into classes (entity ids and sequence
 // numbers stripped from data-testid), and one representative per class is
-// audited on a FRESH render so clicks cannot contaminate each other. Three
+// audited on a FRESH render so clicks cannot contaminate each other. Four
 // shell states are covered, because some controls only exist in later
 // authoring phases:
 //   1. initial fixture state,
 //   2. queued state (one explicit-node intent queued),
-//   3. solved state (mechanics preview completed).
+//   3. Solve/reference entry, so loading a reference is itself audited,
+//   4. populated bundled-reference inspection (never a fresh browser solve).
 //
 // Exemption (documented): a button with aria-pressed="true" at click time is
 // an already-active toggle/filter; re-selecting it is idempotent by design
@@ -67,7 +68,7 @@ function enumerateButtons(container: HTMLElement): HTMLButtonElement[] {
     });
 }
 
-function openWorkspaceSection(section: "loads" | "solve"): HTMLElement {
+function openWorkspaceSection(section: "loads" | "solve" | "results"): HTMLElement {
   fireEvent.click(screen.getByTestId("menu-view"));
   fireEvent.click(screen.getByTestId(`menu-item-view.section.${section}`));
   const workspaceSection = screen.getByTestId(`workspace-section-${section}`);
@@ -127,16 +128,16 @@ async function prepareScenario(scenario: string, container: HTMLElement): Promis
     await screen.findByTestId("apply-intent-editor-intent-1");
     return;
   }
-  if (scenario === "solved") {
+  if (scenario === "reference-entry") {
     openWorkspaceSection("solve");
-    fireEvent.click(screen.getByTestId("run-mechanics-preview"));
-    await waitFor(
-      () => {
-        const summary = screen.getByTestId("solve-job-summary").textContent ?? "";
-        if (!summary.includes("state=completed")) throw new Error(`solve not completed: ${summary}`);
-      },
-      { timeout: 30_000 }
-    );
+    return;
+  }
+  if (scenario === "reference") {
+    const solve = openWorkspaceSection("solve");
+    fireEvent.click(within(solve).getByRole("button", { name: "Inspect bundled reference" }));
+    await waitFor(() => expect(screen.getByTestId("historical-run-context")).toHaveTextContent("Bundled reference — not a solve for the current model"), { timeout: 30_000 });
+    expect(screen.getByTestId("historical-run-context")).toHaveTextContent("NO_CURRENT_MODEL_INVOCATION");
+    expect(screen.queryByTestId("status-pill-mechanics")).not.toBeInTheDocument();
     return;
   }
   throw new Error(`unknown audit scenario: ${scenario}`);
@@ -266,7 +267,7 @@ describe("dead-control audit (TP-APP-R2-UXSHELL-001)", () => {
     async () => {
       const violations: Violation[] = [];
       const audited = new Set<string>();
-      for (const scenario of ["initial", "queued", "solved"]) {
+      for (const scenario of ["initial", "queued", "reference-entry", "reference"]) {
         await auditScenario(scenario, audited, violations);
       }
       const report = violations.map((entry) => `[${entry.scenario}] ${entry.key}: ${entry.problem}`);

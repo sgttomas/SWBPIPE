@@ -1,3 +1,4 @@
+import { MaterialConstitutiveForm } from "../pressure-authoring/PressureAuthoringPanel";
 import { useEffect, useState } from "react";
 import { clone, parseQuantities, QueueFeedback, QuantityField, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 type Material = NonNullable<RichFormProps["model"]["materials"]>[number] & {
@@ -5,11 +6,11 @@ type Material = NonNullable<RichFormProps["model"]["materials"]>[number] & {
 };
 export function MaterialTemperatureForm(props: RichFormProps) {
   const material = props.selection.type === "material" ? props.model.materials?.find(m => m.id === props.selection.id) as Material | undefined : undefined;
-  return material ? <TemperatureEditor
+  return material ? <><MaterialConstitutiveForm {...props} /><TemperatureEditor
     key={material.id}
     {...props}
     material={material}
-  /> : null;
+  /></> : null;
 }
 function TemperatureEditor(props: RichFormProps & {
   material: Material;
@@ -60,8 +61,8 @@ function TemperatureEditor(props: RichFormProps & {
           value={row.id}
           onChange={value => update(index, "id", value)}
         />
-        {([['temperature', 'Temperature'], ['elastic_modulus', 'Elastic modulus'], ['shear_modulus', 'Shear modulus'], ['thermal_expansion_coefficient', 'Thermal expansion coefficient']] as const).map(([key, label]) => <QuantityField
-          dimension={key === "temperature" ? "temperature" : key === "thermal_expansion_coefficient" ? "inverse temperature" : "stress"}
+        {([['temperature', 'Temperature'], ['elastic_modulus', 'Elastic modulus'], ['shear_modulus', 'Shear modulus'], ['poisson_ratio', 'Poisson ratio (unit 1)'], ['thermal_expansion_coefficient', 'Thermal expansion coefficient']] as const).map(([key, label]) => <QuantityField
+          dimension={key === "poisson_ratio" ? "dimensionless" : key === "temperature" ? "temperature" : key === "thermal_expansion_coefficient" ? "inverse temperature" : "stress"}
           key={key}
           label={`Point ${index + 1} ${label}`}
           value={row[key]}

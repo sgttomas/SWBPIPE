@@ -1,0 +1,43 @@
+Command: ["/private/tmp/chirality-piping-review-venv/bin/python", "-m", "pytest", "-q", "tests/test_physics_consumer_contract.py::test_actual_headless_physics_derivative_and_analysis_share_the_full_source"]
+CWD: /private/tmp/piping-engine-integration-20260925/projects/chirality-piping
+HEADLESS_PHYSICS_OUTPUT_DIR=/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/HEADLESS_ACTUAL
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_actual_headless_physics_derivative_and_analysis_share_the_full_source __
+
+    def test_actual_headless_physics_derivative_and_analysis_share_the_full_source():
+        import os
+        folder = os.environ.get("HEADLESS_PHYSICS_OUTPUT_DIR")
+        if not folder:
+            pytest.skip("Requires actual headless physics artifacts from the focused Rust lane")
+        paths = list(Path(folder).glob("*.raw.json"))
+        assert len(paths) == 2, "Both actual sparse/dense outputs are required"
+        schema = json.loads((PROJECT / "schemas/results.v0.3.schema.yaml").read_text())
+        for path in paths:
+            source = json.loads(path.read_text())
+            document = json.loads(path.with_name(path.name.replace(".raw.json", ".document.json")).read_text())
+            validate_instance(schema, document, instance_label=f"actual headless physics {path.stem}")
+            record = build(source)
+            validate_analysis_run_v0_3(record, source)
+            envelope = document["result_envelope"]
+            for key in ["producer", "numerical_quality", "formulation_basis", "contract_evidence"]:
+                assert envelope[key] == source[key]
+            source_hash = canonical_sha256_checked_v1(source)
+            received = next(item for item in record["analysis_run"]["hashes"] if item["payload_scope"] == "received_result")
+>           assert envelope["reproducibility"]["source_origin_bindings"][0]["received_carrier_checksum"]["value"] == received["value"] == source_hash
+E           AssertionError: assert 'e66fa002a3c5...08624a01591f6' == '9f1b46f594c0...fde01f140d754'
+E             
+E             - 9f1b46f594c0c3b2eb6f4fbeee0da56d783fd80b5efd71795f4fde01f140d754
+E             + e66fa002a3c55e63c06a134495e59d67c2f1071cb8f960ca70b08624a01591f6
+
+tests/test_physics_consumer_contract.py:151: AssertionError
+=============================== warnings summary ===============================
+tests/test_physics_consumer_contract.py::test_actual_headless_physics_derivative_and_analysis_share_the_full_source
+tests/test_physics_consumer_contract.py::test_actual_headless_physics_derivative_and_analysis_share_the_full_source
+  /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/schema_validation.py:54: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import RefResolver
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_physics_consumer_contract.py::test_actual_headless_physics_derivative_and_analysis_share_the_full_source
+1 failed, 2 warnings in 2.24s

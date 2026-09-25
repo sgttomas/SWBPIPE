@@ -2,7 +2,10 @@ import { solverDisplayWithToken } from "./features/workspace/statusLabels";
 import { statusChipInputsFromCells, statusChips, statusChipText } from "./features/workspace/shellLayout";
 import historicalMechanicsFixture from "../../../fixtures/product_preview/invented_mechanics_result.json";
 import { PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "./features/results/numericalResultQuality";
-import { analysisRowSemantics, buildAnalysisRunV02 } from "./services/analysisRunCompatibility";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "./test/nativeMechanicsReplay";
+import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
+import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
+import { analysisRowSemantics, buildAnalysisRunV02, buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
 import { changeFormControl, expectFormControlValue, compactOptionRecords } from "./test-support/workspaceTestControls";
 import type { ViewportViewCommand } from "./features/viewport/viewportSelection";
 import {
@@ -32,6 +35,20 @@ import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { buildMissingDataBlockingPacket, MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
+import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
+import { ReportPanel } from "./features/report/ReportPanel";
+import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
+import { buildStressNeutralExportPacket } from "./features/stress-neutral/StressNeutralExportPanel";
+import { NativePackagePanel, buildNativePackageReview } from "./features/native-package/NativePackagePanel";
+import { buildLocalFeaHandoffPacket } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
+import { buildHandoffPackage } from "./features/handoff/HandoffPanel";
+import { buildHeadlessRunnerPacket } from "./features/headless-runner/HeadlessRunnerPanel";
+import { initialSolveJob } from "./features/workspace/solveJobAudit";
+import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
+import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel";
+import { ExportReviewPanel } from "./features/export-review/ExportReviewPanel";
+import type { NativeResultSaveRequest } from "./features/result-export/nativeResultSave";
+import { deriveResultDocument, ref, derivativeProvenance } from "./features/result-export/resultExportAdapter";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import {
   buildDeformationOverlay,
@@ -42,10 +59,13 @@ import {
   buildPreviewComparison,
   loadPreviewModel,
   loadDesignKnowledge,
-  runPreviewMechanics,
+  loadBundledMechanicsReference,
+  hasNativeMechanicsInvocation,
+  loadSampleProposal,
 } from "./services/previewService";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
 import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
+import { getLocalStorageCapability } from "./services/projectService";
 import { applyModelOperation } from "./services/operationService";
 import { applyOperationBatch, type OperationBatchOutcome } from "./services/operationBatchService";
 import type {
@@ -158,6 +178,61 @@ function operationDiffPreview() {
 async function loadCaseManager() {
   await screen.findByTestId("workspace-toolbar");
   return within(openWorkspaceSection("loads")).getByTestId("load-case-manager");
+}
+
+// Explicit preserved reference bytes; this never starts a solve or grants Current.
+async function referenceMechanicsSource() {
+  return (await loadBundledMechanicsReference()).source;
+}
+async function referenceAnalysis() {
+  const reference = await loadBundledMechanicsReference(), model = reference.model, result = reference.source;
+  const manifest = { model_basis: { model_ref: model.project.id, model_payload: model }, solver_basis: { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: "test:reference-inspection-not-native-invocation" } };
+  const basis = { manifest, manifest_ref: { object_type: "InputManifest", ref: "test:reference-analysis" }, manifest_sha256: await canonicalSha256HexCheckedV1(manifest) };
+  const analysisRun = await buildAnalysisRunV03(result, basis, undefined, modelLoadBasisRefs(model));
+  return { model, result, analysisRun };
+}
+async function referenceDerivative({ model, result, analysisRun }: Awaited<ReturnType<typeof referenceAnalysis>>) {
+  const provenance = derivativeProvenance, run = analysisRun.analysis_run;
+  const fixtureRef = "reference-protocol-not-Current";
+  const origin = { origin_id: fixtureRef, origin_class: "received_current_dimension_absent", qualification_ref: ref("synthetic_fixture", fixtureRef), authentic_producer_available: false,
+    received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_carrier", payload_ref: ref("received_current_carrier", result.run_id), value: await canonicalSha256HexCheckedV1(result) }, original_producer_checksum: null,
+    origin_limit: "Unqualified preserved reference-format projection; no native invocation or Current export", actual_model_ref: ref("model_payload", model.project.id), mechanics_run_ref: ref("mechanics_run", result.run_id), request_model_ref: null, request_run_ref: null, request_alias_disclosure: null };
+  const base = { schema_version: "0.2.0", deliverable_id: "DEL-08-04", package_id: "PKG-08", scope_item: "SOW-046", objectives: ["OBJ-007", "OBJ-009"], export_format_status: { baseline_format: "schema_first_json_result_envelope", additional_formats: "TBD", public_transport_protocol: "TBD", local_fea_package_format: "TBD", external_adapter_formats: "TBD" },
+    result_envelope: { schema_version: "0.2.0", envelope_id: `result-envelope:${result.run_id}`, model_ref: ref("model_payload", model.project.id), run_ref: ref("analysis_run", result.run_id), unit_system_ref: ref("unit_system", `${model.project.id}:units`),
+      load_basis_refs: run.load_basis_refs.map(x => ref(x.object_type, x.ref)), result_sets: [{ set_id: `result-set:${result.run_id}`, set_type: "mechanics", basis_ref: ref("analysis_run", result.run_id), values: [] }], diagnostics: structuredClone(result.diagnostics), provenance,
+      reproducibility: { deterministic_ordering: true, run_hashes: run.hashes.map(x => ({ algorithm: x.algorithm, canonicalization: x.canonicalization, payload_ref: ref(x.payload_ref.object_type, x.payload_ref.ref), value: x.value })), audit_manifest_ref: ref("audit_manifest", fixtureRef) },
+      analysis_status: run.analysis_status, professional_boundary: run.professional_boundary, downstream_use: { additional_export_formats: "TBD" } } };
+  return deriveResultDocument(base, model, result, origin);
+}
+
+async function inspectBundledReference() {
+  await screen.findByTestId("workspace-toolbar");
+  const solve = openWorkspaceSection("solve");
+  fireEvent.click(within(solve).getByRole("button", { name: "Inspect bundled reference" }));
+  const reference = await screen.findByTestId("historical-run-context");
+  expect(reference).toHaveTextContent("Bundled reference — not a solve for the current model");
+  return reference;
+}
+// Narrow IPC replay for actual captured ordinary model/source pairs. A unit
+// simulation only; never an actual native UI witness or a relabeled old fixture.
+async function installPrecisionReplay() {
+  // Capture the real browser-side bootstrap records before installing the
+  // scoped native transport simulation; never invent storage capabilities.
+  const storage = await getLocalStorageCapability();
+  const knowledge = await loadDesignKnowledge();
+  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "precision" });
+  const mechanics = createNativeMechanicsReplay({ profile: "precision" });
+  const invoke = (command: string, args?: unknown) => {
+    if (command === "get_local_storage_capability") return Promise.resolve(storage);
+    if (command === "load_design_knowledge") return Promise.resolve(knowledge);
+    if (command === "sync_native_shell_state") return Promise.resolve(null);
+    if (["load_preview_model", "run_preview_mechanics_with_solver_mode", "start_preview_mechanics_job_with_solver_mode", "poll_preview_mechanics_job", "cancel_preview_mechanics_job"].includes(command)) return mechanics.invoke(command, args);
+    return Promise.reject(new Error(`NATIVE_APP_REPLAY_COMMAND_UNSUPPORTED: ${command}`));
+  };
+  const replay = { invoke, notice: mechanics.notice };
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  invokeMock.mockImplementation(replay.invoke);
+  return { ...pair, replay };
 }
 
 async function runMechanicsButton() {
@@ -438,8 +513,8 @@ function renderedVendorNameMentions(panel: HTMLElement): string[] {
 
 describe("SWBPIPE desktop preview", () => {
   it("suppresses solve proof unless the completed job, result, and exact model version remain bound", async () => {
-    const model = await loadPreviewModel();
-    const result = await runPreviewMechanics(model);
+    // Pure proof-format unit simulation using a genuine paired producer record.
+    const { model, source: result } = nativeMechanicsReplayPair("sparse_interactive", { profile: "precision" });
     const modelHash: ModelHashEvidence = {
       algorithm: "sha256",
       canonicalization: "rfc8785_jcs",
@@ -513,6 +588,32 @@ describe("SWBPIPE desktop preview", () => {
     ).toBeNull();
   });
 
+  it("inspects bundled rows separately and never saves them as current model results", async () => {
+    const expected = await referenceMechanicsSource();
+    expect(expected.results).toHaveLength(830);
+    render(<App />);
+    const reference = await inspectBundledReference();
+    expect(within(reference).getByTestId("result-family-count-all")).toHaveTextContent("830");
+    expect(within(reference).getByTestId("result-page-summary")).toHaveTextContent("Showing 1 to 50 of 830 matching results; page 1 of 17");
+    expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    const solve = openWorkspaceSection("solve");
+    expect(within(solve).getByTestId("rule-check-run")).toBeDisabled();
+    expect(renderedReportButton()).toBeDisabled();
+    openWorkspaceSection("project");
+    fireEvent.click(screen.getByRole("button", { name: /^Save local$/ }));
+    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved"));
+    const storage = projectStorageAudit();
+    const exportIntent = within(storage).getByTestId("project-storage-export-link-local-private-intent") as HTMLInputElement;
+    if (!exportIntent.checked) fireEvent.click(exportIntent);
+    const href = within(storage).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    expect(href).toMatch(/^data:/);
+    const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
+    expect(packet.summary.persisted_mechanics_result_count).toBe(0);
+    expect(packet.summary.persisted_analysis_run_count).toBe(0);
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
   it("rejects overlap and invalidates an active generation before model commit", () => {
     const gate = new SolveRunGenerationGate();
     const first = gate.tryStart();
@@ -549,7 +650,7 @@ describe("SWBPIPE desktop preview", () => {
 
   it("suppresses a real delayed backend completion when native open commits a new model", async () => {
     const originalModel = await loadPreviewModel();
-    const oldResult = await runPreviewMechanics(originalModel);
+    const oldResult = await referenceMechanicsSource();
     const openedEnvelope = inventedOpenEnvelope(originalModel);
     const start = deferred<unknown>();
     const terminal = deferred<unknown>();
@@ -824,7 +925,7 @@ describe("SWBPIPE desktop preview", () => {
 
   it("surfaces bounded PDU-008 nonlinear, ratio, and rich-diagnostic GUI states", async () => {
     const model = await loadPreviewModel();
-    const result = await runPreviewMechanics(model);
+    const result = await referenceMechanicsSource();
     const nonlinearDiagnostic = {
       id: "diagnostic:nonlinear:invented-review",
       code: "NONLINEAR_SUPPORT_NONCONVERGENCE",
@@ -906,24 +1007,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(incompleteWarning?.blocks_mechanics_solve).toBe(true);
     expect(incompleteWarning?.qualifies_mechanics_results).toBe(false);
   });
-  it("records comparison workspace unit policy evidence without conversion", async () => {
-    const model = await loadPreviewModel();
-    const result = await runPreviewMechanics(model);
-    const inputManifest = await buildCurrentSessionInputManifest({
-      model,
-      solver: {
-        solver_name: "open_pipe_stress_product_physics",
-        solver_version: result.producer!.component_version,
-        solver_build_ref: `${result.producer!.component_name}@${result.producer!.component_version}`,
-        solver_mode: "sparse_interactive",
-        settings: { sparse_evidence_lane: true }
-      },
-      active_rule_packs: [],
-      external_assets: []
-    });
-    const analysisRun = await buildAnalysisRunPreview(result, {
-      inputManifest
-    });
+  it("records reference comparison workspace unit policy evidence without conversion", async () => {
+    const { model, result, analysisRun } = await referenceAnalysis();
     const comparisonPacket = buildPreviewComparison({ result, analysisRun });
 
     expect(comparisonPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
@@ -4465,42 +4550,23 @@ describe("SWBPIPE desktop preview", () => {
     expect(screen.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
   });
 
-  it("routes both File-menu report-package attempts through App-owned intent and the honest browser no-effect result", async () => {
+  it("keeps both File-menu report attempts ineligible for a bundled browser reference", async () => {
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
-
     fireEvent.click(screen.getByTestId("menu-file"));
     expect(screen.getByTestId("menu-item-file.save-report-package")).toBeDisabled();
     fireEvent.click(screen.getByTestId("app-menu-backdrop"));
-
-    fireEvent.click(await runMechanicsButton());
-    await waitFor(() => {
-      expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent("computed result rows");
-    });
-    fireEvent.click(screen.getByTestId("menu-file"));
-    expect(screen.getByTestId("menu-item-file.save-report-package")).toBeEnabled();
-    fireEvent.click(screen.getByTestId("menu-item-file.save-report-package"));
-    openWorkspaceSection("report");
-    await waitFor(() => {
-      expect(screen.getByTestId("report-package-save-status")).toHaveTextContent(
-        "REPORT-PACKAGE-REDACTION-BLOCKED"
-      );
-    });
-
-    openWorkspaceSection("report");
-    fireEvent.click(screen.getByTestId("report-package-private-intent"));
-    fireEvent.click(screen.getByTestId("menu-file"));
-    fireEvent.click(screen.getByTestId("menu-item-file.save-report-package"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("report-package-redaction-summary")).toHaveTextContent(
-        "route=DREP-PACKAGE-SAVE-009"
-      );
-      expect(screen.getByTestId("report-package-redaction-summary")).toHaveTextContent("blocked=false");
-      expect(screen.getByTestId("report-package-save-status")).toHaveTextContent(
-        "REPORT-PACKAGE-SAVE-DESKTOP-ONLY"
-      );
-    });
+    await inspectBundledReference();
+    for (const privateIntent of [false, true]) {
+      const report = openWorkspaceSection("report");
+      const intent = within(report).getByTestId("report-package-private-intent") as HTMLInputElement;
+      if (intent.checked !== privateIntent) fireEvent.click(intent);
+      fireEvent.click(screen.getByTestId("menu-file"));
+      expect(screen.getByTestId("menu-item-file.save-report-package")).toBeDisabled();
+      fireEvent.click(screen.getByTestId("app-menu-backdrop"));
+      act(() => nativeMenuCommand("file.save-report-package"));
+      expect(invokeMock.mock.calls.some(([command]) => command === "save_report_package")).toBe(false);
+    }
   });
 
   it("records viewport editor intents without direct persisted-project mutation", async () => {
@@ -7188,15 +7254,30 @@ describe("SWBPIPE desktop preview", () => {
     expect(shellText).not.toMatch(/acceptance stays with the responsible engineer/i);
   });
 
-  it("carries queued editor intents into the report packet as review-only operation context", async () => {
+  it("keeps queued editor intent context separate while inspecting preserved reference rows", async () => {
     const fixtureModel = await loadPreviewModel();
-    const fixtureResult = await runPreviewMechanics(fixtureModel);
+    const fixtureResult = await referenceMechanicsSource();
     const displacements = fixtureResult.results.filter(row => row.kind === "displacement_magnitude" && fixtureModel.nodes.some(node => node.id === row.entity_ref));
     expect(displacements.every(row => Number.isFinite(row.value))).toBe(true);
     const maximum = Math.max(...displacements.map(row => Math.abs(row.value)));
     const nodeCount = new Set(displacements.map(row => row.entity_ref)).size;
     expect(new Set(displacements.map(row => row.unit))).toEqual(new Set(["mm"]));
-    render(<App />);
+    const referenceOverlay = buildDeformationOverlay(fixtureModel, fixtureResult);
+    expect(maximum.toFixed(6)).toBe("4.927112");
+    expect(referenceOverlay.summary).toContain(`available; nodes=${nodeCount}; max=4.927112 mm`);
+    // Observe the actual queued UI intent while rendering the unchanged
+    // production diff component. No source or operation is reconstructed.
+    const diffModule = await import("./features/diff-preview/DiffPreviewPanel");
+    const actualDiffPreview = diffModule.DiffPreviewPanel;
+    let observedEditorIntents: EditorOperationIntent[] = [];
+    const observed: { model: PreviewModel | null; analysisRun: unknown } = { model: null, analysisRun: undefined };
+    vi.spyOn(diffModule, "DiffPreviewPanel").mockImplementation(props => {
+      observedEditorIntents = structuredClone(props.editorIntents);
+      observed.model = structuredClone(props.model);
+      observed.analysisRun = props.analysisRun;
+      return actualDiffPreview(props);
+    });
+    const appView = render(<App />);
 
     const tree = await screen.findByLabelText("Model tree");
     selectTreeRow("material", "material:invented-carbon-steel");
@@ -7218,41 +7299,30 @@ describe("SWBPIPE desktop preview", () => {
       within(intentPanel).getByTestId("editor-intent-queue").textContent,
     ).toContain("editor-intent-1");
 
-    fireEvent.click(await runMechanicsButton());
-    await waitFor(() =>
-      expect(
-        screen.getByTestId("viewport-deformation-status").textContent,
-      ).toContain(`available; nodes=${nodeCount}; max=${maximum} mm`),
-    );
+    await inspectBundledReference();
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    expect(screen.getByTestId("viewport-deformation-boundary")).toHaveTextContent("scale=not_generated");
     const report = reportPanel();
-    expect(
-      screen.getByTestId("viewport-deformation-boundary").textContent,
-    ).toContain("scale=normalized_display_offset_not_physical_length");
-    expect(
-      screen.getByTestId("viewport-deformation-boundary").textContent,
-    ).toContain("vector_direction=global_cartesian_displacement_components");
-    expect(await within(report).findByTestId("report-redaction-blocked")).toHaveTextContent(
-      "Raw report DOM suppressed by redaction controls",
-    );
     expect(within(report).queryByTestId("report-editor-intent-summary")).not.toBeInTheDocument();
-    expect(within(report).getByTestId("report-export-link")).toBeInTheDocument();
+    expect(renderedReportButton()).toBeDisabled();
 
     const handoff = handoffPackage();
-    expect(
-      (await within(handoff).findByTestId("handoff-review-context"))
-        .textContent,
-    ).toContain("1 pending operation");
-    expect(
-      within(handoff).getByTestId("handoff-boundary").textContent,
-    ).toContain(
-      "validation occurs in the user's accepted professional tools",
-    );
-    const handoffHref =
-      within(handoff).getByTestId("handoff-export-link").getAttribute("href") ??
-      "";
-    const handoffPacket = JSON.parse(
-      decodeURIComponent(handoffHref.split(",", 2)[1]),
-    );
+    expect(within(handoff).getByTestId("handoff-empty")).toBeInTheDocument();
+    expect(within(handoff).queryByTestId("handoff-export-link")).not.toBeInTheDocument();
+    const activeDiffPreview = operationDiffPreview();
+    await waitFor(() => expect(observedEditorIntents).toHaveLength(1));
+    expect(observedEditorIntents[0].operation_id).toBe("op:editor-intent-material-material:invented-carbon-steel-elastic_modulus.value");
+    expect(observedEditorIntents[0].validation.application_status).toBe("not_applied");
+    const referenceBasis = await referenceAnalysis();
+    const projectedHandoff = buildHandoffPackage({ ...referenceBasis, knowledge: await loadDesignKnowledge(), comparison: buildPreviewComparison(referenceBasis), editorIntents: observedEditorIntents, proposal: null, selectedReviewTarget: null });
+    expect(projectedHandoff.editor_intent_refs).toEqual([observedEditorIntents[0].operation_id]);
+    expect(projectedHandoff.editor_operation_statuses).toEqual(["not_applied"]);
+    const { routeBindingForTestId } = await import("./features/redaction-controls/ControlledExportLink");
+    const { controlRouteExport } = await import("./features/redaction-controls/redactionExportControls");
+    const binding = routeBindingForTestId("handoff-export-link");
+    const controlled = controlRouteExport(projectedHandoff, { routeId: binding.routeId, exportContext: binding.context, explicitLocalPrivateIntent: false, requireLosslessMaterialization: binding.lossless });
+    expect(controlled.blocked).toBe(false);
+    const handoffPacket = controlled.payload as Record<string, unknown>;
     expect(handoffPacket.document_kind).toBe("[REDACTED]");
     expect(handoffPacket.editor_intent_refs).toContain("[REDACTED]");
     expect(handoffPacket.editor_operation_statuses).toContain("[REDACTED]");
@@ -7260,7 +7330,27 @@ describe("SWBPIPE desktop preview", () => {
     expect(handoffPacket.protected_content_included).toBe("[REDACTED]");
     expect(handoffPacket.release_or_professional_claim).toBe("[REDACTED]");
 
-    const diffPreview = operationDiffPreview();
+    // The actual App owns the pending queue and unchanged model, but Inspect
+    // cleared active analysis. Do not pretend these current cells carry the
+    // archived run. The rest of this test is isolated reference-format rendering.
+    expect(observed.model).toEqual(fixtureModel);
+    expect(observed.analysisRun).toBeNull();
+    expect(within(activeDiffPreview).getByTestId("diff-preview-state-binding")).toHaveTextContent("not generated");
+    expect(within(activeDiffPreview).getByTestId("diff-preview-summary")).toHaveTextContent("1 operations");
+    expect(observedEditorIntents[0].change.before).toBe("200000000000");
+    expect(observedEditorIntents[0].change.after).toBe(expectedMaterialEditAfter);
+    expect(hasNativeMechanicsInvocation(referenceBasis.result, referenceBasis.model)).toBe(false);
+    const preservedIntents = structuredClone(observedEditorIntents);
+    const immutableReference = JSON.stringify({ referenceBasis, preservedIntents });
+    appView.unmount();
+    const ReferenceDiffPreview = actualDiffPreview;
+    const referenceView = render(<>
+      <ReferenceDiffPreview model={referenceBasis.model} analysisRun={referenceBasis.analysisRun} editorIntents={preservedIntents} proposal={null} selectedReviewTarget={null} />
+      <OperationLedgerPanel model={referenceBasis.model} analysisRun={referenceBasis.analysisRun} editorIntents={preservedIntents} proposal={null} selectedReviewTarget={null} onClearReviewQueue={vi.fn()} />
+      <ExportReviewPanel model={referenceBasis.model} knowledge={await loadDesignKnowledge()} result={referenceBasis.result} analysisRun={referenceBasis.analysisRun} comparison={buildPreviewComparison(referenceBasis)} editorIntents={preservedIntents} projectOperation="reference_inspection" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={await getLocalStorageCapability()} />
+    </>);
+    const diffPreview = within(referenceView.container).getByLabelText("Operation diff preview");
+
     expect(
       await within(diffPreview).findByText(
         /state:project:invented-loop-01:preview/i,
@@ -7498,7 +7588,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(ledgerPacket.protected_content_included).toBe(false);
     expect(ledgerPacket.release_or_professional_claim).toBe(false);
 
-    const exportReview = exportSafetyReview();
+    const exportReview = within(referenceView.container).getByLabelText("Export safety review");
     expect(
       await within(exportReview).findByText(/run:preview-linear-static-001/i),
     ).toBeInTheDocument();
@@ -8531,6 +8621,9 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       reviewManifest.professional_boundary.software_makes_compliance_claim,
     ).toBe(false);
+    expect(JSON.stringify({ referenceBasis, preservedIntents })).toBe(immutableReference);
+    expect(hasNativeMechanicsInvocation(referenceBasis.result, referenceBasis.model)).toBe(false);
+    referenceView.unmount();
     // Heavy full-<App/> Three.js render: inherit the 30s global testTimeout
     // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
   });
@@ -9298,12 +9391,28 @@ describe("SWBPIPE desktop preview", () => {
     // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
   });
 
-  it("round trips review-only proposal operations through local save and open", async () => {
+  it("round trips preserved historical review proposal operations through local save and open", async () => {
+    const basis = await referenceAnalysis();
+    const target = { target_type: "result" as const, id: "result:stress:pipe-P-120:end-j:torsional-shear" };
+    const proposal = await loadSampleProposal(basis.result, target);
+    const opened = inventedOpenEnvelope(basis.model);
+    opened.model = structuredClone(basis.model);
+    opened.summary.project_id = basis.model.project.id;
+    opened.summary.project_name = basis.model.project.name;
+    opened.mechanics_result = basis.result;
+    opened.analysis_run = basis.analysisRun;
+    opened.proposal = proposal;
+    opened.selected_review_target = target;
+    invokeMock.mockImplementation((command: string) => command === "open_local_project" ? Promise.resolve(opened) : Promise.reject(new Error(command)));
     render(<App />);
-
-    const runButton = await runMechanicsButton();
-    fireEvent.click(runButton);
-
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("file.open-local"));
+    openWorkspaceSection("results");
+    await screen.findByTestId("historical-run-context");
+    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    // The review target/proposal are preserved saved context, not generated by
+    // selecting reference rows or by a fabricated browser solve.
     const resultsSection = openWorkspaceSection("results");
     expect(
       await within(resultsSection).findByTestId(
@@ -9327,9 +9436,7 @@ describe("SWBPIPE desktop preview", () => {
     openWorkspaceSection("operations");
     fireEvent.click(screen.getByTestId("operation-tab-details"));
     fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
-    fireEvent.click(
-      screen.getByRole("button", { name: /Generate review proposal/i }),
-    );
+    expect(screen.getByRole("button", { name: /Generate review proposal/i })).toBeDisabled();
     let proposalPanel = await screen.findByLabelText("Agentic proposal");
     expect(
       await within(proposalPanel).findByText(
@@ -9553,14 +9660,19 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     const report = reportPanel();
-    expect(within(report).getByTestId("report-redaction-blocked")).toHaveTextContent(
-      "Raw report DOM suppressed by redaction controls",
-    );
-    expect(within(report).getByTestId("report-export-link")).toBeInTheDocument();
+    expect(within(report).getByTestId("report-redaction-blocked")).toHaveTextContent("Run the bounded preview mechanics path");
+    expect(within(report).queryByTestId("report-export-link")).not.toBeInTheDocument();
+    expect(renderedReportButton()).toBeDisabled();
+    const referenceReportView = render(<ReportPanel model={basis.model} knowledge={await loadDesignKnowledge()} result={basis.result} analysisRun={basis.analysisRun} comparison={buildPreviewComparison(basis)} editorIntents={[]} projectOperation="historical_reference_inspection" projectSummary={savedStoragePacket.project_summary} proposal={proposal} selectedReviewTarget={target} storageCapability={await getLocalStorageCapability()} />);
+    const referenceReport = within(referenceReportView.container).getByLabelText("Report packet");
+    expect(within(referenceReport).getByTestId("report-redaction-blocked")).toHaveTextContent("Raw report DOM suppressed by redaction controls");
+    expect(within(referenceReport).getByTestId("report-export-link")).toBeInTheDocument();
+    referenceReportView.unmount();
 
-    const savedNativePackage = await within(
-      openWorkspaceSection("exports"),
-    ).findByLabelText("Native JSON package");
+    const currentPackage = within(openWorkspaceSection("exports")).getByLabelText("Native JSON package");
+    expect(within(currentPackage).queryByTestId("native-package-link")).not.toBeInTheDocument();
+    const referencePackageView = render(<NativePackagePanel model={basis.model} result={basis.result} analysisRun={basis.analysisRun} editorIntents={[]} modelHash={await computeModelHash(basis.model)} projectSummary={savedStoragePacket.project_summary} proposal={proposal} selectedReviewTarget={target} storageCapability={await getLocalStorageCapability()} />);
+    const savedNativePackage = await within(referencePackageView.container).findByLabelText("Native JSON package");
     expect(
       within(savedNativePackage).getByTestId(
         "native-package-persisted-review-context",
@@ -9679,6 +9791,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toBe("run:preview-linear-static-001");
     */
 
+    referencePackageView.unmount();
     fireEvent.click(
       within(controls).getByRole("button", { name: /Open local/i }),
     );
@@ -9994,1554 +10107,16 @@ describe("SWBPIPE desktop preview", () => {
     // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
   });
 
-  it("shows computed mechanics diagnostics in results, knowledge, and review-only proposal context", async () => {
-    const expectedModel = await loadPreviewModel();
-    const expectedSource = await runPreviewMechanics(expectedModel);
-    const expectedKnowledge = await loadDesignKnowledge();
-    const solveDiagnostics = [...expectedModel.diagnostics, ...expectedSource.diagnostics];
-    const allDiagnostics = [...solveDiagnostics, ...expectedKnowledge.diagnostics];
-    const integrityDiagnostics = expectedSource.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED");
-    expect(integrityDiagnostics).toHaveLength(expectedModel.load_cases.length);
-    expect(integrityDiagnostics.every(item => item.severity === "info")).toBe(true);
-    const receivedDimensionRows = expectedSource.results.filter(row => Number.isFinite(row.value) && typeof row.dimension === "string" && Boolean(row.dimension));
-    const missingDimensionRows = expectedSource.results.filter(row => !receivedDimensionRows.includes(row));
+  it("renders all preserved reference result families, values and recovery annotations without Current", async () => {
+    const reference = await loadBundledMechanicsReference(), expectedModel = reference.model, expectedSource = reference.source;
+    const originalSource = JSON.stringify(reference);
+    expect(expectedSource.results).toHaveLength(830);
     expect(expectedSource.schema_version).toBe("0.2.0");
     expect(expectedSource.producer?.semantic_contract_id).toBe(PRECISION_CONTRACT_ID);
     expect(expectedSource.results.every(row => !Object.hasOwn(row, "dimension"))).toBe(true);
-    const originalSource = JSON.stringify({ model: expectedModel, result: expectedSource });
     render(<App />);
-
-    const runButton = await runMechanicsButton();
-    fireEvent.click(runButton);
-
-    await waitFor(() =>
-      expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"),
-    );
-
-    const resultsSection = openWorkspaceSection("results");
-    expect(
-      await within(resultsSection).findByTestId(
-        "result-group-displacement",
-        {},
-        { timeout: 10000 },
-      ),
-    ).toBeInTheDocument();
-    const solvedReadiness = screen.getByTestId("solve-readiness-summary");
-    expect(
-      within(solvedReadiness).getByTestId("readiness-mechanics").textContent,
-    ).toContain("830 computed result rows");
-    expect(
-      within(solvedReadiness).getByTestId("readiness-mechanics").textContent,
-    ).toContain("Solver · Mechanics solved (MECHANICS_SOLVED)");
-    expect(
-      within(solvedReadiness).getByTestId("readiness-rule").textContent,
-    ).toContain("Rule pack · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)");
-    expect(
-      within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
-    ).toContain(`${solveDiagnostics.length} diagnostics`);
-    expect(
-      within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
-    ).toContain("12 warnings");
-    expect(
-      within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
-    ).toContain("0 blocking/error");
-    expect(
-      within(solvedReadiness).getByTestId("readiness-professional").textContent,
-    ).toContain("Human · Human review required (HUMAN_REVIEW_REQUIRED)");
-    const visibleSolveProof = screen.getByTestId("status-pill-solve-proof");
-    expect(visibleSolveProof.textContent).toContain(
-      "seam=browser_fixture_no_backend_job",
-    );
-    expect(visibleSolveProof.textContent).toContain(
-      "project=project:invented-loop-01",
-    );
-    expect(visibleSolveProof.textContent).toContain(
-      "result_model=project:invented-loop-01",
-    );
-    expect(visibleSolveProof.textContent).toContain("identity=match");
-    expect(visibleSolveProof.textContent).toContain("rows=830");
-    expect(solveJobSummary().textContent).toContain(
-      "state=completed",
-    );
-    expect(solveJobSummary().textContent).toContain(
-      "events=3",
-    );
-    expect(solveJobSummary().textContent).toContain(
-      "result_rows=830",
-    );
-    expect(solveJobSummary().textContent).toContain(
-      "cancellation_requested=false",
-    );
-    expect(screen.getByTestId("solve-job-progress").textContent).toContain(
-      "completed",
-    );
-    expect(screen.getByTestId("solve-job-progress").textContent).toContain(
-      "percentages_synthesized=false",
-    );
-    expect(screen.getByTestId("solve-job-cancellation").textContent).toContain(
-      "enabled=false",
-    );
-    expect(screen.getByTestId("solve-job-cancellation").textContent).toContain(
-      "requested=false",
-    );
-    expect(screen.getByTestId("solve-job-cancellation").textContent).toContain(
-      "success_claimed=false",
-    );
-    expect(screen.getByTestId("solve-job-binding").textContent).toContain(
-      "state:project:invented-loop-01:preview",
-    );
-    expect(screen.getByTestId("solve-job-binding").textContent).toContain(
-      "run:preview-linear-static-001",
-    );
-    expect(screen.getByTestId("solve-job-binding").textContent).toContain(
-      "result rows=830",
-    );
-    expect(screen.getByTestId("solve-job-binding").textContent).toContain(
-      "hashes=830",
-    );
-    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain(
-      "model=angle=rad,force=N,length=m",
-    );
-    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain(
-      "N*m/rad,N/m",
-    );
-    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain(
-      "rows=830",
-    );
-    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain(
-      "conversion=false",
-    );
-    expect(screen.getByTestId("solve-job-boundary").textContent).toContain(
-      "release/professional claim=false",
-    );
-    fireEvent.click(screen.getByTestId("solve-job-export-link-local-private-intent"));
-    const solveJobHref =
-      screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
-    const solveJobPacket = JSON.parse(
-      decodeURIComponent(solveJobHref.split(",", 2)[1]),
-    );
-    expect(solveJobPacket.document_kind).toBe(
-      "openpipestress.technical_preview.solve_job_audit",
-    );
-    expect(solveJobPacket.deliverable_refs).toContain("DEL-07-07");
-    expect(solveJobPacket.deliverable_refs).toContain("DEL-14-02");
-    expect(solveJobPacket.deliverable_refs).toContain("DEL-04-06");
-    expect(solveJobPacket.scope_items).toContain("SOW-055");
-    expect(solveJobPacket.scope_items).toContain("SOW-072");
-    expect(solveJobPacket.scope_items).toContain("SOW-053");
-    expect(solveJobPacket.summary.job_state).toBe("completed");
-    expect(solveJobPacket.summary.event_count).toBe(3);
-    expect(solveJobPacket.summary.result_row_count).toBe(830);
-    expect(solveJobPacket.summary.diagnostic_count).toBe(solveDiagnostics.length);
-    expect(solveJobPacket.summary.cancellation_requested).toBe(false);
-    expect(solveJobPacket.summary.cancellation_status).toBe("not_requested");
-    expect(solveJobPacket.progress_contract.progress_basis).toBe(
-      "preview_service_event_state_only_no_percent_stream",
-    );
-    expect(solveJobPacket.progress_contract.percentages_synthesized).toBe(
-      false,
-    );
-    expect(
-      solveJobPacket.progress_contract.backend_percent_stream_available,
-    ).toBe(false);
-    expect(solveJobPacket.progress_contract.latest_event_state).toBe(
-      "completed",
-    );
-    expect(solveJobPacket.cancellation.request_control_visible).toBe(true);
-    expect(solveJobPacket.cancellation.request_enabled).toBe(false);
-    expect(solveJobPacket.cancellation.requested).toBe(false);
-    expect(solveJobPacket.cancellation.backend_job_seam).toBe(
-      "browser_fixture_no_backend_job",
-    );
-    expect(solveJobPacket.cancellation.backend_job_id).toBe(null);
-    expect(solveJobPacket.cancellation.backend_cancellation_token).toBe(
-      "unavailable_no_backend_job_browser_fixture_mode",
-    );
-    expect(solveJobPacket.cancellation.cancellation_scope).toBe(
-      "ui_request_record_only_no_backend_job",
-    );
-    expect(solveJobPacket.cancellation.mutates_solver_process_directly).toBe(
-      false,
-    );
-    expect(solveJobPacket.cancellation.cancellation_success_claimed).toBe(
-      false,
-    );
-    expect(solveJobPacket.model_state_ref.ref).toBe(
-      "state:project:invented-loop-01:preview",
-    );
-    expect(solveJobPacket.analysis_run_ref.ref).toBe(
-      "run:preview-linear-static-001",
-    );
-    expect(solveJobPacket.run_kind).toBe("mechanics_solve");
-    expect(solveJobPacket.analysis_status).toContain("HUMAN_REVIEW_REQUIRED");
-    expect(solveJobPacket.analysis_status).toContain("MECHANICS_SOLVED");
-    expect(solveJobPacket.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
-    expect(solveJobPacket.result_hash_count).toBe(830);
-    expect(solveJobPacket.hash_scopes).toContain("analysis_run_record");
-    expect(solveJobPacket.hash_scopes).toContain("received_result");
-    expect(solveJobPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
-      "unit-system:dec-018-si-dual-display",
-    );
-    expect(solveJobPacket.unit_policy_evidence.storage_convention).toBe(
-      "entered_units_preserved",
-    );
-    expect(solveJobPacket.unit_policy_evidence.model_units).toEqual({
-      angle: "rad",
-      force: "N",
-      length: "m",
-      pressure: "Pa",
-      stress: "MPa",
-      temperature: "degC",
-    });
-    expect(solveJobPacket.unit_policy_evidence.result_units).toEqual([
-      "MPa",
-      "N",
-      "N*m",
-      "N*m/rad",
-      "N/m",
-      "boolean",
-      "count",
-      "m",
-      "mm",
-      "mode_code",
-      "rad",
-      "state_code",
-    ]);
-    expect(solveJobPacket.unit_policy_evidence.result_row_count).toBe(830);
-    expect(solveJobPacket.unit_policy_evidence.analysis_run_ref.ref).toBe(
-      "run:preview-linear-static-001",
-    );
-    expect(solveJobPacket.unit_policy_evidence.conversion_policy).toBe(
-      "solve_job_audit_preserves_source_units_no_conversion",
-    );
-    expect(solveJobPacket.unit_policy_evidence.conversion_performed).toBe(
-      false,
-    );
-    expect(
-      solveJobPacket.unit_policy_evidence.decision_basis_refs.map(
-        (item: { ref: string }) => item.ref,
-      ),
-    ).toEqual(["DEC-018", "DEL-02-02", "DEL-07-07", "DEL-14-02"]);
-    const resultExport = resultExportAudit();
-    // Wait for the real Current proof result. A settled proof failure surfaces
-    // here as the product's finding; no synthetic adapter result is substituted.
-    await waitFor(() => expect(within(resultExport).queryByTestId("result-export-summary"),
-      within(resultExport).queryByTestId("result-export-empty")?.textContent ?? "Current export pending").toBeInTheDocument(), { timeout: 10000 });
-    expect(within(resultExport).getByTestId("result-export-summary")).toHaveTextContent("available");
-    expect(within(resultExport).getByTestId("result-export-format")).toHaveTextContent("schema_first_json_result_envelope; additional_formats=TBD");
-    expect(within(resultExport).getByTestId("result-export-state-binding")).toHaveTextContent(expectedModel.project.id);
-    expect(within(resultExport).getByTestId("result-export-state-binding")).toHaveTextContent(expectedSource.run_id);
-    expect(within(resultExport).getByTestId("result-export-units")).toHaveTextContent("explicit units");
-    expect(within(resultExport).getByTestId("result-export-units")).toHaveTextContent("length");
-    expect(within(resultExport).getByTestId("result-export-units")).toHaveTextContent("stress");
-    expect(within(resultExport).getByTestId("result-export-unit-witnesses")).toHaveTextContent("conversion=false");
-    expect(within(resultExport).getByTestId("result-export-reproducibility")).toHaveTextContent("deterministic_ordering=true; run_hashes=2");
-    expect(within(resultExport).getByTestId("result-export-boundary")).toHaveTextContent("human_review_required=true; professional_claim=false");
-    expect(within(resultExport).getByTestId("result-export-link")).not.toHaveAttribute("href");
-    expect(within(resultExport).getByTestId("result-export-link")).toHaveAttribute("aria-disabled", "true");
-    const ownIntent = within(resultExport).getByTestId("result-export-link-local-private-intent");
-    expect(ownIntent).not.toBeChecked();
-    fireEvent.click(ownIntent);
-    const resultExportHref = within(resultExport).getByTestId("result-export-link").getAttribute("href") ?? "";
-    const resultExportPacket = JSON.parse(decodeURIComponent(resultExportHref.split(",", 2)[1]));
-    const e = resultExportPacket.result_envelope;
-    expect(resultExportPacket.schema_version).toBe("0.3.0");
-    expect(e.schema_version).toBe("0.3.0");
-    expect(e.producer).toEqual(expectedSource.producer);
-    expect(e.numerical_quality).toEqual(expectedSource.numerical_quality);
-    expect(e.formulation_basis).toEqual(expectedSource.formulation_basis);
-    expect(e.semantic_contract_ref).toEqual({ ref_type: "semantic_contract", ref_id: PRECISION_CONTRACT_ID });
-    expect(resultExportPacket.deliverable_id).toBe("DEL-08-04");
-    expect(resultExportPacket.package_id).toBe("PKG-08");
-    expect(resultExportPacket.scope_item).toBe("SOW-046");
-    expect(resultExportPacket.objectives).toEqual(["OBJ-007", "OBJ-009"]);
-    expect(resultExportPacket.export_format_status).toEqual({ baseline_format: "schema_first_json_result_envelope", additional_formats: "TBD", public_transport_protocol: "TBD", local_fea_package_format: "TBD", external_adapter_formats: "TBD" });
-    expect(e.model_ref).toEqual({ ref_type: "model_payload", ref_id: expectedModel.project.id });
-    expect(e.run_ref.ref_id).toBe(expectedSource.run_id);
-    expect(e.load_basis_refs.length).toBeGreaterThan(0);
-    expect(e.result_sets).toHaveLength(1);
-    expect(e.result_sets[0].values.length).toBeGreaterThan(0);
-    expect(e.review_evidence.length).toBeGreaterThan(0);
-    expect(e.row_disclosures.length).toBeGreaterThan(0);
-    expect(e.result_sets[0].values.length + e.review_evidence.length + e.row_disclosures.length).toBe(expectedSource.results.length);
-    expect(e.row_accounting).toHaveLength(expectedSource.results.length);
-    expect(e.source_annotations).toHaveLength(expectedSource.results.length);
-    expect(new Set(e.row_accounting.map((a: {target_field_path: string}) => a.target_field_path)).size).toBe(expectedSource.results.length);
-    for (const [index, row] of expectedSource.results.entries()) {
-      const account = e.row_accounting[index], annotation = e.source_annotations[index];
-      expect(account.source_row_index).toBe(index);
-      expect(account.source_result_id).toBe(row.id);
-      expect(account.source_kind).toBe(row.kind);
-      expect(account.source_field_path).toBe(`/results/${index}`);
-      expect(account.original_producer_row_checksum).toBeNull();
-      expect(account.received_carrier_row_checksum).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_row", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256HexCheckedV1(row) });
-      expect(annotation).toMatchObject({ source_row_index: index, source_result_id: row.id, metadata: row.metadata ?? null, basis_ref: row.basis_ref ?? null, source_result_refs: row.source_result_refs ?? [], observed_carrier_dimension: { present: Object.hasOwn(row,"dimension"), value: row.dimension ?? null } });
-      const target = account.target_field_path.split("/").slice(1).reduce((value: any, key: string) => value[key], resultExportPacket);
-      expect(account.target_ref.ref_id).toBe(row.id);
-      expect(target.magnitude ?? target.source_value).toBe(row.value);
-      expect(target.unit ?? target.source_unit).toBe(row.unit);
-      const witnesses = e.unit_preservation_witnesses.filter((w: {source_row_index: number}) => w.source_row_index === index);
-      if (account.disposition === "disclosed") expect(witnesses).toHaveLength(0);
-      else {
-        expect(witnesses).toHaveLength(1);
-        const witness = witnesses[0];
-        expect(witness.source_quantity).toEqual({ value: row.value, unit: row.unit, observed_dimension: { present: Object.hasOwn(row,"dimension"), value: row.dimension ?? null } });
-        expect(witness.target_quantity).toEqual({ value: row.value, unit: row.unit, dimension: target.dimension });
-        expect(witness.conversion_performed).toBe(false);
-        expect(witness.original_producer_row_checksum).toBeNull();
-        expect(witness.target_field_path).toBe(account.target_field_path);
-        expect(witness.target_row_checksum.value).toBe(await canonicalSha256HexCheckedV1(target));
-      }
-    }
-    expect(e.unit_preservation_witnesses).toHaveLength(e.result_sets[0].values.length + e.review_evidence.length);
-    expect(within(resultExport).getByTestId("result-export-summary")).toHaveTextContent(`rows=${e.result_sets[0].values.length}; sets=1; diagnostics=${expectedSource.diagnostics.length}`);
-    expect(within(resultExport).getByTestId("result-export-unit-witnesses")).toHaveTextContent(`count=${e.unit_preservation_witnesses.length}`);
-    expect(e.result_sets[0].values.some((v: {family: string}) => v.family === "ratio")).toBe(false);
-    expect(e.row_disclosures.some((v: {semantic_category: string, reason_code: string}) => v.semantic_category === "count" && v.reason_code === "discrete_evidence_not_ratio")).toBe(true);
-    const rotation = e.result_sets[0].values.find((v: {source_kind: string}) => v.source_kind === "global_nodal_rotation_x");
-    expect(rotation).toMatchObject({ family: "rotation", unit: "rad", dimension: "angle" });
-    expect(e.diagnostics).toHaveLength(expectedSource.diagnostics.length);
-    expect(e.reproducibility.deterministic_ordering).toBe(true);
-    expect(e.reproducibility.run_hashes).toHaveLength(2);
-    expect(e.reproducibility.run_hashes.map((h: {payload_ref: {ref_type: string}}) => h.payload_ref.ref_type)).toEqual(["AnalysisRun", "ResultEnvelope"]);
-    expect(e.reproducibility.audit_manifest_ref.ref_type).toBe("audit_manifest");
-    expect(e.reproducibility.model_hash).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, value: await canonicalSha256HexCheckedV1(expectedModel) });
-    expect(e.reproducibility.raw_source_hashes).toEqual([]);
-    expect(e.reproducibility.request_hash).toBeNull();
-    expect(e.reproducibility.source_origin_bindings).toHaveLength(1);
-    expect(e.reproducibility.source_origin_bindings[0]).toMatchObject({ origin_class: "received_current_dimension_absent", authentic_producer_available: false, original_producer_checksum: null, actual_model_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, mechanics_run_ref: { ref_type: "mechanics_run", ref_id: expectedSource.run_id }, qualification_ref: {ref_type: "current_manifest", ref_id: e.reproducibility.audit_manifest_ref.ref_id}, received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_carrier", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256HexCheckedV1(expectedSource) } });
-    const digestPayload = structuredClone(resultExportPacket);
-    delete digestPayload.result_envelope.reproducibility.derivative_hash;
-    expect(e.reproducibility.derivative_hash).toEqual({algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "derivative_document_excludes_own_hash", payload_ref: {ref_type: "derivative_document", ref_id: e.envelope_id}, value: await canonicalSha256HexCheckedV1(digestPayload)});
-    expect(e.analysis_status).toEqual(expect.arrayContaining(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]));
-    expect(e).not.toHaveProperty("rule_pack_refs"); // 0.3 carries rule completeness in analysis_status; no private pack payload is exported.
-    expect(e.downstream_use.additional_export_formats).toBe("TBD");
-    expect(e.professional_boundary).toMatchObject({human_review_required: true, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_makes_authentication_claim: false});
-    expect(screen.getByTestId("governing-ratio-status")).toHaveTextContent("unavailable");
-    expect(JSON.stringify({model: expectedModel, result: expectedSource})).toBe(originalSource);
-    expect(resultExportHref).toBe(`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(resultExportPacket))}`);
-    fireEvent.click(ownIntent);
-    expect(within(resultExport).getByTestId("result-export-link")).not.toHaveAttribute("href");
-    expect(within(resultExport).getByTestId("result-export-link")).toHaveAttribute("aria-disabled", "true");
-    const diagnosticWorkRows = expectedSource.results.filter(row => analysisRowSemantics(row, expectedSource).semantic?.category === "diagnostic_work");
-    expect(diagnosticWorkRows).toHaveLength(expectedModel.load_cases.length);
-    expect(diagnosticWorkRows.every(row => row.kind === "nonlinear_support_free_dof_work_residual" && row.unit === "N*m" && !Object.hasOwn(row, "dimension"))).toBe(true);
-    expect(diagnosticWorkRows.every(row => analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension === null)).toBe(true);
-    const expectedStressWitnessCount = expectedSource.results.length - diagnosticWorkRows.length;
-    const stressNeutral = stressNeutralExport();
-    expect(
-      (await within(stressNeutral).findByTestId("stress-neutral-summary")).textContent,
-    ).toContain("available");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-summary").textContent,
-    ).toContain("rows=830");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-summary").textContent,
-    ).toContain("csv_columns=11");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-format").textContent,
-    ).toContain("stress_neutral_csv_json");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-format").textContent,
-    ).toContain("ops.stress_neutral.v3");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-state-binding")
-        .textContent,
-    ).toContain("project:invented-loop-01");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-state-binding")
-        .textContent,
-    ).toContain("run:preview-linear-static-001");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-units").textContent,
-    ).toContain("explicit units");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-units").textContent,
-    ).toContain("stress");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-units").textContent,
-    ).toContain("source=angle=rad");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-units").textContent,
-    ).toContain("length=m");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-units").textContent,
-    ).toContain("results=MPa");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-units").textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-unit-witnesses")
-        .textContent,
-    ).toContain(`count=${expectedStressWitnessCount}`);
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-unit-witnesses")
-        .textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-package").textContent,
-    ).toContain("members=9");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-package").textContent,
-    ).toContain("stable_ids=830");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-package").textContent,
-    ).toContain("validation=blocked");
-    await waitFor(() =>
-      expect(
-        within(stressNeutral).getByTestId("stress-neutral-package").textContent,
-      ).toContain("package_hash=checked"),
-    );
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-boundary").textContent,
-    ).toContain("vendor_format=false");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-boundary").textContent,
-    ).toContain("solver_validation=false");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-export-link").getAttribute("href"),
-    ).toBeNull();
-    fireEvent.click(
-      within(stressNeutral).getByTestId("stress-neutral-export-link-local-private-intent"),
-    );
-    await waitFor(() =>
-      expect(
-        within(stressNeutral).getByTestId("stress-neutral-export-link").getAttribute("href"),
-      ).toContain("data:application/json"),
-    );
-    const stressNeutralHref =
-      within(stressNeutral).getByTestId("stress-neutral-export-link").getAttribute("href") ?? "";
-    const stressNeutralPacket = JSON.parse(
-      decodeURIComponent(stressNeutralHref.split(",", 2)[1]),
-    );
-    expect(stressNeutralPacket.document_kind).toBeUndefined();
-    expect(stressNeutralPacket.schema_version).toBe("0.3.0");
-    expect(stressNeutralPacket.producer).toEqual(expectedSource.producer);
-    expect(stressNeutralPacket.numerical_quality).toEqual(expectedSource.numerical_quality);
-    expect(stressNeutralPacket.formulation_basis).toEqual(expectedSource.formulation_basis);
-    expect(stressNeutralPacket.semantic_contract).toEqual({ id: PRECISION_CONTRACT_ID, sha256: PRECISION_CONTRACT_SHA256 });
-    expect(stressNeutralPacket.source_carrier_checksum).toEqual({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_result", payload_ref: { object_type: "ResultEnvelope", ref: `result-envelope:${expectedSource.run_id}` }, value: await canonicalSha256HexCheckedV1(expectedSource) });
-    expect(stressNeutralPacket.received_source_checksums).toContainEqual(stressNeutralPacket.source_carrier_checksum);
-    expect(stressNeutralPacket.deliverable_id).toBe("DEL-17-06");
-    expect(stressNeutralPacket.package_id).toBe("PKG-17");
-    expect(stressNeutralPacket.scope_items).toEqual(["SOW-046", "SOW-074"]);
-    expect(stressNeutralPacket.objectives).toEqual(["OBJ-007", "OBJ-017", "OBJ-018"]);
-    expect(stressNeutralPacket.package_status).toBe("stress_neutral_export_package");
-    expect(stressNeutralPacket.export_profile.target_family).toBe("stress_neutral_csv_json");
-    expect(stressNeutralPacket.export_profile.profile_id).toBe("ops.stress_neutral.v3");
-    expect(stressNeutralPacket.export_profile.profile_version).toBe("0.3.0");
-    expect(stressNeutralPacket.manifest.export_profile_ref).toEqual({
-      object_type: "StressNeutralExportProfile",
-      ref: "ops.stress_neutral.v3",
-    });
-    expect(stressNeutralPacket.export_profile.csv_columns).toHaveLength(11);
-    expect(stressNeutralPacket.export_profile.csv_columns).toContain("result_id");
-    expect(stressNeutralPacket.unit_system_disclosure.unit_system_ref.ref).toBe(
-      "unit-system:dec-018-si-dual-display",
-    );
-    expect(stressNeutralPacket.unit_system_disclosure.model_units.length).toBe("m");
-    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain("MPa");
-    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain("rad");
-    expect(stressNeutralPacket.unit_system_disclosure.conversion_performed).toBe(false);
-    expect(stressNeutralPacket.unit_system_disclosure.protected_content_included).toBe(false);
-    expect(stressNeutralPacket.unit_preservation_witnesses).toHaveLength(expectedStressWitnessCount);
-    const workIds = new Set(diagnosticWorkRows.map(row => row.id));
-    expect(stressNeutralPacket.unit_preservation_witnesses.some((witness: { result_id: string }) => workIds.has(witness.result_id))).toBe(false);
-    const workWithholdings = stressNeutralPacket.diagnostics.filter((diagnostic: { code: string }) => diagnostic.code === "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK");
-    expect(new Set(workWithholdings.map((diagnostic: { source: { ref: string } }) => diagnostic.source.ref))).toEqual(workIds);
-    expect(workWithholdings.every((diagnostic: { severity: string }) => diagnostic.severity === "info")).toBe(true);
-    expect(stressNeutralPacket.diagnostics).toEqual(expect.arrayContaining([expect.objectContaining({ code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", severity: "blocking" })]));
-    for (const row of expectedSource.results) {
-      const retained = stressNeutralPacket.result_rows.find((candidate: { result_id: string }) => candidate.result_id === row.id);
-      expect(retained).toMatchObject({ value: row.value, unit: row.unit, dimension: analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension ?? "TBD" });
-    }
-    expect(stressNeutralPacket.manifest.package_members.map((item: { filename: string }) => item.filename)).toEqual([
-      "manifest.json",
-      "stress_neutral_results.csv",
-      "result_rows.json",
-      "unit_system_disclosure.json",
-      "unit_preservation_witnesses.json",
-      "stable_id_map.json",
-      "loss_report.json",
-      "validation_report.json",
-      "diagnostics.json",
-    ]);
-    expect(stressNeutralPacket.manifest.checksums).toHaveLength(9);
-    expect(new Set(stressNeutralPacket.manifest.checksums.map(
-      (item: { payload_ref: { ref: string } }) => item.payload_ref.ref,
-    )).size).toBe(9);
-    const stressNeutralUnitWitness = stressNeutralPacket.unit_preservation_witnesses[0];
-    expect(stressNeutralUnitWitness.source_row_index).toBe(0);
-    expect(stressNeutralUnitWitness.result_id).toBe(stressNeutralPacket.result_rows[0].result_id);
-    expect(stressNeutralUnitWitness.target_quantity).toEqual(stressNeutralUnitWitness.source_quantity);
-    expect(stressNeutralUnitWitness.policy).toBe("preserve_received_value_and_unit");
-    expect(stressNeutralUnitWitness.conversion_performed).toBe(false);
-    expect(stressNeutralPacket.result_rows).toHaveLength(830);
-    expect(stressNeutralPacket.stable_id_map).toHaveLength(830);
-    expect(stressNeutralPacket.csv_text).toContain("result_id,canonical_ref");
-    expect(stressNeutralPacket.loss_report).toHaveLength(3);
-    expect(stressNeutralPacket.loss_report.map(
-      (entry: { category: string }) => entry.category,
-    )).toContain("exported");
-    expect(stressNeutralPacket.package_checksum.value).toMatch(/^[0-9a-f]{64}$/);
-    const stressDigestPayload = structuredClone(stressNeutralPacket);
-    delete stressDigestPayload.package_checksum;
-    expect(stressNeutralPacket.package_checksum.value).toBe(await canonicalSha256HexCheckedV1(stressDigestPayload));
-    expect(stressNeutralPacket.package_checksum.payload_scope).toBe(
-      "complete_package_excluding_self_checksum",
-    );
-    expect(stressNeutralPacket.validation_report.validation_status).toBe("blocked");
-    expect(stressNeutralPacket.validation_report.checks.map(
-      (item: { check_id: string }) => item.check_id,
-    )).toContain("csv_json_row_sync");
-    expect(stressNeutralPacket.result_rows.every(
-      (row: { unit: string; dimension: string }) => row.unit && row.dimension,
-    )).toBe(true);
-    expect(stressNeutralPacket.privacy.private_payload_embedded).toBe(false);
-    expect(stressNeutralPacket.professional_boundary.software_makes_external_compatibility_claim).toBe(false);
-    expect(stressNeutralPacket.professional_boundary.software_makes_solver_validation_claim).toBe(false);
-    expect(stressNeutralPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
-    expect(stressNeutralPacket.professional_boundary.software_creates_professional_reliance_record).toBe(false);
-    expect(
-      within(stressNeutral)
-        .getByTestId("stress-neutral-csv-link")
-        .getAttribute("href"),
-    ).toBeNull();
-    const headlessRunner = headlessRunnerEnvelope();
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-summary").textContent,
-    ).toContain("job=COMPLETED");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-summary").textContent,
-    ).toContain("outputs=4");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-summary").textContent,
-    ).toContain("result_refs=830");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-job").textContent,
-    ).toContain("job:preview-linear-static:project-invented-loop-01");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-job").textContent,
-    ).toContain("3/3");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-result-handoff")
-        .textContent,
-    ).toContain("schema_first_json_result_envelope");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-result-handoff")
-        .textContent,
-    ).toContain("audit=audit-manifest:run:preview-linear-static-001:preview");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-result-handoff")
-        .textContent,
-    ).toContain("checksums=2");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-units").textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-unit-witnesses")
-        .textContent,
-    ).toContain(`count=${receivedDimensionRows.length}`);
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-unit-witnesses")
-        .textContent,
-    ).toContain("conversion=false");
-    fireEvent.click(
-      within(headlessRunner).getByTestId(
-        "headless-runner-export-link-local-private-intent",
-      ),
-    );
-    const headlessHref =
-      within(headlessRunner)
-        .getByTestId("headless-runner-export-link")
-        .getAttribute("href") ?? "";
-    const headlessPacket = JSON.parse(
-      decodeURIComponent(headlessHref.split(",", 2)[1]),
-    );
-    expect(headlessPacket.deliverable_id).toBe("DEL-10-05");
-    expect(headlessPacket.scope_items).toContain("SOW-054");
-    expect(headlessPacket.scope_items).toContain("SOW-032");
-    expect(headlessPacket.objectives).toContain("OBJ-012");
-    expect(headlessPacket.request.operation).toBe("solve");
-    expect(headlessPacket.request.load_basis_refs.length).toBeGreaterThan(0);
-    expect(headlessPacket.request.input_manifest_ref.ref_id).toMatch(
-      /^input-manifest:project-invented-loop-01:[0-9a-f]{64}$/,
-    );
-    expect(headlessPacket.result.run_id).toBe("run:preview-linear-static-001");
-    expect(headlessPacket.result.job.state).toBe("COMPLETED");
-    expect(headlessPacket.result.job.progress.current_step).toBe(3);
-    expect(headlessPacket.result.job.cancellation.supported).toBe(true);
-    expect(headlessPacket.result.job.cancellation.requested).toBe(false);
-    expect(headlessPacket.result.analysis_status).toContain(
-      "HUMAN_REVIEW_REQUIRED",
-    );
-    expect(headlessPacket.result.analysis_status).toContain("MECHANICS_SOLVED");
-    expect(headlessPacket.result.analysis_status).toContain(
-      "RULE_INPUTS_INCOMPLETE",
-    );
-    expect(headlessPacket.result.result_envelope_ref.schema_ref).toBe(
-      "schemas/results.schema.yaml",
-    );
-    expect(headlessPacket.result.result_envelope_ref.envelope_ref.ref_id).toBe(
-      "result-envelope:run:preview-linear-static-001",
-    );
-    expect(headlessPacket.result.result_refs).toHaveLength(830);
-    expect(headlessPacket.result.audit_manifest_ref.ref_id).toBe(
-      "audit-manifest:run:preview-linear-static-001:preview",
-    );
-    expect(headlessPacket.result.checksums).toHaveLength(2);
-    expect(
-      headlessPacket.result.unit_system_disclosure.unit_system_ref.ref,
-    ).toBe("unit-system:dec-018-si-dual-display");
-    expect(
-      headlessPacket.result.unit_system_disclosure.model_units.length,
-    ).toBe("m");
-    expect(headlessPacket.result.unit_system_disclosure.result_units).toContain(
-      "MPa",
-    );
-    expect(headlessPacket.result.unit_system_disclosure.result_units).toContain(
-      "mm",
-    );
-    expect(
-      headlessPacket.result.unit_system_disclosure.conversion_performed,
-    ).toBe(false);
-    expect(
-      headlessPacket.result.unit_system_disclosure.protected_content_included,
-    ).toBe(false);
-    expect(headlessPacket.result.unit_witness_policy).toBe(
-      "preserve_source_result_value_unit_and_dimension_per_headless_result_handoff_row",
-    );
-    expect(headlessPacket.result.unit_preservation_witnesses).toHaveLength(receivedDimensionRows.length);
-    expect(headlessPacket.result.unit_preservation_witnesses.map((witness: { source_result_ref: { ref_id: string } }) => witness.source_result_ref.ref_id).sort())
-      .toEqual(receivedDimensionRows.map(row => row.id).sort());
-    expect(headlessPacket.result.diagnostics.filter((diagnostic: { code: string }) => diagnostic.code === "RUNNER_RECEIVED_DIMENSION_WITNESS_UNAVAILABLE"))
-      .toHaveLength(missingDimensionRows.length);
-    expect(expectedSource.results.find(row => row.id === "result:force:pipe-P-120:axial")?.dimension).toBeUndefined();
-    expect(headlessPacket.result.diagnostics).toHaveLength(solveDiagnostics.length + missingDimensionRows.length);
-    expect(headlessPacket.result.privacy.telemetry_allowed).toBe(false);
-    expect(
-      headlessPacket.result.professional_boundary
-        .software_makes_compliance_claim,
-    ).toBe(false);
-    expect(
-      headlessPacket.result.professional_boundary
-        .software_makes_authentication_claim,
-    ).toBe(false);
-    const adapterFramework = await screen.findByLabelText(
-      "Adapter framework envelope",
-    );
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-summary")
-        .textContent,
-    ).toContain("capabilities=4");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-summary")
-        .textContent,
-    ).toContain(`diagnostics=${solveDiagnostics.length}`);
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-validation")
-        .textContent,
-    ).toContain("export=required_before_shared_payload");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-units")
-        .textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-units")
-        .textContent,
-    ).toContain("witnesses=1");
-    const adapterHref =
-      within(adapterFramework)
-        .getByTestId("adapter-framework-export-link")
-        .getAttribute("href") ?? "";
-    const adapterPacket = JSON.parse(
-      decodeURIComponent(adapterHref.split(",", 2)[1]),
-    );
-    expect(adapterPacket.deliverable_id).toBe("[REDACTED]");
-    expect(adapterPacket.scope_item).toBe("[REDACTED]");
-    expect(adapterPacket.objective).toBe("[REDACTED]");
-    expect(adapterPacket.operation_result.operation_id).toBe("[REDACTED]");
-    expect(adapterPacket.operation_result.operation_class).toBe("[REDACTED]");
-    expect(adapterPacket.operation_result.parse_status).toBe(
-      "[REDACTED]",
-    );
-    expect(adapterPacket.operation_result.diagnostics).toHaveLength(solveDiagnostics.length);
-    expect(adapterPacket.operation_result.checksums).toHaveLength(2);
-    expect(adapterPacket.operation_result.audit_manifest_refs[0].ref_id).toBe(
-      "[REDACTED]",
-    );
-    expect(adapterPacket.operation_result.result_envelope_ref.ref.ref_id).toBe(
-      "[REDACTED]",
-    );
-    expect(adapterPacket.unit_policy_evidence.unit_system_ref.ref).toBe("[REDACTED]");
-    expect(adapterPacket.unit_policy_evidence.result_units).toContain("[REDACTED]");
-    expect(adapterPacket.unit_policy_evidence.conversion_performed).toBe("[REDACTED]");
-    expect(adapterPacket.unit_policy_evidence.framework_unit_policy).toBe(
-      "[REDACTED]",
-    );
-    expect(adapterPacket.unit_policy_evidence.witness_count).toBe("[REDACTED]");
-    expect(
-      adapterPacket.adapter_declaration.no_bypass_controls
-        .must_preserve_diagnostics,
-    ).toBe("[REDACTED]");
-    expect(
-      adapterPacket.adapter_declaration.no_bypass_controls
-        .must_preserve_report_controls,
-    ).toBe("[REDACTED]");
-    expect(
-      adapterPacket.adapter_declaration.no_bypass_controls
-        .must_preserve_human_acceptance_boundary,
-    ).toBe("[REDACTED]");
-    expect(
-      adapterPacket.adapter_declaration.no_bypass_controls
-        .must_not_execute_arbitrary_code,
-    ).toBe("[REDACTED]");
-    expect(
-      adapterPacket.adapter_declaration.no_bypass_controls
-        .must_not_transmit_private_data_by_default,
-    ).toBe("[REDACTED]");
-    expect(adapterPacket.operation_result.privacy.local_first).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      adapterPacket.operation_result.privacy.private_payload_redacted,
-    ).toBe("[REDACTED]");
-    expect(
-      adapterPacket.operation_result.professional_boundary
-        .software_makes_security_certification_claim,
-    ).toBe("[REDACTED]");
-    const localFea = await screen.findByLabelText("Local FEA handoff");
-    expect(
-      within(localFea).getByTestId("local-fea-summary").textContent,
-    ).toContain("available");
-    expect(
-      within(localFea).getByTestId("local-fea-summary").textContent,
-    ).toContain("labels=4");
-    expect(
-      within(localFea).getByTestId("local-fea-summary").textContent,
-    ).toContain("flags=5");
-    expect(
-      within(localFea).getByTestId("local-fea-summary").textContent,
-    ).toContain("diagnostics=4");
-    expect(
-      within(localFea).getByTestId("local-fea-contract").textContent,
-    ).toContain("schema_first_local_fea_handoff_contract");
-    expect(
-      within(localFea).getByTestId("local-fea-contract").textContent,
-    ).toContain("format=TBD");
-    expect(
-      within(localFea).getByTestId("local-fea-state-binding").textContent,
-    ).toContain("state:project:invented-loop-01:preview");
-    expect(
-      within(localFea).getByTestId("local-fea-state-binding").textContent,
-    ).toContain("result-envelope:run:preview-linear-static-001");
-    expect(
-      within(localFea).getByTestId("local-fea-region").textContent,
-    ).toContain("basis=diagnostic_suggested");
-    expect(
-      within(localFea).getByTestId("local-fea-region").textContent,
-    ).toContain("elements=2");
-    expect(
-      within(localFea).getByTestId("local-fea-transfer").textContent,
-    ).toContain("method=result_reference_only");
-    expect(
-      within(localFea).getByTestId("local-fea-transfer").textContent,
-    ).toContain("loads=3");
-    expect(
-      within(localFea).getByTestId("local-fea-unit-witnesses").textContent,
-    ).toContain("count=3");
-    expect(
-      within(localFea).getByTestId("local-fea-unit-witnesses").textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(localFea).getByTestId("local-fea-unsupported").textContent,
-    ).toContain("mesh_generation_not_performed");
-    expect(
-      within(localFea).getByTestId("local-fea-unsupported").textContent,
-    ).toContain("external_solver_not_invoked");
-    expect(
-      within(localFea).getByTestId("local-fea-boundary").textContent,
-    ).toContain("human_review=true");
-    expect(
-      within(localFea).getByTestId("local-fea-boundary").textContent,
-    ).toContain("compliance=false");
-    const localFeaHref =
-      within(localFea)
-        .getByTestId("local-fea-export-link")
-        .getAttribute("href") ?? "";
-    const localFeaPacket = JSON.parse(
-      decodeURIComponent(localFeaHref.split(",", 2)[1]),
-    );
-    expect(localFeaPacket.deliverable_id).toBe("[REDACTED]");
-    expect(localFeaPacket.package_id).toBe("[REDACTED]");
-    expect(localFeaPacket.scope_items).toEqual([
-      "[REDACTED]",
-      "[REDACTED]",
-    ]);
-    expect(localFeaPacket.objective).toBe("[REDACTED]");
-    expect(localFeaPacket.contract_status.global_analysis_role).toBe(
-      "[REDACTED]",
-    );
-    expect(localFeaPacket.contract_status.local_analysis_role).toBe(
-      "[REDACTED]",
-    );
-    const serializedLocalFeaPacket = JSON.stringify(localFeaPacket);
-    expect(serializedLocalFeaPacket).toContain("[REDACTED]");
-    expect(localFeaPacket.handoff_package.privacy.local_only).toBe(
-      "[REDACTED]",
-    );
-    expect(localFeaPacket.handoff_package.privacy.telemetry_allowed).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      localFeaPacket.handoff_package.privacy.private_payload_embedded,
-    ).toBe("[REDACTED]");
-    expect(
-      localFeaPacket.handoff_package.professional_boundary
-        .software_makes_compliance_claim,
-    ).toBe("[REDACTED]");
-    expect(
-      localFeaPacket.handoff_package.professional_boundary
-        .software_makes_authentication_claim,
-    ).toBe("[REDACTED]");
-    const nativePackage = await screen.findByLabelText("Native JSON package");
-    expect(
-      within(nativePackage).getByTestId("native-package-summary").textContent,
-    ).toContain("ready");
-    expect(
-      within(nativePackage).getByTestId("native-package-summary").textContent,
-    ).toContain("members=10");
-    expect(
-      within(nativePackage).getByTestId("native-package-summary").textContent,
-    ).toContain("entities=26");
-    expect(
-      within(nativePackage).getByTestId("native-package-summary").textContent,
-    ).toContain("results=830");
-    expect(
-      within(nativePackage).getByTestId("native-package-profile").textContent,
-    ).toContain("native_open_json_preview");
-    expect(
-      within(nativePackage).getByTestId("native-package-profile").textContent,
-    ).toContain("physical_container=TBD");
-    expect(
-      within(nativePackage).getByTestId("native-package-members").textContent,
-    ).toContain("manifest.json");
-    expect(
-      within(nativePackage).getByTestId("native-package-members").textContent,
-    ).toContain("maps/stable_id_map.json");
-    expect(
-      within(nativePackage).getByTestId("native-package-members").textContent,
-    ).toContain("maps/unit_preservation_witnesses.json");
-    expect(
-      within(nativePackage).getByTestId("native-package-unit-witnesses")
-        .textContent,
-    ).toContain("project_units=6");
-    expect(
-      within(nativePackage).getByTestId("native-package-unit-witnesses")
-        .textContent,
-    ).toContain("model_quantities=50");
-    expect(
-      within(nativePackage).getByTestId("native-package-unit-witnesses")
-        .textContent,
-    ).toContain("result_quantities=832");
-    expect(
-      within(nativePackage).getByTestId("native-package-unit-witnesses")
-        .textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(nativePackage).getByTestId("native-package-validation")
-        .textContent,
-    ).toContain("review_manifest_complete");
-    await waitFor(() =>
-      expect(
-        within(nativePackage).getByTestId("native-package-validation")
-          .textContent,
-      ).toContain("model_hash=computed_local_preview_sha256"),
-    );
-    await waitFor(() =>
-      expect(
-        within(nativePackage).getByTestId("native-package-validation")
-          .textContent,
-      ).toContain("package_hash=computed_local_preview_sha256"),
-    );
-    expect(
-      within(nativePackage).getByTestId("native-package-loss-report")
-        .textContent,
-    ).toContain("1 TBD");
-    expect(
-      within(nativePackage).getByTestId("native-package-loss-report")
-        .textContent,
-    ).toContain("1 unsupported");
-    expect(
-      within(nativePackage).getByTestId("native-package-storage").textContent,
-    ).toContain("network=false");
-    expect(
-      within(nativePackage).getByTestId("native-package-storage").textContent,
-    ).toContain("repository_default_private_write=false");
-    expect(
-      within(nativePackage).getByTestId(
-        "native-package-persisted-review-context",
-      ).textContent,
-    ).toContain("editor_intents=0");
-    expect(
-      within(nativePackage).getByTestId(
-        "native-package-persisted-review-context",
-      ).textContent,
-    ).toContain("proposals=0");
-    expect(
-      within(nativePackage).getByTestId(
-        "native-package-persisted-review-context",
-      ).textContent,
-    ).toContain("selected_targets=0");
-    expect(
-      within(nativePackage).getByTestId(
-        "native-package-persisted-review-context",
-      ).textContent,
-    ).toContain("selected_ref=not_selected");
-    expect(
-      within(nativePackage).getByTestId(
-        "native-package-persisted-review-context",
-      ).textContent,
-    ).toContain("mechanics_results=0");
-    expect(
-      within(nativePackage).getByTestId(
-        "native-package-persisted-review-context",
-      ).textContent,
-    ).toContain("analysis_runs=0");
-    expect(
-      within(nativePackage).getByTestId(
-        "native-package-persisted-review-context",
-      ).textContent,
-    ).toContain("run_ref=not_persisted");
-    expect(
-      within(nativePackage).getByTestId("native-package-boundary").textContent,
-    ).toContain(
-      "validation occurs in the user's accepted professional tools — this package is screening and handoff evidence",
-    );
-    expect(
-      within(nativePackage)
-        .getByTestId("native-package-link")
-        .getAttribute("href"),
-    ).toContain("data:application/json");
-    expect(
-      within(nativePackage).queryByTestId(
-        "native-package-link-local-private-intent",
-      ),
-    ).not.toBeInTheDocument();
-    const nativePackageHref =
-      within(nativePackage)
-        .getByTestId("native-package-link")
-        .getAttribute("href") ?? "";
-    const nativePackagePacket = JSON.parse(
-      decodeURIComponent(nativePackageHref.split(",", 2)[1]),
-    );
-    expect(nativePackagePacket.document_kind).toBe("[REDACTED]");
-    expect(nativePackagePacket.source_project.project_name).toBe("[REDACTED]");
-    expect(nativePackagePacket.deliverable_refs).toEqual(
-      expect.arrayContaining(["[REDACTED]"]),
-    );
-    expect(
-      within(nativePackage)
-        .getByTestId("native-package-link")
-        .closest("[data-route-id]"),
-    ).toHaveAttribute("data-route-id", "DOTH-HANDOFF-002");
-    /* The remaining raw-package shape is covered by the local panel/builder
-       tests. Downstream export intentionally redacts unmetadataed/private
-       leaves, so it must not be used to assert the unprojected packet.
-    expect(nativePackagePacket.deliverable_refs).toContain("DEL-17-02");
-    expect(nativePackagePacket.deliverable_refs).toContain("DEL-17-03");
-    expect(nativePackagePacket.deliverable_refs).toContain("DEL-02-05");
-    expect(nativePackagePacket.deliverable_refs).toContain("DEL-12-01");
-    expect(nativePackagePacket.scope_items).toContain("SOW-030");
-    expect(nativePackagePacket.scope_items).toContain("SOW-074");
-    expect(nativePackagePacket.scope_items).toContain("SOW-050");
-    expect(nativePackagePacket.scope_items).toContain("SOW-029");
-    expect(nativePackagePacket.export_profile.profile_id).toBe(
-      "native_open_json_preview",
-    );
-    expect(nativePackagePacket.export_profile.physical_project_container).toBe(
-      "TBD",
-    );
-    expect(nativePackagePacket.export_profile.public_transport_protocol).toBe(
-      "TBD",
-    );
-    expect(nativePackagePacket.export_profile.unit_witness_policy).toBe(
-      "required_sidecar_for_native_json_quantity_fields",
-    );
-    expect(nativePackagePacket.manifest.package_members).toHaveLength(10);
-    expect(
-      nativePackagePacket.manifest.package_members.map(
-        (item: { path: string }) => item.path,
-      ),
-    ).toContain("results/result_envelope_ref.json");
-    expect(
-      nativePackagePacket.manifest.package_members.map(
-        (item: { path: string }) => item.path,
-      ),
-    ).toContain("maps/unit_preservation_witnesses.json");
-    expect(
-      nativePackagePacket.manifest.runtime_timestamp_fields_in_hash_inputs,
-    ).toBe(false);
-    expect(nativePackagePacket.unit_preservation.unit_system_ref.ref).toBe(
-      "unit-system:dec-018-si-dual-display",
-    );
-    expect(nativePackagePacket.unit_preservation.conversion_performed).toBe(
-      false,
-    );
-    expect(
-      nativePackagePacket.unit_preservation.project_unit_declarations,
-    ).toHaveLength(6);
-    expect(
-      nativePackagePacket.unit_preservation.model_quantity_witnesses,
-    ).toHaveLength(50);
-    expect(
-      nativePackagePacket.unit_preservation.result_quantity_witnesses,
-    ).toHaveLength(832);
-    expect(
-      nativePackagePacket.unit_preservation.summary.total_witness_count,
-    ).toBe(888);
-    expect(
-      nativePackagePacket.unit_preservation.model_quantity_witnesses.find(
-        (witness: { witness_id: string }) =>
-          witness.witness_id ===
-          "native-unit:model:pipe:P-120:section.outside_diameter",
-      ),
-    ).toMatchObject({
-      source_ref: {
-        ref_type: "pipe_segment",
-        ref_id: "pipe:P-120",
-        field_path: "section.outside_diameter",
-      },
-      target_ref: {
-        member_path: "model/project.json",
-        field_path: "section.outside_diameter",
-      },
-      source_quantity: {
-        value: 0.168,
-        unit: "m",
-        dimension: "length",
-      },
-      target_quantity: {
-        value: 0.168,
-        unit: "m",
-        dimension: "length",
-      },
-      conversion_performed: false,
-      preservation_status: "unit_and_value_preserved",
-    });
-    expect(
-      nativePackagePacket.unit_preservation.model_quantity_witnesses.find(
-        (witness: { witness_id: string }) =>
-          witness.witness_id ===
-          "native-unit:model:component:C-110:geometry.bend_radius",
-      ),
-    ).toMatchObject({
-      source_ref: {
-        ref_type: "component",
-        ref_id: "component:C-110",
-        field_path: "geometry.bend_radius",
-      },
-      source_quantity: {
-        value: 0.45,
-        unit: "m",
-        dimension: "length",
-      },
-      conversion_performed: false,
-      preservation_status: "unit_and_value_preserved",
-    });
-    expect(
-      nativePackagePacket.unit_preservation.model_quantity_witnesses.find(
-        (witness: { witness_id: string }) =>
-          witness.witness_id ===
-          "native-unit:model:component:C-130:modifiers.linear_stiffness_user_value",
-      ),
-    ).toMatchObject({
-      source_ref: {
-        ref_type: "component",
-        ref_id: "component:C-130",
-        field_path: "modifiers.linear_stiffness_user_value",
-      },
-      source_quantity: {
-        value: 15000000,
-        unit: "N/m",
-        dimension: "linear_stiffness",
-      },
-      conversion_performed: false,
-      preservation_status: "unit_and_value_preserved",
-    });
-    expect(
-      nativePackagePacket.unit_preservation.model_quantity_witnesses.find(
-        (witness: { witness_id: string }) =>
-          witness.witness_id ===
-          "native-unit:model:component:C-150:modifiers.axial_stiffness_user_value",
-      ),
-    ).toMatchObject({
-      source_ref: {
-        ref_type: "component",
-        ref_id: "component:C-150",
-        field_path: "modifiers.axial_stiffness_user_value",
-      },
-      source_quantity: {
-        value: 3200000,
-        unit: "N/m",
-        dimension: "linear_stiffness",
-      },
-      conversion_performed: false,
-      preservation_status: "unit_and_value_preserved",
-    });
-    expect(
-      nativePackagePacket.unit_preservation.result_quantity_witnesses.find(
-        (witness: { witness_id: string }) =>
-          witness.witness_id ===
-          "native-unit:result:result:force:pipe-P-120:axial:value",
-      ),
-    ).toMatchObject({
-      source_ref: {
-        ref_type: "result_row",
-        ref_id: "result:force:pipe-P-120:axial",
-        field_path: "value",
-      },
-      target_ref: {
-        member_path: "results/result_envelope_ref.json",
-        field_path: "value",
-      },
-      conversion_performed: false,
-      preservation_status: "unit_and_value_preserved",
-    });
-    expect(nativePackagePacket.stable_id_map.entity_ref_count).toBe(26);
-    expect(nativePackagePacket.stable_id_map.result_ref_count).toBe(830);
-    expect(nativePackagePacket.stable_id_map.operation_ref_count).toBe(0);
-    expect(nativePackagePacket.stable_id_map.entity_refs).toContain(
-      "project:invented-loop-01",
-    );
-    expect(nativePackagePacket.stable_id_map.result_refs).toContain(
-      "result:force:pipe-P-120:axial",
-    );
-    expect(
-      nativePackagePacket.source_project.storage_summary.editor_intent_count,
-    ).toBe(0);
-    expect(
-      nativePackagePacket.source_project.storage_summary.proposal_count,
-    ).toBe(0);
-    expect(
-      nativePackagePacket.source_project.storage_summary
-        .selected_review_target_count,
-    ).toBe(0);
-    expect(
-      nativePackagePacket.source_project.storage_summary
-        .selected_review_target_ref,
-    ).toBe("not_selected");
-    expect(
-      nativePackagePacket.source_project.storage_summary
-        .persisted_mechanics_result_count,
-    ).toBe(0);
-    expect(
-      nativePackagePacket.source_project.storage_summary
-        .persisted_analysis_run_count,
-    ).toBe(0);
-    expect(
-      nativePackagePacket.source_project.storage_summary
-        .persisted_analysis_run_ref,
-    ).toBe("not_persisted");
-    expect(nativePackagePacket.loss_report.summary.unsupported_count).toBe(1);
-    expect(nativePackagePacket.loss_report.summary.tbd_count).toBe(1);
-    expect(nativePackagePacket.validation_report.package_shape_status).toBe(
-      "review_manifest_complete",
-    );
-    expect(nativePackagePacket.validation_report.model_hash_status).toBe(
-      "computed_local_preview_sha256",
-    );
-    expect(nativePackagePacket.validation_report.model_hash.value).toMatch(
-      /^sha256:[0-9a-f]{64}$/,
-    );
-    expect(
-      nativePackagePacket.validation_report.model_hash.canonicalization,
-    ).toBe("rfc8785_jcs");
-    expect(nativePackagePacket.validation_report.model_hash.payload_ref).toBe(
-      "project:invented-loop-01",
-    );
-    expect(
-      nativePackagePacket.manifest.source_model_version_or_hash_basis,
-    ).toMatch(/^sha256:[0-9a-f]{64}$/);
-    expect(
-      nativePackagePacket.manifest.package_members.find(
-        (item: { path: string }) => item.path === "model/project.json",
-      ).hash_status,
-    ).toMatch(/^sha256:[0-9a-f]{64}$/);
-    expect(nativePackagePacket.validation_report.package_hash_status).toBe(
-      "computed_local_preview_sha256",
-    );
-    expect(nativePackagePacket.validation_report.package_hash.value).toMatch(
-      /^sha256:[0-9a-f]{64}$/,
-    );
-    expect(nativePackagePacket.validation_report.package_hash.value).not.toBe(
-      nativePackagePacket.validation_report.model_hash.value,
-    );
-    expect(
-      nativePackagePacket.validation_report.package_hash.canonicalization,
-    ).toBe("rfc8785_jcs");
-    expect(
-      nativePackagePacket.validation_report.package_hash.payload_scope,
-    ).toBe("package_review_payload");
-    expect(
-      nativePackagePacket.validation_report.package_hash.payload_excludes,
-    ).toBe("validation_report_package_hash_fields");
-    expect(nativePackagePacket.validation_report.package_hash.payload_ref).toBe(
-      "native-json-preview:project:invented-loop-01",
-    );
-    expect(
-      nativePackagePacket.loss_report.entries[2].affected_refs,
-    ).not.toContain("canonical_package_hash");
-    expect(nativePackagePacket.diagnostics).toHaveLength(solveDiagnostics.length);
-    expect(nativePackagePacket.generation_context.network_required).toBe(false);
-    expect(nativePackagePacket.generation_context.telemetry_enabled).toBe(
-      false,
-    );
-    expect(
-      nativePackagePacket.generation_context.persisted_editor_intent_count,
-    ).toBe(0);
-    expect(
-      nativePackagePacket.generation_context.persisted_proposal_count,
-    ).toBe(0);
-    expect(
-      nativePackagePacket.generation_context
-        .persisted_selected_review_target_count,
-    ).toBe(0);
-    expect(
-      nativePackagePacket.generation_context
-        .persisted_selected_review_target_ref,
-    ).toBe("not_selected");
-    expect(
-      nativePackagePacket.generation_context.persisted_mechanics_result_count,
-    ).toBe(0);
-    expect(
-      nativePackagePacket.generation_context.persisted_analysis_run_count,
-    ).toBe(0);
-    expect(
-      nativePackagePacket.generation_context.persisted_analysis_run_ref,
-    ).toBe("not_persisted");
-    expect(
-      nativePackagePacket.generation_context.repository_default_private_write,
-    ).toBe(false);
-    expect(nativePackagePacket.run_refs.result_count).toBe(830);
-    expect(nativePackagePacket.run_refs.hash_refs).toHaveLength(2);
-    expect(nativePackagePacket.private_payload_included).toBe(false);
-    expect(nativePackagePacket.protected_content_included).toBe(false);
-    expect(nativePackagePacket.release_or_professional_claim).toBe(false);
-    expect(nativePackagePacket.compatibility_claim_made).toBe(false);
-    expect(nativePackagePacket.code_compliance_claim_made).toBe(false);
-    expect(
-      nativePackagePacket.professional_boundary.software_makes_compliance_claim,
-    ).toBe(false);
-    */
-    expect(
-      solveJobPacket.events.map((item: { state: string }) => item.state),
-    ).toEqual(["queued", "running", "completed"]);
-    expect(solveJobPacket.private_payload_included).toBe(false);
-    expect(solveJobPacket.protected_content_included).toBe(false);
-    expect(solveJobPacket.release_or_professional_claim).toBe(false);
-    expect(
-      solveJobPacket.professional_boundary.software_makes_compliance_claim,
-    ).toBe(false);
-    const ruleCheck = await screen.findByLabelText("Rule-check completeness");
-    expect(
-      within(ruleCheck).getByTestId("rule-check-summary").textContent,
-    ).toContain("4 review findings");
-    expect(
-      within(ruleCheck).getByTestId("rule-check-summary").textContent,
-    ).toContain("rule_check_blocked=true");
-    expect(
-      within(ruleCheck).getByTestId("rule-check-summary").textContent,
-    ).toContain("mechanics_reviewable=true");
-    expect(
-      within(ruleCheck).getByTestId("rule-check-status").textContent,
-    ).toContain("RULE_INPUTS_INCOMPLETE");
-    expect(
-      within(ruleCheck).getByTestId("rule-check-mechanics-status").textContent,
-    ).toContain("MECHANICS_SOLVED");
-    expect(
-      within(ruleCheck).getByTestId("rule-check-unit-policy").textContent,
-    ).toContain("rule_input_units=explicit_or_blocking");
-    expect(
-      within(ruleCheck).getByTestId("rule-check-unit-policy").textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(ruleCheck).getByTestId("rule-check-boundary").textContent,
-    ).toContain("bundled code values=false");
-    expect(
-      within(ruleCheck).getByTestId(
-        "rule-check-finding-professional-acceptance-not-provided",
-      ).textContent,
-    ).toContain("ASSUMPTION_WARNING");
-    expect(
-      within(ruleCheck)
-        .getByTestId("rule-check-export-link")
-        .getAttribute("href"),
-    ).toBeNull();
-    fireEvent.click(
-      within(ruleCheck).getByTestId(
-        "rule-check-export-link-local-private-intent",
-      ),
-    );
-    const ruleCheckHref =
-      within(ruleCheck)
-        .getByTestId("rule-check-export-link")
-        .getAttribute("href") ?? "";
-    const ruleCheckPacket = JSON.parse(
-      decodeURIComponent(ruleCheckHref.split(",", 2)[1]),
-    );
-    expect(ruleCheckPacket.document_kind).toBe(
-      "openpipestress.technical_preview.rule_completeness_review",
-    );
-    expect(ruleCheckPacket.deliverable_refs).toContain("DEL-06-03");
-    expect(ruleCheckPacket.deliverable_refs).toContain("DEL-07-04");
-    expect(ruleCheckPacket.scope_items).toContain("SOW-004");
-    expect(ruleCheckPacket.scope_items).toContain("SOW-022");
-    expect(ruleCheckPacket.run_ref).toBe("run:preview-linear-static-001");
-    expect(ruleCheckPacket.rule_check_status).toBe("RULE_INPUTS_INCOMPLETE");
-    expect(ruleCheckPacket.summary.finding_count).toBe(4);
-    expect(ruleCheckPacket.summary.rule_check_blocked).toBe(true);
-    expect(ruleCheckPacket.summary.mechanics_results_reviewable).toBe(true);
-    expect(ruleCheckPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
-      "unit-system:dec-018-si-dual-display",
-    );
-    expect(ruleCheckPacket.unit_policy_evidence.storage_convention).toBe(
-      "entered_units_preserved",
-    );
-    expect(
-      ruleCheckPacket.unit_policy_evidence.rule_completeness_unit_policy,
-    ).toBe(
-      "rule_completeness_review_records_rule_input_unit_requirements_without_conversion",
-    );
-    expect(ruleCheckPacket.unit_policy_evidence.model_units).toEqual({
-      angle: "rad",
-      force: "N",
-      length: "m",
-      pressure: "Pa",
-      stress: "MPa",
-      temperature: "degC",
-    });
-    expect(ruleCheckPacket.unit_policy_evidence.unit_bearing_record_count).toBe(
-      38,
-    );
-    expect(ruleCheckPacket.unit_policy_evidence.rule_input_unit_policy).toBe(
-      "required_rule_inputs_must_carry_explicit_units_or_block_user_rule_checks",
-    );
-    expect(
-      ruleCheckPacket.unit_policy_evidence.unit_mismatch_diagnostic_code,
-    ).toBe("RULE_UNIT_MISMATCH");
-    expect(ruleCheckPacket.unit_policy_evidence.conversion_performed).toBe(
-      false,
-    );
-    expect(ruleCheckPacket.summary.silent_defaults_used).toBe(false);
-    expect(ruleCheckPacket.summary.bundled_code_values_used).toBe(false);
-    expect(ruleCheckPacket.summary.compliance_claim_made).toBe(false);
-    expect(
-      ruleCheckPacket.findings.map(
-        (item: { warning_class: string }) => item.warning_class,
-      ),
-    ).toContain("RULE_CHECK_BLOCKING");
-    expect(
-      ruleCheckPacket.findings.map(
-        (item: { warning_class: string }) => item.warning_class,
-      ),
-    ).toContain("PROVENANCE_WARNING");
-    expect(
-      ruleCheckPacket.findings.map(
-        (item: { warning_class: string }) => item.warning_class,
-      ),
-    ).toContain("ASSUMPTION_WARNING");
-    expect(
-      ruleCheckPacket.findings.every(
-        (item: {
-          protected_content_required: boolean;
-          mechanics_solve_blocking: boolean;
-        }) =>
-          item.protected_content_required === false &&
-          item.mechanics_solve_blocking === false,
-      ),
-    ).toBe(true);
-    expect(ruleCheckPacket.private_payload_included).toBe(false);
-    expect(ruleCheckPacket.protected_content_included).toBe(false);
-    expect(ruleCheckPacket.release_or_professional_claim).toBe(false);
-    expect(
-      ruleCheckPacket.professional_boundary.software_makes_compliance_claim,
-    ).toBe(false);
-    const runAudit = runAuditPanel();
-    expect(
-      await within(runAudit).findByTestId("run-audit-model-state"),
-    ).toHaveTextContent("ModelState; state:project:invented-loop-01:preview");
-    expect(
-      within(runAudit).getByTestId("run-audit-analysis-run").textContent,
-    ).toContain("DEL-14-02");
-    expect(
-      within(runAudit).getByTestId("run-audit-analysis-run").textContent,
-    ).toContain("mechanics_solve");
-    expect(
-      within(runAudit).getByTestId("run-audit-analysis-run").textContent,
-    ).toContain("run:preview-linear-static-001");
-    expect(
-      within(runAudit).getByTestId("run-audit-status").textContent,
-    ).toContain("HUMAN_REVIEW_REQUIRED");
-    expect(
-      within(runAudit).getByTestId("run-audit-status").textContent,
-    ).toContain("MECHANICS_SOLVED");
-    expect(
-      within(runAudit).getByTestId("run-audit-status").textContent,
-    ).toContain("RULE_INPUTS_INCOMPLETE");
-    expect(
-      within(runAudit).getByTestId("run-audit-hashes").textContent,
-    ).toContain("830 result rows; 830 result value hashes");
-    expect(
-      within(runAudit).getByTestId("run-audit-hashes").textContent,
-    ).toContain("analysis_run_record");
-    expect(
-      within(runAudit).getByTestId("run-audit-hashes").textContent,
-      ).toContain("received_result");
-    expect(
-      within(runAudit).getByTestId("run-audit-units").textContent,
-    ).toContain("model=angle=rad,force=N,length=m");
-    expect(
-      within(runAudit).getByTestId("run-audit-units").textContent,
-    ).toContain("N*m/rad,N/m");
-    expect(
-      within(runAudit).getByTestId("run-audit-units").textContent,
-    ).toContain("rows=830");
-    expect(
-      within(runAudit).getByTestId("run-audit-units").textContent,
-    ).toContain("source=result_envelope");
-    expect(
-      within(runAudit).getByTestId("run-audit-units").textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(runAudit).getByTestId("run-audit-input-manifest").textContent,
-    ).toMatch(
-      /InputManifest:input-manifest:project-invented-loop-01:[0-9a-f]{64}/,
-    );
-    expect(
-      within(runAudit).getByTestId("run-audit-reproducibility").textContent,
-    ).toBe("Reproducibility TBDs");
-    expect(
-      within(runAudit).getByTestId("run-audit-immutability").textContent,
-    ).toContain("read-only run record");
-    expect(
-      within(runAudit).getByTestId("run-audit-immutability").textContent,
-    ).toContain("changes_create_new_immutable_record_revision");
-    expect(
-      within(runAudit).getByTestId("run-audit-boundary").textContent,
-    ).toContain("human_review_required=true; professional_claim=false");
-    expect(
-      within(runAudit).getByTestId("run-audit-boundary").textContent,
-    ).not.toContain("responsible engineer");
-    const comparison = comparisonWorkspace();
-    expect(
-      within(comparison).getByTestId("comparison-summary").textContent,
-    ).toContain("load:L-100; 279 rows");
-    expect(
-      within(comparison).getByTestId("comparison-summary").textContent,
-    ).toContain("combination:C-OPER-ALT; 261 rows");
-    expect(
-      within(comparison).getByTestId("comparison-summary").textContent,
-    ).toContain("261 comparable pairs; 23 reference-only; 0 target-only");
-    expect(
-      within(comparison).getByTestId("comparison-tolerance-status").textContent,
-    ).toContain("not_tolerance_checked");
-    expect(
-      within(comparison).getByTestId("comparison-unit-policy").textContent,
-    ).toContain("units=MPa,N,N*m,mm,rad");
-    expect(
-      within(comparison).getByTestId("comparison-unit-policy").textContent,
-    ).toContain("matching=equal_explicit_units");
-    expect(
-      within(comparison).getByTestId("comparison-unit-policy").textContent,
-    ).toContain("conversion=false");
-    const earlyResults = await screen.findByLabelText("Results");
-    expect(
-      within(earlyResults).getByTestId("result-unit-policy").textContent,
-    ).toContain("MPa, N, N*m, mm, rad");
-    expect(
-      within(earlyResults).getByTestId("result-unit-policy").textContent,
-    ).toContain("830 rows");
-    expect(
-      within(earlyResults).getByTestId("result-unit-policy").textContent,
-    ).toContain("entered units preserved");
-    expect(
-      within(comparison).getByTestId("comparison-mapping-basis").textContent,
-    ).toContain("source_result_refs");
-    expect(
-      within(comparison).getByTestId("comparison-boundary").textContent,
-    ).toContain("review-only comparison");
-    expect(
-      within(comparison).getByTestId("comparison-boundary").textContent,
-    ).not.toContain("responsible engineer");
-    const comparisonRow = within(comparison).getByTestId(
-      "comparison-row-result:combination:combination-C-OPER-ALT:reaction:support-S-120",
-    );
-    expect(Number(comparisonRow.querySelector("[data-display-status]")!.textContent!.split(" ")[0])).toBeCloseTo(191.444, 3);
-    expect(
-      within(comparison).getByTestId("comparison-diagnostics").textContent,
-    ).toContain("1 comparison diagnostic");
-    const designWorkspace = await screen.findByLabelText(
-      "Design-authoring workspace",
-    );
-    expect(
-      within(designWorkspace).getByTestId("design-workspace-units").textContent,
-    ).toContain("N*m/rad,N/m");
-    expect(
-      within(designWorkspace).getByTestId("design-workspace-units").textContent,
-    ).toContain("comparison=MPa,N,N*m,mm,rad");
-    expect(
-      within(designWorkspace).getByTestId("design-workspace-units").textContent,
-    ).toContain("conversion=false");
-    fireEvent.click(
-      within(designWorkspace).getByTestId(
-        "design-workspace-export-link-local-private-intent",
-      ),
-    );
-    const designWorkspaceHref =
-      within(designWorkspace)
-        .getByTestId("design-workspace-export-link")
-        .getAttribute("href") ?? "";
-    const solvedDesignWorkspacePacket = JSON.parse(
-      decodeURIComponent(designWorkspaceHref.split(",", 2)[1]),
-    );
-    expect(
-      solvedDesignWorkspacePacket.unit_policy_evidence.result_units,
-    ).toEqual([
-      "MPa",
-      "N",
-      "N*m",
-      "N*m/rad",
-      "N/m",
-      "boolean",
-      "count",
-      "m",
-      "mm",
-      "mode_code",
-      "rad",
-      "state_code",
-    ]);
-    expect(
-      solvedDesignWorkspacePacket.unit_policy_evidence.comparison_units,
-    ).toEqual(["MPa", "N", "N*m", "mm", "rad"]);
-    expect(
-      solvedDesignWorkspacePacket.unit_policy_evidence.analysis_run_ref.ref,
-    ).toBe("run:preview-linear-static-001");
-    expect(
-      solvedDesignWorkspacePacket.unit_policy_evidence
-        .comparison_unit_policy_ref,
-    ).toBe("unit-policy-evidence:comparison-workspace-preview");
-    fireEvent.click(
-      within(comparison).getByTestId(
-        "comparison-select-result:combination:combination-C-OPER-ALT:moment:pipe-P-120:quarter-3:bending-z",
-      ),
-    );
-    expect(
-      await screen.findByRole("heading", { name: /Rack span/ }),
-    ).toBeInTheDocument();
-    expect(
-      within(comparison).getByTestId("comparison-summary").textContent,
-    ).toContain("261 comparable pairs");
+    await inspectBundledReference();
+    const selectedBefore = screen.getByTestId("command-selection-readout").textContent;
     const results = await screen.findByLabelText("Results");
     expect(
       within(results).getByTestId("result-unit-policy").textContent,
@@ -11802,9 +10377,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(detail).getByTestId("endpoint-pair-table").textContent,
     ).toContain("result:force:pipe-P-120:axial:end-j");
-    expect(
-      await screen.findByRole("heading", { name: /Rack span/ }),
-    ).toBeInTheDocument();
+    expect(expectedModel.pipe_segments.some(pipe => pipe.label?.includes('Rack span')) || expectedModel.nodes.some(node => node.label?.includes('Rack span'))).toBe(true);
 
     fireEvent.click(
       within(results).getByTestId(
@@ -11981,300 +10554,200 @@ describe("SWBPIPE desktop preview", () => {
       within(gapLedger).getByTestId("gap:endpoint-j-recovery").textContent,
     ).not.toContain("compliance failure");
 
-    const knowledge = await screen.findByLabelText("Design knowledge");
-    expect(
-      within(knowledge).getByTestId("knowledge-unit-context").textContent,
-    ).toContain("computed_unit_refs=2");
-    expect(
-      within(knowledge).getByTestId("knowledge-unit-context").textContent,
-    ).toContain("units=N,mm");
-    expect(
-      within(knowledge).getByTestId("knowledge-unit-context").textContent,
-    ).toContain("source=computed_preview_result");
-    expect(
-      within(knowledge).getByTestId("knowledge-unit-context").textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(knowledge).getByText(/Computed displacement review/i),
-    ).toBeInTheDocument();
-    const summaryDisplacement = expectedSource.summary.max_displacement!;
-    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent(`${summaryDisplacement.result_ref} is ${summaryDisplacement.value} ${summaryDisplacement.unit}`);
-    expect(
-      within(knowledge).getByText(/result:force:pipe-P-120:axial is/i),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("command-selection-readout").textContent).toBe(selectedBefore);
+    expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
+    expect(JSON.stringify(reference)).toBe(originalSource);
+  });
 
-    const report = reportPanel();
-    expect(within(report).queryByTestId("report-packet-body")).toBeNull();
-    if (within(report).queryByTestId("report-packet-body")) {
-    expect(
-      within(report).getByTestId("report-packet-body"),
-    ).toBeInTheDocument();
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain("result:disp:node-N-140");
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain("result:force:pipe-P-120:axial");
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain("result:force:pipe-P-120:axial:end-j");
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain("result:force:pipe-P-120:midspan:axial");
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain("result:force:pipe-P-120:quarter-1:shear-y");
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain("result:force:pipe-P-120:shear-y");
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain(
-      "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial",
-    );
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain(
-      "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-1:shear-y",
-    );
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain("result:pressure-thrust:component-C-150");
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain(
-      "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150",
-    );
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain("result:stress:pipe-P-120:end-j:torsional-shear");
-    expect(
-      within(report).getByTestId("report-selected-result-refs").textContent,
-    ).toContain("result:stress:pipe-P-120:quarter-1:torsional-shear");
-    expect(
-      within(report).getByTestId("report-selected-review-target").textContent,
-    ).toContain("result: result:stress:pipe-P-120:end-j:torsional-shear");
-    expect(
-      within(report).getByTestId("report-analysis-run").textContent,
-    ).toContain("DEL-14-02");
-    expect(
-      within(report).getByTestId("report-analysis-run").textContent,
-    ).toContain("run:preview-linear-static-001");
-    expect(
-      within(report).getByTestId("report-load-basis-refs").textContent,
-    ).toContain("load:L-100");
-    expect(
-      within(report).getByTestId("report-load-basis-refs").textContent,
-    ).toContain("load:L-200");
-    expect(
-      within(report).getByTestId("report-load-basis-refs").textContent,
-    ).toContain("combination:C-OPER-ALT");
-    expect(
-      within(report).getByTestId("report-diagnostic-scope").textContent,
-    ).toContain("model, design knowledge, and computed mechanics findings");
-    expect(
-      within(report).getByTestId("report-component-provenance").textContent,
-    ).toContain("component:C-110");
-    expect(
-      within(report).getByTestId("report-component-provenance").textContent,
-    ).toContain("invented_user_entered_preview_no_code_table");
-    expect(
-      within(report).getByTestId("report-component-provenance").textContent,
-    ).toContain("mechanics_geometry_only");
-    expect(
-      within(report).getByTestId("report-component-provenance").textContent,
-    ).toContain("component:C-130");
-    expect(
-      within(report).getByTestId("report-component-provenance").textContent,
-    ).toContain("component:C-130->pipe:P-130");
-    expect(
-      within(report).getByTestId("report-component-provenance").textContent,
-    ).toContain("component:C-150->pipe:P-130");
-    expect(
-      within(report).getByTestId("report-component-stress-modifiers")
-        .textContent,
-    ).toContain("user-entered multiplier");
-    expect(
-      within(report).getByTestId("report-component-stress-modifiers")
-        .textContent,
-    ).toContain("component:C-110");
-    expect(
-      within(report).getByTestId("report-component-stiffness-inputs")
-        .textContent,
-    ).toContain("4 user-entered stiffness rows");
-    expect(
-      within(report).getByTestId("report-component-stiffness-inputs")
-        .textContent,
-    ).toContain("component:C-150");
-    expect(
-      within(report).getByTestId("report-component-pressure-thrust")
-        .textContent,
-    ).toContain("3 load-side pressure thrust rows");
-    expect(
-      within(report).getByTestId("report-component-pressure-thrust")
-        .textContent,
-    ).toContain("component:C-150");
-    expect(within(report).getByText(/34 review findings/i)).toBeInTheDocument();
-    expect(
-      within(report).getByTestId("report-diagnostic-summary").textContent,
-    ).toContain("13 warnings; 21 info; 0 errors; 0 blocking");
-    expect(
-      within(report).getByText(/result value hashes/i),
-    ).toBeInTheDocument();
-    expect(within(report).getByText(/result_envelope/i)).toBeInTheDocument();
-    expect(
-      within(report).getAllByText(
-        /human_review_required=true; professional_claim=false/,
-      ).length,
-    ).toBeGreaterThan(0);
-    expect(report.textContent).not.toContain("responsible engineer");
-    expect(
-      within(report).getByTestId("report-comparison-summary").textContent,
-    ).toContain("261 mapped pairs");
-    expect(
-      within(report).getByTestId("report-comparison-summary").textContent,
-    ).toContain("not_tolerance_checked");
-    expect(
-      within(report).getByTestId("report-project-persistence").textContent,
-    ).toContain("storage=not_persisted_this_session");
-    expect(
-      within(report).getByTestId("report-project-persistence").textContent,
-    ).toContain("validation=preview_not_persisted");
-    expect(
-      within(report).getByTestId("report-export-readiness").textContent,
-    ).toContain("27 of 29 local exports ready");
-    expect(
-      within(report).getByTestId("report-export-readiness").textContent,
-    ).toContain("storage=available");
-    expect(
-      within(report).getByTestId("report-export-readiness").textContent,
-    ).toContain("validation=available");
-    expect(
-      within(report).getByTestId("report-export-readiness").textContent,
-    ).toContain("telemetry=available");
-    expect(
-      within(report).getByTestId("report-export-readiness").textContent,
-    ).toContain("secrets=available");
-    expect(
-      within(report).getByTestId("report-export-readiness").textContent,
-    ).toContain("threats=available");
-    expect(
-      within(report).getByTestId("report-export-readiness").textContent,
-    ).toContain("accessibility=available");
-    expect(
-      within(report).getByTestId("report-export-readiness").textContent,
-    ).toContain("workspace=available");
-    expect(
-      within(report).getByTestId("report-export-readiness").textContent,
-    ).toContain("evidence=available");
-    expect(
-      within(report).getByTestId("report-storage-boundary").textContent,
-    ).toContain("network=false");
-    expect(
-      within(report).getByTestId("report-storage-boundary").textContent,
-    ).toContain("private/protected payload=false");
-    expect(
-      within(report).getByTestId("report-storage-boundary").textContent,
-    ).toContain("accepted_state_mutated=false");
-    expect(
-      within(report).getByTestId("report-export-summary").textContent,
-    ).toContain("no private payload");
-    expect(
-      within(report).getByTestId("report-export-summary").textContent,
-    ).toContain(`${allDiagnostics.length} diagnostics`);
+  it("preserves the original complete reference derivative row, unit and hash protocol oracles", async () => {
+    const basis = await referenceAnalysis(), expectedModel = basis.model, expectedSource = basis.result;
+    const originalSource = JSON.stringify({ model: expectedModel, result: expectedSource });
+    const resultExportPacket = await referenceDerivative(basis);
+    const e = resultExportPacket.result_envelope;
+    expect(resultExportPacket.schema_version).toBe("0.3.0");
+    expect(e.schema_version).toBe("0.3.0");
+    expect(e.producer).toEqual(expectedSource.producer);
+    expect(e.numerical_quality).toEqual(expectedSource.numerical_quality);
+    expect(e.formulation_basis).toEqual(expectedSource.formulation_basis);
+    expect(e.semantic_contract_ref).toEqual({ ref_type: "semantic_contract", ref_id: PRECISION_CONTRACT_ID });
+    expect(resultExportPacket.deliverable_id).toBe("DEL-08-04");
+    expect(resultExportPacket.package_id).toBe("PKG-08");
+    expect(resultExportPacket.scope_item).toBe("SOW-046");
+    expect(resultExportPacket.objectives).toEqual(["OBJ-007", "OBJ-009"]);
+    expect(resultExportPacket.export_format_status).toEqual({ baseline_format: "schema_first_json_result_envelope", additional_formats: "TBD", public_transport_protocol: "TBD", local_fea_package_format: "TBD", external_adapter_formats: "TBD" });
+    expect(e.model_ref).toEqual({ ref_type: "model_payload", ref_id: expectedModel.project.id });
+    expect(e.run_ref.ref_id).toBe(expectedSource.run_id);
+    expect(e.load_basis_refs.length).toBeGreaterThan(0);
+    expect(e.result_sets).toHaveLength(1);
+    expect(e.result_sets[0].values.length).toBeGreaterThan(0);
+    expect(e.review_evidence.length).toBeGreaterThan(0);
+    expect(e.row_disclosures.length).toBeGreaterThan(0);
+    expect(e.result_sets[0].values.length + e.review_evidence.length + e.row_disclosures.length).toBe(expectedSource.results.length);
+    expect(e.row_accounting).toHaveLength(expectedSource.results.length);
+    expect(e.source_annotations).toHaveLength(expectedSource.results.length);
+    expect(new Set(e.row_accounting.map((a: {target_field_path: string}) => a.target_field_path)).size).toBe(expectedSource.results.length);
+    for (const [index, row] of expectedSource.results.entries()) {
+      const account = e.row_accounting[index], annotation = e.source_annotations[index];
+      expect(account.source_row_index).toBe(index);
+      expect(account.source_result_id).toBe(row.id);
+      expect(account.source_kind).toBe(row.kind);
+      expect(account.source_field_path).toBe(`/results/${index}`);
+      expect(account.original_producer_row_checksum).toBeNull();
+      expect(account.received_carrier_row_checksum).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_row", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256HexCheckedV1(row) });
+      expect(annotation).toMatchObject({ source_row_index: index, source_result_id: row.id, metadata: row.metadata ?? null, basis_ref: row.basis_ref ?? null, source_result_refs: row.source_result_refs ?? [], observed_carrier_dimension: { present: Object.hasOwn(row,"dimension"), value: row.dimension ?? null } });
+      const target = account.target_field_path.split("/").slice(1).reduce((value: any, key: string) => value[key], resultExportPacket);
+      expect(account.target_ref.ref_id).toBe(row.id);
+      expect(target.magnitude ?? target.source_value).toBe(row.value);
+      expect(target.unit ?? target.source_unit).toBe(row.unit);
+      const witnesses = e.unit_preservation_witnesses.filter((w: {source_row_index: number}) => w.source_row_index === index);
+      if (account.disposition === "disclosed") expect(witnesses).toHaveLength(0);
+      else {
+        expect(witnesses).toHaveLength(1);
+        const witness = witnesses[0];
+        expect(witness.source_quantity).toEqual({ value: row.value, unit: row.unit, observed_dimension: { present: Object.hasOwn(row,"dimension"), value: row.dimension ?? null } });
+        expect(witness.target_quantity).toEqual({ value: row.value, unit: row.unit, dimension: target.dimension });
+        expect(witness.conversion_performed).toBe(false);
+        expect(witness.original_producer_row_checksum).toBeNull();
+        expect(witness.target_field_path).toBe(account.target_field_path);
+        expect(witness.target_row_checksum.value).toBe(await canonicalSha256HexCheckedV1(target));
+      }
     }
-    const exportHref =
-      within(report).getByTestId("report-export-link").getAttribute("href") ??
-      "";
-    expect(exportHref).toContain("data:application/json");
-    const exportPacket = JSON.parse(
-      decodeURIComponent(exportHref.split(",", 2)[1]),
-    );
-    expect(exportPacket.document_kind).toBe("[REDACTED]");
-    expect(exportPacket.export_scope).toBe("[REDACTED]");
-    expect(exportPacket.deliverable_refs).toContain("[REDACTED]");
-    expect(exportPacket.selected_result_refs).toContain("[REDACTED]");
-    expect(exportPacket.diagnostic_refs).toContain("[REDACTED]");
-    /* False payload/protected flags no longer make every report leaf public.
-       The detailed raw report remains covered by visible panel assertions;
-       this download assertion is now about downstream non-exposure.
-    expect(exportPacket.export_scope).toBe("local_browser_download_preview");
-    expect(exportPacket.deliverable_refs).toContain("DEL-03-03");
-    expect(exportPacket.deliverable_refs).toContain("DEL-03-04");
-    expect(exportPacket.deliverable_refs).toContain("DEL-03-05");
-    expect(exportPacket.deliverable_refs).toContain("DEL-03-06");
-    expect(exportPacket.deliverable_refs).toContain("DEL-05-03");
-    expect(exportPacket.deliverable_refs).toContain("DEL-08-01");
-    expect(exportPacket.deliverable_refs).toContain("DEL-07-03");
-    expect(exportPacket.deliverable_refs).toContain("DEL-07-04");
-    expect(exportPacket.deliverable_refs).toContain("DEL-07-06");
-    expect(exportPacket.deliverable_refs).toContain("DEL-07-08");
-    expect(exportPacket.deliverable_refs).toContain("DEL-08-03");
-    expect(exportPacket.deliverable_refs).toContain("DEL-08-06");
-    expect(exportPacket.deliverable_refs).toContain("DEL-09-04");
-    expect(exportPacket.deliverable_refs).toContain("DEL-09-05");
-    expect(exportPacket.deliverable_refs).toContain("DEL-10-04");
-    expect(exportPacket.deliverable_refs).toContain("DEL-15-04");
-    expect(exportPacket.deliverable_refs).toContain("DEL-17-04");
-    expect(exportPacket.deliverable_refs).toContain("DEL-17-06");
-    expect(exportPacket.deliverable_refs).toContain("DEL-17-08");
-    expect(exportPacket.deliverable_refs).toContain("DEL-02-05");
-    expect(exportPacket.deliverable_refs).toContain("DEL-12-01");
-    expect(exportPacket.deliverable_refs).toContain("DEL-12-03");
-    expect(exportPacket.deliverable_refs).toContain("DEL-12-04");
-    expect(exportPacket.deliverable_refs).toContain("DEL-12-05");
-    expect(exportPacket.deliverable_refs).toContain("DEL-12-02");
-    expect(exportPacket.selected_result_refs).toContain(
-      "result:force:pipe-P-120:axial",
-    );
-    expect(exportPacket.selected_result_refs).toContain(
-      "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
-    );
-    expect(exportPacket.selected_result_refs).toContain(
-      "result:stress:pipe-P-120:end-j:torsional-shear",
-    );
-    expect(exportPacket.selected_result_refs).toContain(
-      "result:pressure-thrust:component-C-150",
-    );
-    expect(exportPacket.selected_result_refs).toContain(
-      "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150",
-    );
-    expect(exportPacket.selected_review_target).toEqual({
-      target_type: "result",
-      id: "result:stress:pipe-P-120:end-j:torsional-shear",
+    expect(e.unit_preservation_witnesses).toHaveLength(e.result_sets[0].values.length + e.review_evidence.length);
+    expect(e.result_sets[0].values.some((v: {family: string}) => v.family === "ratio")).toBe(false);
+    expect(e.row_disclosures.some((v: {semantic_category: string, reason_code: string}) => v.semantic_category === "count" && v.reason_code === "discrete_evidence_not_ratio")).toBe(true);
+    const rotation = e.result_sets[0].values.find((v: {source_kind: string}) => v.source_kind === "global_nodal_rotation_x");
+    expect(rotation).toMatchObject({ family: "rotation", unit: "rad", dimension: "angle" });
+    expect(e.diagnostics).toHaveLength(expectedSource.diagnostics.length);
+    expect(e.reproducibility.deterministic_ordering).toBe(true);
+    expect(e.reproducibility.run_hashes).toHaveLength(2);
+    expect(e.reproducibility.run_hashes.map((h: {payload_ref: {ref_type: string}}) => h.payload_ref.ref_type)).toEqual(["AnalysisRun", "ResultEnvelope"]);
+    expect(e.reproducibility.audit_manifest_ref.ref_type).toBe("audit_manifest");
+    expect(e.reproducibility.model_hash).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, value: await canonicalSha256HexCheckedV1(expectedModel) });
+    expect(e.reproducibility.raw_source_hashes).toEqual([]);
+    expect(e.reproducibility.request_hash).toBeNull();
+    expect(e.reproducibility.source_origin_bindings).toHaveLength(1);
+    expect(e.reproducibility.source_origin_bindings[0]).toMatchObject({ origin_class: "received_current_dimension_absent", authentic_producer_available: false, original_producer_checksum: null, actual_model_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, mechanics_run_ref: { ref_type: "mechanics_run", ref_id: expectedSource.run_id }, qualification_ref: {ref_type: "synthetic_fixture", ref_id: "reference-protocol-not-Current"}, received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_carrier", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256HexCheckedV1(expectedSource) } });
+    const digestPayload = structuredClone(resultExportPacket);
+    delete digestPayload.result_envelope.reproducibility.derivative_hash;
+    expect(e.reproducibility.derivative_hash).toEqual({algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "derivative_document_excludes_own_hash", payload_ref: {ref_type: "derivative_document", ref_id: e.envelope_id}, value: await canonicalSha256HexCheckedV1(digestPayload)});
+    expect(e.analysis_status).toEqual(expect.arrayContaining(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]));
+    expect(e).not.toHaveProperty("rule_pack_refs"); // 0.3 carries rule completeness in analysis_status; no private pack payload is exported.
+    expect(e.downstream_use.additional_export_formats).toBe("TBD");
+    expect(e.professional_boundary).toMatchObject({human_review_required: true, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_makes_authentication_claim: false});
+    expect(JSON.stringify({model: expectedModel, result: expectedSource})).toBe(originalSource);
+    expect(e.reproducibility.source_origin_bindings[0].origin_limit).toContain("no native invocation or Current export");
+  });
+
+  it("preserves the830-row stress-neutral format as a pure reference projection", async () => {
+    const basis = await referenceAnalysis(), expectedModel = basis.model, expectedSource = basis.result;
+    const before = JSON.stringify(basis);
+    const diagnosticWorkRows = expectedSource.results.filter(row => analysisRowSemantics(row, expectedSource).semantic?.category === "diagnostic_work");
+    expect(diagnosticWorkRows).toHaveLength(expectedModel.load_cases.length);
+    expect(diagnosticWorkRows.every(row => row.kind === "nonlinear_support_free_dof_work_residual" && row.unit === "N*m" && !Object.hasOwn(row, "dimension"))).toBe(true);
+    expect(diagnosticWorkRows.every(row => analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension === null)).toBe(true);
+    const expectedStressWitnessCount = expectedSource.results.length - diagnosticWorkRows.length;
+    const stressNeutralPacket = await buildStressNeutralExportPacket(basis);
+    expect(stressNeutralPacket.document_kind).toBeUndefined();
+    expect(stressNeutralPacket.schema_version).toBe("0.3.0");
+    expect(stressNeutralPacket.producer).toEqual(expectedSource.producer);
+    expect(stressNeutralPacket.numerical_quality).toEqual(expectedSource.numerical_quality);
+    expect(stressNeutralPacket.formulation_basis).toEqual(expectedSource.formulation_basis);
+    expect(stressNeutralPacket.semantic_contract).toEqual({ id: PRECISION_CONTRACT_ID, sha256: PRECISION_CONTRACT_SHA256 });
+    expect(stressNeutralPacket.source_carrier_checksum).toEqual({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_result", payload_ref: { object_type: "ResultEnvelope", ref: `result-envelope:${expectedSource.run_id}` }, value: await canonicalSha256HexCheckedV1(expectedSource) });
+    expect(stressNeutralPacket.received_source_checksums).toContainEqual(stressNeutralPacket.source_carrier_checksum);
+    expect(stressNeutralPacket.deliverable_id).toBe("DEL-17-06");
+    expect(stressNeutralPacket.package_id).toBe("PKG-17");
+    expect(stressNeutralPacket.scope_items).toEqual(["SOW-046", "SOW-074"]);
+    expect(stressNeutralPacket.objectives).toEqual(["OBJ-007", "OBJ-017", "OBJ-018"]);
+    expect(stressNeutralPacket.package_status).toBe("stress_neutral_export_package");
+    expect(stressNeutralPacket.export_profile.target_family).toBe("stress_neutral_csv_json");
+    expect(stressNeutralPacket.export_profile.profile_id).toBe("ops.stress_neutral.v3");
+    expect(stressNeutralPacket.export_profile.profile_version).toBe("0.3.0");
+    expect(stressNeutralPacket.manifest.export_profile_ref).toEqual({
+      object_type: "StressNeutralExportProfile",
+      ref: "ops.stress_neutral.v3",
     });
-    expect(exportPacket.diagnostic_refs).toContain("RULE_INPUTS_MISSING");
-    expect(exportPacket.diagnostic_refs).toContain(
-      "SUPPORT_STIFFNESS_UNRESOLVED",
+    expect(stressNeutralPacket.export_profile.csv_columns).toHaveLength(11);
+    expect(stressNeutralPacket.export_profile.csv_columns).toContain("result_id");
+    expect(stressNeutralPacket.unit_system_disclosure.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display",
     );
-    expect(exportPacket.diagnostic_refs).toContain(
-      "diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED",
+    expect(stressNeutralPacket.unit_system_disclosure.model_units.length).toBe("m");
+    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain("MPa");
+    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain("rad");
+    expect(stressNeutralPacket.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(stressNeutralPacket.unit_system_disclosure.protected_content_included).toBe(false);
+    expect(stressNeutralPacket.unit_preservation_witnesses).toHaveLength(expectedStressWitnessCount);
+    const workIds = new Set(diagnosticWorkRows.map(row => row.id));
+    expect(stressNeutralPacket.unit_preservation_witnesses.some((witness: { result_id: string }) => workIds.has(witness.result_id))).toBe(false);
+    const workWithholdings = stressNeutralPacket.diagnostics.filter((diagnostic: { code: string }) => diagnostic.code === "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK");
+    expect(new Set(workWithholdings.map((diagnostic: { source: { ref: string } }) => diagnostic.source.ref))).toEqual(workIds);
+    expect(workWithholdings.every((diagnostic: { severity: string }) => diagnostic.severity === "info")).toBe(true);
+    expect(stressNeutralPacket.diagnostics).toEqual(expect.arrayContaining([expect.objectContaining({ code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", severity: "blocking" })]));
+    for (const row of expectedSource.results) {
+      const retained = stressNeutralPacket.result_rows.find((candidate: { result_id: string }) => candidate.result_id === row.id);
+      expect(retained).toMatchObject({ value: row.value, unit: row.unit, dimension: analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension ?? "TBD" });
+    }
+    expect(stressNeutralPacket.manifest.package_members.map((item: { filename: string }) => item.filename)).toEqual([
+      "manifest.json",
+      "stress_neutral_results.csv",
+      "result_rows.json",
+      "unit_system_disclosure.json",
+      "unit_preservation_witnesses.json",
+      "stable_id_map.json",
+      "loss_report.json",
+      "validation_report.json",
+      "diagnostics.json",
+    ]);
+    expect(stressNeutralPacket.manifest.checksums).toHaveLength(9);
+    expect(new Set(stressNeutralPacket.manifest.checksums.map(
+      (item: { payload_ref: { ref: string } }) => item.payload_ref.ref,
+    )).size).toBe(9);
+    const stressNeutralUnitWitness = stressNeutralPacket.unit_preservation_witnesses[0];
+    expect(stressNeutralUnitWitness.source_row_index).toBe(0);
+    expect(stressNeutralUnitWitness.result_id).toBe(stressNeutralPacket.result_rows[0].result_id);
+    expect(stressNeutralUnitWitness.target_quantity).toEqual(stressNeutralUnitWitness.source_quantity);
+    expect(stressNeutralUnitWitness.policy).toBe("preserve_received_value_and_unit");
+    expect(stressNeutralUnitWitness.conversion_performed).toBe(false);
+    expect(stressNeutralPacket.result_rows).toHaveLength(830);
+    expect(stressNeutralPacket.stable_id_map).toHaveLength(830);
+    expect(stressNeutralPacket.csv_text).toContain("result_id,canonical_ref");
+    expect(stressNeutralPacket.loss_report).toHaveLength(3);
+    expect(stressNeutralPacket.loss_report.map(
+      (entry: { category: string }) => entry.category,
+    )).toContain("exported");
+    expect(stressNeutralPacket.package_checksum.value).toMatch(/^[0-9a-f]{64}$/);
+    const stressDigestPayload = structuredClone(stressNeutralPacket);
+    delete stressDigestPayload.package_checksum;
+    expect(stressNeutralPacket.package_checksum.value).toBe(await canonicalSha256HexCheckedV1(stressDigestPayload));
+    expect(stressNeutralPacket.package_checksum.payload_scope).toBe(
+      "complete_package_excluding_self_checksum",
     );
-    expect(exportPacket.diagnostic_refs).toContain(
-      "diagnostic:component-stress-multiplier:component-C-110:pipe-P-100:end-j",
-    );
-    expect(exportPacket.diagnostic_refs).toContain(
-      "diagnostic:component:component-C-150:expansion-joint-review",
-    );
-    expect(exportPacket.diagnostic_refs).toContain(
-      "diagnostic:pressure-thrust:load-L-100:component-C-150",
-    );
-    expect(exportPacket.diagnostic_refs).toContain(
-      "diagnostic:pressure-thrust:load-L-200:component-C-150",
-    );
-    expect(exportPacket.diagnostic_refs).toContain(
-      "diagnostic:spring-hanger:support-SH-140:hanger",
-    );
-    expect(exportPacket.diagnostic_refs).toContain(
-      "diagnostic:spring-hanger:support-CE-120:hanger",
-    );
-    expect(exportPacket.diagnostic_summary.total).toBe(34);
-    expect(exportPacket.diagnostic_summary.by_severity.warning).toBe(13);
-    expect(exportPacket.diagnostic_summary.by_severity.info).toBe(21);
-    */
-    expect(exportPacket.project_ref).toBe("[REDACTED]");
-    expect(JSON.stringify(exportPacket)).toContain("[REDACTED]");
-    if (exportPacket.project_ref !== "[REDACTED]") {
+    expect(stressNeutralPacket.validation_report.validation_status).toBe("blocked");
+    expect(stressNeutralPacket.validation_report.checks.map(
+      (item: { check_id: string }) => item.check_id,
+    )).toContain("csv_json_row_sync");
+    expect(stressNeutralPacket.result_rows.every(
+      (row: { unit: string; dimension: string }) => row.unit && row.dimension,
+    )).toBe(true);
+    expect(stressNeutralPacket.privacy.private_payload_embedded).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_makes_external_compatibility_claim).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_makes_solver_validation_claim).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_creates_professional_reliance_record).toBe(false);
+    expect(JSON.stringify(basis)).toBe(before);
+  });
+
+  it("retains historical component, pressure-thrust, hanger and review-package numeric oracles", async () => {
+    const basis = await referenceAnalysis(), { model, result, analysisRun } = basis;
+    const knowledge = await loadDesignKnowledge(), comparison = buildPreviewComparison({ result, analysisRun });
+    const before = JSON.stringify(basis);
+    const policy = await import("./features/report/reportRedactionProjector"), actualControl = policy.controlReportDomAndJson;
+    let observed: any;
+    vi.spyOn(policy, "controlReportDomAndJson").mockImplementation(input => { observed = input; return actualControl(input); });
+    render(<ReportPanel model={model} knowledge={knowledge} result={result} analysisRun={analysisRun} comparison={comparison} editorIntents={[]} projectOperation="reference_inspection" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);
+    expect(observed).toBeDefined();
+    const exportPacket = observed;
     expect(exportPacket.component_stress_modifier_count).toBe(12);
     expect(exportPacket.component_provenance[0]).toEqual(
       expect.objectContaining({
@@ -12430,1177 +10903,101 @@ describe("SWBPIPE desktop preview", () => {
         }),
       ]),
     );
-    expect(exportPacket.load_basis_refs).toContain("combination:C-OPER-ALT");
-    expect(exportPacket.hash_refs.envelope_hash_scopes).toContain(
-      "result_envelope",
-    );
-    expect(exportPacket.persistence_evidence.document_kind).toBe(
-      "openpipestress.technical_preview.report_persistence_export_context",
-    );
-    expect(exportPacket.persistence_evidence.storage_audit.document_kind).toBe(
-      "openpipestress.technical_preview.local_project_persistence_audit",
-    );
-    expect(exportPacket.persistence_evidence.storage_audit.storage_mode).toBe(
-      "not_persisted_this_session",
-    );
-    expect(
-      exportPacket.persistence_evidence.storage_audit.pending_operation_count,
-    ).toBe(0);
-    expect(
-      exportPacket.persistence_evidence.validation_preflight.document_kind,
-    ).toBe("openpipestress.technical_preview.project_validation_preflight");
-    expect(
-      exportPacket.persistence_evidence.validation_preflight.validation_status,
-    ).toBe("preview_not_persisted");
-    expect(
-      exportPacket.persistence_evidence.validation_preflight.round_trip_status,
-    ).toBe("semantic_categories_declared");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.expected_export_count,
-    ).toBe(29);
-    expect(
-      exportPacket.persistence_evidence.export_inventory.available_count,
-    ).toBe(27);
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .project_storage_audit,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .project_validation_preflight,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .telemetry_boundary_review,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .secret_private_library_boundary_review,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .security_threat_model_review,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .editor_contract_review,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .missing_data_warning_blocking_review,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .rule_completeness_review,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .agent_proposal_review,
-    ).toBe("pending_agent_proposal");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .accessibility_usability_baseline_review,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .design_authoring_comparison_workspace,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .build_package_readiness,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .validation_release_evidence_review,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .report_protected_content_lint,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .stress_neutral_csv_json_package,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .headless_runner_envelope,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .adapter_framework_envelope,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .local_fea_handoff_package,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .external_prover_boundary_metadata,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .review_geometry_export,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .conservative_pcf_export,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .caepipe_mbf_export,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .caepipe_external_run_evidence,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .export_adapter_sdk_registry,
-    ).toBe("available");
-    expect(
-      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id
-        .operation_review_ledger,
-    ).toBe("empty_operation_queue");
-    expect(exportPacket.persistence_evidence.boundary.network_required).toBe(
-      false,
-    );
-    expect(exportPacket.persistence_evidence.boundary.telemetry_enabled).toBe(
-      false,
-    );
-    expect(
-      exportPacket.persistence_evidence.boundary.private_payload_included,
-    ).toBe(false);
-    expect(
-      exportPacket.persistence_evidence.boundary.protected_content_included,
-    ).toBe(false);
-    expect(
-      exportPacket.persistence_evidence.boundary.release_or_professional_claim,
-    ).toBe(false);
-    const reportLint = await screen.findByLabelText("Report content lint");
-    expect(
-      within(reportLint).getByTestId("report-lint-summary").textContent,
-    ).toContain("targets=47");
-    expect(
-      within(reportLint).getByTestId("report-lint-summary").textContent,
-    ).toContain("findings=0");
-    expect(
-      within(reportLint).getByTestId("report-lint-summary").textContent,
-    ).toContain("blocking=0");
-    expect(
-      within(reportLint).getByTestId("report-lint-clean-scan").textContent,
-    ).toContain("clearance=false");
-    const reportLintHref =
-      within(reportLint)
-        .getByTestId("report-lint-export-link")
-        .getAttribute("href") ?? "";
-    const reportLintPacket = JSON.parse(
-      decodeURIComponent(reportLintHref.split(",", 2)[1]),
-    );
-    expect(reportLintPacket.deliverable_id).toBe("DEL-08-05");
-    expect(reportLintPacket.lint_run.run_id).toBe(
-      "lint:report-preview:run-preview-linear-static-001",
-    );
-    expect(reportLintPacket.lint_run.summary.target_count).toBe(47);
-    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(47);
-    expect(reportLintPacket.lint_run.summary.finding_count).toBe(0);
-    expect(reportLintPacket.lint_run.summary.blocking_finding_count).toBe(0);
-    expect(reportLintPacket.lint_run.summary.clean_scan_is_clearance).toBe(
-      false,
-    );
-    expect(
-      reportLintPacket.lint_run.targets.map(
-        (item: { target_id: string }) => item.target_id,
-      ),
-    ).toContain("target:report-packet-preview-json");
-    expect(
-      reportLintPacket.lint_run.targets.every(
-        (item: { privacy_classification: string }) =>
-          item.privacy_classification !== "private_project_data",
-      ),
-    ).toBe(true);
-    expect(exportPacket.run_audit.model_state_ref.ref).toBe(
-      "state:project:invented-loop-01:preview",
-    );
-    expect(exportPacket.run_audit.analysis_run_ref.ref).toBe(
-      "run:preview-linear-static-001",
-    );
-    expect(exportPacket.run_audit.run_kind).toBe("mechanics_solve");
-    expect(exportPacket.run_audit.analysis_status).toContain(
-      "HUMAN_REVIEW_REQUIRED",
-    );
-    expect(exportPacket.run_audit.analysis_status).toContain(
-      "MECHANICS_SOLVED",
-    );
-    expect(exportPacket.run_audit.analysis_status).toContain(
-      "RULE_INPUTS_INCOMPLETE",
-    );
-    expect(exportPacket.run_audit.result_row_count).toBe(830);
-    expect(exportPacket.run_audit.result_ref_count).toBe(830);
-    expect(exportPacket.run_audit.result_value_hash_count).toBe(830);
-    expect(exportPacket.run_audit.hash_scopes).toContain("analysis_run_record");
-    expect(exportPacket.run_audit.hash_scopes).toContain("result_envelope");
-    expect(exportPacket.run_audit.input_manifest_refs[0].ref).toBe(
-      "result-envelope:run:preview-linear-static-001",
-    );
-    expect(exportPacket.run_audit.unresolved_tbd).toContain(
-      "physical project container",
-    );
-    expect(exportPacket.run_audit.unresolved_tbd).toContain(
-      "release-grade solver build provenance",
-    );
-    expect(
-      exportPacket.run_audit.immutability_policy.run_record_is_read_only,
-    ).toBe(true);
-    expect(
-      exportPacket.run_audit.immutability_policy.new_run_required_for_change,
-    ).toBe(true);
-    expect(
-      exportPacket.run_audit.professional_boundary
-        .software_makes_compliance_claim,
-    ).toBe(false);
-    expect(
-      exportPacket.run_audit.professional_boundary
-        .software_makes_authentication_claim,
-    ).toBe(false);
-    expect(exportPacket.comparison_ref).toContain(
-      "comparison:run:preview-linear-static-001",
-    );
-    expect(exportPacket.comparison_summary.comparable_result_pairs).toBe(261);
-    expect(exportPacket.comparison_summary.unmatched_left_results).toBe(23);
-    expect(exportPacket.comparison_summary.unmatched_right_results).toBe(0);
-    expect(exportPacket.comparison_summary.tolerance_status).toBe(
-      "not_tolerance_checked",
-    );
-    expect(exportPacket.comparison_summary.tolerance_profile_ref).toBe("TBD");
-    expect(exportPacket.comparison_summary.release_or_professional_claim).toBe(
-      false,
-    );
-    expect(exportPacket.comparison_top_deltas[0].classification).toBe(
-      "not_tolerance_checked",
-    );
-    expect(
-      exportPacket.comparison_professional_boundary
-        .software_makes_compliance_claim,
-    ).toBe(false);
-    expect(exportPacket.data_boundary.private_data_policy).toBe(
-      "no_private_project_data",
-    );
-    expect(exportPacket.private_payload_included).toBe(false);
-    expect(exportPacket.protected_content_included).toBe(false);
-    expect(exportPacket.release_or_professional_claim).toBe(false);
-    expect(exportPacket.proposal_operation).toBeNull();
-    }
-
-    const solvedExternalProver = await screen.findByLabelText(
-      "External prover boundary metadata",
-    );
-    expect(
-      within(solvedExternalProver).getByTestId("external-prover-summary")
-        .textContent,
-    ).toContain("metadata=non_authoritative_workflow_metadata");
-    expect(
-      within(solvedExternalProver).getByTestId("external-prover-context-links")
-        .textContent,
-    ).toContain("state=1");
-    expect(
-      within(solvedExternalProver).getByTestId("external-prover-run-boundary")
-        .textContent,
-    ).toContain("commercial_results=false");
-    expect(
-      within(solvedExternalProver).getByTestId("external-prover-unit-policy")
-        .textContent,
-    ).toContain("N*m/rad,N/m");
-    expect(
-      within(solvedExternalProver).getByTestId("external-prover-unit-policy")
-        .textContent,
-    ).toContain(
-      "policy=record_units_for_external_reviewer_without_invoking_target_solver",
-    );
-    fireEvent.click(
-      within(solvedExternalProver).getByTestId(
-        "external-prover-export-link-local-private-intent",
-      ),
-    );
-    const solvedExternalHref =
-      within(solvedExternalProver)
-        .getByTestId("external-prover-export-link")
-        .getAttribute("href") ?? "";
-    const solvedExternalPacket = JSON.parse(
-      decodeURIComponent(solvedExternalHref.split(",", 2)[1]),
-    );
-    expect(solvedExternalPacket.tags).toContain("mechanics-context-bound");
-    expect(solvedExternalPacket.handoff_package_refs[0].ref.ref).toContain(
-      "run:preview-linear-static-001",
-    );
-    expect(solvedExternalPacket.immutable_model_state_refs[0].ref.ref).toBe(
-      "state:project:invented-loop-01:preview",
-    );
-    expect(
-      solvedExternalPacket.external_references[0].hash_refs[0].algorithm,
-    ).toBe("sha256");
-    expect(solvedExternalPacket.unit_policy_evidence.result_units).toEqual([
-      "MPa",
-      "N",
-      "N*m",
-      "N*m/rad",
-      "N/m",
-      "boolean",
-      "count",
-      "m",
-      "mm",
-      "mode_code",
-      "rad",
-      "state_code",
-    ]);
-    expect(solvedExternalPacket.unit_policy_evidence.conversion_performed).toBe(
-      false,
-    );
-    expect(solvedExternalPacket.unit_policy_evidence.analysis_run_ref.ref).toBe(
-      "run:preview-linear-static-001",
-    );
-    expect(
-      solvedExternalPacket.professional_boundary.external_tool_invoked,
-    ).toBe(false);
-    expect(
-      solvedExternalPacket.professional_boundary
-        .commercial_result_payload_ingested,
-    ).toBe(false);
-    expect(
-      solvedExternalPacket.professional_boundary
-        .software_creates_professional_reliance_record,
-    ).toBe(false);
-
-    const handoff = handoffPackage();
-    const handoffExportSummary = await within(handoff).findByTestId(
-      "handoff-export-summary",
-    );
-    expect(handoffExportSummary.textContent).toContain("26 entities");
-    expect(handoffExportSummary.textContent).toContain(`${allDiagnostics.length} diagnostics`);
-    expect(
-      within(handoff).getByTestId("handoff-target-profile").textContent,
-    ).toContain("native_open_json_preview");
-    expect(
-      within(handoff).getByTestId("handoff-stable-ids").textContent,
-    ).toContain("830 result refs");
-    expect(
-      within(handoff).getByTestId("handoff-loss-report").textContent,
-    ).toContain(
-      "target-specific commercial-solver field mapping is not generated",
-    );
-    expect(
-      within(handoff).getByTestId("handoff-boundary").textContent,
-    ).toContain("no private payload");
-    const handoffHref =
-      within(handoff).getByTestId("handoff-export-link").getAttribute("href") ??
-      "";
-    expect(handoffHref).toContain("data:application/json");
-    const handoffPacket = JSON.parse(
-      decodeURIComponent(handoffHref.split(",", 2)[1]),
-    );
-    expect(handoffPacket.document_kind).toBe("[REDACTED]");
-    expect(handoffPacket.export_scope).toBe("[REDACTED]");
-    expect(handoffPacket.deliverable_refs).toContain("[REDACTED]");
-    expect(handoffPacket.model_state_ref.ref).toBe("[REDACTED]");
-    expect(handoffPacket.stable_id_map.selected_result_refs).toContain(
-      "[REDACTED]",
-    );
-    /* The visible handoff panel above verifies the raw local review model.
-       The downstream download must not expose those private/unmetadataed
-       refs merely because payload/protected screening flags are false.
-    expect(handoffPacket.export_scope).toBe("local_browser_download_preview");
-    expect(handoffPacket.deliverable_refs).toContain("DEL-15-01");
-    expect(handoffPacket.deliverable_refs).toContain("DEL-17-03");
-    expect(handoffPacket.model_state_ref.ref).toBe(
-      "state:project:invented-loop-01:preview",
-    );
-    expect(handoffPacket.analysis_run_ref.ref).toBe(
-      "run:preview-linear-static-001",
-    );
-    expect(handoffPacket.units_manifest.length).toBe("m");
-    expect(within(handoff).getByTestId("handoff-units").textContent).toContain(
-      "source=angle=rad",
-    );
-    expect(within(handoff).getByTestId("handoff-units").textContent).toContain(
-      "length=m",
-    );
-    expect(within(handoff).getByTestId("handoff-units").textContent).toContain(
-      "results=MPa",
-    );
-    expect(within(handoff).getByTestId("handoff-units").textContent).toContain(
-      "conversion=false",
-    );
-    expect(
-      within(handoff).getByTestId("handoff-unit-witnesses").textContent,
-    ).toContain(`count=${receivedDimensionRows.length}`);
-    expect(
-      within(handoff).getByTestId("handoff-unit-witnesses").textContent,
-    ).toContain("conversion=false");
-    expect(handoffPacket.unit_system_disclosure.unit_system_ref.ref).toBe(
-      "unit-system:dec-018-si-dual-display",
-    );
-    expect(handoffPacket.unit_system_disclosure.model_units.length).toBe("m");
-    expect(handoffPacket.unit_system_disclosure.result_units).toContain("MPa");
-    expect(handoffPacket.unit_system_disclosure.result_units).toContain("mm");
-    expect(handoffPacket.unit_system_disclosure.conversion_performed).toBe(
-      false,
-    );
-    expect(
-      handoffPacket.unit_system_disclosure.protected_content_included,
-    ).toBe(false);
-    expect(handoffPacket.unit_witness_policy).toBe(
-      "preserve_source_result_value_unit_and_dimension_per_handoff_result_ref",
-    );
-    expect(handoffPacket.unit_preservation_witnesses).toHaveLength(receivedDimensionRows.length);
-    expect(handoffPacket.unit_preservation_witnesses.map((witness: { source_ref: { ref: string } }) => witness.source_ref.ref).sort())
-      .toEqual(receivedDimensionRows.map(row => row.id).sort());
-    expect(expectedSource.results.find(row => row.id === "result:stress:pipe-P-120:end-j:torsional-shear")?.dimension).toBeUndefined();
-    expect(handoffPacket.stable_id_map.entity_ref_count).toBe(26);
-    expect(handoffPacket.stable_id_map.entity_refs).toContain(
-      "material:invented-carbon-steel",
-    );
-    expect(handoffPacket.stable_id_map.result_ref_count).toBe(830);
-    expect(handoffPacket.stable_id_map.selected_result_refs).toContain(
-      "result:force:pipe-P-120:axial",
-    );
-    expect(handoffPacket.library_refs.private_library_payload_included).toBe(
-      false,
-    );
-    expect(handoffPacket.target_mapping.mapping_status).toBe(
-      "stable_ids_only_not_target_specific",
-    );
-    expect(handoffPacket.target_mapping.target_field_coverage).toBe(
-      "[REDACTED]",
-    );
-    expect(handoffPacket.run_audit_refs.hash_scopes).toContain(
-      "result_envelope",
-    );
-    expect(handoffPacket.comparison_ref).toContain(
-      "comparison:run:preview-linear-static-001",
-    );
-    expect(handoffPacket.comparison_summary.comparable_result_pairs).toBe(261);
-    expect(handoffPacket.diagnostic_refs).toContain(
-      "diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED",
-    );
-    expect(handoffPacket.unresolved_assumptions).toContain(
-      "target-specific field coverage TBD",
-    );
-    expect(handoffPacket.loss_report.unsupported_behavior_refs).toContain(
-      "professional validation and acceptance are not software-generated",
-    );
-    expect(handoffPacket.private_payload_included).toBe(false);
-    expect(handoffPacket.protected_content_included).toBe(false);
-    expect(handoffPacket.release_or_professional_claim).toBe(false);
-    expect(
-      handoffPacket.professional_boundary.software_makes_compliance_claim,
-    ).toBe(false);
-    */
-
-    // Slice B3: the Review changes tab belongs to the Model stage's strip; from the Results
-    // stage it is reached by the section command.
-    openWorkspaceSection("operations");
-    fireEvent.click(screen.getByTestId("operation-tab-details"));
-    fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
-    fireEvent.click(
-      screen.getByRole("button", { name: /Generate review proposal/i }),
-    );
-    const proposal = await screen.findByLabelText("Agentic proposal");
-    expect(
-      await within(proposal).findByText("proposal:physics-diagnostic-review"),
-    ).toBeInTheDocument();
-    expect(
-      within(proposal).getByTestId("selected-review-target").textContent,
-    ).toContain("result: result:stress:pipe-P-120:end-j:torsional-shear");
-    expect(
-      within(proposal).getAllByText(
-        /result:stress:pipe-P-120:end-j:torsional-shear/i,
-      ).length,
-    ).toBeGreaterThan(0);
-    expect(
-      within(proposal).getByText(
-        /review-only and does not mutate accepted model state/i,
-      ),
-    ).toBeInTheDocument();
-    expect(
-      within(proposal).getByTestId("proposal-operation-summary").textContent,
-    ).toContain("op:review-computed-diagnostic");
-    expect(
-      within(proposal).getByTestId("proposal-operation-summary").textContent,
-    ).toContain("attach_design_knowledge");
-    expect(
-      within(proposal).getByTestId("proposal-operation-summary").textContent,
-    ).toContain("draft_user_review_required");
-    expect(
-      within(proposal).getByTestId("proposal-affected-entities").textContent,
-    ).toContain("result:stress:pipe-P-120:end-j:torsional-shear");
-    expect(
-      within(proposal).getByTestId("proposal-validation-status").textContent,
-    ).toContain("warning_computed_context_requires_human_review");
-    expect(
-      within(proposal).getByTestId("proposal-validation-status").textContent,
-    ).toContain("generated_from_computed_context");
-    expect(
-      within(proposal).getByTestId("proposal-validation-status").textContent,
-    ).toContain("not_applied");
-    expect(
-      within(proposal).getByTestId("proposal-unit-policy").textContent,
-    ).toContain("not_required_metadata_review_only");
-    expect(
-      within(proposal).getByTestId("proposal-unit-policy").textContent,
-    ).toContain("Conversionfalse");
-    expect(
-      within(proposal).getByTestId("proposal-audit-boundary").textContent,
-    ).toContain("requires user acceptance");
-    expect(
-      within(proposal).getByTestId("proposal-audit-boundary").textContent,
-    ).toContain("true");
-    expect(
-      within(proposal).getByTestId("proposal-audit-boundary").textContent,
-    ).toContain("mutates accepted model state");
-    expect(
-      within(proposal).getByTestId("proposal-audit-boundary").textContent,
-    ).toContain("false");
-    expect(
-      within(proposal).getByTestId("proposal-professional-boundary")
-        .textContent,
-    ).toContain("human review required");
-    expect(
-      within(proposal).getByTestId("proposal-professional-boundary")
-        .textContent,
-    ).toContain("software makes approval claim");
-    expect(
-      within(proposal).getByTestId("proposal-professional-boundary")
-        .textContent,
-    ).toContain("false");
-    expect(
-      within(proposal).getByRole("button", { name: /Accept disabled/i }),
-    ).toBeDisabled();
-
-    expect(within(report).queryByTestId("report-packet-body")).toBeNull();
-    if (within(report).queryByTestId("report-packet-body")) {
-    expect(
-      await within(report).findByText("proposal:physics-diagnostic-review"),
-    ).toBeInTheDocument();
-    expect(
-      within(report).getByTestId("report-proposal-operation").textContent,
-    ).toContain("op:review-computed-diagnostic");
-    expect(
-      within(report).getByTestId("report-proposal-operation").textContent,
-    ).toContain("attach_design_knowledge");
-    expect(
-      within(report).getByTestId("report-proposal-operation").textContent,
-    ).toContain("draft_user_review_required");
-    expect(
-      within(report).getByTestId("report-proposal-operation").textContent,
-    ).toContain("not_applied");
-    expect(
-      within(report).getByTestId("report-proposal-boundary").textContent,
-    ).toContain("review-only; requires user acceptance");
-    expect(
-      within(report).getByTestId("report-proposal-boundary").textContent,
-    ).toContain("does not mutate accepted model state");
-    expect(
-      within(report).getByTestId("report-proposal-boundary").textContent,
-    ).not.toContain("responsible engineer");
-    }
-
-    const proposalExportHref =
-      within(report).getByTestId("report-export-link").getAttribute("href") ??
-      "";
-    const proposalExportPacket = JSON.parse(
-      decodeURIComponent(proposalExportHref.split(",", 2)[1]),
-    );
-    expect(proposalExportPacket.proposal_ref).toBe("[REDACTED]");
-    expect(proposalExportPacket.selected_review_target.id).toBe("[REDACTED]");
-    expect(proposalExportPacket.proposal_operation.operation_id).toBeUndefined();
-    expect(
-      proposalExportPacket.proposal_operation.affected_entity_ids,
-    ).toBeUndefined();
-    expect(JSON.stringify(proposalExportPacket.proposal_operation)).not.toContain(
-      "op:review-computed-diagnostic",
-    );
-    /* Proposal details remain visible in the local review UI above, but the
-       public-report download cannot inherit a public basis from false payload
-       screening flags.
-    expect(proposalExportPacket.selected_review_target).toEqual({
-      target_type: "result",
-      id: "result:stress:pipe-P-120:end-j:torsional-shear",
-    });
-    expect(proposalExportPacket.proposal_operation.operation_id).toBe(
-      "op:review-computed-diagnostic",
-    );
-    expect(proposalExportPacket.proposal_operation.operation_kind).toBe(
-      "attach_design_knowledge",
-    );
-    expect(proposalExportPacket.proposal_operation.operation_status).toBe(
-      "draft_user_review_required",
-    );
-    expect(
-      proposalExportPacket.proposal_operation.affected_entity_ids,
-    ).toContain("result:stress:pipe-P-120:end-j:torsional-shear");
-    expect(
-      proposalExportPacket.proposal_operation.validation.application_status,
-    ).toBe("not_applied");
-    expect(
-      proposalExportPacket.proposal_operation.validation.diff_preview_status,
-    ).toBe("generated_from_computed_context");
-    expect(
-      proposalExportPacket.proposal_operation.audit_boundary
-        .requires_user_acceptance,
-    ).toBe(true);
-    expect(
-      proposalExportPacket.proposal_operation.audit_boundary
-        .mutates_accepted_model_state,
-    ).toBe(false);
-    expect(
-      proposalExportPacket.proposal_operation.audit_boundary
-        .acceptance_recorded_as_review_only,
-    ).toBe(true);
-    expect(
-      proposalExportPacket.proposal_operation.professional_boundary
-        .human_review_required,
-    ).toBe(true);
-    expect(
-      proposalExportPacket.proposal_operation.professional_boundary
-        .software_makes_compliance_claim,
-    ).toBe(false);
-    expect(
-      proposalExportPacket.proposal_operation.professional_boundary
-        .software_makes_approval_claim,
-    ).toBe(false);
-    expect(
-      proposalExportPacket.persistence_evidence.storage_audit
-        .pending_operation_count,
-    ).toBe(1);
-    expect(
-      proposalExportPacket.persistence_evidence.storage_audit
-        .editor_intent_count,
-    ).toBe(0);
-    expect(
-      proposalExportPacket.persistence_evidence.storage_audit
-        .proposal_operation_count,
-    ).toBe(1);
-    */
-    expect(
-      screen.getByTestId("local-project-review-context").textContent,
-    ).toContain(
-      "1 pending operation; applied_operations=0; editor_intents=0; agent_proposals=1",
-    );
-
-    const proposalStorageAudit = await within(
-      openWorkspaceSection("project"),
-    ).findByLabelText("Project storage audit");
-    expect(
-      within(proposalStorageAudit).getByTestId("project-storage-summary")
-        .textContent,
-    ).toContain("pending operations=1");
-    expect(
-      within(proposalStorageAudit).getByTestId("project-storage-summary")
-        .textContent,
-    ).toContain("proposals=1");
-    fireEvent.click(
-      within(proposalStorageAudit).getByTestId(
-        "project-storage-export-link-local-private-intent",
-      ),
-    );
-    const proposalStorageHref =
-      within(proposalStorageAudit)
-        .getByTestId("project-storage-export-link")
-        .getAttribute("href") ?? "";
-    const proposalStoragePacket = JSON.parse(
-      decodeURIComponent(proposalStorageHref.split(",", 2)[1]),
-    );
-    expect(proposalStoragePacket.summary.pending_operation_count).toBe(1);
-    expect(proposalStoragePacket.summary.editor_intent_count).toBe(0);
-    expect(proposalStoragePacket.summary.proposal_operation_count).toBe(1);
-    expect(proposalStoragePacket.proposal_refs).toContain(
-      "proposal:physics-diagnostic-review",
-    );
-    expect(proposalStoragePacket.review_operation_statuses).toContain(
-      "not_applied",
-    );
-
-    const proposalProjectValidation = await screen.findByLabelText(
-      "Project validation preflight",
-    );
-    expect(
-      within(proposalProjectValidation).getByTestId(
-        "project-validation-operations",
-      ).textContent,
-    ).toContain("pending operations=1");
-    expect(
-      within(proposalProjectValidation).getByTestId(
-        "project-validation-operations",
-      ).textContent,
-    ).toContain("proposals=1");
-    fireEvent.click(
-      within(proposalProjectValidation).getByTestId(
-        "project-validation-export-link-local-private-intent",
-      ),
-    );
-    const proposalValidationHref =
-      within(proposalProjectValidation)
-        .getByTestId("project-validation-export-link")
-        .getAttribute("href") ?? "";
-    const proposalValidationPacket = JSON.parse(
-      decodeURIComponent(proposalValidationHref.split(",", 2)[1]),
-    );
-    expect(proposalValidationPacket.summary.pending_operation_count).toBe(1);
-    expect(proposalValidationPacket.summary.editor_intent_count).toBe(0);
-    expect(proposalValidationPacket.summary.proposal_operation_count).toBe(1);
-    expect(proposalValidationPacket.proposal_refs).toContain(
-      "proposal:physics-diagnostic-review",
-    );
-    expect(proposalValidationPacket.review_operation_statuses).toContain(
-      "not_applied",
-    );
-
-    const operationLedger = await screen.findByLabelText(
-      "Operation review ledger",
-    );
-    expect(
-      await within(operationLedger).findByTestId(
-        "operation-ledger-export-summary",
-      ),
-    ).toHaveTextContent("1 review record");
-    expect(
-      within(operationLedger).getByTestId("operation-ledger-decision-counts")
-        .textContent,
-    ).toContain("1 held_for_user_acceptance");
-    expect(
-      within(operationLedger).getByTestId("operation-ledger-latest")
-        .textContent,
-    ).toContain("op:review-computed-diagnostic");
-    expect(
-      within(operationLedger).getByTestId("operation-ledger-boundary")
-        .textContent,
-    ).toContain("requires explicit user acceptance");
-    expect(
-      within(operationLedger).getByTestId("operation-ledger-unit-policy")
-        .textContent,
-    ).toContain("records=1");
-    expect(
-      within(operationLedger).getByTestId("operation-ledger-unit-policy")
-        .textContent,
-    ).toContain("unit_bearing_changes=0");
-    expect(
-      within(operationLedger).getByTestId("operation-ledger-unit-policy")
-        .textContent,
-    ).toContain("unit_validations=not_required_metadata_review_only");
-    expect(
-      within(operationLedger).getByTestId(
-        "operation-ledger-record-op-review-computed-diagnostic",
-      ).textContent,
-    ).toContain("result:stress:pipe-P-120:end-j:torsional-shear");
-    fireEvent.click(
-      within(operationLedger).getByTestId(
-        "operation-ledger-export-link-local-private-intent",
-      ),
-    );
-    const ledgerHref =
-      within(operationLedger)
-        .getByTestId("operation-ledger-export-link")
-        .getAttribute("href") ?? "";
-    const ledgerPacket = JSON.parse(
-      decodeURIComponent(ledgerHref.split(",", 2)[1]),
-    );
-    expect(ledgerPacket.document_kind).toBe(
-      "openpipestress.technical_preview.operation_review_ledger",
-    );
-    expect(ledgerPacket.export_scope).toBe("local_browser_download_preview");
-    expect(ledgerPacket.deliverable_refs).toContain("DEL-16-04");
-    expect(ledgerPacket.decision_counts.held_for_user_acceptance).toBe(1);
-    expect(ledgerPacket.unit_policy_evidence.unit_bearing_change_count).toBe(0);
-    expect(ledgerPacket.unit_policy_evidence.dimensionless_change_count).toBe(
-      1,
-    );
-    expect(ledgerPacket.unit_policy_evidence.unit_validation_statuses).toEqual([
-      "not_required_metadata_review_only",
-    ]);
-    expect(ledgerPacket.unit_policy_evidence.conversion_performed).toBe(false);
-    expect(ledgerPacket.records[0].record_source).toBe("agent_proposal");
-    expect(ledgerPacket.records[0].proposal_ref).toBe(
-      "proposal:physics-diagnostic-review",
-    );
-    expect(ledgerPacket.records[0].decision.status).toBe(
-      "held_for_user_acceptance",
-    );
-    expect(ledgerPacket.records[0].actor.actor_type).toBe("agent");
-    expect(ledgerPacket.records[0].affected_entities[0].ref).toBe(
-      "result:stress:pipe-P-120:end-j:torsional-shear",
-    );
-    expect(ledgerPacket.records[0].validation_outcome.diff_preview_status).toBe(
-      "generated_from_computed_context",
-    );
-    expect(ledgerPacket.records[0].validation_outcome.application_status).toBe(
-      "not_applied",
-    );
-    expect(
-      ledgerPacket.records[0].professional_boundary
-        .software_makes_compliance_claim,
-    ).toBe(false);
-    expect(ledgerPacket.selected_review_target).toEqual({
-      target_type: "result",
-      id: "result:stress:pipe-P-120:end-j:torsional-shear",
-    });
-    expect(ledgerPacket.accepted_model_state_unchanged).toBe(true);
-    expect(ledgerPacket.release_or_professional_claim).toBe(false);
-
-    const nativePackageAfterProposal = await within(
-      openWorkspaceSection("exports"),
-    ).findByLabelText("Native JSON package");
-    expect(
-      within(nativePackageAfterProposal).getByTestId("native-package-summary")
-        .textContent,
-    ).toContain("operations=1");
-    expect(
-      within(nativePackageAfterProposal).getByTestId(
-        "native-package-stable-ids",
-      ).textContent,
-    ).toContain("operations=1");
-    const nativePackageAfterProposalHref =
-      within(nativePackageAfterProposal)
-        .getByTestId("native-package-link")
-        .getAttribute("href") ?? "";
-    const nativePackageAfterProposalPacket = JSON.parse(
-      decodeURIComponent(nativePackageAfterProposalHref.split(",", 2)[1]),
-    );
-    expect(nativePackageAfterProposalPacket.document_kind).toBe("[REDACTED]");
-    expect(
-      nativePackageAfterProposalPacket.stable_id_map.operation_refs,
-    ).toContain("[REDACTED]");
-    expect(
-      nativePackageAfterProposalPacket.stable_id_map.proposal_refs,
-    ).toContain("[REDACTED]");
-    /* The visible native-package summary above proves the local review state;
-       its downstream export must not reveal proposal/operation references.
-    expect(
-      nativePackageAfterProposalPacket.stable_id_map.operation_ref_count,
-    ).toBe(1);
-    expect(
-      nativePackageAfterProposalPacket.stable_id_map.operation_refs,
-    ).toContain("op:review-computed-diagnostic");
-    expect(
-      nativePackageAfterProposalPacket.stable_id_map.proposal_refs,
-    ).toContain("proposal:physics-diagnostic-review");
-    expect(nativePackageAfterProposalPacket.operation_review.record_count).toBe(
-      1,
-    );
-    expect(
-      nativePackageAfterProposalPacket.operation_review.editor_intent_count,
-    ).toBe(0);
-    expect(
-      nativePackageAfterProposalPacket.operation_review.proposal_count,
-    ).toBe(1);
-    expect(
-      nativePackageAfterProposalPacket.operation_review
-        .held_for_user_acceptance_count,
-    ).toBe(1);
-    expect(
-      nativePackageAfterProposalPacket.operation_review.accepted_count,
-    ).toBe(0);
-    expect(
-      nativePackageAfterProposalPacket.operation_review.rejected_count,
-    ).toBe(0);
-    expect(
-      nativePackageAfterProposalPacket.operation_review.operation_refs,
-    ).toContain("op:review-computed-diagnostic");
-    expect(
-      nativePackageAfterProposalPacket.operation_review.proposal_refs,
-    ).toContain("proposal:physics-diagnostic-review");
-    expect(
-      nativePackageAfterProposalPacket.operation_review.selected_review_target,
-    ).toEqual({
-      target_type: "result",
-      id: "result:stress:pipe-P-120:end-j:torsional-shear",
-    });
-    expect(
-      nativePackageAfterProposalPacket.operation_review
-        .accepted_model_state_mutated,
-    ).toBe(false);
-    expect(
-      nativePackageAfterProposalPacket.operation_review
-        .operation_application_status,
-    ).toBe("not_applied");
-    expect(
-      nativePackageAfterProposalPacket.operation_review.audit_boundary
-        .requires_user_acceptance,
-    ).toBe(true);
-    expect(
-      nativePackageAfterProposalPacket.operation_review.audit_boundary
-        .preview_records_do_not_apply_operations,
-    ).toBe(true);
-    expect(
-      nativePackageAfterProposalPacket.operation_review.audit_boundary
-        .direct_model_mutation_allowed,
-    ).toBe(false);
-    expect(nativePackageAfterProposalPacket.validation_report.checks).toContain(
-      "review-only operation refs declared when present",
-    );
-    expect(nativePackageAfterProposalPacket.release_or_professional_claim).toBe(
-      false,
-    );
-    expect(
-      nativePackageAfterProposalPacket.professional_boundary
-        .software_makes_approval_claim,
-    ).toBe(false);
-    */
-
-    const diffPreview = operationDiffPreview();
-    expect(
-      await within(diffPreview).findByTestId("diff-preview-summary"),
-    ).toHaveTextContent("1 operations");
-    expect(
-      within(diffPreview).getByTestId("diff-preview-summary").textContent,
-    ).toContain("1 diff rows");
-    expect(
-      within(diffPreview).getByTestId("diff-preview-summary").textContent,
-    ).toContain("accepted_state_mutated=false");
-    expect(
-      within(diffPreview).getByTestId("diff-preview-validation").textContent,
-    ).toContain("0 hash-bound rows");
-    expect(
-      within(diffPreview).getByTestId("diff-preview-boundary").textContent,
-    ).toContain("protected content=false");
-    expect(
-      within(diffPreview).getByTestId("diff-preview-boundary").textContent,
-    ).not.toContain("responsible engineer");
-    const proposalDiffRecord = within(diffPreview).getByTestId(
-      "diff-preview-record-op-review-computed-diagnostic",
-    );
-    expect(proposalDiffRecord.textContent).toContain("agent_proposal");
-    expect(proposalDiffRecord.textContent).toContain(
-      "generated_from_computed_context",
-    );
-    expect(proposalDiffRecord.textContent).toContain(
-      "result:stress:pipe-P-120:end-j:torsional-shear",
-    );
-    fireEvent.click(
-      within(diffPreview).getByTestId(
-        "diff-preview-export-link-local-private-intent",
-      ),
-    );
-    const diffHref =
-      within(diffPreview)
-        .getByTestId("diff-preview-export-link")
-        .getAttribute("href") ?? "";
-    const diffPacket = JSON.parse(
-      decodeURIComponent(diffHref.split(",", 2)[1]),
-    );
-    expect(diffPacket.document_kind).toBe(
-      "openpipestress.technical_preview.operation_diff_preview",
-    );
-    expect(diffPacket.deliverable_refs).toContain("DEL-16-02");
-    expect(diffPacket.scope_items).toContain("SOW-069");
-    expect(diffPacket.summary.operation_count).toBe(1);
-    expect(diffPacket.summary.diff_row_count).toBe(1);
-    expect(diffPacket.summary.held_for_user_acceptance_count).toBe(1);
-    expect(diffPacket.summary.accepted_model_state_mutated).toBe(false);
-    expect(diffPacket.previews[0].record_source).toBe("agent_proposal");
-    expect(diffPacket.previews[0].operation_id).toBe(
-      "op:review-computed-diagnostic",
-    );
-    expect(diffPacket.previews[0].diff_preview_status).toBe(
-      "generated_from_computed_context",
-    );
-    expect(diffPacket.previews[0].application_status).toBe("not_applied");
-    expect(diffPacket.previews[0].accepted_model_state_mutated).toBe(false);
-    expect(diffPacket.previews[0].changes[0].target_ref).toBe(
-      "result:stress:pipe-P-120:end-j:torsional-shear",
-    );
-    expect(diffPacket.private_payload_included).toBe(false);
-    expect(diffPacket.protected_content_included).toBe(false);
-    expect(diffPacket.release_or_professional_claim).toBe(false);
-
-    const proposalExportReview = exportSafetyReview();
-    fireEvent.click(
-      within(proposalExportReview).getByTestId(
-        "export-review-link-local-private-intent",
-      ),
-    );
-    const proposalReviewHref =
-      within(proposalExportReview)
-        .getByTestId("export-review-link")
-        .getAttribute("href") ?? "";
-    const proposalReviewManifest = JSON.parse(
-      decodeURIComponent(proposalReviewHref.split(",", 2)[1]),
-    );
-    expect(proposalReviewManifest.summary.export_count).toBe(29);
-    expect(proposalReviewManifest.summary.available_count).toBe(29);
-    expect(proposalReviewManifest.summary.operation_record_count).toBe(1);
-    expect(
-      proposalReviewManifest.unit_policy_summary.summary
-        .unit_evidence_required_count,
-    ).toBe(27);
-    expect(
-      proposalReviewManifest.unit_policy_summary.summary
-        .unit_evidence_present_count,
-    ).toBe(27);
-    const proposalReviewExport = proposalReviewManifest.exports.find(
-      (item: { export_id: string }) =>
-        item.export_id === "agent_proposal_review",
-    );
-    expect(proposalReviewExport.readiness).toBe("available");
-    expect(proposalReviewExport.proposal_ref).toBe(
-      "proposal:physics-diagnostic-review",
-    );
-    expect(proposalReviewExport.unit_validation_status).toBe(
-      "not_required_metadata_review_only",
-    );
-    expect(proposalReviewExport.accepted_model_state_mutated).toBe(false);
-    expect(
-      proposalReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_storage_audit",
-      ).pending_operation_count,
-    ).toBe(1);
-    expect(
-      proposalReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_storage_audit",
-      ).proposal_operation_count,
-    ).toBe(1);
-    expect(
-      proposalReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_validation_preflight",
-      ).pending_operation_count,
-    ).toBe(1);
-    expect(
-      proposalReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_validation_preflight",
-      ).proposal_operation_count,
-    ).toBe(1);
-
-    fireEvent.click(
-      within(operationLedger).getByTestId("clear-operation-review-queue"),
-    );
-
-    expect(
-      screen.getByTestId("local-project-review-context").textContent,
-    ).toContain(
-      "0 pending operations; applied_operations=0; editor_intents=0; agent_proposals=0",
-    );
-    expect(
-      within(proposal).queryByTestId("proposal-body"),
-    ).not.toBeInTheDocument();
-    expect(
-      await within(operationLedger).findByTestId("operation-ledger-empty"),
-    ).toHaveTextContent("No structured operations are queued");
-    expect(
-      await within(diffPreview).findByTestId("diff-preview-empty"),
-    ).toHaveTextContent("No operation diffs");
-    expect(
-      within(report).queryByTestId("report-proposal-operation"),
-    ).not.toBeInTheDocument();
-    expect(
-      within(report).queryByTestId("report-proposal-boundary"),
-    ).not.toBeInTheDocument();
-
-    const clearedReportHref =
-      within(report).getByTestId("report-export-link").getAttribute("href") ??
-      "";
-    const clearedReportPacket = JSON.parse(
-      decodeURIComponent(clearedReportHref.split(",", 2)[1]),
-    );
-    expect(clearedReportPacket.proposal_ref).toBe("[REDACTED]");
-    expect(clearedReportPacket.proposal_operation).toBe("[REDACTED]");
-    expect(clearedReportPacket.selected_review_target.id).toBe("[REDACTED]");
-
-    const nativePackageAfterClearHref =
-      within(nativePackageAfterProposal)
-        .getByTestId("native-package-link")
-        .getAttribute("href") ?? "";
-    const nativePackageAfterClearPacket = JSON.parse(
-      decodeURIComponent(nativePackageAfterClearHref.split(",", 2)[1]),
-    );
-    expect(nativePackageAfterClearPacket.document_kind).toBe("[REDACTED]");
-    expect(nativePackageAfterClearPacket.stable_id_map.operation_refs).toEqual(
-      [],
-    );
-    expect(nativePackageAfterClearPacket.stable_id_map.proposal_refs).toEqual(
-      [],
-    );
-    /* Counts are private-path projected in the downstream packet; the empty
-       arrays above are the non-exposure assertion for cleared local state.
-    expect(
-      nativePackageAfterClearPacket.stable_id_map.operation_ref_count,
-    ).toBe(0);
-    expect(nativePackageAfterClearPacket.stable_id_map.operation_refs).toEqual(
-      [],
-    );
-    expect(nativePackageAfterClearPacket.stable_id_map.proposal_refs).toEqual(
-      [],
-    );
-    expect(nativePackageAfterClearPacket.operation_review.record_count).toBe(0);
-    expect(nativePackageAfterClearPacket.operation_review.proposal_count).toBe(
-      0,
-    );
-    expect(
-      nativePackageAfterClearPacket.operation_review
-        .held_for_user_acceptance_count,
-    ).toBe(0);
-    */
-
-    const clearedProjectSection = openWorkspaceSection("project");
-    const clearedStorageAudit = within(clearedProjectSection).getByLabelText(
-      "Project storage audit",
-    );
-    const clearedProjectValidation = within(
-      clearedProjectSection,
-    ).getByLabelText("Project validation preflight");
-    const clearedStorageHref =
-      within(clearedStorageAudit)
-        .getByTestId("project-storage-export-link")
-        .getAttribute("href") ?? "";
-    const clearedStoragePacket = JSON.parse(
-      decodeURIComponent(clearedStorageHref.split(",", 2)[1]),
-    );
-    expect(clearedStoragePacket.summary.pending_operation_count).toBe(0);
-    expect(clearedStoragePacket.summary.proposal_operation_count).toBe(0);
-    expect(clearedStoragePacket.proposal_refs).toEqual([]);
-
-    const clearedValidationHref =
-      within(clearedProjectValidation)
-        .getByTestId("project-validation-export-link")
-        .getAttribute("href") ?? "";
-    const clearedValidationPacket = JSON.parse(
-      decodeURIComponent(clearedValidationHref.split(",", 2)[1]),
-    );
-    expect(clearedValidationPacket.summary.pending_operation_count).toBe(0);
-    expect(clearedValidationPacket.summary.proposal_operation_count).toBe(0);
-    expect(clearedValidationPacket.proposal_refs).toEqual([]);
-
-    const exportReviewAfterClear = exportSafetyReview();
-    const clearedReviewHref =
-      within(exportReviewAfterClear)
-        .getByTestId("export-review-link")
-        .getAttribute("href") ?? "";
-    const clearedReviewManifest = JSON.parse(
-      decodeURIComponent(clearedReviewHref.split(",", 2)[1]),
-    );
-    expect(clearedReviewManifest.summary.operation_record_count).toBe(0);
-    expect(
-      clearedReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "operation_review_ledger",
-      ).readiness,
-    ).toBe("empty_operation_queue");
-    expect(JSON.stringify({ model: expectedModel, result: expectedSource })).toBe(originalSource);
-    // Heavy full-<App/> Three.js render: inherit the 30s global testTimeout
-    // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
+    expect(screen.getByTestId("report-redaction-blocked")).toHaveTextContent("Raw report DOM suppressed by redaction controls");
+    const native = buildNativePackageReview({ ...basis, editorIntents: [], modelHash: await computeModelHash(model), projectSummary: null, proposal: null, selectedReviewTarget: null, storageCapability: null });
+    expect(native.manifest.package_members).toHaveLength(10);
+    expect(native.validation_report.model_hash_status).toBe("computed_local_preview_sha256");
+    expect(native.validation_report.release_or_professional_claim).toBe(false);
+    expect(native.stable_id_map.entity_refs).toHaveLength(26);
+    expect(native.stable_id_map.result_refs).toHaveLength(830);
+    expect(native.unit_preservation.project_unit_declarations).toHaveLength(6);
+    expect(native.unit_preservation.summary.model_quantity_witness_count).toBe(50);
+    expect(native.unit_preservation.summary.result_quantity_witness_count).toBe(832);
+    const local = buildLocalFeaHandoffPacket(basis);
+    expect(local.handoff_package.local_region.geometry_refs).toHaveLength(2);
+    expect(local.handoff_package.transfer_basis.load_case_refs).toHaveLength(3);
+    expect(local.handoff_package.unit_preservation_witnesses).toHaveLength(3);
+    const handoff = buildHandoffPackage({ ...basis, knowledge, comparison, editorIntents: [], proposal: null, selectedReviewTarget: null });
+    expect(handoff.stable_id_map.entity_ref_count).toBe(26);
+    expect(handoff.stable_id_map.result_ref_count).toBe(830);
+    const retainedComparison = handoff.comparison_summary;
+    expect(retainedComparison).not.toBeNull();
+    if (retainedComparison === null) throw new Error("The preserved reference comparison summary must be present");
+    expect(retainedComparison.comparable_result_pairs).toBe(261);
+    expect(handoff.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(handoff.unit_preservation_witnesses).toHaveLength(result.results.filter(row => typeof row.dimension === "string").length);
+    // A reference may carry830 result refs and2 checksums without creating a
+    // completed browser job. The old completed-job claim is intentionally absent.
+    const runner = buildHeadlessRunnerPacket({ ...basis, solveJob: initialSolveJob() });
+    expect(runner.result.result_refs).toHaveLength(830);
+    expect(runner.result.checksums).toHaveLength(2);
+    expect(runner.result.run_id).toBe("run:preview-linear-static-001");
+    expect(runner.result.result_envelope_ref.envelope_ref.ref_id).toBe("result-envelope:run:preview-linear-static-001");
+    expect(runner.result.job.state).toBe("TBD");
+    expect(runner.result.job.progress.current_step).toBe(0);
+    render(<RunAuditPanel model={model} result={result} analysisRun={analysisRun} />);
+    expect(screen.getByTestId("run-audit-hashes")).toHaveTextContent("830 result rows; 830 result value hashes");
+    expect(screen.getByTestId("run-audit-units")).toHaveTextContent("rows=830");
+    expect(JSON.stringify(basis)).toBe(before);
   });
 
-  it("links selected diagnostics to affected result and model context", async () => {
+  it("reads recorded knowledge quantities from reference results without invoking a solver", async () => {
+    const reference = await loadBundledMechanicsReference(), knowledge = await loadDesignKnowledge();
+    render(<KnowledgePanel knowledge={knowledge} result={reference.source} />);
+    const panel = screen.getByLabelText("Design knowledge");
+    expect(within(panel).getByTestId("knowledge-unit-context")).toHaveTextContent("computed_unit_refs=2");
+    expect(within(panel).getByTestId("knowledge-unit-context")).toHaveTextContent("units=N,mm");
+    expect(within(panel).getByTestId("knowledge-unit-context")).toHaveTextContent("conversion=false");
+    expect(within(panel).getByText(/Computed displacement review/i)).toBeInTheDocument();
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("qualifies only a matching captured native unit replay and retires it on reference inspection", async () => {
+    const pair = await installPrecisionReplay();
+    render(<App />);
+    fireEvent.click(await runMechanicsButton());
+    await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
+    expect(screen.getByTestId("status-pill-solve-proof")).toHaveTextContent("seam=tauri_backend_job");
+    expect(screen.getByTestId("status-pill-solve-proof")).toHaveTextContent(`project=${pair.model.project.id}`);
+    expect(renderedReportButton()).toBeEnabled();
+    const exportPanel = resultExportAudit();
+    await within(exportPanel).findByTestId("result-export-summary");
+    expect(within(exportPanel).getByTestId("result-export-link")).not.toHaveAttribute("href");
+    // Native runtime renders a save button. Inspect the real screened request
+    // sent to the mocked save seam, not a nonexistent browser download href.
+    const saveRequests: NativeResultSaveRequest[] = [];
+    invokeMock.mockImplementation((command: string, args?: unknown) => {
+      if (command === "save_local_result_json") {
+        const request = (args as { request: NativeResultSaveRequest }).request;
+        saveRequests.push(structuredClone(request));
+        return Promise.resolve({ outcome: "saved", file_name: request.file_name, byte_count: new TextEncoder().encode(decodeURIComponent(request.href.split(",", 2)[1])).length, replaced_existing: false, durability: "not_guaranteed", path_containment: "best_effort_non_adversarial" });
+      }
+      return pair.replay.invoke(command, args);
+    });
+    fireEvent.click(within(exportPanel).getByTestId("result-export-link-local-private-intent"));
+    const saveButton = within(exportPanel).getByTestId("result-export-link");
+    expect(saveButton.tagName).toBe("BUTTON");
+    fireEvent.click(saveButton);
+    await waitFor(() => expect(saveRequests).toHaveLength(1));
+    expect(saveRequests[0].screening).toMatchObject({ route_id: "DOTH-JSON-001", explicit_local_private_intent: true, blocked: false, exact_payload_match: true });
+    const packet = JSON.parse(decodeURIComponent(saveRequests[0].href.split(",", 2)[1]));
+    expect(packet.schema_version).toBe("0.3.0");
+    expect(packet.result_envelope.row_accounting).toHaveLength(pair.source.results.length);
+    expect(packet.result_envelope.producer).toEqual(pair.source.producer);
+    await inspectBundledReference();
+    expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
+    expect(renderedReportButton()).toBeDisabled();
+    expect(within(resultExportAudit()).getByTestId("result-export-empty")).toBeInTheDocument();
+  });
+
+  it("links reference diagnostics to preserved model and review-only proposal context", async () => {
     const model = await loadPreviewModel();
-    const source = await runPreviewMechanics(model);
+    const source = await referenceMechanicsSource();
     const knowledge = await loadDesignKnowledge();
     const expectedDiagnostics = [...model.diagnostics, ...knowledge.diagnostics, ...source.diagnostics];
     expect(source.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED")).toHaveLength(model.load_cases.length);
-    render(<App />);
-
-    fireEvent.click(await runMechanicsButton());
-    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
+    const selected = vi.fn();
+    const view = render(<DiagnosticsPanel model={model} knowledge={knowledge} result={source} selectedDiagnosticId={null} onSelectDiagnostic={selected} />);
     expect(
       (
         await screen.findAllByTestId(
@@ -13659,6 +11056,9 @@ describe("SWBPIPE desktop preview", () => {
       ),
     );
 
+    const selectedId = "diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED";
+    expect(selected).toHaveBeenCalledWith(selectedId);
+    view.rerender(<DiagnosticsPanel model={model} knowledge={knowledge} result={source} selectedDiagnosticId={selectedId} onSelectDiagnostic={selected} />);
     const diagnosticDetail = within(diagnostics).getByTestId(
       "diagnostic-detail-panel",
     );
@@ -13696,9 +11096,8 @@ describe("SWBPIPE desktop preview", () => {
       within(diagnosticDetail).getByTestId("selected-diagnostic-explanation")
         .textContent,
     ).toContain("stress summary rows are not linearly combined");
-    expect(
-      await screen.findByRole("heading", { name: /Tie-in rise/ }),
-    ).toBeInTheDocument();
+    expect(source.results.find(row => row.id === "result:stress:pipe-P-130")?.entity_ref).toBe("pipe:P-130");
+    expect(model.pipe_segments.find(pipe => pipe.id === "pipe:P-130")?.label).toBe("Tie-in rise");
 
     fireEvent.click(within(diagnostics).getByTestId("clear-diagnostic-filter"));
     expect(
@@ -13708,12 +11107,11 @@ describe("SWBPIPE desktop preview", () => {
       within(diagnostics).getByTestId("diagnostic-RULE_CHECK_NOT_PERFORMED"),
     ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId("workspace-review"));
-    fireEvent.click(screen.getByTestId("operation-tab-details"));
-    fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
-    fireEvent.click(
-      screen.getByRole("button", { name: /Generate review proposal/i }),
-    );
+    const target = { target_type: "diagnostic" as const, id: selectedId };
+    const preservedProposal = await loadSampleProposal(source, target);
+    view.unmount();
+    render(<AgentProposalPanel proposal={preservedProposal} mechanicsReady={false} selectedReviewTarget={target} onLoad={vi.fn()} />);
+    expect(screen.getByRole("button", { name: /Generate review proposal/i })).toBeDisabled();
     const proposal = await screen.findByLabelText("Agentic proposal");
     expect(
       await within(proposal).findByText("proposal:physics-diagnostic-review"),
@@ -13748,7 +11146,8 @@ describe("SWBPIPE desktop preview", () => {
       within(proposal).getByRole("button", { name: /Accept disabled/i }),
     ).toBeDisabled();
 
-    const report = reportPanel();
+    const reportView = render(<ReportPanel model={model} knowledge={knowledge} result={source} analysisRun={null} comparison={null} editorIntents={[]} projectOperation="reference_inspection" projectSummary={null} proposal={preservedProposal} selectedReviewTarget={target} storageCapability={null} />);
+    const report = within(reportView.container).getByLabelText("Report packet");
     expect(within(report).getByTestId("report-redaction-blocked")).toHaveTextContent(
       "Raw report DOM suppressed by redaction controls",
     );
@@ -13867,6 +11266,7 @@ describe("SWBPIPE desktop preview", () => {
     const editedSolvePacket = JSON.parse(decodeURIComponent(editedSolveHref.split(",", 2)[1]));
     expect(editedSolvePacket.summary.result_row_count).toBe(0);
     expect(editedSolvePacket.error_message).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+    expect(screen.getByTestId("solve-job-error")).toHaveTextContent("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
     expect(editedSolvePacket.error_message).not.toContain("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED");
     expect(editedSolvePacket.analysis_run_ref).toBeNull();
     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
@@ -16685,23 +14085,20 @@ describe("Tier3 adversarial batch publication", () => {
 });
 
 describe("Tier3 display in the actual application", () => {
-  it("passes the current result to comparison readouts and preserves the source result rows", async () => {
-    render(<App />);
-    await screen.findByTestId("desktop-preview-shell");
-    fireEvent.click(await runMechanicsButton());
-    await waitFor(
-      () => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"),
-      { timeout: 10000 },
-    );
-    const comparison = comparisonWorkspace();
-    await waitFor(() => expect(within(comparison).queryByTestId("comparison-delta-table")).not.toBeNull());
-    const deltas = within(comparison).getByTestId("comparison-delta-table");
+  it("preserves reference comparison rows through display-unit changes without a Current claim", async () => {
+    const { result, analysisRun } = await referenceAnalysis();
+    const before = JSON.stringify(result), comparison = buildPreviewComparison({ result, analysisRun });
+    expect(comparison.summary.comparable_result_pairs).toBe(261);
+    expect(comparison.summary.unmatched_left_results).toBe(23);
+    render(<DisplayUnitsProvider><DisplayUnitSelector /><ComparisonPanel comparison={comparison} result={result} onSelectResult={vi.fn()} /></DisplayUnitsProvider>);
+    const deltas = screen.getByTestId("comparison-delta-table");
     const entered = deltas.textContent;
     fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "US" } });
     await waitFor(() => expect(deltas.querySelector('[data-display-status="converted"]')).not.toBeNull());
     expect(deltas.textContent).not.toBe(entered);
     fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "entered" } });
     expect(deltas.textContent).toBe(entered);
+    expect(JSON.stringify(result)).toBe(before);
   });
 });
 
@@ -17086,6 +14483,7 @@ describe("workflow current and historical result boundaries", () => {
     expect(href).toMatch(/^data:/);
     const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
     expect(packet.error_message).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+    expect(screen.getByTestId("solve-job-error")).toHaveTextContent("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
     expect(packet.error_message).not.toContain("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED");
     expect(packet.analysis_run_ref).toBeNull();
   });
@@ -17163,7 +14561,7 @@ describe("workflow current and historical result boundaries", () => {
   });
 
   it("rejects a delayed rule-check aggregate from a replaced same-ID session basis", async () => {
-    const model = await loadPreviewModel();
+    const { model, replay } = await installPrecisionReplay();
     const replacement = inventedOpenEnvelope(model);
     replacement.model = structuredClone(model);
     replacement.summary.project_id = model.project.id;
@@ -17185,7 +14583,7 @@ describe("workflow current and historical result boundaries", () => {
         serializedReportRequest = args?.request ?? null;
         return Promise.resolve(reportPackageSaveReceipt("fresh-replacement-rule-basis"));
       }
-      return Promise.reject(new Error(`Unexpected command ${command}`));
+      return replay.invoke(command, args);
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     const solve = openWorkspaceSection("solve");
@@ -17202,7 +14600,7 @@ describe("workflow current and historical result boundaries", () => {
         replacement.summary.message,
       ),
     );
-    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    // Stay on the explicit native replay for the fresh replacement solve.
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
     expect(renderedReportButton()).toBeEnabled();
@@ -17248,7 +14646,7 @@ describe("workflow current and historical result boundaries", () => {
   });
 
   it("does not start an obsolete report-package save or publish stale build state", async () => {
-    const model = await loadPreviewModel();
+    const { model, replay } = await installPrecisionReplay();
     const replacement = inventedOpenEnvelope(model);
     replacement.model = structuredClone(model);
     replacement.summary.project_id = model.project.id;
@@ -17286,10 +14684,10 @@ describe("workflow current and historical result boundaries", () => {
       });
       const report = openWorkspaceSection("report");
       fireEvent.click(within(report).getByTestId("report-package-private-intent"));
-      invokeMock.mockImplementation((command: string) => {
+      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
         if (command === "save_report_package") return Promise.reject(new Error("Obsolete save must not start"));
-        return Promise.reject(new Error(`Unexpected command ${command}`));
+        return replay.invoke(command, args);
       });
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
       act(() => nativeMenuCommand("file.save-report-package"));
@@ -17327,7 +14725,7 @@ describe("workflow current and historical result boundaries", () => {
   it.each(["success", "error"] as const)(
     "keeps a newer report-package save busy and rejects stale %s completion state",
     async (staleOutcome) => {
-      const model = await loadPreviewModel();
+      const { model, replay } = await installPrecisionReplay();
       const replacement = inventedOpenEnvelope(model);
       replacement.model = structuredClone(model);
       replacement.summary.project_id = model.project.id;
@@ -17336,13 +14734,13 @@ describe("workflow current and historical result boundaries", () => {
       const staleSave = deferred<unknown>();
       const currentSave = deferred<unknown>();
       let saveCalls = 0;
-      invokeMock.mockImplementation((command: string) => {
+      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
         if (command === "save_report_package") {
           saveCalls += 1;
           return saveCalls === 1 ? staleSave.promise : currentSave.promise;
         }
-        return Promise.reject(new Error(`Unexpected command ${command}`));
+        return replay.invoke(command, args);
       });
 
       render(<App />);
@@ -17361,7 +14759,7 @@ describe("workflow current and historical result boundaries", () => {
           replacement.summary.message,
         ),
       );
-      delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+      // Stay on the explicit native replay for the fresh replacement solve.
       fireEvent.click(await runMechanicsButton());
       await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
       report = openWorkspaceSection("report");
@@ -17426,7 +14824,7 @@ describe("workflow current and historical result boundaries", () => {
   it("keeps registered MODEL_INCOMPLETE diagnostics while barring fresh solved-only consumers", async () => {
     const mechanics = "MODEL_INCOMPLETE";
     const model = await loadPreviewModel();
-    const output = structuredClone(await runPreviewMechanics(model));
+    const output = structuredClone(await referenceMechanicsSource());
     output.status.mechanics = mechanics;
     expect(output.results.length).toBeGreaterThan(0);
     const overlay = buildDeformationOverlay(model, output);
@@ -17620,7 +15018,8 @@ describe("primitive case selection display", () => {
 
 describe("historical lifecycle history transitions", () => {
   it("cannot publish delayed inactive export or report completions after a project reopen", async () => {
-    const replacement = inventedOpenEnvelope(await loadPreviewModel());
+    const { model, replay } = await installPrecisionReplay();
+    const replacement = inventedOpenEnvelope(model);
     const exportHashGate = deferred<void>();
     const reportRender = deferred<unknown>();
     const delayedReportOutcome = {
@@ -17704,10 +15103,10 @@ describe("historical lifecycle history transitions", () => {
 
       const reportSection = openWorkspaceSection("report");
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-      invokeMock.mockImplementation((command: string) => {
+      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
         if (command === "render_calculation_report") return reportRender.promise;
-        return Promise.reject(new Error(`Unexpected command ${command}`));
+        return replay.invoke(command, args);
       });
       fireEvent.click(within(reportSection).getByTestId("rendered-report-render"));
       await waitFor(() =>
@@ -17885,26 +15284,22 @@ describe("historical lifecycle history transitions", () => {
   });
 
   it("lets a fresh same-model solve win against a delayed Historical refresh", async () => {
-    const opened = await workflowStoredEnvelope();
-    opened.model = await loadPreviewModel();
-    opened.summary.project_id = opened.model.project.id;
-    opened.summary.project_name = opened.model.project.name;
-    // Rebind only the test's historical record to the exact default model;
-    // its received legacy bytes stay historical and never become fresh output.
-    const historical = structuredClone(historicalMechanicsFixture) as MechanicsResult;
+    const { model, source: historical, replay } = await installPrecisionReplay();
+    const opened = inventedOpenEnvelope(model);
+    opened.model = structuredClone(model);
+    opened.summary.project_id = model.project.id;
+    opened.summary.project_name = model.project.name;
     const historicalManifest = await buildCurrentSessionInputManifest({
-      model: opened.model,
-      solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0", solver_mode: "sparse_interactive", settings: {} },
-      active_rule_packs: [], external_assets: []
+      model, solver: { solver_name: historical.producer!.component_name, solver_version: historical.producer!.component_version, solver_build_ref: "test:captured-prior-run", solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: []
     });
     opened.mechanics_result = historical;
-    opened.analysis_run = await buildAnalysisRunV02(historical, historicalManifest);
+    opened.analysis_run = await buildAnalysisRunV03(historical, historicalManifest, undefined, modelLoadBasisRefs(model));
     const refreshed = await withCurrentPersistenceHashes(opened);
     const pendingSave = deferred<LocalProjectEnvelope>();
-    invokeMock.mockImplementation((command: string) => {
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
       if (command === "open_local_project") return Promise.resolve(opened);
       if (command === "save_local_project") return pendingSave.promise;
-      return Promise.reject(new Error(command));
+      return replay.invoke(command, args);
     });
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -17913,7 +15308,7 @@ describe("historical lifecycle history transitions", () => {
     await screen.findByTestId("historical-run-context");
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
-    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    // The fresh solve stays on the matching native unit replay.
     openWorkspaceSection("solve");
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"), { timeout: 10000 });
@@ -18052,6 +15447,7 @@ describe("historical lifecycle history transitions", () => {
   });
 
   it("keeps a same-model Current solve Current after native save", async () => {
+    const { replay } = await installPrecisionReplay();
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     openWorkspaceSection("solve");
@@ -18066,7 +15462,7 @@ describe("historical lifecycle history transitions", () => {
           summary: { ...inventedOpenEnvelope(model).summary, project_id: model.project.id, project_name: model.project.name, message: "Saved unchanged Current model." },
         });
       }
-      return Promise.reject(new Error(command));
+      return replay.invoke(command, args);
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     act(() => nativeMenuCommand("file.save-local"));

@@ -1,0 +1,29 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+    "--offline",
+    "--locked",
+    "-j",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-create-section-inputs-target",
+    "--test",
+    "exact_authoring",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925",
+  "source_sha256": {
+    "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs": "adf95be08d8c5bb81b0572e08122f8736b35a5e41cc5fed61a9875092bbefa29",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs": "7d18d0451bce010f2ad799aa4790e2c0480d6e4c907735e62c4b546874797278",
+    "projects/chirality-piping/core/model_operations/operation_applier/tests/exact_authoring.rs": "24cd734bfa9a4ecc9625fc34bf9e966efd5ef22bb26c7db99251a45839353a33"
+  },
+  "started_unix": 1790316158.223744,
+  "actual_executor": "/root/physics_resume",
+  "purpose": "Coherent AN-R1 atomic profile + AN-R3 reference guard focused verification; independent reviewer source backcheck already complete",
+  "exit_code": 0,
+  "finished_unix": 1790316162.6596081
+}

@@ -1,0 +1,37 @@
+{
+  "headless": {
+    "distinct_tests_passed": 38,
+    "batch": "headless-immutability.log (37 pass, one unrelated legacy-pressure fixture precondition failure)",
+    "affected_rerun": "headless-affected-rerun.log (remaining test passed after explicit local input isolation)",
+    "production_change": "immutable mechanics binding; separate derived effective_rule_status",
+    "shared_preview_request_unchanged": true
+  },
+  "typescript_state_history": {
+    "passed": 105,
+    "failed": 1,
+    "all_owned_state_tests_passed": 7,
+    "log": "state-and-history-tests.log",
+    "outside_scope_failure": "workspaceSession.shell.test.tsx:203 still expects a completed edited-browser fixture solve; real service refuses edited models. Parent notified for disposition."
+  },
+  "typescript_lifecycle": {
+    "passed": 11,
+    "excluded_by_explicit_filter": 208,
+    "log": "solve-lifecycle-tests.log"
+  },
+  "typescript_compile": {
+    "exit_code": 0,
+    "log": "tsc.log"
+  },
+  "actual_blocked_sources": {
+    "rust": "missing_nu and missing_closure actual producer invocations passed interpretability/no-export/no-proof assertions",
+    "python": "BLOCKED_ANALYSIS_PROBE.json",
+    "frontend": "BLOCKED_FRONTEND_PROBE.json",
+    "postsolve_source_fabrication": false
+  },
+  "python_rule_revisions": "PYTHON_RULE_REVISION_PROBE.json; same raw source hash and three valid distinct analysis record hashes",
+  "limits": [
+    "No native UI or fresh Current qualification was claimed.",
+    "Independent integrated review remains parent-owned.",
+    "Source-block tables/receipts remain unjoined."
+  ]
+}

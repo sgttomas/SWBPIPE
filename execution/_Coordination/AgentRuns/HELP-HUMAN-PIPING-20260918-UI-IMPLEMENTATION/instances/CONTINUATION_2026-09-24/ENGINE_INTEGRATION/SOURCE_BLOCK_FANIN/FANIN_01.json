@@ -1,0 +1,518 @@
+{
+  "status": "All56 dependency blobs match recoverable NUM checkpoint;30 semantic conflicts resolved in5files. Product cargo check and existing pressure14+source4 passed; reader union parser/static only; composite producer unfinished.",
+  "source_manifest": "/private/tmp/piping-source-recovery-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/SOURCE_RECOVERY_IMPLEMENTATION_01/REVIEWED_SUBSET.json",
+  "source_manifest_sha256": "0b8c8d84431a94ccc401afad1e7d569858de55ca8c44667e7b294ad1ad47a71d",
+  "source_base": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "source_reviewed_count": 18,
+  "support_count": 38,
+  "actual_actor": "/root/physics_resume",
+  "no_TS_native_headless_import": true,
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "dependency_category": "reviewed",
+      "before_sha256": "caece39db29a97e4beca9ae25ff125ca4de4790c067f45e5ed562db91cf97b92",
+      "dependency_sha256": "d255c9896f6912b0e542d52389d02834953eca27112f5b7690e4ef83c5d6dc86",
+      "after_sha256": "d56b725fc93b08eca030517aece19e90aad1f3a432adcf9b9a006e779fd79f94",
+      "operation": "conflict_requires_semantic_resolution",
+      "merge_conflict_count": 9
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/source_blocks.py",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "87b3953fdcfe484e48530b522c8117a0ea72f0fca5aac524d2cdd79b62af2978",
+      "after_sha256": "87b3953fdcfe484e48530b522c8117a0ea72f0fca5aac524d2cdd79b62af2978",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": "ee98463c29ece7abe5d3873e2e06931edc42cf8ec7b82b376de5ebcf7c92ba44",
+      "dependency_sha256": "71d1f8b19c4190ef216743b7f80a3a2f4b466010b3521a360a5a5f71efec2739",
+      "after_sha256": "191d2df82378c804a43582f197909a419e9e35ea6ae52be920bbe1f2b16de88f",
+      "operation": "conflict_requires_semantic_resolution",
+      "merge_conflict_count": 14
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "41bed9b5969bc4ff7c39fffa2db9a3ce7c48d5fb900c4451749aff7b54cd3f11",
+      "after_sha256": "41bed9b5969bc4ff7c39fffa2db9a3ce7c48d5fb900c4451749aff7b54cd3f11",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "2af23fd77b2c99c8efced4f00ce893da589654be37f96a9e3a7ffc7fa26d7f1f",
+      "after_sha256": "2af23fd77b2c99c8efced4f00ce893da589654be37f96a9e3a7ffc7fa26d7f1f",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt/source.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "fbf55187c1274a03b7b5b571c6777b36b3825297b6168141511ab3395314b924",
+      "after_sha256": "fbf55187c1274a03b7b5b571c6777b36b3825297b6168141511ab3395314b924",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "c9b4e9abb51865735070e13149f4630219785eb0d040e76669f6a0e8212814a0",
+      "after_sha256": "c9b4e9abb51865735070e13149f4630219785eb0d040e76669f6a0e8212814a0",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_recovery.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "73ba4ff9832d35644beb3f0a97e4defcf958f3ac3c1b4008a015ec9916770a1e",
+      "after_sha256": "73ba4ff9832d35644beb3f0a97e4defcf958f3ac3c1b4008a015ec9916770a1e",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": "3b2ec7fe0bb82d5e9eba54c7efa7b80db7eefa9e96742295a8a4f11ed77030a5",
+      "dependency_sha256": "cec4569254968f42e41e90f2b403f5ebb2bd96f46d666018dd139b954d6717d4",
+      "after_sha256": "bc295bff598a52cab200b6046828450cb0ea5ad9eb6a5dbcb75dcb77b47a9b22",
+      "operation": "conflict_requires_semantic_resolution",
+      "merge_conflict_count": 2
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": "2135f894aa0a8f0dd2114a9226bb61350e6136eaa5a10ce009f14db8e30002c7",
+      "dependency_sha256": "65f342f48e932b17cb4fc574aff8fd8337180458c2ffb083083540d0614893bf",
+      "after_sha256": "c3c797451be0d22e890c8155eebc26e78b9d245d233aae8b2375c9efebe18fca",
+      "operation": "conflict_requires_semantic_resolution",
+      "merge_conflict_count": 4
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "29c1fa01117200240bf7eedf4a7e6409328317c6eb5f31721cff9391f3cbcddd",
+      "after_sha256": "29c1fa01117200240bf7eedf4a7e6409328317c6eb5f31721cff9391f3cbcddd",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/source_blocks.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "837a496c4390e8beecdc6648a81c60303cd38fbd190e102dc66dbef5d4ab8ef9",
+      "after_sha256": "837a496c4390e8beecdc6648a81c60303cd38fbd190e102dc66dbef5d4ab8ef9",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": "6801610d0bb515eab33603163423812b81bf94946d8c23b99c127b655d996a7f",
+      "dependency_sha256": "d7688faa2fba9897c74385fa677040669f66b620b63006159290b051641b1fbe",
+      "after_sha256": "d7688faa2fba9897c74385fa677040669f66b620b63006159290b051641b1fbe",
+      "operation": "applied_to_unchanged_base",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "9e378891a347d162f20fcdc32b424f4e8f0d664e61dcd6cebd4ef8c90d65c764",
+      "after_sha256": "9e378891a347d162f20fcdc32b424f4e8f0d664e61dcd6cebd4ef8c90d65c764",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals/tests.rs",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "5d1574025e6ca3aac412f8b9cab11bdbc5a4f8016c8384daa87ded4e4c4fc312",
+      "after_sha256": "5d1574025e6ca3aac412f8b9cab11bdbc5a4f8016c8384daa87ded4e4c4fc312",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_source_blocks_1.json",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f",
+      "after_sha256": "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/schemas/source_block_recovery.schema.json",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c",
+      "after_sha256": "544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_source_blocks_validation.py",
+      "dependency_category": "reviewed",
+      "before_sha256": null,
+      "dependency_sha256": "9d9bf808b12d7ea0c79ff096f9db62cd4d2066c9946ee72593918ebf7dddd76e",
+      "after_sha256": "9d9bf808b12d7ea0c79ff096f9db62cd4d2066c9946ee72593918ebf7dddd76e",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/__init__.py",
+      "dependency_category": "tested_support",
+      "before_sha256": "ffca538dac8e6549eaad02723a97a537682f9b06e5b6329a80394ee04e614a9c",
+      "dependency_sha256": "aa1fbd8152bfc53ff556dfc65661806a727c782943ec1d909d7a345c9164908d",
+      "after_sha256": "aa1fbd8152bfc53ff556dfc65661806a727c782943ec1d909d7a345c9164908d",
+      "operation": "applied_to_unchanged_base",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.lock",
+      "dependency_category": "tested_support",
+      "before_sha256": "39843130aa97195bf011fc6abf728c56f1f57c8af2164549d7e03352a9a0b6c7",
+      "dependency_sha256": "d27bebd89ef0f1cb05851b66ceea0120deae4c9ade3b8e43e243170c1282c127",
+      "after_sha256": "d27bebd89ef0f1cb05851b66ceea0120deae4c9ade3b8e43e243170c1282c127",
+      "operation": "applied_to_unchanged_base",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "dependency_category": "tested_support",
+      "before_sha256": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542",
+      "dependency_sha256": "2c037f109240275806d424aba371553575dec20a8b786d3ff29ecac875fe7326",
+      "after_sha256": "2c037f109240275806d424aba371553575dec20a8b786d3ff29ecac875fe7326",
+      "operation": "applied_to_unchanged_base",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_budget_tests.rs",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "60153bd048a99807336fb53d932841224bd116eccd1d7d655baa66f29d467f18",
+      "after_sha256": "60153bd048a99807336fb53d932841224bd116eccd1d7d655baa66f29d467f18",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/source_block_recovery.rs",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "bb51842ea877b959d3d7ada18385b2593d42955cb78b80e528f40ebe45d90780",
+      "after_sha256": "bb51842ea877b959d3d7ada18385b2593d42955cb78b80e528f40ebe45d90780",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "dependency_category": "tested_support",
+      "before_sha256": "45a41a26c220ea43f9e1fb7aad87d5f8c2a4f95b704c795f77593f2bd7718e6a",
+      "dependency_sha256": "7c1aa49652c3d8d2b1a6cee88947c52d7cb413a75b2b689a6ffaba55965f57a3",
+      "after_sha256": "c61f546ae9fcb25df6d4c2500409435d858d411a3e9d42715132d034f945c7bc",
+      "operation": "conflict_requires_semantic_resolution",
+      "merge_conflict_count": 1
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/fixtures/source_blocks_statement_control.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "e84f479e23ef84d7df26e0f874a268a35e0bc326dc4ea63c329561f4fc4f53c4",
+      "after_sha256": "e84f479e23ef84d7df26e0f874a268a35e0bc326dc4ea63c329561f4fc4f53c4",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/generation.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "7345cbcade5777b4e4ffc190dff1d4f4231fcf3340f30bca342c1c95c19558b4",
+      "after_sha256": "7345cbcade5777b4e4ffc190dff1d4f4231fcf3340f30bca342c1c95c19558b4",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/multicase-dense_scrutiny.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "a1daf3769c6b89da332010cf16fdfa5ff7ba6ceb4cd128bca87804a17682f08c",
+      "after_sha256": "a1daf3769c6b89da332010cf16fdfa5ff7ba6ceb4cd128bca87804a17682f08c",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/multicase-dense_scrutiny.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "81da34b8e514b060daa8e349459a2f4f2cafee4836dd2fb5d5e734f0b870099b",
+      "after_sha256": "81da34b8e514b060daa8e349459a2f4f2cafee4836dd2fb5d5e734f0b870099b",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "d161ce88737229c99ea698f50355c9c0e5242482291e828301a7595b7663080f",
+      "after_sha256": "d161ce88737229c99ea698f50355c9c0e5242482291e828301a7595b7663080f",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/multicase-sparse_interactive.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "81da34b8e514b060daa8e349459a2f4f2cafee4836dd2fb5d5e734f0b870099b",
+      "after_sha256": "81da34b8e514b060daa8e349459a2f4f2cafee4836dd2fb5d5e734f0b870099b",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n05-dense_scrutiny.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "c9cdf497bf2e867914f17f9f0adf8ca0bcb4c4c7f8bb6cc218ec6c9d1187e02a",
+      "after_sha256": "c9cdf497bf2e867914f17f9f0adf8ca0bcb4c4c7f8bb6cc218ec6c9d1187e02a",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n05-dense_scrutiny.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "23d206976986084ec4e6b29cae1576965932b845594effc1a173578eb07d1779",
+      "after_sha256": "23d206976986084ec4e6b29cae1576965932b845594effc1a173578eb07d1779",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "90baefacf40111b85812a2fa8a32c6c9811254ed3c05497494e06f5d6583153f",
+      "after_sha256": "90baefacf40111b85812a2fa8a32c6c9811254ed3c05497494e06f5d6583153f",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "23d206976986084ec4e6b29cae1576965932b845594effc1a173578eb07d1779",
+      "after_sha256": "23d206976986084ec4e6b29cae1576965932b845594effc1a173578eb07d1779",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n06-dense_scrutiny.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "e1fb2ea557b47b09638cfdbc9ee19c22a07f4fc274a62d6f7202130cb5ff81c2",
+      "after_sha256": "e1fb2ea557b47b09638cfdbc9ee19c22a07f4fc274a62d6f7202130cb5ff81c2",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n06-dense_scrutiny.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "5a95c2cc5602361dea1e41fd40886ee5c651553a1fb12ba2bc33e335d25b02d1",
+      "after_sha256": "5a95c2cc5602361dea1e41fd40886ee5c651553a1fb12ba2bc33e335d25b02d1",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n06-sparse_interactive.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "9a9e24817eeddcf59bdc9b914647b5d16710f03326662495363e5d3e3be736c6",
+      "after_sha256": "9a9e24817eeddcf59bdc9b914647b5d16710f03326662495363e5d3e3be736c6",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n06-sparse_interactive.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "5a95c2cc5602361dea1e41fd40886ee5c651553a1fb12ba2bc33e335d25b02d1",
+      "after_sha256": "5a95c2cc5602361dea1e41fd40886ee5c651553a1fb12ba2bc33e335d25b02d1",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/rejected_stress_range/CAPTURE.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "2e90f53900bfa030fab85955fef0f9398a57b1e859ce87acff61468d9b994b5a",
+      "after_sha256": "2e90f53900bfa030fab85955fef0f9398a57b1e859ce87acff61468d9b994b5a",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/rejected_stress_range/ORACLE.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "84d14e2a957aba55f35594eed040af301e7c1352c3ea589451a5e87f3ee4260b",
+      "after_sha256": "84d14e2a957aba55f35594eed040af301e7c1352c3ea589451a5e87f3ee4260b",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "85124a39b1920e3254f791ac28b2aeb3abafba42845bf82abe3346f0920ab877",
+      "after_sha256": "85124a39b1920e3254f791ac28b2aeb3abafba42845bf82abe3346f0920ab877",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "dcf0a626355add1d26146026c8a46e3843acae459def146901188e90f49f2413",
+      "after_sha256": "dcf0a626355add1d26146026c8a46e3843acae459def146901188e90f49f2413",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "e14b0f257f45efc6ec5824527bbc2a60118d2026a72a36c261e42f73ccef5a04",
+      "after_sha256": "e14b0f257f45efc6ec5824527bbc2a60118d2026a72a36c261e42f73ccef5a04",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "dcf0a626355add1d26146026c8a46e3843acae459def146901188e90f49f2413",
+      "after_sha256": "dcf0a626355add1d26146026c8a46e3843acae459def146901188e90f49f2413",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "6569258bc3e672a734cbea996e50a41e2d7da301a87a0c197a14b13b83eb5869",
+      "after_sha256": "6569258bc3e672a734cbea996e50a41e2d7da301a87a0c197a14b13b83eb5869",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "aeeaaf19760c1d02fc3a8125ade88eb2b74b6f795ff7b300171c08172c4d24d6",
+      "after_sha256": "aeeaaf19760c1d02fc3a8125ade88eb2b74b6f795ff7b300171c08172c4d24d6",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/multicase-sparse_interactive.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "0fb36f522ee4899b0ed00d743df2a57a6d704fbc6285d519413658d2ac52b54d",
+      "after_sha256": "0fb36f522ee4899b0ed00d743df2a57a6d704fbc6285d519413658d2ac52b54d",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/multicase-sparse_interactive.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "aeeaaf19760c1d02fc3a8125ade88eb2b74b6f795ff7b300171c08172c4d24d6",
+      "after_sha256": "aeeaaf19760c1d02fc3a8125ade88eb2b74b6f795ff7b300171c08172c4d24d6",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n05-dense_scrutiny.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "90a3d42ee65ecd2a2c907e26d15afd0a85d45e65e70f905f4c55fc01050fc4d8",
+      "after_sha256": "90a3d42ee65ecd2a2c907e26d15afd0a85d45e65e70f905f4c55fc01050fc4d8",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n05-dense_scrutiny.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "abfa321ca270b0a2b5dd0670a686afd6dc55e229efb8a8da2fac1c6a93aba85c",
+      "after_sha256": "abfa321ca270b0a2b5dd0670a686afd6dc55e229efb8a8da2fac1c6a93aba85c",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "74ee74036d2ef2713c240ce58c45133fcaba92593634f1d7d45abf1634087f03",
+      "after_sha256": "74ee74036d2ef2713c240ce58c45133fcaba92593634f1d7d45abf1634087f03",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "abfa321ca270b0a2b5dd0670a686afd6dc55e229efb8a8da2fac1c6a93aba85c",
+      "after_sha256": "abfa321ca270b0a2b5dd0670a686afd6dc55e229efb8a8da2fac1c6a93aba85c",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n06-dense_scrutiny.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "7edb11b9c4fee9cdb1e697e9509d99e37323dc85d72f5ca9981bcc6d4ac9b63a",
+      "after_sha256": "7edb11b9c4fee9cdb1e697e9509d99e37323dc85d72f5ca9981bcc6d4ac9b63a",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n06-dense_scrutiny.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "39b9a33b5826feea1ac99f01255e9ac2496eab4f262461e2cd23a3b09a6ff2bd",
+      "after_sha256": "39b9a33b5826feea1ac99f01255e9ac2496eab4f262461e2cd23a3b09a6ff2bd",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n06-sparse_interactive.raw.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "4e222ae5a6d8678c504afcb218bec54f9d0fc2b65491a245e2c66ac19ec7fa12",
+      "after_sha256": "4e222ae5a6d8678c504afcb218bec54f9d0fc2b65491a245e2c66ac19ec7fa12",
+      "operation": "new",
+      "merge_conflict_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n06-sparse_interactive.request.json",
+      "dependency_category": "tested_support",
+      "before_sha256": null,
+      "dependency_sha256": "39b9a33b5826feea1ac99f01255e9ac2496eab4f262461e2cd23a3b09a6ff2bd",
+      "after_sha256": "39b9a33b5826feea1ac99f01255e9ac2496eab4f262461e2cd23a3b09a6ff2bd",
+      "operation": "new",
+      "merge_conflict_count": 0
+    }
+  ],
+  "source_checkpoint": "ed688b13f633ce8aa6aeede784c3562511c20966",
+  "checkpoint_blob_match_count": 56
+}

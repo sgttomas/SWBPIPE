@@ -276,31 +276,34 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
   await expect(page.getByTestId("viewport-hidden-count")).toHaveCount(0);
 });
 
-test("C3 visibility leaves Current results current and never revives Historical overlays", async ({ page }) => {
+test("C3 visibility never gives bundled references a current overlay or saved-model association", async ({ page }) => {
   await page.goto("/");
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("run-mechanics-preview")).toBeEnabled();
   await page.getByTestId("run-mechanics-preview").click();
-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+  await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
+  await openWorkspaceSection(page, "results");
+  await page.getByRole("button", { name: "Inspect bundled reference", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Bundled reference — not a solve for the current model" })).toBeVisible();
   await showCanvas(page);
   await selectTreeRow(page, "pipe", "pipe:P-100");
   await control(page, "Isolate").click();
   await control(page, "Hide").click();
   await control(page, "Show All").click();
+  await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
   await openWorkspaceSection(page, "results");
-  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
+  await expect(page.getByTestId("historical-run-context")).toBeVisible();
+  // The separate bundled example is not persisted as this model's solved run.
   await projectCommand(page, "save-local", true);
   await expect(page.getByTestId("local-project-message")).toContainText("Saved");
   await projectCommand(page, "open-local", true);
   await openWorkspaceSection(page, "results");
-  await expect(page.getByTestId("historical-run-context")).toBeVisible();
+  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
   await showCanvas(page);
   await selectTreeRow(page, "pipe", "pipe:P-100");
   await control(page, "Isolate").click();
   await control(page, "Show All").click();
   await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
-  await openWorkspaceSection(page, "results");
-  await expect(page.getByTestId("historical-run-context")).toBeVisible();
   await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
 });

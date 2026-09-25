@@ -1,0 +1,20 @@
+{
+  "command": [
+    "cargo",
+    "check",
+    "--manifest-path",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--offline",
+    "--locked",
+    "-j",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-engine-integration-product-target"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925",
+  "actor": "/root/physics_resume",
+  "started_utc": "2026-09-25T03:46:47.530047+00:00",
+  "finished_utc": "2026-09-25T03:46:48.838867+00:00",
+  "exit_code": 0,
+  "facade_sha256": "f5a2e034ebe87686ce3abc26de0f111c8b1825b0a46ba007a74e0cd2d89c61a5"
+}

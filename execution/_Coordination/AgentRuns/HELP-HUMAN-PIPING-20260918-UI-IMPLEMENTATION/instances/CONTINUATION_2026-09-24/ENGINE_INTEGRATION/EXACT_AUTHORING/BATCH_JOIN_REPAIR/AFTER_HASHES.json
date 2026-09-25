@@ -1,0 +1,21 @@
+{
+  "phase": "source repair plus controls; Cargo not run (NUM lane held)",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "sha256": "adf95be08d8c5bb81b0572e08122f8736b35a5e41cc5fed61a9875092bbefa29"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/exact_authoring.rs",
+      "sha256": "f4f9766ace0dbea41f1b90fe405c953eefe817cc0ed7ffd5f1397c7732aa7c57"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/MANIFEST.json",
+      "sha256": "290dc4bdada41e76e1f4ac684276b5e7c66a7aa4e7a28d02881bc87d04bef0b6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/BRIEF.md",
+      "sha256": "074ab26741f834b2176efa9d21b558520e6e20b2d9f67ac04aafb94cfb6d10a5"
+    }
+  ]
+}

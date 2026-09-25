@@ -1,0 +1,21 @@
+{
+  "command": [
+    "npm",
+    "test",
+    "--workspace",
+    "apps/desktop",
+    "--",
+    "src/App.test.tsx",
+    "-t",
+    "suppresses solve proof|rejects overlap|delayed rule-revision|real delayed backend|native immediate-cancel|detached pre-start cancellation|opens saved results as readable history|delayed rule-check aggregate|same-model Current solve Current",
+    "--maxWorkers=2",
+    "--config",
+    "/private/tmp/piping-physics-ts-vitest.config.mjs",
+    "--configLoader",
+    "runner"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "filter": "suppresses solve proof|rejects overlap|delayed rule-revision|real delayed backend|native immediate-cancel|detached pre-start cancellation|opens saved results as readable history|delayed rule-check aggregate|same-model Current solve Current",
+  "exit_code": 0,
+  "elapsed_seconds": 6.5813071727752686
+}

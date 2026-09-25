@@ -1,0 +1,165 @@
+{
+  "captured_at_utc": "2026-09-25T06:45:47.738444+00:00",
+  "agent": "/root/physics_resume/source_endpoint_maximum",
+  "role": "TASK Type2",
+  "actual_parent": "/root/physics_resume",
+  "parent_role": "WORKING_ITEMS",
+  "mechanism": "delegated-harness-native",
+  "delegation": "none",
+  "write_scope": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM",
+  "basis_status": "Observed current source files, not NUM final dependency freeze; parent must reconcile any drift before integration. Hashes cover full files; consulted ranges distinguish supplied scope.",
+  "selected_skill_bodies": [],
+  "selected_workflow": null,
+  "conversation_basis": "Parent launch and coordination messages, plus supplied Root instructions and environment context; provider transcript remains original evidence.",
+  "files": [
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/BRIEF.md",
+      "sha256": "c004002a845c02a34c838fa692667fa11b5df38310b75eb90052d9463aed5a2a",
+      "bytes": 4735,
+      "consulted": "full brief"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "consulted": "full Root instructions"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "consulted": "full project instructions"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475,
+      "consulted": "full loop instructions"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "consulted": "full TASK role"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_JOIN_PLAN.md",
+      "sha256": "2481106bc6512c520416c532a6202d3151118b2609cf902c4bdf06463273cef8",
+      "bytes": 13431,
+      "consulted": "full parent plan"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/SELECTION.md",
+      "sha256": "2d07e95a7cafb67018fa61594c4171be8734ec30750f429a2b9f45546c731b6c",
+      "bytes": 3699,
+      "consulted": "full ROOT selection"
+    },
+    {
+      "path": "/private/tmp/piping-source-recovery-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/SOURCE_RECOVERY_IMPLEMENTATION_01/INTEGRATION_HANDOFF.md",
+      "sha256": "15afd47530034b4a8163c5c2202e441c8415005da36f5b1874b4553a1cd68120",
+      "bytes": 12033,
+      "consulted": "full dependency API handoff, not final freeze"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/loads/stress_recovery/src/elastic_section.rs",
+      "sha256": "6f04adc18d8799ba208b07043c6a3ed1604efed526a186ba1735c3739013072d",
+      "bytes": 16375,
+      "consulted": "full conventions/helper source"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/loads/stress_recovery/src/elastic_extrema.rs",
+      "sha256": "71ac0defce0607ddd78588e8968d704ec9342b75c5780163cc97d033bed9771d",
+      "bytes": 18135,
+      "consulted": "lines 1-440: existing norm/interval/convexity conventions"
+    },
+    {
+      "path": "/private/tmp/piping-source-recovery-20260924/projects/chirality-piping/core/product_physics/src/source_recovery.rs",
+      "sha256": "73ba4ff9832d35644beb3f0a97e4defcf958f3ac3c1b4008a015ec9916770a1e",
+      "bytes": 52997,
+      "consulted": "declaration search; lines 1-40,60-200,830-910: ownership, retained API, section descriptors"
+    },
+    {
+      "path": "/private/tmp/piping-source-recovery-20260924/projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "sha256": "41bed9b5969bc4ff7c39fffa2db9a3ce7c48d5fb900c4451749aff7b54cd3f11",
+      "bytes": 30651,
+      "consulted": "norm source lines 1-68; declaration search"
+    },
+    {
+      "path": "/private/tmp/piping-source-recovery-20260924/projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs",
+      "sha256": "2af23fd77b2c99c8efced4f00ce893da589654be37f96a9e3a7ffc7fa26d7f1f",
+      "bytes": 26472,
+      "consulted": "declaration search; lines 218-325,350-500: projection binding and derived recipes"
+    },
+    {
+      "path": "/private/tmp/piping-source-recovery-20260924/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "sha256": "d7688faa2fba9897c74385fa677040669f66b620b63006159290b051641b1fbe",
+      "bytes": 97588,
+      "consulted": "projection search; lines 740-860"
+    },
+    {
+      "path": "/private/tmp/piping-source-recovery-20260924/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs",
+      "sha256": "9e378891a347d162f20fcdc32b424f4e8f0d664e61dcd6cebd4ef8c90d65c764",
+      "bytes": 39085,
+      "consulted": "retained declaration search; lines 825-880"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "sha256": "38c66ecd2bcb96561d27217294094ded1d5683af19f6f63a00840d0ffd056a1a",
+      "bytes": 55962,
+      "consulted": "field-name search only"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "ee98463c29ece7abe5d3873e2e06931edc42cf8ec7b82b376de5ebcf7c92ba44",
+      "bytes": 853749,
+      "consulted": "section/property field-name search only"
+    },
+    {
+      "path": "/private/tmp/piping-source-recovery-20260924/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "71d1f8b19c4190ef216743b7f80a3a2f4b466010b3521a360a5a5f71efec2739",
+      "bytes": 794764,
+      "consulted": "section/property field-name search only"
+    }
+  ],
+  "checkouts": [
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925",
+      "command": [
+        "git",
+        "-C",
+        "/private/tmp/piping-engine-integration-20260925",
+        "rev-parse",
+        "--show-toplevel",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "/private/tmp/piping-engine-integration-20260925\n0a438a68672269e5750900792c9565ae9e5555b0\n"
+    },
+    {
+      "path": "/private/tmp/piping-source-recovery-20260924",
+      "command": [
+        "git",
+        "-C",
+        "/private/tmp/piping-source-recovery-20260924",
+        "rev-parse",
+        "--show-toplevel",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "/private/tmp/piping-source-recovery-20260924\n0a438a68672269e5750900792c9565ae9e5555b0\n"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "command": [
+        "git",
+        "-C",
+        "/Users/ryan/.codex/worktrees/6614/chirality",
+        "rev-parse",
+        "--show-toplevel",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "/Users/ryan/.codex/worktrees/6614/chirality\n479dc1fcc119f33fc5f43c9443e768df43f416bd\n"
+    }
+  ]
+}

@@ -36,6 +36,93 @@ const rehearsal = JSON.parse(
   readFileSync(new URL("../../../fixtures/product_preview/r2_from_blank_rehearsal.json", import.meta.url), "utf8")
 ) as RehearsalFixture;
 
+// Immutable recorded-source oracles are separate from browser freshness.
+// No fixture headers, model references, quality flags or values are rewritten.
+const referenceModel = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_preview_model.json", import.meta.url), "utf8"));
+const referenceSource = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json", import.meta.url), "utf8"));
+const historicalSource = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_mechanics_result.json", import.meta.url), "utf8"));
+const referenceSemantics = JSON.parse(readFileSync(new URL("../../../fixtures/results/semantic_contract_v0_3_precision_1.json", import.meta.url), "utf8"));
+
+async function expectBackendRefusal(page: Page): Promise<void> {
+  await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
+  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
+  await expect(page.getByTestId("solve-job-error")).toHaveAttribute("role", "status");
+  await expect(page.getByTestId("solve-job-error")).toContainText(/BROWSER_SOLVE_BACKEND_REQUIRED_(REFERENCE_ONLY|FOR_EDITED_MODEL)/);
+  await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+}
+
+async function inspectBundledReference(page: Page): Promise<Locator> {
+  await openWorkspaceSection(page, "solve");
+  await page.getByTestId("workspace-section-solve").getByRole("button", { name: "Inspect bundled reference", exact: true }).click();
+  const reference = page.getByTestId("historical-run-context");
+  await expect(reference).toContainText("Bundled reference — not a solve for the current model");
+  await expect(reference).toContainText("NO_CURRENT_MODEL_INVOCATION");
+  await expect(reference.getByTestId("result-filter-summary")).toContainText("830 of 830 results match filter");
+  return reference;
+}
+
+// The old overlay and packet cardinalities remain recorded-source oracles,
+// not evidence that bundled data was solved for the current browser model.
+test("recorded reference sources retain the original row, quantity, unit and diagnostic oracles", () => {
+  for (const source of [historicalSource, referenceSource]) {
+    expect(source.results).toHaveLength(830);
+    const magnitudes = source.results.filter((row: any) => row.kind === "displacement_magnitude");
+    expect(new Set(magnitudes.map((row: any) => row.entity_ref)).size).toBe(5);
+    expect(Math.max(...magnitudes.map((row: any) => row.value)).toFixed(6)).toBe("4.927112");
+    const vectors = source.results.filter((row: any) => ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z"].includes(row.kind));
+    expect(vectors.length).toBeGreaterThanOrEqual(15);
+    expect(vectors.every((row: any) => row.metadata.coordinate_system === "global" && row.unit === "mm")).toBe(true);
+    const reactionRows = source.results.filter((row: any) => referenceSemantics.rows.some((signature: any) => signature.family === "reaction" && signature.kind === row.kind && signature.unit === row.unit && (signature.component === null || signature.component === row.metadata?.component)));
+    expect(reactionRows).toHaveLength(29);
+    expect(source.results.filter((row: any) => row.id.includes("pipe-P-120"))).toHaveLength(170);
+    const summaryQuantities = Object.values(source.summary).filter((item: any) => item && typeof item === "object" && typeof item.value === "number" && typeof item.unit === "string");
+    expect(source.results.length + summaryQuantities.length).toBe(832);
+    const diagnostic = source.diagnostics.find((item: any) => item.code === "COMBINATION_STRESS_SUMMARY_SKIPPED" && item.affected_refs.includes("result:stress:pipe-P-130"));
+    expect(diagnostic).toBeDefined();
+    const linked = source.results.filter((row: any) => diagnostic.affected_refs.includes(row.id));
+    expect(linked).toHaveLength(1);
+    expect(linked[0].unit).toBe("MPa");
+    const knowledgeRefs = [source.summary.max_displacement, source.results.find((row: any) => row.id === "result:force:pipe-P-120:axial")];
+    expect(knowledgeRefs).toHaveLength(2);
+    expect(knowledgeRefs.map((item: any) => item.unit).sort()).toEqual(["N", "mm"]);
+  }
+  // The 828 accepted witnesses / two withheld diagnostic-work rows are retained
+  // by the independent pure packet assertions in StressNeutralExportPanel.test.tsx.
+});
+
+test("pure recorded-source projections retain quantity and comparison unit oracles", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  // This calls a pure projection in isolation. It neither registers a source nor
+  // puts a result/analysis record into the App's Current state or export route.
+  const projection = await page.evaluate(async ({ model, result }) => {
+    const modulePath = "/src/features/native-package/NativePackagePanel.tsx";
+    const servicePath = "/src/services/previewService.ts";
+    const analysisPath = "/src/services/analysisRunCompatibility.ts";
+    const manifestPath = "/src/services/inputManifestService.ts";
+    const { buildUnitPreservationEvidence } = await import(/* @vite-ignore */ modulePath);
+    const { buildPreviewComparison, hasNativeMechanicsInvocation } = await import(/* @vite-ignore */ servicePath);
+    const { buildAnalysisRunV02 } = await import(/* @vite-ignore */ analysisPath);
+    const { buildCurrentSessionInputManifest } = await import(/* @vite-ignore */ manifestPath);
+    const before = JSON.stringify({ model, result });
+    const evidence = buildUnitPreservationEvidence({ model, result });
+    const manifest = await buildCurrentSessionInputManifest({ model, solver: { solver_name: "reference-only-projection", solver_version: "unavailable", solver_build_ref: "unavailable-preserved-history", solver_mode: "recorded_reference", settings: {} }, active_rule_packs: [], external_assets: [] });
+    const analysisRun = await buildAnalysisRunV02(result, manifest);
+    const comparison = buildPreviewComparison({ result, analysisRun });
+    return { summary: evidence.summary, conversion: evidence.conversion_performed, comparison: comparison.unit_policy_evidence, registered: hasNativeMechanicsInvocation(result, model), unchanged: JSON.stringify({ model, result }) === before };
+  }, { model: referenceModel, result: historicalSource });
+  expect(projection.summary.project_unit_declaration_count).toBe(6);
+  expect(projection.summary.model_quantity_witness_count).toBe(50);
+  expect(projection.summary.result_quantity_witness_count).toBe(832);
+  expect(projection.conversion).toBe(false);
+  expect(projection.comparison.matched_result_units).toEqual(["MPa", "N", "N*m", "mm", "rad"]);
+  expect(projection.comparison.conversion_performed).toBe(false);
+  expect(projection.comparison.tolerance_status).toBe("not_tolerance_checked");
+  expect(projection.registered).toBe(false);
+  expect(projection.unchanged).toBe(true);
+  await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+});
+
 // Disclosures are opened through their visible summary, never by DOM mutation.
 async function setDisclosure(details: Locator, open = true): Promise<void> {
   if ((await details.getAttribute("open") !== null) !== open) {
@@ -248,7 +335,7 @@ test("DEC-077 solve temperature queues an explicit unit-bearing operation", asyn
   );
 });
 
-test("R2 desktop preview smoke covers solve, results, report, and viewport overlay", async ({ page }) => {
+test("R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
@@ -576,25 +663,17 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("missing-data-unit-policy")).toContainText("conversion=false");
   await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
   await page.getByTestId("run-mechanics-preview").click();
-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=830");
+  await expectBackendRefusal(page);
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("model=angle=rad,force=N,length=m");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("N*m/rad,N/m");
-  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=830");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=0");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
-  // Slice B3: the Analyze page lies over the stage's surfaces; close it to reach the canvas.
+  await inspectBundledReference(page);
   await showCanvas(page);
   await setDisclosure(page.getByTestId("viewport-deformation-status"));
-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=4.927112 mm");
-  await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
-    "scale=normalized_display_offset_not_physical_length"
-  );
-  // TP-APP-R2-DEFORMEDDIR-001: the canned preview fixture now carries signed
-  // global ux/uy/uz rows, so the overlay must disclose true directional
-  // rendering instead of vector_direction=TBD.
-  await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
-    "vector_direction=global_cartesian_displacement_components"
-  );
+  await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
+  // The preserved 5-node / 4.927112 mm and signed-vector source oracles above
+  // do not grant a current-model overlay from reference inspection.
   await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
 
   await page.getByTestId("audit-drawer-toggle").click();
@@ -604,24 +683,20 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("required=true");
   await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("payload=false");
   await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("conversion=false");
-  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("model=angle=rad,force=N,length=m");
-  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("N*m/rad,N/m");
-  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("rows=830");
-  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("source=result_envelope");
-  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("conversion=false");
+  await expect(auditDrawer.getByTestId("run-audit-empty")).toBeVisible();
+  await expect(auditDrawer.getByTestId("run-audit-units")).toHaveCount(0);
   await auditDrawer.getByRole("button", { name: /Close/i }).click();
   await openWorkspaceSection(page, "solve");
-  await expect(page.getByTestId("knowledge-unit-context")).toContainText("computed_unit_refs=2");
-  await expect(page.getByTestId("knowledge-unit-context")).toContainText("units=N,mm");
-  await expect(page.getByTestId("knowledge-unit-context")).toContainText("source=computed_preview_result");
-  await expect(page.getByTestId("knowledge-unit-context")).toContainText("conversion=false");
+  await expect(page.getByTestId("knowledge-unit-context")).toHaveCount(0);
+  // Recorded computed context (two N/mm refs) remains in the source oracle;
+  // reference inspection does not populate current computed knowledge.
 
-  const solvedCanvasBounds = await canvas.boundingBox();
-  expect(solvedCanvasBounds).not.toBeNull();
-  expect(solvedCanvasBounds!.width).toBeGreaterThanOrEqual(200);
-  expect(solvedCanvasBounds!.height).toBeGreaterThanOrEqual(200);
-  const solvedCanvas = await canvas.screenshot();
-  expect(pngStats(solvedCanvas).uniqueColors).toBeGreaterThan(100);
+  const referenceCanvasBounds = await canvas.boundingBox();
+  expect(referenceCanvasBounds).not.toBeNull();
+  expect(referenceCanvasBounds!.width).toBeGreaterThanOrEqual(200);
+  expect(referenceCanvasBounds!.height).toBeGreaterThanOrEqual(200);
+  const referenceCanvas = await canvas.screenshot();
+  expect(pngStats(referenceCanvas).uniqueColors).toBeGreaterThan(100);
 
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toBeVisible();
@@ -644,14 +719,15 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "Showing 1 to 50 of 170 matching results; page 1 of 4"
   );
   await expectWorkspaceStatusClearOfTarget(page, "result-row-result:force:pipe-P-120:axial");
+  const inspectorBeforeReferenceSelection = await page.getByTestId("property-inspector").textContent();
   await page.getByTestId("result-row-result:force:pipe-P-120:axial").click();
+  await expect(page.getByTestId("property-inspector")).toHaveText(inspectorBeforeReferenceSelection ?? "");
   await expect(page.getByTestId("result-detail-panel")).toContainText("pipe:P-120");
   await expect(page.getByTestId("result-detail-panel")).toContainText("recovered_from_local_element_stiffness");
-  await expect(page.getByTestId("comparison-unit-policy")).toContainText("units=MPa,N,N*m,mm,rad");
-  await expect(page.getByTestId("comparison-unit-policy")).toContainText("conversion=false");
-  await expect(page.getByTestId("comparison-unit-policy")).toContainText("tolerance=not_tolerance_checked");
+  await expect(page.getByTestId("comparison-empty")).toBeVisible();
+  await expect(page.getByTestId("comparison-unit-policy")).toHaveCount(0);
   await expect(page.getByTestId("design-workspace-units")).toContainText("N*m/rad,N/m");
-  await expect(page.getByTestId("design-workspace-units")).toContainText("comparison=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("comparison=none");
   await expect(page.getByTestId("design-workspace-units")).toContainText("conversion=false");
 
   await openWorkspaceSection(page, "report");
@@ -661,26 +737,17 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(report.getByTestId("report-export-link")).toHaveAttribute("href", /data:application\/json/);
   await expect(report.getByTestId("report-packet-body")).toHaveCount(0);
-  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText(
-    "unit_system=unit-system:dec-018-si-dual-display"
-  );
-  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("model=angle=rad,force=N,length=m");
-  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("N*m/rad,N/m");
-  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("conversion=false");
+  await expect(page.getByTestId("rendered-report-render")).toBeDisabled();
+  await expect(page.getByTestId("rendered-report-precondition")).toBeVisible();
+  await expect(page.getByTestId("rendered-report-unit-basis")).toHaveCount(0);
   await expect(page.getByTestId("report-package-private-intent")).not.toBeChecked();
-  await page.getByTestId("report-package-save").click();
-  await expect(page.getByTestId("report-package-save-status")).toContainText(
-    "REPORT-PACKAGE-REDACTION-BLOCKED"
-  );
+  await expect(page.getByTestId("report-package-save")).toBeDisabled();
+  await expect(page.getByTestId("report-package-save")).toHaveAttribute("title", /current mechanics result/);
   await page.getByTestId("report-package-private-intent").check();
-  await page.getByTestId("report-package-save").click();
-  await expect(page.getByTestId("report-package-redaction-summary")).toContainText(
-    "route=DREP-PACKAGE-SAVE-009"
-  );
-  await expect(page.getByTestId("report-package-redaction-summary")).toContainText("blocked=false");
-  await expect(page.getByTestId("report-package-save-status")).toContainText(
-    "REPORT-PACKAGE-SAVE-DESKTOP-ONLY"
-  );
+  await expect(page.getByTestId("report-package-save")).toBeDisabled();
+  await expect(page.getByTestId("report-package-save-status")).toHaveCount(0);
+  await expect(page.getByTestId("report-package-redaction-summary")).toHaveCount(0);
+  // Private intent changes redaction permission, never missing Current evidence.
   const reportLint = page.getByLabel("Report content lint");
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=44");
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText(
@@ -727,22 +794,20 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "conversion=false"
   );
   const stressNeutralExport = page.getByLabel("Stress-neutral CSV JSON export");
-  await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText("count=828");
-  await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText(
-    "conversion=false"
-  );
+  await expect(stressNeutralExport.getByTestId("stress-neutral-empty")).toContainText("Bundled references and restored history are unavailable for qualified export");
+  await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toHaveCount(0);
+  await expect(page.getByTestId("result-export-empty")).toBeVisible();
+  await expect(page.getByTestId("result-export-link")).toHaveCount(0);
   const headlessRunner = page.getByLabel("Headless runner envelope");
-  await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText(
-    "unit-system:dec-018-si-dual-display"
-  );
+  await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText("unit-system:dec-018-si-dual-display");
   await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText("conversion=false");
-  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("count=830");
-  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText(
-    "conversion=false"
-  );
+  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("count=0");
+  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("conversion=false");
   const handoffPackage = page.getByLabel("Handoff package");
-  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("count=830");
-  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("conversion=false");
+  await expect(handoffPackage.getByTestId("handoff-empty")).toBeVisible();
+  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toHaveCount(0);
+  // The unchanged 830 raw rows and 828 qualified dimension witnesses remain
+  // checked by the recorded-source and pure stress-neutral contract tests.
   const reviewGeometryExport = page.getByLabel("Review geometry export");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=75");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText(
@@ -750,18 +815,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await openWorkspaceSection(page, "exports");
   const nativeJsonPackage = page.getByLabel("Native JSON package");
-  await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
-    "project_units=6"
-  );
-  await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
-    "model_quantities=50"
-  );
-  await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
-    "result_quantities=832"
-  );
-  await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
-    "conversion=false"
-  );
+  await expect(nativeJsonPackage.getByTestId("native-package-empty")).toBeVisible();
+  await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toHaveCount(0);
+  // The former 832 result-quantity cardinality is preserved as an immutable
+  // source oracle; no current package is assembled from a bundled reference.
   const adapterFramework = page.getByLabel("Adapter framework envelope");
   await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText("conversion=false");
   await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText("witnesses=1");
@@ -1051,7 +1108,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await auditDrawer.getByRole("button", { name: /Close/i }).click();
   await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+  await expectBackendRefusal(page);
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("length=m");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=none");
@@ -1069,10 +1126,9 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   expect(solveJobPacket.unit_policy_evidence.result_units).toEqual([]);
   expect(solveJobPacket.unit_policy_evidence.result_row_count).toBe(0);
   expect(solveJobPacket.unit_policy_evidence.conversion_performed).toBe(false);
+  await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
   await page.getByTestId("issues-drawer-toggle").click();
-  await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText(
-    "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL"
-  );
+  await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toHaveCount(0);
   await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
   await openWorkspaceSection(page, "report");
   await expect(page.getByTestId("rendered-report-render")).toBeDisabled();
@@ -1083,23 +1139,23 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("rendered-report-preview")).toHaveCount(0);
 });
 
-test("diagnostic detail exposes linked result unit context", async ({ page }) => {
+test("reference result detail retains linked diagnostics and MPa units without current diagnostic state", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await openWorkspaceSection(page, "solve");
-
-  await page.getByTestId("run-mechanics-preview").click();
+  await ensureEngineReady(page);
+  const reference = await inspectBundledReference(page);
+  await reference.getByTestId("result-filter-input").fill("result:stress:pipe-P-130");
+  const inspector = page.getByTestId("property-inspector");
+  const before = await inspector.textContent();
+  await reference.getByTestId("result-row-result:stress:pipe-P-130").click();
+  await expect(reference.getByTestId("selected-result-id")).toContainText("result:stress:pipe-P-130");
+  await expect(reference.getByTestId("result-detail-panel")).toContainText("MPa");
+  await expect(reference.getByTestId("result-detail-panel")).toContainText("COMBINATION_STRESS_SUMMARY_SKIPPED");
+  await expect(inspector).toHaveText(before ?? "");
+  // The exact one-linked-row/MPa source relation is preserved in the source
+  // oracle above; reference diagnostics do not enter the current issue drawer.
   await page.getByTestId("issues-drawer-toggle").click();
-  await page.getByTestId("diagnostic-filter-input").fill("result:stress:pipe-P-130");
-  const diagnosticButton = page.getByTestId("diagnostic-COMBINATION_STRESS_SUMMARY_SKIPPED");
-  await expect(diagnosticButton).toBeVisible();
-  await diagnosticButton.click();
-
-  await expect(page.getByTestId("selected-diagnostic-linked-results")).toContainText("result:stress:pipe-P-130");
-  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("linked_results=1");
-  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("units=MPa");
-  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("source=result_envelope");
-  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("conversion=false");
+  await expect(page.getByTestId("diagnostic-COMBINATION_STRESS_SUMMARY_SKIPPED")).toHaveCount(0);
 });
 
 // Phase C2 slice 1 (TP-C2-EDITOR-001): the rule-pack manager authors a
@@ -1657,10 +1713,14 @@ test("R3 guided flow routes private library, rule-pack, solve, binding, and bloc
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
   await page.getByTestId("run-mechanics-preview").click();
-  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+  await expectBackendRefusal(page);
+  await inspectBundledReference(page);
+  await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("rule-check-run-solve-status")).toContainText("No solved mechanics result in this session");
 
   await page.getByTestId("rule-check-load-demo").click();
   await expect(page.getByTestId("rule-check-binding-plan")).toBeVisible();
+  await expect(page.getByTestId("rule-check-solver-select-demo_actual_quantity")).toBeDisabled();
 
   await page.getByTestId("rule-check-run").click();
   await expect(page.getByTestId("rule-check-run-status")).toContainText("RULE-CHECK-BACKEND-DESKTOP-ONLY");

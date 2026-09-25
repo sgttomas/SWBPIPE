@@ -6,8 +6,11 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
 import { App } from "./App";
 import * as hashService from "./services/hashService";
-import { loadPreviewModel, runPreviewMechanics } from "./services/previewService";
+import { loadBundledMechanicsReference, loadPreviewModel } from "./services/previewService";
+import * as previewService from "./services/previewService";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "./test/nativeMechanicsReplay";
 import { applyModelOperation } from "./services/operationService";
+import { getLocalStorageCapability } from "./services/projectService";
 import type {
   EditorOperationIntent,
   LocalProjectEnvelope,
@@ -400,12 +403,25 @@ describe("project handlers: a failed or empty open leaves the open project as it
   });
 
   it("lets an in-flight rule-check revision land when an open finds nothing", async () => {
+    // Scoped IPC replay of the captured full UI model/result pair. This exercises
+    // session/rule races, not a native UI or engineering qualification witness.
+    const storage = await getLocalStorageCapability();
+    const knowledge = await previewService.loadDesignKnowledge();
+    const pair = nativeMechanicsReplayPair();
+    const replay = createNativeMechanicsReplay();
+    vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(pair.model);
+    invokeMock.mockImplementation((command: string, args?: unknown) => {
+      if (command === "get_local_storage_capability") return Promise.resolve(storage);
+      if (command === "load_design_knowledge") return Promise.resolve(knowledge);
+      if (command === "sync_native_shell_state") return Promise.resolve(null);
+      return replay.invoke(command, args);
+    });
+    setTauriRuntime(true);
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
 
-    const previewService = await import("./services/previewService");
     const realBuild = previewService.buildAnalysisRunPreview.bind(previewService);
     const revisionGate = deferred<void>();
     let heldRevisions = 0;
@@ -415,6 +431,9 @@ describe("project handlers: a failed or empty open leaves the open project as it
       return revisionGate.promise.then(() => realBuild(result, options));
     });
     invokeMock.mockImplementation((command: string) => {
+      if (command === "get_local_storage_capability") return Promise.resolve(storage);
+      if (command === "load_design_knowledge") return Promise.resolve(knowledge);
+      if (command === "sync_native_shell_state") return Promise.resolve(null);
       if (command === "get_unit_catalog") return Promise.reject(new Error("Invented catalog unavailable"));
       if (command === "open_local_project") return Promise.resolve(null);
       if (command === "run_rule_checks") {
@@ -1001,10 +1020,19 @@ it("B3A keeps the model available when the initial canonical hash fails, without
 
 
 it("B3A verifies unchanged Historical save against its exact retained hash carrier, preserving Historical standing", async () => {
-  const model = await loadPreviewModel();
-  const opened = inventedOpenEnvelope(model);
-  opened.mechanics_result = await runPreviewMechanics(opened.model);
+  const reference = await loadBundledMechanicsReference();
+  const opened = inventedOpenEnvelope(reference.model);
+  // Saved/reference evidence keeps its actual model and raw result identity.
+  // The deliberately mismatched saved hash remains the oracle below.
+  opened.model = structuredClone(reference.model);
+  opened.summary.project_id = opened.model.project.id;
+  opened.summary.project_name = opened.model.project.name;
+  opened.summary.persisted_mechanics_result_count = 1;
+  opened.mechanics_result = reference.source;
   opened.model_hash = mismatchedModelHash(opened.model);
+  // Keep initial loading hashes distinct from the genuine saved reference's
+  // model ID; no source model_ref or saved carrier is relabelled.
+  vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(nativeMechanicsReplayPair().model);
   render(<App />);
   await screen.findByTestId("desktop-preview-shell");
   const original = hashService.computeModelHash;

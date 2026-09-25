@@ -1,4 +1,5 @@
 import { sourceContract } from "../results/numericalResultQuality";
+import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import type {
   AnalysisRunEnvelope,
@@ -106,6 +107,94 @@ function reportSolverIdentity(result: MechanicsResult, analysisRun: AnalysisRunE
   };
 }
 
+/** Pure received-data projection for inspection/compatibility. It returns no
+ * package, audit manifest, readiness or native provenance and cannot authorize
+ * current export. Historical numeric/metadata oracles remain inspectable here. */
+export function projectReceivedReportResults(
+  result: MechanicsResult,
+  analysisRun: AnalysisRunEnvelope,
+  provenance = {source_name:"Received result reference",source_location:"reference inspection",source_license:"not_asserted",contributor:"not_asserted",contributor_certification:"not_asserted",redistribution_status:"private_only",review_status:"pending"},
+) {
+  const scope = analysisResultHashScope(analysisRun.schema_version);
+  if (scope === null) throw new Error("REPORT-PACKAGE-ANALYSIS-VERSION-UNSUPPORTED");
+  const strictAnalysis = scope === "received_result";
+  const run = analysisRun.analysis_run;
+  const resultDimensions = new Map(
+    run.result_refs.map((item) => [
+      item.result_ref.ref,
+      item.source_dimension
+    ])
+  );
+  const semanticDisclosures: Array<{id:string;reason:string}> = [];
+  const groupedResults = new Map<string, MechanicsResult["results"]>();
+  for (const item of result.results) {
+    const semantics = resultSemantics(item, analysisRun.schema_version === "0.3.0" ? result : undefined); // known unit/component contradictions fail closed
+    const declared = resultDimensions.get(item.id);
+    const expectedSourceDimension = strictAnalysis
+      ? semantics?.source_physical_semantic_dimension
+      : item.dimension;
+    if (!resultDimensions.has(item.id) || (expectedSourceDimension ?? null) !== (declared ?? null)) throw new Error(`REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH: ${item.id}`);
+    if (!semantics || semantics.category !== "physical_quantity") {
+      semanticDisclosures.push({id:item.id,reason:semantics?.category ?? "unsupported_source_kind"}); continue;
+    }
+    const requiredMetadata = ["force","moment","section_property"].includes(semantics.family ?? "");
+    if (requiredMetadata && !reportMetadata(item)) {
+      semanticDisclosures.push({id:item.id,reason:"legacy_report_metadata_unavailable"}); continue;
+    }
+    const basisKey = `${item.basis_ref?.ref_type ?? "analysis_run"}:${item.basis_ref?.ref_id ?? result.run_id}`;
+    groupedResults.set(basisKey, [...(groupedResults.get(basisKey) ?? []), item]);
+  }
+  const resultSets = Array.from(groupedResults.entries()).map(([basisKey, values], index) => {
+    const basis = values[0]?.basis_ref ?? { ref_type: "analysis_run", ref_id: result.run_id };
+    return {
+      set_id: `result-set:${result.run_id}:${index + 1}`,
+      set_type: "mechanics",
+      basis_ref: reference(basis.ref_type, basis.ref_id),
+      values: values.map((item) => {
+        const semantics = resultSemantics(item, analysisRun.schema_version === "0.3.0" ? result : undefined)!;
+        const sourceDimension = resultDimensions.get(item.id);
+        if (!sourceDimension) {
+          throw new Error(
+            `REPORT-PACKAGE-SOURCE-DIMENSION-MISSING: ${item.id} has no DEL-14-02 source declaration.`
+          );
+        }
+        const expectedSourceDimension = strictAnalysis
+          ? semantics?.source_physical_semantic_dimension
+          : item.dimension;
+        if (expectedSourceDimension && expectedSourceDimension !== sourceDimension) {
+          throw new Error(
+            `REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH: ${item.id} differs from its DEL-14-02 declaration.`
+          );
+        }
+        const family = semantics.family;
+        return {
+        result_id: item.id,
+        family,
+        object_ref: reference("model_entity", item.entity_ref),
+        basis_ref: reference(item.basis_ref?.ref_type ?? "analysis_run", item.basis_ref?.ref_id ?? result.run_id),
+        station_ref: null,
+        magnitude: item.value,
+        unit: item.unit,
+        dimension: semantics.derivative_target_dimension,
+        metadata: reportMetadata(item),
+        diagnostics: [],
+        trace_chain: (item.source_result_refs ?? []).map((source, traceIndex) => ({
+          trace_id: `trace:${item.id}:${traceIndex + 1}`,
+          trace_type: "source_result",
+          source_ref: reference("result", source),
+          target_ref: reference("result", item.id),
+          provenance,
+          diagnostics: []
+        })),
+        provenance
+        };
+      })
+    };
+  });
+
+  return { resultSets, semanticDisclosures };
+}
+
 export async function buildReportPackageRequest({
   model,
   result,
@@ -127,6 +216,9 @@ export async function buildReportPackageRequest({
   const strictAnalysis = resultHashScope === "received_result";
   if (resultHashScope === null) {
     throw new Error("REPORT-PACKAGE-ANALYSIS-VERSION-UNSUPPORTED");
+  }
+  if (sourceContract(result) === "physics") {
+    throw new Error("REPORT-PACKAGE-PHYSICS-PROJECTION-UNAVAILABLE: this legacy report transport does not preserve the exact physical metadata/evidence; use canonical result export.");
   }
   if (analysisRun.schema_version === "0.3.0" && sourceContract(result) !== "precision") {
     throw new Error("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
@@ -214,78 +306,7 @@ export async function buildReportPackageRequest({
 
   const solverIdentity = reportSolverIdentity(result, analysisRun, inputManifest);
   const provenance = privateProvenance(model);
-  const resultDimensions = new Map(
-    run.result_refs.map((item) => [
-      item.result_ref.ref,
-      item.source_dimension
-    ])
-  );
-  const semanticDisclosures: Array<{id:string;reason:string}> = [];
-  const groupedResults = new Map<string, MechanicsResult["results"]>();
-  for (const item of result.results) {
-    const semantics = resultSemantics(item, analysisRun.schema_version === "0.3.0" ? result : undefined); // known unit/component contradictions fail closed
-    const declared = resultDimensions.get(item.id);
-    const expectedSourceDimension = strictAnalysis
-      ? semantics?.source_physical_semantic_dimension
-      : item.dimension;
-    if (!resultDimensions.has(item.id) || (expectedSourceDimension ?? null) !== (declared ?? null)) throw new Error(`REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH: ${item.id}`);
-    if (!semantics || semantics.category !== "physical_quantity") {
-      semanticDisclosures.push({id:item.id,reason:semantics?.category ?? "unsupported_source_kind"}); continue;
-    }
-    const requiredMetadata = ["force","moment","section_property"].includes(semantics.family ?? "");
-    if (requiredMetadata && !reportMetadata(item)) {
-      semanticDisclosures.push({id:item.id,reason:"legacy_report_metadata_unavailable"}); continue;
-    }
-    const basisKey = `${item.basis_ref?.ref_type ?? "analysis_run"}:${item.basis_ref?.ref_id ?? result.run_id}`;
-    groupedResults.set(basisKey, [...(groupedResults.get(basisKey) ?? []), item]);
-  }
-  const resultSets = Array.from(groupedResults.entries()).map(([basisKey, values], index) => {
-    const basis = values[0]?.basis_ref ?? { ref_type: "analysis_run", ref_id: result.run_id };
-    return {
-      set_id: `result-set:${result.run_id}:${index + 1}`,
-      set_type: "mechanics",
-      basis_ref: reference(basis.ref_type, basis.ref_id),
-      values: values.map((item) => {
-        const semantics = resultSemantics(item, analysisRun.schema_version === "0.3.0" ? result : undefined)!;
-        const sourceDimension = resultDimensions.get(item.id);
-        if (!sourceDimension) {
-          throw new Error(
-            `REPORT-PACKAGE-SOURCE-DIMENSION-MISSING: ${item.id} has no DEL-14-02 source declaration.`
-          );
-        }
-        const expectedSourceDimension = strictAnalysis
-          ? semantics?.source_physical_semantic_dimension
-          : item.dimension;
-        if (expectedSourceDimension && expectedSourceDimension !== sourceDimension) {
-          throw new Error(
-            `REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH: ${item.id} differs from its DEL-14-02 declaration.`
-          );
-        }
-        const family = semantics.family;
-        return {
-        result_id: item.id,
-        family,
-        object_ref: reference("model_entity", item.entity_ref),
-        basis_ref: reference(item.basis_ref?.ref_type ?? "analysis_run", item.basis_ref?.ref_id ?? result.run_id),
-        station_ref: null,
-        magnitude: item.value,
-        unit: item.unit,
-        dimension: semantics.derivative_target_dimension,
-        metadata: reportMetadata(item),
-        diagnostics: [],
-        trace_chain: (item.source_result_refs ?? []).map((source, traceIndex) => ({
-          trace_id: `trace:${item.id}:${traceIndex + 1}`,
-          trace_type: "source_result",
-          source_ref: reference("result", source),
-          target_ref: reference("result", item.id),
-          provenance,
-          diagnostics: []
-        })),
-        provenance
-        };
-      })
-    };
-  });
+  const { resultSets, semanticDisclosures } = projectReceivedReportResults(result, analysisRun, provenance);
 
   const resultEnvelope = {
     envelope_id: `result-envelope:${result.run_id}`,
@@ -325,6 +346,9 @@ export async function buildReportPackageRequest({
     professional_boundary: PROFESSIONAL_BOUNDARY
   };
 
+  if (!hasNativeMechanicsInvocation(result, model, inputManifest.manifest.solver_basis.solver_mode)) {
+    throw new Error("REPORT-PACKAGE-NATIVE-INVOCATION-REQUIRED: reference/history data cannot produce a qualified current package.");
+  }
   return {
     package_id: `desktop-report-${safeId(result.run_id)}`,
     export_profile_id: "desktop_local_private_report_package_1",

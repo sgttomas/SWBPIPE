@@ -1,0 +1,20 @@
+{
+  "validation": "source-only TypeScript transpile; not runtime or semantic type check",
+  "command": [
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_FOUNDATION_TESTS/verify-transpile.cjs"
+  ],
+  "node": "v24.18.0",
+  "typescript": "5.9.3",
+  "files": [
+    {
+      "file": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "7b9efe3783952280fadc103eb76f986276c8394a815c2fd161a1345c205eba87",
+      "diagnostics": []
+    },
+    {
+      "file": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "sha256": "888a63ded7086a5e289db7e327b81a78fb9664823e15b2d9c659db60ca31942e",
+      "diagnostics": []
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "sha256": "4e33adc32359fc52c98eef153d3ce72930907023e6ae93f558b2209cbf519e76"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+    "sha256": "53c5be0d2f13ca94239339d31956bd83299c06c509cada8f7e3cac2f9e898048"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+    "sha256": "999fc8a739cf74736e3d79213f248d5004f7d62a9d0c9272e386dcff3f95ec11"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "sha256": "86fdbcd5b4e9641acd8aca2c32aee63a7cc5cf74b7e0e1067284b399623a6a5c"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+    "sha256": "3ac173a0b5e39d8a480def325a17e1aaedb7a608586a27a2cfde1f3c39a18a07"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": ""
+}

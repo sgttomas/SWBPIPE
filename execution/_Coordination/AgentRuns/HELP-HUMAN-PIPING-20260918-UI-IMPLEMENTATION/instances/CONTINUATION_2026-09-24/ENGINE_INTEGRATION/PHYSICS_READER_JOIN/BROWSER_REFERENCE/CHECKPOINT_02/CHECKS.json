@@ -1,0 +1,32 @@
+{
+  "candidate": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "affected_vitest": {
+    "files": 8,
+    "passed": 126,
+    "failed": 0,
+    "exit": 0,
+    "log": "ts-03-pass.log",
+    "maxWorkers": 2,
+    "config": "/private/tmp/piping-physics-ts-vitest.config.mjs",
+    "configLoader": "runner"
+  },
+  "typecheck": {
+    "command": "./node_modules/.bin/tsc -p apps/desktop/tsconfig.json --noEmit",
+    "first_exit": 2,
+    "first_cause": "One newly split App test needed explicit non-null comparison-summary assertion; numeric261 preserved.",
+    "final_exit": 0,
+    "final_log": "tsc-04-pass.log"
+  },
+  "app_changed": {
+    "source_sha256": "317a7a4e6e5c69b7618570002e6e737eb0d766db8583343b648ed881f029a783",
+    "selected": 26,
+    "passed": 15,
+    "failed": 11,
+    "excluded": 199,
+    "unhandled_errors": 8,
+    "log": "app-changed-01-failed.log",
+    "status": "Exact test setup/premise repairs in progress; no pass implied."
+  },
+  "scope": "UI/session boundary logic and actual-pair mocked IPC only; not native UI qualification. Generated operation WASM from CHECKPOINT_01 source. Later imported NUM core source requires coherent rebuild before new WASM/native claim.",
+  "source_unrelated_during_run": "Parent imported reviewed NUM Rust/Python subset and resolving conflicts concurrently in disjoint sources; no Cargo check claim."
+}

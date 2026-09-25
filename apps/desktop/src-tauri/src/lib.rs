@@ -1336,6 +1336,25 @@ fn unit_round_trip_summary(model: &Value) -> (String, usize, String) {
             collect_quantity_unit(
                 &mut unit_refs,
                 &mut missing_refs,
+                format!("materials.{material_id}.poisson_ratio"),
+                material.get("poisson_ratio"),
+            );
+            if let Some(points) = material.get("temperature_points").and_then(Value::as_array) {
+                for point in points {
+                    let point_id = value_id(point);
+                    for field in ["temperature", "elastic_modulus", "shear_modulus", "poisson_ratio", "thermal_expansion_coefficient"] {
+                        collect_quantity_unit(
+                            &mut unit_refs,
+                            &mut missing_refs,
+                            format!("materials.{material_id}.temperature_points.{point_id}.{field}"),
+                            point.get(field),
+                        );
+                    }
+                }
+            }
+            collect_quantity_unit(
+                &mut unit_refs,
+                &mut missing_refs,
                 format!("materials.{material_id}.thermal_expansion_coefficient"),
                 material.get("thermal_expansion_coefficient"),
             );
@@ -1374,6 +1393,17 @@ fn unit_round_trip_summary(model: &Value) -> (String, usize, String) {
     if let Some(load_cases) = model.get("load_cases").and_then(Value::as_array) {
         for load_case in load_cases {
             let load_case_id = value_id(load_case);
+            if let Some(regions) = load_case.get("pressure_regions").and_then(Value::as_array) {
+                for region in regions {
+                    let region_id = value_id(region);
+                    collect_quantity_unit(
+                        &mut unit_refs,
+                        &mut missing_refs,
+                        format!("load_cases.{load_case_id}.pressure_regions.{region_id}.pressure"),
+                        region.get("pressure"),
+                    );
+                }
+            }
             if let Some(primitive_loads) =
                 load_case.get("primitive_loads").and_then(Value::as_array)
             {
@@ -5852,6 +5882,50 @@ mod tests {
     }
 
     #[test]
+    fn explicit_exact_model_round_trips_native_store_and_unit_metadata_without_migration() {
+        let mut connection = Connection::open_in_memory().unwrap();
+        apply_store_migrations(&connection).unwrap();
+        let model: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
+        )).unwrap();
+        let project_id = model["project"]["id"].as_str().unwrap();
+        let (prepared, migration, ledger, transition) = prepare_model_document_for_persist(
+            &connection, project_id, model.clone(), &Value::Null,
+        ).unwrap();
+        assert_eq!(prepared, model);
+        assert_eq!(migration.status, "current");
+        assert_eq!(migration.target_schema_version, "0.3.0");
+        assert!(transition.is_none());
+        assert_eq!(ledger, json!([]));
+        upsert_project(
+            &mut connection, project_id, "Explicit exact-profile fixture", &prepared,
+            &json!([]), &Value::Null, &Value::Null, &Value::Null, &Value::Null,
+            &Value::Null, &Value::Null, &ledger,
+        ).unwrap();
+        let loaded = load_project(&connection, Some(project_id)).unwrap().unwrap();
+        assert_eq!(loaded.model, model);
+        let reopened = evaluate_model_document(&loaded.model, &model_document_migrations());
+        assert_eq!(reopened.status.status, "current");
+        assert_eq!(reopened.status.target_schema_version, "0.3.0");
+        assert!(reopened.migrated_document.is_none());
+        let (status, _, signature) = unit_round_trip_summary(&loaded.model);
+        assert_eq!(status, "unit_metadata_preserved_in_local_project_envelope");
+        assert!(signature.contains("poisson_ratio=1"));
+        assert!(signature.contains("pressure_regions.region:fixture-pressure.pressure=kPa"));
+        assert!(!signature.contains("shear_modulus"));
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let request: LinearStaticPreviewRequest = serde_json::from_value(json!({
+                "model": loaded.model.clone(), "materials": [],
+            })).unwrap();
+            let result = run_linear_static_preview_with_mode(request, mode);
+            assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
+            assert_eq!(result.producer.semantic_contract_id,
+                "openpipestress.result_semantics/0.3.0/physics-1");
+            assert_eq!(result.contract_evidence.as_ref().unwrap()["exact_cases"].as_array().unwrap().len(), 2);
+        }
+    }
+
+    #[test]
     fn local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot() {
         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
         let migration =
@@ -7014,7 +7088,7 @@ mod tests {
         apply_store_migrations(&connection).expect("store migrations apply");
         let _ = &mut connection;
 
-        let newer = json!({ "schema_version": "0.3.0", "project": { "id": "project:newer", "name": "Newer" } });
+        let newer = json!({ "schema_version": "0.3.1", "project": { "id": "project:newer", "name": "Newer" } });
         let error = prepare_model_document_for_persist(
             &connection,
             "project:newer",

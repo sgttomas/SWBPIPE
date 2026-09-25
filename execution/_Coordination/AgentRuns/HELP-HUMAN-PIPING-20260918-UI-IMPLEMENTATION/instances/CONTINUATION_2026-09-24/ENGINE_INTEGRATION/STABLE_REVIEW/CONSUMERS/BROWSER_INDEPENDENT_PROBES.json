@@ -1,0 +1,35 @@
+{
+  "scope": "Unit IPC simulation only using preserved actual producer pairs; no native UI or producer rerun.",
+  "runtime": "v24.18.0",
+  "wasm_sha256": "8e8f1a9573875aa7b4864720989eca1b11754c8c274a68e0467d8599bf9cdfc7",
+  "outcomes": [
+    {
+      "case": "bundled reference and fresh browser routes",
+      "result": "reference unregistered; solve and job refused"
+    },
+    {
+      "profile": "physics",
+      "mode": "sparse_interactive",
+      "result": "private direct/job registration passes; clone/model/mode/mutation/replay/cancel refusals pass; canonical derivative source accounting passes",
+      "report_transport": "explicitly unavailable"
+    },
+    {
+      "profile": "physics",
+      "mode": "dense_scrutiny",
+      "result": "private direct/job registration passes; clone/model/mode/mutation/replay/cancel refusals pass; canonical derivative source accounting passes",
+      "report_transport": "explicitly unavailable"
+    },
+    {
+      "profile": "precision",
+      "mode": "sparse_interactive",
+      "result": "private direct/job registration passes; clone/model/mode/mutation/replay/cancel refusals pass; canonical derivative source accounting passes",
+      "report_transport": "ordinary precision package passes"
+    },
+    {
+      "profile": "precision",
+      "mode": "dense_scrutiny",
+      "result": "private direct/job registration passes; clone/model/mode/mutation/replay/cancel refusals pass; canonical derivative source accounting passes",
+      "report_transport": "ordinary precision package passes"
+    }
+  ]
+}

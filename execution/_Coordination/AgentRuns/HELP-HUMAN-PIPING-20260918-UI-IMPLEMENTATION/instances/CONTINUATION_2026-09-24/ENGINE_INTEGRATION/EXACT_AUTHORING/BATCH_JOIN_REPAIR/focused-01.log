@@ -1,0 +1,26 @@
+   Compiling open_pipe_stress_product_physics v0.2.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics)
+warning: function `is_exact_pressure_result_kind` is never used
+    --> /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/lib.rs:7215:4
+     |
+7215 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_product_physics` (lib) generated 1 warning
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/model_operations/operation_applier)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.86s
+     Running tests/exact_authoring.rs (/private/tmp/piping-create-section-inputs-target/debug/deps/exact_authoring-c8dacd5870fcc46e)
+
+running 8 tests
+test exact_authoring_blocks_missing_explicit_inputs_and_stale_basis ... ok
+test negative_nu_temperature_points_and_exact_material_creation_keep_values ... ok
+test exact_authoring_atomic_batch_rejects_stale_caller_and_plan_hashes_before_simulation ... ok
+test pressure_terminal_nodes_block_direct_and_batch_delete_in_incomplete_models ... ok
+test exact_authoring_atomic_batch_late_invalid_profile_rolls_back_every_edit ... ok
+test pressure_region_members_block_direct_and_batch_pipe_delete_until_explicit_removal ... ok
+test exact_authoring_review_apply_serialization_and_real_solve ... ok
+test exact_authoring_atomic_batch_complete_review_and_apply ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

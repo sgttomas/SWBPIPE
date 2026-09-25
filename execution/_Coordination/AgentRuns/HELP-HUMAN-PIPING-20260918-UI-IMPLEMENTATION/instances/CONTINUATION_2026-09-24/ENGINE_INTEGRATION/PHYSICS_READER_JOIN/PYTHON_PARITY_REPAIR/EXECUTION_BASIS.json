@@ -1,0 +1,98 @@
+{
+  "task": "/root/physics_resume/physics_reader_join/physics_rust_export",
+  "active_role": "TASK",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "mechanism": "delegated-harness-native followup_task",
+  "started_utc": "2026-09-25T06:05:23.502281+00:00",
+  "scope": [
+    "core/analysis_runs/physics_evidence.py",
+    "tests/test_physics_consumer_contract.py",
+    "PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/**",
+    "apps/desktop/src/features/results/physicsResultEvidence.ts",
+    "apps/desktop/src/features/results/physicsResultEvidence.parity.test.ts",
+    "core/reporting/result_export/src/physics_evidence.rs",
+    "core/reporting/result_export/tests/physics_contract.rs"
+  ],
+  "restrictions": [
+    "No delegation",
+    "No Cargo/npm/native/Git",
+    "Focused Python only with authorized existing checked JSON executable"
+  ],
+  "basis": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/analysis_runs/physics_evidence.py",
+      "sha256": "18e392743af2a4a22de33116131b01562654312d3d5087b6f622ac74e800593d"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/test_physics_consumer_contract.py",
+      "sha256": "6323afa07c5b88d3babf1b4e8e4155a5681fc2aebb5988f53ee89b1e60ac6756"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "caece39db29a97e4beca9ae25ff125ca4de4790c067f45e5ed562db91cf97b92"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/physics_connected_mechanics_sparse.json",
+      "sha256": "7956e486cbdb7df3d399cac6331a763ed861d50efbe2d5e3f2a0b4a97972bff2"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/physics_connected_mechanics_dense.json",
+      "sha256": "2e3007311d6b5f76172dbf7e9c4a9bbb98ad16382d75ffa63d327c9aab9ebdb6"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BRIEF.md",
+      "sha256": "38fc86d9ba826feb3c4331641112ad6139bc6372d0e88af541871080b1fd42dc"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "sha256": "295b31cd32638059c79f2123167c8ad3eab3b55879b057dbd1e25e13b7c6aa6b"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/probe_python_admission.py",
+      "sha256": "09122ffc3f9577d6e3e4a4053ba07862e86a7cb4916669ecf8a1d79907a78bf7"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/PROBES_FROZEN_PYTHON.json",
+      "sha256": "370112e23e292dd4b5eb86329c0db9b8c1893d35071df504fc2a6a51c66bb4eb"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/probe_ts_admission.mjs",
+      "sha256": "5234b69200d4351a3532e33fbdcb6d24104984f89270f141212286dc6336b163"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/PROBES_FROZEN_TS.json",
+      "sha256": "7b0e9cfdbb398c365f1967d18acb167a3f7f01eb25fed4f44de1efadccb0cd9c"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/pressure_runtime.rs",
+      "sha256": "5755da52f60893102138d0f0f35b72276caf62fa08f982218da85d675ec5d1aa",
+      "scope": "pressure-only applied_loads.thermal_included:false at source and distinct material thermal_consumed"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/physics_thermal_ui_mechanics_sparse.json",
+      "sha256": "d0aacc4300c307c7c49204a401c61ef8ba6b60ae6d23591a335023210d04d2f0"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/physics_thermal_ui_mechanics_dense.json",
+      "sha256": "38356d7ce4fa16e994f64c50c63dd9101688b77cd967712be75a9d8e977ab24c"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/THERMAL_UI_CAPTURE.json",
+      "sha256": "0ade681ab3de4fe414e553d4b358c4f9e54765cc3d118750fe99e329a9894eac"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/ACTUAL_THERMAL_TS_FROZEN.json",
+      "sha256": "6fd7cf5fb2331f7478e2c1de8c7dd96f13d54ded71d52f244a0af0489a53274a"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/physics_evidence.rust.preimage.rs",
+      "sha256": "5c58ddd494a6bc909940629277b67bacef9dafaaf2d7a4cbc4fe42c409d673b8"
+    }
+  ],
+  "scope_extension": "Parent explicitly assigned narrow TS validator parity and new test file; no source/table/API identity changes; parent subsequently reopened Rust validator and focused tests for temperature, remote reaction, and pressure-only thermal ledger parity.",
+  "execution_boundary": {
+    "rust_red": "Reviewer static probes and preserved exact Rust preimage; no additional pre-repair compilation. Parent prohibited shared candidate swaps during review/concurrent reads; no duplicated harness or source forest introduced.",
+    "rust_green": "Queued for parent lane release; focused current-candidate tests only.",
+    "table_identity": "No physics or precision semantic table bytes changed."
+  }
+}

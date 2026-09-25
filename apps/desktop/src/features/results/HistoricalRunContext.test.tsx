@@ -1,7 +1,8 @@
 import { buildAnalysisRunV02 } from "../../services/analysisRunCompatibility";
-import { describe, expect, it } from "vitest";
-import { buildHistoricalRunContext } from "./HistoricalRunContext";
-import { bindSourceResultDimensions } from "../../services/previewService";
+import { render, screen, cleanup } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { buildHistoricalRunContext, buildBundledReferenceContext, HistoricalRunPanel } from "./HistoricalRunContext";
+import { bindSourceResultDimensions, loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
 import historicalModel from "../../../../../fixtures/product_preview/invented_preview_model.json";
 import historicalResult from "../../../../../fixtures/product_preview/invented_mechanics_result.json";
 import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
@@ -265,4 +266,25 @@ it("keeps the historical enriched and dimension-absent fixture variants distinct
   const absent = await savedEnvelope(true);
   expect(enriched.mechanics_result!.results.every(row => Object.hasOwn(row, "dimension"))).toBe(true);
   expect(absent.mechanics_result!.results.every(row => !Object.hasOwn(row, "dimension"))).toBe(true);
+});
+
+
+afterEach(cleanup);
+describe("bundled reference inspection", () => {
+  it("retains source and original model without Current evidence or saved-history designation", async () => {
+    const reference = await loadBundledMechanicsReference();
+    const before = JSON.stringify(reference);
+    const context = buildBundledReferenceContext(reference);
+    expect(context.designation).toBe("bundled_reference");
+    expect(context.rawMechanicsResult).toBe(reference.source);
+    expect(context.referenceModel).toBe(reference.model);
+    expect(context.rawAnalysisRun).toBeNull();
+    expect(context.modelHash).toBeNull();
+    expect(context.envelopeHash).toBeNull();
+    expect(hasNativeMechanicsInvocation(reference.source, reference.model)).toBe(false);
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.getByRole("region", { name: "Bundled reference — not a solve for the current model" })).toBeInTheDocument();
+    expect(screen.queryByText("Historical saved run")).not.toBeInTheDocument();
+    expect(JSON.stringify(reference)).toBe(before);
+  });
 });

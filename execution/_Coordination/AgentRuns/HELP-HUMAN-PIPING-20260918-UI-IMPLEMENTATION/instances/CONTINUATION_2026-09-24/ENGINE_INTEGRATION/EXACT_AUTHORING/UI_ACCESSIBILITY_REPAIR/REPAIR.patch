@@ -1,0 +1,31 @@
+--- a/projects/chirality-piping/apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx
+@@ -1,4 +1,4 @@
+-import { useEffect, useState } from "react";
++import { useEffect, useId, useState } from "react";
+ import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
+ import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
+ 
+@@ -65,6 +65,9 @@
+ export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: string }) {
+   const state = useRichQueue(props);
+   const [profile, setProfile] = useState("");
++  const profileReasonId = useId();
++  const profileDisabledReason = state.busy ? "Wait for the current change to finish queuing."
++    : profile !== "exact_straight_pressure_v2" ? "Select a pressure profile before queuing this change." : undefined;
+   const currentProfile = { schema_version: props.model.schema_version, ...(props.model.pressure_contract ? { pressure_contract: props.model.pressure_contract } : {}) };
+   const loadCase = props.model.load_cases.find(c => c.id === props.loadCaseId);
+   return <section aria-label="Exact pressure authoring"><h3>Pressure mechanics profile</h3>
+@@ -72,8 +75,10 @@
+     <p>Pressure is uniform within each region. Structural line loads act as entered; a contents-density value does not imply hydrostatic pressure head or a coupled static-fluid pressure and weight state.</p>
+     <fieldset disabled={state.busy}>
+       <TextField label="Pressure profile" value={profile} choices={["exact_straight_pressure_v2"]} onChange={setProfile} />
+-      <button type="button" disabled={profile !== "exact_straight_pressure_v2"} onClick={() => void state.queue({ object_type: "Model", ref: props.model.project.id }, "set_field", "pressure_profile", currentProfile, EXACT_PROFILE, "Exact pressure profile")}>Queue pressure profile</button>
+-    </fieldset><QueueFeedback {...state} />
++      <button type="button" disabled={profile !== "exact_straight_pressure_v2"} title={profileDisabledReason} aria-describedby={profileDisabledReason ? profileReasonId : undefined} onClick={() => void state.queue({ object_type: "Model", ref: props.model.project.id }, "set_field", "pressure_profile", currentProfile, EXACT_PROFILE, "Exact pressure profile")}>Queue pressure profile</button>
++    </fieldset>
++    {profileDisabledReason && <p id={profileReasonId}>{profileDisabledReason}</p>}
++    <QueueFeedback {...state} />
+     <CreateExactMaterial {...props} />
+     {loadCase && <PressureRegionsEditor key={loadCase.id} {...props} loadCase={loadCase} />}
+   </section>;

@@ -1,0 +1,87 @@
+{
+  "note": "Related callers/evidence read as context; workspaceSession and producer are outside frozen review scope and may change concurrently; these are observed context hashes, not complete review acceptance. Prior execution logs are inspected evidence, not this reviewer's executed tests.",
+  "context": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx",
+      "sha256": "e7b07287b09af29a4214e1ca27d1e40e57ef8ce258522266bdbd168cc87bd973"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "sha256": "010b4882fc59a9f7228f0111e3a0013efd411e8e8f0e834f31a459c010904dc6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "53c5be0d2f13ca94239339d31956bd83299c06c509cada8f7e3cac2f9e898048"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/operationsSessionState.ts",
+      "sha256": "8a27435e58fb5a5c24e3c78a2ec846fa000745a70ae36babdab9082c24e4a292"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/BatchReviewPanel.tsx",
+      "sha256": "66a4f562d1354ea86041858b678c7c92e477d071aedb1a5a9ad4cdc59b976ba5"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/geometry_operations.rs",
+      "sha256": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "ee98463c29ece7abe5d3873e2e06931edc42cf8ec7b82b376de5ebcf7c92ba44"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_runtime.rs",
+      "sha256": "5755da52f60893102138d0f0f35b72276caf62fa08f982218da85d675ec5d1aa"
+    },
+    {
+      "path": "tools/software_workflow/validate_change_scope.py",
+      "sha256": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/RETURN.md",
+      "sha256": "b4ed750d44a8f138a472907a3a7e093bcc0750c0815e0e20b8ddf56fe570be90"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/DEPENDENCIES.json",
+      "sha256": "c27a4c732ee0dbf57fb5c41af07e9ec6779ccd99837ed0b06169b4e516188830"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/TEST_JOIN_DISPOSITION.md",
+      "sha256": "044ed4e1f949c54d7461e7ccefabf8276f6bde8e6d9b06b3fb7a187d2e4483a9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_HANDOFF.md",
+      "sha256": "86fcd1a1c532c923bbb824dc623362ef379f02c8ac96553e0b4391c20048a251"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/EXACT_AUTHORING/RETURN.md",
+      "sha256": "8484a1aae6f7eff86066dd06025377e13fbf1a96c8694d6090c0efb5f07bee0f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/RETURN.md",
+      "sha256": "1fc788b4cb0bebfea0c7a93ee6dd8ad5bc0f9c14d26d21c038fd862168f2e9fd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/green-section-inputs-r2.log",
+      "sha256": "7d22e32cc5bab47af1136f467ba8fe2eb79f29d23306191fb283a50a1ae07abe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/red-original-density.log",
+      "sha256": "3fff213115ca963b919694bf52d57693f09161b08891820349aa466fc0009377"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/TS_TASK/vitest-focused-rerun.log",
+      "sha256": "337d251c00399590a30b5473580308484942f07735a08cefd99c27c5198d8d26"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/TS_TASK/vitest-native-package.log",
+      "sha256": "115c009e38bd12186de3b13e72cec93a1098047e62bf96f0174d0d3c2a905fda"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/TS_TASK/vitest-physics-final-rerun.log",
+      "sha256": "79e5c922d57a277605f457b2e3a517bdd5a54a888487df3ec200f28046841aa6"
+    }
+  ]
+}

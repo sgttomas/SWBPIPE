@@ -1,7 +1,7 @@
-import { numericalResultStanding, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../results/numericalResultQuality";
+import { numericalResultStanding, currentSemanticContract } from "../results/numericalResultQuality";
 import { useMemo, useRef, useState } from "react";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
-import { buildPreviewComparison } from "../../services/previewService";
+import { buildPreviewComparison, hasNativeMechanicsInvocation } from "../../services/previewService";
 import type { PreviewSolverMode } from "../../services/previewService";
 import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
@@ -47,21 +47,26 @@ export function useResultsSessionState() {
     useState<CurrentSessionInputManifestEvidence | null>(null);
   const currentSolver = inputManifest?.manifest.solver_basis;
   const currentRecord = analysisRun?.analysis_run;
-  const currentSolvedResult = result && analysisRun?.schema_version === "0.3.0"
+  const currentContract = currentSemanticContract(result);
+  let numericallyEligible = false;
+  try { numericallyEligible = !!result && numericalResultStanding(result, inputManifest?.manifest.model_basis.model_payload).eligible; }
+  catch { /* Malformed retained carriers remain inspectable, never Current. */ }
+  const currentSolvedResult = result && currentContract && analysisRun?.schema_version === "0.3.0"
     && currentRecord?.run_id === result.run_id
     && inputManifest?.manifest.model_basis.model_ref === result.model_ref
     && currentRecord.reproducibility.input_manifest_refs.length === 1
     && currentRecord.reproducibility.input_manifest_refs[0].ref === inputManifest?.manifest_ref.ref
     && currentRecord.reproducibility.input_manifest_hashes.length === 1
     && currentRecord.reproducibility.input_manifest_hashes[0].value === inputManifest?.manifest_sha256
-    && currentRecord.reproducibility.semantic_contract?.id === PRECISION_CONTRACT_ID
-    && currentRecord.reproducibility.semantic_contract?.sha256 === PRECISION_CONTRACT_SHA256
+    && currentRecord.reproducibility.semantic_contract?.id === currentContract.id
+    && currentRecord.reproducibility.semantic_contract?.sha256 === currentContract.sha256
     && currentSolver?.solver_name === result.producer?.component_name
     && currentSolver?.solver_version === result.producer?.component_version
     && currentRecord.solver_version?.solver_name === currentSolver?.solver_name
     && currentRecord.solver_version?.solver_version === currentSolver?.solver_version
     && currentRecord.solver_version?.build_ref.ref === currentSolver?.solver_build_ref
-    && numericalResultStanding(result, inputManifest?.manifest.model_basis.model_payload).eligible ? result : null;
+    && numericallyEligible
+    && hasNativeMechanicsInvocation(result, inputManifest?.manifest.model_basis.model_payload, currentSolver?.solver_mode) ? result : null;
   // Worst-of rule-check aggregate from the GUI run panel, lifted so it can be
   // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).
   const [ruleCheckAggregate, setRuleCheckAggregate] = useState<RuleCheckStatus | null>(null);

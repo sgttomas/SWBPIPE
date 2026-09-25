@@ -1,0 +1,24 @@
+{
+  "check": "TypeScript parse diagnostics only; no typecheck, test, build or browser execution.",
+  "typescript": "5.9.3",
+  "module_origin": "projects/chirality-piping/node_modules/typescript/lib/typescript.js (parent-authorized installed dependency symlink)",
+  "prior_attempts": "Two desktop-local module paths were absent (ERR_MODULE_NOT_FOUND); no source was evaluated. Parent identified project-root dependency path.",
+  "results": [
+    {
+      "path": "apps/desktop/e2e/r2-smoke.spec.ts",
+      "diagnostics": []
+    },
+    {
+      "path": "apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "diagnostics": []
+    },
+    {
+      "path": "apps/desktop/src/App.projectHandlers.test.tsx",
+      "diagnostics": []
+    },
+    {
+      "path": "apps/desktop/src/App.deadControls.test.tsx",
+      "diagnostics": []
+    }
+  ]
+}

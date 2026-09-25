@@ -1,0 +1,57 @@
+{
+  "scope": "Static/parser checks only; no runtime suite or Cargo execution.",
+  "owned_files": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "before_sha256": "d56b725fc93b08eca030517aece19e90aad1f3a432adcf9b9a006e779fd79f94",
+      "after_sha256": "ea475e86252e86965b19f8f6c22b3e063e9f4e958b2278ca95fbddcd1cd3c812",
+      "conflict_markers": 0,
+      "python_ast_parse": "pass"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "before_sha256": "bc295bff598a52cab200b6046828450cb0ea5ad9eb6a5dbcb75dcb77b47a9b22",
+      "after_sha256": "d01baea8711435d5e989004522806202f8a33261ff41df93b34064172e4449b9",
+      "conflict_markers": 0,
+      "python_ast_parse": "not_applicable"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "before_sha256": "c3c797451be0d22e890c8155eebc26e78b9d245d233aae8b2375c9efebe18fca",
+      "after_sha256": "b247e7c18597129c7453fc264acf1362b59e55f6dfd565f46ea86a7222b36501",
+      "conflict_markers": 0,
+      "python_ast_parse": "not_applicable"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "before_sha256": "c61f546ae9fcb25df6d4c2500409435d858d411a3e9d42715132d034f945c7bc",
+      "after_sha256": "fcf2edc458ad46e0c97a9651390909c7e3086963efb5beb74cb84e2c7928ad07",
+      "conflict_markers": 0,
+      "python_ast_parse": "not_applicable"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/__init__.py",
+      "before_sha256": "aa1fbd8152bfc53ff556dfc65661806a727c782943ec1d909d7a345c9164908d",
+      "after_sha256": "aa1fbd8152bfc53ff556dfc65661806a727c782943ec1d909d7a345c9164908d",
+      "conflict_markers": 0,
+      "python_ast_parse": "pass"
+    }
+  ],
+  "read_only_preservation_count": 12,
+  "read_only_preservation": "All captured validator/table hashes unchanged.",
+  "rust_syntax_format_check": {
+    "command": [
+      "rustfmt",
+      "--edition",
+      "2021",
+      "--config",
+      "skip_children=true",
+      "--check",
+      "core/reporting/result_export/src/semantic_contract.rs",
+      "core/reporting/result_export/src/derivative.rs"
+    ],
+    "exit_code": 0,
+    "scope": "Owned files only; no Cargo/typecheck/suite."
+  },
+  "recorded_at_utc": "2026-09-25T07:15:17.877711+00:00"
+}

@@ -1,0 +1,23 @@
+{
+  "candidate": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "wasm": {
+    "command": "env -u CARGO_TARGET_DIR CARGO_BUILD_JOBS=2 npm run build:wasm --workspace apps/desktop",
+    "exit": 0,
+    "source": "candidate current authoring source; dependencies only shared; artifacts local generated"
+  },
+  "typescript": {
+    "command": "./node_modules/.bin/tsc -p apps/desktop/tsconfig.json --noEmit",
+    "exit": 0,
+    "note": "Final rerun after reference UI source and both tests passed."
+  },
+  "vitest": {
+    "log": "ts-focused.log",
+    "exit": 0,
+    "files": 11,
+    "tests": 198,
+    "maxWorkers": 2,
+    "config": "/private/tmp/piping-physics-ts-vitest.config.mjs",
+    "configLoader": "runner"
+  },
+  "qualification": "Transport replay is a unit simulation using exact real producer pairs; this is not native UI qualification."
+}

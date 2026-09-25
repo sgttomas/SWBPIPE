@@ -1,0 +1,143 @@
+{
+  "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+  "base": "HEAD (0a438 integration base)",
+  "source_sha256": "566f9d9a37b009f0d40bcabb99a92069aa026e40ffb025ba789dd69173d4d73a",
+  "changed": [
+    {
+      "name": "suppresses solve proof unless the completed job, result, and exact model version remain bound",
+      "line": 515
+    },
+    {
+      "name": "inspects bundled rows separately and never saves them as current model results",
+      "line": 591
+    },
+    {
+      "name": "suppresses a real delayed backend completion when native open commits a new model",
+      "line": 651
+    },
+    {
+      "name": "surfaces bounded PDU-008 nonlinear, ratio, and rich-diagnostic GUI states",
+      "line": 926
+    },
+    {
+      "name": "records reference comparison workspace unit policy evidence without conversion",
+      "line": 1010
+    },
+    {
+      "name": "keeps both File-menu report attempts ineligible for a bundled browser reference",
+      "line": 4553
+    },
+    {
+      "name": "keeps queued editor intent context separate while inspecting preserved reference rows",
+      "line": 7257
+    },
+    {
+      "name": "round trips preserved historical review proposal operations through local save and open",
+      "line": 9394
+    },
+    {
+      "name": "renders all preserved reference result families, values and recovery annotations without Current",
+      "line": 10110
+    },
+    {
+      "name": "preserves the original complete reference derivative row, unit and hash protocol oracles",
+      "line": 10562
+    },
+    {
+      "name": "preserves the830-row stress-neutral format as a pure reference projection",
+      "line": 10641
+    },
+    {
+      "name": "retains historical component, pressure-thrust, hanger and review-package numeric oracles",
+      "line": 10741
+    },
+    {
+      "name": "reads recorded knowledge quantities from reference results without invoking a solver",
+      "line": 10944
+    },
+    {
+      "name": "qualifies only a matching captured native unit replay and retires it on reference inspection",
+      "line": 10955
+    },
+    {
+      "name": "links reference diagnostics to preserved model and review-only proposal context",
+      "line": 10993
+    },
+    {
+      "name": "applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model",
+      "line": 11158
+    },
+    {
+      "name": "preserves reference comparison rows through display-unit changes without a Current claim",
+      "line": 14088
+    },
+    {
+      "name": "preserves the specific backend-required failure after a real browser model edit",
+      "line": 14458
+    },
+    {
+      "name": "rejects a delayed rule-check aggregate from a replaced same-ID session basis",
+      "line": 14563
+    },
+    {
+      "name": "does not start an obsolete report-package save or publish stale build state",
+      "line": 14648
+    },
+    {
+      "name": "keeps a newer report-package save busy and rejects stale %s completion state",
+      "line": 14725
+    },
+    {
+      "name": "keeps registered MODEL_INCOMPLETE diagnostics while barring fresh solved-only consumers",
+      "line": 14824
+    },
+    {
+      "name": "cannot publish delayed inactive export or report completions after a project reopen",
+      "line": 15020
+    },
+    {
+      "name": "lets a fresh same-model solve win against a delayed Historical refresh",
+      "line": 15286
+    },
+    {
+      "name": "keeps a same-model Current solve Current after native save",
+      "line": 15449
+    }
+  ],
+  "removed_or_renamed": [
+    {
+      "name": "records comparison workspace unit policy evidence without conversion",
+      "line": 909
+    },
+    {
+      "name": "routes both File-menu report-package attempts through App-owned intent and the honest browser no-effect result",
+      "line": 4468
+    },
+    {
+      "name": "carries queued editor intents into the report packet as review-only operation context",
+      "line": 7191
+    },
+    {
+      "name": "round trips review-only proposal operations through local save and open",
+      "line": 9301
+    },
+    {
+      "name": "shows computed mechanics diagnostics in results, knowledge, and review-only proposal context",
+      "line": 9997
+    },
+    {
+      "name": "links selected diagnostics to affected result and model context",
+      "line": 13594
+    },
+    {
+      "name": "passes the current result to comparison readouts and preserves the source result rows",
+      "line": 16688
+    }
+  ],
+  "regex": "suppresses solve proof unless the completed job, result, and exact model version remain bound|inspects bundled rows separately and never saves them as current model results|suppresses a real delayed backend completion when native open commits a new model|surfaces bounded PDU-008 nonlinear, ratio, and rich-diagnostic GUI states|records reference comparison workspace unit policy evidence without conversion|keeps both File-menu report attempts ineligible for a bundled browser reference|keeps queued editor intent context separate while inspecting preserved reference rows|round trips preserved historical review proposal operations through local save and open|renders all preserved reference result families, values and recovery annotations without Current|preserves the original complete reference derivative row, unit and hash protocol oracles|preserves the830-row stress-neutral format as a pure reference projection|retains historical component, pressure-thrust, hanger and review-package numeric oracles|reads recorded knowledge quantities from reference results without invoking a solver|qualifies only a matching captured native unit replay and retires it on reference inspection|links reference diagnostics to preserved model and review-only proposal context|applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model|preserves reference comparison rows through display-unit changes without a Current claim|preserves the specific backend-required failure after a real browser model edit|rejects a delayed rule-check aggregate from a replaced same-ID session basis|does not start an obsolete report-package save or publish stale build state|keeps a newer report-package save busy and rejects stale .* completion state|keeps registered MODEL_INCOMPLETE diagnostics while barring fresh solved-only consumers|cannot publish delayed inactive export or report completions after a project reopen|lets a fresh same-model solve win against a delayed Historical refresh|keeps a same-model Current solve Current after native save",
+  "notes": [
+    "Changed test declarations only; parameterized %s expands via wildcard in regex.",
+    "No App runtime test or typecheck was run by this TASK; source is frozen pending parent validation.",
+    "Subset01 repair retains the same25 changed declarations and regex; updated locations and source hash."
+  ]
+}

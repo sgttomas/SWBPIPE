@@ -3,112 +3,349 @@ use serde_json::Value;
 use std::sync::OnceLock;
 pub fn contract() -> &'static Value {
     static CONTRACT: OnceLock<Value> = OnceLock::new();
-    CONTRACT.get_or_init(|| serde_json::from_str(include_str!("../../../../fixtures/results/semantic_contract_v0_2.json")).expect("pinned semantic contract"))
+    CONTRACT.get_or_init(|| {
+        serde_json::from_str(include_str!(
+            "../../../../fixtures/results/semantic_contract_v0_2.json"
+        ))
+        .expect("pinned semantic contract")
+    })
 }
 pub fn signature(row: &Value) -> Result<Option<&'static Value>, String> {
     signature_in(contract(), row)
 }
 pub fn signature_in(table: &'static Value, row: &Value) -> Result<Option<&'static Value>, String> {
     let kind = row["kind"].as_str().ok_or("SOURCE_KIND_MISSING")?;
-    let known: Vec<_> = table["rows"].as_array().unwrap().iter().filter(|s| s["kind"] == kind).collect();
-    if known.is_empty() { return Ok(None); }
-    let units: Vec<_> = known.into_iter().filter(|s| s["unit"] == row["unit"]).collect();
-    if units.is_empty() { return Err(format!("SOURCE_UNIT_CONTRADICTION: {kind}")); }
-    let component = row["metadata"]["component"].as_str().filter(|s| !s.is_empty());
-    let exact = units.iter().find(|s| s["component"].is_null() || s["component"].as_str() == component);
-    if let Some(s) = exact { return Ok(Some(s)); }
-    if component.is_some() { return Err(format!("SOURCE_COMPONENT_CONTRADICTION: {kind}")); }
+    let known: Vec<_> = table["rows"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|s| s["kind"] == kind)
+        .collect();
+    if known.is_empty() {
+        return Ok(None);
+    }
+    let units: Vec<_> = known
+        .into_iter()
+        .filter(|s| s["unit"] == row["unit"])
+        .collect();
+    if units.is_empty() {
+        return Err(format!("SOURCE_UNIT_CONTRADICTION: {kind}"));
+    }
+    let component = row["metadata"]["component"]
+        .as_str()
+        .filter(|s| !s.is_empty());
+    let exact = units
+        .iter()
+        .find(|s| s["component"].is_null() || s["component"].as_str() == component);
+    if let Some(s) = exact {
+        return Ok(Some(s));
+    }
+    if component.is_some() {
+        return Err(format!("SOURCE_COMPONENT_CONTRADICTION: {kind}"));
+    }
     // A missing component cannot identify the variant. This representative is
     // used only to classify the incomplete disclosure, never to emit a target.
     Ok(Some(units[0]))
 }
 pub fn complete_metadata(row: &Value) -> bool {
-    ["component", "coordinate_system", "location", "basis", "sign_convention"].iter().all(|k| row["metadata"][k].as_str().is_some_and(|s| !s.is_empty()))
+    [
+        "component",
+        "coordinate_system",
+        "location",
+        "basis",
+        "sign_convention",
+    ]
+    .iter()
+    .all(|k| row["metadata"][k].as_str().is_some_and(|s| !s.is_empty()))
 }
 pub fn canonical_metadata(row: &Value) -> Option<Value> {
     canonical_metadata_in(contract(), row)
 }
 pub fn canonical_metadata_in(table: &Value, row: &Value) -> Option<Value> {
-    if !complete_metadata(row) { return None; }
+    if !complete_metadata(row) {
+        return None;
+    }
     let mut projection = serde_json::Map::new();
     for (key, rule) in table["canonical_metadata_vocabulary"].as_object().unwrap() {
         let value = &row["metadata"][key];
-        if let Some(allowed) = rule["enum"].as_array() { if !allowed.contains(value) { return None; } }
+        if let Some(allowed) = rule["enum"].as_array() {
+            if !allowed.contains(value) {
+                return None;
+            }
+        }
         projection.insert(key.clone(), value.clone());
     }
     Some(Value::Object(projection))
 }
 
 /// Dispatch is source-bound; reserved successor IDs never select the precision table.
+pub const PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
 pub const PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
 pub fn precision_contract() -> &'static Value {
     static CONTRACT: OnceLock<Value> = OnceLock::new();
-    CONTRACT.get_or_init(|| serde_json::from_str(include_str!("../../../../fixtures/results/semantic_contract_v0_3_precision_1.json")).expect("pinned precision semantic contract"))
+    CONTRACT.get_or_init(|| {
+        serde_json::from_str(include_str!(
+            "../../../../fixtures/results/semantic_contract_v0_3_precision_1.json"
+        ))
+        .expect("pinned precision semantic contract")
+    })
 }
-pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), String> {
+pub fn physics_contract() -> &'static Value {
+    static CONTRACT: OnceLock<Value> = OnceLock::new();
+    CONTRACT.get_or_init(|| {
+        serde_json::from_str(include_str!(
+            "../../../../fixtures/results/semantic_contract_v0_3_physics_1.json"
+        ))
+        .expect("pinned physics semantic contract")
+    })
+}
+/// Header dispatch only; canonical envelopes have no raw rows. This does not
+/// validate physical evidence and must never be used alone to qualify raw output.
+pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static str), String> {
     match source["schema_version"].as_str() {
         Some("0.1.0") => {
-            if ["producer", "numerical_quality", "formulation_basis"].iter().any(|k| source.get(k).is_some()) {
+            if [
+                "producer",
+                "numerical_quality",
+                "formulation_basis",
+                "contract_evidence",
+                "source_block_recovery",
+            ]
+            .iter()
+            .any(|k| source.get(k).is_some())
+            {
                 return Err("LEGACY_SOURCE_METADATA_CONTRADICTION".into());
             }
             Ok((contract(), "0.2.0"))
         }
         Some("0.2.0") => {
             let p = &source["producer"];
-            if !exact_keys(p, &["component_name", "component_version", "semantic_contract_id"]) || p["component_name"] != "open_pipe_stress_product_physics" || p["component_version"] != "0.2.0" || p["semantic_contract_id"] != PRECISION_ID {
+            if !exact_keys(
+                p,
+                &[
+                    "component_name",
+                    "component_version",
+                    "semantic_contract_id",
+                ],
+            ) || p["component_name"] != "open_pipe_stress_product_physics"
+                || p["component_version"] != "0.2.0"
+                || !matches!(
+                    p["semantic_contract_id"].as_str(),
+                    Some(PRECISION_ID | PHYSICS_ID | crate::source_blocks::CONTRACT_ID)
+                )
+            {
                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
             }
+            if p["semantic_contract_id"] != crate::source_blocks::CONTRACT_ID
+                && source.get("source_block_recovery").is_some()
+            {
+                return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
+            }
             let q = &source["numerical_quality"];
-            if !exact_keys(q, &["value_representation", "publication_quantization", "integrity_policy", "status", "cases"]) || q["value_representation"] != "finite_binary64" || q["publication_quantization"] != "none" || q["integrity_policy"] != "M03-INTEGRITY-v1" || !quality_status(&q["status"]) || !q["cases"].is_array() {
+            if !exact_keys(
+                q,
+                &[
+                    "value_representation",
+                    "publication_quantization",
+                    "integrity_policy",
+                    "status",
+                    "cases",
+                ],
+            ) || q["value_representation"] != "finite_binary64"
+                || q["publication_quantization"] != "none"
+                || q["integrity_policy"] != "M03-INTEGRITY-v1"
+                || !quality_status(&q["status"])
+                || !q["cases"].is_array()
+            {
                 return Err("SOURCE_NUMERICAL_QUALITY_INVALID".into());
             }
             for case in q["cases"].as_array().unwrap() {
-                if !exact_keys(case, &["basis_ref", "structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence", "evidence_refs"]) || !quality_status(&case["solve_quality"]) || !matches!(case["structural_status"].as_str(),Some("passive_model_basis"|"physical_mechanism_witnessed"|"negative_energy_witnessed"|"numerically_unresolved")) || !matches!(case["model_matrix_fidelity"].as_str(),Some("represented_equations_retained"|"assembly_loss_detected"|"assembly_uncertainty"|"not_assessed")) || !matches!(case["accuracy_evidence"].as_str(),Some("not_claimed"|"reference_verified"|"unresolved")) || !case["evidence_refs"].as_array().is_some_and(|a| a.iter().all(nonempty_string)) || !exact_keys(&case["basis_ref"], &["ref_type", "ref_id"]) || !nonempty_string(&case["basis_ref"]["ref_type"]) || !nonempty_string(&case["basis_ref"]["ref_id"]) {
+                if !exact_keys(
+                    case,
+                    &[
+                        "basis_ref",
+                        "structural_status",
+                        "solve_quality",
+                        "model_matrix_fidelity",
+                        "accuracy_evidence",
+                        "evidence_refs",
+                    ],
+                ) || !quality_status(&case["solve_quality"])
+                    || !matches!(
+                        case["structural_status"].as_str(),
+                        Some(
+                            "passive_model_basis"
+                                | "physical_mechanism_witnessed"
+                                | "negative_energy_witnessed"
+                                | "numerically_unresolved"
+                        )
+                    )
+                    || !matches!(
+                        case["model_matrix_fidelity"].as_str(),
+                        Some(
+                            "represented_equations_retained"
+                                | "assembly_loss_detected"
+                                | "assembly_uncertainty"
+                                | "not_assessed"
+                        )
+                    )
+                    || !matches!(
+                        case["accuracy_evidence"].as_str(),
+                        Some("not_claimed" | "reference_verified" | "unresolved")
+                    )
+                    || !case["evidence_refs"]
+                        .as_array()
+                        .is_some_and(|a| a.iter().all(nonempty_string))
+                    || !exact_keys(&case["basis_ref"], &["ref_type", "ref_id"])
+                    || !nonempty_string(&case["basis_ref"]["ref_type"])
+                    || !nonempty_string(&case["basis_ref"]["ref_id"])
+                {
                     return Err("SOURCE_NUMERICAL_CASE_INVALID".into());
                 }
             }
             let f = &source["formulation_basis"];
-            if !exact_keys(f, &["profile_id", "limitations"]) || f["profile_id"] != "product_preview_mechanics_v1" || !f["limitations"].as_array().is_some_and(|a| !a.is_empty() && a.iter().all(nonempty_string)) {
+            let profile = if p["semantic_contract_id"] == PHYSICS_ID {
+                "exact_straight_pressure_v2"
+            } else {
+                "product_preview_mechanics_v1"
+            };
+            if !exact_keys(f, &["profile_id", "limitations"])
+                || f["profile_id"] != profile
+                || !f["limitations"]
+                    .as_array()
+                    .is_some_and(|a| !a.is_empty() && a.iter().all(nonempty_string))
+            {
                 return Err("SOURCE_FORMULATION_BASIS_UNSUPPORTED".into());
             }
-            Ok((precision_contract(), "0.3.0"))
+            // Canonical metadata has no raw rows. Select the explicit table here;
+            // raw evidence and source-block invocation checks are separate APIs.
+            let table = match p["semantic_contract_id"].as_str() {
+                Some(PHYSICS_ID) => physics_contract(),
+                Some(crate::source_blocks::CONTRACT_ID) => source_blocks_contract(),
+                Some(PRECISION_ID) => precision_contract(),
+                _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
+            };
+            Ok((table, "0.3.0"))
         }
         _ => Err("SOURCE_SCHEMA_VERSION_UNSUPPORTED".into()),
     }
 }
+/// Raw dispatch validates the selected physical contract, never inferring it
+/// from a profile name or a numerical/accuracy label.
+pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), String> {
+    let selected = for_source_metadata(source)?;
+    match source["producer"]["semantic_contract_id"].as_str() {
+        Some(PHYSICS_ID) => validate_physics_evidence(source)?,
+        Some(crate::source_blocks::CONTRACT_ID) => {
+            // Shape/publication validation does not supply an actual invocation
+            // or recreate the producer's private arithmetic receipt.
+            crate::source_blocks::validate(source, None)?;
+        }
+        _ => {
+            if source
+                .get("contract_evidence")
+                .is_some_and(|v| !v.is_null())
+                || source.get("source_block_recovery").is_some()
+                || source.get("carrier_evidence").is_some()
+            {
+                return Err("SOURCE_EVIDENCE_CONTRACT_UNSUPPORTED".into());
+            }
+        }
+    }
+    Ok(selected)
+}
+pub use crate::physics_evidence::validate_physics_evidence;
+
 fn quality_status(value: &Value) -> bool {
-    matches!(value.as_str(),Some("not_assessed"|"checks_passed"|"sensitive"|"unresolved"|"failed"))
+    matches!(
+        value.as_str(),
+        Some("not_assessed" | "checks_passed" | "sensitive" | "unresolved" | "failed")
+    )
 }
 
 /// Numerical eligibility only. The caller must separately bind the actual model,
 /// input, build and authentic source. Requested bases must come from that model.
 /// Historical authenticity never supplies evidence of the current algorithm.
 pub fn numerical_use_standing(source: &Value, requested_basis_refs: &[Value]) -> &'static str {
-    let Ok((_, version)) = for_source(source) else { return "unsupported"; };
-    if version != "0.3.0" || requested_basis_refs.is_empty() { return "needs_recompute"; }
+    numerical_use_standing_with_context(source, requested_basis_refs, None)
+}
+
+pub fn numerical_use_standing_with_context(
+    source: &Value,
+    requested_basis_refs: &[Value],
+    actual_invocation: Option<&Value>,
+) -> &'static str {
+    let Ok((_, version)) = for_source(source) else {
+        return "unsupported";
+    };
+    if version != "0.3.0" || requested_basis_refs.is_empty() {
+        return "needs_recompute";
+    }
+    if source["producer"]["semantic_contract_id"] == crate::source_blocks::CONTRACT_ID {
+        let expected = source["source_block_recovery"]["body"]["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|c| c["basis_ref"].clone())
+            .collect::<Vec<_>>();
+        if expected != requested_basis_refs {
+            return "needs_recompute";
+        }
+        return match crate::source_blocks::validate(source, actual_invocation) {
+            Ok(true) => "numerically_eligible",
+            Ok(false) => "needs_recompute",
+            Err(_) => "unsupported",
+        };
+    }
     let q = &source["numerical_quality"];
     // Sensitive backward-error evidence is retained for inspection, not qualified use.
-    if q["status"] != "checks_passed" { return "needs_recompute"; }
+    if q["status"] != "checks_passed" {
+        return "needs_recompute";
+    }
     let cases = q["cases"].as_array().unwrap();
-    if cases.len() != requested_basis_refs.len() { return "needs_recompute"; }
+    if cases.len() != requested_basis_refs.len() {
+        return "needs_recompute";
+    }
     let mut ids = std::collections::HashSet::new();
     for key in ["results", "diagnostics"] {
-        let Some(items) = source[key].as_array() else { return "needs_recompute"; };
+        let Some(items) = source[key].as_array() else {
+            return "needs_recompute";
+        };
         for item in items {
-            let Some(id) = item["id"].as_str().filter(|id| !id.is_empty()) else { return "needs_recompute"; };
-            if !ids.insert(id) { return "needs_recompute"; }
+            let Some(id) = item["id"].as_str().filter(|id| !id.is_empty()) else {
+                return "needs_recompute";
+            };
+            if !ids.insert(id) {
+                return "needs_recompute";
+            }
         }
     }
     for (index, basis) in requested_basis_refs.iter().enumerate() {
-        if requested_basis_refs[..index].contains(basis) { return "needs_recompute"; }
-        let matching: Vec<_> = cases.iter().filter(|case| case["basis_ref"] == *basis).collect();
-        if matching.len() != 1 { return "needs_recompute"; }
+        if requested_basis_refs[..index].contains(basis) {
+            return "needs_recompute";
+        }
+        let matching: Vec<_> = cases
+            .iter()
+            .filter(|case| case["basis_ref"] == *basis)
+            .collect();
+        if matching.len() != 1 {
+            return "needs_recompute";
+        }
         let case = matching[0];
         if case["solve_quality"] != "checks_passed"
             || case["structural_status"] != "passive_model_basis"
             || case["model_matrix_fidelity"] != "represented_equations_retained"
-            || !matches!(case["accuracy_evidence"].as_str(),Some("not_claimed"|"reference_verified"))
-            || !case["evidence_refs"].as_array().is_some_and(|refs| !refs.is_empty() && refs.iter().all(|r| r.as_str().is_some_and(|id| ids.contains(id)))) {
+            || !matches!(
+                case["accuracy_evidence"].as_str(),
+                Some("not_claimed" | "reference_verified")
+            )
+            || !case["evidence_refs"].as_array().is_some_and(|refs| {
+                !refs.is_empty()
+                    && refs
+                        .iter()
+                        .all(|r| r.as_str().is_some_and(|id| ids.contains(id)))
+            })
+        {
             return "needs_recompute";
         }
     }
@@ -116,8 +353,21 @@ pub fn numerical_use_standing(source: &Value, requested_basis_refs: &[Value]) ->
 }
 
 fn exact_keys(value: &Value, keys: &[&str]) -> bool {
-    value.as_object().is_some_and(|object| object.len() == keys.len() && keys.iter().all(|key| object.contains_key(*key)))
+    value.as_object().is_some_and(|object| {
+        object.len() == keys.len() && keys.iter().all(|key| object.contains_key(*key))
+    })
 }
 fn nonempty_string(value: &Value) -> bool {
     value.as_str().is_some_and(|text| !text.is_empty())
+}
+
+/// Additive signatures preserve p1 bytes and meanings under a distinct identity.
+pub fn source_blocks_contract() -> &'static Value {
+    static CONTRACT: OnceLock<Value> = OnceLock::new();
+    CONTRACT.get_or_init(|| {
+        serde_json::from_str(include_str!(
+            "../../../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json"
+        ))
+        .expect("pinned source-block semantic contract")
+    })
 }

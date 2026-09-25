@@ -1,0 +1,21 @@
+--- Cargo.lock.before
++++ Cargo.lock.after
+@@ -162,7 +162,7 @@
+ 
+ [[package]]
+ name = "open_pipe_stress_product_physics"
+-version = "0.1.0"
++version = "0.2.0"
+ dependencies = [
+  "open_pipe_stress_curved_bend",
+  "open_pipe_stress_frame_kernel",
+@@ -193,6 +193,9 @@
+ [[package]]
+ name = "open_pipe_stress_sparse_direct"
+ version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++]
+ 
+ [[package]]
+ name = "open_pipe_stress_straight_pipe"

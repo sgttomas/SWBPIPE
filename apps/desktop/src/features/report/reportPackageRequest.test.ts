@@ -1,4 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, afterEach, vi } from "vitest";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
 import { buildAnalysisRunPreview, buildPreviewComparison, loadPreviewModel, runPreviewMechanics } from "../../services/previewService";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
@@ -6,11 +10,15 @@ import historicalResult from "../../../../../fixtures/product_preview/invented_m
 import { analysisRecordProjection, buildAnalysisRunV02, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import {resultSemantics} from "../results/resultSemantics";
-import { buildReportPackageRequest } from "./reportPackageRequest";
+import { buildReportPackageRequest, projectReceivedReportResults } from "./reportPackageRequest";
+import { buildRenderableReportInput } from "./renderableReportInput";
 import componentProvenanceProjection from "../../../../../fixtures/reports/invented/component_provenance_cross_layer_projection.json";
 
-async function currentSession() {
-  const model = await loadPreviewModel();
+// Actual captured full-UI pair through unit IPC replay, NOT native UI qualification.
+async function currentSession(profile: "precision" | "physics" = "precision") {
+  const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile });
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  invokeMock.mockImplementation(createNativeMechanicsReplay({ profile }).invoke);
   const result = await runPreviewMechanics(model);
   const inputManifest = await buildCurrentSessionInputManifest({
     model,
@@ -48,7 +56,7 @@ async function legacyProvenanceSession(model: PreviewModel) {
 }
 
 describe("report-package current-session request", () => {
-  it("preserves the legacy component-provenance projection at the package boundary", async () => {
+  it("preserves the legacy component-provenance oracle through pure report projection", async () => {
     const modelWithMissingProvenance = structuredClone(await loadPreviewModel());
     const missingComponent = modelWithMissingProvenance.components.find(
       (component) => component.id === "component:C-140"
@@ -69,20 +77,11 @@ describe("report-package current-session request", () => {
       provenance: ""
     });
 
-    const request = await buildReportPackageRequest({
-      model,
-      result,
-      analysisRun,
-      inputManifest,
-      projectSummary: null,
-      comparison: null,
-      ruleCheckAggregate: null
-    });
+    const projected = await buildRenderableReportInput({ model, result, analysisRun, projectSummary: null });
     const historicalIdentity = { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0" };
-    expect(request.result_envelopes[0]).toMatchObject(historicalIdentity);
-    expect(request.audit_manifest.solver_version).toEqual(historicalIdentity);
+    expect(analysisRun.analysis_run.solver_version).toMatchObject({ solver_name: historicalIdentity.solver_name, solver_version: historicalIdentity.solver_version, build_ref: { ref: historicalIdentity.solver_build_ref } });
     expect(result).toEqual(historicalResult);
-    const sections = request.report.report_sections;
+    const sections = projected.report_sections;
     const presentId = componentProvenanceProjection.present_component.value.value_id;
     const missingId = componentProvenanceProjection.missing_component.value.value_id;
 
@@ -164,7 +163,29 @@ describe("report-package current-session request", () => {
       redistribution_status: "private_only",
       review_status: "pending"
     });
-    const resultValues = request.result_envelopes[0].result_sets.flatMap(
+    expect(request.state_comparison_handoff_records[0]).toMatchObject({
+      deliverable_id: "DEL-08-06",
+      section_set_id: `desktop-current-session:${result.run_id}`,
+      diagnostics: [],
+      professional_boundary: expect.objectContaining({ human_review_required: true })
+    });
+    const packageJson = JSON.stringify(request);
+    expect(packageJson).not.toContain("invented_public_example");
+    expect(packageJson).not.toContain('"redistribution_status":"public_permissive"');
+    expect(packageJson).toContain('"privacy_classification":"private_project_data"');
+    expect(packageJson).toContain('"redistribution_status":"private_only"');
+    expect(packageJson).toContain('"review_status":"pending"');
+    expect(model).toEqual(modelSnapshot);
+    expect(result).toEqual(resultSnapshot);
+    expect(analysisRun).toEqual(runSnapshot);
+  });
+
+  it("preserves historical fixture component and hanger input oracles as an unqualified projection", async () => {
+    const session = await legacyProvenanceSession(await loadPreviewModel());
+    const before = JSON.stringify(session);
+    const projection = projectReceivedReportResults(session.result, session.analysisRun);
+    const report = await buildRenderableReportInput({ ...session, projectSummary: null });
+    const resultValues = projection.resultSets.flatMap(
       (set) => set.values
     );
     expect(
@@ -181,7 +202,7 @@ describe("report-package current-session request", () => {
           "result:component-stiffness:component-C-150:torsional"
       )?.dimension
     ).toBeUndefined();
-    const reportValues = request.report.report_sections.user_supplied_values;
+    const reportValues = report.report_sections.user_supplied_values;
     expect(
       reportValues.find((item) => item.value_id === "spring-hanger:support:SH-140")
     ).toMatchObject({
@@ -196,21 +217,7 @@ describe("report-package current-session request", () => {
       required_for: ["reporting", "human_review"],
       missing_data_finding: false
     });
-    expect(request.state_comparison_handoff_records[0]).toMatchObject({
-      deliverable_id: "DEL-08-06",
-      section_set_id: `desktop-current-session:${result.run_id}`,
-      diagnostics: [],
-      professional_boundary: expect.objectContaining({ human_review_required: true })
-    });
-    const packageJson = JSON.stringify(request);
-    expect(packageJson).not.toContain("invented_public_example");
-    expect(packageJson).not.toContain('"redistribution_status":"public_permissive"');
-    expect(packageJson).toContain('"privacy_classification":"private_project_data"');
-    expect(packageJson).toContain('"redistribution_status":"private_only"');
-    expect(packageJson).toContain('"review_status":"pending"');
-    expect(model).toEqual(modelSnapshot);
-    expect(result).toEqual(resultSnapshot);
-    expect(analysisRun).toEqual(runSnapshot);
+    expect(JSON.stringify(session)).toBe(before);
   });
 
   it("blocks a same-ID model whose canonical payload differs from the verified manifest", async () => {
@@ -400,16 +407,16 @@ describe("report-package current-session request", () => {
       .rejects.toThrow("REPORT-PACKAGE-HASH-BINDING-INCOMPLETE");
   });
 
-  it("discloses an unregistered source row without inferring force from N", async () => {
-    const { model, result, inputManifest } = await currentSession();
+  it("discloses a synthetic unknown row on the unqualified historical projection without inferring force from N", async () => {
+    const { model, result, inputManifest } = await legacyProvenanceSession(await loadPreviewModel());
     const annotated = structuredClone(result);
     const unknownId = "result:test:unregistered-source";
     annotated.results.push({ id: unknownId, entity_ref: model.project.id, kind: "unregistered_source_kind", value: 1, unit: "N" });
-    const analysisRun = await buildAnalysisRunPreview(annotated, { inputManifest });
+    const analysisRun = await buildAnalysisRunV02(annotated, inputManifest);
     const before = JSON.stringify(annotated);
-    const request = await buildReportPackageRequest({ model, result: annotated, inputManifest, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null });
-    expect(request.result_envelopes[0].result_sets.flatMap(set => set.values).some(value => value.result_id === unknownId)).toBe(false);
-    expect(JSON.stringify(request.result_envelopes[0].diagnostics)).toContain(unknownId);
+    const projection = projectReceivedReportResults(annotated, analysisRun);
+    expect(projection.resultSets.flatMap(set => set.values).some(value => value.result_id === unknownId)).toBe(false);
+    expect(JSON.stringify(projection.semanticDisclosures)).toContain(unknownId);
     expect(JSON.stringify(annotated)).toBe(before);
   });
 
@@ -458,4 +465,20 @@ describe("report-package current-session request", () => {
     expect(request.audit_manifest.solver_version.solver_version).toBe(session.result.producer!.component_version);
   });
 
+});
+
+
+it("refuses an imported or cloned precision source even when its manifest and analysis hashes match", async () => {
+  const session = await currentSession();
+  const clone = structuredClone(session.result), before = JSON.stringify(clone);
+  await expect(buildReportPackageRequest({ ...session, result: clone, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
+    .rejects.toThrow("REPORT-PACKAGE-NATIVE-INVOCATION-REQUIRED");
+  expect(JSON.stringify(clone)).toBe(before);
+});
+
+it("keeps genuine physics source inspectable while explicitly withholding this report transport", async () => {
+  const session = await currentSession("physics"), before = JSON.stringify(session);
+  await expect(buildReportPackageRequest({ ...session, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
+    .rejects.toThrow("REPORT-PACKAGE-PHYSICS-PROJECTION-UNAVAILABLE");
+  expect(JSON.stringify(session)).toBe(before);
 });

@@ -1,0 +1,138 @@
+{
+  "materials": [],
+  "model": {
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "combinations": [],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "id": "case",
+        "kind": "primitive_user_load",
+        "label": "N05",
+        "primitive_loads": [
+          {
+            "category": "concentrated_moment",
+            "dimension": "moment",
+            "direction": "RX",
+            "id": "torque",
+            "magnitude": {
+              "unit": "N*m",
+              "value": 1e-16
+            },
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "target": {
+              "node": "independent-tip",
+              "type": "node"
+            }
+          }
+        ],
+        "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data"
+      }
+    ],
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 200000000000.0
+        },
+        "id": "material",
+        "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 80000000000.0
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "independent-root",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data"
+      },
+      {
+        "id": "independent-tip",
+        "position": {
+          "x": 2.0,
+          "y": 0,
+          "z": 0
+        },
+        "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "from": "independent-root",
+        "id": "independent-member",
+        "material": "material",
+        "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.2
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.01
+          }
+        },
+        "to": "independent-tip",
+        "y_reference": {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        }
+      }
+    ],
+    "project": {
+      "id": "invented:source-recovery:N06:1:false",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.1.0",
+    "supports": [
+      {
+        "family": "anchor",
+        "id": "anchor",
+        "node": "independent-root",
+        "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RY",
+          "RZ"
+        ]
+      },
+      {
+        "family": "spring",
+        "id": "independent-spring",
+        "node": "independent-root",
+        "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+        "restraints": [
+          "RX"
+        ],
+        "stiffness": {
+          "dof": "RX",
+          "value": {
+            "unit": "N*m/rad",
+            "value": 1e-12
+          }
+        }
+      }
+    ]
+  }
+}

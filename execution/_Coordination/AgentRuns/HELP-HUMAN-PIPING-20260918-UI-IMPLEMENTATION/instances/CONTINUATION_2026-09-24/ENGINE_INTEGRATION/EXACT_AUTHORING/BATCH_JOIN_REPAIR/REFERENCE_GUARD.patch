@@ -1,0 +1,52 @@
+--- a/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs
++++ b/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs
+@@ -3269,7 +3269,7 @@
+                 "Node `{target_ref}` is still referenced by model entities: {}.",
+                 references.join(", ")
+             ),
+-            "Delete or retarget dependent pipes, supports, components, and primitive loads before deleting the node.",
++            "Delete or retarget dependent pipes, supports, components, primitive loads, and pressure-region terminals before deleting the node.",
+             std::iter::once(target_ref.to_string())
+                 .chain(references)
+                 .collect(),
+@@ -3817,10 +3817,10 @@
+             "OP-PIPE-DELETE-REFERENCED",
+             "blocking",
+             format!(
+-                "Pipe segment `{target_ref}` is still referenced by loads or nonlinear supports: {}.",
++                "Pipe segment `{target_ref}` is still referenced by loads, pressure regions, or nonlinear supports: {}.",
+                 references.join(", ")
+             ),
+-            "Delete or retarget dependent primitive loads before deleting the pipe segment.",
++            "Explicitly remove or retarget dependent primitive loads and pressure regions before deleting the pipe segment.",
+             std::iter::once(target_ref.to_string())
+                 .chain(references)
+                 .collect(),
+@@ -8422,6 +8422,13 @@
+ 
+     if let Some(load_cases) = model.get("load_cases").and_then(Value::as_array) {
+         for load_case in load_cases {
++            for region in load_case.get("pressure_regions").and_then(Value::as_array).into_iter().flatten() {
++                if region.get("terminals").and_then(Value::as_array).is_some_and(|terminals| {
++                    terminals.iter().any(|terminal| terminal.get("node_ref").and_then(Value::as_str) == Some(node_ref))
++                }) {
++                    references.push(format!("{}.pressure_regions.{}", load_case.get("id").and_then(Value::as_str).unwrap_or("load_case:unknown"), region.get("id").and_then(Value::as_str).unwrap_or("region:unknown")));
++                }
++            }
+             let Some(primitive_loads) = load_case.get("primitive_loads").and_then(Value::as_array)
+             else {
+                 continue;
+@@ -8520,6 +8527,13 @@
+     };
+     let mut references = Vec::new();
+     for load_case in load_cases {
++        for region in load_case.get("pressure_regions").and_then(Value::as_array).into_iter().flatten() {
++            if region.get("member_pipe_ids").and_then(Value::as_array).is_some_and(|members| {
++                members.iter().any(|member| member.as_str() == Some(pipe_ref))
++            }) {
++                references.push(format!("{}.pressure_regions.{}", load_case.get("id").and_then(Value::as_str).unwrap_or("load_case:unknown"), region.get("id").and_then(Value::as_str).unwrap_or("region:unknown")));
++            }
++        }
+         let Some(primitive_loads) = load_case.get("primitive_loads").and_then(Value::as_array)
+         else {
+             continue;

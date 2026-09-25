@@ -1,0 +1,31 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/reporting/result_export/Cargo.toml",
+    "--offline",
+    "--locked",
+    "-j",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-physics-result-export-target",
+    "--lib",
+    "--test",
+    "physics_contract",
+    "--test",
+    "source_blocks",
+    "--",
+    "--test-threads=2"
+  ],
+  "actual_executor": "/root/physics_resume",
+  "scope": "Existing separate p1/physics1/source-blocks1 Rust union; no composite/schema/headless claim",
+  "source_sha256": {
+    "core/reporting/result_export/src/semantic_contract.rs": "b247e7c18597129c7453fc264acf1362b59e55f6dfd565f46ea86a7222b36501",
+    "core/reporting/result_export/src/derivative.rs": "d01baea8711435d5e989004522806202f8a33261ff41df93b34064172e4449b9",
+    "core/reporting/result_export/src/lib.rs": "fcf2edc458ad46e0c97a9651390909c7e3086963efb5beb74cb84e2c7928ad07",
+    "core/reporting/result_export/src/physics_evidence.rs": "1328a29f1871e81da7125efa0cab9c2fd5046762369c5f1b9310fbb35ec2adbf",
+    "core/reporting/result_export/src/source_blocks.rs": "29c1fa01117200240bf7eedf4a7e6409328317c6eb5f31721cff9391f3cbcddd"
+  },
+  "exit_code": 0
+}

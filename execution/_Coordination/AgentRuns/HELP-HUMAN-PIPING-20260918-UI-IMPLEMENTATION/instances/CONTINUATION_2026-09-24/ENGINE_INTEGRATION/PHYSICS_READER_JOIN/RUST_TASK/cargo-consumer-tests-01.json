@@ -1,0 +1,26 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "projects/chirality-piping/core/reporting/result_export/Cargo.toml",
+    "--jobs",
+    "2",
+    "--test",
+    "physics_contract",
+    "--test",
+    "precision_contract",
+    "--test",
+    "derivative_contract"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925",
+  "environment": {
+    "CARGO_TARGET_DIR": "/private/tmp/piping-physics-result-export-target"
+  },
+  "start_utc": "2026-09-25T04:06:31.394743+00:00",
+  "end_utc": "2026-09-25T04:06:41.385501+00:00",
+  "exit_code": 0,
+  "log": "cargo-consumer-tests-01.log",
+  "log_sha256": "80d388dbdbf6d8f23142df5c597e3f932cb59b5fa00f53526407f73bfea6afd1"
+}

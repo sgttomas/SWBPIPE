@@ -1,0 +1,172 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling typenum v1.20.1
+   Compiling generic-array v0.14.7
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/solver/diagnostics)
+   Compiling libc v0.2.189
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/solver/curved_bend)
+   Compiling cfg-if v1.0.5
+   Compiling ryu v1.0.23
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_product_physics v0.2.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics)
+warning: unused import: `ELEMENT_DOF`
+  --> src/source_recovery.rs:11:5
+   |
+11 |     ELEMENT_DOF,
+   |     ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:7483:4
+     |
+7483 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:56:9
+   |
+55 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+56 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:64:9
+   |
+63 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+64 |     pub support_id: String,
+   |         ^^^^^^^^^^
+65 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+66 |     pub value: f64,
+   |         ^^^^^
+67 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:89:9
+    |
+ 88 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+ 89 |     pub dofs: usize,
+    |         ^^^^
+ 90 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+ 91 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 92 |     pub blocks: usize,
+    |         ^^^^^^
+ 93 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+ 94 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+ 95 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+ 96 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+ 97 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+ 98 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 99 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+100 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+101 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+102 |     pub max_relative_projection_error: f64,
+103 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:116:5
+    |
+110 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+116 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:141:12
+    |
+124 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+141 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+  --> src/source_receipt.rs:79:19
+   |
+57 | impl CapturedInvocation {
+   | ----------------------- method in this implementation
+...
+79 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+   |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:311:19
+    |
+246 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+311 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib) generated 9 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.06s
+     Running tests/pressure_runtime.rs (/private/tmp/piping-engine-integration-product-target/debug/deps/pressure_runtime-803a0b4e1c6dce21)
+
+running 14 tests
+test distributed_axial_load_is_subtracted_separately_from_pressure_eigenload ... ok
+test exact_material_and_region_contracts_are_required_without_inference ... ok
+test exact_override_materials_replace_base_list_and_redundant_g_is_not_authoritative ... ok
+test exact_pressure_rotates_as_vectors_and_normalizes_mm_mpa_inputs ... ok
+test invalid_region_membership_geometry_and_overlap_block ... ok
+test legacy_missing_g_remains_an_input_error ... ok
+test mixed_closures_use_the_actual_cap_load_path_for_support_reactions ... ok
+test namespaces_and_nonzero_legacy_pressure_cannot_silently_fallback ... ok
+test same_region_id_in_distinct_cases_has_unique_binding_and_order_independent_maximum ... ok
+test selected_point_and_interpolated_pair_determine_g_after_selection ... ok
+test signed_pressure_zero_poisson_and_thermal_reversal_preserve_the_selected_equations ... ok
+test equal_bore_unequal_wall_and_e_chain_is_orientation_independent ... ok
+test thermal_alpha_is_required_on_the_selected_basis_not_unused_base ... ok
+test six_si_pressure_states_through_both_public_solver_modes ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/source_block_recovery.rs (/private/tmp/piping-engine-integration-product-target/debug/deps/source_block_recovery-16db1a7186cc05e5)
+
+running 4 tests
+test actual_source_recovery_scaled_norms_admit_tiny_actions_and_keep_large_json_boundary ... ok
+test derived_stress_unit_range_cannot_mint_source_qualification ... ok
+test complete_ui_requests_are_authored_before_the_real_source_invocation ... ok
+test retained_source_rotation_member_torque_and_device_action_reach_public_rows ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.29s
+

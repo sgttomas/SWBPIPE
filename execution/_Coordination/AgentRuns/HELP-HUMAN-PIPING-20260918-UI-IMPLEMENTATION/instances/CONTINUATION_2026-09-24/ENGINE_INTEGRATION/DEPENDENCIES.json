@@ -1,0 +1,81 @@
+{
+  "actual_actor": "/root/physics_resume",
+  "actual_harness_parent": "/root",
+  "role": "WORKING_ITEMS Type1",
+  "mechanism": "delegated-harness-native collaboration",
+  "checkout": "/private/tmp/piping-engine-integration-20260925",
+  "branch": "codex/piping-engine-integration-20260925",
+  "dependencies": {
+    "ordinary_NUM": "0a438a68672269e5750900792c9565ae9e5555b0",
+    "M35": "3c17e267dd06ee561e8dc9984f6623126095eec1",
+    "physics": "af4120ba52b46922da8bae5a876033e53818adfa",
+    "source_blocks_reviewed_subset": "ed688b13f633ce8aa6aeede784c3562511c20966"
+  },
+  "M35_source_paths": [
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+    "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+    "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts",
+    "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+    "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+    "projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs",
+    "projects/chirality-piping/core/loads/self_weight_wasm/tests/applied_self_weight.rs",
+    "projects/chirality-piping/core/loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json",
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+    "projects/chirality-piping/core/model_operations/operation_applier/tests/generated_self_weight.rs",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "projects/chirality-piping/core/product_physics/src/annulus_geometry.rs",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+    "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+    "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock"
+  ],
+  "physics_source_selection": {
+    "applied": [
+      "projects/chirality-piping/core/loads/stress_recovery/src/elastic_extrema.rs",
+      "projects/chirality-piping/core/loads/stress_recovery/src/elastic_section.rs",
+      "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "projects/chirality-piping/core/product_physics/src/historical_pressure_reference.rs",
+      "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "projects/chirality-piping/core/product_physics/src/pressure_exact/source_geometry.rs",
+      "projects/chirality-piping/core/product_physics/src/pressure_material.rs",
+      "projects/chirality-piping/core/product_physics/src/pressure_runtime.rs",
+      "projects/chirality-piping/core/product_physics/src/pressure_sum.rs",
+      "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "projects/chirality-piping/core/product_physics/tests/elastic_extrema_runtime.rs",
+      "projects/chirality-piping/core/product_physics/tests/pressure_grouping_limits.rs",
+      "projects/chirality-piping/core/product_physics/tests/pressure_membrane_range.rs",
+      "projects/chirality-piping/core/product_physics/tests/pressure_runtime.rs",
+      "projects/chirality-piping/core/product_physics/tests/pressure_section_geometry.rs",
+      "projects/chirality-piping/core/product_physics/tests/stress_maximum_coverage.rs",
+      "projects/chirality-piping/core/product_physics/tests/support_reactions_runtime.rs"
+    ],
+    "already_identical": [
+      "projects/chirality-piping/core/product_physics/src/annulus_geometry.rs",
+      "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml"
+    ]
+  },
+  "instruction_origins": {
+    "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+    "agents/AGENT_WORKING_ITEMS.md": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+  },
+  "permissions": "Local source fan-in only; ROOT externalGit/main/native resource owner",
+  "source_blocks_subset": {
+    "reviewed_sources": 18,
+    "tested_support_files": 38,
+    "sealed_manifest_sha256": "0b8c8d84431a94ccc401afad1e7d569858de55ca8c44667e7b294ad1ad47a71d",
+    "details": "SOURCE_BLOCK_FANIN/FANIN_01.json",
+    "coverage": "Imported selected subset, not whole NUM frontend/native adoption or composite qualification"
+  }
+}

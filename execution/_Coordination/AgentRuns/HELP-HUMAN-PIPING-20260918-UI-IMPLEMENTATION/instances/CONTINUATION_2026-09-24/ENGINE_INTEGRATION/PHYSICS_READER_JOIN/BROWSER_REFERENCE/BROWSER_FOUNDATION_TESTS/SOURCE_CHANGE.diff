@@ -1,0 +1,505 @@
+diff --git a/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts b/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts
+index 891e8e9f57..4377051c38 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts
+@@ -5,7 +5,7 @@ const defaultPreviewModel = JSON.parse(readFileSync(fileURLToPath(
+   new URL("../../../fixtures/product_preview/invented_preview_model.json", import.meta.url),
+ ), "utf8"));
+ import { expect, test, type Page } from "@playwright/test";
+-import { expectStatusChip, projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
++import { projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
+ import {
+   APPEARANCE_DENSITIES,
+   APPEARANCE_THEMES,
+@@ -17,6 +17,7 @@ import {
+   captureElementState,
+   captureState,
+   commandGroupControl,
++  currentModelHashThroughVisibleExport,
+   ensureRail,
+   expectCenterUnobscured,
+   expectPassiveOrientationFrame,
+@@ -40,6 +41,25 @@ import {
+   showModelTree,
+ } from "./ui-foundation-workflows";
+ 
++// A reference is preserved source evidence, never a browser solve or Current basis.
++async function inspectBundledReference(page: Page) {
++  const solve = await openWorkspaceSection(page, "solve");
++  await activateWithKeyboard(page, solve.getByRole("button", { name: "Inspect bundled reference", exact: true }));
++  await expect(page.getByTestId("workspace-section-results")).toBeVisible();
++  const reference = page.getByRole("region", { name: "Bundled reference — not a solve for the current model", exact: true });
++  await expect(reference).toBeVisible();
++  await expect(reference.getByTestId("result-filter-summary")).toHaveText("830 of 830 results match filter");
++  await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
++  return reference;
++}
++
++async function expectBrowserSolveRefusal(page: Page, diagnostic = "BROWSER_SOLVE_BACKEND_REQUIRED") {
++  await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
++  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
++  await expect(page.getByTestId("solve-job-error")).toContainText(diagnostic);
++  await expect(page.getByTestId("rule-check-run")).toBeDisabled();
++}
++
+ test.beforeAll(async ({ browser }, testInfo) => {
+   await attachBrowserIdentity(browser, testInfo);
+ });
+@@ -340,8 +360,8 @@ for (const theme of APPEARANCE_THEMES) for (const density of APPEARANCE_DENSITIE
+       if (content === "regular") {
+         await openWorkspaceSection(page, "solve");
+         await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
+-        await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+-        await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=830");
++        await expectBrowserSolveRefusal(page, "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
++        await inspectBundledReference(page);
+         await showModelTree(page);
+       }
+       const pipe = model.pipe_segments[0];
+@@ -930,49 +950,62 @@ test("System follows the emulated OS preference; explicit theme and density pers
+   await expect(shell).toHaveAttribute("data-density", "compact");
+ });
+ 
+-test("production browser keeps reopened results Historical until a fresh exact-basis solve succeeds", async ({ page }) => {
++test("production browser keeps bundled reference separate through solve refusal, save and reopen", async ({ page }) => {
+   await page.goto("/");
+   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
++  const originalModelHash = await currentModelHashThroughVisibleExport(page);
++  await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+   await openWorkspaceSection(page, "solve");
+   await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
+-  await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
+-  // Slice B3: the solve proof left the status bar; it is read on the Results stage's Evidence tab.
+-  await openWorkspaceSection(page, "evidence");
+-  await expect(page.getByTestId("status-pill-solve-proof")).toBeVisible();
+-
+-  await projectCommand(page, "save-local", true);
+-  await expect(page.getByTestId("local-project-message")).toContainText("Saved");
+-  await projectCommand(page, "open-local", true);
+-  await openWorkspaceSection(page, "results");
+-  const historical = page.getByTestId("historical-run-context");
+-  await expect(historical).toBeVisible();
+-  await expect(historical).toContainText("Historical");
++  await expectBrowserSolveRefusal(page, "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
++  await inspectBundledReference(page);
+   await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
+-  await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
+   await openWorkspaceSection(page, "evidence");
+   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+-  // Specification §5.4 rule 6: a Historical run lights no chip.
++  // Reference/history lights no Current stage chip and cannot change the model or undo.
+   await expect(page.getByTestId("status-chips").getByRole("button")).toHaveCount(0);
++  expect(await currentModelHashThroughVisibleExport(page)).toBe(originalModelHash);
++  await expect(page.getByTestId("workspace-undo")).toBeDisabled();
++  await openWorkspaceSection(page, "solve");
++  await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
++  await expectBrowserSolveRefusal(page, "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
++  await openWorkspaceSection(page, "results");
++  await expect(page.getByRole("region", { name: "Bundled reference — not a solve for the current model", exact: true })).toBeVisible();
+ 
++  // Save the actual current model. A separately inspected reference must not become
++  // that model's saved run. Source-faithful saved Historical cases live in App history
++  // suites and the native witness; the dist store exposes no fixture-seeding route.
++  await projectCommand(page, "save-local", true);
++  await expect(page.getByTestId("local-project-message")).toContainText("Saved");
++  const savedModelHash = await currentModelHashThroughVisibleExport(page);
++  await projectCommand(page, "open-local", true);
++  expect(await currentModelHashThroughVisibleExport(page)).toBe(savedModelHash);
+   await openWorkspaceSection(page, "solve");
+   await expect(page.getByTestId("rule-check-run")).toBeDisabled();
+   await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
+-  await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
++  await expectBrowserSolveRefusal(page);
+   await openWorkspaceSection(page, "results");
+-  await expect(historical).toHaveCount(0);
++  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
++  await expect(page.getByTestId("results-panel").locator("tbody tr")).toHaveCount(0);
++  await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
++  await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
+   await openWorkspaceSection(page, "evidence");
+-  await expect(page.getByTestId("status-pill-solve-proof")).toBeVisible();
++  await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
++  await openWorkspaceSection(page, "exports");
++  await expect(page.getByTestId("result-export-empty")).toBeVisible();
++  await expect(page.getByTestId("stress-neutral-empty")).toBeVisible();
++  await expect(page.getByTestId("result-export-link")).toHaveCount(0);
++  await expect(page.getByTestId("stress-neutral-export-link")).toHaveCount(0);
+ });
+ 
+ 
+-
+-async function expectPopulatedResultsGeometry(page: Page, width: number, historical: boolean) {
++async function expectPopulatedResultsGeometry(page: Page, width: number, inspection: "initial-reference" | "reinspected-reference") {
+   await page.setViewportSize({ width, height: width === 1024 ? 768 : 900 });
+   const results = page.getByTestId("results-panel");
+   await expect(results.locator("tbody tr").first()).toBeVisible();
+-  const geometry = await results.evaluate((element, isHistorical) => {
++  const geometry = await results.evaluate((element) => {
+     const section = element.closest('[data-testid="workspace-section-results"]')!;
+-    const owner = isHistorical ? element.closest('[data-testid="historical-run-context"]')! : element;
++    const owner = element.closest('[data-testid="historical-run-context"]')!;
+     const rect = (node: Element) => node.getBoundingClientRect().toJSON();
+     const groups = [...element.querySelectorAll(".result-group")].map((group) => ({
+       group: rect(group), table: rect(group.querySelector("table")!), overflowX: getComputedStyle(group).overflowX,
+@@ -985,7 +1018,7 @@ async function expectPopulatedResultsGeometry(page: Page, width: number, histori
+     });
+     return { section: rect(section), owner: rect(owner), results: rect(element), groups, values,
+       horizontalOverflow: document.documentElement.scrollWidth - innerWidth };
+-  }, historical);
++  });
+   expect(geometry.owner.width, "main result owner spans the complete dock row").toBeGreaterThanOrEqual(geometry.section.width - 2);
+   expect(geometry.horizontalOverflow).toBeLessThanOrEqual(1);
+   expect(geometry.groups.length).toBeGreaterThan(0);
+@@ -1000,7 +1033,7 @@ async function expectPopulatedResultsGeometry(page: Page, width: number, histori
+     expect(Math.max(...value.lineTops) - Math.min(...value.lineTops), `one-line numerical value and units: ${value.text}`).toBeLessThanOrEqual(1);
+     expect(value.box.width).toBeLessThanOrEqual(value.cell.width);
+   }
+-  return { width, historical, ...geometry };
++  return { width, inspection, standing: "bundled_reference", ...geometry };
+ }
+ 
+ for (const theme of APPEARANCE_THEMES) {
+@@ -1010,8 +1043,8 @@ for (const theme of APPEARANCE_THEMES) {
+     await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+     await setAppearance(page, theme, "comfortable");
+     const tones = new Set<string>();
+-    for (const phase of ["before-solve", "solved", "blocked"] as const) {
+-      if (phase === "blocked") {
++    for (const phase of ["before-solve", "browser-refused", "edited-model-refused", "diagnostics-clear", "diagnostics-blocking"] as const) {
++      if (phase === "edited-model-refused") {
+         await activateWithKeyboard(page, page.getByTestId("workspace-dock-close"));
+         await openWorkspaceSection(page, "operations");
+         await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+@@ -1024,16 +1057,36 @@ for (const theme of APPEARANCE_THEMES) {
+         await page.getByTestId("apply-intent-editor-intent-1").click();
+         await expect(page.getByTestId("applied-operation-route-applied-1-editor-intent-1")).toContainText("Applied through local_wasm_engine");
+       }
+-      await openWorkspaceSection(page, "solve");
+-      if (phase !== "before-solve") {
+-        await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
+-        await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+-        if (phase === "solved") await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
+-        else await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
++      if (phase === "diagnostics-clear" || phase === "diagnostics-blocking") {
++        // Presentation-only model diagnostic inputs cover the original ok/blocking
++        // tone floor. They are not solver responses or changes to source fixtures.
++        const presentationModel = structuredClone(defaultPreviewModel);
++        presentationModel.diagnostics = phase === "diagnostics-clear" ? [] : [{
++          code: "UI_FOUNDATION_SYNTHETIC_BLOCKING_DIAGNOSTIC",
++          severity: "blocking",
++          message: "Synthetic presentation-only diagnostic for the readiness contrast regression.",
++          source: "e2e/ui-foundation-dist.spec.ts",
++        }];
++        await gotoModel(page, presentationModel);
++        await setAppearance(page, theme, "comfortable");
++        await testInfo.attach(`readiness-presentation-input-${theme}-${phase}`, {
++          body: JSON.stringify({ purpose: "synthetic model-diagnostic contrast only", diagnostics: presentationModel.diagnostics }),
++          contentType: "application/json",
++        });
+       }
+-      if (phase === "blocked") {
+-        await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
+-        await expect(page.getByTestId("readiness-mechanics")).toContainText("0 computed result rows; Solver · Model incomplete (MODEL_INCOMPLETE)");
++      await openWorkspaceSection(page, "solve");
++      if (phase === "browser-refused" || phase === "edited-model-refused") {
++        await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
++        await expectBrowserSolveRefusal(page, phase === "browser-refused"
++          ? "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY" : "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
++        await expect(page.getByTestId("readiness-mechanics")).toContainText("Solve job state: failed; Solver · Not solved (failed)");
++        await expect(page.getByTestId("readiness-diagnostics")).toContainText("0 blocking/error");
++      }
++      if (phase === "diagnostics-clear") {
++        await expect(page.getByTestId("readiness-diagnostics")).toHaveClass(/\bok\b/);
++        await expect(page.getByTestId("readiness-diagnostics")).toContainText("0 diagnostics; 0 warnings; 0 blocking/error");
++      }
++      if (phase === "diagnostics-blocking") {
+         await expect(page.getByTestId("readiness-diagnostics")).toHaveClass(/\bblocking\b/);
+         await expect(page.getByTestId("readiness-diagnostics")).toContainText("1 blocking/error");
+       }
+@@ -1057,15 +1110,14 @@ for (const theme of APPEARANCE_THEMES) {
+         await testInfo.attach(`readiness-contrast-${theme}-${phase}`, { body: JSON.stringify({ tones: [...tones], witnesses }), contentType: "application/json" });
+         await captureState(page, testInfo, `readiness-${theme}-${phase}`);
+       }
+-      if (phase === "blocked") {
+-        await page.getByTestId("issues-drawer-toggle").click();
+-        const diagnostic = page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+-        await expect(diagnostic).toBeVisible();
+-        await expect(diagnostic).toContainText("Browser fixture mode will not reuse bundled solved-result rows for an edited model");
+-        await testInfo.attach(`readiness-blocked-diagnostic-${theme}`, {
+-          body: JSON.stringify({ code: "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL", text: await diagnostic.innerText() }), contentType: "application/json",
++      if (phase === "browser-refused" || phase === "edited-model-refused") {
++        const error = page.getByTestId("solve-job-error");
++        await error.scrollIntoViewIfNeeded();
++        await expect(error).toBeVisible();
++        await testInfo.attach(`readiness-backend-refusal-${theme}-${phase}`, {
++          body: JSON.stringify({ state: "failed", text: await error.innerText(), syntheticResult: false }), contentType: "application/json",
+         });
+-        await captureElementState(diagnostic, testInfo, `readiness-blocked-diagnostic-${theme}`);
++        await captureElementState(error, testInfo, `readiness-backend-refusal-${theme}-${phase}`);
+       }
+     }
+     expect([...tones].sort()).toEqual(["blocking", "info", "ok", "warning"]);
+@@ -1077,15 +1129,17 @@ for (const theme of APPEARANCE_THEMES) {
+     await page.goto("/");
+     await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+     await setAppearance(page, theme, "comfortable");
+-    await openWorkspaceSection(page, "solve");
+-    await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
+-    await expectStatusChip(page, "status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
+-    await openWorkspaceSection(page, "results");
++    const inspectorTarget = "support:NL-140";
++    await selectTreeRow(page, "support", inspectorTarget);
++    await ensureRail(page, "inspector", true);
++    const currentSelection = await page.getByTestId("command-selection-readout").innerText();
++    await inspectBundledReference(page);
+     const results = page.getByTestId("results-panel");
+     const row = results.locator("tbody tr").first();
+     const entered = row.locator(".dual-unit-cell > span");
+     await expect(row).toBeVisible();
+     await expect(row).toHaveAttribute("aria-selected", "false");
++    await expect(row.locator("td").nth(1)).not.toHaveText(inspectorTarget);
+     await expect(entered).toContainText("Entered:");
+     const originalEnteredText = await entered.innerText();
+     // Slice B3: Results is a stage surface; the dock header's heading is gone and the surface's
+@@ -1100,18 +1154,20 @@ for (const theme of APPEARANCE_THEMES) {
+     const headers = await results.getByRole("columnheader").all();
+     expect(headers.length).toBeGreaterThan(0);
+     witnesses.push(...await expectResolvedContrast(await Promise.all(headers.map(async (locator, index) => ({
+-      name: `Current Results column heading ${index}: ${await locator.innerText()}`, locator, minimum: 4.5 as const,
++      name: `Bundled reference Results column heading ${index}: ${await locator.innerText()}`, locator, minimum: 4.5 as const,
+     })))));
+     await captureState(page, testInfo, `populated-results-${theme}`);
+     await activateWithKeyboard(page, row);
+     await expect(row).toHaveAttribute("aria-selected", "true");
+     await expect(entered).toHaveText(originalEnteredText);
+-    // Slice B3: the Both view's inspector is closed at first open; open it to read the selected target.
++    // Reference row selection belongs to the reference panel; reopen the current inspector
++    // and retain its different support target and required-field contrast check.
+     await ensureRail(page, "inspector", true);
++    await expect(page.getByTestId("command-selection-readout")).toHaveText(currentSelection);
+     const requiredFlag = page.getByTestId("property-inspector").getByTestId("inspector-required-flags").locator(".required-flag");
+     await expect(requiredFlag).toContainText("Restraints");
+     witnesses.push(...await expectResolvedContrast([
+-      { name: "Selected result target required-field text", locator: requiredFlag, minimum: 4.5 },
++      { name: "Unchanged current inspector required-field text after reference selection", locator: requiredFlag, minimum: 4.5 },
+     ]));
+     witnesses.push(...await expectResolvedContrast([
+       { name: "Selected Results entered source value", locator: entered, minimum: 4.5 },
+@@ -1120,47 +1176,53 @@ for (const theme of APPEARANCE_THEMES) {
+       body: JSON.stringify({ witnesses, originalEnteredText }, null, 2), contentType: "application/json",
+     });
+     await captureState(page, testInfo, `populated-results-selected-${theme}`);
+-    const currentGapLedger = results.getByTestId("mechanics-gap-ledger");
+-    const currentGapNotes = await currentGapLedger.locator(".gap-list p").all();
+-    expect(currentGapNotes.length).toBeGreaterThan(0);
+-    const currentGapWitnesses = await expectResolvedContrast(await Promise.all(currentGapNotes.map(async (locator, index) => ({
+-      name: `Current Mechanics Gap Ledger note ${index}: ${await locator.innerText()}`, locator, minimum: 4.5 as const,
++    const referenceGapLedger = results.getByTestId("mechanics-gap-ledger");
++    const referenceGapNotes = await referenceGapLedger.locator(".gap-list p").all();
++    expect(referenceGapNotes.length).toBeGreaterThan(0);
++    const referenceGapWitnesses = await expectResolvedContrast(await Promise.all(referenceGapNotes.map(async (locator, index) => ({
++      name: `Bundled reference Mechanics Gap Ledger note ${index}: ${await locator.innerText()}`, locator, minimum: 4.5 as const,
+     }))));
+-    await testInfo.attach(`resolved-current-gap-notes-${theme}`, {
+-      body: JSON.stringify(currentGapWitnesses, null, 2), contentType: "application/json",
++    await testInfo.attach(`resolved-reference-gap-notes-${theme}`, {
++      body: JSON.stringify(referenceGapWitnesses, null, 2), contentType: "application/json",
+     });
+-    await captureElementState(currentGapLedger, testInfo, `populated-current-gap-ledger-${theme}`);
++    await captureElementState(referenceGapLedger, testInfo, `populated-reference-gap-ledger-${theme}`);
+     const geometryWitnesses = [];
+     for (const width of [1280, 1024]) {
+-      geometryWitnesses.push(await expectPopulatedResultsGeometry(page, width, false));
+-      await captureState(page, testInfo, `populated-results-current-${theme}-${width}`);
++      geometryWitnesses.push(await expectPopulatedResultsGeometry(page, width, "initial-reference"));
++      await captureState(page, testInfo, `populated-results-reference-${theme}-${width}`);
+     }
+     await projectCommand(page, "save-local", true);
+     await expect(page.getByTestId("local-project-message")).toContainText("Saved");
+     await projectCommand(page, "open-local", true);
++    await openWorkspaceSection(page, "solve");
++    await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
++    await expectBrowserSolveRefusal(page);
+     await openWorkspaceSection(page, "results");
+-    await expect(page.getByTestId("historical-run-context")).toBeVisible();
+-    const historicalHeaders = await results.getByRole("columnheader").all();
+-    expect(historicalHeaders.length).toBeGreaterThan(0);
+-    const historicalHeaderWitnesses = await expectResolvedContrast(await Promise.all(historicalHeaders.map(async (locator, index) => ({
+-      name: `Historical Results column heading ${index}: ${await locator.innerText()}`, locator, minimum: 4.5 as const,
++    await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
++    await expect(results.locator("tbody tr")).toHaveCount(0);
++    // Reopen retained rows explicitly; Save/Open must never attach them to the current model.
++    await inspectBundledReference(page);
++    const reinspectedHeaders = await results.getByRole("columnheader").all();
++    expect(reinspectedHeaders.length).toBeGreaterThan(0);
++    const reinspectedHeaderWitnesses = await expectResolvedContrast(await Promise.all(reinspectedHeaders.map(async (locator, index) => ({
++      name: `Reinspected reference Results column heading ${index}: ${await locator.innerText()}`, locator, minimum: 4.5 as const,
+     }))));
+-    await testInfo.attach(`resolved-historical-results-headers-${theme}`, {
+-      body: JSON.stringify(historicalHeaderWitnesses, null, 2), contentType: "application/json",
++    await testInfo.attach(`resolved-reinspected-reference-results-headers-${theme}`, {
++      body: JSON.stringify(reinspectedHeaderWitnesses, null, 2), contentType: "application/json",
+     });
+-    const historicalGapLedger = results.getByTestId("mechanics-gap-ledger");
+-    const historicalGapNotes = await historicalGapLedger.locator(".gap-list p").all();
+-    expect(historicalGapNotes.length).toBeGreaterThan(0);
+-    const historicalGapWitnesses = await expectResolvedContrast(await Promise.all(historicalGapNotes.map(async (locator, index) => ({
+-      name: `Historical Mechanics Gap Ledger note ${index}: ${await locator.innerText()}`, locator, minimum: 4.5 as const,
++    const reinspectedGapLedger = results.getByTestId("mechanics-gap-ledger");
++    const reinspectedGapNotes = await reinspectedGapLedger.locator(".gap-list p").all();
++    expect(reinspectedGapNotes.length).toBeGreaterThan(0);
++    const reinspectedGapWitnesses = await expectResolvedContrast(await Promise.all(reinspectedGapNotes.map(async (locator, index) => ({
++      name: `Reinspected reference Mechanics Gap Ledger note ${index}: ${await locator.innerText()}`, locator, minimum: 4.5 as const,
+     }))));
+-    await testInfo.attach(`resolved-historical-gap-notes-${theme}`, {
+-      body: JSON.stringify(historicalGapWitnesses, null, 2), contentType: "application/json",
++    await testInfo.attach(`resolved-reinspected-reference-gap-notes-${theme}`, {
++      body: JSON.stringify(reinspectedGapWitnesses, null, 2), contentType: "application/json",
+     });
+-    await captureElementState(historicalGapLedger, testInfo, `populated-historical-gap-ledger-${theme}`);
++    await captureElementState(reinspectedGapLedger, testInfo, `populated-reinspected-reference-gap-ledger-${theme}`);
+     for (const width of [1280, 1024]) {
+-      geometryWitnesses.push(await expectPopulatedResultsGeometry(page, width, true));
+-      await captureState(page, testInfo, `populated-results-historical-${theme}-${width}`);
++      geometryWitnesses.push(await expectPopulatedResultsGeometry(page, width, "reinspected-reference"));
++      await captureState(page, testInfo, `populated-results-reinspected-reference-${theme}-${width}`);
+     }
+     await testInfo.attach(`populated-results-line-geometry-${theme}`, {
+       body: JSON.stringify(geometryWitnesses, null, 2), contentType: "application/json",
+diff --git a/projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts b/projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts
+index 68dd58b5cc..d957f0e920 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts
+@@ -29,7 +29,7 @@ import {
+   withTypedCollision,
+ } from "./ui-foundation-workflows";
+ 
+-import { expectStatusChip, projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
++import { projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
+ 
+ test.beforeAll(async ({ browser }, testInfo) => {
+   await attachBrowserIdentity(browser, testInfo);
+@@ -669,7 +669,8 @@ test("Box Select keeps the camera and authored projection invariant for plain, S
+ // Slice B3 moves the structure it is measured in: Analyze is a page that opens over the stage's
+ // surfaces (the dock under the canvas is gone), so the canvas keeps its box under the open page,
+ // the page's controls are checked with the page open, and the canvas's own controls and drafts are
+-// checked with it closed. The solve proof is read on the Results stage's Evidence tab.
++// checked with it closed. Browser Run refuses; preserved rows are inspected explicitly on Results.
++// Native solve proof and current overlays require the separate native witness.
+ for (const theme of APPEARANCE_THEMES) {
+   for (const density of APPEARANCE_DENSITIES) {
+     for (const viewport of APPEARANCE_VIEWPORTS) {
+@@ -745,7 +746,7 @@ for (const theme of APPEARANCE_THEMES) {
+           expect(geometry.dock.bottom).toBeLessThanOrEqual(geometry.status.y);
+           expect(geometry.bodyOverflowX).toBeLessThanOrEqual(0);
+           expect(geometry.bodyOverflowY).toBeLessThanOrEqual(0);
+-          if (phase.startsWith("solved")) {
++          if (phase.startsWith("browser")) {
+             expect(geometry.dockBody.usableHeight, `${phase} usable dock body height`).toBeGreaterThan(64);
+           }
+           return geometry.canvas;
+@@ -798,11 +799,13 @@ for (const theme of APPEARANCE_THEMES) {
+         await expectCenterUnobscured(page.getByTestId("queue-explicit-pipe-intent"));
+         await openWorkspaceSection(page, "solve");
+         await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
+-        await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+-        await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=830");
+-        await measure("solved");
+-        const verifySolvedDockControls = async (phase: string) => {
+-          await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
++        await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
++        await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
++        await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
++        await expect(page.getByTestId("rule-check-run")).toBeDisabled();
++        await measure("browser refused");
++        const verifyBrowserDockControls = async (phase: string) => {
++          await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
+           for (const testId of ["solver-mode-sparse", "solver-mode-dense", "run-mechanics-preview"]) {
+             const control = page.getByTestId(testId);
+             await expect(control).toBeEnabled();
+@@ -864,40 +867,49 @@ for (const theme of APPEARANCE_THEMES) {
+             expect(witness.owned).toBe(true);
+           }
+         };
+-        await verifySolvedDockControls("solved controls before proof disclosure");
++        await verifyBrowserDockControls("browser controls before reference inspection");
+         await openWorkspaceSection(page, "evidence");
+-        const proof = page.getByTestId("status-pill-solve-proof");
+-        const proofSummary = proof.locator("summary");
+-        await expect(proofSummary).toHaveText("Solve proof Run identity matches");
+-        await proofSummary.scrollIntoViewIfNeeded();
+-        await expectCenterUnobscured(proofSummary);
+-        await proofSummary.click();
+-        await expect(proof).toHaveAttribute("open", "");
+-        const rawProof = proof.locator("code");
+-        await expect(rawProof).toBeVisible();
+-        await rawProof.scrollIntoViewIfNeeded();
+-        await expectCenterUnobscured(rawProof);
+-        const rawProofText = await rawProof.innerText();
+-        expect(rawProofText).toMatch(/^seam=browser_fixture_no_backend_job; project=project:invented-loop-01; result_model=project:invented-loop-01; identity=match; rows=830; generation=\d+; job=[^;]+; model_sha256=sha256:[a-f0-9]{64}; input_manifest_sha256=[a-f0-9]{64}$/);
+-        evidence.push({ phase: "solved proof Details", summary: await proofSummary.innerText(),
+-          rawProof: rawProofText, bounds: await rawProof.boundingBox() });
+-        await proofSummary.click();
+-        await expect(proof).not.toHaveAttribute("open", "");
+-        await expect(rawProof).toBeHidden();
++        await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
++        await openWorkspaceSection(page, "results");
++        const inspectReference = page.getByTestId("workspace-section-results").getByRole("button", { name: "Inspect bundled reference", exact: true });
++        await inspectReference.scrollIntoViewIfNeeded();
++        await expectCenterUnobscured(inspectReference);
++        await activateWithKeyboard(page, inspectReference);
++        const reference = page.getByRole("region", { name: "Bundled reference — not a solve for the current model", exact: true });
++        await expect(reference).toBeVisible();
++        await expect(reference).toContainText("Reference model: project:invented-loop-01");
++        await expect(reference.getByTestId("result-filter-summary")).toHaveText("830 of 830 results match filter");
++        // Preserve the five-node displacement oracle in the retained source, without
++        // claiming those rows are a current-model deformation overlay.
++        const referenceFilter = reference.getByTestId("result-filter-input");
++        await referenceFilter.scrollIntoViewIfNeeded();
++        await expectCenterUnobscured(referenceFilter);
++        await referenceFilter.fill("displacement_magnitude");
++        await expect(reference.getByTestId("result-filter-summary")).toHaveText("15 of 830 results match filter");
++        const referenceNodes = await reference.locator("tbody tr td:nth-child(2)").allTextContents();
++        expect(new Set(referenceNodes).size).toBe(5);
++        await activateWithKeyboard(page, reference.getByTestId("clear-result-filter"));
++        await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
++        evidence.push({ phase: "bundled reference inspection", title: await reference.getAttribute("aria-label"),
++          retainedRows: 830, displacementNodeCount: new Set(referenceNodes).size,
++          bounds: await reference.boundingBox(), freshInvocationPerformed: false });
+         await openWorkspaceSection(page, "solve");
+-        await verifySolvedDockControls("solved controls after proof disclosure");
+-        await measure("solved after proof disclosure");
++        await expect(page.getByTestId("rule-check-run")).toBeDisabled();
++        await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
++        await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
++        await verifyBrowserDockControls("browser controls after reference inspection");
++        await measure("browser refused after reference inspection");
+         await closePage();
+         await activateWithKeyboard(page, page.getByTestId("rail-stage-model"));
+         const deformation = page.getByTestId("viewport-deformation-status");
+         await deformation.locator("summary").click();
+-        await expect(deformation.getByTestId("viewport-deformation-summary")).toContainText("available; nodes=5");
++        await expect(deformation.getByTestId("viewport-deformation-summary")).toContainText("not started; result rows=0");
+         // Noninteractive wrapped inline text has disjoint fragments; its union
+         // center can legitimately fall on a sibling. Check actual text fragments
+         // inside the scroll clip, retaining center-hit checks for all controls.
+         for (const [testId, expected] of [
+-          ["viewport-deformation-summary", "available; nodes=5"],
+-          ["viewport-deformation-boundary", "vector_direction=global_cartesian_displacement_components"],
++          ["viewport-deformation-summary", "not started; result rows=0"],
++          ["viewport-deformation-boundary", "scale=not_generated; professional_claim=false"],
+         ] as const) {
+           const text = deformation.getByTestId(testId);
+           await expect(text).toContainText(expected);
+@@ -956,9 +968,9 @@ for (const theme of APPEARANCE_THEMES) {
+         await expect(page.getByTestId("viewport-create-pipe-label")).toHaveValue("Retained pipe draft");
+         await expect(page.getByTestId("viewport-create-pipe-provenance")).toHaveValue("layout regression draft");
+         await expect(page.getByTestId("command-pipe")).toHaveAttribute("aria-pressed", "true");
+-        await measure("solved final task and dock");
++        await measure("browser final task and dock");
+         await testInfo.attach("task-dock-layout", { body: JSON.stringify(evidence, null, 2), contentType: "application/json" });
+-        await testInfo.attach("solved-task-dock", { body: await page.screenshot(), contentType: "image/png" });
++        await testInfo.attach("reference-task-dock", { body: await page.screenshot(), contentType: "image/png" });
+       });
+     }
+   }

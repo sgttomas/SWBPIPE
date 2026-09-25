@@ -608,15 +608,15 @@ fn validate_result_envelope_payload(
 
     let version=root.get("schema_version").and_then(Value::as_str);
     if !matches!(version,Some("0.1.0"|"0.2.0"|"0.3.0")) || envelope.get("schema_version").and_then(Value::as_str)!=version {
-        diagnostics.push(Diagnostic::runner_blocking("HEADLESS_RUNNER_RESULT_ENVELOPE_VERSION_UNSUPPORTED",Reference::new("result_envelope",&result.result_envelope_ref.envelope_ref.ref_id),"only matching 0.1.0, 0.2.0 or precision-1 0.3.0 result contract versions are supported"));
+        diagnostics.push(Diagnostic::runner_blocking("HEADLESS_RUNNER_RESULT_ENVELOPE_VERSION_UNSUPPORTED",Reference::new("result_envelope",&result.result_envelope_ref.envelope_ref.ref_id),"only matching 0.1.0, 0.2.0 or recognized source-bound 0.3.0 result contract versions are supported"));
     }
 
     if version == Some("0.3.0") {
         let mut metadata_source = Value::Object(envelope.clone());
         metadata_source["schema_version"] = serde_json::json!("0.2.0");
-        if open_pipe_stress_result_export::semantic_contract::for_source(&metadata_source).is_err()
-            || metadata_source["semantic_contract_ref"] != serde_json::json!({"ref_type":"semantic_contract", "ref_id":open_pipe_stress_result_export::semantic_contract::PRECISION_ID}) {
-            diagnostics.push(Diagnostic::runner_blocking("HEADLESS_RUNNER_RESULT_CONTRACT_UNSUPPORTED",Reference::new("result_envelope",&result.result_envelope_ref.envelope_ref.ref_id),"precision derivative metadata must bind the recognized source producer and semantic contract"));
+        if open_pipe_stress_result_export::semantic_contract::for_source_metadata(&metadata_source).is_err()
+            || metadata_source["semantic_contract_ref"] != serde_json::json!({"ref_type":"semantic_contract", "ref_id":metadata_source["producer"]["semantic_contract_id"]}) {
+            diagnostics.push(Diagnostic::runner_blocking("HEADLESS_RUNNER_RESULT_CONTRACT_UNSUPPORTED",Reference::new("result_envelope",&result.result_envelope_ref.envelope_ref.ref_id),"derivative metadata must bind the recognized source producer and semantic contract"));
         }
     }
 
@@ -776,8 +776,8 @@ pub fn run_preview_in_memory(
 ///
 /// - `None`: no rule checks ran — the solve envelope keeps its conservative
 ///   `RULE_INPUTS_INCOMPLETE` and the analysis status is unchanged.
-/// - a recognized status: written into the carried `MechanicsEnvelope`'s
-///   `rule_check` (before its checksum binds) and reflected in `analysis_status`.
+/// - a recognized status: carried only by the runner/derived `analysis_status`;
+///   the received `MechanicsEnvelope` and its checksum remain unchanged.
 /// - any other non-`None` string: a blocking diagnostic
 ///   (`HEADLESS_RUNNER_RULE_CHECK_STATUS_INVALID`), never silently dropped; the
 ///   envelope is left at `RULE_INPUTS_INCOMPLETE` (conservative — no false pass).
@@ -837,15 +837,15 @@ fn run_preview_in_memory_mode(request:RunnerRequest,preview_request:LinearStatic
         };
     }
 
-    let mut mechanics = run_linear_static_preview_with_mode(preview_request,mode);
+    let mechanics = run_linear_static_preview_with_mode(preview_request,mode);
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
-    // Drive the optional rule-check aggregate into the solve envelope before its
-    // checksum binds, so the envelope and the runner analysis_status honestly
-    // carry the rule-check outcome rather than the solve-only default. An
-    // unrecognized aggregate is a blocking diagnostic, not a silent coercion.
+    // Rule checks revise the derived analysis, never the producer result. Keep
+    // the same raw bytes, numerical evidence and received-source checksum for
+    // every rule revision; invalid aggregates retain the source status and block.
+    let mut effective_rule_status = analysis_status_for_rule_check(&mechanics.status.rule_check);
     if let Some(aggregate) = rule_check_aggregate {
-        if analysis_status_for_rule_check(aggregate).is_some() {
-            mechanics.status.rule_check = aggregate.to_string();
+        if let Some(status) = analysis_status_for_rule_check(aggregate) {
+            effective_rule_status = Some(status);
         } else {
             diagnostics.push(Diagnostic::runner_blocking(
                 "HEADLESS_RUNNER_RULE_CHECK_STATUS_INVALID",
@@ -865,9 +865,8 @@ fn run_preview_in_memory_mode(request:RunnerRequest,preview_request:LinearStatic
     } else {
         analysis_status.push(AnalysisStatus::ModelIncomplete);
     }
-    // Single source of truth: derive the rule-check analysis status from the
-    // (possibly aggregate-driven) solve envelope.
-    if let Some(status) = analysis_status_for_rule_check(&mechanics.status.rule_check) {
+    // Only this derived status reflects the optional rule-check aggregate.
+    if let Some(status) = effective_rule_status {
         analysis_status.push(status);
     }
 
@@ -1290,7 +1289,18 @@ mod tests {
 
     #[test]
     fn preview_bridge_executes_product_physics_with_deterministic_refs() {
-        let output = run_preview_in_memory(request(), preview_request());
+        // This control asserts current torsional/source references and hashes,
+        // not pressure physics. Declare its local input unpressurized before
+        // solving; do not change the shared fixture or other tests' inputs.
+        let mut current_request = preview_request();
+        for case in &mut current_request.model.load_cases {
+            for load in &mut case.primitive_loads {
+                if load.category == "pressure" || load.dimension == "pressure" {
+                    load.magnitude.value = 0.0;
+                }
+            }
+        }
+        let output = run_preview_in_memory(request(), current_request);
         let mechanics = output
             .mechanics_envelope
             .as_ref()
@@ -1361,20 +1371,30 @@ mod tests {
     }
 
     #[test]
-    fn preview_bridge_drives_user_rule_failed_into_envelope_and_analysis_status() {
+    fn preview_bridge_preserves_producer_and_drives_user_rule_failed_into_analysis_status() {
+        // The final runner validation assertion requires computed row refs.
+        // Pressure is incidental to the rule/source-status behavior under test;
+        // declare only this current input unpressurized before the real solve.
+        let mut current_request = preview_request();
+        for case in &mut current_request.model.load_cases {
+            for load in &mut case.primitive_loads {
+                if load.category == "pressure" || load.dimension == "pressure" {
+                    load.magnitude.value = 0.0;
+                }
+            }
+        }
         let output = run_preview_in_memory_with_rule_check(
             request(),
-            preview_request(),
+            current_request,
             Some("USER_RULE_FAILED"),
         );
         let mechanics = output
             .mechanics_envelope
             .as_ref()
             .expect("valid request should produce mechanics envelope");
-        // Driven into the solve envelope (before its checksum binds)...
-        assert_eq!(mechanics.status.rule_check, "USER_RULE_FAILED");
-        // ...and reflected in the runner analysis_status, replacing the
-        // solve-only RULE_INPUTS_INCOMPLETE default.
+        // Producer status remains the actual solve-only observation.
+        assert_eq!(mechanics.status.rule_check, "RULE_INPUTS_INCOMPLETE");
+        // The separate runner analysis carries the requested rule outcome.
         assert!(output
             .runner_result
             .analysis_status
@@ -1398,7 +1418,7 @@ mod tests {
             Some("USER_RULE_CHECKED"),
         );
         let mechanics = output.mechanics_envelope.as_ref().expect("envelope");
-        assert_eq!(mechanics.status.rule_check, "USER_RULE_CHECKED");
+        assert_eq!(mechanics.status.rule_check, "RULE_INPUTS_INCOMPLETE");
         assert!(output
             .runner_result
             .analysis_status
@@ -1407,6 +1427,92 @@ mod tests {
             .runner_result
             .analysis_status
             .contains(&AnalysisStatus::RuleInputsIncomplete));
+    }
+
+    #[test]
+    fn rule_revisions_preserve_actual_physics_and_precision_producer_source() {
+        use open_pipe_stress_result_export::derivative::{digest, validate_document};
+        let exact: Value = serde_json::from_str(include_str!(
+            "../../../product_physics/tests/fixtures/exact_pressure_connected_request.json"
+        )).unwrap();
+        // Pressure is incidental to the legacy source-binding control. Declare
+        // zero pressure in a local input before solving; keep fixture bytes intact.
+        let mut ordinary: Value = serde_json::json!({"model": serde_json::from_str::<Value>(include_str!(
+            "../../../../fixtures/product_preview/invented_preview_model.json"
+        )).unwrap(), "materials": []});
+        for case in ordinary["model"]["load_cases"].as_array_mut().unwrap() {
+            for load in case["primitive_loads"].as_array_mut().unwrap() {
+                if load["category"] == "pressure" || load["dimension"] == "pressure" {
+                    load["magnitude"]["value"] = serde_json::json!(0.0);
+                }
+            }
+        }
+        for (payload, contract) in [(ordinary, open_pipe_stress_result_export::semantic_contract::PRECISION_ID),
+            (exact, open_pipe_stress_result_export::semantic_contract::PHYSICS_ID)] {
+            for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+                let baseline = run_preview_model_value_mode(request(), payload.clone(), None, mode).unwrap();
+                let raw = serde_json::to_value(baseline.mechanics_envelope.as_ref().unwrap()).unwrap();
+                assert_eq!(raw["status"]["mechanics"], "MECHANICS_SOLVED");
+                assert_eq!(raw["producer"]["semantic_contract_id"], contract);
+                let source_digest = digest(&raw).unwrap();
+                let received_checksum = baseline.runner_result.checksums.iter().find(|c| c.payload_ref.ref_type == "result_envelope").unwrap();
+                for (aggregate, expected) in [("RULE_INPUTS_INCOMPLETE", AnalysisStatus::RuleInputsIncomplete),
+                    ("USER_RULE_CHECKED", AnalysisStatus::UserRuleChecked), ("USER_RULE_FAILED", AnalysisStatus::UserRuleFailed)] {
+                    let revised = run_preview_model_value_mode(request(), payload.clone(), Some(aggregate), mode).unwrap();
+                    let revised_raw = serde_json::to_value(revised.mechanics_envelope.as_ref().unwrap()).unwrap();
+                    assert_eq!(revised_raw, raw, "{contract}: {aggregate} changed producer data");
+                    assert_eq!(digest(&revised_raw).unwrap(), source_digest);
+                    assert_eq!(revised.runner_result.checksums.iter().find(|c| c.payload_ref.ref_type == "result_envelope").unwrap(), received_checksum);
+                    assert!(revised.runner_result.analysis_status.contains(&expected));
+                    let doc = revised.result_envelope_document.as_ref().expect("actual qualified solve remains exportable");
+                    assert!(doc["result_envelope"]["analysis_status"].as_array().unwrap().contains(&serde_json::json!(aggregate)));
+                    assert_eq!(doc["result_envelope"]["reproducibility"]["source_origin_bindings"][0]["received_carrier_checksum"]["value"], source_digest);
+                    assert_eq!(doc["result_envelope"]["numerical_quality"], raw["numerical_quality"]);
+                    assert_eq!(doc["result_envelope"].get("contract_evidence"), raw.get("contract_evidence"));
+                    validate_document(doc, &raw).unwrap();
+                    let proof = revised.qualified_preview_evidence.as_ref().unwrap();
+                    assert_eq!(proof.mechanics_digest, source_digest);
+                    if aggregate != "RULE_INPUTS_INCOMPLETE" {
+                        assert_ne!(proof.runner_digest, baseline.qualified_preview_evidence.as_ref().unwrap().runner_digest);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn blocked_exact_inputs_remain_interpretable_without_source_promotion() {
+        use open_pipe_stress_result_export::semantic_contract;
+        let original: Value = serde_json::from_str(include_str!(
+            "../../../product_physics/tests/fixtures/exact_pressure_connected_request.json"
+        )).unwrap();
+        for (name, diagnostic) in [("missing_nu", "EXACT_PRESSURE_POISSON_RATIO_REQUIRED"),
+            ("missing_closure", "PRESSURE_TERMINAL_CLOSURE_INVALID")] {
+            let mut payload = original.clone();
+            if name == "missing_nu" {
+                payload["model"]["materials"][0].as_object_mut().unwrap().remove("poisson_ratio");
+            } else {
+                payload["model"]["load_cases"][0]["pressure_regions"][0]["terminals"][0].as_object_mut().unwrap().remove("closure_transfer");
+            }
+            let output = run_preview_model_value(request(), payload.clone()).unwrap();
+            let raw = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
+            assert_eq!(raw["status"]["mechanics"], "MODEL_INCOMPLETE");
+            assert_eq!(raw["contract_evidence"], serde_json::json!({"pressure":[],"connector":[],"exact_cases":[]}));
+            assert!(raw["results"].as_array().unwrap().is_empty());
+            assert!(raw["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == diagnostic));
+            assert_eq!(semantic_contract::for_source(&raw).unwrap().0["semantic_contract_id"], semantic_contract::PHYSICS_ID);
+            let requested = payload["model"]["load_cases"].as_array().unwrap().iter().map(|c|
+                serde_json::json!({"ref_type":"load_case","ref_id":c["id"]})).collect::<Vec<_>>();
+            assert_eq!(semantic_contract::numerical_use_standing(&raw, &requested), "needs_recompute");
+            assert!(output.result_envelope_document.is_none());
+            assert!(output.qualified_preview_evidence.is_none());
+            assert_eq!(output.canonical_export_unavailability.as_deref(), Some("SOURCE_NOT_SOLVED"));
+            if let Ok(dir) = std::env::var("HEADLESS_BLOCKED_PHYSICS_OUTPUT_DIR") {
+                let dir = std::path::Path::new(&dir); std::fs::create_dir_all(dir).unwrap();
+                std::fs::write(dir.join(format!("{name}.raw.json")), serde_json::to_vec_pretty(&raw).unwrap()).unwrap();
+                std::fs::write(dir.join(format!("{name}.request.json")), serde_json::to_vec_pretty(&payload).unwrap()).unwrap();
+            }
+        }
     }
 
     #[test]

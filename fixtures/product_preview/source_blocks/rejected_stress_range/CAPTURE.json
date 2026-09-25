@@ -1,0 +1,28 @@
+{
+  "classification": "Actual pre-repair producer outputs with unsound qualification; maintained negative reader fixtures, never positive Current/solver reference",
+  "origin": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/SOURCE_RECOVERY_IMPLEMENTATION_01/_run_records/stress_range_scaled_before",
+  "actual_producer": "run_linear_static_preview_value_with_mode",
+  "defect": "PR-01: MPa relative publication error1.2694501751682153e-6 exceeds protected1e-9 despite finite output",
+  "files": [
+    {
+      "path": "dense_scrutiny.raw.json",
+      "sha256": "85124a39b1920e3254f791ac28b2aeb3abafba42845bf82abe3346f0920ab877"
+    },
+    {
+      "path": "sparse_interactive.request.json",
+      "sha256": "dcf0a626355add1d26146026c8a46e3843acae459def146901188e90f49f2413"
+    },
+    {
+      "path": "sparse_interactive.raw.json",
+      "sha256": "e14b0f257f45efc6ec5824527bbc2a60118d2026a72a36c261e42f73ccef5a04"
+    },
+    {
+      "path": "ORACLE.json",
+      "sha256": "84d14e2a957aba55f35594eed040af301e7c1352c3ea589451a5e87f3ee4260b"
+    },
+    {
+      "path": "dense_scrutiny.request.json",
+      "sha256": "dcf0a626355add1d26146026c8a46e3843acae459def146901188e90f49f2413"
+    }
+  ]
+}

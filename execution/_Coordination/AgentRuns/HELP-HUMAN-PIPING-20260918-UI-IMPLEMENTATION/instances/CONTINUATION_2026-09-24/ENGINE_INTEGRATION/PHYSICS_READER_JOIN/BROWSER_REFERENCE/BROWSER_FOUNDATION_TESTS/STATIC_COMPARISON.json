@@ -1,0 +1,83 @@
+[
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "before_sha256": "0bbfd7c51482a5243e75a347b4ed39cfd5a698ef233b5f172c87fa4dc6a95fd3",
+    "after_sha256": "7b9efe3783952280fadc103eb76f986276c8394a815c2fd161a1345c205eba87",
+    "before_equals_recorded_git_head": true,
+    "protected_and_reachability_fragments": [
+      {
+        "source_fragment": ".toBeGreaterThanOrEqual(200)",
+        "before_count": 2,
+        "after_count": 2
+      },
+      {
+        "source_fragment": ".toBeGreaterThan(64)",
+        "before_count": 1,
+        "after_count": 1
+      },
+      {
+        "source_fragment": "expectCenterUnobscured(",
+        "before_count": 11,
+        "after_count": 11
+      },
+      {
+        "source_fragment": ".toBeFocused()",
+        "before_count": 14,
+        "after_count": 14
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+    "before_sha256": "23877e2fcccfce84c03f731afddebac0c703fd3f3188ebccbeb087ef6811f3ff",
+    "after_sha256": "888a63ded7086a5e289db7e327b81a78fb9664823e15b2d9c659db60ca31942e",
+    "before_equals_recorded_git_head": true,
+    "protected_and_reachability_fragments": [
+      {
+        "source_fragment": ".toBeGreaterThanOrEqual(200)",
+        "before_count": 4,
+        "after_count": 4
+      },
+      {
+        "source_fragment": "minimum: 4.5",
+        "before_count": 14,
+        "after_count": 14
+      },
+      {
+        "source_fragment": "minimum: 3",
+        "before_count": 4,
+        "after_count": 4
+      },
+      {
+        "source_fragment": ".toBeGreaterThanOrEqual(geometry.results.width * 0.85)",
+        "before_count": 1,
+        "after_count": 1
+      },
+      {
+        "source_fragment": ".toBeGreaterThanOrEqual(geometry.section.width - 2)",
+        "before_count": 1,
+        "after_count": 1
+      },
+      {
+        "source_fragment": ".toBeLessThanOrEqual(1)",
+        "before_count": 8,
+        "after_count": 8
+      },
+      {
+        "source_fragment": "expectCenterUnobscured(",
+        "before_count": 31,
+        "after_count": 31
+      },
+      {
+        "source_fragment": ".toBeFocused()",
+        "before_count": 24,
+        "after_count": 24
+      },
+      {
+        "source_fragment": "expect([...tones].sort()).toEqual([\"blocking\", \"info\", \"ok\", \"warning\"])",
+        "before_count": 1,
+        "after_count": 1
+      }
+    ]
+  }
+]

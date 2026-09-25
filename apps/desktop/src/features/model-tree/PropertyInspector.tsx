@@ -1573,10 +1573,10 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
       quantityField(
         "Shear modulus",
         "shear_modulus.value",
-        material.shear_modulus.value,
+        material.shear_modulus?.value ?? "TBD",
         "Material",
         "stress",
-        material.shear_modulus.unit,
+        material.shear_modulus?.unit ?? "TBD",
         "set_field",
         true
       ),

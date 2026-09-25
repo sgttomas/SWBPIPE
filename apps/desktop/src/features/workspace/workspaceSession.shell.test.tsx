@@ -19,7 +19,9 @@ import {
 import type { ShellStage, ShellView } from "./shellLayout";
 import { useWorkspaceSession } from "./workspaceSession";
 import * as hashService from "../../services/hashService";
-import { createLocalProject } from "../../services/projectService";
+import { createLocalProject, getLocalStorageCapability, openLocalProject } from "../../services/projectService";
+import { loadDesignKnowledge, loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
+import { createNativeMechanicsReplay } from "../../test/nativeMechanicsReplay";
 import type { WorkspaceSession } from "./workspaceSession";
 import { WorkspaceSessionProvider, useSessionChrome, useWorkspaceSessionContext } from "./WorkspaceSessionContext";
 
@@ -27,6 +29,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   invokeMock.mockReset();
   window.localStorage.clear();
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
 const SLICES = ["model", "selection", "results", "operations", "project", "chrome"] as const;
@@ -163,7 +166,19 @@ describe("a stage or view switch is a presentation change", () => {
     expect(SHELL_STAGES.map((stage) => viewForStage(memory, stage))).toEqual(["both", "both", "both", "table"]);
   }
 
-  it("leaves the model, the revision, the solve-input basis and a Current solved run identical", async () => {
+  it("leaves an actual-pair native transport simulation unchanged across presentation switches", async () => {
+    // Scope this mock to the Current state-transition purpose. Source/model
+    // bytes are a real supported producer pair; this is not native UI evidence.
+    const storage = await getLocalStorageCapability();
+    const knowledge = await loadDesignKnowledge();
+    const replay = createNativeMechanicsReplay();
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockImplementation((command: string, args: Record<string, unknown>) => {
+      if (command === "get_local_storage_capability") return Promise.resolve(storage);
+      if (command === "load_design_knowledge") return Promise.resolve(knowledge);
+      if (command === "sync_native_shell_state") return Promise.resolve(null);
+      return replay.invoke(command, args);
+    });
     const { result } = await readySession();
     await act(async () => {
       await result.current.results.handleRun();
@@ -199,11 +214,107 @@ describe("a stage or view switch is a presentation change", () => {
     await act(async () => {
       await result.current.results.handleRun();
     });
-    // The browser fixture's run of an edited model completes without solving; it is still a run to keep.
-    await waitFor(() => expect(result.current.results.solveJob.state).toBe("completed"));
-    expect(result.current.results.result).not.toBeNull();
+    // A browser cannot execute the edited model. Preserve that genuine failed
+    // attempt and the authored/undo spine across presentation-only changes.
+    await waitFor(() => expect(result.current.results.solveJob.state).toBe("failed"));
+    expect(result.current.results.solveJob.error_message).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+    expect(result.current.results.result).toBeNull();
+    expect(result.current.results.currentSolvedResult).toBeNull();
+    expect(result.current.results.analysisRun).toBeNull();
+    expect(result.current.results.inputManifest).toBeNull();
+    expect(result.current.results.solveProof).toBeNull();
     await switchEveryStageAndView(result);
     expect(result.current.operations.undoStack.length).toBe(1);
+  });
+
+  it("inspects bundled bytes in their own model context and never saves them against an edited model", async () => {
+    const { result } = await readySession();
+    const basis = result.current.model.model!;
+    const intent = makeRichIntent({ object_type: "Node", ref: basis.nodes[0].id }, "set_field", "position.x",
+      String(basis.nodes[0].position.x), basis.nodes[0].position.x + 0.25, "X coordinate");
+    intent.change.unit = basis.project.units.length;
+    intent.change.dimension = "length";
+    await act(async () => { expect(await result.current.operations.handleApplyIntent(intent)).toBe(true); });
+    await waitFor(() => expect(result.current.model.modelHash).not.toBeNull());
+    const edited = result.current.model.model;
+    const undo = result.current.operations.undoStack;
+    const reference = await loadBundledMechanicsReference();
+    await act(async () => { await result.current.results.handleInspectBundledReference(); });
+    const context = result.current.results.historicalRun!;
+    expect(context.designation).toBe("bundled_reference");
+    expect(context.rawMechanicsResult).toEqual(reference.source);
+    expect(context.referenceModel).toEqual(reference.model);
+    expect(context.referenceModel).not.toEqual(edited);
+    expect(result.current.model.model).toBe(edited);
+    expect(result.current.operations.undoStack).toBe(undo);
+    expect(hasNativeMechanicsInvocation(context.mechanicsResult, reference.model)).toBe(false);
+    for (const value of [result.current.results.result, result.current.results.currentSolvedResult,
+      result.current.results.inputManifest, result.current.results.analysisRun,
+      result.current.results.solveProof, result.current.results.ruleCheckAggregate,
+      result.current.results.comparison, result.current.results.reportPackageRoute]) expect(value).toBeNull();
+    expect(result.current.results.solveJob.state).toBe("not_started");
+    await switchEveryStageAndView(result);
+    await act(async () => { await result.current.project.handleCreateProject(); });
+    const saved = await openLocalProject();
+    expect(saved!.model).toEqual(edited);
+    expect(saved!.mechanics_result).toBeNull();
+    expect(saved!.analysis_run).toBeNull();
+    expect(result.current.results.historicalRun).toBe(context);
+    expect(result.current.operations.undoStack).toBe(undo);
+  });
+
+  it("preserves genuine current and saved run bytes through reference inspection, retiring them on an edit", async () => {
+    // Exact captured producer pair through simulated native IPC, followed by
+    // the real browser persistence adapter. This is no native UI witness.
+    const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
+    const replay = createNativeMechanicsReplay({ profile: "precision" });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockImplementation((command: string, args: Record<string, unknown>) => {
+      if (command === "get_local_storage_capability") return Promise.resolve(storage);
+      if (command === "load_design_knowledge") return Promise.resolve(knowledge);
+      if (command === "sync_native_shell_state") return Promise.resolve(null);
+      return replay.invoke(command, args);
+    });
+    const { result } = await readySession();
+    await act(async () => { await result.current.results.handleRun(); });
+    await waitFor(() => expect(result.current.results.currentSolvedResult).not.toBeNull());
+    const original = JSON.stringify(result.current.results.result);
+    const originalAnalysis = JSON.stringify(result.current.results.analysisRun);
+    act(() => result.current.results.handleSelectResult(result.current.results.result!.results[0].id));
+    const selectedReview = result.current.results.selectedReviewTarget;
+    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    await act(async () => { await result.current.results.handleInspectBundledReference(); });
+    expect(result.current.results.historicalRun!.designation).toBe("bundled_reference");
+    expect(result.current.results.currentSolvedResult).toBeNull();
+    expect(result.current.results.solveProof).toBeNull();
+    expect(result.current.results.selectedReviewTarget).toBe(selectedReview);
+    await act(async () => { await result.current.project.handleCreateProject(); });
+    let saved = await openLocalProject();
+    expect(JSON.stringify(saved!.mechanics_result)).toBe(original);
+    expect(JSON.stringify(saved!.analysis_run)).toBe(originalAnalysis);
+    await act(async () => { await result.current.project.handleOpenProject(); });
+    expect(result.current.results.historicalRun!.designation).toBe("historical_saved_run");
+    expect(JSON.stringify(result.current.results.historicalRun!.rawMechanicsResult)).toBe(original);
+    expect(result.current.results.currentSolvedResult).toBeNull();
+    // Reinspect from a genuine saved history, then save the unchanged model.
+    await act(async () => { await result.current.results.handleInspectBundledReference(); });
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    saved = await openLocalProject();
+    expect(JSON.stringify(saved!.mechanics_result)).toBe(original);
+    expect(JSON.stringify(saved!.analysis_run)).toBe(originalAnalysis);
+    await act(async () => { await result.current.project.handleOpenProject(); });
+    expect(JSON.stringify(result.current.results.historicalRun!.rawMechanicsResult)).toBe(original);
+    // Actual model change retires the saved-run persistence basis; neither the
+    // old real run nor the bundled source may be attached to that edited model.
+    await act(async () => { await result.current.results.handleInspectBundledReference(); });
+    const basis = result.current.model.model!;
+    const intent = makeRichIntent({ object_type: "Node", ref: basis.nodes[0].id }, "set_field", "position.x",
+      String(basis.nodes[0].position.x), basis.nodes[0].position.x + 0.25, "X coordinate");
+    intent.change.unit = basis.project.units.length; intent.change.dimension = "length";
+    await act(async () => { expect(await result.current.operations.handleApplyIntent(intent)).toBe(true); });
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    saved = await openLocalProject();
+    expect(saved!.mechanics_result).toBeNull(); expect(saved!.analysis_run).toBeNull();
   });
 
   it("opens a page over the stage it found and returns to it, touching nothing else", async () => {

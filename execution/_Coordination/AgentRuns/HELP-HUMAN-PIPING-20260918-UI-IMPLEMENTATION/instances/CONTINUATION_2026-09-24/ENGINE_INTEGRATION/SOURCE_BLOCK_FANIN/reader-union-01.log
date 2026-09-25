@@ -1,0 +1,58 @@
+   Compiling open_pipe_stress_result_export v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/reporting/result_export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.74s
+     Running unittests src/lib.rs (/private/tmp/piping-physics-result-export-target/debug/deps/open_pipe_stress_result_export-4e58360a6094f958)
+
+running 18 tests
+test source_blocks::norm_tests::scaled_norm_accepts_small_normal_values_and_harmless_normalized_underflow ... ok
+test source_blocks::norm_tests::scaled_norm_rejects_subnormal_output_overflow_and_one_ulp_value_changes ... ok
+test source_blocks::stress_range_tests::nonzero_action_cannot_become_zero_or_subnormal_mpa ... ok
+test source_blocks::stress_range_tests::normal_stress_and_exact_logical_zero_remain_admitted ... ok
+test tests::human_review_required_status_is_mandatory ... ok
+test tests::load_vector_and_station_resultant_set_types_are_governed_vocabulary ... ok
+test tests::local_force_and_moment_metadata_is_mandatory ... ok
+test tests::missing_units_and_dimensions_are_blocking ... ok
+test tests::professional_boundary_violation_is_blocking ... ok
+test tests::protected_rule_pack_reference_blocks_export ... ok
+test tests::result_values_sort_deterministically_for_regression_comparison ... ok
+test tests::rule_pack_payload_must_remain_redacted ... ok
+test tests::stiffness_dimensions_serialize_as_explicit_contract_identifiers ... ok
+test source_blocks::stress_range_tests::summary_excludes_torsion_but_requires_normal_nonzero_result ... ok
+test tests::tp_phys_015_fixture_serializes_to_schema_wrapper ... ok
+test tests::unsupported_result_set_type_is_blocking ... ok
+test tests::valid_envelope_has_no_blocking_diagnostics ... ok
+test tests::tp_section_021_fixture_serializes_section_property_evidence ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/physics_contract.rs (/private/tmp/piping-physics-result-export-target/debug/deps/physics_contract-462dc8cc509cc8f7)
+
+running 10 tests
+test actual_pressure_thermal_cases_retain_distinct_pressure_only_ledgers ... ok
+test additive_table_retains_frozen_precision_bytes_and_semantics ... ok
+test canonical_physical_evidence_is_source_bound_even_after_rehash ... ok
+test explicit_unavailable_extrema_preserve_signed_rows_and_withhold_headline ... ok
+test metadata_only_dispatch_cannot_qualify_missing_raw_evidence_or_reserved_methods ... ok
+test actual_joined_outputs_admit_preserve_and_validate_physics_derivatives ... ok
+test pressure_ledger_cannot_claim_to_include_thermal_actions ... ok
+test remote_closure_reaction_must_oppose_the_closure_load ... ok
+test temperature_selection_must_bind_the_exact_case_material_basis ... ok
+test physical_case_member_material_region_and_extrema_tampering_is_rejected ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.41s
+
+     Running tests/source_blocks.rs (/private/tmp/piping-physics-result-export-target/debug/deps/source_blocks-48dd82a186a3a395)
+
+running 10 tests
+test additive_signatures_leave_precision_table_unchanged ... ok
+test actual_pre_repair_producer_stress_range_packets_are_refused_unchanged ... ok
+test receipt_presence_never_downgrades_to_precision_or_legacy ... ok
+test independent_actual_context_is_required_and_bound ... ok
+test received_invocation_work_aggregates_all_cases_and_rejects_rehashed_tampering ... ok
+test rehashed_projection_work_and_attribution_mutations_reject ... ok
+test received_real_producer_artifacts_qualify_only_against_actual_invocation ... ok
+test reserved_unobserved_failure_is_debited_in_the_invocation_ledger ... ok
+test rehashed_received_stress_underflow_and_subnormal_rows_are_refused ... ok
+test stress_containing_case_reserves_both_recipe_layers ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.53s
+

@@ -1,0 +1,21 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "core/runner/headless/Cargo.toml",
+    "--jobs",
+    "2",
+    "--lib",
+    "result_envelope_binding::tests::connected_physics_actual_solve_preserves_case_evidence_and_qualified_export",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "target": "/private/tmp/piping-physics-headless-target",
+  "output_dir": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/HEADLESS_ACTUAL",
+  "exit_code": 0,
+  "elapsed_seconds": 22.753201246261597
+}

@@ -1,0 +1,1 @@
+apps/desktop/src/App.test.tsx(10860,12): error TS18047: 'handoff.comparison_summary' is possibly 'null'.

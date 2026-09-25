@@ -1,0 +1,68 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/result-export/physicsResultExport.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner
+
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/result-export/physicsResultExport.test.ts (30 tests | 2 failed) 356ms
+     × preserves sparse evidence through analysis/checksums, JSON reopen and canonical projection 154ms
+     × preserves dense evidence through analysis/checksums, JSON reopen and canonical projection 124ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > preserves sparse evidence through analysis/checksums, JSON reopen and canonical projection
+ FAIL  src/features/result-export/physicsResultExport.test.ts > actual joined physics-1 source consumers > preserves dense evidence through analysis/checksums, JSON reopen and canonical projection
+AssertionError: expected { connector: [], …(2) } to deeply equal { connector: [], …(2) }
+
+- Expected
++ Received
+
+@@ -414,19 +414,19 @@
+        ],
+        "terminals": [
+          {
+            "closure_pressure_load_global_n": [
+              -15707.963267948964,
+-             -0,
+-             -0,
++             0,
++             0,
+            ],
+            "closure_transfer": "transfers_to_wall",
+            "node_ref": "node:fixture-root",
+            "pipe_cap_transfer_global_n": [
+              -15707.963267948964,
+-             -0,
+-             -0,
++             0,
++             0,
+            ],
+            "provenance": "synthetic_integration_input_not_library_data",
+            "remote_closure_excluded_from_pipe_solve": false,
+            "remote_closure_support_reaction_global_n": null,
+          },
+
+ ❯ src/features/result-export/physicsResultExport.test.ts:115:56
+    113|     expect(analysis.analysis_run.reproducibility.semantic_contract!.id…
+    114|     const doc = await projectSource(source), reopened = JSON.parse(JSO…
+    115|     expect(reopened.result_envelope.contract_evidence).toEqual(source.…
+       |                                                        ^
+    116|     await validateResultDocument(reopened, source);
+    117|     expect(doc.result_envelope.reproducibility.source_origin_bindings[…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 28 passed (30)
+   Start at  22:15:22
+   Duration  759ms (transform 92ms, setup 58ms, import 82ms, tests 356ms, environment 183ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/result-export/physicsResultExport.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner

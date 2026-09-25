@@ -1,0 +1,892 @@
+{
+  "method": "Read-only TypeScript AST discovery of named calls and visible Run controls; named helpers outside test bodies require manual classifications in INVENTORY.md. Template titles retained. No test execution.",
+  "files": [
+    {
+      "path": "apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "sha256": "23877e2fcccfce84c03f731afddebac0c703fd3f3188ebccbeb087ef6811f3ff"
+    },
+    {
+      "path": "apps/desktop/e2e/result-compatibility-dist.spec.ts",
+      "sha256": "d62318d0032a2b985ea7bbb4334f3893b3897eb6ec42cad0dd7e412b831c9bc4"
+    },
+    {
+      "path": "apps/desktop/e2e/result-compatibility.spec.ts",
+      "sha256": "c469faaeab1d3f684ac340d9f0008efc6624e70ce4fe8b29ac040e22c845b2bb"
+    },
+    {
+      "path": "apps/desktop/src/App.shell.test.tsx",
+      "sha256": "e6fe75ef2c582a6577e51bb2b2b8006734f1fada2dc2c5f6333830844ee26a8c"
+    },
+    {
+      "path": "apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "24892f8e86fcb5ded0c45b4c65b67569da595a2c5d04d0aa52c171225eef5261"
+    },
+    {
+      "path": "apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "0bbfd7c51482a5243e75a347b4ed39cfd5a698ef233b5f172c87fa4dc6a95fd3"
+    },
+    {
+      "path": "apps/desktop/src/App.deadControls.test.tsx",
+      "sha256": "58d5d3e219372d02f0c0322d2bce5f3884e32062a85d2ac62369b50e38a65e96"
+    },
+    {
+      "path": "apps/desktop/src/App.projectHandlers.test.tsx",
+      "sha256": "cdd85764dada5f5fb4d29d146efefb930c211b9d75429be8f57e8ceab9e729a8"
+    },
+    {
+      "path": "apps/desktop/e2e/report-package-dist.spec.ts",
+      "sha256": "b94308160608b0651db6cac572aa94871782db2885ef5cb426cce1d3c43fda39"
+    },
+    {
+      "path": "apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "c996c234c07c40555576fa439725a4c52dab16e317a6e59ca11f3add19a01010"
+    },
+    {
+      "path": "apps/desktop/e2e/c3-viewport-visibility.spec.ts",
+      "sha256": "251ed3228801e2929e92343978df711e091b029c5ebbe9707c5e221d4549ccd1"
+    },
+    {
+      "path": "apps/desktop/src/App.test.tsx",
+      "sha256": "5374f136a93132cfbcac349375293db3dc98e6bbb2160dd1e428de7843aebb5a"
+    },
+    {
+      "path": "apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "9464cf1163a9a78bd2a607297721c65a71c9db8fc44cc174132dfb6cd0bf2ae5"
+    },
+    {
+      "path": "apps/desktop/src/services/previewService.test.ts",
+      "sha256": "b038e31b2797ed14f6dd34743408bde9a8bea4e9561b81d529a1e99041092fe0"
+    },
+    {
+      "path": "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+      "sha256": "1e18cb8fa6a7f59a31a4da780c037cd6fa3f50877c61cc8306f491e7fe2dfede"
+    },
+    {
+      "path": "apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
+      "sha256": "a8a906a2fb868df311ff6f2c5b5f96ad289b93c2d8e53543412f2a82c935e01c"
+    },
+    {
+      "path": "apps/desktop/src/features/report/renderedReport.test.tsx",
+      "sha256": "2df633be14bc95d72d978f9c06f90f27ba4ec1ce5f039356cc37796a14faba29"
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "sha256": "298c3c82dec6a7d3a996aa3ca22bbaa71e2398565e7faf9eceb40507f5ac4a97"
+    },
+    {
+      "path": "apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+      "sha256": "4b546c8e5dd6bd056a13f1ac3afb4c271851dac1e19e1b9d0dc3cd1e439e40dd"
+    }
+  ],
+  "entries": [
+    {
+      "file": "apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "line": 314,
+      "title": "`content-aware narrow canvas budget ${theme} ${density}`",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "line": 933,
+      "title": "production browser keeps reopened results Historical until a fresh exact-basis solve succeeds",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "line": 1007,
+      "title": "`Solve readiness rows retain resolved contrast in ${theme}`",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "line": 1076,
+      "title": "`populated Results title and entered values retain resolved contrast in ${theme}`",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/result-compatibility-dist.spec.ts",
+      "line": 10,
+      "title": "built dist carries checked 0.2 Current and stress-neutral packages",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/result-compatibility.spec.ts",
+      "line": 14,
+      "title": "fresh Current exports strict 0.2 result and stress-neutral evidence",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.shell.test.tsx",
+      "line": 174,
+      "title": "after a failed run with none solved: Results is captioned Failed and Review says No solved run",
+      "triggers": [
+        "toolbar-run"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.shell.test.tsx",
+      "line": 190,
+      "title": "with a reopened Historical run: Results is captioned Historical and Review needs a current run",
+      "triggers": [
+        "openHistoricalRun"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.shell.test.tsx",
+      "line": 263,
+      "title": "rule 6: a Historical run lights no chip on any stage it can reach",
+      "triggers": [
+        "openHistoricalRun"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.shell.test.tsx",
+      "line": 393,
+      "title": "runs and stops through the session's handlers, and leaves no second route",
+      "triggers": [
+        "toolbar-run"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.shell.test.tsx",
+      "line": 711,
+      "title": "leaves a reopened Historical Results context on successful New Blank",
+      "triggers": [
+        "openHistoricalRun"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.shell.test.tsx",
+      "line": 799,
+      "title": "keeps invented recorded result %s exact in tooltip, popover and Analyze",
+      "triggers": [
+        "runPreviewMechanics",
+        "toolbar-run"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "line": 90,
+      "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "line": 329,
+      "title": "`shared drawer menu overlap preserves ordinary Close and active menu priority: ${drawerId}`",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/ui-foundation.spec.ts",
+      "line": 676,
+      "title": "`task and analysis dock preserve usable canvas ${theme} ${density} ${viewport.width}x${viewport.height}`",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.projectHandlers.test.tsx",
+      "line": 402,
+      "title": "lets an in-flight rule-check revision land when an open finds nothing",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.projectHandlers.test.tsx",
+      "line": 1003,
+      "title": "B3A verifies unchanged Historical save against its exact retained hash carrier, preserving Historical standing",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/e2e/report-package-dist.spec.ts",
+      "line": 4,
+      "title": "production dist exposes the report-package File route and fails honestly in browser mode",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/linear-authoring.spec.ts",
+      "line": 60,
+      "title": "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/c3-viewport-visibility.spec.ts",
+      "line": 279,
+      "title": "C3 visibility leaves Current results current and never revives Historical overlays",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 440,
+      "title": "suppresses solve proof unless the completed job, result, and exact model version remain bound",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 550,
+      "title": "suppresses a real delayed backend completion when native open commits a new model",
+      "triggers": [
+        "runPreviewMechanics",
+        "analyze.run"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 615,
+      "title": "suppresses a real delayed backend %s terminal after native open",
+      "triggers": [
+        "analyze.run"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 680,
+      "title": "persists native immediate-cancel intent until the backend start receipt exists",
+      "triggers": [
+        "analyze.run"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 755,
+      "title": "dispatches detached pre-start cancellation once after native open invalidates the run",
+      "triggers": [
+        "analyze.run"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 825,
+      "title": "surfaces bounded PDU-008 nonlinear, ratio, and rich-diagnostic GUI states",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 909,
+      "title": "records comparison workspace unit policy evidence without conversion",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 4468,
+      "title": "routes both File-menu report-package attempts through App-owned intent and the honest browser no-effect result",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 7191,
+      "title": "carries queued editor intents into the report packet as review-only operation context",
+      "triggers": [
+        "runPreviewMechanics",
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 9126,
+      "title": "creates a blank local model document as the active authoring target",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 9301,
+      "title": "round trips review-only proposal operations through local save and open",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 9997,
+      "title": "shows computed mechanics diagnostics in results, knowledge, and review-only proposal context",
+      "triggers": [
+        "runPreviewMechanics",
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 13594,
+      "title": "links selected diagnostics to affected result and model context",
+      "triggers": [
+        "runPreviewMechanics",
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 13759,
+      "title": "applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 16688,
+      "title": "passes the current result to comparison readouts and preserves the source result rows",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17061,
+      "title": "preserves the specific backend-required failure after a real browser model edit",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17093,
+      "title": "opens saved results as readable history and preserves their exact fields on unchanged save",
+      "triggers": [
+        "workflowStoredEnvelope"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17128,
+      "title": "opens and unchanged-saves a malformed %s received result as Historical raw evidence",
+      "triggers": [
+        "workflowStoredEnvelope"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17165,
+      "title": "rejects a delayed rule-check aggregate from a replaced same-ID session basis",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17250,
+      "title": "does not start an obsolete report-package save or publish stale build state",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17327,
+      "title": "keeps a newer report-package save busy and rejects stale %s completion state",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17426,
+      "title": "keeps registered MODEL_INCOMPLETE diagnostics while barring fresh solved-only consumers",
+      "triggers": [
+        "runPreviewMechanics",
+        "analyze.run"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17622,
+      "title": "cannot publish delayed inactive export or report completions after a project reopen",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17799,
+      "title": "clears reopened computed evidence on model edit and exact undo/redo transitions",
+      "triggers": [
+        "workflowStoredEnvelope"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17844,
+      "title": "refreshes only the still-owned same-model Historical context after a normalization save",
+      "triggers": [
+        "workflowStoredEnvelope"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17887,
+      "title": "lets a fresh same-model solve win against a delayed Historical refresh",
+      "triggers": [
+        "workflowStoredEnvelope",
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 17928,
+      "title": "adopts a changed native persistence model and retains returned results as Historical",
+      "triggers": [
+        "workflowStoredEnvelope"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 18028,
+      "title": "rejects an unrelated differing persistence response without accepting its metadata",
+      "triggers": [
+        "workflowStoredEnvelope"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/App.test.tsx",
+      "line": 18054,
+      "title": "keeps a same-model Current solve Current after native save",
+      "triggers": [
+        "runMechanicsButton"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/e2e/r2-smoke.spec.ts",
+      "line": 251,
+      "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/r2-smoke.spec.ts",
+      "line": 866,
+      "title": "R2 from-blank GUI journey authors the A12 rehearsal script",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/r2-smoke.spec.ts",
+      "line": 1086,
+      "title": "diagnostic detail exposes linked result unit context",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/e2e/r2-smoke.spec.ts",
+      "line": 1624,
+      "title": "R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps",
+      "triggers": [
+        "run-mechanics-preview"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 99,
+      "title": "returns the actual bundled producer result when no model payload is supplied",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 107,
+      "title": "keeps the genuine fixture result for the unchanged bundled model",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 210,
+      "title": "throws the specific edited-model backend error before creating a raw result",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 221,
+      "title": "returns genuine %s fixture bytes and preserves producer quality",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 242,
+      "title": "defaults to exact sparse fixture and returns independent copies",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 250,
+      "title": "compares model content canonically rather than object key insertion order",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 259,
+      "title": "does not let a caller mutate the known fixture model comparison basis",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 267,
+      "title": "rejects unknown runtime modes without invoking or choosing another fixture",
+      "triggers": [
+        "runPreviewMechanics",
+        "startPreviewMechanicsJob"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 274,
+      "title": "rejects crossed, missing and ambiguous actual mode evidence",
+      "triggers": [
+        "validateBrowserMechanicsFixture"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 383,
+      "title": "binds the exact manifest independently from the result envelope and declares stiffness dimensions",
+      "triggers": [
+        "precisionFixtureSource"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 423,
+      "title": "blocks manifest evidence for a different model",
+      "triggers": [
+        "precisionFixtureSource"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 434,
+      "title": "blocks transformed manifest evidence until its ref and hash are recomputed",
+      "triggers": [
+        "precisionFixtureSource"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 444,
+      "title": "blocks wrong-prefix and wrong-model manifest refs with a valid digest",
+      "triggers": [
+        "precisionFixtureSource"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 459,
+      "title": "blocks a unit that contradicts the exact kind semantics",
+      "triggers": [
+        "precisionFixtureSource"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 471,
+      "title": "blocks an explicit dimension that contradicts exact result kind semantics",
+      "triggers": [
+        "precisionFixtureSource"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 507,
+      "title": "forwards the exact requested native mode without a fixture fallback",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 514,
+      "title": "propagates direct native solve rejection without a bundled result",
+      "triggers": [
+        "runPreviewMechanics"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 522,
+      "title": "propagates native job-start rejection without browser designation",
+      "triggers": [
+        "startPreviewMechanicsJob"
+      ],
+      "native_mock_text_present": true
+    },
+    {
+      "file": "apps/desktop/src/services/previewService.test.ts",
+      "line": 530,
+      "title": "uses browser job designation only when the host is absent",
+      "triggers": [
+        "startPreviewMechanicsJob"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+      "line": 240,
+      "title": "retains the current received hash and discloses unsupported future versions",
+      "triggers": [
+        "currentPrecisionSession"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
+      "line": 21,
+      "title": "uses the actual current received hash and discloses unsupported future versions",
+      "triggers": [
+        "currentPrecisionSession"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/renderedReport.test.tsx",
+      "line": 542,
+      "title": "uses the actual current received hash and rejects unknown analysis versions",
+      "triggers": [
+        "currentPrecisionSession"
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 114,
+      "title": "maps the actual manifest, source dimensions, private copies, and DEL-08-06 records without mutating sources",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 216,
+      "title": "blocks a same-ID model whose canonical payload differs from the verified manifest",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 238,
+      "title": "accepts canonically equal model payloads with reordered object keys",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 261,
+      "title": "blocks every non-null rule-check aggregate before assembly",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 281,
+      "title": "maps family from exact kind and source dimension without reading deceptive unit text",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 294,
+      "title": "blocks a source dimension that contradicts exact result kind semantics",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 322,
+      "title": "blocks missing or mismatched manifest evidence and malformed SHA-256 before assembly",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 387,
+      "title": "rejects future analysis versions and missing current received-result hashes",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 403,
+      "title": "discloses an unregistered source row without inferring force from N",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 416,
+      "title": "rejects recorded %s that differs from the verified manifest",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 426,
+      "title": "rejects a hash-valid manifest and coherent record with the wrong producer %s",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "line": 450,
+      "title": "preserves a consistent recorded build reference without inventing one from producer version",
+      "triggers": [
+        "currentSession("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+      "line": 166,
+      "title": "leaves the model, the revision, the solve-input basis and a Current solved run identical",
+      "triggers": [
+        ".handleRun("
+      ],
+      "native_mock_text_present": false
+    },
+    {
+      "file": "apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+      "line": 178,
+      "title": "leaves the undo stack, the applied operation and the run made after it identical",
+      "triggers": [
+        ".handleRun("
+      ],
+      "native_mock_text_present": false
+    }
+  ]
+}

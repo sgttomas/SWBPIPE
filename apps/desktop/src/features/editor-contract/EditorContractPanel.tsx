@@ -207,10 +207,10 @@ function materialEditors(model: PreviewModel) {
       ),
       field(
         "shear_modulus",
-        "Shear modulus",
-        material.shear_modulus.value,
+        !material.shear_modulus && model.pressure_contract?.mode === "exact_straight_pressure_v2" ? "Shear modulus (derived from selected E and nu)" : "Shear modulus",
+        material.shear_modulus?.value ?? "TBD",
         "stress",
-        material.shear_modulus.unit,
+        material.shear_modulus?.unit ?? "TBD",
         material.id
       ),
       field(

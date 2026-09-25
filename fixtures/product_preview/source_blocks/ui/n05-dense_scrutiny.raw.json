@@ -1,0 +1,3342 @@
+{
+  "accepted_model_state_mutated": false,
+  "diagnostics": [
+    {
+      "affected_refs": [
+        "torque",
+        "case"
+      ],
+      "code": "LOAD_CATEGORY_PREVIEW_MAPPED",
+      "id": "diagnostic:load:torque:category-mapping",
+      "message": "authored load category concentrated_moment is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+      "severity": "warning",
+      "source": "core/product_physics"
+    },
+    {
+      "affected_refs": [
+        "case"
+      ],
+      "code": "SOURCE_BLOCK_RECOVERY_SELECTED",
+      "id": "diagnostic:source-recovery:case:selected",
+      "message": "requested_mode=dense_scrutiny; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections precede binary64 publication; ordinary-attempt evidence remains separate; RecoverySummary { dofs: 12, stiffness_contributions: 145, identified_load_contributions: 1, blocks: 4, largest_block: 2, member_end_components: 12, section_components: 30, spring_actions: 1, support_components: 12, published_nodal_components: 12, functional_count: 67, dof_projection_count: 24, max_absolute_projection_error: 5.421010862427523e-20, max_relative_projection_error: 5.421010862176646e-16, relative_limit: 1e-9, work: WorkReport { charged: 1449167, rejected: 0, limit: 4000000 } }",
+      "severity": "info",
+      "source": "core/product_physics"
+    },
+    {
+      "affected_refs": [
+        "case"
+      ],
+      "code": "NUMERICAL_INTEGRITY_SENSITIVE",
+      "id": "diagnostic:numerical-integrity:case",
+      "message": "M03-INTEGRITY-v1 represented original-equation structural evidence for load case case: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Sensitive, factorization: \"positive dense Cholesky\", scale_exponents: [-10, -14, -11, -11, -10, -11, -11], pivots: [PivotEvidence { ordered_index: 0, global_dof: 3, pivot: 2.0606874725714315, cancellation_scale: 2.0606874725714315, operation_count: 2, screen: 2.928413028614943e-14 }, PivotEvidence { ordered_index: 1, global_dof: 6, pivot: 2.2236354804860836, cancellation_scale: 2.2236354804860836, operation_count: 4, screen: 6.31995215055123e-14 }, PivotEvidence { ordered_index: 2, global_dof: 7, pivot: 1.9318945054463101, cancellation_scale: 1.9318945054463101, operation_count: 6, screen: 8.236161642598368e-14 }, PivotEvidence { ordered_index: 3, global_dof: 8, pivot: 1.9318945054463101, cancellation_scale: 1.9318945054463101, operation_count: 8, screen: 1.0981548856797826e-13 }, PivotEvidence { ordered_index: 4, global_dof: 9, pivot: 9.53677137260911e-11, cancellation_scale: 4.121374944856761, operation_count: 10, screen: 2.928413028411658e-13 }, PivotEvidence { ordered_index: 5, global_dof: 10, pivot: 0.6439648351487699, cancellation_scale: 4.50775384604139, operation_count: 12, screen: 3.8435420998792405e-13 }, PivotEvidence { ordered_index: 6, global_dof: 11, pivot: 0.6439648351487699, cancellation_scale: 4.50775384604139, operation_count: 14, screen: 4.4841324498591144e-13 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0578185609230605e-11, residual_rows: [ResidualRow { global_dof: 3, residual: -2.842170943040401e-14, denominator: 432.1562071613955, row_scale_exponent: 8, normalized_residual: -1.1102230246251565e-16, normalized_denominator: 1.6881101842242012, normalized_evaluation_allowance: 1.1245072767779553e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 2.8787386285515656e-13, guarded_ratio: 7.319010280174815e-16, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 6, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 7, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 8, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 9, residual: -2.842170943040401e-14, denominator: 432.1562071613955, row_scale_exponent: 8, normalized_residual: -1.1102230246251565e-16, normalized_denominator: 1.6881101842242012, normalized_evaluation_allowance: 1.1245072767779553e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 2.8787386285515656e-13, guarded_ratio: 7.319010280174815e-16, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 10, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 11, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [ContributionRounding { row: 3, col: 3, accumulated_high: 2160787.4272390613, accumulated_low: 1.6987323761465545e-10, stored_difference_high: 1.6987323761465545e-10, stored_difference_low: -0.0, accumulated_expansion: [1.6987323761465545e-10, 2160787.4272390613], difference_expansion: [1.6987323761465545e-10] }], assembly_relative_perturbation_estimate: 3.5938906446753106e-17, assembly_amplification_estimate: 3.397454702949487e-6, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 3, residual: -3.6729620718276196e-15, denominator: 432.1562071613955, row_scale_exponent: 8, normalized_residual: -1.434750809307664e-17, normalized_denominator: 1.6881101842242012, normalized_evaluation_allowance: 1.7242444910595645e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 92, evaluation_allowance: 4.414065897112485e-12, guarded_ratio: 1.0222550980355321e-14, target: 6.536993168992988e-13, passed: true }, ResidualRow { global_dof: 6, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 7, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 8, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 9, residual: -2.5906218200089822e-14, denominator: 432.1562071613955, row_scale_exponent: 8, normalized_residual: -1.0119616484410087e-16, normalized_denominator: 1.6881101842242012, normalized_evaluation_allowance: 1.0870237008853692e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 58, evaluation_allowance: 2.7827806742665452e-12, guarded_ratio: 6.499239964445791e-15, target: 4.121147867408608e-13, passed: true }, ResidualRow { global_dof: 10, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 11, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"independent-root:UX\", \"independent-root:UY\", \"independent-root:UZ\", \"independent-root:RX\", \"independent-root:RY\", \"independent-root:RZ\", \"independent-tip:UX\", \"independent-tip:UY\", \"independent-tip:UZ\", \"independent-tip:RX\", \"independent-tip:RY\", \"independent-tip:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+      "severity": "warning",
+      "source": "core/product_physics"
+    },
+    {
+      "code": "RULE_CHECK_INPUTS_MISSING",
+      "id": "diagnostic:physics:rule-inputs-missing",
+      "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
+      "severity": "warning",
+      "source": "core/product_physics"
+    }
+  ],
+  "document_kind": "openpipestress.product_preview.mechanics_result",
+  "formulation_basis": {
+    "limitations": [
+      "Small-displacement product-preview mechanics; numerical integrity does not establish physical formulation correctness.",
+      "Pressure thrust and pressure stress retain the existing preview formulation and capability qualifications; pressure formulation qualification remains open.",
+      "Component stiffness, flexibility and stress modifiers depend on declared user inputs and supported component families; no general component qualification is provided.",
+      "Open-formula stress recovery retains its existing section, station and load-basis limitations; no code compliance result is produced.",
+      "Support, spring-hanger and nonlinear active-state behavior retain their existing capability and convergence qualifications; numerical precision does not qualify their constitutive models.",
+      "Protected rule inputs and professional acceptance are not provided; human review remains required."
+    ],
+    "profile_id": "product_preview_mechanics_v1"
+  },
+  "model_ref": "invented:source-recovery:N05:1:false",
+  "numerical_quality": {
+    "cases": [
+      {
+        "accuracy_evidence": "not_claimed",
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "evidence_refs": [
+          "diagnostic:numerical-integrity:case"
+        ],
+        "model_matrix_fidelity": "represented_equations_retained",
+        "solve_quality": "sensitive",
+        "structural_status": "passive_model_basis"
+      }
+    ],
+    "integrity_policy": "M03-INTEGRITY-v1",
+    "publication_quantization": "none",
+    "status": "sensitive",
+    "value_representation": "finite_binary64"
+  },
+  "producer": {
+    "component_name": "open_pipe_stress_product_physics",
+    "component_version": "0.2.0",
+    "semantic_contract_id": "openpipestress.result_semantics/0.3.0/source-blocks-1"
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_approval_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_compliance_claim": false,
+    "software_makes_sealing_claim": false
+  },
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "solver:sparse_direct",
+      "id": "result:sparse-live:dense-parity-relative-delta",
+      "kind": "sparse_live_path_dense_parity_relative_delta",
+      "metadata": {
+        "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=7; sparse_entry_count=11; original_profile_entries=17; ordered_profile_entries=10; original_half_bandwidth=4; ordered_half_bandwidth=1; max_abs_dense_sparse_delta=0.000000000000004627944078308688; max_abs_sparse_residual=0.000000000000009054521551611288; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
+        "component": "sparse_live_path",
+        "coordinate_system": "reduced_system",
+        "location": "load_case",
+        "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
+      },
+      "unit": "unitless",
+      "value": 4.627936216670247e-11
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-root",
+      "id": "result:disp:independent-root",
+      "kind": "displacement_magnitude",
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-tip",
+      "id": "result:disp:independent-tip",
+      "kind": "displacement_magnitude",
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-root",
+      "id": "result:disp:independent-root:ux",
+      "kind": "global_nodal_displacement_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-root",
+      "id": "result:disp:independent-root:uy",
+      "kind": "global_nodal_displacement_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-root",
+      "id": "result:disp:independent-root:uz",
+      "kind": "global_nodal_displacement_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-root",
+      "id": "result:disp:independent-root:rx",
+      "kind": "global_nodal_rotation_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      },
+      "unit": "rad",
+      "value": 0.00009999999999999999
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-root",
+      "id": "result:disp:independent-root:ry",
+      "kind": "global_nodal_rotation_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-root",
+      "id": "result:disp:independent-root:rz",
+      "kind": "global_nodal_rotation_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-tip",
+      "id": "result:disp:independent-tip:ux",
+      "kind": "global_nodal_displacement_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-tip",
+      "id": "result:disp:independent-tip:uy",
+      "kind": "global_nodal_displacement_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-tip",
+      "id": "result:disp:independent-tip:uz",
+      "kind": "global_nodal_displacement_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-tip",
+      "id": "result:disp:independent-tip:rx",
+      "kind": "global_nodal_rotation_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      },
+      "unit": "rad",
+      "value": 0.00010000000000462794
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-tip",
+      "id": "result:disp:independent-tip:ry",
+      "kind": "global_nodal_rotation_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-tip",
+      "id": "result:disp:independent-tip:rz",
+      "kind": "global_nodal_rotation_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "anchor",
+      "id": "result:support-component-v2:4:case6:anchor:Fx",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "anchor",
+      "id": "result:support-component-v2:4:case6:anchor:Fy",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "anchor",
+      "id": "result:support-component-v2:4:case6:anchor:Fz",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "anchor",
+      "id": "result:support-component-v2:4:case6:anchor:Mx",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "anchor",
+      "id": "result:support-component-v2:4:case6:anchor:My",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "anchor",
+      "id": "result:support-component-v2:4:case6:anchor:Mz",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "anchor",
+      "id": "result:reaction:anchor",
+      "kind": "reaction_resultant",
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-spring",
+      "id": "result:support-component-v2:4:case18:independent-spring:Fx",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-spring",
+      "id": "result:support-component-v2:4:case18:independent-spring:Fy",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-spring",
+      "id": "result:support-component-v2:4:case18:independent-spring:Fz",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-spring",
+      "id": "result:support-component-v2:4:case18:independent-spring:Mx",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N*m",
+      "value": -1e-8
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-spring",
+      "id": "result:support-component-v2:4:case18:independent-spring:My",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-spring",
+      "id": "result:support-component-v2:4:case18:independent-spring:Mz",
+      "kind": "support_reaction_component_v2",
+      "metadata": {
+        "basis": "recovered_from_assembled_support_law",
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-spring",
+      "id": "result:reaction:independent-spring",
+      "kind": "reaction_resultant",
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:axial:end-j",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:shear-y:end-j",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:shear-z:end-j",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": -1e-8
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:torsion:end-j",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": 1e-8
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:bending-y:end-j",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:bending-z:end-j",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:quarter-1:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:quarter-1:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:quarter-1:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:quarter-1:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 1e-8
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:quarter-1:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:quarter-1:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:midspan:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:midspan:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:midspan:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:midspan:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 1e-8
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:midspan:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:midspan:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:quarter-3:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:quarter-3:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:force:independent-member:quarter-3:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:quarter-3:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 1e-8
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:quarter-3:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:moment:independent-member:quarter-3:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:end-i:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:end-i:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:end-i:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:end-i:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 1.8511770060121574e-11
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:end-j:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:end-j:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:end-j:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:end-j:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 1.8511770060121574e-11
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:quarter-1:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:quarter-1:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:quarter-1:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:quarter-1:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 1.8511770060121574e-11
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:midspan:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:midspan:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:midspan:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:midspan:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 1.8511770060121574e-11
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:quarter-3:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:quarter-3:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:quarter-3:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member:quarter-3:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 1.8511770060121574e-11
+    },
+    {
+      "basis_ref": {
+        "ref_id": "case",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "independent-member",
+      "id": "result:stress:independent-member",
+      "kind": "open_formula_stress_summary",
+      "unit": "MPa",
+      "value": 0.0
+    }
+  ],
+  "run_id": "run:preview-linear-static-001",
+  "schema_version": "0.2.0",
+  "source_block_recovery": {
+    "body": {
+      "cases": [
+        {
+          "basis_ref": {
+            "ref_id": "case",
+            "ref_type": "load_case"
+          },
+          "failure": null,
+          "ordinary_attempt": {
+            "failure": null,
+            "outcome": "sensitive",
+            "quality_case_index": 0,
+            "requested_mode": "dense_scrutiny",
+            "structural_report_diagnostic_ref": "diagnostic:numerical-integrity:case"
+          },
+          "outcome": "qualified",
+          "projections": [
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:0",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:0",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:axial",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:1",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:1",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:shear-y",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:2",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:2",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:shear-z",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_identity",
+              "functional_id": "source-functional:4:case:3",
+              "interval": [
+                -1e-8,
+                -1e-8
+              ],
+              "projection_id": "projection:source-functional:4:case:3",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:torsion",
+              "unit": "N*m",
+              "value": -1e-8,
+              "value_bits": "be45798ee2308c3a"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:4",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:4",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:bending-y",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:5",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:5",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:bending-z",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:6",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:6",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:axial:end-j",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:7",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:7",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:shear-y:end-j",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:8",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:8",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:shear-z:end-j",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_identity",
+              "functional_id": "source-functional:4:case:9",
+              "interval": [
+                1e-8,
+                1e-8
+              ],
+              "projection_id": "projection:source-functional:4:case:9",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:torsion:end-j",
+              "unit": "N*m",
+              "value": 1e-8,
+              "value_bits": "3e45798ee2308c3a"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:10",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:10",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:bending-y:end-j",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:11",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:11",
+              "quantity": "member_end_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:bending-z:end-j",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:18",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:18",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:quarter-1:axial",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:19",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:19",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:quarter-1:shear-y",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:20",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:20",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:quarter-1:shear-z",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_identity",
+              "functional_id": "source-functional:4:case:21",
+              "interval": [
+                1e-8,
+                1e-8
+              ],
+              "projection_id": "projection:source-functional:4:case:21",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:quarter-1:torsion",
+              "unit": "N*m",
+              "value": 1e-8,
+              "value_bits": "3e45798ee2308c3a"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:22",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:22",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:quarter-1:bending-y",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:23",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:23",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:quarter-1:bending-z",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:24",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:24",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:midspan:axial",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:25",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:25",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:midspan:shear-y",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:26",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:26",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:midspan:shear-z",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_identity",
+              "functional_id": "source-functional:4:case:27",
+              "interval": [
+                1e-8,
+                1e-8
+              ],
+              "projection_id": "projection:source-functional:4:case:27",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:midspan:torsion",
+              "unit": "N*m",
+              "value": 1e-8,
+              "value_bits": "3e45798ee2308c3a"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:28",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:28",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:midspan:bending-y",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:29",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:29",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:midspan:bending-z",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:30",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:30",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:quarter-3:axial",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:31",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:31",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:quarter-3:shear-y",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:32",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:32",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:force:independent-member:quarter-3:shear-z",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_identity",
+              "functional_id": "source-functional:4:case:33",
+              "interval": [
+                1e-8,
+                1e-8
+              ],
+              "projection_id": "projection:source-functional:4:case:33",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:quarter-3:torsion",
+              "unit": "N*m",
+              "value": 1e-8,
+              "value_bits": "3e45798ee2308c3a"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:34",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:34",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:quarter-3:bending-y",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:35",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:35",
+              "quantity": "member_station_action",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:moment:independent-member:quarter-3:bending-z",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:42",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:42",
+              "quantity": "nodal_translation",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-root:ux",
+              "unit": "mm",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:43",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:43",
+              "quantity": "nodal_translation",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-root:uy",
+              "unit": "mm",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:44",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:44",
+              "quantity": "nodal_translation",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-root:uz",
+              "unit": "mm",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 4.065758146820642e-20,
+              "basis": "outward_interval",
+              "functional_id": "source-functional:4:case:45",
+              "interval": [
+                0.00009999999999999995,
+                0.00010000000000000003
+              ],
+              "projection_id": "projection:source-functional:4:case:45",
+              "quantity": "nodal_rotation",
+              "relative_error_bound": 4.0657581468206446e-16,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-root:rx",
+              "unit": "rad",
+              "value": 0.00009999999999999999,
+              "value_bits": "3f1a36e2eb1c432c"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:46",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:46",
+              "quantity": "nodal_rotation",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-root:ry",
+              "unit": "rad",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:47",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:47",
+              "quantity": "nodal_rotation",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-root:rz",
+              "unit": "rad",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:48",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:48",
+              "quantity": "nodal_translation",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-tip:ux",
+              "unit": "mm",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:49",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:49",
+              "quantity": "nodal_translation",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-tip:uy",
+              "unit": "mm",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:50",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:50",
+              "quantity": "nodal_translation",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-tip:uz",
+              "unit": "mm",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 5.421010862427523e-20,
+              "basis": "outward_interval",
+              "functional_id": "source-functional:4:case:51",
+              "interval": [
+                0.0001000000000046279,
+                0.00010000000000462799
+              ],
+              "projection_id": "projection:source-functional:4:case:51",
+              "quantity": "nodal_rotation",
+              "relative_error_bound": 5.421010862176646e-16,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-tip:rx",
+              "unit": "rad",
+              "value": 0.00010000000000462794,
+              "value_bits": "3f1a36e2eb217916"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:52",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:52",
+              "quantity": "nodal_rotation",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-tip:ry",
+              "unit": "rad",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:53",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:53",
+              "quantity": "nodal_rotation",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:disp:independent-tip:rz",
+              "unit": "rad",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:55",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:55",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case6:anchor:Fx",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:56",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:56",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case6:anchor:Fy",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:57",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:57",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case6:anchor:Fz",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:58",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:58",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case6:anchor:Mx",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:59",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:59",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case6:anchor:My",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:60",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:60",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case6:anchor:Mz",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:61",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:61",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:Fx",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:62",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:62",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:Fy",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:63",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:63",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:Fz",
+              "unit": "N",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_identity",
+              "functional_id": "source-functional:4:case:64",
+              "interval": [
+                -1e-8,
+                -1e-8
+              ],
+              "projection_id": "projection:source-functional:4:case:64",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:Mx",
+              "unit": "N*m",
+              "value": -1e-8,
+              "value_bits": "be45798ee2308c3a"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:65",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:65",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:My",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            },
+            {
+              "absolute_error_bound": 0.0,
+              "basis": "exact_zero",
+              "functional_id": "source-functional:4:case:66",
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "projection_id": "projection:source-functional:4:case:66",
+              "quantity": "support_action_component",
+              "relative_error_bound": 0.0,
+              "relative_limit": 1e-9,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:Mz",
+              "unit": "N*m",
+              "value": 0.0,
+              "value_bits": "0000000000000000"
+            }
+          ],
+          "requested_mode": "dense_scrutiny",
+          "rows": [
+            {
+              "input_result_ids": [],
+              "projection_id": null,
+              "recipe_id": null,
+              "result_id": "result:sparse-live:dense-parity-relative-delta",
+              "treatment": "inspection_only"
+            },
+            {
+              "input_result_ids": [
+                "result:disp:independent-root:ux",
+                "result:disp:independent-root:uy",
+                "result:disp:independent-root:uz"
+              ],
+              "projection_id": null,
+              "recipe_id": "translation_norm_scaled_v1",
+              "result_id": "result:disp:independent-root",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:disp:independent-tip:ux",
+                "result:disp:independent-tip:uy",
+                "result:disp:independent-tip:uz"
+              ],
+              "projection_id": null,
+              "recipe_id": "translation_norm_scaled_v1",
+              "result_id": "result:disp:independent-tip",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:42",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-root:ux",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:43",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-root:uy",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:44",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-root:uz",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:45",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-root:rx",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:46",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-root:ry",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:47",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-root:rz",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:48",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-tip:ux",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:49",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-tip:uy",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:50",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-tip:uz",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:51",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-tip:rx",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:52",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-tip:ry",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:53",
+              "recipe_id": null,
+              "result_id": "result:disp:independent-tip:rz",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:55",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case6:anchor:Fx",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:56",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case6:anchor:Fy",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:57",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case6:anchor:Fz",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:58",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case6:anchor:Mx",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:59",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case6:anchor:My",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:60",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case6:anchor:Mz",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [
+                "result:support-component-v2:4:case6:anchor:Fx",
+                "result:support-component-v2:4:case6:anchor:Fy",
+                "result:support-component-v2:4:case6:anchor:Fz"
+              ],
+              "projection_id": null,
+              "recipe_id": "support_force_norm_scaled_v1",
+              "result_id": "result:reaction:anchor",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:61",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:Fx",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:62",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:Fy",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:63",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:Fz",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:64",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:Mx",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:65",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:My",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:66",
+              "recipe_id": null,
+              "result_id": "result:support-component-v2:4:case18:independent-spring:Mz",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [
+                "result:support-component-v2:4:case18:independent-spring:Fx",
+                "result:support-component-v2:4:case18:independent-spring:Fy",
+                "result:support-component-v2:4:case18:independent-spring:Fz"
+              ],
+              "projection_id": null,
+              "recipe_id": "support_force_norm_scaled_v1",
+              "result_id": "result:reaction:independent-spring",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:0",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:axial",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:6",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:axial:end-j",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:1",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:shear-y",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:7",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:shear-y:end-j",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:2",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:shear-z",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:8",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:shear-z:end-j",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:3",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:torsion",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:9",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:torsion:end-j",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:4",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:bending-y",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:10",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:bending-y:end-j",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:5",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:bending-z",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:11",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:bending-z:end-j",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:18",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:quarter-1:axial",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:19",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:quarter-1:shear-y",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:20",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:quarter-1:shear-z",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:21",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:quarter-1:torsion",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:22",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:quarter-1:bending-y",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:23",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:quarter-1:bending-z",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:24",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:midspan:axial",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:25",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:midspan:shear-y",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:26",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:midspan:shear-z",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:27",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:midspan:torsion",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:28",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:midspan:bending-y",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:29",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:midspan:bending-z",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:30",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:quarter-3:axial",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:31",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:quarter-3:shear-y",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:32",
+              "recipe_id": null,
+              "result_id": "result:force:independent-member:quarter-3:shear-z",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:33",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:quarter-3:torsion",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:34",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:quarter-3:bending-y",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [],
+              "projection_id": "projection:source-functional:4:case:35",
+              "recipe_id": null,
+              "result_id": "result:moment:independent-member:quarter-3:bending-z",
+              "treatment": "qualified_projection"
+            },
+            {
+              "input_result_ids": [
+                "result:force:independent-member:axial"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:end-i:axial-normal",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:bending-y"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:end-i:bending-normal-y",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:bending-z"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:end-i:bending-normal-z",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:torsion"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:end-i:torsional-shear",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:force:independent-member:axial:end-j"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:end-j:axial-normal",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:bending-y:end-j"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:end-j:bending-normal-y",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:bending-z:end-j"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:end-j:bending-normal-z",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:torsion:end-j"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:end-j:torsional-shear",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:force:independent-member:quarter-1:axial"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:quarter-1:axial-normal",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:quarter-1:bending-y"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:quarter-1:bending-normal-y",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:quarter-1:bending-z"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:quarter-1:bending-normal-z",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:quarter-1:torsion"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:quarter-1:torsional-shear",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:force:independent-member:midspan:axial"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:midspan:axial-normal",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:midspan:bending-y"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:midspan:bending-normal-y",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:midspan:bending-z"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:midspan:bending-normal-z",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:midspan:torsion"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:midspan:torsional-shear",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:force:independent-member:quarter-3:axial"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:quarter-3:axial-normal",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:quarter-3:bending-y"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:quarter-3:bending-normal-y",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:quarter-3:bending-z"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:quarter-3:bending-normal-z",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:moment:independent-member:quarter-3:torsion"
+              ],
+              "projection_id": null,
+              "recipe_id": "straight_open_stress_v1",
+              "result_id": "result:stress:independent-member:quarter-3:torsional-shear",
+              "treatment": "checked_derived"
+            },
+            {
+              "input_result_ids": [
+                "result:stress:independent-member:end-i:axial-normal",
+                "result:stress:independent-member:end-i:bending-normal-y",
+                "result:stress:independent-member:end-i:bending-normal-z",
+                "result:stress:independent-member:end-i:torsional-shear",
+                "result:stress:independent-member:quarter-1:axial-normal",
+                "result:stress:independent-member:quarter-1:bending-normal-y",
+                "result:stress:independent-member:quarter-1:bending-normal-z",
+                "result:stress:independent-member:quarter-1:torsional-shear",
+                "result:stress:independent-member:midspan:axial-normal",
+                "result:stress:independent-member:midspan:bending-normal-y",
+                "result:stress:independent-member:midspan:bending-normal-z",
+                "result:stress:independent-member:midspan:torsional-shear",
+                "result:stress:independent-member:quarter-3:axial-normal",
+                "result:stress:independent-member:quarter-3:bending-normal-y",
+                "result:stress:independent-member:quarter-3:bending-normal-z",
+                "result:stress:independent-member:quarter-3:torsional-shear",
+                "result:stress:independent-member:end-j:axial-normal",
+                "result:stress:independent-member:end-j:bending-normal-y",
+                "result:stress:independent-member:end-j:bending-normal-z",
+                "result:stress:independent-member:end-j:torsional-shear"
+              ],
+              "projection_id": null,
+              "recipe_id": "reviewed_stress_summary_v1",
+              "result_id": "result:stress:independent-member",
+              "treatment": "checked_derived"
+            }
+          ],
+          "selected_method": "retained_source_blocks_exact_v1",
+          "source": {
+            "dof_count": 12,
+            "force_term_count": 1,
+            "free_blocks": [
+              [
+                3,
+                9
+              ],
+              [
+                6
+              ],
+              [
+                7,
+                11
+              ],
+              [
+                8,
+                10
+              ]
+            ],
+            "free_dofs": [
+              3,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "functional_count": 67,
+            "functional_plan_sha256": "2cf40ea2aa07268783652e16aa2a4075636e6426c651c174fef18331a7039595",
+            "level": "complete_identified_represented_contributions",
+            "member_ids": [
+              "independent-member"
+            ],
+            "normalized_source_sha256": "05670374254efea25ecc13403c305e2b17da5ba9f40d9cc8b2409f8deb682ed6",
+            "prescribed_dofs": [
+              0,
+              1,
+              2,
+              4,
+              5
+            ],
+            "stiffness_term_count": 145,
+            "support_ids": [
+              "anchor",
+              "independent-spring"
+            ]
+          },
+          "supports": [
+            {
+              "attribution": "unique_source_owned",
+              "components": [
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 0,
+                      "kind": "ideal_constraint",
+                      "source_id": "anchor"
+                    }
+                  ],
+                  "component": "Fx",
+                  "functional_id": "source-functional:4:case:55",
+                  "result_id": "result:support-component-v2:4:case6:anchor:Fx"
+                },
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 1,
+                      "kind": "ideal_constraint",
+                      "source_id": "anchor"
+                    }
+                  ],
+                  "component": "Fy",
+                  "functional_id": "source-functional:4:case:56",
+                  "result_id": "result:support-component-v2:4:case6:anchor:Fy"
+                },
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 2,
+                      "kind": "ideal_constraint",
+                      "source_id": "anchor"
+                    }
+                  ],
+                  "component": "Fz",
+                  "functional_id": "source-functional:4:case:57",
+                  "result_id": "result:support-component-v2:4:case6:anchor:Fz"
+                },
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 3,
+                      "kind": "structural_zero",
+                      "source_id": "anchor"
+                    }
+                  ],
+                  "component": "Mx",
+                  "functional_id": "source-functional:4:case:58",
+                  "result_id": "result:support-component-v2:4:case6:anchor:Mx"
+                },
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 4,
+                      "kind": "ideal_constraint",
+                      "source_id": "anchor"
+                    }
+                  ],
+                  "component": "My",
+                  "functional_id": "source-functional:4:case:59",
+                  "result_id": "result:support-component-v2:4:case6:anchor:My"
+                },
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 5,
+                      "kind": "ideal_constraint",
+                      "source_id": "anchor"
+                    }
+                  ],
+                  "component": "Mz",
+                  "functional_id": "source-functional:4:case:60",
+                  "result_id": "result:support-component-v2:4:case6:anchor:Mz"
+                }
+              ],
+              "node_id": "independent-root",
+              "support_id": "anchor"
+            },
+            {
+              "attribution": "unique_source_owned",
+              "components": [
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 0,
+                      "kind": "structural_zero",
+                      "source_id": "independent-spring"
+                    }
+                  ],
+                  "component": "Fx",
+                  "functional_id": "source-functional:4:case:61",
+                  "result_id": "result:support-component-v2:4:case18:independent-spring:Fx"
+                },
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 1,
+                      "kind": "structural_zero",
+                      "source_id": "independent-spring"
+                    }
+                  ],
+                  "component": "Fy",
+                  "functional_id": "source-functional:4:case:62",
+                  "result_id": "result:support-component-v2:4:case18:independent-spring:Fy"
+                },
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 2,
+                      "kind": "structural_zero",
+                      "source_id": "independent-spring"
+                    }
+                  ],
+                  "component": "Fz",
+                  "functional_id": "source-functional:4:case:63",
+                  "result_id": "result:support-component-v2:4:case18:independent-spring:Fz"
+                },
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 3,
+                      "kind": "ground_spring",
+                      "source_id": "independent-spring"
+                    }
+                  ],
+                  "component": "Mx",
+                  "functional_id": "source-functional:4:case:64",
+                  "result_id": "result:support-component-v2:4:case18:independent-spring:Mx"
+                },
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 4,
+                      "kind": "structural_zero",
+                      "source_id": "independent-spring"
+                    }
+                  ],
+                  "component": "My",
+                  "functional_id": "source-functional:4:case:65",
+                  "result_id": "result:support-component-v2:4:case18:independent-spring:My"
+                },
+                {
+                  "action_terms": [
+                    {
+                      "global_dof": 5,
+                      "kind": "structural_zero",
+                      "source_id": "independent-spring"
+                    }
+                  ],
+                  "component": "Mz",
+                  "functional_id": "source-functional:4:case:66",
+                  "result_id": "result:support-component-v2:4:case18:independent-spring:Mz"
+                }
+              ],
+              "node_id": "independent-root",
+              "support_id": "independent-spring"
+            }
+          ],
+          "work": {
+            "charged": 3242531,
+            "limit": 4000000,
+            "rejected_reservation": {
+              "amount": 0,
+              "kind": "finite"
+            },
+            "reserved_unobserved_failure": 0
+          }
+        }
+      ],
+      "envelope_observation_result_ids": [],
+      "invocation": {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_scope": "source_blocks_invocation_v1",
+        "value": "d00a26bdc59d23187898035badc50fa64602a1c7d601d5e3052172efb4c1dded"
+      },
+      "invocation_work": {
+        "charged": 3370647,
+        "limit": 64000000,
+        "publication_charged": 128116
+      },
+      "policy": "SOURCE-BLOCKS-1",
+      "publication_sha256": "2ad9960fd02b0b2c2b98906ddcf7622d48e0882f8d032f3382ccf59f0eb7d03a",
+      "receipt_version": "1.0.0",
+      "status": "qualified"
+    },
+    "receipt_sha256": "1b3099718dfa76c7a7c8e6abc425e699a2b79af0b19ba2594419666d979c89f8"
+  },
+  "status": {
+    "mechanics": "MECHANICS_SOLVED",
+    "professional_acceptance": "NOT_PROVIDED",
+    "rule_check": "RULE_INPUTS_INCOMPLETE"
+  },
+  "summary": {
+    "component_pressure_thrust_load_count": 0,
+    "component_stress_modifier_count": 0,
+    "component_user_stiffness_macro_element_count": 0,
+    "load_case_count": 1,
+    "max_displacement": {
+      "location_ref": "independent-root",
+      "result_ref": "result:disp:independent-root",
+      "unit": "mm",
+      "value": 0.0
+    },
+    "max_open_formula_stress": {
+      "location_ref": "independent-member",
+      "result_ref": "result:stress:independent-member",
+      "unit": "MPa",
+      "value": 0.0
+    },
+    "node_count": 2,
+    "segment_count": 1,
+    "spring_hanger_user_input_count": 0,
+    "support_count": 2
+  }
+}

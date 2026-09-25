@@ -24,6 +24,7 @@ mod boundary_association;
 mod display_units;
 mod geometry_operations;
 mod rich_authoring;
+mod pressure_authoring;
 mod section_bindings;
 pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
 pub use display_units::convert_display_quantities;
@@ -1207,10 +1208,26 @@ fn run_with_context(
     // underspecified viewport gestures are held rather than invented.
     let rich_kind = match (object_type.as_str(), field_path.as_str()) {
         ("Support", "configuration") => Some("update_support"),
-        ("Material", "temperature_points") => Some("set_field"),
-        ("Load", "equivalent_static.wind.exposure") => Some("update_load"),
+        ("Model", "pressure_profile") | ("Material", "constitutive_properties" | "temperature_points") => Some("set_field"),
+        ("Load", "pressure_regions") => Some("update_load"),
+        ("Load", "equivalent_static.wind.exposure" | "generated_self_weight") => Some("update_load"),
         _ => None,
     };
+    if object_type == "Load" && field_path == "generated_self_weight"
+        && claimed_model_hash.is_none_or(Value::is_null)
+    {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-SELF-WEIGHT-MODEL-HASH-REQUIRED", "blocking",
+            "Generated self-weight replacements require current complete model-hash evidence.".into(),
+            "Refresh the complete model hash before applying the reviewed replacement.",
+            vec![target_ref.clone()],
+        );
+    }
+    if pressure_authoring::owns(&object_type, &field_path) && claimed_model_hash.is_none_or(Value::is_null) {
+        checker.schema_blocked = true;
+        checker.push("OP-PRESSURE-MODEL-HASH-REQUIRED", "blocking", "Explicit pressure/material replacements require the current complete model hash.".into(), "Refresh the model basis before review and application.", vec![target_ref.clone()]);
+    }
     let mut rich_model: Option<Value> = None;
     if let Some(expected_kind) = rich_kind {
         if change_kind != expected_kind {
@@ -1223,7 +1240,8 @@ fn run_with_context(
                 vec![target_ref.clone()],
             );
         } else if !checker.schema_blocked {
-            match rich_authoring::resolve(
+            let resolver = if pressure_authoring::owns(&object_type, &field_path) { pressure_authoring::resolve } else { rich_authoring::resolve };
+            match resolver(
                 model,
                 &object_type,
                 &target_ref,
@@ -1242,9 +1260,9 @@ fn run_with_context(
                         &mut checker,
                     );
                     let mut candidate = model.clone();
-                    let target = collection_for(&object_type).and_then(|collection| {
+                    let target = if object_type == "Model" { Some(&mut candidate) } else { collection_for(&object_type).and_then(|collection| {
                         find_entity_mut(&mut candidate, collection, &target_ref)
-                    });
+                    }) };
                     let mut written = true;
                     if let Some(target) = target {
                         for (segments, value) in &edit.writes {
@@ -3251,7 +3269,7 @@ fn resolve_delete_node(
                 "Node `{target_ref}` is still referenced by model entities: {}.",
                 references.join(", ")
             ),
-            "Delete or retarget dependent pipes, supports, components, and primitive loads before deleting the node.",
+            "Delete or retarget dependent pipes, supports, components, primitive loads, and pressure-region terminals before deleting the node.",
             std::iter::once(target_ref.to_string())
                 .chain(references)
                 .collect(),
@@ -3367,6 +3385,17 @@ fn resolve_connect_pipe_run(
         return None;
     };
 
+    if record.contains_key("section_ref") {
+        checker.push(
+            "OP-CONNECT-PIPE-PAYLOAD-INVALID",
+            "blocking",
+            "Connect-pipe creates explicit local section inputs; use assign_section after creation to bind a shared section.".into(),
+            "Create the pipe with local section inputs, then apply the explicit shared-section assignment.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
     let id = record
         .get("id")
         .and_then(Value::as_str)
@@ -3470,6 +3499,19 @@ fn resolve_connect_pipe_run(
         );
         return None;
     }
+    let incomplete_insulation = match rich_authoring::validate_pipe_section_inputs(&record["section"]) {
+        Ok(incomplete) => incomplete,
+        Err(error) => {
+            checker.push(
+                "OP-CONNECT-PIPE-PAYLOAD-INVALID",
+                "blocking",
+                error.message,
+                "Supply supported explicit section quantities with accepted units and valid values.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+    };
     if find_entity(model, "nodes", from).is_none() || find_entity(model, "nodes", to).is_none() {
         checker.reference_state = "blocked";
         checker.push(
@@ -3494,16 +3536,23 @@ fn resolve_connect_pipe_run(
     }
     checker.reference_state = "passed";
 
+    if incomplete_insulation {
+        checker.push(
+            "OP-MASS-NOT-SOLVE-READY",
+            "warning",
+            "Insulation mass requires both explicit thickness and density; no missing quantity is defaulted.".into(),
+            "Supply the paired insulation quantity before solving.",
+            vec![target_ref.to_string()],
+        );
+    }
+
     let (yrx, yry, yrz) = y_reference.unwrap();
     Some(serde_json::json!({
         "id": id,
         "label": label,
         "from": from,
         "to": to,
-        "section": {
-            "outside_diameter": { "value": outside_diameter.value, "unit": outside_diameter.unit },
-            "wall_thickness": { "value": wall_thickness.value, "unit": wall_thickness.unit }
-        },
+        "section": record["section"].clone(),
         "material": material,
         "y_reference": { "x": yrx, "y": yry, "z": yrz },
         "provenance": provenance,
@@ -3768,10 +3817,10 @@ fn resolve_delete_pipe_run(
             "OP-PIPE-DELETE-REFERENCED",
             "blocking",
             format!(
-                "Pipe segment `{target_ref}` is still referenced by loads or nonlinear supports: {}.",
+                "Pipe segment `{target_ref}` is still referenced by loads, pressure regions, or nonlinear supports: {}.",
                 references.join(", ")
             ),
-            "Delete or retarget dependent primitive loads before deleting the pipe segment.",
+            "Explicitly remove or retarget dependent primitive loads and pressure regions before deleting the pipe segment.",
             std::iter::once(target_ref.to_string())
                 .chain(references)
                 .collect(),
@@ -4133,11 +4182,18 @@ fn resolve_create_material(
     let elastic_modulus =
         dimensioned_quantity(record, &["elastic_modulus"], Dimension::Stress, true);
     let shear_modulus = dimensioned_quantity(record, &["shear_modulus"], Dimension::Stress, true);
+    let exact_material = record.contains_key("constitutive_basis") || record.contains_key("poisson_ratio");
+    if exact_material {
+        if let Err(error) = pressure_authoring::validate_create_material(&payload) {
+            checker.push(error.code, "blocking", error.message, "Supply explicit E/nu constitutive inputs.", vec![target_ref.to_string()]);
+            return None;
+        }
+    }
     if id != target_ref
         || label.is_empty()
         || provenance.is_empty()
         || elastic_modulus.is_none()
-        || shear_modulus.is_none()
+        || (!exact_material && shear_modulus.is_none())
     {
         checker.push(
             "OP-CREATE-MATERIAL-PAYLOAD-INVALID",
@@ -4149,15 +4205,17 @@ fn resolve_create_material(
         return None;
     }
     let elastic_modulus = elastic_modulus.unwrap();
-    let shear_modulus = shear_modulus.unwrap();
-
     let mut material = serde_json::json!({
         "id": id,
         "label": label,
         "elastic_modulus": { "value": elastic_modulus.value, "unit": elastic_modulus.unit },
-        "shear_modulus": { "value": shear_modulus.value, "unit": shear_modulus.unit },
         "provenance": provenance,
     });
+    if let Some(g) = shear_modulus { material["shear_modulus"] = serde_json::json!({"value":g.value,"unit":g.unit}); }
+    if exact_material {
+        material["constitutive_basis"] = payload["constitutive_basis"].clone();
+        material["poisson_ratio"] = payload["poisson_ratio"].clone();
+    }
     if record.get("thermal_expansion_coefficient").is_some() {
         let Some(stored_temperature_unit) =
             value_at(model, &["project", "units", "temperature"]).and_then(Value::as_str)
@@ -8364,6 +8422,13 @@ fn node_references(model: &Value, node_ref: &str) -> Vec<String> {
 
     if let Some(load_cases) = model.get("load_cases").and_then(Value::as_array) {
         for load_case in load_cases {
+            for region in load_case.get("pressure_regions").and_then(Value::as_array).into_iter().flatten() {
+                if region.get("terminals").and_then(Value::as_array).is_some_and(|terminals| {
+                    terminals.iter().any(|terminal| terminal.get("node_ref").and_then(Value::as_str) == Some(node_ref))
+                }) {
+                    references.push(format!("{}.pressure_regions.{}", load_case.get("id").and_then(Value::as_str).unwrap_or("load_case:unknown"), region.get("id").and_then(Value::as_str).unwrap_or("region:unknown")));
+                }
+            }
             let Some(primitive_loads) = load_case.get("primitive_loads").and_then(Value::as_array)
             else {
                 continue;
@@ -8462,6 +8527,13 @@ fn pipe_primitive_load_references(model: &Value, pipe_ref: &str) -> Vec<String> 
     };
     let mut references = Vec::new();
     for load_case in load_cases {
+        for region in load_case.get("pressure_regions").and_then(Value::as_array).into_iter().flatten() {
+            if region.get("member_pipe_ids").and_then(Value::as_array).is_some_and(|members| {
+                members.iter().any(|member| member.as_str() == Some(pipe_ref))
+            }) {
+                references.push(format!("{}.pressure_regions.{}", load_case.get("id").and_then(Value::as_str).unwrap_or("load_case:unknown"), region.get("id").and_then(Value::as_str).unwrap_or("region:unknown")));
+            }
+        }
         let Some(primitive_loads) = load_case.get("primitive_loads").and_then(Value::as_array)
         else {
             continue;

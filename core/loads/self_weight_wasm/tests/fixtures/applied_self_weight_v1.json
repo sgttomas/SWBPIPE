@@ -1,0 +1,146 @@
+{
+  "analysis_status": {
+    "mechanics": "draft",
+    "professional_acceptance": "not_assessed",
+    "rule_check": "not_run"
+  },
+  "combinations": [],
+  "components": [],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [
+    {
+      "id": "case:weight",
+      "kind": "primitive_user_load",
+      "label": "Invented self weight",
+      "primitive_loads": [
+        {
+          "category": "distributed_force",
+          "dimension": "force_per_length",
+          "direction": "global_y",
+          "id": "load:self-weight:11:case:weight:9:pipe:beam",
+          "magnitude": {
+            "unit": "N/m",
+            "value": -19.792033717615706
+          },
+          "provenance": "{\"contents_absent\":true,\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-7.0},\"insulation_absent\":true,\"mass_inputs\":{\"contents_density\":null,\"insulation_density\":null,\"insulation_thickness\":null,\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1000.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"mass_kg_per_m\":2.827433388230815,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v1\",\"normalized_acceleration_m_per_s2\":-7.0,\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"explicit invented gravity\",\"section_ref\":null}",
+          "target": {
+            "pipe": "pipe:beam",
+            "type": "element"
+          }
+        },
+        {
+          "category": "concentrated_force",
+          "dimension": "force",
+          "direction": "global_y",
+          "id": "load:manual-tip",
+          "magnitude": {
+            "unit": "N",
+            "value": -11.0
+          },
+          "provenance": "manual invented tip load",
+          "target": {
+            "node": "node:tip",
+            "type": "node"
+          }
+        }
+      ],
+      "provenance": "explicit invented gravity",
+      "status": "draft"
+    }
+  ],
+  "materials": [
+    {
+      "elastic_modulus": {
+        "unit": "Pa",
+        "value": 200000000000.0
+      },
+      "id": "material:invented",
+      "label": "Invented elastic material",
+      "provenance": "invented_no_material_standard",
+      "shear_modulus": {
+        "unit": "Pa",
+        "value": 77000000000.0
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "node:root",
+      "label": "Root",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented"
+    },
+    {
+      "id": "node:tip",
+      "label": "Tip",
+      "position": {
+        "x": 2,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "from": "node:root",
+      "id": "pipe:beam",
+      "label": "Invented beam",
+      "material": "material:invented",
+      "provenance": "invented",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 1000
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.1
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.01
+        }
+      },
+      "to": "node:tip",
+      "y_reference": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      }
+    }
+  ],
+  "project": {
+    "id": "project:invented-self-weight",
+    "units": {
+      "angle": "rad",
+      "force": "N",
+      "length": "m",
+      "pressure": "Pa",
+      "stress": "Pa",
+      "temperature": "degC"
+    }
+  },
+  "schema_version": "0.1.0",
+  "sections": [],
+  "supports": [
+    {
+      "id": "support:root",
+      "label": "Fixed root",
+      "node": "node:root",
+      "provenance": "invented",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  ]
+}

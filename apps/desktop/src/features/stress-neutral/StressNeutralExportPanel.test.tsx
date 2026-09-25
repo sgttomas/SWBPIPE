@@ -1,3 +1,6 @@
+import { invoke } from "@tauri-apps/api/core";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
+vi.mock("@tauri-apps/api/core",()=>({invoke:vi.fn()}));
 import { buildAnalysisRunV02, modelLoadBasisRefs, analysisRecordProjection, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
 import transport from "../../../../../fixtures/results/precision_transport_v0_3.json";
 import { PRECISION_CONTRACT_ID } from "../results/numericalResultQuality";
@@ -9,14 +12,14 @@ import path from 'node:path';
 import modelJson from '../../../../../fixtures/product_preview/invented_preview_model.json';
 import resultJson from '../../../../../fixtures/product_preview/invented_mechanics_result.json';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
-import {buildAnalysisRunPreview,bindSourceResultDimensions} from '../../services/previewService';
+import {buildAnalysisRunPreview,bindSourceResultDimensions,runPreviewMechanics,loadBundledMechanicsReference} from '../../services/previewService';
 import {buildStressNeutralExportPacket,validateStressNeutralExportPacket,precisionStressRow} from './StressNeutralExportPanel';
 import {StressNeutralExportPanel} from './StressNeutralExportPanel';
 import {canonicalSha256HexCheckedV1,canonicalJsonCheckedV1} from '../../services/hashService';
 import type {PreviewModel,MechanicsResult} from '../../types';
 import {isNativeResultSaveRuntime,saveNativeResultJson} from '../result-export/nativeResultSave';
 vi.mock('../result-export/nativeResultSave',()=>({isNativeResultSaveRuntime:vi.fn(()=>false),saveNativeResultJson:vi.fn()}));
-afterEach(()=>{vi.mocked(isNativeResultSaveRuntime).mockReturnValue(false);vi.mocked(saveNativeResultJson).mockReset();});
+afterEach(()=>{vi.restoreAllMocks();delete (window as any).__TAURI_INTERNALS__;vi.mocked(invoke).mockReset();vi.mocked(isNativeResultSaveRuntime).mockReturnValue(false);vi.mocked(saveNativeResultJson).mockReset();});
 it('retains every native-shaped source row and hash while deriving 828 semantic witnesses and two diagnostic-work withholdings',async()=>{
  const model=modelJson as PreviewModel,result=structuredClone(resultJson) as unknown as MechanicsResult;
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'fixture',solver_version:'1',solver_build_ref:'fixture',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
@@ -84,27 +87,51 @@ it('rejects duplicate missing path checksum metadata member divergence and packa
  for(const [mutate,error] of cases){const packet=structuredClone(base);mutate(packet);await expect(validateStressNeutralExportPacket(packet)).rejects.toThrow(error);}
 });
 
+// Native IPC simulation only; these exact two modes were emitted from the
+// maintained ordinary input. Neither old legacy rows nor run IDs are rewritten.
+async function currentPrecision(mode: "sparse_interactive" | "dense_scrutiny" = "sparse_interactive") {
+ const {model}=nativeMechanicsReplayPair(mode,{profile:"precision"});
+ (window as any).__TAURI_INTERNALS__={};
+ vi.mocked(invoke).mockImplementation(createNativeMechanicsReplay({profile:"precision"}).invoke);
+ const result=await runPreviewMechanics(model,mode);
+ const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'unit-transport-replay',solver_mode:mode,settings:{}},active_rule_packs:[],external_assets:[]});
+ const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
+ return {model,result,analysisRun};
+}
 it('does not publish a delayed packet after its source result is replaced',async()=>{
- const model=modelJson as PreviewModel,first=bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult);const second=structuredClone(first);second.run_id='run:replacement-stress-neutral';
- const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'fixture',solver_version:'1',solver_build_ref:'fixture',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});const firstRun=await buildAnalysisRunV02(first,inputManifest),secondRun=await buildAnalysisRunV02(second,inputManifest);
+ const first=await currentPrecision(),second=await currentPrecision("dense_scrutiny");
+ const expected=await buildStressNeutralExportPacket(second);
  const original=crypto.subtle.digest.bind(crypto.subtle);let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});let calls=0;
  vi.spyOn(crypto.subtle,'digest').mockImplementation(async (algorithm:any,data:any)=>{calls+=1;if(calls===1)await gate;return original(algorithm,data);});
- const view=render(<StressNeutralExportPanel model={model} result={first} analysisRun={firstRun}/>);await waitFor(()=>expect(calls).toBe(1));view.rerender(<StressNeutralExportPanel model={model} result={second} analysisRun={secondRun}/>);
- await waitFor(()=>expect(screen.getByTestId('stress-neutral-state-binding').textContent).toContain('result-envelope:run:replacement-stress-neutral'));release();await waitFor(()=>expect(calls).toBeGreaterThan(1));await Promise.resolve();expect(screen.getByTestId('stress-neutral-state-binding').textContent).toContain('result-envelope:run:replacement-stress-neutral');vi.restoreAllMocks();
+ const view=render(<StressNeutralExportPanel {...first}/>);await waitFor(()=>expect(calls).toBe(1));view.rerender(<StressNeutralExportPanel {...second}/>);
+ await screen.findByTestId('stress-neutral-state-binding');fireEvent.click(screen.getByTestId('stress-neutral-export-link-local-private-intent'));
+ await waitFor(()=>expect(screen.getByTestId('stress-neutral-export-link')).toHaveAttribute('href',expect.stringMatching(/^data:application\/json/)));
+ const href=screen.getByTestId('stress-neutral-export-link').getAttribute('href')!;
+ expect(JSON.parse(decodeURIComponent(href.slice(href.indexOf(',')+1))).package_checksum.value).toBe(expected.package_checksum.value);
+ release();await waitFor(()=>expect(calls).toBeGreaterThan(1));await Promise.resolve();
+ expect(screen.getByTestId('stress-neutral-export-link').getAttribute('href')).toBe(href);vi.restoreAllMocks();
 });
-
-it('saves native stress JSON only after validation and intent and invalidates a pending source generation',async()=>{
+it('saves native stress JSON after validation and intent and invalidates a pending source generation',async()=>{
  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);
- const model=modelJson as PreviewModel,first=bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult),second=structuredClone(first);second.run_id='run:replacement-stress-neutral';
- const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'fixture',solver_version:'1',solver_build_ref:'fixture',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});const firstRun=await buildAnalysisRunV02(first,inputManifest),secondRun=await buildAnalysisRunV02(second,inputManifest);
+ const first=await currentPrecision(),second=await currentPrecision("dense_scrutiny");
  let finishOld!:(value:any)=>void;vi.mocked(saveNativeResultJson).mockImplementationOnce(()=>new Promise(resolve=>{finishOld=resolve;}));
- const view=render(<StressNeutralExportPanel model={model} result={first} analysisRun={firstRun}/>);
+ const view=render(<StressNeutralExportPanel {...first}/>);
  const firstButton=await screen.findByRole('button',{name:/Package JSON/},{timeout:10_000});expect(firstButton).toBeDisabled();expect(saveNativeResultJson).not.toHaveBeenCalled();
  fireEvent.click(screen.getByTestId('stress-neutral-export-link-local-private-intent'));await waitFor(()=>expect(firstButton).toBeEnabled());fireEvent.click(firstButton);
  expect(saveNativeResultJson).toHaveBeenCalledTimes(1);const firstRequest=vi.mocked(saveNativeResultJson).mock.calls[0][0];expect(firstRequest.screening.route_id).toBe('DOTH-FORMAT-003');expect(firstRequest.file_name).toMatch(/^openpipestress-preview-stress-neutral-[a-z0-9-]+\.json$/);expect(firstRequest.local_first.route_id).toBe('DOTH-FORMAT-003');
- view.rerender(<StressNeutralExportPanel model={model} result={second} analysisRun={secondRun}/>);await waitFor(()=>expect(screen.getByTestId('stress-neutral-state-binding')).toHaveTextContent('result-envelope:run:replacement-stress-neutral'));const secondButton=screen.getByRole('button',{name:/Package JSON/});expect(secondButton).toBeDisabled();
- await act(async()=>{finishOld({outcome:'saved',file_name:firstRequest.file_name,byte_count:10,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});expect(secondButton).toBeDisabled();expect(screen.getByTestId('stress-neutral-export-link-native-save-status')).not.toHaveTextContent('Saved');fireEvent.click(screen.getByTestId('stress-neutral-export-link-local-private-intent'));await waitFor(()=>expect(secondButton).toBeEnabled());
- vi.mocked(saveNativeResultJson).mockResolvedValueOnce({outcome:'saved',file_name:'openpipestress-preview-stress-neutral-result-envelope-run-replacement-stress-neutral.json',byte_count:10,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});fireEvent.click(secondButton);await waitFor(()=>expect(saveNativeResultJson).toHaveBeenCalledTimes(2));expect(vi.mocked(saveNativeResultJson).mock.calls[1][0].file_name).toContain('replacement-stress-neutral');
+ view.rerender(<StressNeutralExportPanel {...second}/>);await waitFor(()=>expect(screen.getByTestId('stress-neutral-summary')).toHaveTextContent(`rows=${second.result.results.length}`));
+ const secondButton=screen.getByRole('button',{name:/Package JSON/});expect(secondButton).toBeDisabled();
+ await act(async()=>{finishOld({outcome:'saved',file_name:firstRequest.file_name,byte_count:10,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});expect(screen.getByTestId('stress-neutral-export-link-native-save-status')).toBeEmptyDOMElement();
+ expect(saveNativeResultJson).toHaveBeenCalledTimes(1);expect(secondButton).not.toHaveAttribute('href');
+});
+it('keeps preserved references available only to the pure packet projector',async()=>{
+ const {model,source:result}=await loadBundledMechanicsReference();
+ const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'reference-only',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
+ const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
+ expect((await buildStressNeutralExportPacket({model,result,analysisRun})).result_rows).toHaveLength(result.results.length);
+ render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun}/>);
+ expect(screen.getByTestId('stress-neutral-empty')).toHaveTextContent('Bundled references');
+ expect(screen.queryByTestId('stress-neutral-export-link')).toBeNull();
 });
 
 it('binds precision v3 metadata and preserves shared f64 bits in CSV and JSON',async()=>{
@@ -302,4 +329,28 @@ it('refuses precision header presence on rehashed legacy packets without alterin
  }
  expect(JSON.stringify(base)).toBe(original);
  await expect(validateStressNeutralExportPacket(base)).resolves.toBeUndefined();
+});
+
+it('refuses physics projection instead of labeling physical evidence as legacy',async()=>{
+ const {model,source:result}=nativeMechanicsReplayPair();
+ const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'received-physics-reference',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
+ const analysisRun=await buildAnalysisRunPreview(result,{inputManifest}),before=JSON.stringify(result);
+ await expect(buildStressNeutralExportPacket({model,result,analysisRun})).rejects.toThrow('SN-PHYSICS-PROJECTION-UNAVAILABLE');
+ expect(JSON.stringify(result)).toBe(before);
+});
+
+it.each(['json','csv'] as const)('rechecks source and analysis contents at %s activation',async route=>{
+ for(const change of ['source','analysis'] as const){
+  const props=await currentPrecision();
+  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(route==='json');vi.mocked(saveNativeResultJson).mockClear();
+  const view=render(<StressNeutralExportPanel {...props}/>);
+  const id=route==='json'?'stress-neutral-export-link':'stress-neutral-csv-link';
+  if(route==='json'){await view.findByTestId(`${id}-local-private-intent`);fireEvent.click(view.getByTestId(`${id}-local-private-intent`));}
+  const link=await waitFor(()=>{const element=view.getByTestId(id);expect(element.tagName).toBe(route==='json'?'BUTTON':'SPAN');if(route==='json')expect(element).toBeEnabled();else expect(element).toHaveAttribute('aria-disabled','true');return element;});
+  // Downstream privacy policy already withholds CSV; preserve that refusal.
+  // The activation guard also retires the withheld control on content change.
+  if(change==='source')props.result.results[0].value+=1;else props.analysisRun.analysis_run.run_name+=' changed without rehash';
+  expect(fireEvent.click(link)).toBe(false);expect(saveNativeResultJson).not.toHaveBeenCalled();
+  expect(view.queryByTestId(id)).toBeNull();view.unmount();
+ }
 });
