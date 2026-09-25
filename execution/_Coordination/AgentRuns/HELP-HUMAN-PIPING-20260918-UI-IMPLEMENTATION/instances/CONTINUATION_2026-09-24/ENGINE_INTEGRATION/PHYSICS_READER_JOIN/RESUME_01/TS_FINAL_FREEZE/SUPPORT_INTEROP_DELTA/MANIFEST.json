@@ -1,0 +1,23 @@
+{
+  "scope": "Three explicit physical support kinds map to Support even with Unicode/punctuation/arbitrary authored IDs; legacy/p1 unchanged",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "before_sha256": "71438dfdb7b043c90100c12fcd979206fa86b2a0e43a9dd3be1f46a9ccd94dad",
+      "sha256": "d9571bbb47e6122538570dcb2a14f5ad510c5db4d9ebfb1c926f6d3941e92c19"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx",
+      "before_sha256": "9d7a19a0bdd60391c4cb27b0d91889408bbc7553ac14f2adaf585d528f3e2a2a",
+      "sha256": "0e404f4c482f5316031c634016766e52416d787fa85e4fc5e37e1564a15d4608"
+    }
+  ],
+  "patch_sha256": "33b79df5237ad41a7b65015bf66b7282d8f664498975d1fd5230c4ced26723ab",
+  "tests": {
+    "command": "PHYSICS_SOURCE_TS_OUTPUT_DIR=/private/tmp/piping-composite-ts-artifacts-resume1 npm test --workspace apps/desktop -- src/features/results/physicsSourceIntegration.test.tsx src/features/stress-neutral/StressNeutralExportPanel.test.tsx --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner",
+    "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+    "exit_code": 0,
+    "passed": 31,
+    "log_sha256": "4c5ded9d7fc82f6468cf6ec66721228465f75fc83df20ac8a34f9b72f7f2bc9c"
+  }
+}

@@ -1,7 +1,10 @@
+import { physicsSourceModeMatches } from "../results/physicsSourceRecovery";
+import { validateRetainedRecoverySource } from "../../services/analysisRunCompatibility";
+import { sourceBlockModeMatches } from "../results/sourceBlockRecovery";
 import { validatePhysicsEvidence } from "../results/physicsResultEvidence";
 import { sourceContract, numericalResultStanding, sourceSemanticBinding } from '../results/numericalResultQuality';
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from '../../types';
-import { canonicalJsonString, canonicalSha256Hex, canonicalSha256HexCheckedV1 } from '../../services/hashService';
+import { canonicalJsonString, canonicalSha256Hex, canonicalSha256HexCheckedV1, checkedJsonText } from '../../services/hashService';
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, modelLoadBasisRefs } from '../../services/analysisRunCompatibility';
 import { bindSourceResultDimensions, hasNativeMechanicsInvocation } from '../../services/previewService';
 import { verifyCurrentSessionInputManifest, type CurrentSessionInputManifestEvidence } from '../../services/inputManifestService';
@@ -51,10 +54,13 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
   if(!origin.authentic_producer_available&&origin.original_producer_checksum!==null)throw new Error('UNAVAILABLE_PRODUCER_HASH');
   const route=sourceContract(source);if(route==='unsupported')throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');const version=route!=='legacy'?'0.3.0':'0.2.0';
   if(route==='physics')validatePhysicsEvidence(source,model);
+  if(route==='source_blocks'||route==='physics_source')await validateRetainedRecoverySource(source);
   if(route==='legacy')rejectLegacyDerivativeMetadata(base.result_envelope);
   const doc=structuredClone(base);doc.schema_version=version;const e=doc.result_envelope;
   if(route!=='legacy'){e.producer=structuredClone(source.producer);e.numerical_quality=structuredClone(source.numerical_quality);e.formulation_basis=structuredClone(source.formulation_basis);e.semantic_contract_ref=ref('semantic_contract',sourceSemanticBinding(source).id);}
-  if(route==='physics')e.contract_evidence=structuredClone(source.contract_evidence);
+  if(route==='source_blocks'||route==='physics_source')e.source_block_recovery=structuredClone(source.source_block_recovery);
+  else if(Object.hasOwn(e,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
+  if(route==='physics'||route==='physics_source')e.contract_evidence=structuredClone(source.contract_evidence);
   else if(Object.hasOwn(e,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
   e.result_sets=[e.result_sets[0]];
   e.schema_version=version;e.model_ref=ref('model_payload',source.model_ref);
@@ -105,9 +111,10 @@ function targetAt(doc:JsonObject,path:unknown):JsonObject {
 /** Validates source accounting and scoped references; it does not authenticate
  * the origin. Only the Current/source-solve entrypoints supply that evidence. */
 export async function validateResultDocument(doc:JsonObject,source:MechanicsResult):Promise<void>{
-  guardResultJson(doc);guardResultJson(source);if(['source_block_recovery','carrier_evidence'].some(key=>Object.hasOwn(doc.result_envelope,key)))throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');const route=sourceContract(source);if(route==='unsupported')throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");if(route==='legacy')rejectLegacyDerivativeMetadata(doc.result_envelope);if(resultSchemaVersion(doc)!==(route!=='legacy'?"0.3.0":"0.2.0"))throw new Error("DERIVATIVE_VERSION_MISMATCH");
+  guardResultJson(doc);guardResultJson(source);if(Object.hasOwn(doc.result_envelope,'carrier_evidence'))throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');const route=sourceContract(source);if(route==='unsupported')throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");if(route==='legacy')rejectLegacyDerivativeMetadata(doc.result_envelope);if(resultSchemaVersion(doc)!==(route!=='legacy'?"0.3.0":"0.2.0"))throw new Error("DERIVATIVE_VERSION_MISMATCH");
   if(route!=='legacy'){for(const key of ['producer','numerical_quality','formulation_basis'] as const)requireEqual(doc.result_envelope[key],source[key],'SOURCE_NUMERICAL_METADATA_MISMATCH');requireEqual(doc.result_envelope.semantic_contract_ref,ref('semantic_contract',sourceSemanticBinding(source).id),'SEMANTIC_CONTRACT_MISMATCH');}
-  if(route==='physics'){validatePhysicsEvidence(source);requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');}
+  if(route==='source_blocks'||route==='physics_source'){await validateRetainedRecoverySource(source);requireEqual(doc.result_envelope.source_block_recovery,source.source_block_recovery,'SOURCE_RECOVERY_METADATA_MISMATCH');}else if(Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
+  if(route==='physics'||route==='physics_source'){if(route==='physics')validatePhysicsEvidence(source);requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');}
   else if(Object.hasOwn(doc.result_envelope,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
   const e=doc.result_envelope,accounts=e.row_accounting,annotations=e.source_annotations,witnesses=e.unit_preservation_witnesses;
   if(!Array.isArray(accounts)||!Array.isArray(annotations)||accounts.length!==source.results.length||annotations.length!==source.results.length)throw new Error("ROW_ACCOUNTING_CARDINALITY");
@@ -158,7 +165,9 @@ async function legacyDigest(value:unknown):Promise<string>{guardResultJson(value
 export async function buildCurrentResultExport({model,result,analysisRun,inputManifest}:{model:PreviewModel;result:MechanicsResult;analysisRun:AnalysisRunEnvelope;inputManifest:CurrentSessionInputManifestEvidence|null|undefined}):Promise<JsonObject>{
   guardResultJson(model);guardResultJson(result);guardResultJson(analysisRun);
   if(!numericalResultStanding(result,model).eligible)throw new Error('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');
-  if(!inputManifest)throw new Error('CURRENT_INPUT_MANIFEST_UNAVAILABLE');guardResultJson(inputManifest);await verifyCurrentSessionInputManifest(inputManifest);
+  if(!inputManifest)throw new Error('CURRENT_INPUT_MANIFEST_UNAVAILABLE');guardResultJson(inputManifest);
+  const currentBindingText=checkedJsonText({model,result,analysisRun,inputManifest});
+  await verifyCurrentSessionInputManifest(inputManifest);
   if(await canonicalJsonString(model)!==await canonicalJsonString(inputManifest.manifest.model_basis.model_payload)||result.model_ref!==model.project.id)throw new Error('CURRENT_MODEL_PAYLOAD_MISMATCH');
   if(analysisRun.schema_version!=='0.3.0')throw new Error('CURRENT_ANALYSIS_VERSION_UNSUPPORTED');
   const isV2=true; // Current precision records use the checked record/row binding path.
@@ -166,6 +175,8 @@ export async function buildCurrentResultExport({model,result,analysisRun,inputMa
   const run=analysisRun.analysis_run;
   requireEqual(run.reproducibility.semantic_contract,sourceSemanticBinding(result),'CURRENT_SEMANTIC_CONTRACT_MISMATCH');
   const solver=inputManifest.manifest.solver_basis;
+  if(sourceContract(result)==='physics_source'&&!physicsSourceModeMatches(result,model,solver.solver_mode))throw new Error('CURRENT_SOURCE_INVOCATION_MODE_MISMATCH');
+  if(sourceContract(result)==='source_blocks'&&!sourceBlockModeMatches(result,model,solver.solver_mode))throw new Error('CURRENT_SOURCE_INVOCATION_MODE_MISMATCH');
   if(solver.solver_name!==result.producer!.component_name||solver.solver_version!==result.producer!.component_version)throw new Error('CURRENT_PRODUCER_BINDING_MISMATCH');
   requireEqual(run.solver_version,{solver_name:solver.solver_name,solver_version:solver.solver_version,build_ref:{object_type:'ExternalReference',ref:solver.solver_build_ref}},'CURRENT_SOLVER_BINDING_MISMATCH');
   const expectedState=`state:${result.model_ref}:preview`;
@@ -195,6 +206,9 @@ export async function buildCurrentResultExport({model,result,analysisRun,inputMa
   const enriched=presence.every(Boolean),scope=enriched?'received_current_legacy_enriched_carrier':'received_current_dimension_absent_carrier';
   const origin={origin_id:'source-origin:current-received',origin_class:enriched?'received_current_qualified_legacy_enriched':'received_current_dimension_absent',qualification_ref:ref('current_manifest',inputManifest.manifest_ref.ref),authentic_producer_available:false,received_carrier_checksum:await scopedChecksum(result,scope,ref('received_current_carrier',result.run_id)),original_producer_checksum:null,origin_limit:'Qualified Current received carrier; independent authentic original producer bytes unavailable; dimension absence is not producer attestation',actual_model_ref:ref('model_payload',model.project.id),mechanics_run_ref:ref('mechanics_run',result.run_id),request_model_ref:null,request_run_ref:null,request_alias_disclosure:null};
   const provenance=derivativeProvenance,base={schema_version:'0.2.0',deliverable_id:'DEL-08-04',package_id:'PKG-08',scope_item:'SOW-046',objectives:['OBJ-007','OBJ-009'],export_format_status:{baseline_format:'schema_first_json_result_envelope',additional_formats:'TBD',public_transport_protocol:'TBD',local_fea_package_format:'TBD',external_adapter_formats:'TBD'},result_envelope:{schema_version:'0.2.0',envelope_id:`result-envelope:${result.run_id}`,model_ref:ref('model_payload',model.project.id),run_ref:ref('analysis_run',run.run_id),solver_version:{solver_name:inputManifest.manifest.solver_basis.solver_name,solver_version:inputManifest.manifest.solver_basis.solver_version,solver_build_ref:inputManifest.manifest.solver_basis.solver_build_ref},unit_system_ref:ref('unit_system',`${model.project.id}:units`),load_basis_refs:run.load_basis_refs.map(x=>ref(x.object_type,x.ref)),result_sets:[{set_id:`result-set:${result.run_id}:mechanics`,set_type:'mechanics',basis_ref:ref('analysis_run',run.run_id),values:[]}],diagnostics:result.diagnostics.map(x=>({code:x.code,class:'ASSUMPTION_WARNING',severity:x.severity==='error'?'blocking':x.severity,source:ref('source',x.source??'local_preview'),affected_object:ref('preview_entity',x.affected_refs?.[0]??result.model_ref),message:x.message,remediation:'Review source model and preview limitations.',provenance})),provenance,reproducibility:{model_hash:null,run_hashes:run.hashes.map(x=>({algorithm:x.algorithm,canonicalization:x.canonicalization,payload_ref:ref(x.payload_ref.object_type,x.payload_ref.ref),value:x.value})),audit_manifest_ref:ref('audit_manifest',inputManifest.manifest_ref.ref),deterministic_ordering:true},analysis_status:run.analysis_status,professional_boundary:run.professional_boundary,downstream_use:{review:true,regression_comparison:true,report_consumption:true,headless_automation:true,governed_downstream_tooling:true,additional_export_formats:'TBD'}}};
-  return deriveResultDocument(base,model,result,origin);
+  if(!hasNativeMechanicsInvocation(result,model,solver.solver_mode))throw new Error('CURRENT_NATIVE_INVOCATION_UNAVAILABLE');
+  const document=await deriveResultDocument(base,model,result,origin);
+  if(checkedJsonText({model,result,analysisRun,inputManifest})!==currentBindingText || !hasNativeMechanicsInvocation(result,model,solver.solver_mode) || !numericalResultStanding(result,model).eligible)throw new Error('CURRENT_BINDING_CHANGED_DURING_EXPORT');
+  return document;
 }
 export function resultSchemaVersion(value:JsonObject):'0.1.0'|'0.2.0'|'0.3.0'{const v=value.schema_version;if((v!=='0.1.0'&&v!=='0.2.0'&&v!=='0.3.0')||value.result_envelope?.schema_version!==v)throw new Error('RESULT_VERSION_UNSUPPORTED_OR_MIXED');return v;}

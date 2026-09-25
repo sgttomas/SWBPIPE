@@ -1,0 +1,9 @@
+{
+  "scope": "Rehashed deliberately false retained source/invocation copy, never actual producer or Current proof",
+  "reader_sha256": "81487a87d5e170b98b1569a8d2e7c42943b9c1be565f3a71c5b5a18879c4aba1",
+  "selected": "ValueError: PHYSICS_SOURCE_ACTUAL_DERIVED_SHEAR_RANGE:lower_bracket",
+  "lower_E_pa": 5e-324,
+  "lower_nu": 0.25,
+  "lower_derived_G_pa": 0.0,
+  "public_reader_outcome": "ValueError: PHYSICS_SOURCE_ACTUAL_DERIVED_SHEAR_RANGE:lower_bracket"
+}

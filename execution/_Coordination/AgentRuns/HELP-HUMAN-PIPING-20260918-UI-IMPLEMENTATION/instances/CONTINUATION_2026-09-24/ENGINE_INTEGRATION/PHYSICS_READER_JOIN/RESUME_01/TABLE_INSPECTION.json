@@ -1,0 +1,14 @@
+{
+  "scope": "signature-only table inspection. Changed basis probe is not a generated result, physical admissibility or Current claim.",
+  "composite_table_sha256": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1",
+  "ordinary_signature": "supported-source-068",
+  "retained_signature": "physics-source-endpoint-normal-maximum",
+  "unknown_missing_basis": "rejected",
+  "count": 78,
+  "kinds": 57,
+  "unchanged_tables": {
+    "semantic_contract_v0_3_precision_1.json": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
+    "semantic_contract_v0_3_physics_1.json": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+    "semantic_contract_v0_3_source_blocks_1.json": "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
+  }
+}

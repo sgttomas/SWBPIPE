@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/results/physicsSourceIntegration.test.tsx src/features/stress-neutral/StressNeutralExportPanel.test.tsx --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner
+
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+
+ Test Files  2 passed (2)
+      Tests  31 passed (31)
+   Start at  04:11:14
+   Duration  46.00s (transform 728ms, setup 244ms, import 1.11s, tests 53.98s, environment 665ms)
+

@@ -1,0 +1,330 @@
+--- before/schemas/stress_neutral_export.v0.3.schema.json
++++ after/schemas/stress_neutral_export.v0.3.schema.json
+@@ -107,7 +107,7 @@
+     "export_profile": {
+       "allOf": [
+         {
+-          "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/ExportProfile"
++          "$ref": "#/$defs/ExportProfile"
+         },
+         {
+           "properties": {
+@@ -489,7 +489,8 @@
+         "canonicalization": {
+           "enum": [
+             "openpipestress_jcs_ijson_v1",
+-            "normalized_ascii_lf_text"
++            "normalized_ascii_lf_text",
++            "utf8_csv_record_lf_v1"
+           ]
+         },
+         "payload_scope": {
+@@ -668,7 +669,10 @@
+                               "const": "sha256"
+                             },
+                             "canonicalization": {
+-                              "const": "normalized_ascii_lf_text"
++                              "enum": [
++                                "normalized_ascii_lf_text",
++                                "utf8_csv_record_lf_v1"
++                              ]
+                             },
+                             "payload_scope": {
+                               "const": "member_bytes"
+@@ -1186,7 +1190,10 @@
+                       "const": "sha256"
+                     },
+                     "canonicalization": {
+-                      "const": "normalized_ascii_lf_text"
++                      "enum": [
++                        "normalized_ascii_lf_text",
++                        "utf8_csv_record_lf_v1"
++                      ]
+                     },
+                     "payload_scope": {
+                       "const": "member_bytes"
+@@ -2664,6 +2671,74 @@
+           "description": "Actual received finite IEEE754 binary64 value bits. For zero, source_row.value is canonical +0 and this field retains +0/-0; for nonzero, bits decode exactly to source_row.value. Bound by the package hash; exact received bits checked when original source is supplied."
+         }
+       }
++    },
++    "ExportProfile": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": [
++        "profile_id",
++        "profile_version",
++        "target_family",
++        "csv_columns",
++        "identity_policy",
++        "unit_policy",
++        "loss_report_policy",
++        "comparison_semantics",
++        "boundary_notes",
++        "source_basis_refs"
++      ],
++      "properties": {
++        "profile_id": {
++          "type": "string",
++          "minLength": 1
++        },
++        "profile_version": {
++          "type": "string",
++          "minLength": 1
++        },
++        "target_family": {
++          "const": "stress_neutral_csv_json"
++        },
++        "csv_columns": {
++          "type": "array",
++          "items": {
++            "type": "string",
++            "minLength": 1
++          }
++        },
++        "identity_policy": {
++          "const": "canonical_ref_per_row_plus_stable_id_map"
++        },
++        "unit_policy": {
++          "const": "unit_and_dimension_required_per_row"
++        },
++        "loss_report_policy": {
++          "const": "mandatory_for_every_package"
++        },
++        "comparison_semantics": {
++          "const": "diagnostic_export_only_no_pass_fail"
++        },
++        "boundary_notes": {
++          "type": "array",
++          "items": {
++            "type": "string",
++            "minLength": 1
++          }
++        },
++        "source_basis_refs": {
++          "type": "array",
++          "items": {
++            "$ref": "#/$defs/Reference"
++          }
++        },
++        "free_metadata": true,
++        "csv_encoding": {
++          "const": "utf-8"
++        },
++        "csv_row_order": {
++          "const": "unicode_scalar_value_result_id"
++        }
++      }
+     }
+   },
+   "oneOf": [
+@@ -2697,6 +2772,53 @@
+           "properties": {
+             "profile_id": {
+               "const": "product_preview_mechanics_v1"
++            }
++          }
++        },
++        "export_profile": {
++          "not": {
++            "anyOf": [
++              {
++                "required": [
++                  "csv_encoding"
++                ]
++              },
++              {
++                "required": [
++                  "csv_row_order"
++                ]
++              }
++            ]
++          }
++        },
++        "manifest": {
++          "properties": {
++            "package_members": {
++              "prefixItems": [
++                {},
++                {
++                  "properties": {
++                    "checksum": {
++                      "properties": {
++                        "canonicalization": {
++                          "const": "normalized_ascii_lf_text"
++                        }
++                      }
++                    }
++                  }
++                }
++              ]
++            },
++            "checksums": {
++              "prefixItems": [
++                {
++                  "properties": {
++                    "canonicalization": {
++                      "const": "normalized_ascii_lf_text"
++                    }
++                  }
++                }
++              ]
+             }
+           }
+         }
+@@ -2756,6 +2878,51 @@
+         },
+         "contract_evidence": {
+           "$ref": "#/$defs/PhysicsContractEvidence"
++        },
++        "export_profile": {
++          "required": [
++            "csv_encoding",
++            "csv_row_order"
++          ],
++          "properties": {
++            "csv_encoding": {
++              "const": "utf-8"
++            },
++            "csv_row_order": {
++              "const": "unicode_scalar_value_result_id"
++            }
++          }
++        },
++        "manifest": {
++          "properties": {
++            "package_members": {
++              "prefixItems": [
++                {},
++                {
++                  "properties": {
++                    "checksum": {
++                      "properties": {
++                        "canonicalization": {
++                          "const": "utf8_csv_record_lf_v1"
++                        }
++                      }
++                    }
++                  }
++                }
++              ]
++            },
++            "checksums": {
++              "prefixItems": [
++                {
++                  "properties": {
++                    "canonicalization": {
++                      "const": "utf8_csv_record_lf_v1"
++                    }
++                  }
++                }
++              ]
++            }
++          }
+         }
+       },
+       "required": [
+@@ -2807,6 +2974,51 @@
+         },
+         "source_block_recovery": {
+           "$ref": "source_block_recovery.schema.json"
++        },
++        "export_profile": {
++          "required": [
++            "csv_encoding",
++            "csv_row_order"
++          ],
++          "properties": {
++            "csv_encoding": {
++              "const": "utf-8"
++            },
++            "csv_row_order": {
++              "const": "unicode_scalar_value_result_id"
++            }
++          }
++        },
++        "manifest": {
++          "properties": {
++            "package_members": {
++              "prefixItems": [
++                {},
++                {
++                  "properties": {
++                    "checksum": {
++                      "properties": {
++                        "canonicalization": {
++                          "const": "utf8_csv_record_lf_v1"
++                        }
++                      }
++                    }
++                  }
++                }
++              ]
++            },
++            "checksums": {
++              "prefixItems": [
++                {
++                  "properties": {
++                    "canonicalization": {
++                      "const": "utf8_csv_record_lf_v1"
++                    }
++                  }
++                }
++              ]
++            }
++          }
+         }
+       },
+       "required": [
+@@ -2861,6 +3073,51 @@
+         },
+         "source_block_recovery": {
+           "$ref": "physics_source_recovery.schema.json"
++        },
++        "export_profile": {
++          "required": [
++            "csv_encoding",
++            "csv_row_order"
++          ],
++          "properties": {
++            "csv_encoding": {
++              "const": "utf-8"
++            },
++            "csv_row_order": {
++              "const": "unicode_scalar_value_result_id"
++            }
++          }
++        },
++        "manifest": {
++          "properties": {
++            "package_members": {
++              "prefixItems": [
++                {},
++                {
++                  "properties": {
++                    "checksum": {
++                      "properties": {
++                        "canonicalization": {
++                          "const": "utf8_csv_record_lf_v1"
++                        }
++                      }
++                    }
++                  }
++                }
++              ]
++            },
++            "checksums": {
++              "prefixItems": [
++                {
++                  "properties": {
++                    "canonicalization": {
++                      "const": "utf8_csv_record_lf_v1"
++                    }
++                  }
++                }
++              ]
++            }
++          }
+         }
+       },
+       "required": [

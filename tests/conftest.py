@@ -1,4 +1,4 @@
-"""Test-session setup for the private checked-JSON authority.
+"""Test-session setup for the checked-JSON and unit authorities.
 
 The xdist controller builds once before worker collection. Workers inherit the
 explicit executable path and never invoke Cargo themselves.
@@ -16,8 +16,11 @@ sys.path.insert(0, str(PROJECT))
 def pytest_sessionstart(session) -> None:
     if hasattr(session.config, "workerinput"):
         return
-    if os.environ.get("OPENPIPESTRESS_CHECKED_JSON_BIN"):
-        return
-    sys.path.insert(0, str(PROJECT / "tools" / "serialization"))
-    from build_checked_json import build
-    os.environ["OPENPIPESTRESS_CHECKED_JSON_BIN"] = str(build())
+    if not os.environ.get("OPENPIPESTRESS_CHECKED_JSON_BIN"):
+        sys.path.insert(0, str(PROJECT / "tools" / "serialization"))
+        from build_checked_json import build
+        os.environ["OPENPIPESTRESS_CHECKED_JSON_BIN"] = str(build())
+    if not os.environ.get("OPENPIPESTRESS_UNITS_BIN"):
+        sys.path.insert(0, str(PROJECT / "tools" / "units"))
+        from build_units_authority import build as build_units
+        os.environ["OPENPIPESTRESS_UNITS_BIN"] = str(build_units())

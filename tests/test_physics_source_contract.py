@@ -1,0 +1,273 @@
+"""Actual composite producer records and rehashed adversarial copies; no native witness."""
+from copy import deepcopy
+from pathlib import Path
+import hashlib
+import json
+import pytest
+from core.analysis_runs import physics_source as composite
+from core.analysis_runs.physics_evidence import validate_physics_evidence, validate_transport_metadata as physics_transport
+from core.analysis_runs.source_blocks import validate_source_blocks, domain_hash, _signature
+
+ROOT = Path(__file__).resolve().parents[1]
+FIXTURES = ROOT / "fixtures/product_preview/physics_source"
+
+
+def actual(name="n05", mode="sparse_interactive"):
+    return (json.loads((FIXTURES / f"{name}-{mode}.raw.json").read_text()),
+            {"request": json.loads((FIXTURES / f"{name}.request.json").read_text()), "solver_mode": mode})
+
+
+def reseal_negative(source, invocation=None):
+    """Recompute hashes of a deliberately false statement; never a positive fixture."""
+    receipt = source["source_block_recovery"]
+    body = receipt["body"]
+    if invocation is not None:
+        body["invocation"]["value"] = domain_hash("source_blocks_invocation_v1", invocation)
+    for record in body["cases"]:
+        physical = next(c for c in source["contract_evidence"]["exact_cases"] if c["load_case_id"] == record["basis_ref"]["ref_id"])
+        pressure = [p for p in source["contract_evidence"]["pressure"] if p["load_case_id"] == physical["load_case_id"]]
+        record["physical_evidence_sha256"] = domain_hash("physics_source_case_evidence_v1", {"exact_case":physical,"pressure":pressure})
+    body["publication_sha256"] = domain_hash("source_blocks_publication_v1", {k:v for k,v in source.items() if k != "source_block_recovery"})
+    receipt["receipt_sha256"] = domain_hash("source_blocks_receipt_v1",body)
+
+
+@pytest.mark.parametrize("name", ["n05", "n06", "mixed", "fields", "n05_units", "mixed_units", "n05_unicode"])
+@pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
+def test_actual_producer_requires_original_full_invocation(name, mode):
+    source, invocation = actual(name, mode)
+    original = deepcopy(source)
+    assert composite.validate_physics_source(source, invocation)
+    assert composite.validate_physics_source(source) is False
+    composite.validate_transport_metadata({"contract_evidence":source["contract_evidence"], "source_block_recovery":source["source_block_recovery"]})
+    assert source == original
+    altered = deepcopy(invocation)
+    altered["request"]["accepted_unknown_field"] = False
+    with pytest.raises(ValueError, match="INVOCATION_HASH"):
+        composite.validate_physics_source(source, altered)
+    altered = deepcopy(invocation)
+    altered["solver_mode"] = "dense_scrutiny" if mode == "sparse_interactive" else "sparse_interactive"
+    with pytest.raises(ValueError, match="INVOCATION_HASH"):
+        composite.validate_physics_source(source, altered)
+
+
+def test_previous_three_table_identities_remain_frozen():
+    expected={"precision_1":"d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e", "source_blocks_1":"5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"}
+    from core.analysis_runs.compatibility import PHYSICS_CONTRACT_SHA256
+    expected["physics_1"]=PHYSICS_CONTRACT_SHA256
+    for name,digest in expected.items():
+        assert hashlib.sha256((ROOT/f"fixtures/results/semantic_contract_v0_3_{name}.json").read_bytes()).hexdigest()==digest
+
+
+def test_maximum_basis_is_a_signature_discriminator_only():
+    source,_=actual()
+    row=deepcopy(next(r for r in source["results"] if r["kind"]=="pipe_elastic_normal_stress_maximum_v2"))
+    exact=_signature(row,composite)
+    assert exact["source_basis"]==composite.MAX_BASIS
+    row["metadata"]["basis"]="recovered_from_open_mechanics_stress_components"
+    ordinary=_signature(row,composite)
+    assert ordinary["signature_id"]!=exact["signature_id"]
+    for basis in [None,"invented"]:
+        if basis is None:row["metadata"].pop("basis")
+        else:row["metadata"]["basis"]=basis
+        assert _signature(row,composite) is None
+
+
+def test_old_method_entrypoints_refuse_composite_and_cross_namespace_sources():
+    source,invocation=actual()
+    with pytest.raises(ValueError):validate_source_blocks(source,invocation)
+    with pytest.raises(ValueError):validate_physics_evidence(source)
+    for path in [ROOT/"fixtures/results/physics_connected_mechanics_sparse.json",ROOT/"fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json"]:
+        old=json.loads(path.read_text())
+        with pytest.raises(ValueError):composite.validate_physics_source(old)
+
+
+@pytest.mark.parametrize("mutation", [
+    "maximum_basis", "maximum_action", "maximum_interval", "maximum_functional", "maximum_section", "maximum_source_identity", "maximum_location", "maximum_criterion", "stress_operand", "stress_recipe", "stress_section", "stress_row", "stress_missing", "norm_interval", "norm_functional", "norm_missing", "support_owner", "projection_bits", "source_member", "ordinary_quality", "case_hash", "foreign_namespace", "case_work", "invocation_work", "pressure_presence", "material_selection", "geometry_selection",
+])
+def test_rehashed_invalid_composite_claims_are_rejected(mutation):
+    source,invocation=actual()
+    source=deepcopy(source);invocation=deepcopy(invocation)
+    case=source["source_block_recovery"]["body"]["cases"][0]
+    physical=source["contract_evidence"]["exact_cases"][0]
+    maximum=physical["pipe_stress_extrema"][0]
+    stress=case["section_stress_checks"][0]
+    norm=case["derived_checks"][0]
+    if mutation=="maximum_basis":maximum["basis"]="recovered_from_open_mechanics_stress_components"
+    elif mutation=="maximum_action":maximum["endpoints"][0]["actions"][0]["value"]=1
+    elif mutation=="maximum_interval":maximum["value_upper_pa"]=1
+    elif mutation=="maximum_functional":maximum["endpoints"][0]["functional_indices"][0]+=1
+    elif mutation=="maximum_section":maximum["area_m2"]*=2
+    elif mutation=="maximum_source_identity":maximum["source_identity_sha256"]="0"*64
+    elif mutation=="maximum_location":maximum["locations"]={"kind":"strict_endpoint","endpoint":"i"}
+    elif mutation=="maximum_criterion":maximum["relative_limit"]=1e-8
+    elif mutation=="stress_operand":stress["action"]["value"]=1
+    elif mutation=="stress_recipe":stress["recipe_id"]="straight_open_stress_v1"
+    elif mutation=="stress_section":stress["parameters"]["torsion_constant_m4"]*=2
+    elif mutation=="stress_row":next(r for r in source["results"] if r["id"]==stress["result_id"])["value"]=1
+    elif mutation=="stress_missing":case["section_stress_checks"].pop()
+    elif mutation=="norm_interval":norm["interval"][1]+=1
+    elif mutation=="norm_functional":norm["functional_indices"][0]+=1
+    elif mutation=="norm_missing":case["derived_checks"].pop()
+    elif mutation=="support_owner":case["supports"][0]["components"][0]["action_terms"][0]["source_id"]="other"
+    elif mutation=="projection_bits":case["projections"][0]["value_bits"]="8000000000000000"
+    elif mutation=="source_member":case["source"]["member_ids"][0]="other"
+    elif mutation=="ordinary_quality":source["numerical_quality"]["cases"][0]["solve_quality"]="checks_passed"
+    elif mutation=="case_hash":case["physical_evidence_sha256"]="0"*64
+    elif mutation=="foreign_namespace":source["carrier_evidence"]={}
+    elif mutation=="case_work":case["work"]["limit"]=8_000_001
+    elif mutation=="invocation_work":source["source_block_recovery"]["body"]["invocation_work"]["charged"]+=1
+    elif mutation=="pressure_presence":invocation["request"]["model"]["load_cases"][0]["pressure_regions"]=[{"p_pa":0}]
+    elif mutation=="material_selection":invocation["request"]["model"]["materials"][0]["poisson_ratio"]["value"] = .3
+    elif mutation=="geometry_selection":invocation["request"]["model"]["pipe_segments"][0]["section"]["wall_thickness"]["value"]*=.5
+    reseal_negative(source,invocation)
+    if mutation=="case_hash":
+        case["physical_evidence_sha256"]="0"*64
+        source["source_block_recovery"]["receipt_sha256"]=domain_hash("source_blocks_receipt_v1",source["source_block_recovery"]["body"])
+    with pytest.raises(ValueError):composite.validate_physics_source(source,invocation)
+
+
+def test_physics_transport_uses_received_evidence_without_raw_reconstruction():
+    for name in ["physics_connected_mechanics_sparse","physics_thermal_ui_mechanics_sparse"]:
+        source=json.loads((ROOT/f"fixtures/results/{name}.json").read_text())
+        physics_transport({"contract_evidence":source["contract_evidence"]})
+        bad=deepcopy(source["contract_evidence"])
+        bad["exact_cases"][0]["pipe_stress_extrema"][0]["coefficient_basis"]="invented"
+        with pytest.raises(ValueError):physics_transport({"contract_evidence":bad})
+
+
+@pytest.mark.parametrize("field,unit", [("elastic_modulus","N"),("elastic_modulus","gpa"),("shear_modulus","K"),("poisson_ratio","none"),("thermal_expansion_coefficient","K")])
+def test_actual_units_authority_rejects_wrong_dimension_and_unregistered_spelling(field, unit):
+    source,invocation=actual("n05_units")
+    changed=deepcopy(invocation)
+    material=changed["request"]["model"]["materials"][0]
+    material[field]={"value":200 if field!="poisson_ratio" else .25,"unit":unit}
+    reseal_negative(source,changed)
+    with pytest.raises(ValueError):composite.validate_physics_source(source,changed)
+
+
+def isolated_torsion_recipe(action, radius, constant):
+    """Synthetic scalar helper inputs only; never reseal or claim a producer result."""
+    source,_=actual()
+    case=source["source_block_recovery"]["body"]["cases"][0]
+    check=next(c for c in case["section_stress_checks"] if c["component"]=="torsional_shear_stress")
+    row=next(r for r in source["results"] if r["id"]==check["result_id"])
+    exact=source["contract_evidence"]["exact_cases"][0]
+    section=next(s for s in exact["pipe_sections"] if s["pipe_id"]==row["entity_ref"])
+    member=next(m for m in case["source"]["section_functionals"] if m["pipe_id"]==row["entity_ref"])
+    station=member["stations"][["end_i","quarter_1","midspan","quarter_3","end_j"].index(row["metadata"]["location"])]
+    station["actions"][3]={"value":action,"interval":[action,action]}
+    check["action"]=station["actions"][3]
+    section.update(ro_m=radius,J_m4=constant)
+    check["parameters"].update(torsion_radius_m=radius,torsion_constant_m4=constant)
+    row["value"]=action*radius/constant/1e6
+    return source,case,row
+
+
+def test_torsion_recipe_rejects_lossy_subnormal_intermediate():
+    from fractions import Fraction
+    import sys
+    action,radius,constant=1e-280,1e-40,1e-160
+    source,case,row=isolated_torsion_recipe(action,radius,constant)
+    expected=Fraction.from_float(action)*Fraction.from_float(radius)/Fraction.from_float(constant)/1_000_000
+    error=float(abs(Fraction.from_float(row["value"])-expected)/abs(expected))
+    assert 0 < abs(action*radius) < sys.float_info.min
+    assert abs(row["value"]) >= sys.float_info.min and error > 1e-9
+    with pytest.raises(ValueError,match="STRESS_TORSION_INTERMEDIATE_RANGE"):
+        composite.validate_stress(source,case,row,[])
+
+
+@pytest.mark.parametrize("action", [0.0,-0.0,1e-200,-1e-200])
+def test_torsion_recipe_keeps_structural_zero_and_normal_intermediates(action):
+    source,case,row=isolated_torsion_recipe(action,1e-40,1e-160)
+    composite.validate_stress(source,case,row,[])
+
+
+def test_material_selection_normalizes_named_points_and_strict_temperature_brackets():
+    # Isolated selection check against the actual mixed-unit material inputs;
+    # altered selection below is not presented as a new producer result.
+    source,invocation=actual("mixed_units")
+    model=invocation["request"]["model"]
+    authored=model["materials"][0]
+    actual_case=model["load_cases"][1]
+    canonical=composite._canonical_inputs(invocation)
+    expected=source["contract_evidence"]["exact_cases"][1]["pipe_materials"][0]
+    e,nu,alpha=composite._selected_material(authored,actual_case,canonical)
+    assert composite._same(e,expected["E_pa"]) and composite._same(nu,expected["nu"])
+    assert alpha is None
+    point_case={"modulus_basis_ref":"point:lower"}
+    assert composite._selected_material(authored,point_case,canonical)==(1000.0,.25,None)
+    actual_case["modulus_basis_temperature"]={"value":0,"unit":"degC"}
+    canonical=composite._canonical_inputs(invocation)
+    with pytest.raises(StopIteration):composite._selected_material(authored,actual_case,canonical)
+
+
+def test_selected_alpha_uses_same_normalized_material_basis():
+    # Quantity/selection unit test only, using actual request shapes. No fake solve.
+    _,invocation=actual("mixed_units")
+    model=invocation["request"]["model"]
+    authored=model["materials"][0]
+    actual_case=model["load_cases"][1]
+    a,b=authored["temperature_points"]
+    a["thermal_expansion_coefficient"]={"value":1e-5,"unit":"1/degC"}
+    b["thermal_expansion_coefficient"]={"value":1e-5,"unit":"1/degF"}
+    canonical=composite._canonical_inputs(invocation)
+    e,nu,alpha=composite._selected_material(authored,actual_case,canonical)
+    t=canonical(actual_case["modulus_basis_temperature"],"temperature")
+    t0,t1=[canonical(p["temperature"],"temperature") for p in (a,b)]
+    f=(t-t0)/(t1-t0)
+    expected=(1-f)*canonical(a["thermal_expansion_coefficient"],"thermal_expansion_coefficient")+f*canonical(b["thermal_expansion_coefficient"],"thermal_expansion_coefficient")
+    assert composite._same(alpha,expected)
+    assert composite._selected_material(authored,{"modulus_basis_ref":"point:upper"},canonical)[2]==canonical(b["thermal_expansion_coefficient"],"thermal_expansion_coefficient")
+
+
+@pytest.mark.parametrize("e,nu,expected", [
+    (float.fromhex("0x0.0000000000001p-1022"), .25, None),
+    (float.fromhex("0x0.0000000000001p-1022"), 0.0, None),
+    (float.fromhex("0x0.0000000000001p-1022"), -2.0**-54, None),
+    (float.fromhex("0x0.0000000000001p-1022"), float.fromhex("-0x1.0000000000001p-54"), float.fromhex("0x0.0000000000001p-1022")),
+    (float.fromhex("0x0.0000000000002p-1022"), .25, float.fromhex("0x0.0000000000001p-1022")),
+    (float.fromhex("0x0.0000000000001p-1022"), -.5, float.fromhex("0x0.0000000000001p-1022")),
+    (float.fromhex("0x1.fffffffffffffp+1023"), -.5, float.fromhex("0x1.fffffffffffffp+1023")),
+    (float.fromhex("0x1.fffffffffffffp+1023"), float.fromhex("-0x1.0000000000001p-1"), None),
+    (float.fromhex("0x1.fffffffffffffp+1023"), float.fromhex("-0x1.fffffffffffffp-2"), float.fromhex("0x1.fffffffffffffp+1023")),
+    (float.fromhex("0x1.fffffffffffffp+1023"), 0, float.fromhex("0x1.fffffffffffffp+1022")),
+])
+def test_material_pair_matches_producer_scaled_boundary_domain(e, nu, expected):
+    # Scalar source-domain controls, not fabricated producer output. Boundaries
+    # follow pressure_exact.rs Scaled::to_f64 and IsotropicENu::new exactly.
+    if expected is None:
+        with pytest.raises(ValueError,match="ACTUAL_DERIVED_SHEAR_RANGE:boundary"):
+            composite._checked_material_pair(e,nu,"boundary")
+    else:
+        assert composite._same(composite._checked_material_pair(e,nu,"boundary"),expected)
+
+
+@pytest.mark.parametrize("stage", ["base","lower_bracket","upper_bracket","selected"])
+def test_every_consumed_material_pair_checks_source_domain(stage):
+    _,invocation=actual("mixed_units")
+    material=invocation["request"]["model"]["materials"][0]
+    selected_case=invocation["request"]["model"]["load_cases"][1]
+    minimum=float.fromhex("0x0.0000000000001p-1022")
+    if stage=="base":material["elastic_modulus"]={"value":minimum,"unit":"Pa"}
+    elif stage in {"lower_bracket","upper_bracket"}:
+        material["temperature_points"][0 if stage=="lower_bracket" else 1]["elastic_modulus"]={"value":minimum,"unit":"Pa"}
+    else:
+        selected_case.pop("modulus_basis_temperature")
+        selected_case["modulus_basis_ref"]="point:lower"
+        material["temperature_points"][0]["elastic_modulus"]={"value":minimum,"unit":"Pa"}
+    canonical=composite._canonical_inputs(invocation)
+    with pytest.raises(ValueError,match=f"ACTUAL_DERIVED_SHEAR_RANGE:{stage}"):
+        composite._selected_material(material,selected_case,canonical)
+
+
+@pytest.mark.parametrize("bad_endpoint", [0,1])
+def test_public_rehashed_copy_cannot_hide_invalid_bracket_pair_behind_finite_selection(bad_endpoint):
+    source,invocation=actual("mixed_units")
+    points=invocation["request"]["model"]["materials"][0]["temperature_points"]
+    points[bad_endpoint]["elastic_modulus"]={"value":float.fromhex("0x0.0000000000001p-1022"),"unit":"Pa"}
+    points[1-bad_endpoint]["elastic_modulus"]={"value":4000.0,"unit":"Pa"}
+    # This is the reviewer's deliberately false, rehashed copy; it is never an
+    # actual producer/native witness. Its rounded selected E still equals 2000.
+    reseal_negative(source,invocation)
+    with pytest.raises(ValueError,match="ACTUAL_DERIVED_SHEAR_RANGE:"+("lower_bracket" if bad_endpoint==0 else "upper_bracket")):
+        composite.validate_physics_source(source,invocation)

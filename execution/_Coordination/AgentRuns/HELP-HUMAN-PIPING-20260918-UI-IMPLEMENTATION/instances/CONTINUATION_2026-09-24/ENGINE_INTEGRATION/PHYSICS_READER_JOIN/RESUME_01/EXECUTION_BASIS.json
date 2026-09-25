@@ -1,0 +1,52 @@
+{
+  "role": "WORKING_ITEMS",
+  "agent": "/root/physics_resume/physics_reader_join",
+  "parent": "/root/physics_resume",
+  "mechanism": "delegated-harness-native continuation",
+  "prior_checkpoint": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+  "resume_authority": "Owner explicitly resumed; parent transmitted hold revoked and connected consumer integration assignment. Prior frozen evidence remains historical.",
+  "scope": "source-block schemas/headless invocation first; later deliberate composite table/validator/canonical/stress consumers on actual receipt wire; no native/PR/merge or broader joints/load states",
+  "context": [
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/CHECKPOINT_RETURN.md",
+      "sha256": "78966c143b323098fd372988566b84c4621c850c17fe413e7efe007921273836"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/CHECKPOINT_SOURCE_MANIFEST.json",
+      "sha256": "1366d7db7b4d5ce98255596a78ce1209df1650b98c108940f16de9080ee8e05d"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_JOIN_PLAN.md",
+      "sha256": "2481106bc6512c520416c532a6202d3151118b2609cf902c4bdf06463273cef8"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/docs/references/validation-programme/README.md",
+      "sha256": "7732cdb45e4f6bb8b902def68803934ca2ecf67693fd4d5abbf3bf2bc8501689"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "sha256": "4afaff2c43f4c076e0a16f58e9295b1a8bb495f73dd50abdd0757027093c582f"
+    }
+  ],
+  "wider_role_consultation": "TASK role read to supply full role to bounded children; no authority promotion"
+}

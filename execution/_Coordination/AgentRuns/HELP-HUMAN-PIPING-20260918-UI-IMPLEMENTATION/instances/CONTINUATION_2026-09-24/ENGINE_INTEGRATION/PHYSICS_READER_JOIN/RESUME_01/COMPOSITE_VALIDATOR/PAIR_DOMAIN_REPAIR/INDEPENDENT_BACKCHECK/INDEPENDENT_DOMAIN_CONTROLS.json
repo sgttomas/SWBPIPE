@@ -1,0 +1,86 @@
+{
+  "scope": "Scalar domain and existing genuine input/received-source consistency probes; no new solver/native proof",
+  "boundaries": [
+    {
+      "name": "original_underflow",
+      "admitted": false,
+      "output_bits": null
+    },
+    {
+      "name": "publication_tie",
+      "admitted": false,
+      "output_bits": null
+    },
+    {
+      "name": "denominator_rounding_tie",
+      "admitted": false,
+      "output_bits": null
+    },
+    {
+      "name": "adjacent_survives",
+      "admitted": true,
+      "output_bits": "0000000000000001"
+    },
+    {
+      "name": "positive_subnormal",
+      "admitted": true,
+      "output_bits": "0000000000000001"
+    },
+    {
+      "name": "identity_subnormal",
+      "admitted": true,
+      "output_bits": "0000000000000001"
+    },
+    {
+      "name": "top_identity",
+      "admitted": true,
+      "output_bits": "7fefffffffffffff"
+    },
+    {
+      "name": "top_adjacent_overflow",
+      "admitted": false,
+      "output_bits": null
+    },
+    {
+      "name": "top_adjacent_rounds_identity",
+      "admitted": true,
+      "output_bits": "7fefffffffffffff"
+    },
+    {
+      "name": "top_half",
+      "admitted": true,
+      "output_bits": "7fdfffffffffffff"
+    },
+    {
+      "name": "overflow_exponent",
+      "admitted": false,
+      "output_bits": null
+    },
+    {
+      "name": "ordinary_near_nu_limit",
+      "admitted": true,
+      "output_bits": "4330000000000000"
+    },
+    {
+      "name": "smallest_near_upper_nu",
+      "admitted": false,
+      "output_bits": null
+    }
+  ],
+  "consumed_stage_refusals": [
+    "base",
+    "lower_bracket",
+    "upper_bracket",
+    "selected"
+  ],
+  "public_false_copy_refusals": [
+    "lower",
+    "upper"
+  ],
+  "unchanged_actual_positives": [
+    "n05_units/sparse_interactive",
+    "n05_units/dense_scrutiny",
+    "mixed_units/sparse_interactive",
+    "mixed_units/dense_scrutiny"
+  ]
+}

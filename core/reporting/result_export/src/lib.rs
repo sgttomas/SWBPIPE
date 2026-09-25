@@ -1656,4 +1656,5 @@ pub mod semantic_contract;
 pub mod derivative;
 
 mod physics_evidence;
+pub mod physics_source;
 pub mod source_blocks;

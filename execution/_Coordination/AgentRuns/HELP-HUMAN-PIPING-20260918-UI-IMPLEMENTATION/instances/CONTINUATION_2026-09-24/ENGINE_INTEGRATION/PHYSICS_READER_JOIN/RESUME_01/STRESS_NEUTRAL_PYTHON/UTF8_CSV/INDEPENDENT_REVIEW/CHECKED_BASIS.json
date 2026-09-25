@@ -1,0 +1,88 @@
+{
+  "role": "TASK",
+  "reviewer": "/root/physics_resume/joined_consumer_review",
+  "actual_parent": "/root/physics_resume",
+  "scope": "Exactly three frozen UTF8 Python/schema/test files; mutable TS excluded",
+  "files": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "8b07faea35dacabfda35f4537d708a57ba585e918760c988b550f1d3f9414921"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "af3d229289c72349f2daa5b7826bd7f0be4924d6b854c6358d480c89d1d991dd"
+    },
+    {
+      "path": "tests/test_stress_neutral_physics_source.py",
+      "sha256": "82abba8a3fb720f4a78fed36bd45b23f0e78dc8981bd410220ebe6ede4fab3f5"
+    }
+  ],
+  "preimage_and_patch_reconstruction_and_current_hashes_match": true,
+  "all13_actual_run_helper_fixture_hashes_match": true,
+  "records": [
+    {
+      "path": "SOURCE_MANIFEST.json",
+      "sha256": "e346af574b4a7d8273429659c8c47a471f20c63e2a34e70513b37593dc73cc22"
+    },
+    {
+      "path": "EXECUTION_BASIS.json",
+      "sha256": "1041ba769c00bc54c9acb7ff6848d5078508fe31b50be8e9109f2dc0ae1b8966"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "da0bc3f8b67b2d7a4718d792c52f29d796cf8cf2537af201467681a8fa5911d5"
+    },
+    {
+      "path": "actual-unicode-01.json",
+      "sha256": "13d19df5ce0a166b97d603d04d372d7e74cab7c36601ecb94c457ae91fde3cd7"
+    },
+    {
+      "path": "actual-unicode-01.log",
+      "sha256": "2f3d1a537c30a3a9d3490712cb15f4ad8b7217a24f97a63edb980232641704d8"
+    },
+    {
+      "path": "pure-utf8-01.json",
+      "sha256": "082789b6be93f1f56cca1ef84d40d809ded08a05cd0422f72654b0f4d819569b"
+    },
+    {
+      "path": "pure-utf8-01.log",
+      "sha256": "84da150edb46e2566a4de8b7329418421dff96eb5a462dd9b697e97c64027ed0"
+    },
+    {
+      "path": "ORIGINAL_TS_FAILURES.log",
+      "sha256": "b889c8ff80cbd0777cc9357d40cfe47271e87618628f4d9a80302278c12cecda"
+    },
+    {
+      "path": "package_v0_3.py.diff",
+      "sha256": "491e826f9eb3472358a2be0373c4ee9ecb7c7f9a1d9892c0ed2bb240a596e127"
+    },
+    {
+      "path": "stress_neutral_export.v0.3.schema.json.diff",
+      "sha256": "da7db740337f9a8501069a438c51f1f6b0f6db9203d841c1c58584299a41f852"
+    },
+    {
+      "path": "test_stress_neutral_physics_source.py.diff",
+      "sha256": "d0f2e6b06b86b146af3fb32c3babdb838e622be52d412da928fa2615589964c5"
+    }
+  ],
+  "independent_probe": [
+    {
+      "path": "probe_utf8.py",
+      "sha256": "4c9c2f04da7617555330ce7b437dd51747bbc481af7acc7b62346b94332d8320"
+    },
+    {
+      "path": "UTF8_PROBES.json",
+      "sha256": "a8498c07d0567c0651637881cc90209694a7d799028165c276bd96bfd5e4a023"
+    },
+    {
+      "path": "INITIAL_HASH_CHECK.json",
+      "sha256": "c156866cc5cd151d9fc1cca89c3b5d0ada10e35e90275e2928216e23ed478aa5"
+    }
+  ],
+  "observed_execution_deviation": "Initial author pure run omitted units env and implicitly built units release (4.71s); raw log unchanged and claim limited. Reviewer supplied both envs and used direct Python without pytest session setup.",
+  "earlier_pure_test_file_hash": "bdc9d2b0475f888bace2058ef70d831b78cebcb3e236d1b2f085a34f1dd6ee3b",
+  "result": "clear for this3file scope",
+  "limits": "Pure transport and received-source probes; no fresh producer/native/build/TS/frontend/wholeCI qualification",
+  "known_separate_followup": "Parent/manager reported dense sparse_live_path_dense_parity_relative_delta semantic ratio/unitless witness conflict after TS Support repair. Newmethod signature-aware witness repair is separately authorized; not reviewed or closed here.",
+  "current_source_drift_at_return": []
+}

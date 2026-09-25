@@ -9,8 +9,13 @@ use open_pipe_stress_frame_kernel::structural::{
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
+mod composite;
+mod endpoint_maximum;
 mod rows;
 mod source;
+pub(super) use composite::{composite_member_maximum, composite_support_norms};
+pub(super) const COMPOSITE_SEMANTIC_ID: &str =
+    "openpipestress.result_semantics/0.3.0/physics-source-1";
 
 pub(super) const SEMANTIC_ID: &str = "openpipestress.result_semantics/0.3.0/source-blocks-1";
 const CRITERION: f64 = 1e-9;
@@ -38,7 +43,9 @@ fn same(a: f64, b: f64) -> bool {
 /// separately refuses nonfinite inputs and nonzero subnormal outputs.
 pub(super) fn scaled_norm(values: [f64; 3]) -> f64 {
     let m = values.iter().map(|v| v.abs()).fold(0.0_f64, f64::max);
-    if m == 0.0 { return 0.0; }
+    if m == 0.0 {
+        return 0.0;
+    }
     let [a, b, c] = values.map(|v| v / m);
     m * ((a * a + b * b) + c * c).sqrt()
 }
@@ -89,6 +96,14 @@ impl CapturedInvocation {
         input: &source_recovery::Input<'_>,
         selected: &mut SelectedSourceRecovery,
     ) -> Result<Option<String>, ReceiptError> {
+        self.check_input_with_physical(input, selected, None)
+    }
+    fn check_input_with_physical(
+        &self,
+        input: &source_recovery::Input<'_>,
+        selected: &mut SelectedSourceRecovery,
+        physical: Option<(&Value, &[ResultItem])>,
+    ) -> Result<Option<String>, ReceiptError> {
         let request = self.requested()?;
         let mut model = request.model;
         let mut materials = if request.materials.is_empty() {
@@ -99,6 +114,7 @@ impl CapturedInvocation {
         let mut diagnostics = Vec::new();
         resolve_shared_sections(&mut model, &mut diagnostics);
         normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+        pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
         if has_blocking(&diagnostics) || model.project.id != input.model.project.id {
             return Err(bad("invocation normalized model mismatch"));
         }
@@ -174,6 +190,20 @@ impl CapturedInvocation {
                 pressure_thrust_loads: &[],
             })
             .map_err(|e| bad(format!("captured source replay: {e:?}")))?;
+        if let Some((evidence, rows)) = physical {
+            composite::physical_source_built(
+                self,
+                &model,
+                &materials,
+                &built,
+                material_basis_record.as_deref(),
+                &case.id,
+                evidence,
+                &[],
+                rows,
+                true,
+            )?;
+        }
         Ok(material_basis_record)
     }
 }
@@ -398,12 +428,17 @@ pub(super) struct FinalizedSourceBlockCase {
     actual_rows: Value,
     qualified: bool,
     exact: bool,
+    physical_evidence: Option<Value>,
+    derived_checks: Vec<Value>,
+    section_stress_checks: Vec<Value>,
     // Own the live-created companion until publication finalization completes.
     _selected: Option<SelectedSourceRecovery>,
 }
 impl FinalizedSourceBlockCase {
     pub(super) fn charged_work(&self) -> usize {
-        self._selected.as_ref().map(|selected| selected.summary().work.charged)
+        self._selected
+            .as_ref()
+            .map(|selected| selected.summary().work.charged)
             .unwrap_or_else(|| self.work["charged"].as_u64().unwrap_or(0) as usize)
     }
 
@@ -488,6 +523,9 @@ impl FinalizedSourceBlockCase {
             actual_rows,
             qualified,
             exact: true,
+            physical_evidence: None,
+            derived_checks: vec![],
+            section_stress_checks: vec![],
             _selected: Some(selected),
         })
     }
@@ -527,6 +565,9 @@ impl FinalizedSourceBlockCase {
             actual_rows: serialized(&rows)?,
             qualified: true,
             exact: false,
+            physical_evidence: None,
+            derived_checks: vec![],
+            section_stress_checks: vec![],
             _selected: None,
         })
     }
@@ -564,6 +605,9 @@ impl FinalizedSourceBlockCase {
             actual_rows: serialized(&rows)?,
             qualified: false,
             exact: false,
+            physical_evidence: None,
+            derived_checks: vec![],
+            section_stress_checks: vec![],
             _selected: None,
         })
     }
@@ -610,23 +654,108 @@ impl FinalizedSourceBlockReceipt {
         cases: Vec<FinalizedSourceBlockCase>,
         invocation_budget: &mut SourceRecoveryBudget,
     ) -> Result<Self, ReceiptError> {
+        Self::finalize_for(capture, envelope, cases, invocation_budget, false)
+    }
+    pub(super) fn finalize_composite(
+        capture: &CapturedInvocation,
+        envelope: &MechanicsEnvelope,
+        cases: Vec<FinalizedSourceBlockCase>,
+        invocation_budget: &mut SourceRecoveryBudget,
+    ) -> Result<Self, ReceiptError> {
+        Self::finalize_for(capture, envelope, cases, invocation_budget, true)
+    }
+    fn finalize_for(
+        capture: &CapturedInvocation,
+        envelope: &MechanicsEnvelope,
+        cases: Vec<FinalizedSourceBlockCase>,
+        invocation_budget: &mut SourceRecoveryBudget,
+        composite: bool,
+    ) -> Result<Self, ReceiptError> {
         if envelope.results.len() > MAX_ITEMS || envelope.diagnostics.len() > MAX_ITEMS {
             return Err(bad("publication inventory budget"));
         }
         let base_reservation = 1024usize
             .saturating_add(envelope.results.len().saturating_mul(32))
             .saturating_add(envelope.diagnostics.len().saturating_mul(32));
-        invocation_budget.reserve_publication(base_reservation)
-            .map_err(|work| ReceiptError("invocation publication reservation".into(), Some(work)))?;
+        invocation_budget
+            .reserve_publication(base_reservation)
+            .map_err(|work| {
+                ReceiptError("invocation publication reservation".into(), Some(work))
+            })?;
+        let policy_limit = if composite {
+            PHYSICS_SOURCE_WORK_LIMIT
+        } else {
+            SOURCE_BLOCKS_WORK_LIMIT
+        };
+        if invocation_budget.per_case_limit > policy_limit
+            || cases.iter().any(|case| {
+                case.work["limit"]
+                    .as_u64()
+                    .is_none_or(|limit| limit > policy_limit as u64)
+            })
+        {
+            return Err(ReceiptError(
+                "case budget exceeds selected receipt policy".into(),
+                Some(exact::WorkReport {
+                    charged: invocation_budget.charged,
+                    rejected: 0,
+                    limit: invocation_budget.invocation_limit,
+                }),
+            ));
+        }
+        if !composite
+            && (envelope.contract_evidence.is_some()
+                || cases.iter().any(|case| case.physical_evidence.is_some()))
+        {
+            return Err(bad("physical evidence requires composite receipt policy"));
+        }
         let size = envelope.diagnostics.iter().fold(0usize, |n, d| {
-            n.saturating_add(d.id.len()).saturating_add(d.code.len()).saturating_add(d.message.len())
+            n.saturating_add(d.id.len())
+                .saturating_add(d.code.len())
+                .saturating_add(d.message.len())
                 .saturating_add(d.affected_refs.iter().map(String::len).sum::<usize>())
         });
-        invocation_budget.reserve_publication(size.saturating_mul(12))
-            .map_err(|work| ReceiptError("invocation publication reservation".into(), Some(work)))?;
+        invocation_budget
+            .reserve_publication(size.saturating_mul(12))
+            .map_err(|work| {
+                ReceiptError("invocation publication reservation".into(), Some(work))
+            })?;
+        if composite {
+            // Reserve normalization, source geometry/material comparison, complete
+            // physical evidence serialization and recipe statement hashing before
+            // performing them. This is the same invocation ledger, never cloned.
+            let request = capture.requested()?;
+            let work = capture.encoded_len.saturating_mul(24).saturating_add(
+                request.model.load_cases.len().saturating_mul(
+                    request
+                        .model
+                        .pipe_segments
+                        .len()
+                        .saturating_mul(32_000)
+                        .saturating_add(
+                            request
+                                .model
+                                .nodes
+                                .len()
+                                .saturating_mul(request.model.nodes.len())
+                                .saturating_mul(64),
+                        )
+                        .saturating_add(envelope.results.len().saturating_mul(256)),
+                ),
+            );
+            invocation_budget
+                .reserve_publication(work)
+                .map_err(|w| ReceiptError("composite publication reservation".into(), Some(w)))?;
+            composite::validate_publication(capture, envelope, &cases)?;
+        }
         let publication = serialized(envelope)?;
         if publication.get("source_block_recovery").is_some()
-            || envelope.producer.semantic_contract_id != SEMANTIC_ID
+            || envelope.producer.semantic_contract_id
+                != if composite {
+                    COMPOSITE_SEMANTIC_ID
+                } else {
+                    SEMANTIC_ID
+                }
         {
             return Err(bad(
                 "publication must have source identity and omit receipt",
@@ -728,6 +857,17 @@ impl FinalizedSourceBlockReceipt {
                 }
             }
             wire.push(json!({"basis_ref":{"ref_type":"load_case","ref_id":case.case_id},"outcome":if eligible{"qualified"}else if failure.as_ref().is_some_and(|f|matches!(f["code"].as_str(),Some("unsupported_family"|"unsupported_block"|"unsupported_source_closure"|"unsupported_derived_quantity"|"support_attribution_ambiguous"))){"unsupported"}else{"failed"},"requested_mode":capture.mode.as_str(),"selected_method":if eligible{Some(if case.exact{"retained_source_blocks_exact_v1"}else if capture.mode==PreviewSolverMode::DenseScrutiny{"ordinary_dense_structural_v1"}else{"ordinary_sparse_structural_v1"})}else{None},"ordinary_attempt":ordinary,"source":case.source,"projections":case.projections,"rows":case.rows,"supports":case.supports,"failure":failure,"work":case.work}));
+            if composite {
+                let row = wire.last_mut().expect("just appended case");
+                row["physical_evidence_sha256"] = json!(hash(
+                    "physics_source_case_evidence_v1",
+                    case.physical_evidence
+                        .as_ref()
+                        .ok_or_else(|| bad("composite physical case proof"))?
+                )?);
+                row["derived_checks"] = json!(case.derived_checks);
+                row["section_stress_checks"] = json!(case.section_stress_checks);
+            }
         }
         let mut observations = Vec::new();
         for r in &envelope.results {
@@ -739,17 +879,29 @@ impl FinalizedSourceBlockReceipt {
                 }
             }
         }
-        rows::validate_summary(envelope)?;
+        if !composite {
+            rows::validate_summary(envelope)?;
+        }
         let case_reserved = cases.iter().try_fold(0usize, |sum, case| {
-            let charged = case.work["charged"].as_u64().ok_or_else(|| bad("case work count"))? as usize;
-            let reserved = case.work["reserved_unobserved_failure"].as_u64().ok_or_else(|| bad("case unobserved reservation"))? as usize;
-            sum.checked_add(charged).and_then(|v| v.checked_add(reserved)).ok_or_else(|| bad("invocation work sum overflow"))
+            let charged = case.work["charged"]
+                .as_u64()
+                .ok_or_else(|| bad("case work count"))? as usize;
+            let reserved = case.work["reserved_unobserved_failure"]
+                .as_u64()
+                .ok_or_else(|| bad("case unobserved reservation"))?
+                as usize;
+            sum.checked_add(charged)
+                .and_then(|v| v.checked_add(reserved))
+                .ok_or_else(|| bad("invocation work sum overflow"))
         })?;
-        if case_reserved.checked_add(invocation_budget.publication_charged) != Some(invocation_budget.charged)
+        if case_reserved.checked_add(invocation_budget.publication_charged)
+            != Some(invocation_budget.charged)
             || invocation_budget.charged > invocation_budget.invocation_limit
             || invocation_budget.invocation_limit > SOURCE_BLOCKS_INVOCATION_WORK_LIMIT
-        { return Err(bad("invocation work ledger mismatch")); }
-        let body = json!({"receipt_version":"1.0.0","policy":"SOURCE-BLOCKS-1","status":if qualified==cases.len(){"qualified"}else if qualified>0{"partial"}else{"unavailable"},"invocation":{"algorithm":"sha256","canonicalization":"openpipestress_jcs_ijson_v1","payload_scope":"source_blocks_invocation_v1","value":capture.digest},"publication_sha256":hash("source_blocks_publication_v1",&publication)?,"cases":wire,"envelope_observation_result_ids":observations,"invocation_work":{"limit":invocation_budget.invocation_limit,"charged":invocation_budget.charged,"publication_charged":invocation_budget.publication_charged}});
+        {
+            return Err(bad("invocation work ledger mismatch"));
+        }
+        let body = json!({"receipt_version":"1.0.0","policy":if composite {"PHYSICS-SOURCE-1"}else{"SOURCE-BLOCKS-1"},"status":if qualified==cases.len(){"qualified"}else if qualified>0{"partial"}else{"unavailable"},"invocation":{"algorithm":"sha256","canonicalization":"openpipestress_jcs_ijson_v1","payload_scope":"source_blocks_invocation_v1","value":capture.digest},"publication_sha256":hash("source_blocks_publication_v1",&publication)?,"cases":wire,"envelope_observation_result_ids":observations,"invocation_work":{"limit":invocation_budget.invocation_limit,"charged":invocation_budget.charged,"publication_charged":invocation_budget.publication_charged}});
         let receipt_sha256 = hash("source_blocks_receipt_v1", &body)?;
         Ok(Self {
             body,

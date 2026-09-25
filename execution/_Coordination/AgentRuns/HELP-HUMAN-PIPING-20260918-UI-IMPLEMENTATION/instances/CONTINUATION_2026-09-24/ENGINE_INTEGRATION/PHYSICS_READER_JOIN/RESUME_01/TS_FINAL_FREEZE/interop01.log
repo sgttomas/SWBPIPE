@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/probe_interop.py", line 17, in <module>
+    schema('results.v0.3.schema.json',document)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/probe_interop.py", line 11, in schema
+    def schema(name,value):validate_instance(read(PROJECT/'schemas'/name),value,instance_label='actual producer through TS consumer')
+                                             ~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/probe_interop.py", line 10, in read
+    def read(path):return json.loads(path.read_text(),parse_int=lambda s:-0.0 if s=='-0' else int(s))
+                                     ~~~~~~~~~~~~~~^^
+  File "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/pathlib/_local.py", line 546, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/pathlib/_local.py", line 537, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/schemas/results.v0.3.schema.json'

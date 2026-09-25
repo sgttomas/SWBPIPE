@@ -1,0 +1,34 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--offline",
+    "--locked",
+    "-j",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-engine-integration-product-target",
+    "--test",
+    "physics_source_runtime",
+    "--",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "source_check_record": "product-check-01.json",
+  "test_sha256": "b951bf46ffc9c5d875b8cfb5ec0c2d997d6e9f26528fa177c0f05ca49aee4ee9",
+  "scope": "First actual both-mode public composite groups; original references unchanged",
+  "exit_code": 101,
+  "source_sha256": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "1f649ad4885a51c9db4c3be211aa78ee409e7fd11119f18eab1704df14132218",
+    "projects/chirality-piping/core/product_physics/src/source_recovery.rs": "5112182dc369a529ea5859c0ac2f1212ec1f649ed2bf150b20e72bbeb91c90ef",
+    "projects/chirality-piping/core/product_physics/src/source_receipt.rs": "e4b3bf5483a48cf5b2d4f78858f38b860f0b34e12345ca07c0be15b927c07249",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/endpoint_maximum.rs": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/source.rs": "cae846c609e9dfd2a650e91b85419d55b6b8b96137834a5ca9fbaf562bebf4ca",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs": "17b4570259da139e406a47229131b4a0a8a7640a5625a161af53f67ebe3e8262",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs": "b85613a87e9473239e0b91baa23e88fbfde7a99a651e12d8bfcfdbc4fdd6e065",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/composite.rs": "8712de9b8995981161bb17db8c209b2a8494e9242840ed7943efbdaa81441f1f"
+  },
+  "change": "Removed actual duplicate physical source rebuild, cached owned identity hash with charged copy, explicit retained section stress operand bindings"
+}

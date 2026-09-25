@@ -1,0 +1,280 @@
+{
+  "actor": "/root/physics_resume",
+  "status": "Actual current selected8M composite captures, no independent/native qualification",
+  "source_binding": "public-04.json",
+  "binary_sha256": "aa60ff3f93598d016b5459e06bf4ad458ce8424b45e2bffda76b0effec1264d1",
+  "build_command": [
+    "cargo",
+    "build",
+    "--manifest-path",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--offline",
+    "--locked",
+    "-j",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-engine-integration-product-target",
+    "--example",
+    "physics_source_connected"
+  ],
+  "runs": [
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "sparse",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/n05.request.json"
+      ],
+      "exit_code": 0,
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05.request.json",
+      "input_sha256": "332319ee6f47870a074a6c16fbf2f43c0171e376a0b4cd1cb7f7ad8b59254b00",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json",
+      "output_sha256": "831bb4a3833b47128a2044eb24bd0540a8a76166fad7446aead7e0b0b848ae6e",
+      "mechanics": "MECHANICS_SOLVED",
+      "semantic_id": "openpipestress.result_semantics/0.3.0/physics-source-1",
+      "case_work": [
+        {
+          "charged": 3059209,
+          "limit": 8000000,
+          "rejected_reservation": {
+            "amount": 0,
+            "kind": "finite"
+          },
+          "reserved_unobserved_failure": 0
+        }
+      ],
+      "invocation_work": {
+        "charged": 3316341,
+        "limit": 64000000,
+        "publication_charged": 257132
+      }
+    },
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "dense",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/n05.request.json"
+      ],
+      "exit_code": 0,
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05.request.json",
+      "input_sha256": "332319ee6f47870a074a6c16fbf2f43c0171e376a0b4cd1cb7f7ad8b59254b00",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/n05-dense_scrutiny.raw.json",
+      "output_sha256": "d7b0380b65113d3850808543c48c98a64e8f7f4b087dfee84c4a6e4f0fde3727",
+      "mechanics": "MECHANICS_SOLVED",
+      "semantic_id": "openpipestress.result_semantics/0.3.0/physics-source-1",
+      "case_work": [
+        {
+          "charged": 3061027,
+          "limit": 8000000,
+          "rejected_reservation": {
+            "amount": 0,
+            "kind": "finite"
+          },
+          "reserved_unobserved_failure": 0
+        }
+      ],
+      "invocation_work": {
+        "charged": 3318555,
+        "limit": 64000000,
+        "publication_charged": 257528
+      }
+    },
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "sparse",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/n06.request.json"
+      ],
+      "exit_code": 0,
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n06.request.json",
+      "input_sha256": "5551f164b9e8ab88f04f3abce810e1e1b1ff47236bba6a296e32905f628be931",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/n06-sparse_interactive.raw.json",
+      "output_sha256": "233c6bf3f99ecf54e6ff80966bcf02d2ffc19c1bc6e647263eb5de08cc31c222",
+      "mechanics": "MECHANICS_SOLVED",
+      "semantic_id": "openpipestress.result_semantics/0.3.0/physics-source-1",
+      "case_work": [
+        {
+          "charged": 2932985,
+          "limit": 8000000,
+          "rejected_reservation": {
+            "amount": 0,
+            "kind": "finite"
+          },
+          "reserved_unobserved_failure": 0
+        }
+      ],
+      "invocation_work": {
+        "charged": 3089593,
+        "limit": 64000000,
+        "publication_charged": 156608
+      }
+    },
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "dense",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/n06.request.json"
+      ],
+      "exit_code": 0,
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n06.request.json",
+      "input_sha256": "5551f164b9e8ab88f04f3abce810e1e1b1ff47236bba6a296e32905f628be931",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/n06-dense_scrutiny.raw.json",
+      "output_sha256": "e2379dd030de824638d26c4488f45050846bf8e814defc683fd97cd1d607f0b8",
+      "mechanics": "MECHANICS_SOLVED",
+      "semantic_id": "openpipestress.result_semantics/0.3.0/physics-source-1",
+      "case_work": [
+        {
+          "charged": 2932985,
+          "limit": 8000000,
+          "rejected_reservation": {
+            "amount": 0,
+            "kind": "finite"
+          },
+          "reserved_unobserved_failure": 0
+        }
+      ],
+      "invocation_work": {
+        "charged": 3089545,
+        "limit": 64000000,
+        "publication_charged": 156560
+      }
+    },
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "sparse",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/mixed.request.json"
+      ],
+      "exit_code": 0,
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed.request.json",
+      "input_sha256": "a623608d33423c9bcf40a6ef5324f11576c52501953c3f0e6d08d24ddcb84abf",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json",
+      "output_sha256": "4134fc480d7c77aa412664e0484e08eb3e0c2f44174bbfd6f42023548c4ff4d1",
+      "mechanics": "MECHANICS_SOLVED",
+      "semantic_id": "openpipestress.result_semantics/0.3.0/physics-source-1",
+      "case_work": [
+        {
+          "charged": 3082859,
+          "limit": 8000000,
+          "rejected_reservation": {
+            "amount": 0,
+            "kind": "finite"
+          },
+          "reserved_unobserved_failure": 0
+        },
+        {
+          "charged": 0,
+          "limit": 0,
+          "rejected_reservation": {
+            "amount": 0,
+            "kind": "finite"
+          },
+          "reserved_unobserved_failure": 0
+        }
+      ],
+      "invocation_work": {
+        "charged": 3583463,
+        "limit": 64000000,
+        "publication_charged": 500604
+      }
+    },
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "dense",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/mixed.request.json"
+      ],
+      "exit_code": 0,
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed.request.json",
+      "input_sha256": "a623608d33423c9bcf40a6ef5324f11576c52501953c3f0e6d08d24ddcb84abf",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed-dense_scrutiny.raw.json",
+      "output_sha256": "a240ba6cc38196a806a4720ffd24ac215f4bafca4e70ed2cb3959ca29e506030",
+      "mechanics": "MECHANICS_SOLVED",
+      "semantic_id": "openpipestress.result_semantics/0.3.0/physics-source-1",
+      "case_work": [
+        {
+          "charged": 3084677,
+          "limit": 8000000,
+          "rejected_reservation": {
+            "amount": 0,
+            "kind": "finite"
+          },
+          "reserved_unobserved_failure": 0
+        },
+        {
+          "charged": 0,
+          "limit": 0,
+          "rejected_reservation": {
+            "amount": 0,
+            "kind": "finite"
+          },
+          "reserved_unobserved_failure": 0
+        }
+      ],
+      "invocation_work": {
+        "charged": 3586573,
+        "limit": 64000000,
+        "publication_charged": 501896
+      }
+    },
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "sparse",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/fields.request.json"
+      ],
+      "exit_code": 0,
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/fields.request.json",
+      "input_sha256": "7f8ff9d5e23712cedd6ca58a86a690517a8e820b9b072962ca43ad60be286002",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/fields-sparse_interactive.raw.json",
+      "output_sha256": "820ed6df0e166b32cc938988d1abf08840e1a3944ba696416460c712a19ce244",
+      "mechanics": "MECHANICS_SOLVED",
+      "semantic_id": "openpipestress.result_semantics/0.3.0/physics-source-1",
+      "case_work": [
+        {
+          "charged": 6791052,
+          "limit": 8000000,
+          "rejected_reservation": {
+            "amount": 0,
+            "kind": "finite"
+          },
+          "reserved_unobserved_failure": 0
+        }
+      ],
+      "invocation_work": {
+        "charged": 7108908,
+        "limit": 64000000,
+        "publication_charged": 317856
+      }
+    },
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "dense",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/fields.request.json"
+      ],
+      "exit_code": 0,
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/fields.request.json",
+      "input_sha256": "7f8ff9d5e23712cedd6ca58a86a690517a8e820b9b072962ca43ad60be286002",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/fields-dense_scrutiny.raw.json",
+      "output_sha256": "bbe505b3b7459931b9f49a708b62a9082748ff269696e0a620f3193620d60be9",
+      "mechanics": "MECHANICS_SOLVED",
+      "semantic_id": "openpipestress.result_semantics/0.3.0/physics-source-1",
+      "case_work": [
+        {
+          "charged": 6792870,
+          "limit": 8000000,
+          "rejected_reservation": {
+            "amount": 0,
+            "kind": "finite"
+          },
+          "reserved_unobserved_failure": 0
+        }
+      ],
+      "invocation_work": {
+        "charged": 7113282,
+        "limit": 64000000,
+        "publication_charged": 320412
+      }
+    }
+  ]
+}

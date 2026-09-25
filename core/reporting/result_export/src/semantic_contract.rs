@@ -34,11 +34,21 @@ pub fn signature_in(table: &'static Value, row: &Value) -> Result<Option<&'stati
     let component = row["metadata"]["component"]
         .as_str()
         .filter(|s| !s.is_empty());
-    let exact = units
+    let variants: Vec<&Value> = units
         .iter()
-        .find(|s| s["component"].is_null() || s["component"].as_str() == component);
-    if let Some(s) = exact {
-        return Ok(Some(s));
+        .copied()
+        .filter(|s| s["component"].is_null() || s["component"].as_str() == component)
+        .collect();
+    if !variants.is_empty() {
+        // Only a table that declares source_basis adds this discriminator.
+        // Existing method tables and their historical matching stay unchanged.
+        return variants
+            .into_iter()
+            .find(|s| {
+                s.get("source_basis").is_none() || s["source_basis"] == row["metadata"]["basis"]
+            })
+            .map(Some)
+            .ok_or_else(|| format!("SOURCE_BASIS_CONTRADICTION: {kind}"));
     }
     if component.is_some() {
         return Err(format!("SOURCE_COMPONENT_CONTRADICTION: {kind}"));
@@ -79,6 +89,7 @@ pub fn canonical_metadata_in(table: &Value, row: &Value) -> Option<Value> {
 }
 
 /// Dispatch is source-bound; reserved successor IDs never select the precision table.
+pub const PHYSICS_SOURCE_ID: &str = "openpipestress.result_semantics/0.3.0/physics-source-1";
 pub const PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
 pub const PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
 pub fn precision_contract() -> &'static Value {
@@ -97,6 +108,15 @@ pub fn physics_contract() -> &'static Value {
             "../../../../fixtures/results/semantic_contract_v0_3_physics_1.json"
         ))
         .expect("pinned physics semantic contract")
+    })
+}
+pub fn physics_source_contract() -> &'static Value {
+    static CONTRACT: OnceLock<Value> = OnceLock::new();
+    CONTRACT.get_or_init(|| {
+        serde_json::from_str(include_str!(
+            "../../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json"
+        ))
+        .expect("pinned composite physical/source semantic contract")
     })
 }
 /// Header dispatch only; canonical envelopes have no raw rows. This does not
@@ -131,12 +151,18 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 || p["component_version"] != "0.2.0"
                 || !matches!(
                     p["semantic_contract_id"].as_str(),
-                    Some(PRECISION_ID | PHYSICS_ID | crate::source_blocks::CONTRACT_ID)
+                    Some(
+                        PRECISION_ID
+                            | PHYSICS_ID
+                            | PHYSICS_SOURCE_ID
+                            | crate::source_blocks::CONTRACT_ID
+                    )
                 )
             {
                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
             }
             if p["semantic_contract_id"] != crate::source_blocks::CONTRACT_ID
+                && p["semantic_contract_id"] != PHYSICS_SOURCE_ID
                 && source.get("source_block_recovery").is_some()
             {
                 return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
@@ -204,7 +230,10 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 }
             }
             let f = &source["formulation_basis"];
-            let profile = if p["semantic_contract_id"] == PHYSICS_ID {
+            let profile = if matches!(
+                p["semantic_contract_id"].as_str(),
+                Some(PHYSICS_ID | PHYSICS_SOURCE_ID)
+            ) {
                 "exact_straight_pressure_v2"
             } else {
                 "product_preview_mechanics_v1"
@@ -221,6 +250,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
             // raw evidence and source-block invocation checks are separate APIs.
             let table = match p["semantic_contract_id"].as_str() {
                 Some(PHYSICS_ID) => physics_contract(),
+                Some(PHYSICS_SOURCE_ID) => physics_source_contract(),
                 Some(crate::source_blocks::CONTRACT_ID) => source_blocks_contract(),
                 Some(PRECISION_ID) => precision_contract(),
                 _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
@@ -236,6 +266,9 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
     let selected = for_source_metadata(source)?;
     match source["producer"]["semantic_contract_id"].as_str() {
         Some(PHYSICS_ID) => validate_physics_evidence(source)?,
+        Some(PHYSICS_SOURCE_ID) => {
+            crate::physics_source::validate(source, None)?;
+        }
         Some(crate::source_blocks::CONTRACT_ID) => {
             // Shape/publication validation does not supply an actual invocation
             // or recreate the producer's private arithmetic receipt.
@@ -254,7 +287,7 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
     }
     Ok(selected)
 }
-pub use crate::physics_evidence::validate_physics_evidence;
+pub use crate::physics_evidence::{validate_physics_evidence, validate_transport_metadata as validate_physics_transport_metadata};
 
 fn quality_status(value: &Value) -> bool {
     matches!(
@@ -281,7 +314,10 @@ pub fn numerical_use_standing_with_context(
     if version != "0.3.0" || requested_basis_refs.is_empty() {
         return "needs_recompute";
     }
-    if source["producer"]["semantic_contract_id"] == crate::source_blocks::CONTRACT_ID {
+    if matches!(
+        source["producer"]["semantic_contract_id"].as_str(),
+        Some(crate::source_blocks::CONTRACT_ID | PHYSICS_SOURCE_ID)
+    ) {
         let expected = source["source_block_recovery"]["body"]["cases"]
             .as_array()
             .unwrap()
@@ -291,7 +327,12 @@ pub fn numerical_use_standing_with_context(
         if expected != requested_basis_refs {
             return "needs_recompute";
         }
-        return match crate::source_blocks::validate(source, actual_invocation) {
+        let standing = if source["producer"]["semantic_contract_id"] == PHYSICS_SOURCE_ID {
+            crate::physics_source::validate(source, actual_invocation)
+        } else {
+            crate::source_blocks::validate(source, actual_invocation)
+        };
+        return match standing {
             Ok(true) => "numerically_eligible",
             Ok(false) => "needs_recompute",
             Err(_) => "unsupported",

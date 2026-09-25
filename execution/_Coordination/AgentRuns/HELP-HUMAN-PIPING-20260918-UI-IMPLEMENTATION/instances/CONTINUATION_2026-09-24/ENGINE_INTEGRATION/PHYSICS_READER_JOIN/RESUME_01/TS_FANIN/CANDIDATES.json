@@ -1,0 +1,192 @@
+{
+  "base": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "original21_commit": "ed688b13f633ce8aa6aeede784c3562511c20966",
+  "repair8_commit": "2841ddfd9011c2585a7db271ce39b3d7a40b50a1",
+  "status": "temporary candidates only; no joined TS writes yet",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "current_sha256": "566f9d9a37b009f0d40bcabb99a92069aa026e40ffb025ba789dd69173d4d73a",
+      "reviewed_sha256": "a363ba290d5ee074e3509a52cf55cde407fc16516a2cb0905214ceaa59196c5f",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__App.test.tsx",
+      "merge": "clean",
+      "conflicts": 0
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "current_sha256": "fd23115f857667048d7fa546b482e27bed864710fdda4f4a49ef512336c56363",
+      "reviewed_sha256": "579a1f3cc21c8d9c95069a828390aa4ff65521960ab760344d4df6973d763377",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__App.tsx",
+      "merge": "clean",
+      "conflicts": 0
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "current_sha256": "ec2abbffeb468615592f5a28d4de01a61759847b5538a78b24b693612445b08a",
+      "reviewed_sha256": "fd5e3a8eda947e3516f8d495c54dee8c030f56cc7eb8cdb4490dfb5107786c65",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__comparison__ComparisonPanel.tsx",
+      "merge": "clean",
+      "conflicts": 0
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "current_sha256": "045632fe3a93aaae03be4393af38a1d1523e5f5152f703f3df9cf8109baff300",
+      "reviewed_sha256": "7727af07e093fd0bb05e24fddca2e55a6b5a08f9aa4621b30890fad001eaf44e",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__report__reportPackageRequest.test.ts",
+      "merge": "conflict",
+      "conflicts": 6
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "current_sha256": "175d0dcb53a5be45a098ab97b37dfdb98c82bd6f39e456e980f40e5feffccf46",
+      "reviewed_sha256": "cc2b65d2f63eb92e0530a8297a926b190b307b5d794691ca04e5665e71e06db0",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__report__reportPackageRequest.ts",
+      "merge": "conflict",
+      "conflicts": 1
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "current_sha256": "d870f80a965b653c286732373b7dc0d3d9b2adf2d2d06e38ffd3bfd5e1b821d7",
+      "reviewed_sha256": "a90d9090563f79ea1c01cc9e9fb50afe7999e3d4a7a0e1034d9d491df7cd9535",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__result-export__resultExportAdapter.test.ts",
+      "merge": "conflict",
+      "conflicts": 9
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "current_sha256": "86fdbcd5b4e9641acd8aca2c32aee63a7cc5cf74b7e0e1067284b399623a6a5c",
+      "reviewed_sha256": "6f2c1c8eb07b0e32774f30fe0259965dc54f997c7625dfda68e7310abb0e092d",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__result-export__resultExportAdapter.ts",
+      "merge": "conflict",
+      "conflicts": 6
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "current_sha256": "47b7e0f617d6d4e3b2f97d7b82d3caeed55c64de8689882c504222cc13d2fde9",
+      "reviewed_sha256": "f9b337df8e23347492e2ca4e60c76b719b3a63e2215ba80aadec74a9d03486e4",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__results__ResultsPanel.tsx",
+      "merge": "clean",
+      "conflicts": 0
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "current_sha256": "3794d4c472ca3c688f4ccea9d02e89f3d2963eb91949f43b4bbef0c6ac5ca557",
+      "reviewed_sha256": "4b90c7f0e36b2d710a19cd33736db5af87d72a8db0d232c498cbfafb7b5298bf",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__results__numericalResultQuality.ts",
+      "merge": "conflict",
+      "conflicts": 5
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "current_sha256": "afa90f3ba207de0cd4a571ec4223af35820ed363e8c4426f45509aeacb17c85c",
+      "reviewed_sha256": "8241d1863cc284a1de47ab514f6f6c6f2051b3b7c139ac7c752b59772b55522e",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__results__resultSemantics.ts",
+      "merge": "conflict",
+      "conflicts": 1
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.test.ts",
+      "current_sha256": null,
+      "reviewed_sha256": "ac338acbf79df3375bf2c2f81182e0b6d43d0f5f0c07de58a5d8904a135bbafd",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__results__sourceBlockRecovery.test.ts",
+      "merge": "new",
+      "conflicts": 0
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.ts",
+      "current_sha256": null,
+      "reviewed_sha256": "c22bc4b2d573686988d5c8f1eed9c5b9a1e9b8810764b986f99196bbcb36617f",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__results__sourceBlockRecovery.ts",
+      "merge": "new",
+      "conflicts": 0
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "current_sha256": "ec2105cd58bb7a390b73908a36e1799d02e4316092ffb8ab523526b0dfd00bf0",
+      "reviewed_sha256": "8c89254241a99b774883c3378bc34adfba0719c6243da95793854222b203a16e",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__stress-neutral__StressNeutralExportPanel.test.tsx",
+      "merge": "conflict",
+      "conflicts": 6
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "current_sha256": "822ccf6d30fbe1d0e26309da79fbddd23cc6c1aaeee9b6b644f4452e37c24416",
+      "reviewed_sha256": "bd04405c055c7d82e6fa67291e4c398919ff09d39f9dc9b1b6d4944b88837171",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__stress-neutral__StressNeutralExportPanel.tsx",
+      "merge": "conflict",
+      "conflicts": 6
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.test.ts",
+      "current_sha256": "8dde878d8ae7b6e71c734a4812d61cdbd1e65c5ab43883602145704e77808a6e",
+      "reviewed_sha256": "620030747b15cecfafa99184f65e2f7fe4409b272b65499e384a0956b9c52d72",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__workspace__resultsSessionState.test.ts",
+      "merge": "conflict",
+      "conflicts": 4
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "current_sha256": "999fc8a739cf74736e3d79213f248d5004f7d62a9d0c9272e386dcff3f95ec11",
+      "reviewed_sha256": "17b0b321f86ec656b44707b808cc87e486fcc9a33e0a7d27dbb6b69175115dff",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__workspace__resultsSessionState.ts",
+      "merge": "conflict",
+      "conflicts": 4
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "current_sha256": "bf31e1adedcc374b2e55ec3b15bcf3d57224bd8ac85e0d1351511dda3f7536a5",
+      "reviewed_sha256": "825425f95fddb613f23e57eee33f437861c2ae5e686175f9e9bda85215279798",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__features__workspace__workspaceSession.ts",
+      "merge": "conflict",
+      "conflicts": 4
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "current_sha256": "0dc01b84279b1e89c007b73fb3961e1cf16c9faf3baeef51669fc7485fa92618",
+      "reviewed_sha256": "46b1b4bae3b5f8a7bd821517c06cce70ed662cd58c7572b03280b54986cd7f73",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__services__analysisRunCompatibility.ts",
+      "merge": "conflict",
+      "conflicts": 7
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "current_sha256": "812126400e0bdd26647cdadefa6d8e951c1a8a4824aca4a4cf53be16149da9bc",
+      "reviewed_sha256": "106e1b65fa560aef314018e1a994f9f5fd874ef4a1b0b12691a80234fe426928",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__services__previewService.test.ts",
+      "merge": "conflict",
+      "conflicts": 7
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "current_sha256": "2cb222ed4e4770388477890034b8c19e4dafa1a6c94b15696ab2b9c38fcaf485",
+      "reviewed_sha256": "82940ae3a37d241d9bb6d6ad4e959d7d10dcd09cb7e06a6001313bff079f97fd",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__services__previewService.ts",
+      "merge": "conflict",
+      "conflicts": 3
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.test.ts",
+      "current_sha256": "d1d1820d91544dec094da516a4a2de49ac4641b8769268191c6e79bb630212ab",
+      "reviewed_sha256": "e3632db248c3445661aa5c2788ea6384419fd34d3e29ab25902dc3ecc3faba3e",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__services__ruleCheckService.test.ts",
+      "merge": "conflict",
+      "conflicts": 2
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+      "current_sha256": "3ac173a0b5e39d8a480def325a17e1aaedb7a608586a27a2cfde1f3c39a18a07",
+      "reviewed_sha256": "e587b9fbc31db00ecc5dde22318fe181ce972740b85d4a2ce7019589c1cf0da1",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__services__ruleCheckService.ts",
+      "merge": "clean",
+      "conflicts": 0
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "current_sha256": "333a5cd0231bd2869823574a555153367b10e11c310bcd229b12043eec97e065",
+      "reviewed_sha256": "c48a1256263c5d58c98af57cf0d309ea51226ea1659b59a99d1bb0c6b9eb2820",
+      "candidate_file": "/private/tmp/piping-ts-fanin-candidates/projects__chirality-piping__apps__desktop__src__types.ts",
+      "merge": "conflict",
+      "conflicts": 1
+    }
+  ]
+}

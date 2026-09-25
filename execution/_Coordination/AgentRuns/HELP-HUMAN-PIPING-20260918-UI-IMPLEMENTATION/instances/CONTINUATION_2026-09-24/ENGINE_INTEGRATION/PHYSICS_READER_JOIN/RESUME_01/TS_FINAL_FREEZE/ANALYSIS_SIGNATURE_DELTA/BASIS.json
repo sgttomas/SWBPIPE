@@ -1,0 +1,18 @@
+{
+  "finding": "Independent44review source_basis discriminator omitted fromanalysis row signature; self-validation repeatedsamefirstmatch",
+  "original_analysis_sha256": "cff00d208e29ba743d7d71ace04758fcca79f4ed282bc994f2f01e56816bc60f",
+  "paths": [
+    {
+      "path": "apps/desktop/src/services/analysisRunCompatibility.ts",
+      "before_sha256": "76b434f9bd0789f9182db3c29694f0db2259cfa51ca0252891cf2acaf3e9b8a9"
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultSemantics.ts",
+      "before_sha256": "f0140a53e0d8a9b60eb75f7b1a94421be757596b9269b598ee789e037a5474af"
+    },
+    {
+      "path": "apps/desktop/src/features/results/physicsSourceIntegration.test.tsx",
+      "before_sha256": "0e404f4c482f5316031c634016766e52416d787fa85e4fc5e37e1564a15d4608"
+    }
+  ]
+}

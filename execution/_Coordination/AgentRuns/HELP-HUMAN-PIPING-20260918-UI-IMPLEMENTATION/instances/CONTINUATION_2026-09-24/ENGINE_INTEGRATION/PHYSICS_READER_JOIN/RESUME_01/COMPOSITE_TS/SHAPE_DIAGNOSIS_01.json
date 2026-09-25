@@ -1,0 +1,131 @@
+{
+  "role": "TASK",
+  "actor": "/root/physics_resume/physics_reader_join/physics_ts_readers",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "authorized_scope": "Narrow schema-interpreter repair and own focused tests, no schema/table/core or Current registration changes",
+  "skill": {
+    "origin": "/Users/ryan/.codex/worktrees/6614/chirality/.agents/skills/software-defect-diagnosis/SKILL.md",
+    "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+  },
+  "observed_failure": {
+    "origin": "/private/tmp/piping-resume-ts-core-01.log",
+    "sha256": "b680837a639c72394124e1039a81591e03ac7b3436e8a63eb2aa3ccafee0a221",
+    "result": "Parent runtime composite suite30/69failed common PHYSICS_SOURCE_PHYSICAL_SHAPE; old source and physics parity passed; separate display and fsURL failures parent-owned."
+  },
+  "deterministic_reproduction": "Extract actual maintained shape function through TypeScript createSourceFile/transpileModule; execute that pure function in Node VM over unchanged JSON captures, no imports/WASM/registration. Before: actual physicalfalse; connector[]constfalse; reordered objectconstfalse; string unionnumber/null wronglytrue; itemswithouttype wronglytrue.",
+  "causal_chain": [
+    "Schema contract_evidence.connector is const[]. Actual separately parsed array fails JavaScript value!==rule.const reference identity comparison. All genuine composite physical shapes reject before deeper validation.",
+    "The same identity defect affects geometryguard objects and dof-order/unit arrays.",
+    "Adjacent unsupported schema forms also found: union type arrays skip value type check, and items without explicit type skip method-specific element checks. These are closed schema semantics, not producer data or numeric limit problems."
+  ],
+  "repair": "Structural JSON const/enum comparison with object-key-order independence and numeric0=-0 only within schema semantics; explicit type-union dispatch; array keywords applied whenever instance is array, even without type. Keeps depth40 and array16384 default bound. Bit-sensitive sameModelData/signed-zero custody and checked hashing remain untouched.",
+  "probe_after": {
+    "actual_pairs": [
+      {
+        "file": "fixtures/product_preview/physics_source/fields-dense_scrutiny.raw.json",
+        "sha256": "bbe505b3b7459931b9f49a708b62a9082748ff269696e0a620f3193620d60be9",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/fields-sparse_interactive.raw.json",
+        "sha256": "820ed6df0e166b32cc938988d1abf08840e1a3944ba696416460c712a19ce244",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/mixed-dense_scrutiny.raw.json",
+        "sha256": "a240ba6cc38196a806a4720ffd24ac215f4bafca4e70ed2cb3959ca29e506030",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json",
+        "sha256": "4134fc480d7c77aa412664e0484e08eb3e0c2f44174bbfd6f42023548c4ff4d1",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/mixed_units-dense_scrutiny.raw.json",
+        "sha256": "c0481764c0f5057dda96cf78529b0df0788f301dd8b1497501ae4bff0d7e1706",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/mixed_units-sparse_interactive.raw.json",
+        "sha256": "0fc195a0e5ca8ded8c0393bded4329d63bc31e6776a3175a70bde9928adbdfb9",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/n05-dense_scrutiny.raw.json",
+        "sha256": "d7b0380b65113d3850808543c48c98a64e8f7f4b087dfee84c4a6e4f0fde3727",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json",
+        "sha256": "831bb4a3833b47128a2044eb24bd0540a8a76166fad7446aead7e0b0b848ae6e",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/n05_unicode-dense_scrutiny.raw.json",
+        "sha256": "8bb7f19dbac1444ac352a1ad793ee893a2f7bb41f32ff20b92f005ef5608cd43",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/n05_unicode-sparse_interactive.raw.json",
+        "sha256": "468e2ce76a179b1419fc501fe6d38b7bca80adf21d0ee94fd65b85ead1a1c9a5",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/n05_units-dense_scrutiny.raw.json",
+        "sha256": "02d761ab7e64cf3d41a2336a1049a5b20093aa94951ccc0a4739f1250ec32642",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/n05_units-sparse_interactive.raw.json",
+        "sha256": "2b6849285aea5074224bbcd505ad5db8f4208268c72cd97911843ff9af47cefe",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/n06-dense_scrutiny.raw.json",
+        "sha256": "e2379dd030de824638d26c4488f45050846bf8e814defc683fd97cd1d607f0b8",
+        "receipt_shape": true,
+        "physical_shape": true
+      },
+      {
+        "file": "fixtures/product_preview/physics_source/n06-sparse_interactive.raw.json",
+        "sha256": "233c6bf3f99ecf54e6ff80966bcf02d2ffc19c1bc6e647263eb5de08cc31c222",
+        "receipt_shape": true,
+        "physical_shape": true
+      }
+    ],
+    "empty_array_const": true,
+    "reordered_object_const": true,
+    "nullable_string_acceptance": false,
+    "untyped_mismatched_items_acceptance": false
+  },
+  "regressions": "All14actualphysicalshape positives; reorder objectconst positive/extrafield negative; oldphysical+oldsource control; nullable number/null/+0/-0 schema positives, string/boolean negatives; connector/doforder/untypedmethoditems negatives. These are shape checks only, never qualification.",
+  "source_snapshot": [
+    {
+      "path": "apps/desktop/src/features/results/sourceBlockRecovery.ts",
+      "sha256": "9746a7ac616c0af1b4a9c48067305c9e28c33e0e55e894d9959059c0b3c51fb1"
+    },
+    {
+      "path": "apps/desktop/src/features/results/physicsSourceRecovery.test.ts",
+      "sha256": "7ef8d5ffbc46315bab980799722fd16be8f7ad9f90f8725599e4cf2b3ff5da6f"
+    }
+  ],
+  "checks": [
+    "Two files parse0diagnostics",
+    "Scoped gitdiffcheck exit0",
+    "No Vitest/tsc/Cargo/npm by child; parent queued affected5suite rerun"
+  ],
+  "remaining": "Full runtime aftershape gate repair may reveal deeper failures; no fullgreenclaim. Parent owns unrelated display/URL repairs."
+}

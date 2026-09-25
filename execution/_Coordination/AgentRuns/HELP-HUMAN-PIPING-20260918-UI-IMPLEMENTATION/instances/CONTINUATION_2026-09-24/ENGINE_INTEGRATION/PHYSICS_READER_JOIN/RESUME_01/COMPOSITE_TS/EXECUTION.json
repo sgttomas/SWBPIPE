@@ -1,0 +1,175 @@
+{
+  "actor": "/root/physics_resume/physics_reader_join/physics_ts_readers",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native follow-up; no delegation",
+  "write_scope": [
+    "apps/desktop/src/features/results/physicsSourceRecovery.ts",
+    "apps/desktop/src/features/results/physicsSourceRecovery.test.ts",
+    "apps/desktop/src/features/results/sourceBlockRecovery.ts",
+    "apps/desktop/src/features/results/physicsResultEvidence.ts"
+  ],
+  "context": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_TS_BRIEF.md",
+      "sha256": "b3a16d4827a121e2918ebfba8e1ba5cc58b6d89ae7d5238555ffd11220f70f51"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/schemas/source_block_recovery.schema.json",
+      "sha256": "544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/schemas/physics_source_recovery.schema.json",
+      "sha256": "3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "a527f083dabc9e64ab7103e16c51103e85b6a67f5cef1427d1e8e908d7f5cc9f"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/analysis_runs/physics_source.py",
+      "sha256": "6128a9d12a2e412b0e89a07215376dab9a8693c82fc56d68d01573cf37fbaabd"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/analysis_runs/source_blocks.py",
+      "sha256": "0007f9049cb50e2dc2f09e9dfa1a377d8fa7c9ab092cc8aaf6a1151cca4c25fa"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/analysis_runs/physics_evidence.py",
+      "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "sha256": "b276da57919af432eb866a180d53900a91bbdaa8776eac8b10d33dacea0ee104"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_source_1.json",
+      "sha256": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_CAPTURE_02.json",
+      "sha256": "2cb56609a0a744421b841779e27fb2baacf1bb921346ccd48ce4649eb5bd07b8"
+    }
+  ],
+  "actual_capture_pairs": [
+    {
+      "path": "fixtures/product_preview/physics_source/n05.request.json",
+      "sha256": "332319ee6f47870a074a6c16fbf2f43c0171e376a0b4cd1cb7f7ad8b59254b00"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json",
+      "sha256": "831bb4a3833b47128a2044eb24bd0540a8a76166fad7446aead7e0b0b848ae6e"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n05-dense_scrutiny.raw.json",
+      "sha256": "d7b0380b65113d3850808543c48c98a64e8f7f4b087dfee84c4a6e4f0fde3727"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n06.request.json",
+      "sha256": "5551f164b9e8ab88f04f3abce810e1e1b1ff47236bba6a296e32905f628be931"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n06-sparse_interactive.raw.json",
+      "sha256": "233c6bf3f99ecf54e6ff80966bcf02d2ffc19c1bc6e647263eb5de08cc31c222"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n06-dense_scrutiny.raw.json",
+      "sha256": "e2379dd030de824638d26c4488f45050846bf8e814defc683fd97cd1d607f0b8"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/fields.request.json",
+      "sha256": "7f8ff9d5e23712cedd6ca58a86a690517a8e820b9b072962ca43ad60be286002"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/fields-sparse_interactive.raw.json",
+      "sha256": "820ed6df0e166b32cc938988d1abf08840e1a3944ba696416460c712a19ce244"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/fields-dense_scrutiny.raw.json",
+      "sha256": "bbe505b3b7459931b9f49a708b62a9082748ff269696e0a620f3193620d60be9"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/mixed.request.json",
+      "sha256": "a623608d33423c9bcf40a6ef5324f11576c52501953c3f0e6d08d24ddcb84abf"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json",
+      "sha256": "4134fc480d7c77aa412664e0484e08eb3e0c2f44174bbfd6f42023548c4ff4d1"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/mixed-dense_scrutiny.raw.json",
+      "sha256": "a240ba6cc38196a806a4720ffd24ac215f4bafca4e70ed2cb3959ca29e506030"
+    }
+  ],
+  "source_snapshot": [
+    {
+      "path": "apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "sha256": "35b6e817767464d745beefdc32e97aeaf188de9f22bc096428499791b16d52aa"
+    },
+    {
+      "path": "apps/desktop/src/features/results/physicsSourceRecovery.test.ts",
+      "sha256": "1752b5e54edb17653ce5b6d3e5eef9d4d2bf1c4b1d1c92fdb7edd83f4a2a8ea4"
+    },
+    {
+      "path": "apps/desktop/src/features/results/sourceBlockRecovery.ts",
+      "sha256": "1286ffe43c380ea104a81af46a0d7762b2f9bfeb0eb75a6db640e890a4f82bd9"
+    },
+    {
+      "path": "apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "sha256": "54623e85225ced06a9b3e134538f70d8e8790813345680b2ce3f17afd40d8be1"
+    }
+  ],
+  "api": [
+    "physicsSourceReceiptShape(value): boolean",
+    "validatePhysicsSourceRecovery(source, actualInvocation, callerModel?): Promise<SourceRecoveryValidation>",
+    "physicsSourceStanding(source, fullModel): SourceRecoveryValidation",
+    "retainedPhysicsSourceInvocation(source, fullModel): SourceBlockInvocation|null",
+    "physicsSourceModeMatches(source, fullModel, mode): boolean",
+    "validatePhysicsSourceTransportMetadata(source: Pick<MechanicsResult, producer|contract_evidence|source_block_recovery>): Promise<void>",
+    "validateSourceBlockTransportMetadata(source: Pick<MechanicsResult, producer|source_block_recovery>): Promise<void>",
+    "validatePhysicsTransportMetadata(contractEvidence: unknown): void"
+  ],
+  "design": [
+    "Single existing private receipt registry factored through fixed old/composite wrappers; no arbitrary caller context, native origin registrar, passed credential or source/header reconstruction.",
+    "Old source4M/old physics namespace guard preserved; new exact ID/table/PHYSICS-SOURCE-1 schema8M only.",
+    "Full unchanged source plus complete captured invocation, optional observed caller normalization, and signed-zero positions bound through validation and later query.",
+    "Closed metadata-only portable checks never register eligibility.",
+    "Composite section functionals, source identity, case hashes, model/material/geometry, endpoints/max/locations, support6parts/norm bounds and20stress rows/member bound with ordered binary64 recipes. These are consistency checks, not hidden exact replay or engineering qualification."
+  ],
+  "validation": [
+    {
+      "command": "Node TypeScript createSourceFile parseDiagnostics on4owned files",
+      "result": "0 parse diagnostics each; syntax only, not typecheck"
+    },
+    {
+      "command": "git diff --check --4owned paths",
+      "result": "exit0; sourceBlockRecovery and newfiles are untracked imported/new work so ordinary diff coverage does not imply a commit boundary"
+    },
+    {
+      "command": "Light read-only fixture inventory",
+      "result": "actual8capture files present8M; n05source has no negativezero rawrow, test uses +0\u2192-0 mutation; mixed carries negativezero rows"
+    }
+  ],
+  "pending": [
+    "No npm/tsc/Vitest/Cargo/native/browser commands run; ROOT sweep holds heavy lane.",
+    "Parent run focused physicsSourceRecovery.test.ts plus old sourceBlockRecovery.test.ts and physicsResultEvidence.parity.test.ts, then affected integration suites/typecheck after lane.",
+    "Parent owns all native/current lifecycle hooks, row annotations, export/history/stress packet adapters/types. No UI qualification asserted."
+  ],
+  "basis_limit": "Manager transferred sourceBlockRecovery as reviewed2841+FE02 import. Before-edit hash not retained by this child; current exact4path hashes recorded. Existing sourceBlockRecovery.test.ts unchanged."
+}

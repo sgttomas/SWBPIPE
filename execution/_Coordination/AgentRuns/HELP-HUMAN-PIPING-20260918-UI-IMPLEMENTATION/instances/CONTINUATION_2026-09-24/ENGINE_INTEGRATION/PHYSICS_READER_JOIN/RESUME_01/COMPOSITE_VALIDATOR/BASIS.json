@@ -1,0 +1,82 @@
+{
+  "agent": "/root/physics_resume/physics_reader_join/reference_browser_tests",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "mechanism": "delegated-harness-native continuation",
+  "role": "TASK Type2; no children",
+  "read_at": "2026-09-25T08:20:08.338679+00:00",
+  "git_head": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_JOIN_PLAN.md",
+      "sha256": "2481106bc6512c520416c532a6202d3151118b2609cf902c4bdf06463273cef8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/BRIEF.md",
+      "sha256": "094a70b3fb28c746a80d6873ad18a93381dea6d136b8d19cd863f31cf0bf82df"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/EXECUTION_BASIS.json",
+      "sha256": "61df378fbb8193690082aa5ff895300a2c6f3b0ed2f644233199436c76987932"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_VALIDATOR_BRIEF.md",
+      "sha256": "445e5364595e0ee342d732a9d69cb7790bd183cf41f49907460e968479261580"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_evidence.py",
+      "sha256": "984463c11fd2e71c6698021b7e910a645b7094a98bf7126c0831fc1c2d66ce2b"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/source_blocks.py",
+      "sha256": "87b3953fdcfe484e48530b522c8117a0ea72f0fca5aac524d2cdd79b62af2978"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "680b643c8b19956750f39b1f83ac2aa5d0e6c68a80fa5c2aa933d1637cf10168"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs",
+      "sha256": "1328a29f1871e81da7125efa0cab9c2fd5046762369c5f1b9310fbb35ec2adbf"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs",
+      "sha256": "29c1fa01117200240bf7eedf4a7e6409328317c6eb5f31721cff9391f3cbcddd"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "66bb93c7dbdcbabb8c939dd51174a03b1030e470034a9dcffb83038d34cb5daa"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_source_blocks_1.json",
+      "sha256": "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_source_1.json",
+      "sha256": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
+    }
+  ]
+}

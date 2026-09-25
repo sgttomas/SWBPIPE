@@ -1,0 +1,29 @@
+{
+  "actor": "/root/physics_resume/joined_producer_review",
+  "parent": "/root/physics_resume",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native",
+  "instruction_origins": {
+    "/private/tmp/piping-engine-integration-20260925/AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+    "/private/tmp/piping-engine-integration-20260925/.agents/skills/software-code-review/SKILL.md": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+  },
+  "evidence_origins": {
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_SOURCE_REVIEW/BRIEF.md": "90563e16eb2f743429caea42ba73d35a56221baa2557596fd3522503b069324a",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_SOURCE_REVIEW/MANIFEST.json": "1be7fd0715ed948c3c5bb1a85615fc02a5b042507100cd5715a701a75d738aa6",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_SOURCE_REVIEW/CANDIDATE.patch": "cc1b6bbdd9aa5f1a0cd687e5cafd206cc58367f62d108361ac6b337904a77a23",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REVIEW.md": "7842d52513b4d9c784ee36edc3b72c24d3bf79192ece2f60db8537920f4451d0",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REPAIR_BACKCHECK.json": "ffcfd55a2f86a6c30a52fdce41a68d779a8726b3b269ae3c2459d3f369b4ec70",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/RETURN.md": "a4da70f6097b3d8a62d807b3ea738aa4c975cfb2ad5d820441bbb857ed1ad923"
+  },
+  "actual_execution": "Static/read-only source, patch and TOML/fixture Python checks only. No build/native/UI or Git write.",
+  "verification_command": [
+    "/Users/ryan/.local/share/mise/installs/python/3.13.14/bin/python3",
+    "verify_native_binding.py"
+  ],
+  "python_version": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "earlier_probe_failure": "python3 used Python3.9 without tomllib; import error only, no product execution",
+  "completed_utc": "2026-09-25T09:51:13.903985+00:00"
+}

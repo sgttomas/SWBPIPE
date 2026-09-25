@@ -319,6 +319,8 @@ export type NumericalQuality = {
 };
 export type MechanicsResult = {
   contract_evidence?: Record<string, unknown>;
+  /** Preserved producer receipt; eligibility requires independently captured invocation. */
+  source_block_recovery?: unknown;
   producer?: { component_name: string; component_version: string; semantic_contract_id: string };
   numerical_quality?: NumericalQuality;
   formulation_basis?: { profile_id: string; limitations: string[] };
@@ -470,6 +472,9 @@ export type AnalysisRunEnvelope = {
   objectives: string[];
   run_contract_status: Record<string, string>;
   analysis_run: {
+    /** Retained method evidence, never a live invocation credential. */
+    source_block_recovery?: unknown;
+    contract_evidence?: Record<string, unknown>;
     run_id: string;
     run_name: string;
     run_kind: string;

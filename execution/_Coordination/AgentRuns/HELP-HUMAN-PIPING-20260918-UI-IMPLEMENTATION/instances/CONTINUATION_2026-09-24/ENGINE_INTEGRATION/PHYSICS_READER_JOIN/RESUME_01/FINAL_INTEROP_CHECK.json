@@ -1,0 +1,31 @@
+{
+  "scope": "Actualproducer source captures through boundedTSIPCsimulation/analysis/canonical/stress then Python strictschema andall9memberwrite/reopen; no nativeUI witness",
+  "exit_code": 0,
+  "ts_actual_pairs": 14,
+  "materialized_member_count": 126,
+  "ts_schema_checks": 42,
+  "actual_headless_canonical_schemas": 8,
+  "sidecars": "Everyactualsource result.value IEEE754 sidecar equals original, including negativezero",
+  "log_sha256": "4e966ede1699c08e1b8da195504946378db7af0460855f1b23bd62b23bee5903",
+  "result_manifest_sha256": "6a3280855c114f11acc9b2057d99f9f54864ce88012bcead4fc70ed9a253344c",
+  "source_manifest_sha256": "6abcb12b90de0438b07461f11d8e7a0c24a893a8f0a098fc58712a9d00c52fc2",
+  "all60_current_hash_drift": [],
+  "command": "env OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson OPENPIPESTRESS_UNITS_BIN=/private/tmp/piping-units-authority-target/debug/openpipestress_units /private/tmp/chirality-piping-review-venv/bin/python /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/probe_interop.py",
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "executables": [
+    {
+      "path": "/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson",
+      "sha256": "bc1343ef45704c0ec65c1c7ac244c50e349af49de3a9b850dc11578bb2fc6c54"
+    },
+    {
+      "path": "/private/tmp/piping-units-authority-target/debug/openpipestress_units",
+      "sha256": "fe28924fb3c0ba61e8789b65771c512da890ab4950406042cdb2c8bff55de464"
+    }
+  ],
+  "prior_failures": [
+    "01 probe used wrongschemafilenameextension; correctedharness only",
+    "02 actualSupporttyped-reference mismatch; TS2pathsource repair",
+    "03 actualdiagnosticratio semanticwitness mismatch; Python2pathsource repair"
+  ],
+  "limits": "Python witnessrepair independentbackcheck and finalfrontendreview remainpending; thisisfunctionalinterop nottheirreviewclearance."
+}

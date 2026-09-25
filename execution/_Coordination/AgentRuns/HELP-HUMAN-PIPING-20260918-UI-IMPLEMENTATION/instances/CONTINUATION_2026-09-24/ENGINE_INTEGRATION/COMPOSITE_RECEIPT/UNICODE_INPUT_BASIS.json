@@ -1,0 +1,14 @@
+{
+  "purpose": "Actual identity regression, physical inputs and original references unchanged",
+  "source": "projects/chirality-piping/fixtures/product_preview/physics_source/n05.request.json",
+  "source_sha256": "332319ee6f47870a074a6c16fbf2f43c0171e376a0b4cd1cb7f7ad8b59254b00",
+  "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_unicode.request.json",
+  "input_sha256": "494310fccac2ff287f7da79614e243d25cb889997adf7fa6b6ff2fc39ec177e9",
+  "identity_mapping": {
+    "case": "case:温度:α",
+    "independent-member": "member:ø:1",
+    "anchor": "anchor:α",
+    "independent-spring": "spring:支点:β"
+  },
+  "status": "authored before actual producer invocation"
+}

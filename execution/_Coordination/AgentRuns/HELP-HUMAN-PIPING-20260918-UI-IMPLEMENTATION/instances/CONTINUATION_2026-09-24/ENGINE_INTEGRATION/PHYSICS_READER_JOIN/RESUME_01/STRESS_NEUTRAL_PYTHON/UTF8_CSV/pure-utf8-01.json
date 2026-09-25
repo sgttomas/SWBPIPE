@@ -1,0 +1,66 @@
+{
+  "command": [
+    "/private/tmp/chirality-piping-review-venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_stress_neutral_physics_source.py",
+    "-k",
+    "utf8_csv or precision_package or value_bits_annotation"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "start_utc": "2026-09-25T10:03:12.979151+00:00",
+  "environment": {
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "inputs": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "8b07faea35dacabfda35f4537d708a57ba585e918760c988b550f1d3f9414921"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "af3d229289c72349f2daa5b7826bd7f0be4924d6b854c6358d480c89d1d991dd"
+    },
+    {
+      "path": "tests/test_stress_neutral_physics_source.py",
+      "sha256": "bdc9d2b0475f888bace2058ef70d831b78cebcb3e236d1b2f085a34f1dd6ee3b"
+    }
+  ],
+  "scope": "Pure UTF8 CSV transport/parser/label controls, p1 bytes and retained CR02 bit-vector checks only; no physical/raw validation",
+  "exit_code": 0,
+  "end_utc": "2026-09-25T10:03:18.171690+00:00",
+  "log": "pure-utf8-01.log",
+  "log_sha256": "84da150edb46e2566a4de8b7329418421dff96eb5a462dd9b697e97c64027ed0",
+  "execution_boundary_deviation": "The current pytest session startup compiled open_pipe_stress_units in release because OPENPIPESTRESS_UNITS_BIN was not set. This implicit build was not authorized by the no-build brief. It completed; parent was notified immediately. Full compile output is preserved in the log. Future runs supply both pinned executable paths.",
+  "result_summary": "28 passed,28 deselected; implicit units build output retained, no no-build claim.",
+  "implicit_build": {
+    "initiator": "tests/conftest.py::pytest_sessionstart when OPENPIPESTRESS_UNITS_BIN was absent",
+    "helper": "tools/units/build_units_authority.py::build",
+    "command_from_executed_helper": [
+      "cargo",
+      "build",
+      "--locked",
+      "--release",
+      "--features",
+      "cli",
+      "--bin",
+      "openpipestress_units",
+      "--target-dir",
+      "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/units/target/units-authority"
+    ],
+    "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/units",
+    "target": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/units/target/units-authority",
+    "binary": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/units/target/units-authority/release/openpipestress_units",
+    "binary_sha256": "813a0dd5f6dcbe3454b0ea52a38463a5cd4e6b3554368d23f0133e8f3a31d8dc",
+    "log_reported_build_seconds": 4.71,
+    "source_hashes": {
+      "tests/conftest.py": "e60106277cb7f586c83ffc25e3fcadd9bc04dec291770b6173b7b8cd8658e75e",
+      "tools/units/build_units_authority.py": "eceeaacfa34aea55570e5f67af46320b19716df40b0c3f31f89ab4496546e755"
+    }
+  }
+}

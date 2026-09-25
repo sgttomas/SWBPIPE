@@ -10,11 +10,12 @@ pub(super) struct Ledger {
     pub supports: Value,
 }
 fn qualify(input: &source_recovery::Input<'_>, mut row: ResultItem) -> ResultItem {
-    if input
-        .model
-        .load_cases
-        .first()
-        .is_some_and(|c| c.id != input.load_case.id)
+    if !(pressure_runtime::is_exact(input.model) && row.kind.ends_with("_v2"))
+        && input
+            .model
+            .load_cases
+            .first()
+            .is_some_and(|c| c.id != input.load_case.id)
     {
         row.id = qualified_load_case_result_id(&input.load_case.id, &row.id);
     }
@@ -43,8 +44,10 @@ fn unit(u: FunctionalUnit) -> Result<&'static str, ReceiptError> {
 }
 pub(super) fn finite_norm(values: [f64; 3]) -> Result<f64, ReceiptError> {
     let value = scaled_norm(values);
-    if values.iter().any(|x| !x.is_finite()) || !value.is_finite()
-        || (values.iter().any(|x| *x != 0.0) && !value.is_normal()) {
+    if values.iter().any(|x| !x.is_finite())
+        || !value.is_finite()
+        || (values.iter().any(|x| *x != 0.0) && !value.is_normal())
+    {
         return Err(bad("derived norm range"));
     }
     Ok(value)
@@ -52,6 +55,13 @@ pub(super) fn finite_norm(values: [f64; 3]) -> Result<f64, ReceiptError> {
 pub(super) fn expected_primary(
     input: &source_recovery::Input<'_>,
     selected: &SelectedSourceRecovery,
+) -> Result<BTreeMap<usize, ResultItem>, ReceiptError> {
+    expected_primary_for(input, selected, false)
+}
+pub(super) fn expected_primary_for(
+    input: &source_recovery::Input<'_>,
+    selected: &SelectedSourceRecovery,
+    composite: bool,
 ) -> Result<BTreeMap<usize, ResultItem>, ReceiptError> {
     let mut expected = BTreeMap::new();
     for (node_index, node) in input.model.nodes.iter().enumerate() {
@@ -118,6 +128,26 @@ pub(super) fn expected_primary(
                 }),
             };
             expected.insert(support.functional_indices[c], qualify(input, row));
+        }
+    }
+    if composite {
+        for support in selected.support_actions() {
+            let authored = input
+                .model
+                .supports
+                .iter()
+                .find(|s| s.id == support.support_id)
+                .ok_or_else(|| bad("composite support owner"))?;
+            let mut generated = Vec::new();
+            append_signed_support_results(
+                &mut generated,
+                input.load_case,
+                authored,
+                support.values,
+            );
+            for (component, row) in generated.into_iter().take(6).enumerate() {
+                expected.insert(support.functional_indices[component], qualify(input, row));
+            }
         }
     }
     Ok(expected)
@@ -293,21 +323,30 @@ fn bare(id: String, kind: &str, value: f64, unit: &str, entity: &str) -> ResultI
 }
 pub(super) struct Derived {
     pub(super) row: ResultItem,
-    recipe: &'static str,
-    inputs: Vec<String>,
+    pub(super) recipe: &'static str,
+    pub(super) inputs: Vec<String>,
 }
 pub(super) fn derived(
     input: &source_recovery::Input<'_>,
     selected: &SelectedSourceRecovery,
     primary: &BTreeMap<usize, ResultItem>,
 ) -> Result<Vec<Derived>, ReceiptError> {
+    derived_for(input, selected, primary, false)
+}
+pub(super) fn derived_for(
+    input: &source_recovery::Input<'_>,
+    selected: &SelectedSourceRecovery,
+    primary: &BTreeMap<usize, ResultItem>,
+    composite: bool,
+) -> Result<Vec<Derived>, ReceiptError> {
     // Euclidean norm is 1-Lipschitz relative to a componentwise relative
     // perturbation. Reserve an additional conservative 64 machine epsilons
     // for the fixed scaled recipe's rounding; affine bounds alone do not
     // establish the derivative criterion.
     let arithmetic_bound = 64.0 * f64::EPSILON;
-    if selected.summary().max_relative_projection_error >
-        (CRITERION - arithmetic_bound) / (1.0 + arithmetic_bound) {
+    if selected.summary().max_relative_projection_error
+        > (CRITERION - arithmetic_bound) / (1.0 + arithmetic_bound)
+    {
         return Err(bad("derived norm error budget"));
     }
     // Stress and its summary are two arithmetic layers after projection. This
@@ -315,8 +354,10 @@ pub(super) fn derived(
     // additional allowance covers both layers rather than reusing the affine
     // criterion without room for their rounding.
     let stress_bound = 128.0 * f64::EPSILON;
-    if !selected.members().is_empty() && selected.summary().max_relative_projection_error >
-        (CRITERION - stress_bound) / (1.0 + stress_bound) {
+    if !selected.members().is_empty()
+        && selected.summary().max_relative_projection_error
+            > (CRITERION - stress_bound) / (1.0 + stress_bound)
+    {
         return Err(bad("derived stress error budget"));
     }
     let mut out = Vec::new();
@@ -344,7 +385,7 @@ pub(super) fn derived(
             inputs: ids,
         });
     }
-    for s in selected.support_actions() {
+    for s in selected.support_actions().iter().filter(|_| !composite) {
         let ids = (0..3)
             .map(|c| primary[&s.functional_indices[c]].id.clone())
             .collect();
@@ -379,7 +420,9 @@ pub(super) fn derived(
             (4, "end_j"),
         ] {
             let actions: [f64; 6] = std::array::from_fn(|component| {
-                if s == 0 {
+                if composite {
+                    m.sections[s][component]
+                } else if s == 0 {
                     -primary[&m.end_functional_indices[component]].value
                 } else if s == 4 {
                     primary[&m.end_functional_indices[6 + component]].value
@@ -413,7 +456,8 @@ pub(super) fn derived(
                 // meet the criterion when this division loses too much range.
                 let mpa = value / 1e6;
                 if (action == 0.0 && (value != 0.0 || mpa != 0.0))
-                    || (action != 0.0 && (!mpa.is_normal() || !value.is_normal())) {
+                    || (action != 0.0 && (!mpa.is_normal() || !value.is_normal()))
+                {
                     return Err(bad("straight stress MPa publication range"));
                 }
             }
@@ -422,10 +466,17 @@ pub(super) fn derived(
             }
             let local = open_formula_summary_mpa(&stress, false)
                 .ok_or_else(|| bad("summary unavailable"))?;
-            let nonzero_normal = [c.axial_normal.unwrap(), c.bending_normal_y.unwrap(), c.bending_normal_z.unwrap()]
-                .iter().any(|v| *v != 0.0);
-            if !local.is_finite() || (nonzero_normal && !local.is_normal())
-                || (!nonzero_normal && local != 0.0) {
+            let nonzero_normal = [
+                c.axial_normal.unwrap(),
+                c.bending_normal_y.unwrap(),
+                c.bending_normal_z.unwrap(),
+            ]
+            .iter()
+            .any(|v| *v != 0.0);
+            if !local.is_finite()
+                || (nonzero_normal && !local.is_normal())
+                || (!nonzero_normal && local != 0.0)
+            {
                 return Err(bad("stress summary MPa publication range"));
             }
             summary = summary.max(local);
@@ -471,8 +522,16 @@ pub(super) fn derived(
                 stress_ids.push(row.id.clone());
                 out.push(Derived {
                     row,
-                    recipe: "straight_open_stress_v1",
-                    inputs: vec![primary[&function].id.clone()],
+                    recipe: if composite {
+                        "retained_source_straight_stress_v1"
+                    } else {
+                        "straight_open_stress_v1"
+                    },
+                    inputs: if composite {
+                        vec![]
+                    } else {
+                        vec![primary[&function].id.clone()]
+                    },
                 });
             }
         }
@@ -480,20 +539,22 @@ pub(super) fn derived(
         // normal components are affine along a straight span: sum of absolute
         // affine components is convex, hence its maximum is at an endpoint.
         // Evaluated five points remain checked binary64 recipes, no exact-max claim.
-        out.push(Derived {
-            row: qualify(
-                input,
-                bare(
-                    format!("result:stress:{}", stable_suffix(&m.member_id)),
-                    "open_formula_stress_summary",
-                    summary,
-                    "MPa",
-                    &m.member_id,
+        if !composite {
+            out.push(Derived {
+                row: qualify(
+                    input,
+                    bare(
+                        format!("result:stress:{}", stable_suffix(&m.member_id)),
+                        "open_formula_stress_summary",
+                        summary,
+                        "MPa",
+                        &m.member_id,
+                    ),
                 ),
-            ),
-            recipe: "reviewed_stress_summary_v1",
-            inputs: stress_ids,
-        });
+                recipe: "reviewed_stress_summary_v1",
+                inputs: stress_ids,
+            });
+        }
     }
     Ok(out)
 }
@@ -503,8 +564,18 @@ pub(super) fn bind(
     rows: &[ResultItem],
     bindings: &[FunctionalRowBinding],
 ) -> Result<Ledger, ReceiptError> {
+    bind_for(input, selected, rows, bindings, false, vec![])
+}
+pub(super) fn bind_for(
+    input: &source_recovery::Input<'_>,
+    selected: &SelectedSourceRecovery,
+    rows: &[ResultItem],
+    bindings: &[FunctionalRowBinding],
+    composite: bool,
+    additional: Vec<Derived>,
+) -> Result<Ledger, ReceiptError> {
     validate_case_rows(&input.load_case.id, rows)?;
-    let primary = expected_primary(input, selected)?;
+    let primary = expected_primary_for(input, selected, composite)?;
     if primary.len() != bindings.len() {
         return Err(bad("complete public functional binding count"));
     }
@@ -544,7 +615,10 @@ pub(super) fn bind(
         );
         projections.push(projection);
     }
-    for d in derived(input, selected, &primary)? {
+    for d in derived_for(input, selected, &primary, composite)?
+        .into_iter()
+        .chain(additional)
+    {
         let row = *actual
             .get(d.row.id.as_str())
             .ok_or_else(|| bad(format!("required derived row missing: {}", d.row.id)))?;

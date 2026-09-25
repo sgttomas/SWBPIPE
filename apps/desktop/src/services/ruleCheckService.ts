@@ -1,3 +1,6 @@
+import { retainedPhysicsSourceInvocation } from "../features/results/physicsSourceRecovery";
+import { retainedSourceBlockInvocation } from "../features/results/sourceBlockRecovery";
+import { sourceContract, numericalResultStanding } from "../features/results/numericalResultQuality";
 import { invoke } from "@tauri-apps/api/core";
 import type { MechanicsResult, PreviewModel } from "../types";
 import type { RulePackDocument } from "./rulePackService";
@@ -115,7 +118,10 @@ export async function runRuleChecks(args: {
   if (!args.model) throw new Error("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply the actual current model.");
   const source = args.solvedEnvelope ?? await runPreviewMechanics(args.model);
   if (!hasNativeMechanicsInvocation(source, args.model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
+  if (["source_blocks", "physics_source"].includes(sourceContract(source)) && !numericalResultStanding(source, args.model).eligible) throw new Error("SOURCE_BLOCKS_RULE_INPUT_UNQUALIFIED");
   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, solvedEnvelope: source };
+  if (sourceContract(source) === "source_blocks") invokeArgs.sourceBlockInvocation = retainedSourceBlockInvocation(source, args.model);
+  if (sourceContract(source) === "physics_source") invokeArgs.sourceBlockInvocation = retainedPhysicsSourceInvocation(source, args.model);
   if (args.model) invokeArgs.model = args.model;
   if (args.solverResultBindings && args.solverResultBindings.length > 0) {
     invokeArgs.solverResultBindings = args.solverResultBindings;

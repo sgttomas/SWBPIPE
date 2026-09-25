@@ -1,0 +1,3239 @@
+diff --git a/projects/chirality-piping/core/product_physics/src/lib.rs b/projects/chirality-piping/core/product_physics/src/lib.rs
+index 649c4fc88a..818ffa21ac 100644
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -695,6 +695,7 @@ pub struct MechanicsEnvelope {
+ pub const MECHANICS_SCHEMA_VERSION: &str = "0.2.0";
+ // Initial source-method work-reservation policy; generic/strict-gap defaults are separate.
+ const SOURCE_BLOCKS_WORK_LIMIT: usize = 4_000_000;
++const PHYSICS_SOURCE_WORK_LIMIT: usize = 8_000_000;
+ const SOURCE_BLOCKS_INVOCATION_WORK_LIMIT: usize = 64_000_000;
+ #[derive(Debug)]
+ struct SourceRecoveryBudget {
+@@ -731,6 +732,8 @@ impl SourceRecoveryBudget {
+ 
+ pub const SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID: &str =
+     "openpipestress.result_semantics/0.3.0/source-blocks-1";
++pub const PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID: &str =
++    "openpipestress.result_semantics/0.3.0/physics-source-1";
+ pub const PRECISION_SEMANTIC_CONTRACT_ID: &str =
+     "openpipestress.result_semantics/0.3.0/precision-1";
+ pub const PHYSICS_SEMANTIC_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
+@@ -1227,15 +1230,17 @@ pub fn run_linear_static_preview_value_with_mode(
+     actual_request: serde_json::Value,
+     solver_mode: PreviewSolverMode,
+ ) -> Result<MechanicsEnvelope, String> {
+-    if !matches!(actual_request.pointer("/model/schema_version").and_then(serde_json::Value::as_str), Some("0.1.0" | "0.2.0"))
+-        || actual_request.pointer("/model/pressure_contract").is_some()
+-    {
+-        return Err("SOURCE_MODEL_PROFILE_UNSUPPORTED_BY_THIS_ENGINE".into());
+-    }
+     let (request, capture) = source_receipt::CapturedInvocation::parse(actual_request, solver_mode)
+         .map_err(|error| error.0)?;
+-    let result = run_linear_static_preview_captured(request, solver_mode, Some(&capture), &mut SourceRecoveryBudget::default());
+-    if result.producer.semantic_contract_id == SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID
++    // The composite profile pays for retained-source and physical evidence.
++    // This closed resource policy does not change old source-blocks-1 or the
++    // exact helper defaults, and never changes the numerical criterion.
++    let mut budget = SourceRecoveryBudget::default();
++    if pressure_runtime::is_exact(&request.model) {
++        budget.per_case_limit = PHYSICS_SOURCE_WORK_LIMIT;
++    }
++    let result = run_linear_static_preview_captured(request, solver_mode, Some(&capture), &mut budget);
++    if matches!(result.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID)
+         && result.source_block_recovery.is_none()
+     {
+         return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
+@@ -1514,7 +1519,16 @@ fn run_linear_static_preview_captured(
+     let mut support_vectors_by_case = HashMap::new();
+     for (index, solve) in load_case_solves.into_iter().enumerate() {
+         pressure_evidence.extend(solve.pressure_evidence.iter().cloned());
+-        exact_cases.extend(solve.exact_case_evidence.iter().cloned());
++        if let Some(mut evidence) = solve.exact_case_evidence.clone() {
++            if source_selected {
++                evidence["recovery_method"] = serde_json::json!(if solve.source_selected {
++                    "retained_source_blocks_exact_v1"
++                } else if solver_mode == PreviewSolverMode::DenseScrutiny {
++                    "ordinary_dense_structural_v1"
++                } else { "ordinary_sparse_structural_v1" });
++            }
++            exact_cases.push(evidence);
++        }
+         let is_default = index == 0;
+         let load_case_id = solve.load_case_id.clone();
+         support_vectors_by_case.insert(load_case_id.clone(), solve.support_force_vectors);
+@@ -1596,6 +1610,7 @@ fn run_linear_static_preview_captured(
+         return solver_blocked(model, diagnostics, error);
+     }
+     // Publish finite computed binary64 quantities without an absolute decimal quantum.
++    let composite = source_selected && pressure_runtime::is_exact(&model);
+     let mut envelope = MechanicsEnvelope {
+         contract_evidence: pressure_runtime::is_exact(&model)
+             .then(|| serde_json::json!({"pressure": pressure_evidence, "connector": [], "exact_cases": exact_cases})),
+@@ -1630,9 +1645,14 @@ fn run_linear_static_preview_captured(
+         accepted_model_state_mutated: false,
+     };
+     if source_selected {
+-        envelope.producer.semantic_contract_id = SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID.into();
++        envelope.producer.semantic_contract_id = if composite { PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID } else { SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID }.into();
+         if let Some(capture) = capture {
+-            match source_receipt::FinalizedSourceBlockReceipt::finalize(capture, &envelope, source_cases, source_budget) {
++            let finalized = if composite {
++                source_receipt::FinalizedSourceBlockReceipt::finalize_composite(capture, &envelope, source_cases, source_budget)
++            } else {
++                source_receipt::FinalizedSourceBlockReceipt::finalize(capture, &envelope, source_cases, source_budget)
++            };
++            match finalized {
+                 Ok(receipt) => envelope.source_block_recovery = Some(receipt.into_wire()),
+                 Err(error) => envelope.diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![])),
+             }
+@@ -2135,7 +2155,7 @@ fn solve_load_case(
+                 }
+             }
+             }
+-            if let Some(action) = source_action {
++            if let Some(action) = source_action.filter(|_| !pressure_runtime::is_exact(model)) {
+                 for (component, name) in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"].iter().enumerate() {
+                     results.push(ResultItem {
+                         id: format!("result:support-component-v2:{}:{name}", exact_source_identity(&[&load_case.id, &support.id])),
+@@ -2159,8 +2179,22 @@ fn solve_load_case(
+                 force_vector[0].hypot(force_vector[1]).hypot(force_vector[2])
+             };
+             support_force_vectors.insert(support.id.clone(), [vector[0], vector[1], vector[2]]);
+-            if pressure_runtime::is_exact(model) && selected_source.is_none() {
+-                append_signed_support_results(&mut results, load_case, support, vector);
++            if pressure_runtime::is_exact(model) {
++                if let Some(selected) = selected_source.as_mut() {
++                    match source_receipt::composite_support_norms(&recovery_input(), selected, &support.id) {
++                        Ok(norms) => {
++                            append_signed_support_results(&mut results, load_case, support, vector);
++                            let end = results.len();
++                            results[end - 2].value = norms[0];
++                            results[end - 1].value = norms[1];
++                        }
++                        Err(error) => diagnostics.push(diag(
++                            &format!("diagnostic:source-recovery:{}:{}:support-norm", load_case.id, support.id),
++                            "SOURCE_BLOCK_RECOVERY_DERIVED_UNAVAILABLE", "blocking", error.0,
++                            vec![load_case.id.clone(), support.id.clone()],
++                        )),
++                    }
++                } else { append_signed_support_results(&mut results, load_case, support, vector); }
+             }
+             if !pressure_runtime::is_exact(model) {
+                 results.push(ResultItem {
+@@ -2385,9 +2419,14 @@ fn solve_load_case(
+             stations
+         };
+         let endpoint_resultants = if let Some(member) = recovered_member {
+-            // Checked derived stress uses the actual published primary actions.
+-            // Unary sign conversion does not reconstruct a tiny twist from u.
+-            [std::array::from_fn(|i| -member.end_forces[i]), std::array::from_fn(|i| member.end_forces[6 + i])]
++            if pressure_runtime::is_exact(model) {
++                // Composite stresses and endpoint maxima share the actual
++                // retained section-cut functionals, including endpoint zeros.
++                [member.sections[0], member.sections[4]]
++            } else {
++                // Retained source-blocks-1 keeps its original publication basis.
++                [std::array::from_fn(|i| -member.end_forces[i]), std::array::from_fn(|i| member.end_forces[6 + i])]
++            }
+         } else if let Some(bend) = macro_bend {
+             let evaluate = |fraction| {
+                 curved_bend_section_resultants(
+@@ -2622,7 +2661,30 @@ fn solve_load_case(
+                 )),
+             }
+         }
+-        let summary_value = if pressure_runtime::is_exact(model) {
++        let summary_value = if pressure_runtime::is_exact(model) && selected_source.is_some() {
++            let maximum = source_receipt::composite_member_maximum(
++                &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
++            );
++            match maximum {
++                Ok(maximum) => {
++                    let value = maximum.value_pa();
++                    let result_id = format!("result:elastic-maximum:{}:{}:{}:{}", load_case.id.len(), load_case.id, pipe.element_id.len(), pipe.element_id);
++                    results.push(ResultItem { id: result_id.clone(), kind: "pipe_elastic_normal_stress_maximum_v2".into(), value, unit: "Pa".into(), entity_ref: pipe.element_id.clone(), basis_ref: None, source_result_refs: Vec::new(), metadata: Some(ResultMetadata {
++                        component: "maximum_absolute_normal_stress".into(), coordinate_system: "pipe_section".into(), location: "governing_station".into(), basis: "retained_source_endpoint_normal_max_v1".into(),
++                        sign_convention: "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate".into(),
++                    }) });
++                    if max_stress.as_ref().is_none_or(|q: &LocatedQuantity| value > q.value || (value == q.value && pipe.element_id < q.location_ref)) {
++                        max_stress = Some(LocatedQuantity { value, unit: "Pa".into(), location_ref: pipe.element_id.clone(), result_ref: result_id.clone() });
++                    }
++                    pipe_stress_extrema.push(maximum.evidence(&result_id));
++                }
++                Err(error) => {
++                    unavailable_stress_maximum_members.push(pipe.element_id.clone());
++                    diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum",load_case.id,pipe.element_id), "SOURCE_ENDPOINT_MAXIMUM_UNAVAILABLE", "warning", error.0, vec![load_case.id.clone(),pipe.element_id.clone()]));
++                }
++            }
++            None
++        } else if pressure_runtime::is_exact(model) {
+             match exact_straight_summary_extrema(
+                 pipe,
+                 exact_mechanical_local_forces
+@@ -2785,11 +2847,23 @@ fn solve_load_case(
+         let qualified = qualify_source_case_rows(model, &load_case.id, &results);
+         let finalized = if let Some(selected) = selected_source.take() {
+             match source_row_bindings(&selected, &qualified) {
+-                Ok(bindings) => source_receipt::FinalizedSourceBlockCase::exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings),
++                Ok(bindings) => {
++                    if pressure_runtime::is_exact(model) {
++                        let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
++                        physical["recovery_method"] = serde_json::json!("retained_source_blocks_exact_v1");
++                        source_receipt::FinalizedSourceBlockCase::composite_exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings, &physical)
++                    } else {
++                        source_receipt::FinalizedSourceBlockCase::exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings)
++                    }
++                },
+                 Err(message) => Err(source_receipt::ReceiptError(message, Some(selected.summary().work))),
+             }
+         } else if let Some(failure) = &source_failure {
+             source_receipt::FinalizedSourceBlockCase::failed(capture, &load_case.id, ordinary_attempt, failure, &format!("diagnostic:source-recovery:{}", load_case.id), &qualified)
++        } else if pressure_runtime::is_exact(model) {
++            let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
++            physical["recovery_method"] = serde_json::json!(if solver_mode == PreviewSolverMode::DenseScrutiny { "ordinary_dense_structural_v1" } else { "ordinary_sparse_structural_v1" });
++            source_receipt::FinalizedSourceBlockCase::ordinary_physics(capture, &load_case.id, ordinary_attempt, &qualified, &physical, &pressure_evidence)
+         } else {
+             source_receipt::FinalizedSourceBlockCase::ordinary(capture, &load_case.id, ordinary_attempt, &qualified)
+         };
+diff --git a/projects/chirality-piping/core/product_physics/src/source_recovery.rs b/projects/chirality-piping/core/product_physics/src/source_recovery.rs
+index 58671d5472..d6ee495688 100644
+--- a/projects/chirality-piping/core/product_physics/src/source_recovery.rs
++++ b/projects/chirality-piping/core/product_physics/src/source_recovery.rs
+@@ -120,6 +120,7 @@ pub(super) struct SelectedSourceRecovery {
+     // Retaining the live attempt ledger lets explicit expected-invocation replay
+     // continue the same budget; replay never resets the selection's work cap.
+     budget: AttemptBudget,
++    retained_identity_digest: Option<String>,
+ }
+ impl SelectedSourceRecovery {
+     pub fn displacements(&self) -> &[f64] {
+@@ -151,6 +152,36 @@ impl SelectedSourceRecovery {
+         &self.summary
+     }
+ 
++    /// Lazily hash this immutable owned response once; never accept a caller's
++    /// claimed digest. Repeated derived recipes reserve only the returned copy.
++    pub fn retained_identity_digest(&mut self) -> Result<String, RecoveryFailure> {
++        use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
++        use sha2::{Digest, Sha256};
++        if self.retained_identity_digest.is_some() {
++            self.charge_finalization(128)?;
++            return Ok(self
++                .retained_identity_digest
++                .as_ref()
++                .expect("owned digest")
++                .clone());
++        }
++        self.charge_finalization(
++            self.retained
++                .response()
++                .source_identity()
++                .len()
++                .saturating_mul(12)
++                .saturating_add(1024),
++        )?;
++        let result=(|| {
++            let text=serde_json::to_string(&serde_json::json!({"domain":"physics_source_retained_identity_v1","payload":self.retained.response().source_identity()})).map_err(|_|mismatch("identity digest serialization"))?;
++            let canonical=canonical_json_checked_v1_text(&text).map_err(|_|mismatch("identity digest checked JSON"))?;
++            Ok::<String,RecoveryError>(format!("{:x}",Sha256::digest(canonical.as_bytes())))
++        })().map_err(|error|failure("retained identity digest",error,&self.budget))?;
++        self.retained_identity_digest = Some(result.clone());
++        Ok(result)
++    }
++
+     /// Final row binding and receipt hashing are part of the same bounded attempt.
+     pub fn charge_finalization(&mut self, operations: usize) -> Result<(), RecoveryFailure> {
+         let result = self.budget.charge(AttemptStage::Replay, operations);
+@@ -163,11 +194,15 @@ impl SelectedSourceRecovery {
+     pub fn check_binding_against(&mut self, input: Input<'_>) -> Result<(), RecoveryFailure> {
+         let result = (|| {
+             let source = prepare_sources(&input, &mut self.budget)?;
+-            self.retained.check_binding_with_budget(
+-                &source.system(&input), &source.identity,
+-                exact::ForceBasis::IdentifiedContributions(&source.force_terms),
+-                &source.descriptors, &mut self.budget,
+-            ).result?;
++            self.retained
++                .check_binding_with_budget(
++                    &source.system(&input),
++                    &source.identity,
++                    exact::ForceBasis::IdentifiedContributions(&source.force_terms),
++                    &source.descriptors,
++                    &mut self.budget,
++                )
++                .result?;
+             Ok::<(), RecoveryError>(())
+         })();
+         self.summary.work = self.budget.report();
+@@ -400,6 +435,28 @@ fn prepare_sources(
+             "component, curved, user-matrix or release source family",
+         ));
+     }
++    // Presence is the producer inventory: a zero-valued pressure region is
++    // still unsupported. Exact source cases require an explicitly empty list.
++    if super::pressure_runtime::is_exact(input.model) {
++        if !input
++            .load_case
++            .pressure_regions
++            .as_ref()
++            .is_some_and(Vec::is_empty)
++        {
++            return Err(unsupported(
++                "exact source recovery requires explicitly empty pressure regions",
++            ));
++        }
++        if input.built.exact_sections.len() != member_count {
++            return Err(mismatch("exact source geometry inventory"));
++        }
++    } else if !matches!(input.model.schema_version.as_str(), "0.1.0" | "0.2.0")
++        || input.model.pressure_contract.is_some()
++        || input.load_case.pressure_regions.is_some()
++    {
++        return Err(unsupported("legacy source-blocks namespace requires model0.1/0.2 without pressure contract or regions"));
++    }
+     if input.load_case.equivalent_static.is_some()
+         || !input.load_application.element_uniform_loads.is_empty()
+         || !input.load_application.imposed_displacements.is_empty()
+@@ -933,7 +990,9 @@ fn prepare_sources(
+                 key: key(
+                     &input.load_case.id,
+                     FunctionalQuantity::SupportAction {
+-                        support: id.clone(), node: *node, component: component as u8,
++                        support: id.clone(),
++                        node: *node,
++                        component: component as u8,
+                     },
+                     component,
+                     FunctionalConvention::SupportOnStructure,
+@@ -1189,6 +1248,7 @@ pub(super) fn solve(
+             retained,
+             summary,
+             budget,
++            retained_identity_digest: None,
+         }),
+         Err(error) => Err(failure(stage, error, &budget)),
+     }
+diff --git a/projects/chirality-piping/core/product_physics/src/source_receipt.rs b/projects/chirality-piping/core/product_physics/src/source_receipt.rs
+index d75ea71a6d..d965a2e377 100644
+--- a/projects/chirality-piping/core/product_physics/src/source_receipt.rs
++++ b/projects/chirality-piping/core/product_physics/src/source_receipt.rs
+@@ -9,8 +9,13 @@ use open_pipe_stress_frame_kernel::structural::{
+ use serde_json::{json, Value};
+ use sha2::{Digest, Sha256};
+ use std::collections::{BTreeMap, BTreeSet};
++mod composite;
++mod endpoint_maximum;
+ mod rows;
+ mod source;
++pub(super) use composite::{composite_member_maximum, composite_support_norms};
++pub(super) const COMPOSITE_SEMANTIC_ID: &str =
++    "openpipestress.result_semantics/0.3.0/physics-source-1";
+ 
+ pub(super) const SEMANTIC_ID: &str = "openpipestress.result_semantics/0.3.0/source-blocks-1";
+ const CRITERION: f64 = 1e-9;
+@@ -38,7 +43,9 @@ fn same(a: f64, b: f64) -> bool {
+ /// separately refuses nonfinite inputs and nonzero subnormal outputs.
+ pub(super) fn scaled_norm(values: [f64; 3]) -> f64 {
+     let m = values.iter().map(|v| v.abs()).fold(0.0_f64, f64::max);
+-    if m == 0.0 { return 0.0; }
++    if m == 0.0 {
++        return 0.0;
++    }
+     let [a, b, c] = values.map(|v| v / m);
+     m * ((a * a + b * b) + c * c).sqrt()
+ }
+@@ -88,6 +95,14 @@ impl CapturedInvocation {
+         &self,
+         input: &source_recovery::Input<'_>,
+         selected: &mut SelectedSourceRecovery,
++    ) -> Result<Option<String>, ReceiptError> {
++        self.check_input_with_physical(input, selected, None)
++    }
++    fn check_input_with_physical(
++        &self,
++        input: &source_recovery::Input<'_>,
++        selected: &mut SelectedSourceRecovery,
++        physical: Option<(&Value, &[ResultItem])>,
+     ) -> Result<Option<String>, ReceiptError> {
+         let request = self.requested()?;
+         let mut model = request.model;
+@@ -99,6 +114,7 @@ impl CapturedInvocation {
+         let mut diagnostics = Vec::new();
+         resolve_shared_sections(&mut model, &mut diagnostics);
+         normalize_model_units(&mut model, &mut materials, &mut diagnostics);
++        pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+         if has_blocking(&diagnostics) || model.project.id != input.model.project.id {
+             return Err(bad("invocation normalized model mismatch"));
+         }
+@@ -174,6 +190,20 @@ impl CapturedInvocation {
+                 pressure_thrust_loads: &[],
+             })
+             .map_err(|e| bad(format!("captured source replay: {e:?}")))?;
++        if let Some((evidence, rows)) = physical {
++            composite::physical_source_built(
++                self,
++                &model,
++                &materials,
++                &built,
++                material_basis_record.as_deref(),
++                &case.id,
++                evidence,
++                &[],
++                rows,
++                true,
++            )?;
++        }
+         Ok(material_basis_record)
+     }
+ }
+@@ -398,12 +428,17 @@ pub(super) struct FinalizedSourceBlockCase {
+     actual_rows: Value,
+     qualified: bool,
+     exact: bool,
++    physical_evidence: Option<Value>,
++    derived_checks: Vec<Value>,
++    section_stress_checks: Vec<Value>,
+     // Own the live-created companion until publication finalization completes.
+     _selected: Option<SelectedSourceRecovery>,
+ }
+ impl FinalizedSourceBlockCase {
+     pub(super) fn charged_work(&self) -> usize {
+-        self._selected.as_ref().map(|selected| selected.summary().work.charged)
++        self._selected
++            .as_ref()
++            .map(|selected| selected.summary().work.charged)
+             .unwrap_or_else(|| self.work["charged"].as_u64().unwrap_or(0) as usize)
+     }
+ 
+@@ -488,6 +523,9 @@ impl FinalizedSourceBlockCase {
+             actual_rows,
+             qualified,
+             exact: true,
++            physical_evidence: None,
++            derived_checks: vec![],
++            section_stress_checks: vec![],
+             _selected: Some(selected),
+         })
+     }
+@@ -527,6 +565,9 @@ impl FinalizedSourceBlockCase {
+             actual_rows: serialized(&rows)?,
+             qualified: true,
+             exact: false,
++            physical_evidence: None,
++            derived_checks: vec![],
++            section_stress_checks: vec![],
+             _selected: None,
+         })
+     }
+@@ -564,6 +605,9 @@ impl FinalizedSourceBlockCase {
+             actual_rows: serialized(&rows)?,
+             qualified: false,
+             exact: false,
++            physical_evidence: None,
++            derived_checks: vec![],
++            section_stress_checks: vec![],
+             _selected: None,
+         })
+     }
+@@ -609,6 +653,23 @@ impl FinalizedSourceBlockReceipt {
+         envelope: &MechanicsEnvelope,
+         cases: Vec<FinalizedSourceBlockCase>,
+         invocation_budget: &mut SourceRecoveryBudget,
++    ) -> Result<Self, ReceiptError> {
++        Self::finalize_for(capture, envelope, cases, invocation_budget, false)
++    }
++    pub(super) fn finalize_composite(
++        capture: &CapturedInvocation,
++        envelope: &MechanicsEnvelope,
++        cases: Vec<FinalizedSourceBlockCase>,
++        invocation_budget: &mut SourceRecoveryBudget,
++    ) -> Result<Self, ReceiptError> {
++        Self::finalize_for(capture, envelope, cases, invocation_budget, true)
++    }
++    fn finalize_for(
++        capture: &CapturedInvocation,
++        envelope: &MechanicsEnvelope,
++        cases: Vec<FinalizedSourceBlockCase>,
++        invocation_budget: &mut SourceRecoveryBudget,
++        composite: bool,
+     ) -> Result<Self, ReceiptError> {
+         if envelope.results.len() > MAX_ITEMS || envelope.diagnostics.len() > MAX_ITEMS {
+             return Err(bad("publication inventory budget"));
+@@ -616,17 +677,85 @@ impl FinalizedSourceBlockReceipt {
+         let base_reservation = 1024usize
+             .saturating_add(envelope.results.len().saturating_mul(32))
+             .saturating_add(envelope.diagnostics.len().saturating_mul(32));
+-        invocation_budget.reserve_publication(base_reservation)
+-            .map_err(|work| ReceiptError("invocation publication reservation".into(), Some(work)))?;
++        invocation_budget
++            .reserve_publication(base_reservation)
++            .map_err(|work| {
++                ReceiptError("invocation publication reservation".into(), Some(work))
++            })?;
++        let policy_limit = if composite {
++            PHYSICS_SOURCE_WORK_LIMIT
++        } else {
++            SOURCE_BLOCKS_WORK_LIMIT
++        };
++        if invocation_budget.per_case_limit > policy_limit
++            || cases.iter().any(|case| {
++                case.work["limit"]
++                    .as_u64()
++                    .is_none_or(|limit| limit > policy_limit as u64)
++            })
++        {
++            return Err(ReceiptError(
++                "case budget exceeds selected receipt policy".into(),
++                Some(exact::WorkReport {
++                    charged: invocation_budget.charged,
++                    rejected: 0,
++                    limit: invocation_budget.invocation_limit,
++                }),
++            ));
++        }
++        if !composite
++            && (envelope.contract_evidence.is_some()
++                || cases.iter().any(|case| case.physical_evidence.is_some()))
++        {
++            return Err(bad("physical evidence requires composite receipt policy"));
++        }
+         let size = envelope.diagnostics.iter().fold(0usize, |n, d| {
+-            n.saturating_add(d.id.len()).saturating_add(d.code.len()).saturating_add(d.message.len())
++            n.saturating_add(d.id.len())
++                .saturating_add(d.code.len())
++                .saturating_add(d.message.len())
+                 .saturating_add(d.affected_refs.iter().map(String::len).sum::<usize>())
+         });
+-        invocation_budget.reserve_publication(size.saturating_mul(12))
+-            .map_err(|work| ReceiptError("invocation publication reservation".into(), Some(work)))?;
++        invocation_budget
++            .reserve_publication(size.saturating_mul(12))
++            .map_err(|work| {
++                ReceiptError("invocation publication reservation".into(), Some(work))
++            })?;
++        if composite {
++            // Reserve normalization, source geometry/material comparison, complete
++            // physical evidence serialization and recipe statement hashing before
++            // performing them. This is the same invocation ledger, never cloned.
++            let request = capture.requested()?;
++            let work = capture.encoded_len.saturating_mul(24).saturating_add(
++                request.model.load_cases.len().saturating_mul(
++                    request
++                        .model
++                        .pipe_segments
++                        .len()
++                        .saturating_mul(32_000)
++                        .saturating_add(
++                            request
++                                .model
++                                .nodes
++                                .len()
++                                .saturating_mul(request.model.nodes.len())
++                                .saturating_mul(64),
++                        )
++                        .saturating_add(envelope.results.len().saturating_mul(256)),
++                ),
++            );
++            invocation_budget
++                .reserve_publication(work)
++                .map_err(|w| ReceiptError("composite publication reservation".into(), Some(w)))?;
++            composite::validate_publication(capture, envelope, &cases)?;
++        }
+         let publication = serialized(envelope)?;
+         if publication.get("source_block_recovery").is_some()
+-            || envelope.producer.semantic_contract_id != SEMANTIC_ID
++            || envelope.producer.semantic_contract_id
++                != if composite {
++                    COMPOSITE_SEMANTIC_ID
++                } else {
++                    SEMANTIC_ID
++                }
+         {
+             return Err(bad(
+                 "publication must have source identity and omit receipt",
+@@ -728,6 +857,17 @@ impl FinalizedSourceBlockReceipt {
+                 }
+             }
+             wire.push(json!({"basis_ref":{"ref_type":"load_case","ref_id":case.case_id},"outcome":if eligible{"qualified"}else if failure.as_ref().is_some_and(|f|matches!(f["code"].as_str(),Some("unsupported_family"|"unsupported_block"|"unsupported_source_closure"|"unsupported_derived_quantity"|"support_attribution_ambiguous"))){"unsupported"}else{"failed"},"requested_mode":capture.mode.as_str(),"selected_method":if eligible{Some(if case.exact{"retained_source_blocks_exact_v1"}else if capture.mode==PreviewSolverMode::DenseScrutiny{"ordinary_dense_structural_v1"}else{"ordinary_sparse_structural_v1"})}else{None},"ordinary_attempt":ordinary,"source":case.source,"projections":case.projections,"rows":case.rows,"supports":case.supports,"failure":failure,"work":case.work}));
++            if composite {
++                let row = wire.last_mut().expect("just appended case");
++                row["physical_evidence_sha256"] = json!(hash(
++                    "physics_source_case_evidence_v1",
++                    case.physical_evidence
++                        .as_ref()
++                        .ok_or_else(|| bad("composite physical case proof"))?
++                )?);
++                row["derived_checks"] = json!(case.derived_checks);
++                row["section_stress_checks"] = json!(case.section_stress_checks);
++            }
+         }
+         let mut observations = Vec::new();
+         for r in &envelope.results {
+@@ -739,17 +879,29 @@ impl FinalizedSourceBlockReceipt {
+                 }
+             }
+         }
+-        rows::validate_summary(envelope)?;
++        if !composite {
++            rows::validate_summary(envelope)?;
++        }
+         let case_reserved = cases.iter().try_fold(0usize, |sum, case| {
+-            let charged = case.work["charged"].as_u64().ok_or_else(|| bad("case work count"))? as usize;
+-            let reserved = case.work["reserved_unobserved_failure"].as_u64().ok_or_else(|| bad("case unobserved reservation"))? as usize;
+-            sum.checked_add(charged).and_then(|v| v.checked_add(reserved)).ok_or_else(|| bad("invocation work sum overflow"))
++            let charged = case.work["charged"]
++                .as_u64()
++                .ok_or_else(|| bad("case work count"))? as usize;
++            let reserved = case.work["reserved_unobserved_failure"]
++                .as_u64()
++                .ok_or_else(|| bad("case unobserved reservation"))?
++                as usize;
++            sum.checked_add(charged)
++                .and_then(|v| v.checked_add(reserved))
++                .ok_or_else(|| bad("invocation work sum overflow"))
+         })?;
+-        if case_reserved.checked_add(invocation_budget.publication_charged) != Some(invocation_budget.charged)
++        if case_reserved.checked_add(invocation_budget.publication_charged)
++            != Some(invocation_budget.charged)
+             || invocation_budget.charged > invocation_budget.invocation_limit
+             || invocation_budget.invocation_limit > SOURCE_BLOCKS_INVOCATION_WORK_LIMIT
+-        { return Err(bad("invocation work ledger mismatch")); }
+-        let body = json!({"receipt_version":"1.0.0","policy":"SOURCE-BLOCKS-1","status":if qualified==cases.len(){"qualified"}else if qualified>0{"partial"}else{"unavailable"},"invocation":{"algorithm":"sha256","canonicalization":"openpipestress_jcs_ijson_v1","payload_scope":"source_blocks_invocation_v1","value":capture.digest},"publication_sha256":hash("source_blocks_publication_v1",&publication)?,"cases":wire,"envelope_observation_result_ids":observations,"invocation_work":{"limit":invocation_budget.invocation_limit,"charged":invocation_budget.charged,"publication_charged":invocation_budget.publication_charged}});
++        {
++            return Err(bad("invocation work ledger mismatch"));
++        }
++        let body = json!({"receipt_version":"1.0.0","policy":if composite {"PHYSICS-SOURCE-1"}else{"SOURCE-BLOCKS-1"},"status":if qualified==cases.len(){"qualified"}else if qualified>0{"partial"}else{"unavailable"},"invocation":{"algorithm":"sha256","canonicalization":"openpipestress_jcs_ijson_v1","payload_scope":"source_blocks_invocation_v1","value":capture.digest},"publication_sha256":hash("source_blocks_publication_v1",&publication)?,"cases":wire,"envelope_observation_result_ids":observations,"invocation_work":{"limit":invocation_budget.invocation_limit,"charged":invocation_budget.charged,"publication_charged":invocation_budget.publication_charged}});
+         let receipt_sha256 = hash("source_blocks_receipt_v1", &body)?;
+         Ok(Self {
+             body,
+diff --git a/projects/chirality-piping/core/product_physics/src/source_receipt/endpoint_maximum.rs b/projects/chirality-piping/core/product_physics/src/source_receipt/endpoint_maximum.rs
+new file mode 100644
+index 0000000000..091cf13e4a
+--- /dev/null
++++ b/projects/chirality-piping/core/product_physics/src/source_receipt/endpoint_maximum.rs
+@@ -0,0 +1,469 @@
++//! Integration candidate: private retained-source unloaded circular-span maximum.
++//!
++//! Caller proves the admitted source family, constant N, affine My/Mz, and the
++//! same positive numeric As/Z for the whole span. Inputs must come directly from
++//! retained SectionLocal endpoint functionals [0,4,5], never K*u or public JSON.
++//! Numeric As/Z are exact represented operands here, not a geometry/material
++//! accuracy certificate. No public/importable proof or new method ID is created.
++//!
++//! Requires IEEE binary64 round-to-nearest, gradual underflow, correctly rounded
++//! sqrt, and no fast-math/reassociation. Outward arithmetic follows the existing
++//! elastic_extrema convention; no platform hypot or guessed rounding margin.
++
++const CRITERION: f64 = 1e-9;
++
++#[derive(Clone, Copy, Debug, PartialEq)]
++pub(super) struct ProjectionBounds {
++    functional_index: usize,
++    value: f64,
++    interval: [f64; 2],
++}
++
++impl ProjectionBounds {
++    /// Internal numeric transport ONLY. Caller copies these three fields from
++    /// one owned retained projection after descriptor/source binding. Passing
++    /// arbitrary numbers cannot establish source qualification. No Deserialize.
++    pub(super) fn from_retained_parts(
++        functional_index: usize,
++        value: f64,
++        interval: [f64; 2],
++    ) -> Result<Self, MaximumError> {
++        if !value.is_finite()
++            || interval.iter().any(|x| !x.is_finite())
++            || interval[0] > value
++            || value > interval[1]
++        {
++            return Err(MaximumError::InvalidProjection);
++        }
++        Ok(Self {
++            functional_index,
++            value,
++            interval,
++        })
++    }
++
++    fn absolute(self) -> [f64; 2] {
++        let [lo, hi] = self.interval;
++        if lo >= 0.0 {
++            [lo, hi]
++        } else if hi <= 0.0 {
++            [-hi, -lo]
++        } else {
++            [0.0, (-lo).max(hi)]
++        }
++    }
++
++    fn singleton(self) -> Option<f64> {
++        (self.interval[0] == self.interval[1]).then_some(self.interval[0])
++    }
++}
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub(super) enum Endpoint {
++    I,
++    J,
++}
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub(super) enum Locations {
++    /// Strict endpoint interval separation, plus convexity, excludes every
++    /// other station. This does not assert a unique circumferential fiber.
++    StrictEndpoint(Endpoint),
++    /// Both retained endpoint bending components are singleton exact dyadics
++    /// and equal with sign. An affine vector with equal ends is constant.
++    WholeSpanConstant,
++    /// Both are candidates. exact_tie_proven requires singleton bending components
++    /// equal in absolute value componentwise, not equal rounded stress results.
++    /// An unresolved overlap can still permit a constant field/interior ties.
++    EndpointCandidates {
++        exact_tie_proven: bool,
++        interior_equal_possible: bool,
++    },
++}
++
++#[derive(Clone, Copy, Debug, PartialEq)]
++pub(super) struct EndpointEstimate {
++    pub value_pa: f64,
++    pub interval_pa: [f64; 2],
++    /// [N, My, Mz] indices in the same retained functional set.
++    pub functional_indices: [usize; 3],
++}
++
++#[derive(Clone, Copy, Debug, PartialEq)]
++pub(super) struct EndpointMaximum {
++    /// Deterministic max of the two computed representative values.
++    pub value_pa: f64,
++    /// Encloses the true global maximum for the admitted source span.
++    pub interval_pa: [f64; 2],
++    pub absolute_error_bound_pa: f64,
++    /// Upper bound relative to the actual positive maximum, using its lower
++    /// bound as denominator. Exactly-zero stress uses 0 by convention.
++    pub relative_error_bound: f64,
++    /// A representative endpoint, not an unconditional exact argmax claim.
++    pub witness: Endpoint,
++    pub locations: Locations,
++    pub endpoints: [EndpointEstimate; 2],
++}
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub(super) enum MaximumError {
++    InvalidProjection,
++    InvalidSection,
++    /// Constant-N source precondition contradicted by the supplied enclosures.
++    InconsistentAxialBounds,
++    ArithmeticRange,
++    /// Nonzero maximum or its nonzero global bounds cannot be published normal.
++    PublicationRange,
++    ProtectedCriterionUnestablished,
++}
++
++/// Pure bounded computation for one admitted unloaded straight span. Arguments
++/// are endpoints i,j, each ordered [N, My, Mz]. Ownership, descriptor identity,
++/// model/case/member/section agreement and invocation budget are caller-owned.
++pub(super) fn endpoint_maximum(
++    area: f64,
++    section_modulus: f64,
++    ends: [[ProjectionBounds; 3]; 2],
++) -> Result<EndpointMaximum, MaximumError> {
++    if !area.is_finite() || !section_modulus.is_finite() || area <= 0.0 || section_modulus <= 0.0 {
++        return Err(MaximumError::InvalidSection);
++    }
++    if !overlap(ends[0][0].interval, ends[1][0].interval) {
++        return Err(MaximumError::InconsistentAxialBounds);
++    }
++    let endpoints = [
++        endpoint(area, section_modulus, ends[0])?,
++        endpoint(area, section_modulus, ends[1])?,
++    ];
++    let witness = if endpoints[1].value_pa > endpoints[0].value_pa {
++        Endpoint::J
++    } else {
++        Endpoint::I
++    };
++    let value = endpoints[0].value_pa.max(endpoints[1].value_pa);
++    let lo = endpoints[0].interval_pa[0].max(endpoints[1].interval_pa[0]);
++    let hi = endpoints[0].interval_pa[1].max(endpoints[1].interval_pa[1]);
++    let absolute = if lo == value && value == hi {
++        0.0
++    } else {
++        up((value - lo).max(hi - value))?
++    };
++    let relative = if hi == 0.0 {
++        // Nonnegative stress + exact zero upper bound proves whole-span zero.
++        0.0
++    } else {
++        if !value.is_normal() || !hi.is_normal() || (lo != 0.0 && !lo.is_normal()) {
++            return Err(MaximumError::PublicationRange);
++        }
++        if lo <= 0.0 {
++            return Err(MaximumError::ProtectedCriterionUnestablished);
++        }
++        let relative = if absolute == 0.0 {
++            0.0
++        } else {
++            up(absolute / lo)?
++        };
++        if relative > CRITERION {
++            return Err(MaximumError::ProtectedCriterionUnestablished);
++        }
++        relative
++    };
++    let same_exact_bending = (1..3).all(|c| exact_equal(ends[0][c], ends[1][c], false));
++    let locations = if same_exact_bending {
++        Locations::WholeSpanConstant
++    } else if endpoints[0].interval_pa[0] > endpoints[1].interval_pa[1] {
++        Locations::StrictEndpoint(Endpoint::I)
++    } else if endpoints[1].interval_pa[0] > endpoints[0].interval_pa[1] {
++        Locations::StrictEndpoint(Endpoint::J)
++    } else {
++        Locations::EndpointCandidates {
++            exact_tie_proven: (1..3).all(|c| exact_equal(ends[0][c], ends[1][c], true)),
++            interior_equal_possible: (1..3)
++                .all(|c| overlap(ends[0][c].interval, ends[1][c].interval)),
++        }
++    };
++    Ok(EndpointMaximum {
++        value_pa: value,
++        interval_pa: [lo, hi],
++        absolute_error_bound_pa: absolute,
++        relative_error_bound: relative,
++        witness,
++        locations,
++        endpoints,
++    })
++}
++
++fn overlap(a: [f64; 2], b: [f64; 2]) -> bool {
++    a[0] <= b[1] && b[0] <= a[1]
++}
++
++fn exact_equal(a: ProjectionBounds, b: ProjectionBounds, magnitude: bool) -> bool {
++    match (a.singleton(), b.singleton()) {
++        (Some(x), Some(y)) => {
++            if magnitude {
++                x.abs() == y.abs()
++            } else {
++                x == y
++            }
++        }
++        _ => false,
++    }
++}
++
++fn endpoint(
++    area: f64,
++    z: f64,
++    actions: [ProjectionBounds; 3],
++) -> Result<EndpointEstimate, MaximumError> {
++    // Scaling each moment by Z first prevents avoidable moment-norm overflow.
++    // Explicit evaluation order is part of this private recipe.
++    let [n, my, mz] = actions.map(|p| p.value.abs());
++    let axial = finite(n / area)?;
++    let by = finite(my / z)?;
++    let bz = finite(mz / z)?;
++    let value = finite(axial + scaled_norm(by, bz)?)?;
++    let [n, my, mz] = actions.map(ProjectionBounds::absolute);
++    let mut bounds = [0.0; 2];
++    for (side, upper) in [false, true].into_iter().enumerate() {
++        let axial = divide(n[side], area, upper)?;
++        let by = divide(my[side], z, upper)?;
++        let bz = divide(mz[side], z, upper)?;
++        bounds[side] = add(axial, norm_bound(by, bz, upper)?, upper)?;
++    }
++    if bounds[0] > value || value > bounds[1] {
++        return Err(MaximumError::ArithmeticRange);
++    }
++    Ok(EndpointEstimate {
++        value_pa: value,
++        interval_pa: bounds,
++        functional_indices: actions.map(|p| p.functional_index),
++    })
++}
++
++fn finite(x: f64) -> Result<f64, MaximumError> {
++    if x.is_finite() {
++        Ok(x)
++    } else {
++        Err(MaximumError::ArithmeticRange)
++    }
++}
++fn up(x: f64) -> Result<f64, MaximumError> {
++    finite(x.next_up())
++}
++fn directed(x: f64, upper: bool) -> Result<f64, MaximumError> {
++    finite(x)?;
++    if upper {
++        up(x)
++    } else {
++        Ok(x.next_down().max(0.0))
++    }
++}
++fn divide(x: f64, d: f64, upper: bool) -> Result<f64, MaximumError> {
++    // Exact identities preserve true zero and singleton dyadic cases.
++    if x == 0.0 || d == 1.0 {
++        return Ok(x);
++    }
++    if x == d {
++        return Ok(1.0);
++    }
++    directed(x / d, upper)
++}
++fn multiply(x: f64, y: f64, upper: bool) -> Result<f64, MaximumError> {
++    if x == 0.0 || y == 0.0 {
++        return Ok(0.0);
++    }
++    if x == 1.0 {
++        return Ok(y);
++    }
++    if y == 1.0 {
++        return Ok(x);
++    }
++    directed(x * y, upper)
++}
++fn add(x: f64, y: f64, upper: bool) -> Result<f64, MaximumError> {
++    if x == 0.0 {
++        return Ok(y);
++    }
++    if y == 0.0 {
++        return Ok(x);
++    }
++    directed(x + y, upper)
++}
++
++fn scaled_norm(y: f64, z: f64) -> Result<f64, MaximumError> {
++    let m = y.max(z);
++    if m == 0.0 {
++        return Ok(0.0);
++    }
++    let a = y / m;
++    let b = z / m;
++    finite(m * ((a * a) + (b * b)).sqrt())
++}
++
++// Norm is monotone in nonnegative components. Bound the exact corner norm with
++// the same fixed max-scaled arithmetic order, rounding every operation outward.
++// Subnormal ratios/squares are enclosed with next_up, never dropped as exact 0.
++fn norm_bound(y: f64, z: f64, upper: bool) -> Result<f64, MaximumError> {
++    if y == 0.0 {
++        return Ok(z);
++    }
++    if z == 0.0 {
++        return Ok(y);
++    }
++    let m = y.max(z);
++    let a = divide(y, m, upper)?;
++    let b = divide(z, m, upper)?;
++    let square_a = multiply(a, a, upper)?;
++    let square_b = multiply(b, b, upper)?;
++    let sum = add(square_a, square_b, upper)?;
++    let root = directed(sum.sqrt(), upper)?;
++    multiply(m, root, upper)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn p(i: usize, v: f64) -> ProjectionBounds {
++        ProjectionBounds::from_retained_parts(i, v, [v, v]).unwrap()
++    }
++    fn e(i: usize, n: f64, y: f64, z: f64) -> [ProjectionBounds; 3] {
++        [p(i, n), p(i + 1, y), p(i + 2, z)]
++    }
++    fn within(r: EndpointMaximum, expected: f64) {
++        assert!(r.interval_pa[0] <= expected && expected <= r.interval_pa[1]);
++        assert!(r.relative_error_bound <= CRITERION);
++    }
++    #[test]
++    fn axial_and_zero_constant_fields_are_not_unique_endpoint_maxima() {
++        let r = endpoint_maximum(2.0, 1.0, [e(0, -10.0, 0.0, 0.0), e(3, -10.0, 0.0, 0.0)]).unwrap();
++        within(r, 5.0);
++        assert_eq!(r.locations, Locations::WholeSpanConstant);
++        let z = endpoint_maximum(2.0, 1.0, [e(0, 0.0, 0.0, 0.0), e(3, 0.0, 0.0, 0.0)]).unwrap();
++        assert_eq!(z.interval_pa, [0.0, 0.0]);
++        assert_eq!(z.absolute_error_bound_pa, 0.0);
++    }
++    #[test]
++    fn pure_biaxial_opposite_and_strict_controls() {
++        let r = endpoint_maximum(1.0, 2.0, [e(0, 0.0, 3.0, 0.0), e(3, 0.0, 3.0, 0.0)]).unwrap();
++        within(r, 1.5);
++        let r = endpoint_maximum(2.0, 2.0, [e(0, 10.0, 3.0, 4.0), e(3, 10.0, 3.0, 4.0)]).unwrap();
++        within(r, 7.5);
++        assert_eq!(r.locations, Locations::WholeSpanConstant);
++        let r = endpoint_maximum(1.0, 1.0, [e(0, 0.0, 3.0, 4.0), e(3, 0.0, -3.0, -4.0)]).unwrap();
++        within(r, 5.0);
++        assert_eq!(
++            r.locations,
++            Locations::EndpointCandidates {
++                exact_tie_proven: true,
++                interior_equal_possible: false
++            }
++        );
++        let r = endpoint_maximum(1.0, 1.0, [e(0, 0.0, 1.0, 0.0), e(3, 0.0, 2.0, 0.0)]).unwrap();
++        within(r, 2.0);
++        assert_eq!(r.locations, Locations::StrictEndpoint(Endpoint::J));
++        assert_eq!(r.witness, Endpoint::J);
++        assert_eq!(r.endpoints[0].functional_indices, [0, 1, 2]);
++        assert_eq!(r.endpoints[1].functional_indices, [3, 4, 5]);
++    }
++    #[test]
++    fn projection_uncertainty_is_composed_and_not_reported_as_exact_equality() {
++        let mut ends = [e(0, 1.0, 3.0, 4.0), e(3, 1.0, 3.0, 4.0)];
++        for end in &mut ends {
++            end[1] = ProjectionBounds::from_retained_parts(
++                end[1].functional_index,
++                3.0,
++                [3.0 - 1e-10, 3.0 + 1e-10],
++            )
++            .unwrap();
++        }
++        let r = endpoint_maximum(1.0, 1.0, ends).unwrap();
++        within(r, 6.0);
++        assert!(r.absolute_error_bound_pa > 1e-11);
++        assert_eq!(
++            r.locations,
++            Locations::EndpointCandidates {
++                exact_tie_proven: false,
++                interior_equal_possible: true
++            }
++        );
++        ends[0][0] = ProjectionBounds::from_retained_parts(0, 1.0, [0.9, 1.1]).unwrap();
++        ends[1][0] = ProjectionBounds::from_retained_parts(3, 1.0, [0.9, 1.1]).unwrap();
++        assert_eq!(
++            endpoint_maximum(1.0, 1.0, ends),
++            Err(MaximumError::ProtectedCriterionUnestablished)
++        );
++    }
++    #[test]
++    fn cancellation_sensitive_action_is_bounded_not_recovered_from_displacements() {
++        // Exact retained affine source: (2^53 + 1) - 2^53 = 1. The input here
++        // models its projection enclosure, not the catastrophic naive f64 sum.
++        let mut ends = [e(0, 1.0, 0.0, 0.0), e(3, 1.0, 0.0, 0.0)];
++        for end in &mut ends {
++            end[0] = ProjectionBounds::from_retained_parts(
++                end[0].functional_index,
++                1.0,
++                [1.0 - 1e-12, 1.0 + 1e-12],
++            )
++            .unwrap();
++        }
++        let r = endpoint_maximum(2.0, 1.0, ends).unwrap();
++        within(r, 0.5);
++        assert!(r.absolute_error_bound_pa > 4e-13);
++    }
++    #[test]
++    fn primitive_criterion_does_not_automatically_qualify_the_derived_recipe() {
++        // Each exact represented enclosure meets 1e-9; the independent Fraction
++        // check records those comparisons. The composed arithmetic cannot.
++        let y = ProjectionBounds::from_retained_parts(1, 3.0, [2.9999999970000006, 3.000000003])
++            .unwrap();
++        let z =
++            ProjectionBounds::from_retained_parts(2, 4.0, [3.9999999960000006, 4.000000003999999])
++                .unwrap();
++        assert_eq!(
++            endpoint_maximum(1.0, 1.0, [[p(0, 0.0), y, z]; 2]),
++            Err(MaximumError::ProtectedCriterionUnestablished)
++        );
++    }
++    #[test]
++    fn extreme_normal_and_subnormal_projection_controls() {
++        for v in [1e-300, 1e300] {
++            let r = endpoint_maximum(1.0, 1.0, [e(0, v, v, v), e(3, v, v, v)]).unwrap();
++            assert!(r.value_pa.is_normal());
++            assert!(r.relative_error_bound <= CRITERION);
++        }
++        let tiny = f64::from_bits(1);
++        let r = endpoint_maximum(tiny, 1.0, [e(0, tiny, 0.0, 0.0), e(3, tiny, 0.0, 0.0)]).unwrap();
++        within(r, 1.0);
++        assert_eq!(
++            endpoint_maximum(1.0, 1.0, [e(0, tiny, 0.0, 0.0), e(3, tiny, 0.0, 0.0)]),
++            Err(MaximumError::PublicationRange)
++        );
++        assert_eq!(
++            endpoint_maximum(2.0, 1.0, [e(0, tiny, 0.0, 0.0), e(3, tiny, 0.0, 0.0)]),
++            Err(MaximumError::PublicationRange)
++        );
++        // A tiny norm component may underflow when squared, but its nonzero
++        // contribution remains inside the outward bound of a normal maximum.
++        assert!(endpoint_maximum(1.0, 1.0, [e(0, 0.0, 1.0, tiny), e(3, 0.0, 1.0, tiny)]).is_ok());
++        assert!(endpoint_maximum(
++            1.0,
++            1.0,
++            [e(0, 1e308, 1e308, 1e308), e(3, 1e308, 1e308, 1e308)]
++        )
++        .is_err());
++    }
++    #[test]
++    fn invalid_numeric_inputs_and_contradicted_constant_n_are_refused() {
++        assert!(ProjectionBounds::from_retained_parts(0, 1.0, [2.0, 3.0]).is_err());
++        assert!(ProjectionBounds::from_retained_parts(0, f64::NAN, [0.0, 1.0]).is_err());
++        let ends = [e(0, 1.0, 0.0, 0.0), e(3, 2.0, 0.0, 0.0)];
++        assert_eq!(
++            endpoint_maximum(1.0, 1.0, ends),
++            Err(MaximumError::InconsistentAxialBounds)
++        );
++        assert_eq!(
++            endpoint_maximum(0.0, 1.0, ends),
++            Err(MaximumError::InvalidSection)
++        );
++    }
++}
+diff --git a/projects/chirality-piping/core/product_physics/src/source_receipt/source.rs b/projects/chirality-piping/core/product_physics/src/source_receipt/source.rs
+index 651c0c7483..694dafe454 100644
+--- a/projects/chirality-piping/core/product_physics/src/source_receipt/source.rs
++++ b/projects/chirality-piping/core/product_physics/src/source_receipt/source.rs
+@@ -153,6 +153,7 @@ fn function(
+ fn recipes(
+     payload: &Value,
+     input: &source_recovery::Input<'_>,
++    selected: &SelectedSourceRecovery,
+     ledger: &[RowTreatment],
+     actual: &[ResultItem],
+ ) -> Result<Value, ReceiptError> {
+@@ -167,8 +168,14 @@ fn recipes(
+             .ok_or_else(|| bad("recipe registration missing"))?;
+         let mut parameters = Vec::new();
+         match recipe{
+-            "translation_norm_scaled_v1"|"support_force_norm_scaled_v1"=>{},
+-            "straight_open_stress_v1"=>{
++            "translation_norm_scaled_v1"|"support_force_norm_scaled_v1"|"support_force_norm_scaled_checked_v1"|"support_moment_norm_scaled_checked_v1"=>{},
++            "retained_source_endpoint_normal_max_v1"=>{
++                let i=input.built.pipes.iter().position(|p|p.element_id==row.entity_ref).ok_or_else(||bad("endpoint recipe member"))?;
++                let section=input.built.sections.get(&row.entity_ref).ok_or_else(||bad("endpoint recipe section"))?;
++                parameters.push(json!({"name":"area","operand":source_operand(payload,format!("/frames/{i}/formation_inputs/area_bits"),section.area)?}));
++                parameters.push(json!({"name":"section_modulus","operand":source_operand(payload,format!("/frames/{i}/recovery_section/section_modulus_bits"),section.section_modulus)?}));
++            },
++            "straight_open_stress_v1"|"retained_source_straight_stress_v1"=>{
+                 let i=input.built.pipes.iter().position(|p|p.element_id==row.entity_ref).ok_or_else(||bad("recipe member"))?;
+                 let section=input.built.sections.get(&row.entity_ref).ok_or_else(||bad("recipe section"))?;
+                 let operands:Vec<(&str,String,f64)>=match row.kind.as_str(){"element_local_axial_normal_stress"=>vec![("area",format!("/frames/{i}/formation_inputs/area_bits"),section.area)],"element_local_bending_normal_stress_y"|"element_local_bending_normal_stress_z"=>vec![("section_modulus",format!("/frames/{i}/recovery_section/section_modulus_bits"),section.section_modulus)],"element_local_torsional_shear_stress"=>vec![("torsion_radius",format!("/frames/{i}/recovery_section/torsion_radius_bits"),section.torsion_radius),("torsion_constant",format!("/frames/{i}/formation_inputs/torsion_constant_bits"),section.torsion_constant)],_=>return Err(bad("recipe signature"))};
+@@ -178,7 +185,67 @@ fn recipes(
+             "reviewed_stress_summary_v1"=>parameters.push(json!({"name":"pa_per_mpa","operand":{"kind":"method_constant","bits":bits(1_000_000.)}})),
+             _=>return Err(bad("unimplemented recipe")),
+         }
+-        recipes.push(json!({"result_id":row.id,"recipe_id":recipe,"input_result_ids":treatment.input_result_ids,"parameters":parameters}));
++        let mut record = json!({"result_id":row.id,"recipe_id":recipe,"input_result_ids":treatment.input_result_ids,"parameters":parameters});
++        let mut indices = Vec::new();
++        if recipe == "retained_source_straight_stress_v1"
++            || recipe == "retained_source_endpoint_normal_max_v1"
++        {
++            let member = selected
++                .members()
++                .iter()
++                .find(|m| m.member_id == row.entity_ref)
++                .ok_or_else(|| bad("source recipe member"))?;
++            if recipe == "retained_source_endpoint_normal_max_v1" {
++                for station in [0usize, 4] {
++                    indices.extend(
++                        [0usize, 4, 5].map(|c| member.section_functional_indices[station][c]),
++                    );
++                }
++            } else {
++                let metadata = row
++                    .metadata
++                    .as_ref()
++                    .ok_or_else(|| bad("source stress metadata"))?;
++                let station = match metadata.location.as_str() {
++                    "end_i" => 0,
++                    "quarter_1" => 1,
++                    "midspan" => 2,
++                    "quarter_3" => 3,
++                    "end_j" => 4,
++                    _ => return Err(bad("source stress station")),
++                };
++                let component = match row.kind.as_str() {
++                    "element_local_axial_normal_stress" => 0,
++                    "element_local_bending_normal_stress_y" => 4,
++                    "element_local_bending_normal_stress_z" => 5,
++                    "element_local_torsional_shear_stress" => 3,
++                    _ => return Err(bad("source stress component")),
++                };
++                indices.push(member.section_functional_indices[station][component]);
++            }
++        } else if matches!(
++            recipe,
++            "support_force_norm_scaled_checked_v1" | "support_moment_norm_scaled_checked_v1"
++        ) {
++            let support = selected
++                .support_actions()
++                .iter()
++                .find(|s| s.support_id == row.entity_ref)
++                .ok_or_else(|| bad("source norm support"))?;
++            let first = if recipe == "support_force_norm_scaled_checked_v1" {
++                0
++            } else {
++                3
++            };
++            indices.extend((first..first + 3).map(|i| support.functional_indices[i]));
++        }
++        if !indices.is_empty() {
++            record["input_functional_ids"] = json!(indices
++                .into_iter()
++                .map(|i| functional_id(&input.load_case.id, i))
++                .collect::<Vec<_>>());
++        }
++        recipes.push(record);
+     }
+     Ok(json!(recipes))
+ }
+@@ -279,7 +346,7 @@ pub(super) fn commitment(
+         .enumerate()
+         .map(|(i, d)| function(&payload, input, d, i, bindings))
+         .collect::<Result<_, _>>()?;
+-    let plan = json!({"payload_version":"1.0.0","normalized_source_sha256":normalized,"functions":functions,"derived_recipes":recipes(&payload,input,ledger,actual)?,"observation_result_ids":actual.iter().filter(|r|rows::observation(r)).map(|r|&r.id).collect::<Vec<_>>()});
++    let plan = json!({"payload_version":"1.0.0","normalized_source_sha256":normalized,"functions":functions,"derived_recipes":recipes(&payload,input,selected,ledger,actual)?,"observation_result_ids":actual.iter().filter(|r|rows::observation(r)).map(|r|&r.id).collect::<Vec<_>>()});
+     let plan_hash = hash("source_blocks_functional_plan_v1", &plan)?;
+     let blocks: Vec<_> = response
+         .block_witnesses()
+diff --git a/projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs b/projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs
+index ae834f7c3e..c1898fe891 100644
+--- a/projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs
++++ b/projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs
+@@ -10,11 +10,12 @@ pub(super) struct Ledger {
+     pub supports: Value,
+ }
+ fn qualify(input: &source_recovery::Input<'_>, mut row: ResultItem) -> ResultItem {
+-    if input
+-        .model
+-        .load_cases
+-        .first()
+-        .is_some_and(|c| c.id != input.load_case.id)
++    if !(pressure_runtime::is_exact(input.model) && row.kind.ends_with("_v2"))
++        && input
++            .model
++            .load_cases
++            .first()
++            .is_some_and(|c| c.id != input.load_case.id)
+     {
+         row.id = qualified_load_case_result_id(&input.load_case.id, &row.id);
+     }
+@@ -43,8 +44,10 @@ fn unit(u: FunctionalUnit) -> Result<&'static str, ReceiptError> {
+ }
+ pub(super) fn finite_norm(values: [f64; 3]) -> Result<f64, ReceiptError> {
+     let value = scaled_norm(values);
+-    if values.iter().any(|x| !x.is_finite()) || !value.is_finite()
+-        || (values.iter().any(|x| *x != 0.0) && !value.is_normal()) {
++    if values.iter().any(|x| !x.is_finite())
++        || !value.is_finite()
++        || (values.iter().any(|x| *x != 0.0) && !value.is_normal())
++    {
+         return Err(bad("derived norm range"));
+     }
+     Ok(value)
+@@ -52,6 +55,13 @@ pub(super) fn finite_norm(values: [f64; 3]) -> Result<f64, ReceiptError> {
+ pub(super) fn expected_primary(
+     input: &source_recovery::Input<'_>,
+     selected: &SelectedSourceRecovery,
++) -> Result<BTreeMap<usize, ResultItem>, ReceiptError> {
++    expected_primary_for(input, selected, false)
++}
++pub(super) fn expected_primary_for(
++    input: &source_recovery::Input<'_>,
++    selected: &SelectedSourceRecovery,
++    composite: bool,
+ ) -> Result<BTreeMap<usize, ResultItem>, ReceiptError> {
+     let mut expected = BTreeMap::new();
+     for (node_index, node) in input.model.nodes.iter().enumerate() {
+@@ -120,6 +130,26 @@ pub(super) fn expected_primary(
+             expected.insert(support.functional_indices[c], qualify(input, row));
+         }
+     }
++    if composite {
++        for support in selected.support_actions() {
++            let authored = input
++                .model
++                .supports
++                .iter()
++                .find(|s| s.id == support.support_id)
++                .ok_or_else(|| bad("composite support owner"))?;
++            let mut generated = Vec::new();
++            append_signed_support_results(
++                &mut generated,
++                input.load_case,
++                authored,
++                support.values,
++            );
++            for (component, row) in generated.into_iter().take(6).enumerate() {
++                expected.insert(support.functional_indices[component], qualify(input, row));
++            }
++        }
++    }
+     Ok(expected)
+ }
+ fn descriptor_matches(
+@@ -293,21 +323,30 @@ fn bare(id: String, kind: &str, value: f64, unit: &str, entity: &str) -> ResultI
+ }
+ pub(super) struct Derived {
+     pub(super) row: ResultItem,
+-    recipe: &'static str,
+-    inputs: Vec<String>,
++    pub(super) recipe: &'static str,
++    pub(super) inputs: Vec<String>,
+ }
+ pub(super) fn derived(
+     input: &source_recovery::Input<'_>,
+     selected: &SelectedSourceRecovery,
+     primary: &BTreeMap<usize, ResultItem>,
++) -> Result<Vec<Derived>, ReceiptError> {
++    derived_for(input, selected, primary, false)
++}
++pub(super) fn derived_for(
++    input: &source_recovery::Input<'_>,
++    selected: &SelectedSourceRecovery,
++    primary: &BTreeMap<usize, ResultItem>,
++    composite: bool,
+ ) -> Result<Vec<Derived>, ReceiptError> {
+     // Euclidean norm is 1-Lipschitz relative to a componentwise relative
+     // perturbation. Reserve an additional conservative 64 machine epsilons
+     // for the fixed scaled recipe's rounding; affine bounds alone do not
+     // establish the derivative criterion.
+     let arithmetic_bound = 64.0 * f64::EPSILON;
+-    if selected.summary().max_relative_projection_error >
+-        (CRITERION - arithmetic_bound) / (1.0 + arithmetic_bound) {
++    if selected.summary().max_relative_projection_error
++        > (CRITERION - arithmetic_bound) / (1.0 + arithmetic_bound)
++    {
+         return Err(bad("derived norm error budget"));
+     }
+     // Stress and its summary are two arithmetic layers after projection. This
+@@ -315,8 +354,10 @@ pub(super) fn derived(
+     // additional allowance covers both layers rather than reusing the affine
+     // criterion without room for their rounding.
+     let stress_bound = 128.0 * f64::EPSILON;
+-    if !selected.members().is_empty() && selected.summary().max_relative_projection_error >
+-        (CRITERION - stress_bound) / (1.0 + stress_bound) {
++    if !selected.members().is_empty()
++        && selected.summary().max_relative_projection_error
++            > (CRITERION - stress_bound) / (1.0 + stress_bound)
++    {
+         return Err(bad("derived stress error budget"));
+     }
+     let mut out = Vec::new();
+@@ -344,7 +385,7 @@ pub(super) fn derived(
+             inputs: ids,
+         });
+     }
+-    for s in selected.support_actions() {
++    for s in selected.support_actions().iter().filter(|_| !composite) {
+         let ids = (0..3)
+             .map(|c| primary[&s.functional_indices[c]].id.clone())
+             .collect();
+@@ -379,7 +420,9 @@ pub(super) fn derived(
+             (4, "end_j"),
+         ] {
+             let actions: [f64; 6] = std::array::from_fn(|component| {
+-                if s == 0 {
++                if composite {
++                    m.sections[s][component]
++                } else if s == 0 {
+                     -primary[&m.end_functional_indices[component]].value
+                 } else if s == 4 {
+                     primary[&m.end_functional_indices[6 + component]].value
+@@ -413,7 +456,8 @@ pub(super) fn derived(
+                 // meet the criterion when this division loses too much range.
+                 let mpa = value / 1e6;
+                 if (action == 0.0 && (value != 0.0 || mpa != 0.0))
+-                    || (action != 0.0 && (!mpa.is_normal() || !value.is_normal())) {
++                    || (action != 0.0 && (!mpa.is_normal() || !value.is_normal()))
++                {
+                     return Err(bad("straight stress MPa publication range"));
+                 }
+             }
+@@ -422,10 +466,17 @@ pub(super) fn derived(
+             }
+             let local = open_formula_summary_mpa(&stress, false)
+                 .ok_or_else(|| bad("summary unavailable"))?;
+-            let nonzero_normal = [c.axial_normal.unwrap(), c.bending_normal_y.unwrap(), c.bending_normal_z.unwrap()]
+-                .iter().any(|v| *v != 0.0);
+-            if !local.is_finite() || (nonzero_normal && !local.is_normal())
+-                || (!nonzero_normal && local != 0.0) {
++            let nonzero_normal = [
++                c.axial_normal.unwrap(),
++                c.bending_normal_y.unwrap(),
++                c.bending_normal_z.unwrap(),
++            ]
++            .iter()
++            .any(|v| *v != 0.0);
++            if !local.is_finite()
++                || (nonzero_normal && !local.is_normal())
++                || (!nonzero_normal && local != 0.0)
++            {
+                 return Err(bad("stress summary MPa publication range"));
+             }
+             summary = summary.max(local);
+@@ -471,8 +522,16 @@ pub(super) fn derived(
+                 stress_ids.push(row.id.clone());
+                 out.push(Derived {
+                     row,
+-                    recipe: "straight_open_stress_v1",
+-                    inputs: vec![primary[&function].id.clone()],
++                    recipe: if composite {
++                        "retained_source_straight_stress_v1"
++                    } else {
++                        "straight_open_stress_v1"
++                    },
++                    inputs: if composite {
++                        vec![]
++                    } else {
++                        vec![primary[&function].id.clone()]
++                    },
+                 });
+             }
+         }
+@@ -480,20 +539,22 @@ pub(super) fn derived(
+         // normal components are affine along a straight span: sum of absolute
+         // affine components is convex, hence its maximum is at an endpoint.
+         // Evaluated five points remain checked binary64 recipes, no exact-max claim.
+-        out.push(Derived {
+-            row: qualify(
+-                input,
+-                bare(
+-                    format!("result:stress:{}", stable_suffix(&m.member_id)),
+-                    "open_formula_stress_summary",
+-                    summary,
+-                    "MPa",
+-                    &m.member_id,
++        if !composite {
++            out.push(Derived {
++                row: qualify(
++                    input,
++                    bare(
++                        format!("result:stress:{}", stable_suffix(&m.member_id)),
++                        "open_formula_stress_summary",
++                        summary,
++                        "MPa",
++                        &m.member_id,
++                    ),
+                 ),
+-            ),
+-            recipe: "reviewed_stress_summary_v1",
+-            inputs: stress_ids,
+-        });
++                recipe: "reviewed_stress_summary_v1",
++                inputs: stress_ids,
++            });
++        }
+     }
+     Ok(out)
+ }
+@@ -502,9 +563,19 @@ pub(super) fn bind(
+     selected: &SelectedSourceRecovery,
+     rows: &[ResultItem],
+     bindings: &[FunctionalRowBinding],
++) -> Result<Ledger, ReceiptError> {
++    bind_for(input, selected, rows, bindings, false, vec![])
++}
++pub(super) fn bind_for(
++    input: &source_recovery::Input<'_>,
++    selected: &SelectedSourceRecovery,
++    rows: &[ResultItem],
++    bindings: &[FunctionalRowBinding],
++    composite: bool,
++    additional: Vec<Derived>,
+ ) -> Result<Ledger, ReceiptError> {
+     validate_case_rows(&input.load_case.id, rows)?;
+-    let primary = expected_primary(input, selected)?;
++    let primary = expected_primary_for(input, selected, composite)?;
+     if primary.len() != bindings.len() {
+         return Err(bad("complete public functional binding count"));
+     }
+@@ -544,7 +615,10 @@ pub(super) fn bind(
+         );
+         projections.push(projection);
+     }
+-    for d in derived(input, selected, &primary)? {
++    for d in derived_for(input, selected, &primary, composite)?
++        .into_iter()
++        .chain(additional)
++    {
+         let row = *actual
+             .get(d.row.id.as_str())
+             .ok_or_else(|| bad(format!("required derived row missing: {}", d.row.id)))?;
+diff --git a/projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs b/projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs
+index cf7e162ef2..12b9610961 100644
+--- a/projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs
+@@ -91,7 +91,14 @@ fn captured_invocation_keeps_unknown_absence_material_and_actual_mode() {
+ fn selected_projection_mapping_rejects_value_unit_entity_missing_duplicate() {
+     let (request, _) = CapturedInvocation::parse(raw(), PreviewSolverMode::DenseScrutiny).unwrap();
+     let f = Fixture::new(request.model);
+-    let selected = source_recovery::solve(f.input(), exact::Limits { operations: SOURCE_BLOCKS_WORK_LIMIT, ..Default::default() }).unwrap();
++    let selected = source_recovery::solve(
++        f.input(),
++        exact::Limits {
++            operations: SOURCE_BLOCKS_WORK_LIMIT,
++            ..Default::default()
++        },
++    )
++    .unwrap();
+     let expected = rows::expected_primary(&f.input(), &selected).unwrap();
+     let bindings: Vec<_> = expected
+         .iter()
+@@ -130,12 +137,26 @@ fn actual_capture_replay_rejects_changed_material_or_load_source() {
+     let (request, capture) =
+         CapturedInvocation::parse(original.clone(), PreviewSolverMode::DenseScrutiny).unwrap();
+     let f = Fixture::new(request.model);
+-    let mut selected = source_recovery::solve(f.input(), exact::Limits { operations: SOURCE_BLOCKS_WORK_LIMIT, ..Default::default() }).unwrap();
++    let mut selected = source_recovery::solve(
++        f.input(),
++        exact::Limits {
++            operations: SOURCE_BLOCKS_WORK_LIMIT,
++            ..Default::default()
++        },
++    )
++    .unwrap();
+     assert!(capture.check_input(&f.input(), &mut selected).is_ok());
+     let mut changed = original;
+     changed["model"]["materials"][0]["shear_modulus"]["value"] = json!(81e9);
+     let (_, other) = CapturedInvocation::parse(changed, PreviewSolverMode::DenseScrutiny).unwrap();
+-    let mut selected = source_recovery::solve(f.input(), exact::Limits { operations: SOURCE_BLOCKS_WORK_LIMIT, ..Default::default() }).unwrap();
++    let mut selected = source_recovery::solve(
++        f.input(),
++        exact::Limits {
++            operations: SOURCE_BLOCKS_WORK_LIMIT,
++            ..Default::default()
++        },
++    )
++    .unwrap();
+     assert!(other.check_input(&f.input(), &mut selected).is_err());
+ }
+ #[test]
+@@ -168,3 +189,262 @@ fn receipt_domain_hashes_are_acyclic_and_distinct() {
+         .unwrap()
+     );
+ }
++
++// Append to source_receipt/tests.rs after parent's bounded public run.
++fn exact_raw() -> Value {
++    serde_json::from_str(include_str!(
++        "../../../../fixtures/product_preview/physics_source/n05.request.json"
++    ))
++    .unwrap()
++}
++fn exact_fixture(raw: &Value) -> Fixture {
++    let request: LinearStaticPreviewRequest = serde_json::from_value(raw.clone()).unwrap();
++    let mut model = request.model;
++    let mut materials = if request.materials.is_empty() {
++        model.materials.clone()
++    } else {
++        request.materials
++    };
++    let mut diagnostics = vec![];
++    resolve_shared_sections(&mut model, &mut diagnostics);
++    normalize_model_units(&mut model, &mut materials, &mut diagnostics);
++    pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
++    if modulus_basis_key(&model.load_cases[0], &mut diagnostics).is_some() {
++        materials = pressure_material::resolve_case(
++            &model,
++            &materials,
++            &model.load_cases[0],
++            &mut diagnostics,
++        )
++        .unwrap()
++        .0;
++    }
++    assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
++    model.materials = materials;
++    Fixture::new(model)
++}
++#[test]
++fn composite_captured_exact_empty_regions_replay_and_overrides() {
++    let mut raw = exact_raw();
++    raw["unknown_actual_capture_marker"] = json!({"kept":true});
++    raw["materials"] = raw["model"]["materials"].clone();
++    // Material override is the actual source; a disagreeing model copy cannot win.
++    raw["model"]["materials"][0]["elastic_modulus"]["value"] = json!(123.0);
++    let f = exact_fixture(&raw);
++    let (_, capture) =
++        CapturedInvocation::parse(raw.clone(), PreviewSolverMode::DenseScrutiny).unwrap();
++    let mut selected = source_recovery::solve(
++        f.input(),
++        exact::Limits {
++            operations: SOURCE_BLOCKS_WORK_LIMIT,
++            ..Default::default()
++        },
++    )
++    .unwrap();
++    capture.check_input(&f.input(), &mut selected).unwrap();
++    let member = selected.members()[0].member_id.clone();
++    let maximum = composite_member_maximum(&f.input(), &mut selected, &member).unwrap();
++    let evidence = maximum.evidence("test:maximum");
++    assert_eq!(evidence["basis"], "retained_source_endpoint_normal_max_v1");
++    assert_eq!(evidence["load_case_id"], f.model.load_cases[0].id);
++    assert_eq!(
++        evidence["endpoints"][0]["functional_indices"],
++        json!([0usize, 4, 5].map(|c| selected.members()[0].section_functional_indices[0][c]))
++    );
++    let support = selected.support_actions()[0].support_id.clone();
++    assert!(composite_support_norms(&f.input(), &mut selected, &support)
++        .unwrap()
++        .iter()
++        .all(|x| x.is_finite()));
++    let mut wrong = raw;
++    wrong["materials"][0]["poisson_ratio"]["value"] = json!(0.123);
++    let (_, capture) = CapturedInvocation::parse(wrong, PreviewSolverMode::DenseScrutiny).unwrap();
++    let mut selected = source_recovery::solve(
++        f.input(),
++        exact::Limits {
++            operations: SOURCE_BLOCKS_WORK_LIMIT,
++            ..Default::default()
++        },
++    )
++    .unwrap();
++    assert!(capture.check_input(&f.input(), &mut selected).is_err());
++}
++#[test]
++fn composite_adapter_refuses_missing_zero_and_nonzero_regions() {
++    for pressure in [None, Some(0.0), Some(123.0)] {
++        let mut f = exact_fixture(&exact_raw());
++        f.model.load_cases[0].pressure_regions = pressure.map(|value| {
++            vec![pressure_runtime::PressureRegionInput {
++                pressure: Some(Quantity {
++                    value,
++                    unit: "Pa".into(),
++                }),
++                ..Default::default()
++            }]
++        });
++        let error = source_recovery::solve(
++            f.input(),
++            exact::Limits {
++                operations: SOURCE_BLOCKS_WORK_LIMIT,
++                ..Default::default()
++            },
++        )
++        .unwrap_err();
++        assert!(matches!(
++            error.error,
++            source_recovery::RecoveryError::Unsupported(_)
++        ));
++        assert!(error.work.charged > 0);
++    }
++}
++#[test]
++fn composite_recipe_reserves_before_failures_and_geometry_changes() {
++    let mut f = exact_fixture(&exact_raw());
++    let mut selected = source_recovery::solve(
++        f.input(),
++        exact::Limits {
++            operations: SOURCE_BLOCKS_WORK_LIMIT,
++            ..Default::default()
++        },
++    )
++    .unwrap();
++    let before = selected.summary().work.charged;
++    assert!(composite_member_maximum(&f.input(), &mut selected, "missing").is_err());
++    assert!(selected.summary().work.charged > before);
++    let member = selected.members()[0].member_id.clone();
++    f.built.sections.get_mut(&member).unwrap().area *= 2.0;
++    assert!(composite_member_maximum(&f.input(), &mut selected, &member).is_err());
++    let remaining = selected.summary().work.limit - selected.summary().work.charged;
++    selected.charge_finalization(remaining).unwrap();
++    let before = selected.summary().work.charged;
++    assert!(composite_support_norms(&f.input(), &mut selected, "missing").is_err());
++    assert_eq!(selected.summary().work.charged, before);
++    assert!(selected.summary().work.rejected > 0);
++}
++
++// Measurement only: explicit command; never a production budget override.
++#[test]
++#[ignore = "bounded resource measurement with private 16M test budget; not public qualification"]
++fn composite_fields_work_measurement() {
++    let raw: Value = serde_json::from_str(include_str!(
++        "../../../../fixtures/product_preview/physics_source/fields.request.json"
++    ))
++    .unwrap();
++    for mode in [
++        PreviewSolverMode::DenseScrutiny,
++        PreviewSolverMode::SparseInteractive,
++    ] {
++        let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
++        let mut budget = SourceRecoveryBudget {
++            per_case_limit: 16_000_000,
++            ..Default::default()
++        };
++        composite::start_trace();
++        let envelope =
++            run_linear_static_preview_captured(request, mode, Some(&capture), &mut budget);
++        let trace = composite::take_trace();
++        let wire = serialized(&envelope).unwrap();
++        eprintln!(
++            "COMPOSITE_WORK_MEASUREMENT {}",
++            json!({"purpose":"private resource measurement; not public policy or qualification","mode":mode.as_str(),"private_per_case_limit":16_000_000,"public_per_case_limit":SOURCE_BLOCKS_WORK_LIMIT,"stage_trace":trace,"invocation_charged":budget.charged,"publication_charged":budget.publication_charged,"case_work":wire["source_block_recovery"]["body"]["cases"][0]["work"],"receipt_status":wire["source_block_recovery"]["body"]["status"],"diagnostics":wire["diagnostics"].as_array().unwrap().iter().filter(|d|d["severity"]=="blocking").collect::<Vec<_>>()})
++        );
++        assert!(
++            envelope.source_block_recovery.is_none(),
++            "private oversized limit must not create a selected-policy receipt"
++        );
++        assert!(
++            trace.last().unwrap()["charged"].as_u64().unwrap() > SOURCE_BLOCKS_WORK_LIMIT as u64
++        );
++        assert!(envelope.diagnostics.iter().any(|d| d
++            .message
++            .contains("case budget exceeds selected receipt policy")));
++    }
++}
++
++#[test]
++fn composite_resource_policy_cannot_promote_old_method_or_refund_failure() {
++    fn run(
++        raw: Value,
++        case_limit: usize,
++        invocation_limit: usize,
++    ) -> (MechanicsEnvelope, SourceRecoveryBudget) {
++        let (request, capture) =
++            CapturedInvocation::parse(raw, PreviewSolverMode::DenseScrutiny).unwrap();
++        let mut budget = SourceRecoveryBudget {
++            per_case_limit: case_limit,
++            invocation_limit,
++            ..Default::default()
++        };
++        let envelope = run_linear_static_preview_captured(
++            request,
++            PreviewSolverMode::DenseScrutiny,
++            Some(&capture),
++            &mut budget,
++        );
++        (envelope, budget)
++    }
++    assert_eq!(SOURCE_BLOCKS_WORK_LIMIT, 4_000_000);
++    assert_eq!(PHYSICS_SOURCE_WORK_LIMIT, 8_000_000);
++    for (value, cap) in [
++        (raw(), PHYSICS_SOURCE_WORK_LIMIT),
++        (exact_raw(), PHYSICS_SOURCE_WORK_LIMIT + 1),
++    ] {
++        let (envelope, budget) = run(value, cap, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
++        assert!(envelope.source_block_recovery.is_none());
++        assert!(envelope.diagnostics.iter().any(|d| d
++            .message
++            .contains("case budget exceeds selected receipt policy")));
++        assert!(budget.charged > budget.publication_charged && budget.publication_charged > 0);
++    }
++    let (denied, budget) = run(exact_raw(), 100_000, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
++    assert!(denied.source_block_recovery.is_none());
++    assert!(budget.charged > 0 && budget.failed_charged == budget.charged);
++    let (positive, budget) = run(
++        exact_raw(),
++        PHYSICS_SOURCE_WORK_LIMIT,
++        SOURCE_BLOCKS_INVOCATION_WORK_LIMIT,
++    );
++    let receipt = positive.source_block_recovery.as_ref().unwrap();
++    let case_work = receipt["body"]["cases"][0]["work"]["charged"]
++        .as_u64()
++        .unwrap() as usize;
++    assert_eq!(case_work + budget.publication_charged, budget.charged);
++    let (denied, limited) = run(exact_raw(), PHYSICS_SOURCE_WORK_LIMIT, case_work + 1);
++    assert!(denied.source_block_recovery.is_none());
++    assert_eq!(limited.charged, case_work);
++    assert!(limited.rejected > 0 && limited.publication_charged == 0);
++}
++
++#[test]
++fn legacy_model_three_retains_ordinary_route_without_old_source_namespace() {
++    let mut value = exact_raw();
++    value["model"]["pressure_contract"] = json!({"version":"1.0.0","mode":"legacy_pressure_v1"});
++    value["model"]["load_cases"][0]
++        .as_object_mut()
++        .unwrap()
++        .remove("pressure_regions");
++    for mode in [
++        PreviewSolverMode::DenseScrutiny,
++        PreviewSolverMode::SparseInteractive,
++    ] {
++        let envelope = run_linear_static_preview_value_with_mode(value.clone(), mode).unwrap();
++        assert!(envelope.source_block_recovery.is_none());
++        assert!(!envelope
++            .diagnostics
++            .iter()
++            .any(|d| d.code == "SOURCE_BLOCK_RECOVERY_SELECTED"));
++        assert!(
++            envelope
++                .diagnostics
++                .iter()
++                .any(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
++                    && d.message.contains("legacy source-blocks namespace")),
++            "{:?}",
++            envelope.diagnostics
++        );
++        assert!(!envelope
++            .diagnostics
++            .iter()
++            .any(|d| d.code == "PREVIEW_CONTRACT_VERSION_MISMATCH"));
++    }
++}
+diff --git a/projects/chirality-piping/core/product_physics/src/source_receipt/composite.rs b/projects/chirality-piping/core/product_physics/src/source_receipt/composite.rs
+new file mode 100644
+index 0000000000..e074fca7e7
+--- /dev/null
++++ b/projects/chirality-piping/core/product_physics/src/source_receipt/composite.rs
+@@ -0,0 +1,1085 @@
++//! Composite-only row admission. Every derived action uses the owned response;
++//! private numeric transports never establish custody or replay by themselves.
++use super::endpoint_maximum as maximum;
++use super::*;
++use exact::functionals::{FunctionalConvention, FunctionalQuantity, FunctionalUnit};
++
++const MAX_BASIS: &str = "retained_source_endpoint_normal_max_v1";
++const RECIPE_WORK: usize = 4096;
++
++fn charge(selected: &mut SelectedSourceRecovery, work: usize) -> Result<(), ReceiptError> {
++    selected.charge_finalization(work).map_err(|e| {
++        ReceiptError(
++            format!("composite recipe reservation: {e:?}"),
++            Some(selected.summary().work),
++        )
++    })
++}
++fn endpoint_name(endpoint: maximum::Endpoint) -> &'static str {
++    match endpoint {
++        maximum::Endpoint::I => "i",
++        maximum::Endpoint::J => "j",
++    }
++}
++pub(in super::super) struct CompositeMaximum {
++    value: f64,
++    evidence: Value,
++}
++impl CompositeMaximum {
++    pub(in super::super) fn value_pa(&self) -> f64 {
++        self.value
++    }
++    pub(in super::super) fn evidence(&self, result_id: &str) -> Value {
++        let mut evidence = self.evidence.clone();
++        evidence["result_id"] = json!(result_id);
++        evidence
++    }
++}
++fn maximum_inner(
++    input: &source_recovery::Input<'_>,
++    selected: &SelectedSourceRecovery,
++    member_id: &str,
++    identity_digest: &str,
++) -> Result<CompositeMaximum, ReceiptError> {
++    if !pressure_runtime::is_exact(input.model)
++        || !input
++            .load_case
++            .pressure_regions
++            .as_ref()
++            .is_some_and(Vec::is_empty)
++    {
++        return Err(bad(
++            "endpoint maximum requires exact empty pressure inventory",
++        ));
++    }
++    let member = selected
++        .members()
++        .iter()
++        .find(|m| m.member_id == member_id)
++        .ok_or_else(|| bad("maximum member"))?;
++    let geometry = input
++        .built
++        .exact_sections
++        .get(member_id)
++        .ok_or_else(|| bad("maximum source geometry"))?;
++    let section = input
++        .built
++        .sections
++        .get(member_id)
++        .ok_or_else(|| bad("maximum recovery section"))?;
++    if !same(section.area, geometry.wall_area_m2())
++        || !same(section.section_modulus, geometry.section_modulus_m3())
++    {
++        return Err(bad("maximum source section mismatch"));
++    }
++    let mut endpoints = Vec::new();
++    let mut transport = Vec::new();
++    for station in [0usize, 4] {
++        let indices = [0usize, 4, 5].map(|c| member.section_functional_indices[station][c]);
++        let mut arguments = Vec::new();
++        let mut actions = Vec::new();
++        for (component, index) in [0usize, 4, 5].into_iter().zip(indices) {
++            let descriptor = selected
++                .retained()
++                .descriptors()
++                .get(index)
++                .ok_or_else(|| bad("maximum descriptor missing"))?;
++            if descriptor.key.case_id != input.load_case.id
++                || descriptor.key.convention != FunctionalConvention::SectionLocal
++                || descriptor.key.unit
++                    != if component == 0 {
++                        FunctionalUnit::Newton
++                    } else {
++                        FunctionalUnit::NewtonMetre
++                    }
++                || descriptor.key.quantity
++                    != (FunctionalQuantity::MemberSection {
++                        member: member_id.into(),
++                        station_bits: source_recovery::STATIONS[station].to_bits(),
++                        component: component as u8,
++                    })
++            {
++                return Err(bad("maximum endpoint functional binding"));
++            }
++            let projection = selected
++                .retained()
++                .projections()
++                .iter()
++                .find(|p| p.index() == index)
++                .ok_or_else(|| bad("maximum projection missing"))?;
++            if !same(projection.value(), member.sections[station][component]) {
++                return Err(bad("maximum action binding"));
++            }
++            arguments.push(
++                maximum::ProjectionBounds::from_retained_parts(
++                    index,
++                    projection.value(),
++                    projection.interval(),
++                )
++                .map_err(|e| bad(format!("maximum action bounds: {e:?}")))?,
++            );
++            actions.push(json!({"value":projection.value(),"interval":projection.interval()}));
++        }
++        transport.push(
++            <[maximum::ProjectionBounds; 3]>::try_from(arguments)
++                .map_err(|_| bad("maximum endpoint count"))?,
++        );
++        endpoints.push(json!({"station_fraction":source_recovery::STATIONS[station],"functional_indices":indices,"functional_ids":indices.map(|i|source::functional_id(&input.load_case.id,i)),"actions":actions}));
++    }
++    let result = maximum::endpoint_maximum(
++        section.area,
++        section.section_modulus,
++        [transport[0], transport[1]],
++    )
++    .map_err(|e| bad(format!("endpoint maximum: {e:?}")))?;
++    for (e, computed) in endpoints.iter_mut().zip(result.endpoints) {
++        e["value_pa"] = json!(computed.value_pa);
++        e["interval_pa"] = json!(computed.interval_pa);
++    }
++    let locations = match result.locations {
++        maximum::Locations::StrictEndpoint(e) => {
++            json!({"kind":"strict_endpoint","endpoint":endpoint_name(e)})
++        }
++        maximum::Locations::WholeSpanConstant => json!({"kind":"whole_span_constant"}),
++        maximum::Locations::EndpointCandidates {
++            exact_tie_proven,
++            interior_equal_possible,
++        } => {
++            json!({"kind":"endpoint_candidates","exact_tie_proven":exact_tie_proven,"interior_equal_possible":interior_equal_possible})
++        }
++    };
++    Ok(CompositeMaximum {
++        value: result.value_pa,
++        evidence: json!({
++            "load_case_id":input.load_case.id,"pipe_id":member_id,"basis":MAX_BASIS,
++            "coefficient_basis":"retained_section_functionals_binary64",
++            "source_identity_sha256":identity_digest,
++            "area_m2":section.area,"section_modulus_m3":section.section_modulus,"value_pa":result.value_pa,
++            "value_lower_pa":result.interval_pa[0],"value_upper_pa":result.interval_pa[1],
++            "absolute_error_bound_pa":result.absolute_error_bound_pa,"relative_error_bound":result.relative_error_bound,"relative_limit":CRITERION,
++            "station_fraction":if result.witness == maximum::Endpoint::I {0.0}else{1.0},"locations":locations,"endpoints":endpoints,
++            "enclosure_scope":"retained_action_projection_and_ordered_binary64_recipe;represented_source_section_operands"
++        }),
++    })
++}
++pub(in super::super) fn composite_member_maximum(
++    input: &source_recovery::Input<'_>,
++    selected: &mut SelectedSourceRecovery,
++    member_id: &str,
++) -> Result<CompositeMaximum, ReceiptError> {
++    #[cfg(test)]
++    trace("derived_recipe_entry", selected);
++    charge(selected, RECIPE_WORK)?;
++    let digest = selected.retained_identity_digest().map_err(|e| {
++        ReceiptError(
++            format!("source identity digest: {e:?}"),
++            Some(selected.summary().work),
++        )
++    })?;
++    maximum_inner(input, selected, member_id, &digest).map_err(|mut e| {
++        e.1 = Some(selected.summary().work);
++        e
++    })
++}
++
++#[derive(Debug)]
++struct Norm {
++    value: f64,
++    interval: [f64; 2],
++    absolute: f64,
++    relative: f64,
++}
++fn outward(v: f64, upper: bool) -> Result<f64, ReceiptError> {
++    if !v.is_finite() || v < 0.0 {
++        return Err(bad("support norm arithmetic range"));
++    }
++    let result = if upper {
++        f64::from_bits(v.to_bits() + 1)
++    } else if v == 0.0 {
++        0.0
++    } else {
++        f64::from_bits(v.to_bits() - 1)
++    };
++    if !result.is_finite() {
++        return Err(bad("support norm outward range"));
++    }
++    Ok(result)
++}
++fn norm_corner(values: [f64; 3], upper: bool) -> Result<f64, ReceiptError> {
++    let m = values.into_iter().fold(0.0_f64, f64::max);
++    if m == 0.0 {
++        return Ok(0.0);
++    }
++    let mut squares = [0.0; 3];
++    for (i, v) in values.into_iter().enumerate() {
++        if v == 0.0 {
++            continue;
++        }
++        if v == m {
++            squares[i] = 1.0;
++            continue;
++        }
++        let ratio = outward(v / m, upper)?;
++        squares[i] = outward(ratio * ratio, upper)?;
++    }
++    let add = |a: f64, b: f64| {
++        if a == 0.0 {
++            Ok(b)
++        } else if b == 0.0 {
++            Ok(a)
++        } else {
++            outward(a + b, upper)
++        }
++    };
++    let sum = add(add(squares[0], squares[1])?, squares[2])?;
++    let root = if sum == 1.0 {
++        1.0
++    } else {
++        outward(sum.sqrt(), upper)?
++    };
++    if root == 1.0 {
++        Ok(m)
++    } else {
++        outward(m * root, upper)
++    }
++}
++fn norm(values: [f64; 3], intervals: [[f64; 2]; 3]) -> Result<Norm, ReceiptError> {
++    if values.iter().any(|v| !v.is_finite())
++        || intervals
++            .iter()
++            .zip(values)
++            .any(|(p, v)| !p[0].is_finite() || !p[1].is_finite() || p[0] > v || v > p[1])
++    {
++        return Err(bad("support norm action interval"));
++    }
++    let abs = intervals.map(|[lo, hi]| {
++        if lo >= 0.0 {
++            [lo, hi]
++        } else if hi <= 0.0 {
++            [-hi, -lo]
++        } else {
++            [0.0, (-lo).max(hi)]
++        }
++    });
++    let lo = norm_corner(abs.map(|p| p[0]), false)?;
++    let hi = norm_corner(abs.map(|p| p[1]), true)?;
++    let value = scaled_norm(values);
++    if !value.is_finite() || value < lo || value > hi {
++        return Err(bad("support norm representative range"));
++    }
++    let absolute = if lo == value && value == hi {
++        0.0
++    } else {
++        outward((value - lo).max(hi - value), true)?
++    };
++    let relative = if hi == 0.0 {
++        0.0
++    } else {
++        if !lo.is_normal() || !hi.is_normal() || !value.is_normal() {
++            return Err(bad("support norm publication range"));
++        }
++        if absolute == 0.0 {
++            0.0
++        } else {
++            outward(absolute / lo, true)?
++        }
++    };
++    if relative > CRITERION {
++        return Err(bad("support norm protected criterion"));
++    }
++    Ok(Norm {
++        value,
++        interval: [lo, hi],
++        absolute,
++        relative,
++    })
++}
++fn support_norm_checks(
++    input: &source_recovery::Input<'_>,
++    selected: &SelectedSourceRecovery,
++    id: &str,
++) -> Result<([f64; 2], Vec<Value>), ReceiptError> {
++    let support = selected
++        .support_actions()
++        .iter()
++        .find(|s| s.support_id == id)
++        .ok_or_else(|| bad("support norm owner"))?;
++    let mut checks = Vec::new();
++    let mut values = [0.0; 2];
++    for group in 0..2 {
++        let indices = std::array::from_fn::<_, 3, _>(|c| support.functional_indices[group * 3 + c]);
++        let v = std::array::from_fn::<_, 3, _>(|c| support.values[group * 3 + c]);
++        let mut intervals = [[0.0; 2]; 3];
++        for c in 0..3 {
++            let descriptor = selected
++                .retained()
++                .descriptors()
++                .get(indices[c])
++                .ok_or_else(|| bad("support norm descriptor"))?;
++            if descriptor.key.case_id != input.load_case.id
++                || descriptor.key.quantity
++                    != (FunctionalQuantity::SupportAction {
++                        support: id.into(),
++                        node: support.node_index,
++                        component: (group * 3 + c) as u8,
++                    })
++                || descriptor.key.convention != FunctionalConvention::SupportOnStructure
++                || descriptor.key.unit
++                    != if group == 0 {
++                        FunctionalUnit::Newton
++                    } else {
++                        FunctionalUnit::NewtonMetre
++                    }
++            {
++                return Err(bad("support norm functional binding"));
++            }
++            let p = selected
++                .retained()
++                .projections()
++                .iter()
++                .find(|p| p.index() == indices[c])
++                .ok_or_else(|| bad("support norm projection"))?;
++            if !same(p.value(), v[c]) {
++                return Err(bad("support norm projection value"));
++            }
++            intervals[c] = p.interval();
++        }
++        let result = norm(v, intervals)?;
++        values[group] = result.value;
++        checks.push(json!({"result_id":format!("result:support-action:{}:{}:{}:{}:{}",input.load_case.id.len(),input.load_case.id,id.len(),id,if group==0 {"force_magnitude"}else{"moment_magnitude"}),"recipe_id":if group==0 {"support_force_norm_scaled_checked_v1"}else{"support_moment_norm_scaled_checked_v1"},"support_id":id,"functional_indices":indices,"functional_ids":indices.map(|i|source::functional_id(&input.load_case.id,i)),"values":v,"intervals":intervals,"value":result.value,"interval":result.interval,"absolute_error_bound":result.absolute,"relative_error_bound":result.relative,"relative_limit":CRITERION}));
++    }
++    Ok((values, checks))
++}
++pub(in super::super) fn composite_support_norms(
++    input: &source_recovery::Input<'_>,
++    selected: &mut SelectedSourceRecovery,
++    id: &str,
++) -> Result<[f64; 2], ReceiptError> {
++    #[cfg(test)]
++    trace("derived_recipe_entry", selected);
++    charge(selected, RECIPE_WORK)?;
++    support_norm_checks(input, selected, id)
++        .map(|r| r.0)
++        .map_err(|mut e| {
++            e.1 = Some(selected.summary().work);
++            e
++        })
++}
++
++fn normalized_case(
++    capture: &CapturedInvocation,
++    case_id: &str,
++) -> Result<(PreviewModel, Vec<MaterialInput>, BuiltModel, Option<String>), ReceiptError> {
++    let request = capture.requested()?;
++    let mut model = request.model;
++    let mut materials = if request.materials.is_empty() {
++        model.materials.clone()
++    } else {
++        request.materials
++    };
++    let mut diagnostics = Vec::new();
++    pressure_runtime::validate_profile(&model, &mut diagnostics);
++    resolve_shared_sections(&mut model, &mut diagnostics);
++    normalize_model_units(&mut model, &mut materials, &mut diagnostics);
++    pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
++    let case = model
++        .load_cases
++        .iter()
++        .find(|c| c.id == case_id)
++        .ok_or_else(|| bad("physical case capture"))?;
++    let record = if modulus_basis_key(case, &mut diagnostics).is_some() {
++        let (selected, record) =
++            pressure_material::resolve_case(&model, &materials, case, &mut diagnostics)
++                .ok_or_else(|| bad("physical common material selection"))?;
++        materials = selected;
++        Some(record)
++    } else {
++        None
++    };
++    let built = build_model(&model, &materials, &mut diagnostics)
++        .ok_or_else(|| bad("physical source build"))?;
++    if has_blocking(&diagnostics) || !pressure_runtime::is_exact(&model) {
++        return Err(bad("physical exact profile unavailable"));
++    }
++    Ok((model, materials, built, record))
++}
++fn physical_source(
++    capture: &CapturedInvocation,
++    case_id: &str,
++    evidence: &Value,
++    pressure: &[Value],
++    actual: &[ResultItem],
++    source_selected: bool,
++) -> Result<(), ReceiptError> {
++    let (model, materials, built, record) = normalized_case(capture, case_id)?;
++    physical_source_built(
++        capture,
++        &model,
++        &materials,
++        &built,
++        record.as_deref(),
++        case_id,
++        evidence,
++        pressure,
++        actual,
++        source_selected,
++    )
++}
++#[allow(clippy::too_many_arguments)]
++pub(super) fn physical_source_built(
++    capture: &CapturedInvocation,
++    model: &PreviewModel,
++    materials: &[MaterialInput],
++    built: &BuiltModel,
++    record: Option<&str>,
++    case_id: &str,
++    evidence: &Value,
++    pressure: &[Value],
++    actual: &[ResultItem],
++    source_selected: bool,
++) -> Result<(), ReceiptError> {
++    if !pressure_runtime::is_exact(model) || built.exact_sections.len() != model.pipe_segments.len()
++    {
++        return Err(bad("physical source exact profile and geometry inventory"));
++    }
++    let case = model
++        .load_cases
++        .iter()
++        .find(|c| c.id == case_id)
++        .ok_or_else(|| bad("physical case"))?;
++    let expected_method = if source_selected {
++        "retained_source_blocks_exact_v1"
++    } else if capture.mode == PreviewSolverMode::DenseScrutiny {
++        "ordinary_dense_structural_v1"
++    } else {
++        "ordinary_sparse_structural_v1"
++    };
++    let keys: BTreeSet<_> = evidence
++        .as_object()
++        .ok_or_else(|| bad("physical object"))?
++        .keys()
++        .map(String::as_str)
++        .collect();
++    if keys
++        != BTreeSet::from([
++            "load_case_id",
++            "profile_mode",
++            "material_basis",
++            "pressure_rhs_assembly",
++            "pipe_sections",
++            "pipe_stress_extrema",
++            "stress_maximum_coverage",
++            "pipe_materials",
++            "recovery_method",
++        ])
++        || evidence["load_case_id"] != case_id
++        || evidence["profile_mode"] != "exact_straight_pressure_v2"
++        || evidence["recovery_method"] != expected_method
++        || evidence["material_basis"] != json!(record.unwrap_or("base_material_common_E_nu"))
++        || evidence["stress_maximum_coverage"] != json!({"complete":true,"unavailable_pipe_ids":[]})
++    {
++        return Err(bad("physical case/method/material/coverage binding"));
++    }
++    let sections: Vec<_> = built
++        .pipes
++        .iter()
++        .map(|p| exact_section_evidence(&p.element_id, built.exact_sections[&p.element_id]))
++        .collect();
++    if evidence["pipe_sections"] != json!(sections) {
++        return Err(bad("physical source geometry binding"));
++    }
++    let material_evidence:Vec<_>=model.pipe_segments.iter().map(|pipe| {
++        let material=materials.iter().find(|m|m.id==pipe.material).expect("validated build material");
++        let thermal=case.primitive_loads.iter().any(|l|l.category=="thermal" && is_temperature_change_dimension(&l.dimension) && matches!(&l.target,LoadTargetInput::Element{pipe:target} if target==&pipe.id));
++        json!({"pipe_id":pipe.id,"material_id":material.id,"E_pa":material.elastic_modulus.value,"nu":material.poisson_ratio.as_ref().map(|q|q.value),"G_pa":material.shear_modulus.as_ref().map(|q|q.value),"constitutive_basis":material.constitutive_basis,"thermal_consumed":thermal,"alpha_per_kelvin":if thermal {material.thermal_expansion_coefficient.as_ref().map(|q|q.value)}else{None},"provenance":material.provenance})
++    }).collect();
++    if evidence["pipe_materials"] != json!(material_evidence) {
++        return Err(bad("physical common E/nu material binding"));
++    }
++    let mut diagnostics = Vec::new();
++    let mut pressure_case =
++        pressure_runtime::build_pressure_case(&model, &built, &materials, case, &mut diagnostics)
++            .ok_or_else(|| bad("physical pressure source"))?;
++    if has_blocking(&diagnostics)
++        || evidence["pressure_rhs_assembly"] != pressure_case.assembly_evidence
++    {
++        return Err(bad("physical pressure assembly binding"));
++    }
++    for region in &mut pressure_case.evidence {
++        let region_id = region["region_id"].as_str().unwrap_or("");
++        let members: BTreeSet<_> = pressure_case
++            .pipe_states
++            .iter()
++            .filter(|(_, p)| p.region_id == region_id)
++            .map(|(i, _)| built.pipes[*i].element_id.as_str())
++            .collect();
++        region["result_ids"] = json!(actual
++            .iter()
++            .filter(|r| members.contains(r.entity_ref.as_str())
++                && r.kind.starts_with("pipe_")
++                && r.kind.ends_with("_v2"))
++            .map(|r| &r.id)
++            .collect::<Vec<_>>());
++    }
++    if pressure != pressure_case.evidence {
++        return Err(bad("physical pressure evidence binding"));
++    }
++    if source_selected
++        && (!pressure.is_empty() || !case.pressure_regions.as_ref().is_some_and(Vec::is_empty))
++    {
++        return Err(bad("source physical pressure inventory"));
++    }
++    validate_physics_rows(&model, case, actual, evidence, source_selected)
++}
++fn validate_physics_rows(
++    model: &PreviewModel,
++    case: &PreviewLoadCase,
++    actual: &[ResultItem],
++    evidence: &Value,
++    source_selected: bool,
++) -> Result<(), ReceiptError> {
++    validate_case_rows(&case.id, actual)?;
++    // Ordinary physical admission deliberately uses the exact-physics table,
++    // never the older precision/source ordinary allowlist.
++    let table: Value = serde_json::from_str(include_str!(
++        "../../../../fixtures/results/semantic_contract_v0_3_physics_1.json"
++    ))
++    .map_err(|e| bad(e.to_string()))?;
++    let signatures = table["rows"]
++        .as_array()
++        .ok_or_else(|| bad("physics signatures"))?;
++    for row in actual {
++        let component = row.metadata.as_ref().map(|m| m.component.as_str());
++        if !signatures.iter().any(|s| {
++            s["kind"] == row.kind && s["unit"] == row.unit && s["component"].as_str() == component
++        }) {
++            return Err(bad(format!("unregistered physical row: {}", row.kind)));
++        }
++    }
++    let extrema = evidence["pipe_stress_extrema"]
++        .as_array()
++        .ok_or_else(|| bad("physical maxima"))?;
++    if extrema.len() != model.pipe_segments.len() {
++        return Err(bad("physical member maximum coverage"));
++    }
++    let mut seen = BTreeSet::new();
++    for pipe in &model.pipe_segments {
++        let e = extrema
++            .iter()
++            .find(|e| e["pipe_id"] == pipe.id)
++            .ok_or_else(|| bad("physical member maximum missing"))?;
++        let id = e["result_id"]
++            .as_str()
++            .ok_or_else(|| bad("physical maximum result"))?;
++        if !seen.insert(id) {
++            return Err(bad("physical maximum duplicated"));
++        }
++        let row = actual
++            .iter()
++            .find(|r| r.id == id)
++            .ok_or_else(|| bad("physical maximum row missing"))?;
++        let metadata = row
++            .metadata
++            .as_ref()
++            .ok_or_else(|| bad("physical maximum metadata"))?;
++        if row.kind != "pipe_elastic_normal_stress_maximum_v2"
++            || row.unit != "Pa"
++            || row.entity_ref != pipe.id
++            || metadata.component != "maximum_absolute_normal_stress"
++            || metadata.coordinate_system != "pipe_section"
++            || metadata.location != "governing_station"
++            || metadata.basis
++                != if source_selected {
++                    MAX_BASIS
++                } else {
++                    "recovered_from_open_mechanics_stress_components"
++                }
++        {
++            return Err(bad("physical maximum signature"));
++        }
++        let lo = e["value_lower_pa"]
++            .as_f64()
++            .ok_or_else(|| bad("maximum lower bound"))?;
++        let hi = e["value_upper_pa"]
++            .as_f64()
++            .ok_or_else(|| bad("maximum upper bound"))?;
++        if !lo.is_finite() || !hi.is_finite() || lo < 0.0 || lo > row.value || row.value > hi {
++            return Err(bad("physical maximum range"));
++        }
++        if !source_selected
++            && (e["coefficient_basis"] != "j_side_section_equilibrium_binary64"
++                || e["approximation"] != "piecewise_quadratic_straight_section_statics")
++        {
++            return Err(bad("ordinary physical maximum method"));
++        }
++    }
++    for node in &model.nodes {
++        if actual
++            .iter()
++            .filter(|r| r.entity_ref == node.id && r.kind == "displacement_magnitude")
++            .count()
++            != 1
++            || actual
++                .iter()
++                .filter(|r| {
++                    r.entity_ref == node.id
++                        && (r.kind.starts_with("global_nodal_displacement_")
++                            || r.kind.starts_with("global_nodal_rotation_"))
++                })
++                .count()
++                != 6
++        {
++            return Err(bad("physical nodal coverage"));
++        }
++    }
++    for support in &model.supports {
++        let mut expected = Vec::new();
++        let values = std::array::from_fn(|i| {
++            actual
++                .iter()
++                .find(|r| {
++                    r.entity_ref == support.id
++                        && r.kind == "support_reaction_component_v2"
++                        && r.metadata
++                            .as_ref()
++                            .is_some_and(|m| m.component == ["Fx", "Fy", "Fz", "Mx", "My", "Mz"][i])
++                })
++                .map(|r| r.value)
++                .unwrap_or(f64::NAN)
++        });
++        append_signed_support_results(&mut expected, case, support, values);
++        for mut row in expected {
++            let current = actual
++                .iter()
++                .find(|r| r.id == row.id)
++                .ok_or_else(|| bad("physical support six-component/norm coverage"))?;
++            if source_selected && row.kind != "support_reaction_component_v2" {
++                row.value = current.value;
++            }
++            if !same(current.value, row.value) || serialized(current)? != serialized(&row)? {
++                return Err(bad("physical support signature or value"));
++            }
++        }
++    }
++    Ok(())
++}
++
++impl FinalizedSourceBlockCase {
++    pub(in super::super) fn composite_exact(
++        capture: &CapturedInvocation,
++        input: source_recovery::Input<'_>,
++        mut selected: SelectedSourceRecovery,
++        ordinary: OrdinaryAttempt,
++        actual: &[ResultItem],
++        bindings: &[FunctionalRowBinding],
++        evidence: &Value,
++    ) -> Result<Self, ReceiptError> {
++        #[cfg(test)]
++        trace("source_case_finalization_entry", &selected);
++        let checked = (|| {
++            if ordinary.mode != capture.mode
++                || !matches!(ordinary.outcome, "sensitive" | "rejected")
++            {
++                return Err(bad("composite source selection ordinary attempt"));
++            }
++            let reservation = 1024usize
++                .saturating_add(actual.len().saturating_mul(64))
++                .saturating_add(finalization_size(capture, &selected, actual))
++                .saturating_add(selected.support_actions().len().saturating_mul(RECIPE_WORK));
++            charge(&mut selected, reservation)?;
++            #[cfg(test)]
++            trace("source_case_finalization_reserved", &selected);
++            let material_record = capture.check_input_with_physical(
++                &input,
++                &mut selected,
++                Some((evidence, actual)),
++            )?;
++            #[cfg(test)]
++            trace("captured_source_replay_complete", &selected);
++            selected
++                .check_binding_against(source_recovery::Input {
++                    model: input.model,
++                    built: input.built,
++                    stiffness: input.stiffness,
++                    force: input.force,
++                    free: input.free,
++                    prescribed: input.prescribed,
++                    spring_entries: input.spring_entries,
++                    load_case: input.load_case,
++                    load_application: input.load_application,
++                    thermal_loads: input.thermal_loads,
++                    pressure_thrust_loads: input.pressure_thrust_loads,
++                })
++                .map_err(|e| bad(format!("composite current source: {e:?}")))?;
++            #[cfg(test)]
++            trace("current_source_binding_complete", &selected);
++            let primary = rows::expected_primary_for(&input, &selected, true)?;
++            let mut additional = Vec::new();
++            let mut derived_checks = Vec::new();
++            let mut section_stress_checks = Vec::new();
++            let member_ids: Vec<_> = selected
++                .members()
++                .iter()
++                .map(|m| m.member_id.clone())
++                .collect();
++            for id in member_ids {
++                let maximum = composite_member_maximum(&input, &mut selected, &id)?;
++                let result_id = format!(
++                    "result:elastic-maximum:{}:{}:{}:{}",
++                    input.load_case.id.len(),
++                    input.load_case.id,
++                    id.len(),
++                    id
++                );
++                let expected = maximum.evidence(&result_id);
++                let found = evidence["pipe_stress_extrema"]
++                    .as_array()
++                    .unwrap()
++                    .iter()
++                    .find(|e| e["pipe_id"] == id)
++                    .ok_or_else(|| bad("source maximum evidence"))?;
++                if *found != expected {
++                    return Err(bad("source endpoint maximum evidence binding"));
++                }
++                additional.push(rows::Derived { row:ResultItem{id:result_id,kind:"pipe_elastic_normal_stress_maximum_v2".into(),value:maximum.value_pa(),unit:"Pa".into(),entity_ref:id.clone(),basis_ref:Some(ResultBasisRef{ref_type:"load_case".into(),ref_id:input.load_case.id.clone()}),source_result_refs:vec![],metadata:Some(ResultMetadata{component:"maximum_absolute_normal_stress".into(),coordinate_system:"pipe_section".into(),location:"governing_station".into(),basis:MAX_BASIS.into(),sign_convention:"nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate".into()})},recipe:MAX_BASIS,inputs:vec![] });
++            }
++            for support in selected.support_actions() {
++                let (values, checks) = support_norm_checks(&input, &selected, &support.support_id)?;
++                let authored = input
++                    .model
++                    .supports
++                    .iter()
++                    .find(|s| s.id == support.support_id)
++                    .ok_or_else(|| bad("support owner"))?;
++                let mut generated = Vec::new();
++                append_signed_support_results(
++                    &mut generated,
++                    input.load_case,
++                    authored,
++                    support.values,
++                );
++                for (group, mut row) in generated.into_iter().skip(6).enumerate() {
++                    row.value = values[group];
++                    additional.push(rows::Derived {
++                        row,
++                        recipe: if group == 0 {
++                            "support_force_norm_scaled_checked_v1"
++                        } else {
++                            "support_moment_norm_scaled_checked_v1"
++                        },
++                        inputs: (0..3)
++                            .map(|c| {
++                                primary[&support.functional_indices[group * 3 + c]]
++                                    .id
++                                    .clone()
++                            })
++                            .collect(),
++                    });
++                }
++                derived_checks.extend(checks);
++            }
++            for member in selected.members() {
++                let section = input
++                    .built
++                    .sections
++                    .get(&member.member_id)
++                    .ok_or_else(|| bad("section stress geometry"))?;
++                for row in actual.iter().filter(|r| r.entity_ref == member.member_id) {
++                    let component = match row.kind.as_str() {
++                        "element_local_axial_normal_stress" => 0usize,
++                        "element_local_bending_normal_stress_y" => 4,
++                        "element_local_bending_normal_stress_z" => 5,
++                        "element_local_torsional_shear_stress" => 3,
++                        _ => continue,
++                    };
++                    let metadata = row
++                        .metadata
++                        .as_ref()
++                        .ok_or_else(|| bad("section stress metadata"))?;
++                    let station = match metadata.location.as_str() {
++                        "end_i" => 0,
++                        "quarter_1" => 1,
++                        "midspan" => 2,
++                        "quarter_3" => 3,
++                        "end_j" => 4,
++                        _ => return Err(bad("section stress location")),
++                    };
++                    let index = member.section_functional_indices[station][component];
++                    let descriptor = selected
++                        .retained()
++                        .descriptors()
++                        .get(index)
++                        .ok_or_else(|| bad("section stress descriptor"))?;
++                    if descriptor.key.quantity
++                        != (FunctionalQuantity::MemberSection {
++                            member: member.member_id.clone(),
++                            station_bits: source_recovery::STATIONS[station].to_bits(),
++                            component: component as u8,
++                        })
++                        || descriptor.key.convention != FunctionalConvention::SectionLocal
++                        || descriptor.key.case_id != input.load_case.id
++                    {
++                        return Err(bad("section stress functional binding"));
++                    }
++                    let projection = selected
++                        .retained()
++                        .projections()
++                        .iter()
++                        .find(|p| p.index() == index)
++                        .ok_or_else(|| bad("section stress projection"))?;
++                    if !same(projection.value(), member.sections[station][component]) {
++                        return Err(bad("section stress action binding"));
++                    }
++                    section_stress_checks.push(json!({"result_id":row.id,"recipe_id":"retained_source_straight_stress_v1","pipe_id":member.member_id,"location":metadata.location,"component":metadata.component,"functional_index":index,"functional_id":source::functional_id(&input.load_case.id,index),"action":{"value":projection.value(),"interval":projection.interval()},"parameters":{"area_m2":section.area,"section_modulus_m3":section.section_modulus,"torsion_radius_m":section.torsion_radius,"torsion_constant_m4":section.torsion_constant,"pa_per_mpa":1e6}}));
++                }
++            }
++            let ledger = rows::bind_for(&input, &selected, actual, bindings, true, additional)?;
++            if ledger.rows.iter().any(|t| {
++                t.treatment == "inspection_only"
++                    && !actual
++                        .iter()
++                        .find(|r| r.id == t.result_id)
++                        .is_some_and(rows::observation)
++            }) {
++                return Err(bad("unqualified composite physical row"));
++            }
++            let mut source = source::commitment(
++                &input,
++                &selected,
++                bindings,
++                &capture.digest,
++                material_record.as_deref(),
++                &ledger.rows,
++                actual,
++            )?;
++            source["retained_identity_sha256"] = json!(selected
++                .retained_identity_digest()
++                .map_err(|e| bad(format!("source digest finalization: {e:?}")))?);
++            source["endpoint_sections"]=json!(evidence["pipe_stress_extrema"].as_array().unwrap().iter().map(|e|json!({"pipe_id":e["pipe_id"],"endpoints":e["endpoints"].as_array().unwrap().iter().map(|p|json!({"station_fraction":p["station_fraction"],"functional_indices":p["functional_indices"],"functional_ids":p["functional_ids"],"actions":p["actions"]})).collect::<Vec<_>>()})).collect::<Vec<_>>());
++            source["section_functionals"]=json!(selected.members().iter().map(|m|json!({"pipe_id":m.member_id,"stations":source_recovery::STATIONS.iter().enumerate().map(|(s,f)|json!({"station_fraction":f,"functional_indices":m.section_functional_indices[s],"functional_ids":m.section_functional_indices[s].map(|i|source::functional_id(&input.load_case.id,i)),"actions":m.section_functional_indices[s].iter().map(|index|{let p=selected.retained().projections().iter().find(|p|p.index()==*index).expect("owned retained projection");json!({"value":p.value(),"interval":p.interval()})}).collect::<Vec<_>>()})).collect::<Vec<_>>()})).collect::<Vec<_>>());
++            #[cfg(test)]
++            trace("source_case_finalization_complete", &selected);
++            Ok((ledger, source, derived_checks, section_stress_checks))
++        })();
++        let (ledger, source, derived_checks, section_stress_checks) =
++            checked.map_err(|mut e| {
++                e.1 = Some(selected.summary().work);
++                e
++            })?;
++        Ok(Self {
++            invocation: capture.digest.clone(),
++            case_id: input.load_case.id.clone(),
++            ordinary,
++            source: Some(source),
++            projections: ledger.projections,
++            rows: ledger.rows,
++            supports: ledger.supports,
++            failure: None,
++            work: work_wire(selected.summary().work)?,
++            actual_rows: serialized(&actual)?,
++            qualified: true,
++            exact: true,
++            physical_evidence: Some(json!({"exact_case":evidence,"pressure":[]})),
++            derived_checks,
++            section_stress_checks,
++            _selected: Some(selected),
++        })
++    }
++    pub(in super::super) fn ordinary_physics(
++        capture: &CapturedInvocation,
++        case_id: &str,
++        ordinary: OrdinaryAttempt,
++        actual: &[ResultItem],
++        evidence: &Value,
++        pressure: &[Value],
++    ) -> Result<Self, ReceiptError> {
++        if ordinary.mode != capture.mode || ordinary.outcome != "checks_passed" {
++            return Err(bad(
++                "ordinary physical selection requires actual ChecksPassed",
++            ));
++        }
++        validate_case_rows(case_id, actual)?;
++        // The complete captured physical source comparison is made under the
++        // invocation publication reservation, before this case can be receipted.
++        Ok(Self {
++            invocation: capture.digest.clone(),
++            case_id: case_id.into(),
++            ordinary,
++            source: None,
++            projections: vec![],
++            rows: actual
++                .iter()
++                .map(|r| RowTreatment {
++                    result_id: r.id.clone(),
++                    treatment: "ordinary_physics_checked",
++                    projection_id: None,
++                    recipe_id: None,
++                    input_result_ids: vec![],
++                })
++                .collect(),
++            supports: json!([]),
++            failure: None,
++            work: work_wire(exact::WorkReport {
++                charged: 0,
++                rejected: 0,
++                limit: 0,
++            })?,
++            actual_rows: serialized(&actual)?,
++            qualified: true,
++            exact: false,
++            physical_evidence: Some(json!({"exact_case":evidence,"pressure":pressure})),
++            derived_checks: vec![],
++            section_stress_checks: vec![],
++            _selected: None,
++        })
++    }
++}
++
++pub(super) fn validate_publication(
++    capture: &CapturedInvocation,
++    envelope: &MechanicsEnvelope,
++    cases: &[FinalizedSourceBlockCase],
++) -> Result<(), ReceiptError> {
++    if !cases.iter().any(|c| c.exact) || cases.iter().any(|c| !c.qualified) {
++        return Err(bad(
++            "composite requires source selection and complete case qualification",
++        ));
++    }
++    let evidence = envelope
++        .contract_evidence
++        .as_ref()
++        .ok_or_else(|| bad("composite physical evidence missing"))?;
++    if evidence
++        .as_object()
++        .map(|o| o.keys().map(String::as_str).collect::<BTreeSet<_>>())
++        != Some(BTreeSet::from(["pressure", "connector", "exact_cases"]))
++        || evidence["connector"] != json!([])
++    {
++        return Err(bad("composite physical namespace"));
++    }
++    let physical = evidence["exact_cases"]
++        .as_array()
++        .ok_or_else(|| bad("composite exact cases"))?;
++    let pressure = evidence["pressure"]
++        .as_array()
++        .ok_or_else(|| bad("composite pressure cases"))?;
++    if physical.len() != cases.len() {
++        return Err(bad("composite exact case coverage"));
++    }
++    let mut observed_pressure = Vec::new();
++    for (case, physical) in cases.iter().zip(physical) {
++        let expected = case
++            .physical_evidence
++            .as_ref()
++            .ok_or_else(|| bad("case physical proof absent"))?;
++        if expected["exact_case"] != *physical {
++            return Err(bad("case physical evidence changed"));
++        }
++        let pressure = expected["pressure"]
++            .as_array()
++            .ok_or_else(|| bad("case pressure proof"))?;
++        observed_pressure.extend(pressure.iter().cloned());
++        let actual: Vec<_> = envelope
++            .results
++            .iter()
++            .filter(|r| {
++                r.basis_ref
++                    .as_ref()
++                    .is_some_and(|b| b.ref_type == "load_case" && b.ref_id == case.case_id)
++            })
++            .cloned()
++            .collect();
++        if !case.exact {
++            physical_source(capture, &case.case_id, physical, pressure, &actual, false)?;
++        }
++    }
++    if observed_pressure != *pressure {
++        return Err(bad("whole pressure case order/coverage"));
++    }
++    validate_composite_summary(envelope)
++}
++fn validate_composite_summary(envelope: &MechanicsEnvelope) -> Result<(), ReceiptError> {
++    for (headline, kind) in [
++        (&envelope.summary.max_displacement, "displacement_magnitude"),
++        (
++            &envelope.summary.max_open_formula_stress,
++            "pipe_elastic_normal_stress_maximum_v2",
++        ),
++    ] {
++        let h = headline
++            .as_ref()
++            .ok_or_else(|| bad("composite complete headline required"))?;
++        let row = envelope
++            .results
++            .iter()
++            .find(|r| r.id == h.result_ref)
++            .ok_or_else(|| bad("composite headline reference"))?;
++        if row.kind != kind
++            || row.entity_ref != h.location_ref
++            || row.unit != h.unit
++            || !same(row.value, h.value)
++        {
++            return Err(bad("composite headline binding"));
++        }
++        if envelope
++            .results
++            .iter()
++            .any(|r| r.kind == kind && r.value > h.value)
++        {
++            return Err(bad("composite headline maximum"));
++        }
++    }
++    Ok(())
++}
++
++// Append within composite.rs module at handoff boundary.
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn checked_support_norm_composes_interval_and_arithmetic_error() {
++        for values in [
++            [0.0, 0.0, 0.0],
++            [3.0, 4.0, 0.0],
++            [-3.0, 0.0, -4.0],
++            [1e300, 1e-300, 0.0],
++            [1e-200, 0.0, 0.0],
++        ] {
++            let result = norm(values, values.map(|v| [v, v])).unwrap();
++            assert!(result.interval[0] <= result.value && result.value <= result.interval[1]);
++            assert!(result.relative <= 1e-9);
++            if values == [3.0, 4.0, 0.0] {
++                assert_eq!(result.value, 5.0);
++                assert!(result.interval[0] <= 5.0 && result.interval[1] >= 5.0);
++            }
++        }
++        assert!(norm([3.0, 4.0, 0.0], [[2.9, 3.1], [4.0, 4.0], [0.0, 0.0]]).is_err());
++        assert!(norm(
++            [f64::from_bits(1), 0.0, 0.0],
++            [[f64::from_bits(1); 2], [0.0; 2], [0.0; 2]]
++        )
++        .is_err());
++        assert!(norm(
++            [1.7e308, 1.7e308, 0.0],
++            [[1.7e308; 2], [1.7e308; 2], [0.0; 2]]
++        )
++        .is_err());
++    }
++}
++
++#[cfg(test)]
++thread_local! {
++    static WORK_TRACE: std::cell::RefCell<Option<Vec<Value>>> = const {std::cell::RefCell::new(None)};
++}
++#[cfg(test)]
++pub(super) fn start_trace() {
++    WORK_TRACE.with(|trace| *trace.borrow_mut() = Some(vec![]));
++}
++#[cfg(test)]
++pub(super) fn take_trace() -> Vec<Value> {
++    WORK_TRACE.with(|trace| trace.borrow_mut().take().unwrap_or_default())
++}
++#[cfg(test)]
++fn trace(stage: &str, selected: &SelectedSourceRecovery) {
++    WORK_TRACE.with(|trace|if let Some(values)=&mut *trace.borrow_mut(){values.push(json!({"stage":stage,"charged":selected.summary().work.charged,"rejected":selected.summary().work.rejected}));});
++}
+diff --git a/projects/chirality-piping/core/product_physics/tests/physics_source_runtime.rs b/projects/chirality-piping/core/product_physics/tests/physics_source_runtime.rs
+new file mode 100644
+index 0000000000..3d5aafa7ac
+--- /dev/null
++++ b/projects/chirality-piping/core/product_physics/tests/physics_source_runtime.rs
+@@ -0,0 +1,332 @@
++//! Public composite controls use separately authored explicit E/nu companions.
++//! Original NUM requests/references remain unchanged. No expected result is read
++//! from a produced raw fixture; analytical fields and whole-body balance apply.
++use open_pipe_stress_product_physics::{
++    run_linear_static_preview_value_with_mode, PreviewSolverMode,
++};
++use serde_json::{json, Value};
++
++fn request(name: &str) -> Value {
++    let text = match name {
++        "n05" => include_str!("../../../fixtures/product_preview/physics_source/n05.request.json"),
++        "n06" => include_str!("../../../fixtures/product_preview/physics_source/n06.request.json"),
++        "fields" => {
++            include_str!("../../../fixtures/product_preview/physics_source/fields.request.json")
++        }
++        "mixed" => {
++            include_str!("../../../fixtures/product_preview/physics_source/mixed.request.json")
++        }
++        _ => unreachable!(),
++    };
++    serde_json::from_str(text).unwrap()
++}
++fn relative(actual: f64, expected: f64) {
++    if expected == 0.0 {
++        assert_eq!(actual, 0.0);
++    } else {
++        assert!(
++            ((actual - expected) / expected).abs() <= 1e-9,
++            "{actual:e} vs {expected:e}"
++        );
++    }
++}
++fn solve(input: Value, mode: PreviewSolverMode) -> Value {
++    serde_json::to_value(run_linear_static_preview_value_with_mode(input, mode).unwrap()).unwrap()
++}
++fn row<'a>(
++    raw: &'a Value,
++    entity: &str,
++    kind: &str,
++    component: Option<&str>,
++    case: &str,
++) -> &'a Value {
++    let rows: Vec<_> = raw["results"]
++        .as_array()
++        .unwrap()
++        .iter()
++        .filter(|r| {
++            r["entity_ref"] == entity
++                && r["kind"] == kind
++                && r["basis_ref"]["ref_id"] == case
++                && component.map_or(true, |c| r["metadata"]["component"] == c)
++        })
++        .collect();
++    assert_eq!(rows.len(), 1, "{entity}/{kind}/{component:?}/{case}");
++    rows[0]
++}
++fn qualified(raw: &Value) {
++    assert_eq!(
++        raw["status"]["mechanics"], "MECHANICS_SOLVED",
++        "{}",
++        raw["diagnostics"]
++    );
++    assert_eq!(
++        raw["producer"]["semantic_contract_id"],
++        "openpipestress.result_semantics/0.3.0/physics-source-1"
++    );
++    assert_eq!(
++        raw["source_block_recovery"]["body"]["policy"],
++        "PHYSICS-SOURCE-1"
++    );
++    assert_eq!(
++        raw["source_block_recovery"]["body"]["status"], "qualified",
++        "{}",
++        raw["diagnostics"]
++    );
++}
++#[test]
++fn actual_explicit_material_source_companions_preserve_torsion_actions_and_constant_normal_field() {
++    for mode in [
++        PreviewSolverMode::SparseInteractive,
++        PreviewSolverMode::DenseScrutiny,
++    ] {
++        for name in ["n05", "n06"] {
++            let input = request(name);
++            let torque = input["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]
++                ["value"]
++                .as_f64()
++                .unwrap();
++            let spring = input["model"]["supports"][1]["stiffness"]["value"]["value"]
++                .as_f64()
++                .unwrap();
++            let raw = solve(input, mode);
++            qualified(&raw);
++            let j = std::f64::consts::PI * (0.1_f64.powi(4) - 0.09_f64.powi(4)) / 2.0;
++            relative(
++                row(
++                    &raw,
++                    "independent-root",
++                    "global_nodal_rotation_x",
++                    None,
++                    "case",
++                )["value"]
++                    .as_f64()
++                    .unwrap(),
++                torque / spring,
++            );
++            relative(
++                row(
++                    &raw,
++                    "independent-tip",
++                    "global_nodal_rotation_x",
++                    None,
++                    "case",
++                )["value"]
++                    .as_f64()
++                    .unwrap(),
++                torque / spring + torque * 2.0 / (80e9 * j),
++            );
++            relative(
++                row(
++                    &raw,
++                    "independent-spring",
++                    "support_reaction_component_v2",
++                    Some("Mx"),
++                    "case",
++                )["value"]
++                    .as_f64()
++                    .unwrap(),
++                -torque,
++            );
++            relative(
++                row(
++                    &raw,
++                    "independent-spring",
++                    "support_reaction_moment_magnitude_v2",
++                    Some("moment_magnitude"),
++                    "case",
++                )["value"]
++                    .as_f64()
++                    .unwrap(),
++                torque.abs(),
++            );
++            let maximum = row(
++                &raw,
++                "independent-member",
++                "pipe_elastic_normal_stress_maximum_v2",
++                None,
++                "case",
++            );
++            assert_eq!(
++                maximum["metadata"]["basis"],
++                "retained_source_endpoint_normal_max_v1"
++            );
++            assert_eq!(maximum["value"], 0.0);
++            let material = &raw["contract_evidence"]["exact_cases"][0]["pipe_materials"][0];
++            assert_eq!(material["nu"], 0.25);
++            assert_eq!(material["G_pa"], 80e9);
++            assert_eq!(
++                raw["contract_evidence"]["exact_cases"][0]["recovery_method"],
++                "retained_source_blocks_exact_v1"
++            );
++        }
++    }
++}
++#[test]
++fn actual_source_fields_six_signed_actions_and_circular_maximum_match_independent_equilibrium() {
++    for mode in [
++        PreviewSolverMode::SparseInteractive,
++        PreviewSolverMode::DenseScrutiny,
++    ] {
++        let raw = solve(request("fields"), mode);
++        qualified(&raw);
++        for (component, expected) in [
++            ("Fx", -0.001),
++            ("Fy", -0.002),
++            ("Fz", 0.003),
++            ("Mx", 0.0),
++            ("My", -0.0055),
++            ("Mz", -0.0046),
++        ] {
++            relative(
++                row(
++                    &raw,
++                    "anchor",
++                    "support_reaction_component_v2",
++                    Some(component),
++                    "case",
++                )["value"]
++                    .as_f64()
++                    .unwrap(),
++                expected,
++            );
++        }
++        let area = std::f64::consts::PI * (0.1_f64.powi(2) - 0.09_f64.powi(2));
++        let inertia = std::f64::consts::PI * (0.1_f64.powi(4) - 0.09_f64.powi(4)) / 4.0;
++        let expected =
++            0.001 / area + (0.0055_f64.powi(2) + 0.0046_f64.powi(2)).sqrt() / (inertia / 0.1);
++        relative(
++            row(
++                &raw,
++                "independent-member",
++                "pipe_elastic_normal_stress_maximum_v2",
++                None,
++                "case",
++            )["value"]
++                .as_f64()
++                .unwrap(),
++            expected,
++        );
++        relative(
++            row(
++                &raw,
++                "independent-tip",
++                "global_nodal_displacement_x",
++                None,
++                "case",
++            )["value"]
++                .as_f64()
++                .unwrap(),
++            1000.0 * 0.001 * 2.0 / (200e9 * area),
++        );
++        relative(
++            row(
++                &raw,
++                "independent-tip",
++                "global_nodal_displacement_y",
++                None,
++                "case",
++            )["value"]
++                .as_f64()
++                .unwrap(),
++            1000.0 * (0.002 * 8.0 / 3.0 + 0.0006 * 4.0 / 2.0) / (200e9 * inertia),
++        );
++        relative(
++            row(
++                &raw,
++                "independent-tip",
++                "global_nodal_displacement_z",
++                None,
++                "case",
++            )["value"]
++                .as_f64()
++                .unwrap(),
++            1000.0 * (-0.003 * 8.0 / 3.0 + 0.0005 * 4.0 / 2.0) / (200e9 * inertia),
++        );
++    }
++}
++#[test]
++fn source_selected_and_ordinary_physics_cases_keep_distinct_actual_warrants() {
++    for mode in [
++        PreviewSolverMode::SparseInteractive,
++        PreviewSolverMode::DenseScrutiny,
++    ] {
++        let raw = solve(request("mixed"), mode);
++        qualified(&raw);
++        let cases = raw["contract_evidence"]["exact_cases"].as_array().unwrap();
++        assert_eq!(cases.len(), 2);
++        assert_eq!(
++            cases[0]["recovery_method"],
++            "retained_source_blocks_exact_v1"
++        );
++        assert_eq!(
++            cases[1]["recovery_method"],
++            if mode == PreviewSolverMode::DenseScrutiny {
++                "ordinary_dense_structural_v1"
++            } else {
++                "ordinary_sparse_structural_v1"
++            }
++        );
++        assert_eq!(cases[1]["pipe_materials"][0]["E_pa"], 2000.0);
++        assert_eq!(cases[1]["pipe_materials"][0]["G_pa"], 800.0);
++        assert_eq!(
++            raw["contract_evidence"]["pressure"]
++                .as_array()
++                .unwrap()
++                .len(),
++            1
++        );
++        assert_eq!(
++            raw["source_block_recovery"]["body"]["cases"]
++                .as_array()
++                .unwrap()
++                .len(),
++            2
++        );
++    }
++}
++#[test]
++fn nonempty_region_presence_never_enters_empty_region_source_method_even_at_zero() {
++    for pressure in [0.0, 1e-5] {
++        for mode in [
++            PreviewSolverMode::SparseInteractive,
++            PreviewSolverMode::DenseScrutiny,
++        ] {
++            let mut input = request("n05");
++            let mut region =
++                request("mixed")["model"]["load_cases"][1]["pressure_regions"][0].clone();
++            region["pressure"]["value"] = json!(pressure);
++            input["model"]["load_cases"][0]["pressure_regions"] = json!([region]);
++            let raw = solve(input, mode);
++            assert_ne!(
++                raw["producer"]["semantic_contract_id"],
++                "openpipestress.result_semantics/0.3.0/physics-source-1"
++            );
++            assert!(raw.get("source_block_recovery").is_none());
++        }
++    }
++}
++
++#[test]
++fn recorded_g_is_not_the_source_selected_material_basis() {
++    for mode in [
++        PreviewSolverMode::SparseInteractive,
++        PreviewSolverMode::DenseScrutiny,
++    ] {
++        let mut altered = request("n05");
++        altered["model"]["materials"][0]["shear_modulus"] = json!({"value":77e9,"unit":"Pa"});
++        let baseline = solve(request("n05"), mode);
++        let changed = solve(altered, mode);
++        qualified(&baseline);
++        qualified(&changed);
++        assert_ne!(
++            baseline["source_block_recovery"]["body"]["invocation"],
++            changed["source_block_recovery"]["body"]["invocation"]
++        );
++        assert_eq!(baseline["results"], changed["results"]);
++        assert_eq!(
++            changed["contract_evidence"]["exact_cases"][0]["pipe_materials"][0]["G_pa"],
++            80e9
++        );
++    }
++}
+diff --git a/projects/chirality-piping/core/product_physics/examples/physics_source_connected.rs b/projects/chirality-piping/core/product_physics/examples/physics_source_connected.rs
+new file mode 100644
+index 0000000000..98695339cc
+--- /dev/null
++++ b/projects/chirality-piping/core/product_physics/examples/physics_source_connected.rs
+@@ -0,0 +1,37 @@
++//! Emit the actual value-aware producer result for an explicitly authored request.
++//! The output retains source/physical evidence; this command is not a native witness.
++use open_pipe_stress_product_physics::{
++    run_linear_static_preview_value_with_mode, PreviewSolverMode,
++};
++use std::{env, error::Error, fs, io};
++fn main() -> Result<(), Box<dyn Error>> {
++    let mut args = env::args().skip(1);
++    let mode = match args.next().as_deref() {
++        Some("sparse") => PreviewSolverMode::SparseInteractive,
++        Some("dense") => PreviewSolverMode::DenseScrutiny,
++        _ => return Err("usage: physics_source_connected [sparse|dense] request.json".into()),
++    };
++    let path = args
++        .next()
++        .ok_or("an actual complete request path is required")?;
++    if args.next().is_some() {
++        return Err("unexpected extra arguments".into());
++    }
++    let request: serde_json::Value = serde_json::from_str(&fs::read_to_string(path)?)?;
++    let result = run_linear_static_preview_value_with_mode(request, mode)?;
++    serde_json::to_writer_pretty(io::stdout().lock(), &result)?;
++    println!();
++    if result.status.mechanics != "MECHANICS_SOLVED" {
++        return Err(
++            "mechanics did not solve; emitted diagnostics retain the actual failure".into(),
++        );
++    }
++    if result
++        .source_block_recovery
++        .as_ref()
++        .is_some_and(|r| r["body"]["status"] != "qualified")
++    {
++        return Err("selected source method did not qualify the whole envelope".into());
++    }
++    Ok(())
++}

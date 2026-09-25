@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "FS-R1",
+      "priority": 2,
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock",
+      "original_line": 160,
+      "trigger": "Resolve the current product_physics dependency graph for the physics audit using --locked.",
+      "impact": "The frozen lock omitted canonical_json and sha2 product dependency edges, so a lock update was needed before the audit could run.",
+      "evidence": "Current product Cargo.toml requires both dependencies; original frozen audit lock omitted them. Parent offline metadata repair adds exactly the two missing edges.",
+      "remediation": "Refresh only the missing local product dependency edges and preserve all package identity/version/source/checksum metadata.",
+      "status": "resolved",
+      "repair_record": "../AUDIT_LOCK_REPAIR.json",
+      "independent_backcheck": "check_scope_origins.py and VERIFICATION.json",
+      "final_sha256": "3ae542bfb7735838dca924442bde5a858a15c971d14e099c5f8f751b1b0baf14"
+    }
+  ],
+  "unresolved_actionable_findings": 0
+}

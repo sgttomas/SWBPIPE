@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+
+ Test Files  5 passed (5)
+      Tests  174 passed (174)
+   Start at  04:24:13
+   Duration  45.47s (transform 828ms, setup 264ms, import 1.43s, tests 58.14s, environment 1.20s)
+

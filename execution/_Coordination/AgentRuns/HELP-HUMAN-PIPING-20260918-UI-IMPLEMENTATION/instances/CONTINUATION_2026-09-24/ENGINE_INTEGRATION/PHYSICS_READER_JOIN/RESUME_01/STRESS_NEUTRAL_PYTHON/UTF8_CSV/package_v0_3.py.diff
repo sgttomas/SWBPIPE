@@ -1,0 +1,203 @@
+--- before/core/handoff/stress_neutral/package_v0_3.py
++++ after/core/handoff/stress_neutral/package_v0_3.py
+@@ -79,6 +79,83 @@
+ ]
+ JSON_NUMBER = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\Z")
+ MAX_SAFE_INTEGER = (1 << 53) - 1
++UTF8_CSV_CANONICALIZATION = "utf8_csv_record_lf_v1"
++UTF8_CSV_ROW_ORDER = "unicode_scalar_value_result_id"
++
++
++def _csv_policy(package: Mapping[str, Any]) -> tuple[str, str]:
++    """Method-bound CSV wire contract; precision-1 remains unchanged ASCII."""
++    profile = package.get("export_profile", {})
++    producer = package.get("producer", {})
++    if not isinstance(profile, Mapping) or not isinstance(producer, Mapping):
++        raise ValueError("SN-CSV-PROFILE-MISMATCH")
++    method = producer.get("semantic_contract_id")
++    if method == PRECISION_CONTRACT_ID:
++        if "csv_encoding" in profile or "csv_row_order" in profile:
++            raise ValueError("SN-CSV-PROFILE-MISMATCH")
++        return "ascii", "normalized_ascii_lf_text"
++    if not isinstance(method, str) or method not in SUPPORTED_METHODS or profile.get("csv_encoding") != "utf-8" or profile.get("csv_row_order") != UTF8_CSV_ROW_ORDER:
++        raise ValueError("SN-CSV-PROFILE-MISMATCH")
++    return "utf-8", UTF8_CSV_CANONICALIZATION
++
++
++def _utf8_csv_bytes(text: Any) -> bytes:
++    """Strict UTF8 without BOM; record LF is checked without changing field data."""
++    if not isinstance(text, str) or text.startswith("\ufeff") or not text.endswith("\n"):
++        raise ValueError("SN-CSV-UTF8-INVALID")
++    try:
++        encoded = text.encode("utf-8", errors="strict")
++    except UnicodeEncodeError as error:
++        raise ValueError("SN-CSV-UTF8-INVALID") from error
++    state = "start"
++    index = 0
++    while index < len(text):
++        char = text[index]
++        if state == "quoted":
++            if char == '"':
++                if index + 1 < len(text) and text[index + 1] == '"':
++                    index += 1
++                else:
++                    state = "closed"
++        elif char == "\r":
++            raise ValueError("SN-CSV-RECORD-LF-REQUIRED")
++        elif char in {",", "\n"}:
++            state = "start"
++        elif state == "closed":
++            raise ValueError("SN-CSV-QUOTING-INVALID")
++        elif char == '"':
++            if state != "start":
++                raise ValueError("SN-CSV-QUOTING-INVALID")
++            state = "quoted"
++        else:
++            state = "plain"
++        index += 1
++    if state != "start":
++        raise ValueError("SN-CSV-QUOTING-INVALID")
++    return encoded
++
++
++def _render_utf8_csv(rows: list[Mapping[str, Any]]) -> str:
++    """Scalar-order CSV; no whole-text newline or Unicode normalization."""
++    identities = [row.get("result_id") for row in rows]
++    if any(not isinstance(identity, str) or not identity for identity in identities):
++        raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
++    def field(text: str) -> str:
++        return '"' + text.replace('"', '""') + '"' if any(c in text for c in ',"\r\n') else text
++    records = [",".join(CSV_COLUMNS)]
++    for row in sorted(rows, key=lambda item: item["result_id"]):
++        values = []
++        for column in CSV_COLUMNS:
++            value = _csv_scalar(row, column)
++            if column == "value":
++                value = str(int(value)) if isinstance(value, float) and value.is_integer() else "" if value is None else str(value)
++            if not isinstance(value, str):
++                raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
++            values.append(field(value))
++        records.append(",".join(values))
++    text = "\n".join(records) + "\n"
++    _utf8_csv_bytes(text)
++    return text
+ 
+ 
+ def _checked(payload: Any, filename: str, scope: str = "member_payload") -> dict[str, Any]:
+@@ -142,13 +219,19 @@
+     return parsed == expected_float
+ 
+ 
+-def _validate_received_csv(csv_text: Any, rows: list[Mapping[str, Any]]) -> None:
+-    if not isinstance(csv_text, str) or csv_text != canonical_csv(csv_text):
+-        raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+-    try:
+-        csv_text.encode("ascii")
+-    except UnicodeEncodeError as error:
+-        raise ValueError("SN-CSV-ROW-BINDING-MISMATCH") from error
++def _validate_received_csv(csv_text: Any, rows: list[Mapping[str, Any]], *, utf8: bool = False) -> None:
++    if utf8:
++        _utf8_csv_bytes(csv_text)
++        ids = [row.get("result_id") for row in rows]
++        if any(not isinstance(identity, str) for identity in ids) or ids != sorted(ids):
++            raise ValueError("SN-CSV-ROW-ORDER-MISMATCH")
++    else:
++        if not isinstance(csv_text, str) or csv_text != canonical_csv(csv_text):
++            raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
++        try:
++            csv_text.encode("ascii")
++        except UnicodeEncodeError as error:
++            raise ValueError("SN-CSV-ROW-BINDING-MISMATCH") from error
+     try:
+         records = list(csv.reader(io.StringIO(csv_text, newline=""), strict=True))
+         if not records or records[0] != CSV_COLUMNS:
+@@ -301,13 +384,25 @@
+             raise ValueError("SN-0.3-PROFILE-IDENTITY-MISMATCH")
+         if "profile_version" in supplied_profile and supplied_profile["profile_version"] != VERSION:
+             raise ValueError("SN-0.3-PROFILE-IDENTITY-MISMATCH")
++    utf8 = contract_id != PRECISION_CONTRACT_ID
++    if isinstance(supplied_profile, Mapping):
++        if not utf8 and any(key in supplied_profile for key in ("csv_encoding", "csv_row_order")):
++            raise ValueError("SN-CSV-PROFILE-MISMATCH")
++        if utf8 and (("csv_encoding" in supplied_profile and supplied_profile["csv_encoding"] != "utf-8") or ("csv_row_order" in supplied_profile and supplied_profile["csv_row_order"] != UTF8_CSV_ROW_ORDER)):
++            raise ValueError("SN-CSV-PROFILE-MISMATCH")
+     legacy = build_stress_neutral_export_package(**deepcopy(source))
++    if utf8:
++        # Legacy normalization is used only for the existing non-CSV records.
++        # Its whole-text CSV cleanup must not change quoted CR/LF field data.
++        legacy["csv_text"] = _render_utf8_csv(legacy["result_rows"])
+     witnesses, witness_findings = _witnesses(legacy["result_rows"], legacy["provenance"], source_envelope)
+     diagnostics = [deepcopy(item) for item in legacy["diagnostics"] if item.get("code") not in {"SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", "SN-UNIT-DIMENSION-MISSING"}] + witness_findings
+     blocking_count = sum(item.get("severity") == "blocking" for item in diagnostics)
+     decision_basis_refs = deepcopy(legacy["unit_system_disclosure"]["decision_basis_refs"]) + [deepcopy(semantic_contract_ref), deepcopy(legacy["source_run_ref"])]
+     boundary_notes = list(legacy["manifest"]["boundary_notes"]) + ["Result-row dimensions and witness eligibility are interpreted from the accepted semantic contract and bound analysis run; received numerical values, units, rows and source hashes remain unchanged."]
+     export_profile = {**legacy["export_profile"], "profile_id": EXPORT_PROFILE, "profile_version": VERSION, "boundary_notes": boundary_notes, "source_basis_refs": deepcopy(legacy["export_profile"]["source_basis_refs"]) + [deepcopy(semantic_contract_ref), deepcopy(legacy["source_run_ref"])]}
++    if utf8:
++        export_profile.update(csv_encoding="utf-8", csv_row_order=UTF8_CSV_ROW_ORDER)
+     validation_report = {"validation_status": "blocked" if blocking_count else "passed", "checks": [{"check_id": "stress-neutral-boundary-diagnostics", "check_status": "blocking" if blocking_count else "passed", "diagnostic_count": len(diagnostics), "blocking_count": blocking_count, "provenance": deepcopy(legacy["provenance"])}], "human_review_required": True, "provenance": deepcopy(legacy["provenance"])}
+     loss_report = deepcopy(legacy["loss_report"])
+     withholding_count = len(witness_findings) - (1 if witness_findings else 0)
+@@ -339,7 +434,7 @@
+     for filename, payload in payloads.items():
+         if filename.endswith(".csv"):
+             import hashlib
+-            checksum = {"algorithm": "sha256", "canonicalization": "normalized_ascii_lf_text", "payload_scope": "member_bytes", "payload_ref": {"object_type": "StressNeutralMember", "ref": filename}, "value": hashlib.sha256(payload.encode("ascii")).hexdigest()}
++            checksum = {"algorithm": "sha256", "canonicalization": UTF8_CSV_CANONICALIZATION if utf8 else "normalized_ascii_lf_text", "payload_scope": "member_bytes", "payload_ref": {"object_type": "StressNeutralMember", "ref": filename}, "value": hashlib.sha256(_utf8_csv_bytes(payload) if utf8 else payload.encode("ascii")).hexdigest()}
+         else:
+             checksum = _checked(payload, filename)
+         checksums.append(checksum)
+@@ -368,7 +463,8 @@
+     transport = {"transport_version": VERSION, "manifest": deepcopy(package["manifest"]),
+                  "package_metadata": metadata}
+     values = {"manifest.json": transport, **{name: package[field] for name, field in _MEMBER_FIELDS.items()}}
+-    return {name: (value.encode("ascii") if name.endswith(".csv") else canonical_json_checked_v1(value).encode("utf-8")) for name, value in values.items()}
++    encoding, _ = _csv_policy(package)
++    return {name: ((_utf8_csv_bytes(value) if encoding == "utf-8" else value.encode("ascii")) if name.endswith(".csv") else canonical_json_checked_v1(value).encode("utf-8")) for name, value in values.items()}
+ 
+ 
+ def _transport_json(payload: bytes) -> Any:
+@@ -397,8 +493,17 @@
+     if set(package) & (set(_MEMBER_FIELDS.values()) | {"manifest"}):
+         raise ValueError("SN-TRANSPORT-METADATA-COLLISION")
+     package["manifest"] = transport["manifest"]
++    encoding, _ = _csv_policy(package)
+     for name, field in _MEMBER_FIELDS.items():
+-        package[field] = members[name].decode("ascii") if name.endswith(".csv") else _transport_json(members[name])
++        if name.endswith(".csv"):
++            try:
++                package[field] = members[name].decode(encoding, errors="strict")
++            except UnicodeDecodeError as error:
++                raise ValueError("SN-CSV-ENCODING-INVALID") from error
++            if encoding == "utf-8":
++                _utf8_csv_bytes(package[field])
++        else:
++            package[field] = _transport_json(members[name])
+     validate_stress_neutral_export_package_v0_3(package, **validation)
+     return package
+ 
+@@ -429,6 +534,7 @@
+     Neither mode authenticates a producer or qualifies Current numerical use.
+     """
+     contract_id, contract_hash, contract_path = _transport_contract(package)
++    csv_encoding, csv_canonicalization = _csv_policy(package)
+     semantic_contract_ref = {"object_type": "ExternalReference", "ref": f"fixtures/results/{contract_path.name}"}
+     if package.get("semantic_contract") != {"id":contract_id, "sha256":contract_hash} or package.get("semantic_contract_ref") != {"ref_type":"semantic_contract", "ref_id":contract_id}:
+         raise ValueError("SN-PRECISION-SEMANTIC-CONTRACT-MISMATCH")
+@@ -502,7 +608,7 @@
+         if filename == "manifest.json":
+             return ("sha256", PROFILE, "manifest_seed", "StressNeutralMember", filename)
+         if filename.endswith(".csv"):
+-            return ("sha256", "normalized_ascii_lf_text", "member_bytes", "StressNeutralMember", filename)
++            return ("sha256", csv_canonicalization, "member_bytes", "StressNeutralMember", filename)
+         return ("sha256", PROFILE, "member_payload", "StressNeutralMember", filename)
+     for index, filename in enumerate(MEMBERS):
+         claim = next((item for item in checksums if item.get("payload_ref", {}).get("ref") == filename), None)
+@@ -532,7 +638,7 @@
+     row_ids = [row.get("result_id") for row in rows]
+     if len(set(row_ids)) != len(rows) or any(not isinstance(row_id, str) or row.get("canonical_ref", {}).get("ref") != row_id or row.get("source_result_ref", {}).get("ref") != row_id for row_id, row in zip(row_ids, rows)):
+         raise ValueError("SN-RESULT-ROW-IDENTITY-MISMATCH")
+-    _validate_received_csv(package.get("csv_text"), rows)
++    _validate_received_csv(package.get("csv_text"), rows, utf8=csv_encoding == "utf-8")
+     _validate_stable_id_map(package.get("stable_id_map"), rows)
+     received = package.get("received_source_checksums", [])
+     if not any(item.get("payload_ref") == package.get("source_result_ref") for item in received):

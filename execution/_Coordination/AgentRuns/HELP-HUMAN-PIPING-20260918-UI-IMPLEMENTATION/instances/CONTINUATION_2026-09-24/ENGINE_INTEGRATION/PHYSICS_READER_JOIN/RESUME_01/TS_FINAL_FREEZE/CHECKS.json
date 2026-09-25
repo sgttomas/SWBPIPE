@@ -1,0 +1,225 @@
+{
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "logs": [
+    {
+      "id": "tsc05",
+      "original_log": "/private/tmp/piping-resume-tsc-05.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/tsc05.log",
+      "log_sha256": "2ae6cb0d13345766d7b688a0c6827f37f5802e28515b71f9392e1f3cba504e41",
+      "exit_code": 2,
+      "observed": "test-only unknown request type; fixedcast"
+    },
+    {
+      "id": "tsc06",
+      "original_log": "/private/tmp/piping-resume-tsc-06.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/tsc06.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "observed": "whole candidate typecheck"
+    },
+    {
+      "id": "tsc07",
+      "original_log": "/private/tmp/piping-resume-tsc-final-07.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/tsc07.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "observed": "whole candidate typecheck at24pathfreeze"
+    },
+    {
+      "id": "tscore02",
+      "original_log": "/private/tmp/piping-resume-ts-core-02.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/tscore02.log",
+      "log_sha256": "b889c8ff80cbd0777cc9357d40cfe47271e87618628f4d9a80302278c12cecda",
+      "exit_code": 1,
+      "observed": "193pass2UnicodeCSVrefusals"
+    },
+    {
+      "id": "tsutf803",
+      "original_log": "/private/tmp/piping-resume-ts-utf8-03.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/tsutf803.log",
+      "log_sha256": "a58d748655136ebbeb6f5c6b4c146fbf24dad87869ee87bb94e84ce5d5a28805",
+      "exit_code": 1,
+      "observed": "135pass2oldexpectationfailures"
+    },
+    {
+      "id": "tsregression04",
+      "original_log": "/private/tmp/piping-resume-ts-regression-04.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/tsregression04.log",
+      "log_sha256": "ca8b75081af74a65ed6ecd20b71a0cca3e2c695a48cceba543780e238c0ec7c5",
+      "exit_code": 1,
+      "observed": "177pass1oldcallerstandingexpectation"
+    },
+    {
+      "id": "tsfinal05",
+      "original_log": "/private/tmp/piping-resume-ts-final-05.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/tsfinal05.log",
+      "log_sha256": "05589989958b36b9043e65901d2d510cb96f8a51e07d02b612463522b59d294d",
+      "exit_code": 0,
+      "observed": "300pass11suites"
+    },
+    {
+      "id": "rustcfg05",
+      "original_log": "/private/tmp/piping-resume-rust-repair-unit-05.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/rustcfg05.log",
+      "log_sha256": "9279b73bc00800606f082bc2e0e04d9e25c0cd631ac6e700599ff1a0646a3830",
+      "exit_code": 0,
+      "observed": "2cfgCR01/CR03 beforeCR01b"
+    },
+    {
+      "id": "rustcfg06",
+      "original_log": "/private/tmp/piping-resume-rust-pair-06.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/rustcfg06.log",
+      "log_sha256": "fbf832c815d8fb743da4333417a077d38db5169ab00687896b40eef23ff7ca0f",
+      "exit_code": 0,
+      "observed": "4cfgCR01b/01/03"
+    },
+    {
+      "id": "rustintegration07",
+      "original_log": "/private/tmp/piping-resume-rust-pair-integration-07.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/rustintegration07.log",
+      "log_sha256": "6fe0d50a89ce54ef375c36bf452edc892866fc16f90c098da7ce14f99da1e792",
+      "exit_code": 0,
+      "observed": "7integration includingactualunit/Unicode/falsecopies"
+    },
+    {
+      "id": "interop01",
+      "original_log": "/private/tmp/piping-resume-interop-final-01.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/interop01.log",
+      "log_sha256": "36f3de84cc4ecea99f8e3fc320a956fc0ea4745182d8130dbd13270cfab18bfd",
+      "exit_code": 1,
+      "observed": "harness schema extension typo"
+    },
+    {
+      "id": "interop02",
+      "original_log": "/private/tmp/piping-resume-interop-final-02.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/interop02.log",
+      "log_sha256": "4a0569dd8218e3899baba12531252fdefcc572d224380c3510dd22fb4eda3621",
+      "exit_code": 1,
+      "observed": "actualTS/PythonSupport typed-reference mismatch"
+    }
+  ],
+  "freeze_boundary": "24path freeze corresponds final05/tsc07; later2path Support delta is distinct and currentlychecking",
+  "current_hash_check": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "matches_frozen": true,
+      "current_sha256": "0f6f778f7d4d64620c3bea166111e2750dca472e3687c9eb35ba129ff59c5125"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "matches_frozen": true,
+      "current_sha256": "77c57f8351e2f58cabbd9872ac472d611089b4f5fd4b1cb4ba7452341a40fa44"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "matches_frozen": true,
+      "current_sha256": "02b89b91c1f3edc3c1b9cdcb036491be36807afcd246559fd03d908e80ef87f9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "matches_frozen": true,
+      "current_sha256": "24d1ca3af994b89adfc113f30e7d492545dbe47dc9a2371a17240daecf373a0e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/PhysicsSourceEvidencePanel.test.tsx",
+      "matches_frozen": true,
+      "current_sha256": "1876cc0c159a514b3b3066039706f40021facad9590f25f63303bbd54cc28140"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/PhysicsSourceEvidencePanel.tsx",
+      "matches_frozen": true,
+      "current_sha256": "f86bf7a574367f705422c6c42e11fe27c311fd2de7b0ab78681983059648a116"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "matches_frozen": true,
+      "current_sha256": "8948204af80bff81d2b08524c94e8985a828f95147f3cb759dac40927b88cca3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "matches_frozen": true,
+      "current_sha256": "310d70cd714296e27f418ca7d297062379a088b6dd91e13c678c6985124b0ba5"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "matches_frozen": true,
+      "current_sha256": "54623e85225ced06a9b3e134538f70d8e8790813345680b2ce3f17afd40d8be1"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx",
+      "matches_frozen": false,
+      "current_sha256": "0e404f4c482f5316031c634016766e52416d787fa85e4fc5e37e1564a15d4608"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.test.ts",
+      "matches_frozen": true,
+      "current_sha256": "81b7e59899b216a4d1c2ce31b36db2253dfbcb8a4972d2ee86e369bcd0f408b7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "matches_frozen": true,
+      "current_sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "matches_frozen": true,
+      "current_sha256": "f0140a53e0d8a9b60eb75f7b1a94421be757596b9269b598ee789e037a5474af"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.test.ts",
+      "matches_frozen": true,
+      "current_sha256": "ac338acbf79df3375bf2c2f81182e0b6d43d0f5f0c07de58a5d8904a135bbafd"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.ts",
+      "matches_frozen": true,
+      "current_sha256": "9746a7ac616c0af1b4a9c48067305c9e28c33e0e55e894d9959059c0b3c51fb1"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "matches_frozen": true,
+      "current_sha256": "e89b82a1c1ee38dd8a1eb4fe3d110b516c73389ae0d83c9988a11d2aa22107de"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "matches_frozen": false,
+      "current_sha256": "d9571bbb47e6122538570dcb2a14f5ad510c5db4d9ebfb1c926f6d3941e92c19"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "matches_frozen": true,
+      "current_sha256": "455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "matches_frozen": true,
+      "current_sha256": "d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "matches_frozen": true,
+      "current_sha256": "76b434f9bd0789f9182db3c29694f0db2259cfa51ca0252891cf2acaf3e9b8a9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "matches_frozen": true,
+      "current_sha256": "2b11106f3d86dea3bbf4e266fbd194848421e741dac4f6f54a4892f8240823fd"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "matches_frozen": true,
+      "current_sha256": "242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+      "matches_frozen": true,
+      "current_sha256": "b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "matches_frozen": true,
+      "current_sha256": "f2d9580a7a711f037826895941cd0120ef27e486e006a0d4c79901024f32400c"
+    }
+  ],
+  "limits": "Unit transport simulations and actual captured producer bytes, not native UI evidence; WASM execution provenance recorded separately."
+}

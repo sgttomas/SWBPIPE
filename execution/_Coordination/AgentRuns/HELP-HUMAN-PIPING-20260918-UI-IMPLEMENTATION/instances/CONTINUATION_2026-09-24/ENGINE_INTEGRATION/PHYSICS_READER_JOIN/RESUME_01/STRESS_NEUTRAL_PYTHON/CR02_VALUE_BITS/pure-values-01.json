@@ -1,0 +1,39 @@
+{
+  "command": [
+    "/private/tmp/chirality-piping-review-venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_stress_neutral_physics_source.py",
+    "-k",
+    "value_bits_annotation or precision_package"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "environment": {
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "scope": "Pure annotation transport vectors and immutable p1 packet/member bytes only; no shared physical/source validation path",
+  "start_utc": "2026-09-25T09:10:30.012687+00:00",
+  "inputs": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "1e833ff9efd2ec72482a84cb1fa622615e777ef412555b3a31d5470fe0ada0ab"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "3e6b89643324ba1b22efa0918e8a511500e199ca367250bc30574c948ba9a994"
+    },
+    {
+      "path": "tests/test_stress_neutral_physics_source.py",
+      "sha256": "e12b2b243f48a3361a89443d837d8e33c31abf9f26d623b098757fef2f092c97"
+    }
+  ],
+  "end_utc": "2026-09-25T09:10:30.498941+00:00",
+  "exit_code": 0,
+  "log": "pure-values-01.log",
+  "log_sha256": "8df1bad47a353218f3a9b731dd2cc1b71afa6668021871f8220b60ee2f74934f"
+}

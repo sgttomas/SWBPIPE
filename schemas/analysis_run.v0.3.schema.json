@@ -249,13 +249,17 @@
         "id": {
           "enum": [
             "openpipestress.result_semantics/0.3.0/precision-1",
-            "openpipestress.result_semantics/0.3.0/physics-1"
+            "openpipestress.result_semantics/0.3.0/physics-1",
+            "openpipestress.result_semantics/0.3.0/source-blocks-1",
+            "openpipestress.result_semantics/0.3.0/physics-source-1"
           ]
         },
         "sha256": {
           "enum": [
             "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
-            "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+            "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+            "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f",
+            "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
           ]
         },
         "signature_id": {
@@ -283,6 +287,26 @@
             },
             "sha256": {
               "const": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+            }
+          }
+        },
+        {
+          "properties": {
+            "id": {
+              "const": "openpipestress.result_semantics/0.3.0/source-blocks-1"
+            },
+            "sha256": {
+              "const": "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
+            }
+          }
+        },
+        {
+          "properties": {
+            "id": {
+              "const": "openpipestress.result_semantics/0.3.0/physics-source-1"
+            },
+            "sha256": {
+              "const": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
             }
           }
         }
@@ -616,8 +640,212 @@
         },
         "provenance": {
           "$ref": "#/$defs/Provenance"
+        },
+        "source_block_recovery": {
+          "oneOf": [
+            {
+              "$ref": "source_block_recovery.schema.json"
+            },
+            {
+              "$ref": "physics_source_recovery.schema.json"
+            }
+          ]
+        },
+        "contract_evidence": {
+          "$ref": "physics_source_recovery.schema.json#/$defs/physical_evidence"
         }
-      }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "reproducibility": {
+              "properties": {
+                "semantic_contract": {
+                  "properties": {
+                    "id": {
+                      "const": "openpipestress.result_semantics/0.3.0/precision-1"
+                    },
+                    "sha256": {
+                      "const": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+                    }
+                  }
+                }
+              }
+            },
+            "result_refs": {
+              "items": {
+                "properties": {
+                  "semantic_contract": {
+                    "properties": {
+                      "id": {
+                        "const": "openpipestress.result_semantics/0.3.0/precision-1"
+                      },
+                      "sha256": {
+                        "const": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "source_block_recovery"
+                ]
+              },
+              {
+                "required": [
+                  "contract_evidence"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "reproducibility": {
+              "properties": {
+                "semantic_contract": {
+                  "properties": {
+                    "id": {
+                      "const": "openpipestress.result_semantics/0.3.0/physics-1"
+                    },
+                    "sha256": {
+                      "const": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+                    }
+                  }
+                }
+              }
+            },
+            "result_refs": {
+              "items": {
+                "properties": {
+                  "semantic_contract": {
+                    "properties": {
+                      "id": {
+                        "const": "openpipestress.result_semantics/0.3.0/physics-1"
+                      },
+                      "sha256": {
+                        "const": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "source_block_recovery"
+                ]
+              },
+              {
+                "required": [
+                  "contract_evidence"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "reproducibility": {
+              "properties": {
+                "semantic_contract": {
+                  "properties": {
+                    "id": {
+                      "const": "openpipestress.result_semantics/0.3.0/source-blocks-1"
+                    },
+                    "sha256": {
+                      "const": "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
+                    }
+                  }
+                }
+              }
+            },
+            "result_refs": {
+              "items": {
+                "properties": {
+                  "semantic_contract": {
+                    "properties": {
+                      "id": {
+                        "const": "openpipestress.result_semantics/0.3.0/source-blocks-1"
+                      },
+                      "sha256": {
+                        "const": "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "source_block_recovery": {
+              "$ref": "source_block_recovery.schema.json"
+            }
+          },
+          "required": [
+            "source_block_recovery"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "contract_evidence"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "required": [
+            "source_block_recovery",
+            "contract_evidence"
+          ],
+          "properties": {
+            "reproducibility": {
+              "properties": {
+                "semantic_contract": {
+                  "properties": {
+                    "id": {
+                      "const": "openpipestress.result_semantics/0.3.0/physics-source-1"
+                    },
+                    "sha256": {
+                      "const": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
+                    }
+                  }
+                }
+              }
+            },
+            "result_refs": {
+              "items": {
+                "properties": {
+                  "semantic_contract": {
+                    "properties": {
+                      "id": {
+                        "const": "openpipestress.result_semantics/0.3.0/physics-source-1"
+                      },
+                      "sha256": {
+                        "const": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "source_block_recovery": {
+              "$ref": "physics_source_recovery.schema.json"
+            },
+            "contract_evidence": {
+              "$ref": "physics_source_recovery.schema.json#/$defs/physical_evidence"
+            }
+          }
+        }
+      ]
     },
     "Provenance": {
       "type": "object",

@@ -1,0 +1,71 @@
+{
+  "candidate": "Unmerged joined candidate; producer review clear, current consumer repair backcheck pending. Not native qualification.",
+  "binary": {
+    "path": "/private/tmp/piping-physics-headless-target/debug/openpipestress-runner",
+    "sha256": "a02b67fed724af6c13e0ce9ee53c8c4d5e79446c64d1384c548e611e12034160"
+  },
+  "stdin_sha256": "a1ee3552101211170eaa179f1bce37e76e0ee40d40db94e984e63437233db9ad",
+  "source": [
+    {
+      "path": "core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "ab2c09da9866af0c789fc15386f34260e8a76b91c21740194311bb4119bd8bae"
+    },
+    {
+      "path": "core/runner/headless/src/lib.rs",
+      "sha256": "5b9144c3e0f42fb2e1b82a7f83a8b5f20d3e542aade601a4335e7aa39c9c201b"
+    },
+    {
+      "path": "core/product_physics/src/lib.rs",
+      "sha256": "44647cf80ef19ef3316c8e0a8e4bad52ecdee310ddd8134226eb306eb0594905"
+    },
+    {
+      "path": "core/analysis_runs/physics_evidence.py",
+      "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    },
+    {
+      "path": "fixtures/model_operations/physics_thermal_ui_model.json",
+      "sha256": "9a566d8de6d8742245e81bc1cc284a0d38d0200c30cf289aaccbbcce4c2d92e0"
+    }
+  ],
+  "runs": [
+    {
+      "command": [
+        "/private/tmp/piping-physics-headless-target/debug/openpipestress-runner",
+        "solve",
+        "--input",
+        "-",
+        "--solver-mode",
+        "sparse_interactive",
+        "--explicit-local-private-intent"
+      ],
+      "exit": 0,
+      "mode": "sparse_interactive",
+      "stdout_sha256": "2f7510468bacfe32653146c68c80dd198f6a7c6c16b95ea6d7bd526cdcc85c3c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "method": "openpipestress.result_semantics/0.3.0/physics-1",
+      "rows": 175
+    },
+    {
+      "command": [
+        "/private/tmp/piping-physics-headless-target/debug/openpipestress-runner",
+        "solve",
+        "--input",
+        "-",
+        "--solver-mode",
+        "dense_scrutiny",
+        "--explicit-local-private-intent"
+      ],
+      "exit": 0,
+      "mode": "dense_scrutiny",
+      "stdout_sha256": "c3c2ff48a14897166e3c3371305a97470d9f715bc82db48ac8ec7360a930dfb9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "method": "openpipestress.result_semantics/0.3.0/physics-1",
+      "rows": 177
+    }
+  ],
+  "namespace": "ControlledExport.payload.mechanics_envelope is raw0.2 physics1; wrapper payload isCLI1.0.0. Canonical0.3 notemittedhere."
+}

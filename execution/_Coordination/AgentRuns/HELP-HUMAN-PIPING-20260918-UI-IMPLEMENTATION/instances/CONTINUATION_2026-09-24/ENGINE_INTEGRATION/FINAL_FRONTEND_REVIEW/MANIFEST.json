@@ -1,0 +1,312 @@
+{
+  "base": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "status": "Frozen complete remaining frontend review request; final affected execution still in progress, source stable",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts",
+      "sha256": "1a2c4fe58c875f42df82b84bc8b01e27f310eb883eba6d60fb1f63f49462ede6",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "9915292ddde4afc2c1549e0fd77519e1c53f8a8486e3570a76a63e543be83bd1",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "77ebb93ddcd5959b7e31cde04a8072d8792325296bf4772636dcea4a51fa19cd",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "408a839a1c4003d84bfa13577b3a7734eb3804535d727af7015888e464ec1128",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/report-package-dist.spec.ts",
+      "sha256": "8c7a51165ce1d8838440899d6466aa015bda0019fde803ca4856d05f86da9721",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts",
+      "sha256": "9771f4ad668841a474c13120bd709484400cd1296c8566510479e2cec7019548",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts",
+      "sha256": "8fb074b54a95e8f119508f2424369d111e9b248614f2c838113043778c9d8530",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "sha256": "888a63ded7086a5e289db7e327b81a78fb9664823e15b2d9c659db60ca31942e",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "7b9efe3783952280fadc103eb76f986276c8394a815c2fd161a1345c205eba87",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.deadControls.test.tsx",
+      "sha256": "74f72d50d6ecc2c4c9d5fd2747b893ceb7deea346fb2ca47bff72185a38922a1",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "sha256": "db9ce5f7836bd9f67e7b9b6dd3651e287e8da266b0beea369a0a7b674d1759b4",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.shell.test.tsx",
+      "sha256": "3deb318f28f9ccf24e29ebc89eb4e0d152e3ffb7c95b1637c10c37247f54be5e",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "566f9d9a37b009f0d40bcabb99a92069aa026e40ffb025ba789dd69173d4d73a",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "0f6f778f7d4d64620c3bea166111e2750dca472e3687c9eb35ba129ff59c5125",
+      "prior_reviews": [
+        {
+          "sha256": "84c3e954c5bade064437d145a678978339ff3b661a106b673e739df61b7f3f8f",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REVIEWED_HASHES.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REVIEW.md"
+        },
+        {
+          "sha256": "9ba4bfa8e7634ff535d69cd5fc670e368d1a6c95e81e5bf6bad7607c40867b5f",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_PROVENANCE_REVIEW.md"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "sha256": "77c57f8351e2f58cabbd9872ac472d611089b4f5fd4b1cb4ba7452341a40fa44",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx",
+      "sha256": "61f244f1253256322bebd4990a6366fbb07712013456458eebc834e44d795f03",
+      "prior_reviews": [
+        {
+          "sha256": "db58795b290617f0a1289b2a34b1079c64b7de02ea9f1ba2ec82504ae40ab8c4",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REVIEWED_HASHES.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REVIEW.md"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "sha256": "02b89b91c1f3edc3c1b9cdcb036491be36807afcd246559fd03d908e80ef87f9",
+      "prior_reviews": [
+        {
+          "sha256": "175d0dcb53a5be45a098ab97b37dfdb98c82bd6f39e456e980f40e5feffccf46",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_PROVENANCE_REVIEW.md"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+      "sha256": "de722facdb0ff5938359b512d88b4562aa5b3121b74dd81555393e373ab1beb9",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha256": "77e9c4ef34d8d61398748ef4c4a57375e1de8de32359734eec752d960a472feb",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/physicsResultExport.test.ts",
+      "sha256": "7dd3e7833dc3bc97771532ee1abbd6177ce0a4232e52c4d80177ddcc4e1a0866",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "24d1ca3af994b89adfc113f30e7d492545dbe47dc9a2371a17240daecf373a0e",
+      "prior_reviews": [
+        {
+          "sha256": "86fdbcd5b4e9641acd8aca2c32aee63a7cc5cf74b7e0e1067284b399623a6a5c",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_PROVENANCE_REVIEW.md"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/PhysicsSourceEvidencePanel.test.tsx",
+      "sha256": "1876cc0c159a514b3b3066039706f40021facad9590f25f63303bbd54cc28140",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/PhysicsSourceEvidencePanel.tsx",
+      "sha256": "f86bf7a574367f705422c6c42e11fe27c311fd2de7b0ab78681983059648a116",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "8948204af80bff81d2b08524c94e8985a828f95147f3cb759dac40927b88cca3",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "310d70cd714296e27f418ca7d297062379a088b6dd91e13c678c6985124b0ba5",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "sha256": "54623e85225ced06a9b3e134538f70d8e8790813345680b2ce3f17afd40d8be1",
+      "prior_reviews": [
+        {
+          "sha256": "35a996ab42c3174ff34ab48f1408e2c2d26c47fdacb99eb338976d9fd778d6c9",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/REPAIR_FINAL_HASHES.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/REPAIR_BACKCHECK.md"
+        },
+        {
+          "sha256": "35a996ab42c3174ff34ab48f1408e2c2d26c47fdacb99eb338976d9fd778d6c9",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_PROVENANCE_REVIEW.md"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx",
+      "sha256": "0e404f4c482f5316031c634016766e52416d787fa85e4fc5e37e1564a15d4608",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.test.ts",
+      "sha256": "81b7e59899b216a4d1c2ce31b36db2253dfbcb8a4972d2ee86e369bcd0f408b7",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "f0140a53e0d8a9b60eb75f7b1a94421be757596b9269b598ee789e037a5474af",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.test.ts",
+      "sha256": "ac338acbf79df3375bf2c2f81182e0b6d43d0f5f0c07de58a5d8904a135bbafd",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.ts",
+      "sha256": "9746a7ac616c0af1b4a9c48067305c9e28c33e0e55e894d9959059c0b3c51fb1",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.test.tsx",
+      "sha256": "e153cfaca82491f765285193d03c5284255ba73827c8e7ba1cb08fd3f1a9bb11",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx",
+      "sha256": "e5bd20ba1ba873c7add676bca9d9be189abbe31b338c658e8f89217968f0f6a1",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "sha256": "e89b82a1c1ee38dd8a1eb4fe3d110b516c73389ae0d83c9988a11d2aa22107de",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "d9571bbb47e6122538570dcb2a14f5ad510c5db4d9ebfb1c926f6d3941e92c19",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "sha256": "455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380",
+      "prior_reviews": [
+        {
+          "sha256": "999fc8a739cf74736e3d79213f248d5004f7d62a9d0c9272e386dcff3f95ec11",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_PROVENANCE_REVIEW.md"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+      "sha256": "9306de22eafe9d8b2c69f3ee91b416c026705c50692f8febafc944b6275eb9fb",
+      "prior_reviews": [
+        {
+          "sha256": "75d2be07a7f7218e583acdaacd68326c9ff4658aa25508a60d564ccb3a56acac",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_PROVENANCE_REVIEW.md"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734",
+      "prior_reviews": [
+        {
+          "sha256": "7e17298c539b5d31e17de6be7b64fa56caee7b8d3e8d284065c9fd3c141aa40c",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_PROVENANCE_REVIEW.md"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "76b434f9bd0789f9182db3c29694f0db2259cfa51ca0252891cf2acaf3e9b8a9",
+      "prior_reviews": []
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "2b11106f3d86dea3bbf4e266fbd194848421e741dac4f6f54a4892f8240823fd",
+      "prior_reviews": [
+        {
+          "sha256": "812126400e0bdd26647cdadefa6d8e951c1a8a4824aca4a4cf53be16149da9bc",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_PROVENANCE_REVIEW.md"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57",
+      "prior_reviews": [
+        {
+          "sha256": "2cb222ed4e4770388477890034b8c19e4dafa1a6c94b15696ab2b9c38fcaf485",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_PROVENANCE_REVIEW.md"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+      "sha256": "b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718",
+      "prior_reviews": [
+        {
+          "sha256": "3ac173a0b5e39d8a480def325a17e1aaedb7a608586a27a2cfde1f3c39a18a07",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_PROVENANCE_REVIEW.md"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "sha256": "f2d9580a7a711f037826895941cd0120ef27e486e006a0d4c79901024f32400c",
+      "prior_reviews": [
+        {
+          "sha256": "333a5cd0231bd2869823574a555153367b10e11c310bcd229b12043eec97e065",
+          "basis": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REVIEWED_HASHES.json",
+          "review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REVIEW.md"
+        }
+      ]
+    }
+  ],
+  "patch_sha256": "52d64bd499c6a6278f6fcf31bcc3adbe5ebca70ceaa7aaf09658b05afd8a7ebd",
+  "resumed_24_manifest": "PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/MANIFEST.json",
+  "support_mapping_delta": "PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/SUPPORT_INTEROP_DELTA/MANIFEST.json",
+  "coverage": "24 resumed paths with2path correction plus20 earlier checkpoint paths whose latest changes lacked review; use prior_reviews for alreadyreviewed portions"
+}

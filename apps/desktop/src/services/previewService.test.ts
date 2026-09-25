@@ -645,7 +645,7 @@ describe("native invocation provenance under bounded unit transport replay", () 
     expect(hasNativeMechanicsInvocation(second, pair.model)).toBe(false);
   });
 
-  it("captures the actual submitted model before caller mutation while the simulated transport is pending", async () => {
+  it("preserves the submitted model and refuses fresh standing after the caller changes while transport is pending", async () => {
     const pair = nativeMechanicsReplayPair(), expectedModel = structuredClone(pair.model);
     const replay = installReplay();
     let release!: () => void;
@@ -658,7 +658,10 @@ describe("native invocation provenance under bounded unit transport replay", () 
     const pending = runPreviewMechanics(pair.model);
     pair.model.nodes[0].position.x += 0.5;
     release(); const result = await pending;
-    expect(hasNativeMechanicsInvocation(result, expectedModel)).toBe(true);
+    // FE02 binds the live caller separately from the immutable wire capture.
+    // The received response remains inspectable, but a stale completion cannot
+    // acquire fresh standing even when queried using a copy of the old model.
+    expect(hasNativeMechanicsInvocation(result, expectedModel)).toBe(false);
     expect(hasNativeMechanicsInvocation(result, pair.model)).toBe(false);
     expect(invokeMock.mock.calls[0][1].model).toEqual(expectedModel);
     expect(invokeMock.mock.calls[0][1].model).not.toBe(pair.model);

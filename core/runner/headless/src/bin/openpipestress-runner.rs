@@ -11,11 +11,14 @@ use std::process::ExitCode;
 use open_pipe_stress_headless_runner::{
     benchmark_binding::{self, SuiteRunReport},
     redaction_binding::control_local_private,
-    run_preview_model_value_with_rule_check, validate_request, validate_result, Diagnostic,
-    JobStateKind, Reference, RunnerOperation, RunnerRequest, RunnerResult, RunnerValidation,
+    run_preview_model_value_with_mode_and_rule_check, validate_request, validate_result,
+    Diagnostic, JobStateKind, Reference, RunnerOperation, RunnerRequest, RunnerResult,
+    RunnerValidation,
 };
 use open_pipe_stress_product_physics::{solver_component_name, solver_component_version};
-use open_pipe_stress_product_physics::{LinearStaticPreviewRequest, MechanicsEnvelope};
+use open_pipe_stress_product_physics::{
+    LinearStaticPreviewRequest, MechanicsEnvelope, PreviewSolverMode,
+};
 use open_pipe_stress_report_package::{
     wire::{assemble_wire_request, LinkedSolverIdentity, ReportPackageRequest},
     ReportPackageContainerOutcome,
@@ -33,6 +36,7 @@ struct CliArgs {
     input_path: Option<String>,
     output_path: Option<String>,
     explicit_local_private_intent: bool,
+    solver_mode: PreviewSolverMode,
 }
 
 #[derive(Debug, Deserialize)]
@@ -145,7 +149,7 @@ fn main() -> ExitCode {
         }
     };
 
-    let (code, output) = execute_json(&args.verb, &input);
+    let (code, output) = execute_json_with_mode(&args.verb, &input, args.solver_mode);
     let controlled = control_local_private(
         serde_json::to_value(output).expect("CLI output must serialize as JSON"),
         args.explicit_local_private_intent,
@@ -187,6 +191,7 @@ where
     let mut input_path = None;
     let mut output_path = None;
     let mut explicit_local_private_intent = false;
+    let mut solver_mode = None;
     while let Some(arg) = iter.next() {
         match arg.as_str() {
             "--input" => {
@@ -204,6 +209,18 @@ where
             "--explicit-local-private-intent" => {
                 explicit_local_private_intent = true;
             }
+            "--solver-mode" => {
+                if verb != "solve" || solver_mode.is_some() {
+                    return Err(
+                        "openpipestress-runner: --solver-mode is accepted once for solve only"
+                            .into(),
+                    );
+                }
+                let value = iter.next().ok_or("openpipestress-runner: --solver-mode requires sparse_interactive or dense_scrutiny")?;
+                solver_mode = Some(PreviewSolverMode::from_wire(&value).ok_or_else(|| {
+                    format!("openpipestress-runner: unsupported solver mode {value}")
+                })?);
+            }
             _ => return Err(format!("openpipestress-runner: unsupported argument {arg}")),
         }
     }
@@ -213,11 +230,12 @@ where
         input_path,
         output_path,
         explicit_local_private_intent,
+        solver_mode: solver_mode.unwrap_or(PreviewSolverMode::SparseInteractive),
     })
 }
 
 fn usage() -> &'static str {
-    "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent]"
+    "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]"
 }
 
 fn read_input(input_path: Option<&str>) -> Result<String, String> {
@@ -234,7 +252,16 @@ fn read_input(input_path: Option<&str>) -> Result<String, String> {
     }
 }
 
+#[cfg(test)]
 fn execute_json(verb: &str, raw_input: &str) -> (u8, CliOutput) {
+    execute_json_with_mode(verb, raw_input, PreviewSolverMode::SparseInteractive)
+}
+
+fn execute_json_with_mode(
+    verb: &str,
+    raw_input: &str,
+    solver_mode: PreviewSolverMode,
+) -> (u8, CliOutput) {
     let Some(operation) = operation_for_verb(verb) else {
         return (
             2,
@@ -306,7 +333,9 @@ fn execute_json(verb: &str, raw_input: &str) -> (u8, CliOutput) {
                 ),
             )
         }
-        RunnerOperation::Solve => execute_solve(verb, input, request_validation, diagnostics),
+        RunnerOperation::Solve => {
+            execute_solve(verb, input, request_validation, diagnostics, solver_mode)
+        }
         RunnerOperation::RunBenchmark => execute_suite_verb(
             verb,
             RunnerOperation::RunBenchmark,
@@ -694,6 +723,7 @@ fn execute_solve(
     input: CliInput,
     request_validation: RunnerValidation,
     mut diagnostics: Vec<Diagnostic>,
+    solver_mode: PreviewSolverMode,
 ) -> (u8, CliOutput) {
     let Some(solve) = input.solve else {
         diagnostics.push(blocking(
@@ -754,11 +784,33 @@ fn execute_solve(
             }
         };
 
-    let preview = run_preview_model_value_with_rule_check(
+    let preview = match run_preview_model_value_with_mode_and_rule_check(
         input.request,
         exact_solve_payload,
+        solver_mode,
         input.rule_check_aggregate.as_deref(),
-    ).expect("same exact payload already typed validated");
+    ) {
+        Ok(preview) => preview,
+        Err(message) => {
+            diagnostics.push(blocking(
+                "HEADLESS_RUNNER_SOLVE_EXECUTION_FAILED",
+                "solver_mode",
+                solver_mode.as_str(),
+                message,
+            ));
+            return (
+                1,
+                base_output(
+                    verb,
+                    Some(RunnerOperation::Solve),
+                    Some(request_validation),
+                    None,
+                    None,
+                    diagnostics,
+                ),
+            );
+        }
+    };
     let result_validation = validate_result(&preview.runner_result);
     let clean = preview.runner_result.job.state == JobStateKind::Completed
         && preview.runner_result.diagnostics.is_empty()
@@ -914,6 +966,115 @@ mod tests {
     }
 
     #[test]
+    fn solver_mode_cli_is_closed_solve_only_and_defaults_to_sparse() {
+        let parse = |args: &[&str]| parse_args(args.iter().map(|arg| arg.to_string()));
+        assert_eq!(
+            parse(&["solve"]).unwrap().solver_mode,
+            PreviewSolverMode::SparseInteractive
+        );
+        for mode in ["sparse_interactive", "dense_scrutiny"] {
+            assert_eq!(
+                parse(&["solve", "--solver-mode", mode])
+                    .unwrap()
+                    .solver_mode
+                    .as_str(),
+                mode
+            );
+        }
+        for args in [
+            vec!["solve", "--solver-mode"],
+            vec!["solve", "--solver-mode", "dense"],
+            vec!["solve", "--solver-mode", ""],
+            vec![
+                "solve",
+                "--solver-mode",
+                "dense_scrutiny",
+                "--solver-mode",
+                "sparse_interactive",
+            ],
+            vec!["validate-input", "--solver-mode", "sparse_interactive"],
+            vec!["run-benchmark", "--solver-mode", "dense_scrutiny"],
+        ] {
+            assert!(parse(&args).is_err(), "{args:?}");
+        }
+    }
+
+    #[test]
+    fn explicit_cli_modes_execute_and_bind_actual_source_invocations() {
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("../../../fixtures/product_preview/source_blocks/ui")
+                .join(format!("n05-{}.request.json", mode.as_str()));
+            let payload: Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+            let raw = json!({"request":request(RunnerOperation::Solve),"solve":{"preview_model":payload},"rule_check_aggregate":"USER_RULE_CHECKED"}).to_string();
+            let args = parse_args([
+                "solve".to_string(),
+                "--solver-mode".to_string(),
+                mode.as_str().to_string(),
+            ])
+            .unwrap();
+            let (code, output) = execute_json_with_mode(&args.verb, &raw, args.solver_mode);
+            assert_eq!(code, 0, "{output:#?}");
+            let source = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
+            let invocation = json!({"request":payload,"solver_mode":mode.as_str()});
+            assert!(open_pipe_stress_result_export::source_blocks::validate(
+                &source,
+                Some(&invocation)
+            )
+            .unwrap());
+            assert_eq!(
+                source["source_block_recovery"]["body"]["invocation"]["value"],
+                open_pipe_stress_result_export::source_blocks::domain_hash(
+                    "source_blocks_invocation_v1",
+                    &invocation
+                )
+                .unwrap()
+            );
+            assert_eq!(source["status"]["rule_check"], "RULE_INPUTS_INCOMPLETE");
+            assert!(output
+                .runner_result
+                .as_ref()
+                .unwrap()
+                .analysis_status
+                .contains(&open_pipe_stress_headless_runner::AnalysisStatus::UserRuleChecked));
+            if mode == PreviewSolverMode::SparseInteractive {
+                let (default_code, default_output) = execute_json("solve", &raw);
+                assert_eq!(default_code, code);
+                assert_eq!(
+                    serde_json::to_value(default_output).unwrap(),
+                    serde_json::to_value(&output).unwrap()
+                );
+            }
+            if let Ok(dir) = std::env::var("HEADLESS_SOURCE_BLOCK_OUTPUT_DIR") {
+                let dir = std::path::Path::new(&dir);
+                std::fs::create_dir_all(dir).unwrap();
+                std::fs::write(
+                    dir.join(format!("cli-n05-{}.input.json", mode.as_str())),
+                    &raw,
+                )
+                .unwrap();
+                std::fs::write(
+                    dir.join(format!("cli-n05-{}.output.json", mode.as_str())),
+                    serde_json::to_vec_pretty(&output).unwrap(),
+                )
+                .unwrap();
+            }
+        }
+    }
+
+    #[test]
+    fn original_legacy_nonzero_pressure_fixture_is_not_a_current_cli_solve() {
+        let (code, output) = execute_json("solve", &solve_input());
+        assert_eq!(code, 1);
+        let raw = output.mechanics_envelope.unwrap();
+        assert_eq!(raw.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(raw.results.is_empty());
+    }
+
+    #[test]
     fn stable_verbs_map_to_runner_operations() {
         assert_eq!(operation_for_verb("solve"), Some(RunnerOperation::Solve));
         assert_eq!(
@@ -950,7 +1111,14 @@ mod tests {
 
     #[test]
     fn solve_runs_invented_preview_model_with_stdout_json_contract() {
-        let (code, output) = execute_json("solve", &solve_input());
+        // The former shared preview fixture contains legacy nonzero pressure;
+        // this stdout-contract purpose uses an actual supported current model.
+        let mut input: Value = serde_json::from_str(&solve_input()).unwrap();
+        input["solve"]["preview_model"]["model"] = serde_json::from_str(include_str!(
+            "../../../../../fixtures/model_operations/precision_connected_ui_model.json"
+        ))
+        .unwrap();
+        let (code, output) = execute_json("solve", &input.to_string());
         assert_eq!(code, 0, "{output:#?}");
         assert_eq!(output.command, "solve");
         assert_eq!(output.operation, Some(RunnerOperation::Solve));

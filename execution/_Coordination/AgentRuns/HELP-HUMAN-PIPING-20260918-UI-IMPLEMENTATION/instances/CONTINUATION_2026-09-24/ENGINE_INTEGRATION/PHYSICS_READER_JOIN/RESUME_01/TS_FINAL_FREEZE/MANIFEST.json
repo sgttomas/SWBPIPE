@@ -1,0 +1,158 @@
+{
+  "base_commit": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+  "actual_parent": "/root/physics_resume/physics_reader_join",
+  "scope": "Joined TS explicit four-method dispatch, native caller/wire provenance, composite validation/display, canonical/analysis/stress-neutral projection; reference custody unchanged",
+  "origins": {
+    "source_block_original": "ed688b13f633ce8aa6aeede784c3562511c20966",
+    "reviewed_FE01_FE02": "2841ddfd9011c2585a7db271ce39b3d7a40b50a1",
+    "integration": "semantic fan-in, no blind overwrite; prior checkpoint reference/history/live export guards retained"
+  },
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "base_sha256": "fd23115f857667048d7fa546b482e27bed864710fdda4f4a49ef512336c56363",
+      "sha256": "0f6f778f7d4d64620c3bea166111e2750dca472e3687c9eb35ba129ff59c5125",
+      "bytes": 71327
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "base_sha256": "ec2abbffeb468615592f5a28d4de01a61759847b5538a78b24b693612445b08a",
+      "sha256": "77c57f8351e2f58cabbd9872ac472d611089b4f5fd4b1cb4ba7452341a40fa44",
+      "bytes": 7547
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "base_sha256": "175d0dcb53a5be45a098ab97b37dfdb98c82bd6f39e456e980f40e5feffccf46",
+      "sha256": "02b89b91c1f3edc3c1b9cdcb036491be36807afcd246559fd03d908e80ef87f9",
+      "bytes": 19638
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "base_sha256": "86fdbcd5b4e9641acd8aca2c32aee63a7cc5cf74b7e0e1067284b399623a6a5c",
+      "sha256": "24d1ca3af994b89adfc113f30e7d492545dbe47dc9a2371a17240daecf373a0e",
+      "bytes": 34849
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/PhysicsSourceEvidencePanel.test.tsx",
+      "base_sha256": null,
+      "sha256": "1876cc0c159a514b3b3066039706f40021facad9590f25f63303bbd54cc28140",
+      "bytes": 3497
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/PhysicsSourceEvidencePanel.tsx",
+      "base_sha256": null,
+      "sha256": "f86bf7a574367f705422c6c42e11fe27c311fd2de7b0ab78681983059648a116",
+      "bytes": 5368
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "base_sha256": "47b7e0f617d6d4e3b2f97d7b82d3caeed55c64de8689882c504222cc13d2fde9",
+      "sha256": "8948204af80bff81d2b08524c94e8985a828f95147f3cb759dac40927b88cca3",
+      "bytes": 22659
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "base_sha256": "3794d4c472ca3c688f4ccea9d02e89f3d2963eb91949f43b4bbef0c6ac5ca557",
+      "sha256": "310d70cd714296e27f418ca7d297062379a088b6dd91e13c678c6985124b0ba5",
+      "bytes": 8750
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "base_sha256": "35a996ab42c3174ff34ab48f1408e2c2d26c47fdacb99eb338976d9fd778d6c9",
+      "sha256": "54623e85225ced06a9b3e134538f70d8e8790813345680b2ce3f17afd40d8be1",
+      "bytes": 32421
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx",
+      "base_sha256": null,
+      "sha256": "9d7a19a0bdd60391c4cb27b0d91889408bbc7553ac14f2adaf585d528f3e2a2a",
+      "bytes": 9529
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.test.ts",
+      "base_sha256": null,
+      "sha256": "81b7e59899b216a4d1c2ce31b36db2253dfbcb8a4972d2ee86e369bcd0f408b7",
+      "bytes": 27926
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "base_sha256": null,
+      "sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42",
+      "bytes": 33005
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "base_sha256": "afa90f3ba207de0cd4a571ec4223af35820ed363e8c4426f45509aeacb17c85c",
+      "sha256": "f0140a53e0d8a9b60eb75f7b1a94421be757596b9269b598ee789e037a5474af",
+      "bytes": 3832
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.test.ts",
+      "base_sha256": null,
+      "sha256": "ac338acbf79df3375bf2c2f81182e0b6d43d0f5f0c07de58a5d8904a135bbafd",
+      "bytes": 37128
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.ts",
+      "base_sha256": null,
+      "sha256": "9746a7ac616c0af1b4a9c48067305c9e28c33e0e55e894d9959059c0b3c51fb1",
+      "bytes": 44060
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "base_sha256": "ec2105cd58bb7a390b73908a36e1799d02e4316092ffb8ab523526b0dfd00bf0",
+      "sha256": "e89b82a1c1ee38dd8a1eb4fe3d110b516c73389ae0d83c9988a11d2aa22107de",
+      "bytes": 43799
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "base_sha256": "822ccf6d30fbe1d0e26309da79fbddd23cc6c1aaeee9b6b644f4452e37c24416",
+      "sha256": "71438dfdb7b043c90100c12fcd979206fa86b2a0e43a9dd3be1f46a9ccd94dad",
+      "bytes": 73978
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "base_sha256": "999fc8a739cf74736e3d79213f248d5004f7d62a9d0c9272e386dcff3f95ec11",
+      "sha256": "455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380",
+      "bytes": 8253
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "base_sha256": "bf31e1adedcc374b2e55ec3b15bcf3d57224bd8ac85e0d1351511dda3f7536a5",
+      "sha256": "d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734",
+      "bytes": 123420
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "base_sha256": "0dc01b84279b1e89c007b73fb3961e1cf16c9faf3baeef51669fc7485fa92618",
+      "sha256": "76b434f9bd0789f9182db3c29694f0db2259cfa51ca0252891cf2acaf3e9b8a9",
+      "bytes": 19860
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "base_sha256": "812126400e0bdd26647cdadefa6d8e951c1a8a4824aca4a4cf53be16149da9bc",
+      "sha256": "2b11106f3d86dea3bbf4e266fbd194848421e741dac4f6f54a4892f8240823fd",
+      "bytes": 38304
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "base_sha256": "2cb222ed4e4770388477890034b8c19e4dafa1a6c94b15696ab2b9c38fcaf485",
+      "sha256": "242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57",
+      "bytes": 35082
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+      "base_sha256": "3ac173a0b5e39d8a480def325a17e1aaedb7a608586a27a2cfde1f3c39a18a07",
+      "sha256": "b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718",
+      "bytes": 11737
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "base_sha256": "333a5cd0231bd2869823574a555153367b10e11c310bcd229b12043eec97e065",
+      "sha256": "f2d9580a7a711f037826895941cd0120ef27e486e006a0d4c79901024f32400c",
+      "bytes": 30306
+    }
+  ],
+  "patch_sha256": "7d5061850b2618ee836f91c2a841d0a6974d5d18d1ad82d40a75d36c55a32be2",
+  "checks_status": "Current final11suite run pending; earlier core source checks and explicit failed expectations preserved. No native or production-build qualification inferred."
+}

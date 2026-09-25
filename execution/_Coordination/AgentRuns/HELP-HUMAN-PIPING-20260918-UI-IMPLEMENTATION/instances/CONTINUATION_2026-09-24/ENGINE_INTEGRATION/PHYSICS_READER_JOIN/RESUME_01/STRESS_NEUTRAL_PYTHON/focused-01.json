@@ -1,0 +1,112 @@
+{
+  "command": [
+    "/private/tmp/chirality-piping-review-venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_stress_neutral_physics_source.py",
+    "tests/test_stress_neutral_precision.py"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "environment": {
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "checked_json_sha256": "bc1343ef45704c0ec65c1c7ac244c50e349af49de3a9b850dc11578bb2fc6c54",
+  "started_utc": "2026-09-25T08:42:49.654476+00:00",
+  "inputs": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "4db371c6e70cd09925f88f5698a59292c5a2101aa59f1ca1cd9334fd12564ef6"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "1311149a04e900ea01bd22e5dd3cc7f8a85bc6db8923cca9bf63d9f941bbaafc"
+    },
+    {
+      "path": "tests/test_stress_neutral_physics_source.py",
+      "sha256": "7e7026a36940143e76f1f267b47c3966abc9daeddfc820ad5d04ab31757a6e0f"
+    },
+    {
+      "path": "core/analysis_runs/compatibility.py",
+      "sha256": "5e5083a1ed2d25a0e033031e31a65ae85babb45089c03760937bc2dda1c4b945"
+    },
+    {
+      "path": "core/analysis_runs/physics_evidence.py",
+      "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+    },
+    {
+      "path": "core/analysis_runs/physics_source.py",
+      "sha256": "fd13ac5d42509fd23265ec66b6bfac4bf5199cc828acb2bf0554603b106ad519"
+    },
+    {
+      "path": "core/analysis_runs/source_blocks.py",
+      "sha256": "52779e57584f3196d6c2259e38e86630270e406cc3656bcb35c6252af5509cbf"
+    },
+    {
+      "path": "schemas/physics_source_recovery.schema.json",
+      "sha256": "3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/fields-dense_scrutiny.raw.json",
+      "sha256": "bbe505b3b7459931b9f49a708b62a9082748ff269696e0a620f3193620d60be9"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/fields-sparse_interactive.raw.json",
+      "sha256": "820ed6df0e166b32cc938988d1abf08840e1a3944ba696416460c712a19ce244"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/mixed-dense_scrutiny.raw.json",
+      "sha256": "a240ba6cc38196a806a4720ffd24ac215f4bafca4e70ed2cb3959ca29e506030"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json",
+      "sha256": "4134fc480d7c77aa412664e0484e08eb3e0c2f44174bbfd6f42023548c4ff4d1"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n05-dense_scrutiny.raw.json",
+      "sha256": "d7b0380b65113d3850808543c48c98a64e8f7f4b087dfee84c4a6e4f0fde3727"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json",
+      "sha256": "831bb4a3833b47128a2044eb24bd0540a8a76166fad7446aead7e0b0b848ae6e"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n06-dense_scrutiny.raw.json",
+      "sha256": "e2379dd030de824638d26c4488f45050846bf8e814defc683fd97cd1d607f0b8"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n06-sparse_interactive.raw.json",
+      "sha256": "233c6bf3f99ecf54e6ff80966bcf02d2ffc19c1bc6e647263eb5de08cc31c222"
+    }
+  ],
+  "finished_utc": "2026-09-25T08:46:02.464839+00:00",
+  "exit_code": 0,
+  "log": "focused-01.log",
+  "log_sha256": "6d165e97409d6daed023b433563510898b5baa8e46a0555ba855c2dbcb766798",
+  "input_hash_backcheck": {
+    "checked_at_utc": "2026-09-25T08:46:59.431343+00:00",
+    "drift": [
+      {
+        "path": "core/analysis_runs/physics_source.py",
+        "tested_sha256": "fd13ac5d42509fd23265ec66b6bfac4bf5199cc828acb2bf0554603b106ad519",
+        "current_sha256": "6128a9d12a2e412b0e89a07215376dab9a8693c82fc56d68d01573cf37fbaabd"
+      },
+      {
+        "path": "core/analysis_runs/source_blocks.py",
+        "tested_sha256": "52779e57584f3196d6c2259e38e86630270e406cc3656bcb35c6252af5509cbf",
+        "current_sha256": "0007f9049cb50e2dc2f09e9dfa1a377d8fa7c9ab092cc8aaf6a1151cca4c25fa"
+      }
+    ]
+  },
+  "result_summary": {
+    "passed": 73,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 72,
+    "warning_kind": "Existing jsonschema.RefResolver deprecation"
+  }
+}

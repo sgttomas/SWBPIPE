@@ -1,0 +1,146 @@
+{
+  "actual_executor": "/root/physics_resume",
+  "binary_sha256": "d7cfc29f6b26123e3f7b95a647b7f433d7b576f567109968283e48e4664d7d24",
+  "source_binding": "public-05.json",
+  "purpose": "Actual equivalent authored units for independent reader false-refusal finding; no raw relabel",
+  "runs": [
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "sparse",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/n05_units.request.json"
+      ],
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units.request.json",
+      "input_sha256": "4774ffdeb00bf3a400032994f18b85b8b53b37695e88a6e15c7f6c8b3abb2775",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units-sparse_interactive.raw.json",
+      "output_sha256": "2b6849285aea5074224bbcd505ad5db8f4208268c72cd97911843ff9af47cefe",
+      "exit_code": 0,
+      "status": "MECHANICS_SOLVED",
+      "case_materials": [
+        [
+          {
+            "E_pa": 200000000000.0,
+            "G_pa": 80000000000.0,
+            "alpha_per_kelvin": null,
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "material_id": "material",
+            "nu": 0.25,
+            "pipe_id": "independent-member",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "thermal_consumed": false
+          }
+        ]
+      ]
+    },
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "dense",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/n05_units.request.json"
+      ],
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units.request.json",
+      "input_sha256": "4774ffdeb00bf3a400032994f18b85b8b53b37695e88a6e15c7f6c8b3abb2775",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units-dense_scrutiny.raw.json",
+      "output_sha256": "02d761ab7e64cf3d41a2336a1049a5b20093aa94951ccc0a4739f1250ec32642",
+      "exit_code": 0,
+      "status": "MECHANICS_SOLVED",
+      "case_materials": [
+        [
+          {
+            "E_pa": 200000000000.0,
+            "G_pa": 80000000000.0,
+            "alpha_per_kelvin": null,
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "material_id": "material",
+            "nu": 0.25,
+            "pipe_id": "independent-member",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "thermal_consumed": false
+          }
+        ]
+      ]
+    },
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "sparse",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units.request.json"
+      ],
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units.request.json",
+      "input_sha256": "065f004d03ab11324958a6b5a0c8763e063e18f9a413c9ffee336903d4a1725a",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units-sparse_interactive.raw.json",
+      "output_sha256": "0fc195a0e5ca8ded8c0393bded4329d63bc31e6776a3175a70bde9928adbdfb9",
+      "exit_code": 0,
+      "status": "MECHANICS_SOLVED",
+      "case_materials": [
+        [
+          {
+            "E_pa": 200000000000.0,
+            "G_pa": 80000000000.0,
+            "alpha_per_kelvin": null,
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "material_id": "material",
+            "nu": 0.25,
+            "pipe_id": "independent-member",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "thermal_consumed": false
+          }
+        ],
+        [
+          {
+            "E_pa": 2000.0,
+            "G_pa": 800.0,
+            "alpha_per_kelvin": null,
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "material_id": "material",
+            "nu": 0.25,
+            "pipe_id": "independent-member",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "thermal_consumed": false
+          }
+        ]
+      ]
+    },
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "dense",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units.request.json"
+      ],
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units.request.json",
+      "input_sha256": "065f004d03ab11324958a6b5a0c8763e063e18f9a413c9ffee336903d4a1725a",
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units-dense_scrutiny.raw.json",
+      "output_sha256": "c0481764c0f5057dda96cf78529b0df0788f301dd8b1497501ae4bff0d7e1706",
+      "exit_code": 0,
+      "status": "MECHANICS_SOLVED",
+      "case_materials": [
+        [
+          {
+            "E_pa": 200000000000.0,
+            "G_pa": 80000000000.0,
+            "alpha_per_kelvin": null,
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "material_id": "material",
+            "nu": 0.25,
+            "pipe_id": "independent-member",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "thermal_consumed": false
+          }
+        ],
+        [
+          {
+            "E_pa": 2000.0,
+            "G_pa": 800.0,
+            "alpha_per_kelvin": null,
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "material_id": "material",
+            "nu": 0.25,
+            "pipe_id": "independent-member",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "thermal_consumed": false
+          }
+        ]
+      ]
+    }
+  ]
+}

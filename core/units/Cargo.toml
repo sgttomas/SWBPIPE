@@ -8,7 +8,17 @@ publish = false
 [lib]
 path = "src/lib.rs"
 
+[[bin]]
+name = "openpipestress_units"
+path = "src/bin/openpipestress_units.rs"
+required-features = ["cli"]
+
+[features]
+cli = ["dep:serde", "dep:serde_json"]
+
 [dependencies]
+serde = { version = "1", features = ["derive"], optional = true }
+serde_json = { version = "1", features = ["float_roundtrip"], optional = true }
 
 [dev-dependencies]
 serde_json = "1"

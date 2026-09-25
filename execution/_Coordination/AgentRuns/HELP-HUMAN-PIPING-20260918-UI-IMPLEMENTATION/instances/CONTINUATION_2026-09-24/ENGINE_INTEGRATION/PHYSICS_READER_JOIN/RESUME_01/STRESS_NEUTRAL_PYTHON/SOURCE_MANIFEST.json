@@ -1,0 +1,42 @@
+{
+  "task": "/root/physics_resume/physics_reader_join/physics_rust_export",
+  "frozen_at_utc": "2026-09-25T08:46:59.431739+00:00",
+  "owned_files": [
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "4db371c6e70cd09925f88f5698a59292c5a2101aa59f1ca1cd9334fd12564ef6"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "1311149a04e900ea01bd22e5dd3cc7f8a85bc6db8923cca9bf63d9f941bbaafc"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_stress_neutral_physics_source.py",
+      "sha256": "7e7026a36940143e76f1f267b47c3966abc9daeddfc820ad5d04ab31757a6e0f"
+    }
+  ],
+  "tested_input_hash_drift": [
+    {
+      "path": "core/analysis_runs/physics_source.py",
+      "tested_sha256": "fd13ac5d42509fd23265ec66b6bfac4bf5199cc828acb2bf0554603b106ad519",
+      "current_sha256": "6128a9d12a2e412b0e89a07215376dab9a8693c82fc56d68d01573cf37fbaabd"
+    },
+    {
+      "path": "core/analysis_runs/source_blocks.py",
+      "tested_sha256": "52779e57584f3196d6c2259e38e86630270e406cc3656bcb35c6252af5509cbf",
+      "current_sha256": "0007f9049cb50e2dc2f09e9dfa1a377d8fa7c9ab092cc8aaf6a1151cca4c25fa"
+    }
+  ],
+  "test_log_sha256": "6d165e97409d6daed023b433563510898b5baa8e46a0555ba855c2dbcb766798",
+  "test_result": "73 passed; zero skipped; no Current/authentication/native claim",
+  "parent_follow_on": "One coherent affected Python package rerun against final validator freeze after ROOT sweep; no additional child run authorized now.",
+  "validator_owner_report": {
+    "freeze_utc": "2026-09-25T08:47:55Z",
+    "delta": [
+      "Direct interval sign comparisons avoid product underflow",
+      "Malformed transport exceptions normalized to ValueError",
+      "Schema numeric enums distinguish bool from numeric 0/1"
+    ],
+    "separate_owner_validation": "39 composite checks reported; not executed by this TASK"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "python_ast": "passed all four owned Python modules/tests",
+  "rustfmt_parser": "passed owned Rust modules/tests; no compiler launched by TASK",
+  "whitespace": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

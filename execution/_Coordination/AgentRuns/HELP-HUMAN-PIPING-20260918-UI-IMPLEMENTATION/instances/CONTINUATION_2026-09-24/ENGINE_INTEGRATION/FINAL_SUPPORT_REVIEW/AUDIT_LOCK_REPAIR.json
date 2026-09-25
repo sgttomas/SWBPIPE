@@ -1,0 +1,72 @@
+{
+  "kind": "narrow supporting-review repair",
+  "review_finding": "Missing product_physics canonical_json+sha2 edges in audit Cargo.lock",
+  "command": [
+    "cargo",
+    "metadata",
+    "--offline",
+    "--format-version",
+    "1",
+    "--manifest-path",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml"
+  ],
+  "exit": 0,
+  "build_performed": false,
+  "before_sha256": "7b13417f19b94c91d519dcd5106c147810b22611a6d1c2b320f0f26ac51160c9",
+  "after_sha256": "3ae542bfb7735838dca924442bde5a858a15c971d14e099c5f8f751b1b0baf14",
+  "package_identity_version_source_checksum_unchanged": true,
+  "package_count": 38,
+  "changes": [
+    {
+      "package": "open_pipe_stress_product_physics",
+      "old_dependencies": [
+        "open_pipe_stress_curved_bend",
+        "open_pipe_stress_frame_kernel",
+        "open_pipe_stress_linear_supports",
+        "open_pipe_stress_load_case_algebra",
+        "open_pipe_stress_nonlinear_integration",
+        "open_pipe_stress_nonlinear_supports",
+        "open_pipe_stress_primitive_loads",
+        "open_pipe_stress_solver_diagnostics",
+        "open_pipe_stress_sparse_direct",
+        "open_pipe_stress_straight_pipe",
+        "open_pipe_stress_stress_recovery",
+        "open_pipe_stress_units",
+        "serde",
+        "serde_json"
+      ],
+      "new_dependencies": [
+        "open_pipe_stress_canonical_json",
+        "open_pipe_stress_curved_bend",
+        "open_pipe_stress_frame_kernel",
+        "open_pipe_stress_linear_supports",
+        "open_pipe_stress_load_case_algebra",
+        "open_pipe_stress_nonlinear_integration",
+        "open_pipe_stress_nonlinear_supports",
+        "open_pipe_stress_primitive_loads",
+        "open_pipe_stress_solver_diagnostics",
+        "open_pipe_stress_sparse_direct",
+        "open_pipe_stress_straight_pipe",
+        "open_pipe_stress_stress_recovery",
+        "open_pipe_stress_units",
+        "serde",
+        "serde_json",
+        "sha2"
+      ]
+    }
+  ],
+  "locked_followup": {
+    "command": [
+      "cargo",
+      "metadata",
+      "--offline",
+      "--locked",
+      "--format-version",
+      "1",
+      "--manifest-path",
+      "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml"
+    ],
+    "exit": 0,
+    "build_performed": false
+  }
+}

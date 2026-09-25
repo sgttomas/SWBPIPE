@@ -1,0 +1,8 @@
+{
+  "actual_packet": "/private/tmp/piping-composite-ts-artifacts-resume1/fields-dense_scrutiny.packet.json",
+  "row_id": "result:support-action:4:case:6:anchor:Fx",
+  "field": "component_ref.object_type",
+  "TS_received": "CanonicalObject",
+  "Python_required": "Support",
+  "cause": "TS prefix heuristic missed a support ID without support: prefix; physical row kind establishes Support identity."
+}

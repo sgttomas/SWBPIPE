@@ -153,6 +153,7 @@ fn function(
 fn recipes(
     payload: &Value,
     input: &source_recovery::Input<'_>,
+    selected: &SelectedSourceRecovery,
     ledger: &[RowTreatment],
     actual: &[ResultItem],
 ) -> Result<Value, ReceiptError> {
@@ -167,8 +168,14 @@ fn recipes(
             .ok_or_else(|| bad("recipe registration missing"))?;
         let mut parameters = Vec::new();
         match recipe{
-            "translation_norm_scaled_v1"|"support_force_norm_scaled_v1"=>{},
-            "straight_open_stress_v1"=>{
+            "translation_norm_scaled_v1"|"support_force_norm_scaled_v1"|"support_force_norm_scaled_checked_v1"|"support_moment_norm_scaled_checked_v1"=>{},
+            "retained_source_endpoint_normal_max_v1"=>{
+                let i=input.built.pipes.iter().position(|p|p.element_id==row.entity_ref).ok_or_else(||bad("endpoint recipe member"))?;
+                let section=input.built.sections.get(&row.entity_ref).ok_or_else(||bad("endpoint recipe section"))?;
+                parameters.push(json!({"name":"area","operand":source_operand(payload,format!("/frames/{i}/formation_inputs/area_bits"),section.area)?}));
+                parameters.push(json!({"name":"section_modulus","operand":source_operand(payload,format!("/frames/{i}/recovery_section/section_modulus_bits"),section.section_modulus)?}));
+            },
+            "straight_open_stress_v1"|"retained_source_straight_stress_v1"=>{
                 let i=input.built.pipes.iter().position(|p|p.element_id==row.entity_ref).ok_or_else(||bad("recipe member"))?;
                 let section=input.built.sections.get(&row.entity_ref).ok_or_else(||bad("recipe section"))?;
                 let operands:Vec<(&str,String,f64)>=match row.kind.as_str(){"element_local_axial_normal_stress"=>vec![("area",format!("/frames/{i}/formation_inputs/area_bits"),section.area)],"element_local_bending_normal_stress_y"|"element_local_bending_normal_stress_z"=>vec![("section_modulus",format!("/frames/{i}/recovery_section/section_modulus_bits"),section.section_modulus)],"element_local_torsional_shear_stress"=>vec![("torsion_radius",format!("/frames/{i}/recovery_section/torsion_radius_bits"),section.torsion_radius),("torsion_constant",format!("/frames/{i}/formation_inputs/torsion_constant_bits"),section.torsion_constant)],_=>return Err(bad("recipe signature"))};
@@ -178,7 +185,67 @@ fn recipes(
             "reviewed_stress_summary_v1"=>parameters.push(json!({"name":"pa_per_mpa","operand":{"kind":"method_constant","bits":bits(1_000_000.)}})),
             _=>return Err(bad("unimplemented recipe")),
         }
-        recipes.push(json!({"result_id":row.id,"recipe_id":recipe,"input_result_ids":treatment.input_result_ids,"parameters":parameters}));
+        let mut record = json!({"result_id":row.id,"recipe_id":recipe,"input_result_ids":treatment.input_result_ids,"parameters":parameters});
+        let mut indices = Vec::new();
+        if recipe == "retained_source_straight_stress_v1"
+            || recipe == "retained_source_endpoint_normal_max_v1"
+        {
+            let member = selected
+                .members()
+                .iter()
+                .find(|m| m.member_id == row.entity_ref)
+                .ok_or_else(|| bad("source recipe member"))?;
+            if recipe == "retained_source_endpoint_normal_max_v1" {
+                for station in [0usize, 4] {
+                    indices.extend(
+                        [0usize, 4, 5].map(|c| member.section_functional_indices[station][c]),
+                    );
+                }
+            } else {
+                let metadata = row
+                    .metadata
+                    .as_ref()
+                    .ok_or_else(|| bad("source stress metadata"))?;
+                let station = match metadata.location.as_str() {
+                    "end_i" => 0,
+                    "quarter_1" => 1,
+                    "midspan" => 2,
+                    "quarter_3" => 3,
+                    "end_j" => 4,
+                    _ => return Err(bad("source stress station")),
+                };
+                let component = match row.kind.as_str() {
+                    "element_local_axial_normal_stress" => 0,
+                    "element_local_bending_normal_stress_y" => 4,
+                    "element_local_bending_normal_stress_z" => 5,
+                    "element_local_torsional_shear_stress" => 3,
+                    _ => return Err(bad("source stress component")),
+                };
+                indices.push(member.section_functional_indices[station][component]);
+            }
+        } else if matches!(
+            recipe,
+            "support_force_norm_scaled_checked_v1" | "support_moment_norm_scaled_checked_v1"
+        ) {
+            let support = selected
+                .support_actions()
+                .iter()
+                .find(|s| s.support_id == row.entity_ref)
+                .ok_or_else(|| bad("source norm support"))?;
+            let first = if recipe == "support_force_norm_scaled_checked_v1" {
+                0
+            } else {
+                3
+            };
+            indices.extend((first..first + 3).map(|i| support.functional_indices[i]));
+        }
+        if !indices.is_empty() {
+            record["input_functional_ids"] = json!(indices
+                .into_iter()
+                .map(|i| functional_id(&input.load_case.id, i))
+                .collect::<Vec<_>>());
+        }
+        recipes.push(record);
     }
     Ok(json!(recipes))
 }
@@ -279,7 +346,7 @@ pub(super) fn commitment(
         .enumerate()
         .map(|(i, d)| function(&payload, input, d, i, bindings))
         .collect::<Result<_, _>>()?;
-    let plan = json!({"payload_version":"1.0.0","normalized_source_sha256":normalized,"functions":functions,"derived_recipes":recipes(&payload,input,ledger,actual)?,"observation_result_ids":actual.iter().filter(|r|rows::observation(r)).map(|r|&r.id).collect::<Vec<_>>()});
+    let plan = json!({"payload_version":"1.0.0","normalized_source_sha256":normalized,"functions":functions,"derived_recipes":recipes(&payload,input,selected,ledger,actual)?,"observation_result_ids":actual.iter().filter(|r|rows::observation(r)).map(|r|&r.id).collect::<Vec<_>>()});
     let plan_hash = hash("source_blocks_functional_plan_v1", &plan)?;
     let blocks: Vec<_> = response
         .block_witnesses()

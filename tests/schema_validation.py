@@ -6,10 +6,11 @@ import json
 import sys
 from pathlib import Path
 from copy import deepcopy
+from urllib.parse import urljoin
 
 
 INSTALL_MESSAGE = (
-    "jsonschema>=4,<5 is required for full PKG-02 JSON Schema validation; "
+    "jsonschema>=4.18,<5 is required for full PKG-02 JSON Schema validation; "
     "install with: python3 -m pip install -r requirements-dev.txt"
 )
 
@@ -51,16 +52,28 @@ def validate_instance(schema, instance, *, schema_label="schema", instance_label
     validate_schema_document(schema, schema_label=schema_label)
     validator_class = _draft202012_validator()
     try:
-        from jsonschema import RefResolver
-        schema_dir = Path(__file__).resolve().parents[1] / "schemas"
-        store = {}
-        for path in schema_dir.glob("*.schema.json"):
+        from referencing import Registry, Resource
+        from referencing.jsonschema import DRAFT202012
+    except ImportError as exc:
+        raise JsonSchemaDependencyMissing(INSTALL_MESSAGE) from exc
+    schema_dir = Path(__file__).resolve().parents[1] / "schemas"
+    base_uri = schema.get("$id", "")
+    resources = {}
+    for path in schema_dir.glob("*.schema.*"):
+        try:
             candidate = json.loads(path.read_text(encoding="utf-8"))
-            if "$id" in candidate:
-                store[candidate["$id"]] = candidate
-        validator = validator_class(schema, resolver=RefResolver.from_schema(schema, store=store))
-    except (ImportError, OSError, ValueError):
-        validator = validator_class(schema)
+        except (OSError, ValueError):
+            continue  # Only JSON-encoded checked-in schema resources are used.
+        resource = Resource.from_contents(candidate, default_specification=DRAFT202012)
+        retrieval_urls = {path.resolve().as_uri(), urljoin(base_uri, path.name)}
+        if "$id" in candidate:
+            retrieval_urls.add(candidate["$id"])
+            retrieval_urls.update(urljoin(uri, candidate["$id"]) for uri in list(retrieval_urls))
+        resources.update({uri: resource for uri in retrieval_urls})
+    # Immutable per-reference scopes avoid RefResolver's leaked receipt base.
+    # The registry has no network retriever; every external resource is local.
+    registry = Registry().with_resources(resources.items())
+    validator = validator_class(schema, registry=registry)
     errors = sorted(validator.iter_errors(instance), key=lambda error: list(error.path))
     if errors:
         formatted = "\n".join(_format_error(error) for error in errors[:10])

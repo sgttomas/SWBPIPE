@@ -1,0 +1,161 @@
+{
+  "checks": [
+    {
+      "name": "app26",
+      "original_log": "/private/tmp/piping-resume-app-final-01.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/app26.log",
+      "sha256": "01320111fca81dde4629011f1caa17a658b30baa5a876b1558dadce59f227892",
+      "exit_code": 0,
+      "observed": "26passed199filtered; expectedjsdomcanvaswarnings retained"
+    },
+    {
+      "name": "tsc08",
+      "original_log": "/private/tmp/piping-resume-tsc-final-08.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/tsc08.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "observed": "wholecandidate typecheck exit0 afterSupportdelta"
+    },
+    {
+      "name": "support31",
+      "original_log": "/private/tmp/piping-resume-ts-interop-06.log",
+      "retained_log": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/support31.log",
+      "sha256": "4c5ded9d7fc82f6468cf6ec66721228465f75fc83df20ac8a34f9b72f7f2bc9c",
+      "exit_code": 0,
+      "observed": "31passed2suites afterSupportdelta"
+    }
+  ],
+  "exact_current_24_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "expected_sha256": "0f6f778f7d4d64620c3bea166111e2750dca472e3687c9eb35ba129ff59c5125",
+      "actual_sha256": "0f6f778f7d4d64620c3bea166111e2750dca472e3687c9eb35ba129ff59c5125"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "expected_sha256": "77c57f8351e2f58cabbd9872ac472d611089b4f5fd4b1cb4ba7452341a40fa44",
+      "actual_sha256": "77c57f8351e2f58cabbd9872ac472d611089b4f5fd4b1cb4ba7452341a40fa44"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "expected_sha256": "02b89b91c1f3edc3c1b9cdcb036491be36807afcd246559fd03d908e80ef87f9",
+      "actual_sha256": "02b89b91c1f3edc3c1b9cdcb036491be36807afcd246559fd03d908e80ef87f9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "expected_sha256": "24d1ca3af994b89adfc113f30e7d492545dbe47dc9a2371a17240daecf373a0e",
+      "actual_sha256": "24d1ca3af994b89adfc113f30e7d492545dbe47dc9a2371a17240daecf373a0e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/PhysicsSourceEvidencePanel.test.tsx",
+      "expected_sha256": "1876cc0c159a514b3b3066039706f40021facad9590f25f63303bbd54cc28140",
+      "actual_sha256": "1876cc0c159a514b3b3066039706f40021facad9590f25f63303bbd54cc28140"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/PhysicsSourceEvidencePanel.tsx",
+      "expected_sha256": "f86bf7a574367f705422c6c42e11fe27c311fd2de7b0ab78681983059648a116",
+      "actual_sha256": "f86bf7a574367f705422c6c42e11fe27c311fd2de7b0ab78681983059648a116"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "expected_sha256": "8948204af80bff81d2b08524c94e8985a828f95147f3cb759dac40927b88cca3",
+      "actual_sha256": "8948204af80bff81d2b08524c94e8985a828f95147f3cb759dac40927b88cca3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "expected_sha256": "310d70cd714296e27f418ca7d297062379a088b6dd91e13c678c6985124b0ba5",
+      "actual_sha256": "310d70cd714296e27f418ca7d297062379a088b6dd91e13c678c6985124b0ba5"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "expected_sha256": "54623e85225ced06a9b3e134538f70d8e8790813345680b2ce3f17afd40d8be1",
+      "actual_sha256": "54623e85225ced06a9b3e134538f70d8e8790813345680b2ce3f17afd40d8be1"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx",
+      "expected_sha256": "0e404f4c482f5316031c634016766e52416d787fa85e4fc5e37e1564a15d4608",
+      "actual_sha256": "0e404f4c482f5316031c634016766e52416d787fa85e4fc5e37e1564a15d4608"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.test.ts",
+      "expected_sha256": "81b7e59899b216a4d1c2ce31b36db2253dfbcb8a4972d2ee86e369bcd0f408b7",
+      "actual_sha256": "81b7e59899b216a4d1c2ce31b36db2253dfbcb8a4972d2ee86e369bcd0f408b7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "expected_sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42",
+      "actual_sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "expected_sha256": "f0140a53e0d8a9b60eb75f7b1a94421be757596b9269b598ee789e037a5474af",
+      "actual_sha256": "f0140a53e0d8a9b60eb75f7b1a94421be757596b9269b598ee789e037a5474af"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.test.ts",
+      "expected_sha256": "ac338acbf79df3375bf2c2f81182e0b6d43d0f5f0c07de58a5d8904a135bbafd",
+      "actual_sha256": "ac338acbf79df3375bf2c2f81182e0b6d43d0f5f0c07de58a5d8904a135bbafd"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.ts",
+      "expected_sha256": "9746a7ac616c0af1b4a9c48067305c9e28c33e0e55e894d9959059c0b3c51fb1",
+      "actual_sha256": "9746a7ac616c0af1b4a9c48067305c9e28c33e0e55e894d9959059c0b3c51fb1"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "expected_sha256": "e89b82a1c1ee38dd8a1eb4fe3d110b516c73389ae0d83c9988a11d2aa22107de",
+      "actual_sha256": "e89b82a1c1ee38dd8a1eb4fe3d110b516c73389ae0d83c9988a11d2aa22107de"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "expected_sha256": "d9571bbb47e6122538570dcb2a14f5ad510c5db4d9ebfb1c926f6d3941e92c19",
+      "actual_sha256": "d9571bbb47e6122538570dcb2a14f5ad510c5db4d9ebfb1c926f6d3941e92c19"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "expected_sha256": "455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380",
+      "actual_sha256": "455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "expected_sha256": "d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734",
+      "actual_sha256": "d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "expected_sha256": "76b434f9bd0789f9182db3c29694f0db2259cfa51ca0252891cf2acaf3e9b8a9",
+      "actual_sha256": "76b434f9bd0789f9182db3c29694f0db2259cfa51ca0252891cf2acaf3e9b8a9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "expected_sha256": "2b11106f3d86dea3bbf4e266fbd194848421e741dac4f6f54a4892f8240823fd",
+      "actual_sha256": "2b11106f3d86dea3bbf4e266fbd194848421e741dac4f6f54a4892f8240823fd"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "expected_sha256": "242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57",
+      "actual_sha256": "242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+      "expected_sha256": "b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718",
+      "actual_sha256": "b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "expected_sha256": "f2d9580a7a711f037826895941cd0120ef27e486e006a0d4c79901024f32400c",
+      "actual_sha256": "f2d9580a7a711f037826895941cd0120ef27e486e006a0d4c79901024f32400c"
+    }
+  ],
+  "hash_drift": [],
+  "unchanged_App_test": {
+    "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "sha256": "566f9d9a37b009f0d40bcabb99a92069aa026e40ffb025ba789dd69173d4d73a"
+  },
+  "commands": {
+    "app": "APP_COMMAND.json",
+    "tsc": "./node_modules/.bin/tsc -p apps/desktop/tsconfig.json --noEmit",
+    "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping"
+  },
+  "limits": "No native UI/fullbrowser/installedpackage qualification; pendingPythoninterop is separate. Counts overlap and must not be summed as distinct tests."
+}

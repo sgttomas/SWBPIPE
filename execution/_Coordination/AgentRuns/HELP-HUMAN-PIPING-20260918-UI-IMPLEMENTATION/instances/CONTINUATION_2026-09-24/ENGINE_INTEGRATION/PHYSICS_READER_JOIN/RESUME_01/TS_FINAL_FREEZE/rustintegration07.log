@@ -1,0 +1,24 @@
+   Compiling open_pipe_stress_result_export v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/reporting/result_export)
+warning: function `derived` is never used
+   --> src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.68s
+     Running tests/physics_source_contract.rs (/private/tmp/piping-physics-result-export-target/debug/deps/physics_source_contract-5001ca3bdc1cf7e8)
+
+running 7 tests
+test maximum_signature_requires_explicit_basis_without_claiming_current ... ok
+test old_entrypoints_and_composite_remain_separate ... ok
+test physical_transport_never_reconstructs_raw_rows ... ok
+test public_rehashed_copy_cannot_hide_an_invalid_interpolation_pair ... ok
+test actual_units_authority_rejects_wrong_dimension_and_unregistered_spelling ... ok
+test rehashed_false_statements_remain_invalid ... ok
+test actual_records_require_original_full_invocation ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.33s
+

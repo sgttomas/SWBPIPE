@@ -1,0 +1,26 @@
+{
+  "owned_files": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "1e833ff9efd2ec72482a84cb1fa622615e777ef412555b3a31d5470fe0ada0ab"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "3e6b89643324ba1b22efa0918e8a511500e199ca367250bc30574c948ba9a994"
+    },
+    {
+      "path": "tests/test_stress_neutral_physics_source.py",
+      "sha256": "e12b2b243f48a3361a89443d837d8e33c31abf9f26d623b098757fef2f092c97"
+    }
+  ],
+  "pure_test_result": "19 passed; 26 deselected; no shared physical/source validator path",
+  "actual_mixed_backcheck": {
+    "exit_code": 0,
+    "result": "3 passed,42 deselected; actual mixed both-mode complete nine-member/source-bound/tamper tests plus p1 golden",
+    "log": "mixed-roundtrip-01.log",
+    "log_sha256": "7bd0b8d1370ddb448bddf153af8833a71cd569b76dd764c55668735416a7aef1",
+    "dependency_hash_drift": []
+  },
+  "frozen_utc": "2026-09-25T09:18:49.670773+00:00",
+  "observed_checks": "19 isolated bit/p1 checks plus 3 focused actual/p1 checks; p1 repeated intentionally across both stages"
+}

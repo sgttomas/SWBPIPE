@@ -1,0 +1,99 @@
+--- a/apps/desktop/src/services/analysisRunCompatibility.ts
++++ b/apps/desktop/src/services/analysisRunCompatibility.ts
+@@ -1,6 +1,6 @@
+ import { validatePhysicsSourceTransportMetadata } from "../features/results/physicsSourceRecovery";
+ import { validatePhysicsEvidence } from "../features/results/physicsResultEvidence";
+-import { semanticContractForSource } from "../features/results/resultSemantics";
++import { semanticContractForSource, semanticSourceBasisMatches } from "../features/results/resultSemantics";
+ import { sourceContract, sourceSemanticBinding, hasCurrentSourceContract } from "../features/results/numericalResultQuality";
+ import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
+ import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
+@@ -19,16 +19,17 @@
+   const byUnit = byKind.filter((entry) => entry.unit === row.unit);
+   if (!byUnit.length) throw new Error(`SOURCE_UNIT_CONTRADICTION: ${row.kind} / ${row.unit}`);
+   const component = row.metadata?.component ?? null;
+-  const exact = byUnit.find((entry) => entry.component === component);
++  const exact = byUnit.find((entry) => entry.component === component && semanticSourceBasisMatches(entry, row));
+   if (exact) {
+     if (row.dimension && exact.legacy_declared_dimension && row.dimension !== exact.legacy_declared_dimension) throw new Error(`ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH: ${row.id}`);
+     return { semantic: exact, findings: [] as string[] };
+   }
+-  const generic = byUnit.find((entry) => entry.component === null);
++  const generic = byUnit.find((entry) => entry.component === null && semanticSourceBasisMatches(entry, row));
+   if (generic) {
+     if (row.dimension && generic.legacy_declared_dimension && row.dimension !== generic.legacy_declared_dimension) throw new Error(`ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH: ${row.id}`);
+     return { semantic: generic, findings: (source ? component !== null : !!component) ? [] : ["OPTIONAL_SOURCE_METADATA_MISSING"] };
+   }
++  if (byUnit.some(entry => entry.component === component || entry.component === null)) throw new Error(`SOURCE_BASIS_CONTRADICTION: ${row.kind}`);
+   if (source ? component !== null : !!component) throw new Error(`SOURCE_COMPONENT_CONTRADICTION: ${row.kind} / ${component}`);
+   return { semantic: null, findings: ["SOURCE_COMPONENT_MISSING_SEMANTICS_UNAVAILABLE"] };
+ }
+--- a/apps/desktop/src/features/results/resultSemantics.ts
++++ b/apps/desktop/src/features/results/resultSemantics.ts
+@@ -8,6 +8,10 @@
+ export type SourceRow = MechanicsResult['results'][number];
+ export type SemanticSignature = (typeof contract.rows)[number] & { source_basis?: string };
+ export { contract as resultSemanticContract };
++/** A new-method discriminator only; old table signatures omit this field. */
++export function semanticSourceBasisMatches(signature: { kind: string; source_basis?: string }, row: SourceRow): boolean {
++  return !("source_basis" in signature) || signature.source_basis === row.metadata?.basis;
++}
+ export function semanticContractForSource(source?: MechanicsResult) {
+   if (!source || sourceContract(source) === 'legacy') return contract;
+   if (sourceContract(source) === 'precision') return precisionContract;
+@@ -24,7 +28,7 @@
+   const observedComponent = row.metadata?.component;
+   const component = typeof observedComponent === "string" && observedComponent.length > 0 ? observedComponent : undefined;
+   const variants = units.filter(s => s.component === null || s.component === component);
+-  const exact = variants.find(s => !("source_basis" in s) || s.source_basis === row.metadata?.basis);
++  const exact = variants.find(s => semanticSourceBasisMatches(s, row));
+   if (exact) return exact;
+   if (variants.length) throw new Error(`SOURCE_BASIS_CONTRADICTION: ${row.kind}`);
+   if (component) throw new Error(`SOURCE_COMPONENT_CONTRADICTION: ${row.kind}`);
+--- a/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx
++++ b/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx
+@@ -14,6 +14,8 @@
+ import { canonicalJsonCheckedV1, canonicalSha256HexCheckedV1 } from "../../services/hashService";
+ import { buildReportPackageRequest } from "../report/reportPackageRequest";
+ import { numericalResultStanding } from "./numericalResultQuality";
++import { analysisRowSemantics, analysisRecordProjection, validateAnalysisRunV03 } from '../../services/analysisRunCompatibility';
++import { resultSemantics } from './resultSemantics';
+ 
+ afterEach(() => { invokeMock.mockReset(); delete (window as any).__TAURI_INTERNALS__; });
+ const fixturePrefix = "../../../../../fixtures/product_preview/physics_source/";
+@@ -47,6 +49,12 @@
+     expect(hasNativeMechanicsInvocation(source,model,mode)).toBe(true);
+     expect(numericalResultStanding(source,model).eligible).toBe(true);
+     expect(numericalResultStanding(structuredClone(source),model).eligible).toBe(false);
++    for (const row of source.results.filter(r=>r.kind==='pipe_elastic_normal_stress_maximum_v2')) {
++      const signature=row.metadata?.basis==='retained_source_endpoint_normal_max_v1'?'physics-source-endpoint-normal-maximum':'supported-source-068';
++      expect(resultSemantics(row,source)?.signature_id).toBe(signature);
++      expect(analysisRowSemantics(row,source).semantic?.signature_id).toBe(signature);
++      expect(analysisRun.analysis_run.result_refs.find(r=>r.result_ref.ref===row.id)?.semantic_contract?.signature_id).toBe(signature);
++    }
+     const hook=renderHook(()=>useResultsSessionState());
+     act(()=>{hook.result.current.setResult(source);hook.result.current.setAnalysisRun(analysisRun);hook.result.current.setInputManifest(inputManifest);});
+     expect(hook.result.current.currentSolvedResult).toBe(source);
+@@ -81,6 +89,22 @@
+       for(const[suffix,value]of Object.entries({model,analysis:analysisRun,document,packet}))writeFileSync(path.join(folder,`${stem}.${suffix}.json`),await canonicalJsonCheckedV1(value));
+     }
+   },30000);
++});
++it('rejects rehashed analysis signatures that substitute ordinary and retained maxima',async()=>{
++  const {source,analysisRun}=await received('mixed','sparse_interactive');
++  for(const basis of ['retained_source_endpoint_normal_max_v1','recovered_from_open_mechanics_stress_components']) {
++    const row=source.results.find(r=>r.kind==='pipe_elastic_normal_stress_maximum_v2'&&r.metadata?.basis===basis)!;
++    expect(row).toBeDefined();
++    const changed=structuredClone(analysisRun),reference=changed.analysis_run.result_refs.find(r=>r.result_ref.ref===row.id)!;
++    reference.semantic_contract!.signature_id=basis==='retained_source_endpoint_normal_max_v1'?'supported-source-068':'physics-source-endpoint-normal-maximum';
++    changed.analysis_run.hashes.find(h=>h.payload_scope==='analysis_run_record')!.value=await canonicalSha256HexCheckedV1(analysisRecordProjection(changed));
++    await expect(validateAnalysisRunV03(changed,source)).rejects.toThrow('ANALYSIS_ROW_SOURCE_BINDING_MISMATCH');
++    for(const invalid of [undefined,'unrecognized_basis']) {
++      const copied=structuredClone(row);copied.metadata!.basis=invalid as any;
++      expect(()=>analysisRowSemantics(copied,source)).toThrow('SOURCE_BASIS_CONTRADICTION');
++      expect(()=>resultSemantics(copied,source)).toThrow('SOURCE_BASIS_CONTRADICTION');
++    }
++  }
+ });
+ it('preserves UTF8 quoted identifier code points and refuses invalid encoding or record separators', async () => {
+   const {source,model,analysisRun}=await received('n05_unicode','sparse_interactive');

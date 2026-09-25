@@ -1,0 +1,26 @@
+--- a/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
++++ b/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
+@@ -822,8 +822,10 @@
+   if (location !== undefined && location !== null && (typeof location !== "string" || !location)) throw new Error("SN-PRECISION-ROW-LOCATION-INVALID");
+   if (typeof item.entity_ref !== "string" || !item.entity_ref) throw new Error("SN-PRECISION-ROW-ENTITY-MISSING");
+   const dimension = semantic?.derivative_target_dimension ?? "TBD";
++  const component = usesUtf8Csv(source) && ['support_reaction_component_v2', 'support_reaction_force_magnitude_v2', 'support_reaction_moment_magnitude_v2'].includes(item.kind)
++    ? reference('Support', item.entity_ref) : entityReference(item.entity_ref);
+   return { result_id: item.id, canonical_ref: reference("Result", item.id), row_kind: "result_value", result_family: semantic?.category === "physical_quantity" ? semantic.family ?? "other" : "other",
+-    load_case_ref: sourceBasisReference(item.basis_ref) ?? reference("AnalysisRun", source.run_id), station_ref: reference("Station", location ?? "summary"), component_ref: entityReference(item.entity_ref), value: item.value, unit: item.unit, dimension,
++    load_case_ref: sourceBasisReference(item.basis_ref) ?? reference("AnalysisRun", source.run_id), station_ref: reference("Station", location ?? "summary"), component_ref: component, value: item.value, unit: item.unit, dimension,
+     correlation_status: item.unit && dimension !== "TBD" ? "canonical_id_map" : "unit_or_dimension_blocking_review_required", source_result_ref: reference("Result", item.id), provenance: previewProvenance() };
+ }
+ 
+--- a/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx
++++ b/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx
+@@ -58,6 +58,9 @@
+     expect(packet.export_profile.csv_encoding).toBe('utf-8');
+     expect(packet.export_profile.csv_row_order).toBe('unicode_scalar_value_result_id');
+     expect(packet.manifest.checksums.find((c:any)=>c.payload_ref.ref==='stress_neutral_results.csv').canonicalization).toBe('utf8_csv_record_lf_v1');
++    for(const row of source.results.filter(r=>['support_reaction_component_v2','support_reaction_force_magnitude_v2','support_reaction_moment_magnitude_v2'].includes(r.kind))) {
++      expect(packet.result_rows.find((r:any)=>r.result_id===row.id).component_ref).toEqual({object_type:'Support',ref:row.entity_ref});
++    }
+     await validateStressNeutralExportPacket(packet,source,analysisRun,analysisRun.analysis_run.load_basis_refs);
+     const wire=JSON.parse(await canonicalJsonCheckedV1(packet));
+     await validateStressNeutralExportPacket(wire,source,analysisRun,analysisRun.analysis_run.load_basis_refs);

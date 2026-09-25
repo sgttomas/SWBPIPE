@@ -1,0 +1,165 @@
+--- before/core/handoff/stress_neutral/package_v0_3.py
++++ after/core/handoff/stress_neutral/package_v0_3.py
+@@ -257,18 +257,49 @@
+                 raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+ 
+ 
++def _source_witness_disposition(row: Mapping[str, Any], original: Mapping[str, Any] | None, table: Path) -> tuple[str, str | None]:
++    """New-method interpretation from the exact validated source/table signature.
++
++    A unit spelling alone cannot override the table's derivative target. In
++    particular, a disclosed unitless diagnostic may have a ratio target without
++    becoming a physical or governing/compliance ratio result.
++    """
++    if not isinstance(original, Mapping):
++        return "unknown_semantic", None
++    try:
++        semantic, _ = _semantic(original, table)
++    except ValueError:
++        return "contradiction", None
++    if semantic is None:
++        return "unknown_semantic", None
++    if semantic.get("category") == "diagnostic_work":
++        return "diagnostic_work", None
++    dimension = semantic.get("derivative_target_dimension")
++    if not isinstance(dimension, str) or dimension in {"", "TBD"}:
++        return "missing_semantic", None
++    family = (semantic.get("family") or "other") if semantic.get("category") == "physical_quantity" else "other"
++    if row.get("dimension") != dimension or row.get("unit") != original.get("unit") or row.get("result_family") != family or row.get("row_kind") != "result_value" or row.get("correlation_status") != "canonical_id_map":
++        return "contradiction", None
++    return "eligible", dimension
++
++
+ def _witnesses(rows: list[dict[str, Any]], provenance: Mapping[str, Any], source: Mapping[str, Any] | None = None) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+     witnesses, findings = [], []
+     source_rows = {item.get("id"): item for item in source.get("results", [])} if source is not None else {}
+-    table = _source_contract(source)[2] if source is not None else None
++    contract_id, _, table = _source_contract(source) if source is not None else (None, None, None)
++    source_qualified_method = contract_id in SUPPORTED_METHODS - {PRECISION_CONTRACT_ID}
+     for index, row in enumerate(rows):
+-        disposition, interpreted_dimension = _witness_disposition(row)
+-        if source is not None:
+-            semantic, _ = _semantic(source_rows[row["result_id"]], table)
+-            if semantic is not None and semantic.get("category") == "diagnostic_work":
+-                disposition, interpreted_dimension = "diagnostic_work", None
+-            elif semantic is None:
+-                disposition, interpreted_dimension = "unknown_semantic", None
++        if source_qualified_method:
++            disposition, interpreted_dimension = _source_witness_disposition(row, source_rows.get(row["result_id"]), table)
++        else:
++            # Preserve the original precision-1/legacy interpretation and bytes.
++            disposition, interpreted_dimension = _witness_disposition(row)
++            if source is not None:
++                semantic, _ = _semantic(source_rows[row["result_id"]], table)
++                if semantic is not None and semantic.get("category") == "diagnostic_work":
++                    disposition, interpreted_dimension = "diagnostic_work", None
++                elif semantic is None:
++                    disposition, interpreted_dimension = "unknown_semantic", None
+         if disposition != "eligible":
+             diagnostic_work = disposition == "diagnostic_work"
+             findings.append({"code": WITHHOLDING_CODES[disposition], "class": "unit_preservation_witness", "severity": "info" if diagnostic_work else "blocking", "source": {"object_type": "StressNeutralResultRow", "ref": str(row.get("result_id"))}, "affected_object": {"object_type": "StressNeutralUnitWitness", "ref": f"unit-witness:{index}"}, "message": "Diagnostic work evidence is retained as a row but has no physical unit-preservation witness." if diagnostic_work else f"{disposition.replace('_', ' ')} prevents a unit-preservation witness; the received row remains retained without a physical interpretation claim.", "remediation": "Review diagnostic work separately from physical quantity witnesses." if diagnostic_work else "Resolve the source family, unit, dimension and correlation evidence before downstream physical interpretation.", "provenance": deepcopy(dict(provenance))})
+@@ -538,11 +569,13 @@
+     semantic_contract_ref = {"object_type": "ExternalReference", "ref": f"fixtures/results/{contract_path.name}"}
+     if package.get("semantic_contract") != {"id":contract_id, "sha256":contract_hash} or package.get("semantic_contract_ref") != {"ref_type":"semantic_contract", "ref_id":contract_id}:
+         raise ValueError("SN-PRECISION-SEMANTIC-CONTRACT-MISMATCH")
++    source_annotation_rows = {}
+     if contract_id == PRECISION_CONTRACT_ID:
+         if "source_annotations" in package:
+             raise ValueError("SN-SOURCE-ANNOTATION-METHOD-MISMATCH")
+     else:
+         _validate_source_annotations(package, contract_path)
++        source_annotation_rows = {annotation["source_result_id"]: annotation["source_row"] for annotation in package["source_annotations"]}
+     carrier = package.get("source_carrier_checksum", {})
+     if carrier not in package.get("received_source_checksums", []) or carrier.get("payload_ref") != package.get("source_result_ref") or carrier.get("payload_scope") != "received_result" or carrier.get("algorithm") != "sha256" or carrier.get("canonicalization") != PROFILE:
+         raise ValueError("SN-PRECISION-CARRIER-BINDING-MISMATCH")
+@@ -649,7 +682,10 @@
+     for witness in package.get("unit_preservation_witnesses", []):
+         index = witness.get("source_row_index")
+         row = rows[index] if isinstance(index, int) and 0 <= index < len(rows) else None
+-        disposition, interpreted_dimension = _witness_disposition(row) if row else ("unknown_semantic", None)
++        if row and contract_id != PRECISION_CONTRACT_ID:
++            disposition, interpreted_dimension = _source_witness_disposition(row, source_annotation_rows.get(row.get("result_id")), contract_path)
++        else:
++            disposition, interpreted_dimension = _witness_disposition(row) if row else ("unknown_semantic", None)
+         quantity = {"value": row.get("value"), "unit": row.get("unit"), "dimension": interpreted_dimension} if row and disposition == "eligible" else None
+         if row is None or witness.get("witness_id") != f"unit-witness:{index}" or witness.get("result_id") in seen_witnesses or witness.get("result_id") != row.get("result_id") or witness.get("source_quantity") != quantity or witness.get("target_quantity") != quantity or witness.get("conversion_performed") is not False or witness.get("policy") != "preserve_received_value_and_unit":
+             raise ValueError("SN-UNIT-WITNESS-BINDING-MISMATCH")
+@@ -668,8 +704,12 @@
+         if not isinstance(result_id, str) or result_id not in row_ids or result_id in categorized or item.get("severity") != expected_severity:
+             raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+         row = rows[row_ids.index(result_id)]
+-        expected_category, _ = _witness_disposition(row)
+-        if category == "diagnostic_work":
++        expected_category, _ = (_source_witness_disposition(row, source_annotation_rows.get(result_id), contract_path)
++            if contract_id != PRECISION_CONTRACT_ID else _witness_disposition(row))
++        if contract_id != PRECISION_CONTRACT_ID:
++            if category != expected_category:
++                raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
++        elif category == "diagnostic_work":
+             explicit_work_row = row.get("row_kind") in {"diagnostic_work", "work"} or row.get("result_family") == "diagnostic_work"
+             explicit_withheld_semantics = row.get("dimension") in {None, "", "TBD"} and row.get("correlation_status") != "canonical_id_map"
+             if expected_category == "eligible" or not (explicit_work_row or explicit_withheld_semantics):
+--- before/tests/test_stress_neutral_physics_source.py
++++ after/tests/test_stress_neutral_physics_source.py
+@@ -425,3 +425,61 @@
+     with pytest.raises(ValueError, match="CHECKSUM-METADATA"):
+         sn.validate_stress_neutral_export_package_v0_3(bad)
+     with pytest.raises(AssertionError): validate_instance(json.loads(SCHEMA.read_text()), bad, instance_label="wrong UTF8 checksum label")
++
++
++DENSE_DIAGNOSTIC_RATIO_ID = "result:sparse-live:dense-parity-relative-delta"
++
++
++def test_new_method_diagnostic_ratio_witness_follows_exact_table_target():
++    raw, analysis, packet = captured(COMPOSITE_DIR / "fields-dense_scrutiny.raw.json")
++    original = next(row for row in raw["results"] if row["id"] == DENSE_DIAGNOSTIC_RATIO_ID)
++    identity, _, table = _source_contract(raw)
++    semantic, _ = sn._semantic(original, table)
++    assert identity == PHYSICS_SOURCE_CONTRACT_ID
++    assert semantic["signature_id"] == "supported-source-037"
++    assert semantic["category"] == "diagnostic_relative_ratio"
++    assert semantic["source_physical_semantic_dimension"] == "dimensionless"
++    assert semantic["derivative_target_dimension"] == "ratio"
++    assert semantic["governing_ratio_eligible"] is False
++    assert sn.UNIT_DIMENSIONS["unitless"] == "dimensionless", "The generic unit catalog must not be changed"
++    row = next(row for row in packet["result_rows"] if row["result_id"] == DENSE_DIAGNOSTIC_RATIO_ID)
++    assert row["result_family"] == "other" and row["dimension"] == "ratio"
++    witness = next(w for w in packet["unit_preservation_witnesses"] if w["result_id"] == DENSE_DIAGNOSTIC_RATIO_ID)
++    assert witness["source_quantity"] == witness["target_quantity"] == {"value": original["value"], "unit": original["unit"], "dimension": "ratio"}
++    assert witness["conversion_performed"] is False
++    assert not any(d["source"]["ref"] == DENSE_DIAGNOSTIC_RATIO_ID for d in packet["diagnostics"] if d["code"].startswith("SN-UNIT-WITNESS-WITHHELD"))
++    assert packet["professional_boundary"]["software_makes_compliance_claim"] is False
++    sn.validate_stress_neutral_export_package_v0_3(packet)
++    sn.validate_stress_neutral_export_package_v0_3(packet, source_envelope=raw, analysis_record=analysis)
++
++
++@pytest.mark.parametrize("change", ["source_dimension", "target_dimension", "value", "contradiction", "unknown_semantic", "missing_semantic"])
++def test_new_method_diagnostic_witness_and_category_cannot_override_table(change):
++    raw, analysis, original = captured(COMPOSITE_DIR / "fields-dense_scrutiny.raw.json")
++    packet = deepcopy(original)
++    witness = next(w for w in packet["unit_preservation_witnesses"] if w["result_id"] == DENSE_DIAGNOSTIC_RATIO_ID)
++    if change == "source_dimension":
++        witness["source_quantity"]["dimension"] = "dimensionless"
++    elif change == "target_dimension":
++        witness["target_quantity"]["dimension"] = "dimensionless"
++    elif change == "value":
++        witness["source_quantity"]["value"] *= 2
++    else:
++        packet["unit_preservation_witnesses"].remove(witness)
++        packet["diagnostics"].append({
++            "code": sn.WITHHOLDING_CODES[change], "class": "unit_preservation_witness", "severity": "blocking",
++            "source": {"object_type": "StressNeutralResultRow", "ref": DENSE_DIAGNOSTIC_RATIO_ID},
++            "affected_object": {"object_type": "StressNeutralUnitWitness", "ref": witness["witness_id"]},
++            "message": "Deliberately forged table-override category for a transport refusal test.",
++            "remediation": "Retain the actual source/table interpretation.", "provenance": deepcopy(packet["provenance"]),
++        })
++        packet["validation_ready"] = False
++        packet["validation_report"]["validation_status"] = "blocked"
++        check = packet["validation_report"]["checks"][0]
++        check.update(check_status="blocking", blocking_count=check["blocking_count"] + 1, diagnostic_count=check["diagnostic_count"] + 1)
++    rehash_packet(packet)
++    expected = "UNIT-WITNESS-BINDING" if change in {"source_dimension", "target_dimension", "value"} else "WITNESS-CATEGORY-ACCOUNTING"
++    with pytest.raises(ValueError, match=expected):
++        sn.validate_stress_neutral_export_package_v0_3(packet)
++    with pytest.raises(ValueError, match="WITNESS-BINDING"):
++        sn.validate_stress_neutral_export_package_v0_3(packet, source_envelope=raw, analysis_record=analysis)

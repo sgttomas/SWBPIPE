@@ -1,0 +1,1640 @@
+--- a/projects/chirality-piping/core/reporting/result_export/src/physics_source.rs
++++ b/projects/chirality-piping/core/reporting/result_export/src/physics_source.rs
+@@ -1,6 +1,7 @@
+ //! Explicit composite validation of untouched physical and retained-source records.
+ //! Hash/recipe consistency is not custody; numerical use needs captured invocation.
+ use crate::source_blocks::{domain_hash, shape_in};
++use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
+ use serde_json::{json, Value};
+ use std::collections::{HashMap, HashSet};
+ use std::sync::OnceLock;
+@@ -711,9 +712,133 @@
+             }),
+             "ACTUAL_SUPPORT_FAMILY",
+         )?;
+-        actual_materials(invocation, actual, exact)?;
+     }
+     Ok(())
++}
++fn normalized_quantity(quantity: &Value, dimension: Dimension) -> Result<f64, String> {
++    // Exact producer normalize_quantity authority, including dimension resolution,
++    // affine temperatures and the identity path; no local conversion catalog.
++    let from = unit_by_symbol(text(&quantity["unit"])?, dimension)
++        .map_err(|e| format!("PHYSICS_SOURCE_ACTUAL_UNIT: {e}"))?;
++    let to = canonical_unit(dimension).ok_or("PHYSICS_SOURCE_ACTUAL_CANONICAL_UNIT")?;
++    finite(
++        convert_for_dimension(num(&quantity["value"])?, dimension, from, to)
++            .map_err(|e| format!("PHYSICS_SOURCE_ACTUAL_UNIT: {e}"))?,
++    )
++}
++#[derive(Clone, Copy)]
++struct MaterialSelection {
++    e: f64,
++    nu: f64,
++    alpha: Option<f64>,
++}
++fn poisson(value: &Value) -> Result<f64, String> {
++    require(value["unit"] == "1", "ACTUAL_POISSON_UNIT")?;
++    let nu = num(&value["value"])?;
++    require(-1.0 < nu && nu < 0.5, "ACTUAL_POISSON_RANGE")?;
++    Ok(nu)
++}
++fn normalize_material_record(record: &Value) -> Result<Value, String> {
++    // Producer normalizes retained optional G too, although E/nu-derived G is
++    // authoritative. All supplied point quantities receive the same unit checks.
++    let mut normalized = record.clone();
++    for (key, dimension) in [
++        ("elastic_modulus", Dimension::Stress),
++        ("shear_modulus", Dimension::Stress),
++        (
++            "thermal_expansion_coefficient",
++            Dimension::ThermalExpansionCoefficient,
++        ),
++        ("temperature", Dimension::Temperature),
++    ] {
++        if !record[key].is_null() {
++            normalized[key] = json!({"value": normalized_quantity(&record[key], dimension)?, "unit": canonical_unit(dimension).unwrap().definition().symbol});
++        }
++    }
++    Ok(normalized)
++}
++fn selected_material(authored: &Value, actual: &Value) -> Result<MaterialSelection, String> {
++    let base = normalize_material_record(authored)?;
++    require(
++        num(&base["elastic_modulus"]["value"])? > 0.0,
++        "ACTUAL_MODULUS_RANGE",
++    )?;
++    poisson(&base["poisson_ratio"])?; // resolve_base precedes every exact case.
++    let points = authored["temperature_points"]
++        .as_array()
++        .map_or(Ok(Vec::new()), |points| {
++            points
++                .iter()
++                .map(normalize_material_record)
++                .collect::<Result<Vec<_>, String>>()
++        })?;
++    require(
++        actual["modulus_basis_ref"].is_null() || actual["modulus_basis_temperature"].is_null(),
++        "ACTUAL_MATERIAL_SELECTION_CONFLICT",
++    )?;
++    let selected = if !actual["modulus_basis_ref"].is_null() {
++        points
++            .iter()
++            .find(|p| p["id"] == actual["modulus_basis_ref"])
++            .ok_or("PHYSICS_SOURCE_ACTUAL_POINT")?
++            .clone()
++    } else if actual["modulus_basis_temperature"].is_null() {
++        base
++    } else {
++        let t = normalized_quantity(&actual["modulus_basis_temperature"], Dimension::Temperature)?;
++        let mut points = points
++            .iter()
++            .filter(|p| !p["temperature"].is_null())
++            .collect::<Vec<_>>();
++        points.sort_by(|a, b| {
++            a["temperature"]["value"]
++                .as_f64()
++                .unwrap()
++                .total_cmp(&b["temperature"]["value"].as_f64().unwrap())
++        });
++        require(
++            !points
++                .windows(2)
++                .any(|p| p[0]["temperature"]["value"] == p[1]["temperature"]["value"]),
++            "ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE",
++        )?;
++        // Exact-profile temperature selection has strict brackets, no endpoint fallback.
++        let p = points
++            .windows(2)
++            .find(|p| {
++                p[0]["temperature"]["value"].as_f64().unwrap() < t
++                    && t < p[1]["temperature"]["value"].as_f64().unwrap()
++            })
++            .ok_or("PHYSICS_SOURCE_ACTUAL_BRACKET")?;
++        let a = num(&p[0]["temperature"]["value"])?;
++        let b = num(&p[1]["temperature"]["value"])?;
++        let f = (t - a) / (b - a);
++        let interpolate = |a: f64, b: f64| (1.0 - f) * a + f * b;
++        let e0 = num(&p[0]["elastic_modulus"]["value"])?;
++        let e1 = num(&p[1]["elastic_modulus"]["value"])?;
++        require(e0 > 0.0 && e1 > 0.0, "ACTUAL_MODULUS_RANGE")?;
++        let alpha = if p[0]["thermal_expansion_coefficient"].is_null()
++            || p[1]["thermal_expansion_coefficient"].is_null()
++        {
++            None
++        } else {
++            Some(interpolate(
++                num(&p[0]["thermal_expansion_coefficient"]["value"])?,
++                num(&p[1]["thermal_expansion_coefficient"]["value"])?,
++            ))
++        };
++        json!({"elastic_modulus":{"value":interpolate(e0,e1)}, "poisson_ratio":{"value":interpolate(poisson(&p[0]["poisson_ratio"])?, poisson(&p[1]["poisson_ratio"])?),"unit":"1"},
++            "thermal_expansion_coefficient":alpha.map(|v|json!({"value":v}))})
++    };
++    let e = num(&selected["elastic_modulus"]["value"])?;
++    require(e > 0.0, "ACTUAL_MODULUS_RANGE")?;
++    let nu = poisson(&selected["poisson_ratio"])?;
++    let alpha = if selected["thermal_expansion_coefficient"].is_null() {
++        None
++    } else {
++        Some(num(&selected["thermal_expansion_coefficient"]["value"])?)
++    };
++    Ok(MaterialSelection { e, nu, alpha })
+ }
+ fn actual_materials(invocation: &Value, actual: &Value, exact: &Value) -> Result<(), String> {
+     let model = &invocation["request"]["model"];
+@@ -721,7 +846,13 @@
+         .get("materials")
+         .filter(|m| m.as_array().is_some_and(|a| !a.is_empty()))
+         .unwrap_or(&model["materials"]);
+-    for ((pipe, section), material) in array(&model["pipe_segments"])?
++    let pipes = array(&model["pipe_segments"])?;
++    require(
++        pipes.len() == array(&exact["pipe_sections"])?.len()
++            && pipes.len() == array(&exact["pipe_materials"])?.len(),
++        "ACTUAL_MATERIAL_COVERAGE",
++    )?;
++    for ((pipe, section), material) in pipes
+         .iter()
+         .zip(array(&exact["pipe_sections"])?)
+         .zip(array(&exact["pipe_materials"])?)
+@@ -733,29 +864,19 @@
+             "ACTUAL_MATERIAL_MEMBER",
+         )?;
+         let authored_section = &pipe["section"];
+-        let quantity = |q: &Value| -> Result<f64, String> {
+-            let factor = match text(&q["unit"])? {
+-                "m" => 1.0,
+-                "mm" => 0.001,
+-                "cm" => 0.01,
+-                "in" => 0.0254,
+-                "ft" => 0.3048,
+-                _ => return Err("PHYSICS_SOURCE_LENGTH_UNIT".into()),
+-            };
+-            Ok(num(&q["value"])? * factor)
+-        };
+         let tolerance = if authored_section["mill_tolerance"].is_null() {
+             0.0
+         } else {
+-            quantity(&authored_section["mill_tolerance"])?
++            normalized_quantity(&authored_section["mill_tolerance"], Dimension::Length)?
+         };
+         require(
+             same(
+                 &section["outside_diameter_m"],
+-                quantity(&authored_section["outside_diameter"])?,
++                normalized_quantity(&authored_section["outside_diameter"], Dimension::Length)?,
+             )? && same(
+                 &section["effective_wall_thickness_m"],
+-                quantity(&authored_section["wall_thickness"])? - tolerance,
++                normalized_quantity(&authored_section["wall_thickness"], Dimension::Length)?
++                    - tolerance,
+             )?,
+             "ACTUAL_SOURCE_GEOMETRY",
+         )?;
+@@ -767,49 +888,33 @@
+             authored["constitutive_basis"] == material["constitutive_basis"],
+             "ACTUAL_CONSTITUTIVE_BASIS",
+         )?;
+-        let selected = if !actual["modulus_basis_ref"].is_null() {
+-            array(&authored["temperature_points"])?
+-                .iter()
+-                .find(|p| p["id"] == actual["modulus_basis_ref"])
+-                .ok_or("PHYSICS_SOURCE_ACTUAL_POINT")?
+-                .clone()
+-        } else if actual["modulus_basis_temperature"].is_null() {
+-            authored.clone()
+-        } else {
+-            let mut points = array(&authored["temperature_points"])?
+-                .iter()
+-                .collect::<Vec<_>>();
+-            points.sort_by(|a, b| {
+-                a["temperature"]["value"]
+-                    .as_f64()
+-                    .unwrap_or(f64::NAN)
+-                    .total_cmp(&b["temperature"]["value"].as_f64().unwrap_or(f64::NAN))
+-            });
+-            let t = num(&actual["modulus_basis_temperature"]["value"])?;
+-            let p = points
+-                .windows(2)
+-                .find(|p| {
+-                    p[0]["temperature"]["value"].as_f64().is_some_and(|a| a < t)
+-                        && p[1]["temperature"]["value"].as_f64().is_some_and(|b| t < b)
++        let selected = selected_material(authored, actual)?;
++        let thermal = array(&actual["primitive_loads"])?.iter().any(|load| {
++            load["category"] == "thermal"
++                && matches!(
++                    load["dimension"].as_str(),
++                    Some("temperature_change" | "temperature_interval")
++                )
++                && load["target"]["type"] == "element"
++                && load["target"]["pipe"] == pipe["id"]
++        });
++        require(
++            same(&material["E_pa"], selected.e)?
++                && same(&material["nu"], selected.nu)?
++                && material["thermal_consumed"] == thermal,
++            "ACTUAL_SELECTED_MATERIAL",
++        )?;
++        require(
++            if thermal {
++                selected.alpha.is_some_and(|alpha| {
++                    material["alpha_per_kelvin"]
++                        .as_f64()
++                        .is_some_and(|claim| claim.to_bits() == alpha.to_bits())
+                 })
+-                .ok_or("PHYSICS_SOURCE_ACTUAL_BRACKET")?;
+-            let a = num(&p[0]["temperature"]["value"])?;
+-            let b = num(&p[1]["temperature"]["value"])?;
+-            let f = (t - a) / (b - a);
+-            let mut selected = json!({});
+-            for k in ["elastic_modulus", "poisson_ratio"] {
+-                selected[k] =
+-                    json!({"value":(1.0-f)*num(&p[0][k]["value"])?+f*num(&p[1][k]["value"])?});
+-            }
+-            selected
+-        };
+-        require(
+-            same(
+-                &material["E_pa"],
+-                num(&selected["elastic_modulus"]["value"])?,
+-            )? && same(&material["nu"], num(&selected["poisson_ratio"]["value"])?)?
+-                && material["thermal_consumed"] == false,
+-            "ACTUAL_SELECTED_MATERIAL",
++            } else {
++                material["alpha_per_kelvin"].is_null()
++            },
++            "ACTUAL_SELECTED_ALPHA",
+         )?;
+     }
+     Ok(())
+@@ -943,6 +1048,12 @@
+         "STRESS_SECTION_PARAMETERS",
+     )?;
+     let action = num(&check["action"]["value"])?;
++    if component == 3 && action != 0.0 {
++        require(
++            (action * num(&params["torsion_radius_m"])?).is_normal(),
++            "STRESS_TORSION_INTERMEDIATE_RANGE",
++        )?;
++    }
+     let pa = if component == 0 {
+         action / num(&params["area_m2"])?
+     } else if component == 3 {
+@@ -964,5 +1075,134 @@
+ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<bool, String> {
+     validate_transport_metadata(source)?;
+     crate::physics_evidence::validate_physics_evidence_in(source, true)?;
+-    crate::source_blocks::validate_in(source, actual_invocation, true)
+-}
++    let eligible = crate::source_blocks::validate_in(source, actual_invocation, true)?;
++    if let Some(invocation) = actual_invocation {
++        for exact in array(&source["contract_evidence"]["exact_cases"])? {
++            let actual = array(&invocation["request"]["model"]["load_cases"])?
++                .iter()
++                .find(|c| c["id"] == exact["load_case_id"])
++                .ok_or("PHYSICS_SOURCE_ACTUAL_CASE")?;
++            actual_materials(invocation, actual, exact)?;
++        }
++    }
++    Ok(eligible)
++}
++
++#[cfg(test)]
++mod review_repair_tests {
++    use super::*;
++    fn isolated_torsion(action: f64) -> (Value, Value, Value) {
++        // Isolated scalar helper input, deliberately not full/resealed source evidence.
++        let mut source: Value = serde_json::from_str(include_str!(
++            "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
++        ))
++        .unwrap();
++        let mut case = source["source_block_recovery"]["body"]["cases"][0].clone();
++        let index = case["section_stress_checks"]
++            .as_array()
++            .unwrap()
++            .iter()
++            .position(|c| c["component"] == "torsional_shear_stress")
++            .unwrap();
++        let check = case["section_stress_checks"][index].clone();
++        let mut row = source["results"]
++            .as_array()
++            .unwrap()
++            .iter()
++            .find(|r| r["id"] == check["result_id"])
++            .unwrap()
++            .clone();
++        let member = case["source"]["section_functionals"]
++            .as_array_mut()
++            .unwrap()
++            .iter_mut()
++            .find(|m| m["pipe_id"] == row["entity_ref"])
++            .unwrap();
++        let station = ["end_i", "quarter_1", "midspan", "quarter_3", "end_j"]
++            .iter()
++            .position(|s| row["metadata"]["location"] == *s)
++            .unwrap();
++        let action_value = json!({"value":action,"interval":[action,action]});
++        member["stations"][station]["actions"][3] = action_value.clone();
++        case["section_stress_checks"][index]["action"] = action_value;
++        let section = source["contract_evidence"]["exact_cases"][0]["pipe_sections"]
++            .as_array_mut()
++            .unwrap()
++            .iter_mut()
++            .find(|s| s["pipe_id"] == row["entity_ref"])
++            .unwrap();
++        section["ro_m"] = json!(1e-40);
++        section["J_m4"] = json!(1e-160);
++        case["section_stress_checks"][index]["parameters"]["torsion_radius_m"] = json!(1e-40);
++        case["section_stress_checks"][index]["parameters"]["torsion_constant_m4"] = json!(1e-160);
++        row["value"] = json!(action * 1e-40 / 1e-160 / 1e6);
++        (source, case, row)
++    }
++    #[test]
++    fn torsion_rejects_subnormal_intermediate_while_preserving_zero_and_normal() {
++        let (source, case, row) = isolated_torsion(1e-280);
++        assert!(num(&row["value"]).unwrap().is_normal());
++        assert_eq!(
++            validate_stress(&source, &case, &row, &[]),
++            Err("PHYSICS_SOURCE_STRESS_TORSION_INTERMEDIATE_RANGE".into())
++        );
++        for action in [0.0, -0.0, 1e-200, -1e-200] {
++            let (source, case, row) = isolated_torsion(action);
++            assert_eq!(validate_stress(&source, &case, &row, &[]), Ok(()));
++        }
++    }
++    #[test]
++    fn normalized_named_point_and_strict_bracket_match_actual_materials() {
++        let request: Value = serde_json::from_str(include_str!(
++            "../../../../fixtures/product_preview/physics_source/mixed_units.request.json"
++        ))
++        .unwrap();
++        let source:Value=serde_json::from_str(include_str!("../../../../fixtures/product_preview/physics_source/mixed_units-sparse_interactive.raw.json")).unwrap();
++        let material = &request["model"]["materials"][0];
++        let case = &request["model"]["load_cases"][1];
++        let selected = selected_material(material, case).unwrap();
++        assert!(same(
++            &source["contract_evidence"]["exact_cases"][1]["pipe_materials"][0]["E_pa"],
++            selected.e
++        )
++        .unwrap());
++        assert_eq!(
++            selected_material(material, &json!({"modulus_basis_ref":"point:lower"}))
++                .unwrap()
++                .e,
++            1000.0
++        );
++        assert!(selected_material(
++            material,
++            &json!({"modulus_basis_temperature":{"value":0,"unit":"degC"}})
++        )
++        .is_err());
++        let mut alpha_material = material.clone();
++        alpha_material["temperature_points"][0]["thermal_expansion_coefficient"] =
++            json!({"value":1e-5,"unit":"1/degC"});
++        alpha_material["temperature_points"][1]["thermal_expansion_coefficient"] =
++            json!({"value":1e-5,"unit":"1/degF"});
++        let selected = selected_material(&alpha_material, case).unwrap();
++        let p0 = &alpha_material["temperature_points"][0];
++        let p1 = &alpha_material["temperature_points"][1];
++        let t = normalized_quantity(&case["modulus_basis_temperature"], Dimension::Temperature)
++            .unwrap();
++        let t0 = normalized_quantity(&p0["temperature"], Dimension::Temperature).unwrap();
++        let t1 = normalized_quantity(&p1["temperature"], Dimension::Temperature).unwrap();
++        let f = (t - t0) / (t1 - t0);
++        let a = normalized_quantity(
++            &p0["thermal_expansion_coefficient"],
++            Dimension::ThermalExpansionCoefficient,
++        )
++        .unwrap();
++        let b = normalized_quantity(
++            &p1["thermal_expansion_coefficient"],
++            Dimension::ThermalExpansionCoefficient,
++        )
++        .unwrap();
++        assert_eq!(
++            selected.alpha.unwrap().to_bits(),
++            ((1.0 - f) * a + f * b).to_bits()
++        );
++    }
++}
+--- a/projects/chirality-piping/core/reporting/result_export/tests/physics_source_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/physics_source_contract.rs
+@@ -1,7 +1,5 @@
+ //! Genuine public-producer fixtures plus explicitly corrupted copies, not native Current.
+-use open_pipe_stress_result_export::{
+-    physics_source, semantic_contract, source_blocks,
+-};
++use open_pipe_stress_result_export::{physics_source, semantic_contract, source_blocks};
+ use serde_json::{json, Value};
+ use std::path::PathBuf;
+ fn root() -> PathBuf {
+@@ -63,7 +61,7 @@
+ }
+ #[test]
+ fn actual_records_require_original_full_invocation() {
+-    for name in ["n05", "n06", "mixed", "fields"] {
++    for name in ["n05", "n06", "mixed", "fields", "n05_units", "mixed_units", "n05_unicode"] {
+         for mode in ["sparse_interactive", "dense_scrutiny"] {
+             let (source, invocation) = actual(name, mode);
+             let original = source.clone();
+@@ -284,9 +282,29 @@
+         );
+         let mut bad = source["contract_evidence"].clone();
+         bad["exact_cases"][0]["pipe_stress_extrema"][0]["coefficient_basis"] = json!("invented");
++        assert!(semantic_contract::validate_physics_transport_metadata(
++            &json!({"contract_evidence":bad})
++        )
++        .is_err());
++    }
++}
++
++#[test]
++fn actual_units_authority_rejects_wrong_dimension_and_unregistered_spelling() {
++    for (field, unit) in [
++        ("elastic_modulus", "N"),
++        ("elastic_modulus", "gpa"),
++        ("shear_modulus", "K"),
++        ("poisson_ratio", "none"),
++        ("thermal_expansion_coefficient", "K"),
++    ] {
++        let (mut source, mut invocation) = actual("n05_units", "sparse_interactive");
++        invocation["request"]["model"]["materials"][0][field] =
++            json!({"value":if field=="poisson_ratio"{0.25}else{200.0},"unit":unit});
++        reseal_negative(&mut source, Some(&invocation));
+         assert!(
+-            semantic_contract::validate_physics_transport_metadata(&json!({"contract_evidence":bad}))
+-                .is_err()
++            physics_source::validate(&source, Some(&invocation)).is_err(),
++            "{field}/{unit}"
+         );
+     }
+ }
+--- a/projects/chirality-piping/core/analysis_runs/physics_source.py
++++ b/projects/chirality-piping/core/analysis_runs/physics_source.py
+@@ -279,6 +279,9 @@
+     params = check["parameters"]
+     _require(params == {"area_m2":section["As_m2"],"section_modulus_m3":section["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section["J_m4"],"pa_per_mpa":1e6}, "STRESS_SECTION_PARAMETERS")
+     action = check["action"]["value"]
++    if component == 3 and action != 0:
++        intermediate = action * params["torsion_radius_m"]
++        _require(math.isfinite(intermediate) and abs(intermediate) >= sys.float_info.min, "STRESS_TORSION_INTERMEDIATE_RANGE")
+     pa = action / params["area_m2"] if component == 0 else action * params["torsion_radius_m"] / params["torsion_constant_m4"] if component == 3 else action / params["section_modulus_m3"]
+     value = pa / 1e6
+     _require(blocks._normal_or_exact_zero(pa, action == 0) and blocks._normal_or_exact_zero(value, action == 0) and _same(row["value"],value), "STRESS_RECIPE_VALUE")
+@@ -303,26 +306,93 @@
+         _require(not model.get("components") and not model.get("combinations") and actual.get("equivalent_static") is None, "ACTUAL_SOURCE_FAMILY")
+         _require(all(load.get("target", {}).get("type") == "node" and load.get("category") != "thermal" for load in actual.get("primitive_loads", [])), "ACTUAL_NODAL_LOADS")
+         _require(all(s.get("nonlinear") is None and s.get("family") != "constant_effort_support" and (s.get("hanger") or {}).get("constant_load") is None for s in model["supports"]), "ACTUAL_SUPPORT_FAMILY")
+-        materials = {m["id"]:m for m in (invocation["request"].get("materials") or model.get("materials", []))}
+-        for pipe, section, material in zip(model["pipe_segments"], physical_case["pipe_sections"], physical_case["pipe_materials"]):
+-            _require(pipe["id"] == section["pipe_id"] == material["pipe_id"] and pipe["material"] == material["material_id"], "ACTUAL_MATERIAL_MEMBER")
+-            quantity = lambda q: q["value"] * {"m":1.0,"mm":.001,"cm":.01,"in":.0254,"ft":.3048}[q["unit"]]
+-            authored_section = pipe["section"]
+-            _require(_same(quantity(authored_section["outside_diameter"]),section["outside_diameter_m"]) and _same(quantity(authored_section["wall_thickness"]) - (quantity(authored_section["mill_tolerance"]) if authored_section.get("mill_tolerance") else 0.0),section["effective_wall_thickness_m"]), "ACTUAL_SOURCE_GEOMETRY")
+-            authored = materials[pipe["material"]]
+-            _require(authored.get("constitutive_basis") == material["constitutive_basis"], "ACTUAL_CONSTITUTIVE_BASIS")
+-            # Per-case common point selection is observed directly; no E/G inference.
+-            if actual.get("modulus_basis_ref") is not None:
+-                selected = next(p for p in authored.get("temperature_points", []) if p["id"] == actual["modulus_basis_ref"])
+-            elif actual.get("modulus_basis_temperature") is None:
+-                selected = authored
+-            else:
+-                points = sorted(authored.get("temperature_points", []), key=lambda p:p["temperature"]["value"])
+-                t = actual["modulus_basis_temperature"]["value"]
+-                a,b = next((a,b) for a,b in zip(points,points[1:]) if a["temperature"]["value"] < t < b["temperature"]["value"])
+-                f = (t-a["temperature"]["value"])/(b["temperature"]["value"]-a["temperature"]["value"])
+-                selected = {k:{"value":(1-f)*a[k]["value"]+f*b[k]["value"],"unit":a[k]["unit"]} for k in ("elastic_modulus","poisson_ratio")}
+-            _require(_same(selected["elastic_modulus"]["value"],material["E_pa"]) and _same(selected["poisson_ratio"]["value"],material["nu"]) and material["thermal_consumed"] is False, "ACTUAL_SELECTED_MATERIAL")
++
++
++def _canonical_inputs(invocation: Mapping[str, Any]):
++    """Batch original quantities through the same Rust unit authority as producer."""
++    from core.units.adapter import convert_quantities_to_canonical
++    model = invocation["request"]["model"]
++    materials = invocation["request"].get("materials") or model.get("materials", [])
++    queries = []
++    identities = {}
++    def add(quantity, dimension):
++        if quantity is None: return
++        key = (id(quantity), dimension)
++        if key not in identities:
++            token = str(len(queries))
++            identities[key] = token
++            queries.append({"id":token,"value":quantity["value"],"unit":quantity["unit"],"dimension":dimension})
++    for material in materials:
++        for record in [material, *material.get("temperature_points", [])]:
++            for field,dimension in [("elastic_modulus","stress"),("shear_modulus","stress"),("thermal_expansion_coefficient","thermal_expansion_coefficient"),("temperature","temperature")]:
++                add(record.get(field),dimension)
++    for pipe in model["pipe_segments"]:
++        for key in ["outside_diameter","wall_thickness","mill_tolerance"]:
++            add(pipe["section"].get(key),"length")
++    for case in model["load_cases"]:
++        add(case.get("modulus_basis_temperature"),"temperature")
++    normalized = {r["id"]:r["value"] for r in convert_quantities_to_canonical(queries)}
++    return lambda quantity,dimension: normalized[identities[(id(quantity),dimension)]]
++
++
++def _poisson(quantity):
++    _require(quantity["unit"] == "1", "ACTUAL_POISSON_UNIT")
++    nu = quantity["value"]
++    _require(physical._number(nu) and -1 < nu < .5, "ACTUAL_POISSON_RANGE")
++    return nu
++
++
++def _selected_material(authored, actual, canonical):
++    def normalized_record(record):
++        result = dict(record)
++        for key,dimension in [("elastic_modulus","stress"),("shear_modulus","stress"),("thermal_expansion_coefficient","thermal_expansion_coefficient"),("temperature","temperature")]:
++            if record.get(key) is not None:
++                result[key] = {"value":canonical(record[key],dimension)}
++        return result
++    base = normalized_record(authored)
++    _require(base["elastic_modulus"]["value"] > 0, "ACTUAL_MODULUS_RANGE")
++    _poisson(base["poisson_ratio"])  # producer resolve_base precedes all exact cases
++    points = [normalized_record(point) for point in authored.get("temperature_points", [])]
++    _require(actual.get("modulus_basis_ref") is None or actual.get("modulus_basis_temperature") is None, "ACTUAL_MATERIAL_SELECTION_CONFLICT")
++    if actual.get("modulus_basis_ref") is not None:
++        selected = next(p for p in points if p["id"] == actual["modulus_basis_ref"])
++    elif actual.get("modulus_basis_temperature") is None:
++        selected = base
++    else:
++        t = canonical(actual["modulus_basis_temperature"],"temperature")
++        points = sorted((p for p in points if p.get("temperature") is not None),key=lambda p:p["temperature"]["value"])
++        temperatures = [p["temperature"]["value"] for p in points]
++        _require(len(temperatures) == len(set(temperatures)), "ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE")
++        # Exact pressure profile admits strict interior brackets, never endpoints.
++        a,b = next((a,b) for a,b in zip(points,points[1:]) if a["temperature"]["value"] < t < b["temperature"]["value"])
++        f = (t-a["temperature"]["value"])/(b["temperature"]["value"]-a["temperature"]["value"])
++        interpolate = lambda a,b: (1-f)*a+f*b
++        e0,e1 = a["elastic_modulus"]["value"],b["elastic_modulus"]["value"]
++        _require(e0 > 0 and e1 > 0,"ACTUAL_MODULUS_RANGE")
++        alpha = None if a.get("thermal_expansion_coefficient") is None or b.get("thermal_expansion_coefficient") is None else {"value":interpolate(a["thermal_expansion_coefficient"]["value"],b["thermal_expansion_coefficient"]["value"])}
++        selected = {"elastic_modulus":{"value":interpolate(e0,e1)},"poisson_ratio":{"unit":"1","value":interpolate(_poisson(a["poisson_ratio"]),_poisson(b["poisson_ratio"]))},"thermal_expansion_coefficient":alpha}
++    e,nu = selected["elastic_modulus"]["value"],_poisson(selected["poisson_ratio"])
++    _require(physical._number(e) and e > 0,"ACTUAL_MODULUS_RANGE")
++    alpha = (selected.get("thermal_expansion_coefficient") or {}).get("value")
++    _require(alpha is None or physical._number(alpha),"ACTUAL_ALPHA_RANGE")
++    return e,nu,alpha
++
++
++def _actual_materials(invocation, actual, exact, canonical):
++    model = invocation["request"]["model"]
++    materials = {m["id"]:m for m in (invocation["request"].get("materials") or model.get("materials", []))}
++    _require(len(model["pipe_segments"]) == len(exact["pipe_sections"]) == len(exact["pipe_materials"]),"ACTUAL_MATERIAL_COVERAGE")
++    for pipe,section,material in zip(model["pipe_segments"],exact["pipe_sections"],exact["pipe_materials"]):
++        _require(pipe["id"] == section["pipe_id"] == material["pipe_id"] and pipe["material"] == material["material_id"],"ACTUAL_MATERIAL_MEMBER")
++        authored_section = pipe["section"]
++        tolerance = canonical(authored_section["mill_tolerance"],"length") if authored_section.get("mill_tolerance") is not None else 0.0
++        _require(_same(canonical(authored_section["outside_diameter"],"length"),section["outside_diameter_m"]) and _same(canonical(authored_section["wall_thickness"],"length")-tolerance,section["effective_wall_thickness_m"]),"ACTUAL_SOURCE_GEOMETRY")
++        authored = materials[pipe["material"]]
++        _require(authored.get("constitutive_basis") == material["constitutive_basis"],"ACTUAL_CONSTITUTIVE_BASIS")
++        e,nu,alpha = _selected_material(authored,actual,canonical)
++        thermal = any(load.get("category") == "thermal" and load.get("dimension") in {"temperature_change","temperature_interval"} and load.get("target",{}).get("type") == "element" and load["target"].get("pipe") == pipe["id"] for load in actual.get("primitive_loads",[]))
++        _require(_same(e,material["E_pa"]) and _same(nu,material["nu"]) and material["thermal_consumed"] is thermal,"ACTUAL_SELECTED_MATERIAL")
++        _require((alpha is not None and _same(alpha,material["alpha_per_kelvin"])) if thermal else material["alpha_per_kelvin"] is None,"ACTUAL_SELECTED_ALPHA")
+ 
+ 
+ def validate_physics_source(source: Mapping[str, Any], actual_invocation: Mapping[str, Any] | None = None) -> bool:
+@@ -330,7 +400,13 @@
+         validate_transport_metadata(source)
+         context = sys.modules[__name__]
+         physical._validate_physics_evidence(source, context=context)
+-        return blocks._validate_source_blocks(source, actual_invocation, context=context)
++        eligible = blocks._validate_source_blocks(source, actual_invocation, context=context)
++        if actual_invocation is not None:
++            canonical = _canonical_inputs(actual_invocation)
++            for exact in source["contract_evidence"]["exact_cases"]:
++                actual = next(c for c in actual_invocation["request"]["model"]["load_cases"] if c["id"] == exact["load_case_id"])
++                _actual_materials(actual_invocation,actual,exact,canonical)
++        return eligible
+     except (KeyError, TypeError, IndexError, AttributeError, OverflowError, StopIteration) as error:
+         raise ValueError("PHYSICS_SOURCE_MALFORMED_VALUE") from error
+ 
+--- a/projects/chirality-piping/tests/test_physics_source_contract.py
++++ b/projects/chirality-piping/tests/test_physics_source_contract.py
+@@ -31,7 +31,7 @@
+     receipt["receipt_sha256"] = domain_hash("source_blocks_receipt_v1",body)
+ 
+ 
+-@pytest.mark.parametrize("name", ["n05", "n06", "mixed", "fields"])
++@pytest.mark.parametrize("name", ["n05", "n06", "mixed", "fields", "n05_units", "mixed_units", "n05_unicode"])
+ @pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
+ def test_actual_producer_requires_original_full_invocation(name, mode):
+     source, invocation = actual(name, mode)
+@@ -133,3 +133,88 @@
+         bad=deepcopy(source["contract_evidence"])
+         bad["exact_cases"][0]["pipe_stress_extrema"][0]["coefficient_basis"]="invented"
+         with pytest.raises(ValueError):physics_transport({"contract_evidence":bad})
++
++
++@pytest.mark.parametrize("field,unit", [("elastic_modulus","N"),("elastic_modulus","gpa"),("shear_modulus","K"),("poisson_ratio","none"),("thermal_expansion_coefficient","K")])
++def test_actual_units_authority_rejects_wrong_dimension_and_unregistered_spelling(field, unit):
++    source,invocation=actual("n05_units")
++    changed=deepcopy(invocation)
++    material=changed["request"]["model"]["materials"][0]
++    material[field]={"value":200 if field!="poisson_ratio" else .25,"unit":unit}
++    reseal_negative(source,changed)
++    with pytest.raises(ValueError):composite.validate_physics_source(source,changed)
++
++
++def isolated_torsion_recipe(action, radius, constant):
++    """Synthetic scalar helper inputs only; never reseal or claim a producer result."""
++    source,_=actual()
++    case=source["source_block_recovery"]["body"]["cases"][0]
++    check=next(c for c in case["section_stress_checks"] if c["component"]=="torsional_shear_stress")
++    row=next(r for r in source["results"] if r["id"]==check["result_id"])
++    exact=source["contract_evidence"]["exact_cases"][0]
++    section=next(s for s in exact["pipe_sections"] if s["pipe_id"]==row["entity_ref"])
++    member=next(m for m in case["source"]["section_functionals"] if m["pipe_id"]==row["entity_ref"])
++    station=member["stations"][["end_i","quarter_1","midspan","quarter_3","end_j"].index(row["metadata"]["location"])]
++    station["actions"][3]={"value":action,"interval":[action,action]}
++    check["action"]=station["actions"][3]
++    section.update(ro_m=radius,J_m4=constant)
++    check["parameters"].update(torsion_radius_m=radius,torsion_constant_m4=constant)
++    row["value"]=action*radius/constant/1e6
++    return source,case,row
++
++
++def test_torsion_recipe_rejects_lossy_subnormal_intermediate():
++    from fractions import Fraction
++    import sys
++    action,radius,constant=1e-280,1e-40,1e-160
++    source,case,row=isolated_torsion_recipe(action,radius,constant)
++    expected=Fraction.from_float(action)*Fraction.from_float(radius)/Fraction.from_float(constant)/1_000_000
++    error=float(abs(Fraction.from_float(row["value"])-expected)/abs(expected))
++    assert 0 < abs(action*radius) < sys.float_info.min
++    assert abs(row["value"]) >= sys.float_info.min and error > 1e-9
++    with pytest.raises(ValueError,match="STRESS_TORSION_INTERMEDIATE_RANGE"):
++        composite.validate_stress(source,case,row,[])
++
++
++@pytest.mark.parametrize("action", [0.0,-0.0,1e-200,-1e-200])
++def test_torsion_recipe_keeps_structural_zero_and_normal_intermediates(action):
++    source,case,row=isolated_torsion_recipe(action,1e-40,1e-160)
++    composite.validate_stress(source,case,row,[])
++
++
++def test_material_selection_normalizes_named_points_and_strict_temperature_brackets():
++    # Isolated selection check against the actual mixed-unit material inputs;
++    # altered selection below is not presented as a new producer result.
++    source,invocation=actual("mixed_units")
++    model=invocation["request"]["model"]
++    authored=model["materials"][0]
++    actual_case=model["load_cases"][1]
++    canonical=composite._canonical_inputs(invocation)
++    expected=source["contract_evidence"]["exact_cases"][1]["pipe_materials"][0]
++    e,nu,alpha=composite._selected_material(authored,actual_case,canonical)
++    assert composite._same(e,expected["E_pa"]) and composite._same(nu,expected["nu"])
++    assert alpha is None
++    point_case={"modulus_basis_ref":"point:lower"}
++    assert composite._selected_material(authored,point_case,canonical)==(1000.0,.25,None)
++    actual_case["modulus_basis_temperature"]={"value":0,"unit":"degC"}
++    canonical=composite._canonical_inputs(invocation)
++    with pytest.raises(StopIteration):composite._selected_material(authored,actual_case,canonical)
++
++
++def test_selected_alpha_uses_same_normalized_material_basis():
++    # Quantity/selection unit test only, using actual request shapes. No fake solve.
++    _,invocation=actual("mixed_units")
++    model=invocation["request"]["model"]
++    authored=model["materials"][0]
++    actual_case=model["load_cases"][1]
++    a,b=authored["temperature_points"]
++    a["thermal_expansion_coefficient"]={"value":1e-5,"unit":"1/degC"}
++    b["thermal_expansion_coefficient"]={"value":1e-5,"unit":"1/degF"}
++    canonical=composite._canonical_inputs(invocation)
++    e,nu,alpha=composite._selected_material(authored,actual_case,canonical)
++    t=canonical(actual_case["modulus_basis_temperature"],"temperature")
++    t0,t1=[canonical(p["temperature"],"temperature") for p in (a,b)]
++    f=(t-t0)/(t1-t0)
++    expected=(1-f)*canonical(a["thermal_expansion_coefficient"],"thermal_expansion_coefficient")+f*canonical(b["thermal_expansion_coefficient"],"thermal_expansion_coefficient")
++    assert composite._same(alpha,expected)
++    assert composite._selected_material(authored,{"modulus_basis_ref":"point:upper"},canonical)[2]==canonical(b["thermal_expansion_coefficient"],"thermal_expansion_coefficient")
+--- a/projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py
++++ b/projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py
+@@ -12,6 +12,7 @@
+ import math
+ from pathlib import Path
+ import re
++import struct
+ from typing import Any, Mapping
+ 
+ from core.serialization.canonical_json.adapter import canonical_json_checked_v1, canonical_sha256_checked_v1
+@@ -592,15 +593,54 @@
+         raise ValueError("SN-PACKAGE-CHECKSUM-MISMATCH")
+ 
+ 
++def _source_value_bits(value: Any) -> str:
++    """Finite received binary64 identity, outside JCS's zero normalization."""
++    if type(value) not in (int, float):
++        raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
++    try:
++        converted = float(value)
++        if not math.isfinite(converted):
++            raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
++        return struct.pack(">d", converted).hex()
++    except (OverflowError, struct.error) as error:
++        raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS") from error
++
++
+ def _source_annotations(source: Mapping[str, Any]) -> list[dict[str, Any]]:
+-    """Retain exact raw rows, including metadata, references and absent fields.
+-
+-    These are supplied source records, not fabricated rows reconstructed from
+-    normalized CSV columns or a derivative quantity. No producer custody follows.
++    """Retain row fields plus actual value bits under the unchanged JCS profile.
++
++    source_row.value is the canonical numeric value (+0 for either zero sign).
++    source_value_bits captures the received IEEE754 value before serialization;
++    it is required because JCS intentionally erases negative zero. Other row
++    properties, absent/null distinctions and the checked row hash are retained.
++    No producer custody follows from these transported statements.
+     """
+-    return [{"source_row_index": index, "source_result_id": row["id"],
+-             "source_row": deepcopy(row), "source_row_sha256": canonical_sha256_checked_v1(row)}
+-            for index, row in enumerate(source["results"])]
++    annotations = []
++    for index, row in enumerate(source["results"]):
++        value_bits = _source_value_bits(row["value"])
++        canonical_row = deepcopy(row)
++        if canonical_row["value"] == 0:
++            canonical_row["value"] = 0.0
++        annotations.append({"source_row_index": index, "source_result_id": row["id"],
++            "source_row": canonical_row, "source_row_sha256": canonical_sha256_checked_v1(row),
++            "source_value_bits": value_bits})
++    return annotations
++
++
++def _validate_source_value_bits(annotation: Mapping[str, Any]) -> None:
++    bits = annotation.get("source_value_bits")
++    if not isinstance(bits, str) or re.fullmatch(r"[0-9a-f]{16}", bits) is None:
++        raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
++    value = annotation["source_row"].get("value")
++    canonical_bits = _source_value_bits(value)
++    decoded = struct.unpack(">d", bytes.fromhex(bits))[0]
++    if not math.isfinite(decoded) or decoded != float(value):
++        raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
++    if value == 0:
++        if canonical_bits != "0000000000000000" or bits not in {"0000000000000000", "8000000000000000"}:
++            raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
++    elif bits != canonical_bits:
++        raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
+ 
+ 
+ def _validate_source_annotations(package: Mapping[str, Any], table: Path) -> None:
+@@ -616,12 +656,13 @@
+     # passed to any raw-source validator or treated as a mechanics publication.
+     projection_identity = {"run_id": package.get("source_run_ref", {}).get("ref")}
+     for index, annotation in enumerate(annotations):
+-        if not isinstance(annotation, Mapping) or set(annotation) != {"source_row_index", "source_result_id", "source_row", "source_row_sha256"}:
++        if not isinstance(annotation, Mapping) or set(annotation) != {"source_row_index", "source_result_id", "source_row", "source_row_sha256", "source_value_bits"}:
+             raise ValueError("SN-SOURCE-ANNOTATION-SHAPE")
+         original = annotation["source_row"]
+         identity = annotation["source_result_id"]
+         if not isinstance(original, Mapping) or not isinstance(identity, str) or not identity or identity in seen or original.get("id") != identity or type(annotation["source_row_index"]) is not int or annotation["source_row_index"] != index or annotation["source_row_sha256"] != canonical_sha256_checked_v1(original):
+             raise ValueError("SN-SOURCE-ANNOTATION-IDENTITY-OR-HASH")
++        _validate_source_value_bits(annotation)
+         seen.add(identity)
+         row = by_id.get(identity)
+         projection = _source_row_projection(projection_identity, original, table)
+--- a/projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json
++++ b/projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json
+@@ -2609,7 +2609,8 @@
+         "source_row_index",
+         "source_result_id",
+         "source_row",
+-        "source_row_sha256"
++        "source_row_sha256",
++        "source_value_bits"
+       ],
+       "properties": {
+         "source_row_index": {
+@@ -2643,7 +2644,8 @@
+               "minLength": 1
+             },
+             "value": {
+-              "type": "number"
++              "type": "number",
++              "description": "Canonical JCS numeric value; either received zero sign is represented as +0. Actual received sign is retained in source_value_bits."
+             },
+             "unit": {
+               "type": "string",
+@@ -2655,6 +2657,11 @@
+             }
+           },
+           "additionalProperties": true
++        },
++        "source_value_bits": {
++          "type": "string",
++          "pattern": "^[0-9a-f]{16}$",
++          "description": "Actual received finite IEEE754 binary64 value bits. For zero, source_row.value is canonical +0 and this field retains +0/-0; for nonzero, bits decode exactly to source_row.value. Bound by the package hash; exact received bits checked when original source is supplied."
+         }
+       }
+     }
+--- a/projects/chirality-piping/tests/test_stress_neutral_physics_source.py
++++ b/projects/chirality-piping/tests/test_stress_neutral_physics_source.py
+@@ -7,6 +7,8 @@
+ from functools import lru_cache
+ import hashlib
+ import json
++import math
++import struct
+ from pathlib import Path
+ 
+ import pytest
+@@ -77,6 +79,7 @@
+         assert by_id[row["id"]]["value"] == row["value"]
+         assert by_id[row["id"]]["unit"] == row["unit"]
+         assert annotation["source_row_sha256"] == canonical_sha256_checked_v1(row)
++        assert annotation["source_value_bits"] == struct.pack(">d", float(row["value"])).hex()
+         assert annotation["source_row"].get("metadata") == row.get("metadata")
+     namespace = "contract_evidence" if identity == PHYSICS_CONTRACT_ID else "source_block_recovery"
+     assert packet[namespace] == raw[namespace]
+@@ -123,7 +126,8 @@
+         validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label=path.stem)
+         sn.write_materialized_members_v0_3(packet, tmp_path / path.stem)
+         assert sn.read_materialized_members_v0_3(tmp_path / path.stem, source_envelope=raw, analysis_record=analysis) == packet
+-        for a in packet["source_annotations"]:
++        for a, original_row in zip(packet["source_annotations"], raw["results"]):
++            assert a["source_value_bits"] == struct.pack(">d", float(original_row["value"])).hex()
+             row = a["source_row"]
+             if row["kind"] == "pipe_elastic_normal_stress_maximum_v2":
+                 assert row["metadata"]["basis"] in {"retained_source_endpoint_normal_max_v1", "recovered_from_open_mechanics_stress_components"}
+@@ -219,3 +223,88 @@
+     result = json.loads((PROJECT / "schemas/results.v0.3.schema.yaml").read_text())
+     for key in ["PhysicsContractEvidence", "PhysicsGeometry", "PhysicsMaterial"]:
+         assert current["$defs"][key] == result["$defs"][key]
++
++
++@pytest.mark.parametrize("value,bits", [
++    (0.0, "0000000000000000"), (-0.0, "8000000000000000"),
++    (1.0, "3ff0000000000000"), (-1.0, "bff0000000000000"),
++    (5e-324, "0000000000000001"), (-5e-324, "8000000000000001"),
++])
++def test_value_bits_annotation_preserves_received_binary64_without_changing_jcs(value, bits):
++    # Synthetic transport vectors only, not claimed solver outputs.
++    original = {"id": "transport:bits", "kind": "displacement_magnitude", "value": value, "unit": "mm", "entity_ref": "transport:node", "metadata": None, "source_result_refs": []}
++    annotation = sn._source_annotations({"results": [original]})[0]
++    assert set(annotation) == {"source_row_index", "source_result_id", "source_row", "source_row_sha256", "source_value_bits"}
++    assert annotation["source_value_bits"] == bits
++    assert annotation["source_row_sha256"] == canonical_sha256_checked_v1(original)
++    assert annotation["source_row"].keys() == original.keys()
++    assert annotation["source_row"]["metadata"] is None
++    assert annotation["source_row"]["source_result_refs"] == []
++    assert struct.pack(">d", float(original["value"])).hex() == bits
++    if value == 0:
++        assert math.copysign(1, annotation["source_row"]["value"]) == 1
++    sn._validate_source_value_bits(annotation)
++    reread = json.loads(sn.canonical_json_checked_v1(annotation))
++    assert reread["source_value_bits"] == bits
++    sn._validate_source_value_bits(reread)
++
++
++@pytest.mark.parametrize("value,bits", [
++    (0.0, "0000000000000001"), (0.0, "7ff0000000000000"),
++    (0.0, "fff0000000000000"), (0.0, "7ff8000000000000"),
++    (1.0, "bff0000000000000"), (1.0, "0000000000000000"),
++    (-0.0, "8000000000000000"), (False, "0000000000000000"),
++    (0.0, "800000000000000A"), (0.0, "800000000000000"),
++    (0.0, None), (0.0, 0),
++])
++def test_value_bits_annotation_refuses_nonfinite_mismatch_and_noncanonical_zero(value, bits):
++    with pytest.raises(ValueError, match="SN-SOURCE-ANNOTATION-VALUE-BITS"):
++        sn._validate_source_value_bits({"source_row": {"value": value}, "source_value_bits": bits})
++
++
++@pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
++def test_cr02_actual_mixed_signed_zeros_survive_materialize_reopen_and_bind_original(mode, tmp_path):
++    path = COMPOSITE_DIR / f"mixed-{mode}.raw.json"
++    raw, analysis, packet = captured(path)
++    before = deepcopy(raw)
++    original_bits = {row["id"]: struct.pack(">d", float(row["value"])).hex() for row in raw["results"]}
++    negative_ids = {identity for identity, bits in original_bits.items() if bits == "8000000000000000"}
++    positive_ids = {identity for identity, bits in original_bits.items() if bits == "0000000000000000"}
++    assert negative_ids and positive_ids, "Actual mixed source must exercise both received zero signs"
++    if mode == "sparse_interactive":
++        assert len(negative_ids) == 31, "Retain the independent review's original signed-zero failure population"
++    sn.write_materialized_members_v0_3(packet, tmp_path)
++    reread = sn.read_materialized_members_v0_3(tmp_path, source_envelope=raw, analysis_record=analysis)
++    validate_instance(json.loads(SCHEMA.read_text()), reread, instance_label=f"CR02 {mode}")
++    assert set(p.name for p in tmp_path.iterdir()) == set(sn.MEMBERS)
++    for annotation in reread["source_annotations"]:
++        identity = annotation["source_result_id"]
++        assert annotation["source_value_bits"] == original_bits[identity]
++        restored = struct.unpack(">d", bytes.fromhex(annotation["source_value_bits"]))[0]
++        assert struct.pack(">d", restored).hex() == original_bits[identity]
++        if identity in negative_ids | positive_ids:
++            # Raw JSON is explicitly canonical +0. Only the sidecar claims to
++            # preserve the received zero sign; source_row alone does not.
++            assert struct.pack(">d", float(annotation["source_row"]["value"])).hex() == "0000000000000000"
++    assert raw == before
++    for identities, opposite in [(negative_ids, "0000000000000000"), (positive_ids, "8000000000000000")]:
++        forged = deepcopy(reread)
++        target = next(a for a in forged["source_annotations"] if a["source_result_id"] in identities)
++        target["source_value_bits"] = opposite
++        # A changed sidecar is part of the hashed package; without rehashing it
++        # fails even though +0 and -0 are numerically equal.
++        with pytest.raises(ValueError, match="PACKAGE-CHECKSUM"):
++            sn.validate_stress_neutral_export_package_v0_3(forged)
++        rehash_packet(forged)
++        # An internally consistent transport can carry either zero sign, but it
++        # cannot be claimed to match the original received source after a flip.
++        sn.validate_stress_neutral_export_package_v0_3(forged)
++        with pytest.raises(ValueError, match="SOURCE-ANNOTATION-BINDING"):
++            sn.validate_stress_neutral_export_package_v0_3(forged, source_envelope=raw, analysis_record=analysis)
++    malformed = deepcopy(reread)
++    malformed["source_annotations"][0].pop("source_value_bits")
++    rehash_packet(malformed)
++    with pytest.raises(ValueError, match="ANNOTATION-SHAPE"):
++        sn.validate_stress_neutral_export_package_v0_3(malformed)
++    with pytest.raises(AssertionError):
++        validate_instance(json.loads(SCHEMA.read_text()), malformed, instance_label="missing CR02 sidecar")
+--- a/projects/chirality-piping/tests/schema_validation.py
++++ b/projects/chirality-piping/tests/schema_validation.py
+@@ -6,11 +6,11 @@
+ import sys
+ from pathlib import Path
+ from copy import deepcopy
+-from urllib.parse import urljoin, urlsplit
++from urllib.parse import urljoin
+ 
+ 
+ INSTALL_MESSAGE = (
+-    "jsonschema>=4,<5 is required for full PKG-02 JSON Schema validation; "
++    "jsonschema>=4.18,<5 is required for full PKG-02 JSON Schema validation; "
+     "install with: python3 -m pip install -r requirements-dev.txt"
+ )
+ 
+@@ -52,31 +52,28 @@
+     validate_schema_document(schema, schema_label=schema_label)
+     validator_class = _draft202012_validator()
+     try:
+-        from jsonschema import RefResolver
+-        schema_dir = Path(__file__).resolve().parents[1] / "schemas"
+-        candidates = [(path, json.loads(path.read_text(encoding="utf-8")))
+-                      for path in schema_dir.glob("*.schema.json")]
+-        base_uri = schema.get("$id", "")
+-        if base_uri and not urlsplit(base_uri).scheme:
+-            # A relative root $id needs its real retrieval base. Passing that
+-            # relative identity as its own base repeatedly nests it on local
+-            # fragment lookups in RefResolver.
+-            base_uri = next((path.resolve().as_uri() for path, candidate in candidates
+-                             if candidate.get("$id") == base_uri), schema_dir.resolve().as_uri() + "/")
+-        store = {}
+-        for path, candidate in candidates:
+-            if "$id" in candidate:
+-                store[candidate["$id"]] = candidate
+-            # Retrieval location and declared identity are distinct. Register
+-            # both without rewriting preserved schema identities or bytes.
+-            retrieval_urls = {path.resolve().as_uri(), urljoin(base_uri, path.name)}
+-            for retrieval_url in retrieval_urls:
+-                store[retrieval_url] = candidate
+-                if "$id" in candidate:
+-                    store[urljoin(retrieval_url, candidate["$id"])] = candidate
+-        validator = validator_class(schema, resolver=RefResolver(base_uri=base_uri, referrer=schema, store=store))
+-    except (ImportError, OSError, ValueError):
+-        validator = validator_class(schema)
++        from referencing import Registry, Resource
++        from referencing.jsonschema import DRAFT202012
++    except ImportError as exc:
++        raise JsonSchemaDependencyMissing(INSTALL_MESSAGE) from exc
++    schema_dir = Path(__file__).resolve().parents[1] / "schemas"
++    base_uri = schema.get("$id", "")
++    resources = {}
++    for path in schema_dir.glob("*.schema.*"):
++        try:
++            candidate = json.loads(path.read_text(encoding="utf-8"))
++        except (OSError, ValueError):
++            continue  # Only JSON-encoded checked-in schema resources are used.
++        resource = Resource.from_contents(candidate, default_specification=DRAFT202012)
++        retrieval_urls = {path.resolve().as_uri(), urljoin(base_uri, path.name)}
++        if "$id" in candidate:
++            retrieval_urls.add(candidate["$id"])
++            retrieval_urls.update(urljoin(uri, candidate["$id"]) for uri in list(retrieval_urls))
++        resources.update({uri: resource for uri in retrieval_urls})
++    # Immutable per-reference scopes avoid RefResolver's leaked receipt base.
++    # The registry has no network retriever; every external resource is local.
++    registry = Registry().with_resources(resources.items())
++    validator = validator_class(schema, registry=registry)
+     errors = sorted(validator.iter_errors(instance), key=lambda error: list(error.path))
+     if errors:
+         formatted = "\n".join(_format_error(error) for error in errors[:10])
+--- a/projects/chirality-piping/core/units/Cargo.toml
++++ b/projects/chirality-piping/core/units/Cargo.toml
+@@ -8,7 +8,17 @@
+ [lib]
+ path = "src/lib.rs"
+ 
++[[bin]]
++name = "openpipestress_units"
++path = "src/bin/openpipestress_units.rs"
++required-features = ["cli"]
++
++[features]
++cli = ["dep:serde", "dep:serde_json"]
++
+ [dependencies]
++serde = { version = "1", features = ["derive"], optional = true }
++serde_json = { version = "1", features = ["float_roundtrip"], optional = true }
+ 
+ [dev-dependencies]
+ serde_json = "1"
+--- a/projects/chirality-piping/core/units/Cargo.lock
++++ b/projects/chirality-piping/core/units/Cargo.lock
+@@ -18,6 +18,7 @@
+ name = "open_pipe_stress_units"
+ version = "0.1.0"
+ dependencies = [
++ "serde",
+  "serde_json",
+ ]
+ 
+@@ -46,6 +47,7 @@
+ checksum = "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
+ dependencies = [
+  "serde_core",
++ "serde_derive",
+ ]
+ 
+ [[package]]
+--- /dev/null
++++ b/projects/chirality-piping/core/units/src/bin/openpipestress_units.rs
+@@ -0,0 +1,153 @@
++//! Explicit batch bridge to the existing unit authority. No conversion catalog
++//! or formula is defined here; the library remains the sole conversion owner.
++use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, DIMENSIONS};
++use serde::{Deserialize, Serialize};
++use std::collections::HashSet;
++use std::io::{self, Read};
++use std::process::ExitCode;
++
++#[derive(Deserialize)]
++#[serde(deny_unknown_fields)]
++struct Request {
++    protocol_version: String,
++    quantities: Vec<Quantity>,
++}
++#[derive(Deserialize)]
++#[serde(deny_unknown_fields)]
++struct Quantity {
++    id: String,
++    value: f64,
++    unit: String,
++    dimension: String,
++}
++#[derive(Serialize)]
++struct Response {
++    protocol_version: &'static str,
++    quantities: Vec<Converted>,
++}
++#[derive(Serialize)]
++struct Converted {
++    id: String,
++    value: f64,
++    unit: &'static str,
++    dimension: &'static str,
++}
++fn execute(input: &str) -> Result<Response, String> {
++    let request: Request =
++        serde_json::from_str(input).map_err(|e| format!("UNITS_REQUEST_INVALID: {e}"))?;
++    if request.protocol_version != "1.0.0" {
++        return Err("UNITS_PROTOCOL_UNSUPPORTED".into());
++    }
++    let mut ids = HashSet::new();
++    let mut quantities = Vec::with_capacity(request.quantities.len());
++    for q in request.quantities {
++        if q.id.is_empty() || !ids.insert(q.id.clone()) || !q.value.is_finite() {
++            return Err("UNITS_QUANTITY_INVALID".into());
++        }
++        let dimension = DIMENSIONS
++            .iter()
++            .copied()
++            .find(|d| d.as_str() == q.dimension)
++            .ok_or("UNITS_DIMENSION_UNSUPPORTED")?;
++        let from = unit_by_symbol(&q.unit, dimension)
++            .map_err(|e| format!("UNITS_CONVERSION_REFUSED: {e}"))?;
++        let target = canonical_unit(dimension).ok_or("UNITS_CANONICAL_UNIT_UNAVAILABLE")?;
++        let value = convert_for_dimension(q.value, dimension, from, target)
++            .map_err(|e| format!("UNITS_CONVERSION_REFUSED: {e}"))?;
++        if !value.is_finite() {
++            return Err("UNITS_CONVERSION_NONFINITE".into());
++        }
++        quantities.push(Converted {
++            id: q.id,
++            value,
++            unit: target.definition().symbol,
++            dimension: dimension.as_str(),
++        });
++    }
++    Ok(Response {
++        protocol_version: "1.0.0",
++        quantities,
++    })
++}
++fn main() -> ExitCode {
++    if std::env::args().len() != 1 {
++        eprintln!("usage: openpipestress_units < batch.json");
++        return ExitCode::from(2);
++    }
++    let mut input = String::new();
++    if let Err(e) = io::stdin().read_to_string(&mut input) {
++        eprintln!("UNITS_INPUT_UNAVAILABLE: {e}");
++        return ExitCode::from(2);
++    }
++    match execute(&input) {
++        Ok(result) => {
++            println!(
++                "{}",
++                serde_json::to_string(&result).expect("finite unit result")
++            );
++            ExitCode::SUCCESS
++        }
++        Err(error) => {
++            println!(
++                "{}",
++                serde_json::json!({"protocol_version":"1.0.0","error":error})
++            );
++            ExitCode::from(1)
++        }
++    }
++}
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn conversions_are_the_actual_library_result() {
++        let response=execute(r#"{"protocol_version":"1.0.0","quantities":[{"id":"E","value":200.0,"unit":"GPa","dimension":"stress"},{"id":"T","value":68.0,"unit":"degF","dimension":"temperature"},{"id":"L","value":1.0,"unit":"in","dimension":"length"}]}"#).unwrap();
++        for (q, (v, u, d)) in response.quantities.iter().zip([
++            (200., "GPa", open_pipe_stress_units::Dimension::Stress),
++            (68., "degF", open_pipe_stress_units::Dimension::Temperature),
++            (1., "in", open_pipe_stress_units::Dimension::Length),
++        ]) {
++            assert_eq!(
++                q.value.to_bits(),
++                convert_for_dimension(
++                    v,
++                    d,
++                    unit_by_symbol(u, d).unwrap(),
++                    canonical_unit(d).unwrap()
++                )
++                .unwrap()
++                .to_bits()
++            );
++        }
++        assert_eq!(response.quantities[0].unit, "Pa");
++        assert_eq!(response.quantities[1].unit, "K");
++    }
++    #[test]
++    fn closed_shape_dimension_and_finite_errors_refuse_without_results() {
++        for input in [
++            r#"{"protocol_version":"2","quantities":[]}"#,
++            r#"{"protocol_version":"1.0.0","quantities":[],"unknown":0}"#,
++            r#"{"protocol_version":"1.0.0","quantities":[{"id":"E","value":1.0,"unit":"m","dimension":"stress"}]}"#,
++            r#"{"protocol_version":"1.0.0","quantities":[{"id":"E","value":1e999,"unit":"Pa","dimension":"stress"}]}"#,
++            r#"{"protocol_version":"1.0.0","quantities":[{"id":"E","value":true,"unit":"Pa","dimension":"stress"}]}"#,
++            r#"{"protocol_version":"1.0.0","protocol_version":"1.0.0","quantities":[]}"#,
++        ] {
++            assert!(execute(input).is_err(), "{input}");
++        }
++    }
++    #[test]
++    fn same_unit_roundtrip_preserves_library_binary64_behavior() {
++        let result=execute(r#"{"protocol_version":"1.0.0","quantities":[{"id":"zero","value":-0.0,"unit":"Pa","dimension":"stress"},{"id":"tiny","value":1.2345678901234567e-7,"unit":"Pa","dimension":"stress"}]}"#).unwrap();
++        let encoded = serde_json::to_string(&result).unwrap();
++        let decoded: serde_json::Value = serde_json::from_str(&encoded).unwrap();
++        for (i, q) in result.quantities.iter().enumerate() {
++            assert_eq!(
++                decoded["quantities"][i]["value"]
++                    .as_f64()
++                    .unwrap()
++                    .to_bits(),
++                q.value.to_bits()
++            );
++        }
++    }
++}
+--- /dev/null
++++ b/projects/chirality-piping/core/units/adapter.py
+@@ -0,0 +1,54 @@
++"""Configured subprocess bridge to the existing Rust units authority.
++
++No runtime build, PATH search, shell, conversion formula or fallback catalog.
++The caller supplies dimensions/units explicitly; the Rust library selects the
++canonical target and performs the same conversion used by the producer.
++"""
++from __future__ import annotations
++from collections.abc import Mapping, Sequence
++import json
++import math
++import os
++from pathlib import Path
++import subprocess
++from typing import Any
++
++ENV_EXECUTABLE = "OPENPIPESTRESS_UNITS_BIN"
++PROTOCOL_VERSION = "1.0.0"
++
++def units_executable() -> Path:
++    configured = os.environ.get(ENV_EXECUTABLE)
++    if not configured or not Path(configured).is_absolute():
++        raise RuntimeError("UNITS-AUTHORITY-MISSING: set OPENPIPESTRESS_UNITS_BIN to an explicitly built absolute executable path")
++    path = Path(configured)
++    if not path.is_file():
++        raise RuntimeError(f"UNITS-AUTHORITY-MISSING: {path}")
++    return path
++
++def convert_quantities_to_canonical(quantities: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
++    rows=[]; ids=set()
++    for item in quantities:
++        if not isinstance(item, Mapping) or set(item) != {"id", "value", "unit", "dimension"}:
++            raise ValueError("UNITS-REQUEST-SHAPE")
++        q=dict(item)
++        if any(not isinstance(q[k], str) or not q[k] for k in ("id","unit","dimension")) or q["id"] in ids:
++            raise ValueError("UNITS-REQUEST-IDENTITY")
++        try:
++            finite = type(q["value"]) in (int, float) and math.isfinite(q["value"])
++        except OverflowError:
++            finite = False
++        if not finite:
++            raise ValueError("UNITS-REQUEST-NONFINITE")
++        ids.add(q["id"]);rows.append(q)
++    payload=json.dumps({"protocol_version":PROTOCOL_VERSION,"quantities":rows},allow_nan=False,separators=(",",":"))
++    result=subprocess.run([str(units_executable())],input=payload,text=True,capture_output=True,check=False,timeout=30)
++    try: response=json.loads(result.stdout)
++    except (ValueError, TypeError) as error: raise RuntimeError("UNITS-AUTHORITY-RESPONSE-INVALID") from error
++    if result.returncode:
++        raise ValueError(str(response.get("error", "UNITS-AUTHORITY-REFUSED")))
++    if not isinstance(response,dict) or set(response)!={"protocol_version","quantities"} or response["protocol_version"]!=PROTOCOL_VERSION or not isinstance(response["quantities"],list) or len(response["quantities"])!=len(rows):
++        raise RuntimeError("UNITS-AUTHORITY-RESPONSE-INVALID")
++    for actual, expected in zip(response["quantities"],rows):
++        if not isinstance(actual,dict) or set(actual)!={"id","value","unit","dimension"} or actual["id"]!=expected["id"] or actual["dimension"]!=expected["dimension"] or not isinstance(actual["unit"],str) or not actual["unit"] or type(actual["value"]) not in (int,float) or not math.isfinite(actual["value"]):
++            raise RuntimeError("UNITS-AUTHORITY-RESPONSE-INVALID")
++    return response["quantities"]
+--- /dev/null
++++ b/projects/chirality-piping/tools/units/build_units_authority.py
+@@ -0,0 +1,24 @@
++#!/usr/bin/env python3
++"""Explicit development/test build of the existing-unit-authority CLI bridge."""
++from __future__ import annotations
++import argparse
++from pathlib import Path
++import subprocess
++
++PROJECT = Path(__file__).resolve().parents[2]
++CRATE = PROJECT / "core" / "units"
++DEFAULT_TARGET = CRATE / "target" / "units-authority"
++
++def build(target_dir: Path = DEFAULT_TARGET) -> Path:
++    target = target_dir.resolve()
++    subprocess.run(["cargo", "build", "--locked", "--release", "--features", "cli",
++                    "--bin", "openpipestress_units", "--target-dir", str(target)], cwd=CRATE, check=True)
++    return target / "release" / "openpipestress_units"
++
++def main() -> None:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--target-dir", type=Path, default=DEFAULT_TARGET)
++    print(build(parser.parse_args().target_dir))
++
++if __name__ == "__main__":
++    main()
+--- /dev/null
++++ b/projects/chirality-piping/tests/test_units_authority_setup.py
+@@ -0,0 +1,56 @@
++"""Explicit setup/adapter behavior; no alternative conversion implementation."""
++from pathlib import Path
++from types import SimpleNamespace
++import importlib.util
++import math
++import os
++import sys
++import pytest
++from core.units.adapter import convert_quantities_to_canonical, units_executable
++
++ROOT=Path(__file__).resolve().parents[1]
++def module(path, name):
++    spec=importlib.util.spec_from_file_location(name,path); loaded=importlib.util.module_from_spec(spec); spec.loader.exec_module(loaded);return loaded
++
++def test_controller_prepares_units_even_with_existing_json_authority(monkeypatch, tmp_path):
++    conftest=module(ROOT/'tests/conftest.py','units_setup_test')
++    monkeypatch.setenv('OPENPIPESTRESS_CHECKED_JSON_BIN','/configured/checked-json')
++    monkeypatch.delenv('OPENPIPESTRESS_UNITS_BIN',raising=False)
++    calls=[]; target=tmp_path/'units-authority'
++    monkeypatch.setitem(sys.modules,'build_units_authority',SimpleNamespace(build=lambda:(calls.append('units') or target)))
++    conftest.pytest_sessionstart(SimpleNamespace(config=SimpleNamespace()))
++    assert calls==['units'];assert os.environ['OPENPIPESTRESS_UNITS_BIN']==str(target)
++
++def test_workers_and_configured_controller_do_not_build(monkeypatch):
++    conftest=module(ROOT/'tests/conftest.py','units_setup_worker_test')
++    def forbidden():raise AssertionError('unexpected build')
++    monkeypatch.setitem(sys.modules,'build_units_authority',SimpleNamespace(build=forbidden))
++    monkeypatch.setitem(sys.modules,'build_checked_json',SimpleNamespace(build=forbidden))
++    monkeypatch.delenv('OPENPIPESTRESS_UNITS_BIN',raising=False);monkeypatch.delenv('OPENPIPESTRESS_CHECKED_JSON_BIN',raising=False)
++    conftest.pytest_sessionstart(SimpleNamespace(config=SimpleNamespace(workerinput={})))
++    monkeypatch.setenv('OPENPIPESTRESS_UNITS_BIN','/configured/units');monkeypatch.setenv('OPENPIPESTRESS_CHECKED_JSON_BIN','/configured/json')
++    conftest.pytest_sessionstart(SimpleNamespace(config=SimpleNamespace()))
++
++def test_explicit_build_uses_locked_release_cli_and_target(monkeypatch,tmp_path):
++    helper=module(ROOT/'tools/units/build_units_authority.py','units_build_test'); calls=[]
++    monkeypatch.setattr(helper.subprocess,'run',lambda args,**kwargs:calls.append((args,kwargs)))
++    result=helper.build(tmp_path/'target')
++    assert result==(tmp_path/'target/release/openpipestress_units').resolve()
++    args,options=calls[0];assert '--locked' in args and '--release' in args
++    assert args[args.index('--features')+1]=='cli';assert options['cwd']==ROOT/'core/units';assert options['check'] is True
++
++def test_adapter_requires_configured_absolute_authority(monkeypatch):
++    monkeypatch.delenv('OPENPIPESTRESS_UNITS_BIN',raising=False)
++    with pytest.raises(RuntimeError,match='UNITS-AUTHORITY-MISSING'):units_executable()
++    monkeypatch.setenv('OPENPIPESTRESS_UNITS_BIN','relative/path')
++    with pytest.raises(RuntimeError,match='UNITS-AUTHORITY-MISSING'):units_executable()
++
++def test_actual_authority_batch_and_dimension_refusal():
++    rows=convert_quantities_to_canonical([{'id':'E','value':200.,'unit':'GPa','dimension':'stress'}, {'id':'T','value':68.,'unit':'degF','dimension':'temperature'}])
++    assert rows[0]=={'id':'E','value':2e11,'unit':'Pa','dimension':'stress'}
++    assert rows[1]['unit']=='K' and math.isfinite(rows[1]['value'])
++    with pytest.raises(ValueError,match='UNITS_CONVERSION_REFUSED'):
++        convert_quantities_to_canonical([{'id':'wrong','value':1.,'unit':'m','dimension':'stress'}])
++    for value in [True,float('inf'),float('nan'),10**10000]:
++        with pytest.raises(ValueError,match='UNITS-REQUEST-NONFINITE'):
++            convert_quantities_to_canonical([{'id':'bad','value':value,'unit':'Pa','dimension':'stress'}])
+--- a/projects/chirality-piping/tests/conftest.py
++++ b/projects/chirality-piping/tests/conftest.py
+@@ -1,4 +1,4 @@
+-"""Test-session setup for the private checked-JSON authority.
++"""Test-session setup for the checked-JSON and unit authorities.
+ 
+ The xdist controller builds once before worker collection. Workers inherit the
+ explicit executable path and never invoke Cargo themselves.
+@@ -16,8 +16,11 @@
+ def pytest_sessionstart(session) -> None:
+     if hasattr(session.config, "workerinput"):
+         return
+-    if os.environ.get("OPENPIPESTRESS_CHECKED_JSON_BIN"):
+-        return
+-    sys.path.insert(0, str(PROJECT / "tools" / "serialization"))
+-    from build_checked_json import build
+-    os.environ["OPENPIPESTRESS_CHECKED_JSON_BIN"] = str(build())
++    if not os.environ.get("OPENPIPESTRESS_CHECKED_JSON_BIN"):
++        sys.path.insert(0, str(PROJECT / "tools" / "serialization"))
++        from build_checked_json import build
++        os.environ["OPENPIPESTRESS_CHECKED_JSON_BIN"] = str(build())
++    if not os.environ.get("OPENPIPESTRESS_UNITS_BIN"):
++        sys.path.insert(0, str(PROJECT / "tools" / "units"))
++        from build_units_authority import build as build_units
++        os.environ["OPENPIPESTRESS_UNITS_BIN"] = str(build_units())
+--- a/projects/chirality-piping/core/reporting/result_export/Cargo.toml
++++ b/projects/chirality-piping/core/reporting/result_export/Cargo.toml
+@@ -12,3 +12,4 @@
+ serde_json = { version = "1", features = ["float_roundtrip"] }
+ open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
+ sha2 = "0.10"
++open_pipe_stress_units = { path = "../../units" }
+--- a/projects/chirality-piping/core/reporting/result_export/Cargo.lock
++++ b/projects/chirality-piping/core/reporting/result_export/Cargo.lock
+@@ -88,9 +88,14 @@
+ version = "0.1.0"
+ dependencies = [
+  "open_pipe_stress_canonical_json",
++ "open_pipe_stress_units",
+  "serde_json",
+  "sha2",
+ ]
++
++[[package]]
++name = "open_pipe_stress_units"
++version = "0.1.0"
+ 
+ [[package]]
+ name = "proc-macro2"
+--- a/projects/chirality-piping/core/runner/headless/Cargo.lock
++++ b/projects/chirality-piping/core/runner/headless/Cargo.lock
+@@ -197,6 +197,7 @@
+ name = "open_pipe_stress_product_physics"
+ version = "0.2.0"
+ dependencies = [
++ "open_pipe_stress_canonical_json",
+  "open_pipe_stress_curved_bend",
+  "open_pipe_stress_frame_kernel",
+  "open_pipe_stress_linear_supports",
+@@ -211,6 +212,7 @@
+  "open_pipe_stress_units",
+  "serde",
+  "serde_json",
++ "sha2",
+ ]
+ 
+ [[package]]
+@@ -261,6 +263,7 @@
+ version = "0.1.0"
+ dependencies = [
+  "open_pipe_stress_canonical_json",
++ "open_pipe_stress_units",
+  "serde_json",
+  "sha2",
+ ]
+--- /dev/null
++++ b/projects/chirality-piping/core/runner/headless/tests/physics_source_connected.rs
+@@ -0,0 +1,203 @@
++//! Actual producer invocation through headless custody and canonical projection.
++//! No native UI qualification or packet replay as a solve is claimed.
++use open_pipe_stress_headless_runner::{
++    result_envelope_binding, run_preview_model_value_with_mode, PrivacyContext,
++    ProfessionalBoundary, Provenance, RedistributionStatus, Reference, RunnerOperation,
++    RunnerRequest, TbdDecisions,
++};
++use open_pipe_stress_product_physics::PreviewSolverMode;
++use open_pipe_stress_result_export::{derivative, semantic_contract};
++use serde_json::{json, Value};
++use std::path::Path;
++
++fn request(model: &Value) -> RunnerRequest {
++    RunnerRequest {
++        request_id: "actual-composite-headless-consumer".into(),
++        operation: RunnerOperation::Solve,
++        operation_ref: Reference::new("api_operation", "ops.solve.job"),
++        project_ref: Reference::new("project", model["project"]["id"].as_str().unwrap()),
++        model_ref: Reference::new("model", model["project"]["id"].as_str().unwrap()),
++        unit_system_ref: Reference::new("unit_system", "invented-si"),
++        load_basis_refs: model["load_cases"]
++            .as_array()
++            .unwrap()
++            .iter()
++            .map(|c| Reference::new("load_case", c["id"].as_str().unwrap()))
++            .collect(),
++        input_manifest_ref: Reference::new("audit_manifest", "actual-composite-input-manifest"),
++        requested_outputs: vec![
++            "result_envelope".into(),
++            "audit_manifest".into(),
++            "diagnostics".into(),
++        ],
++        privacy: PrivacyContext::local_first_public_metadata(),
++        provenance: Provenance {
++            source_name: "invented composite consumer fixture".into(),
++            source_location: "fixtures/product_preview/physics_source".into(),
++            source_license: "project invented".into(),
++            contributor: "OpenPipeStress".into(),
++            contributor_certification: "invented non-engineering example".into(),
++            redistribution_status: RedistributionStatus::InventedNonEngineeringExample,
++            review_status: "pending".into(),
++        },
++        professional_boundary: ProfessionalBoundary::project_default(),
++        tbd_decisions: TbdDecisions::d33_local_cli_policy(),
++    }
++}
++
++#[test]
++fn actual_composite_invocations_preserve_canonical_evidence_and_maximum_methods() {
++    let fixtures = Path::new(env!("CARGO_MANIFEST_DIR"))
++        .join("../../../fixtures/product_preview/physics_source");
++    for name in ["n05", "n06", "mixed", "fields"] {
++        for mode in [
++            PreviewSolverMode::SparseInteractive,
++            PreviewSolverMode::DenseScrutiny,
++        ] {
++            let input: Value = serde_json::from_slice(
++                &std::fs::read(fixtures.join(format!("{name}.request.json"))).unwrap(),
++            )
++            .unwrap();
++            let original = input.clone();
++            let metadata = request(&input["model"]);
++            let output =
++                run_preview_model_value_with_mode(metadata.clone(), input.clone(), mode).unwrap();
++            let mechanics = output.mechanics_envelope.as_ref().unwrap();
++            let raw = serde_json::to_value(mechanics).unwrap();
++            let captured: Value = serde_json::from_slice(
++                &std::fs::read(fixtures.join(format!("{name}-{}.raw.json", mode.as_str())))
++                    .unwrap(),
++            )
++            .unwrap();
++            assert_eq!(raw, captured, "actual producer changed: {name}/{mode:?}");
++            let document = output.result_envelope_document.as_ref().unwrap_or_else(|| {
++                panic!(
++                    "{name}/{mode:?}: {:?}",
++                    output.canonical_export_unavailability
++                )
++            });
++            assert_eq!(
++                raw["producer"]["semantic_contract_id"],
++                semantic_contract::PHYSICS_SOURCE_ID
++            );
++            assert_eq!(
++                document["result_envelope"]["contract_evidence"],
++                raw["contract_evidence"]
++            );
++            assert_eq!(
++                document["result_envelope"]["source_block_recovery"],
++                raw["source_block_recovery"]
++            );
++            derivative::validate_document(document, &raw).unwrap();
++            let proof = output.qualified_preview_evidence.as_ref().unwrap();
++            assert_eq!(
++                *document,
++                result_envelope_binding::build_result_export_document_with_evidence(
++                    &metadata,
++                    &output.runner_result,
++                    mechanics,
++                    proof
++                )
++                .unwrap()
++            );
++            assert!(result_envelope_binding::build_result_export_document(
++                &metadata,
++                &output.runner_result,
++                mechanics
++            )
++            .is_err());
++            let requested = input["model"]["load_cases"]
++                .as_array()
++                .unwrap()
++                .iter()
++                .map(|c| json!({"ref_type":"load_case","ref_id":c["id"]}))
++                .collect::<Vec<_>>();
++            assert_eq!(
++                semantic_contract::numerical_use_standing(&raw, &requested),
++                "needs_recompute"
++            );
++            let invocation = json!({"request":input,"solver_mode":mode.as_str()});
++            assert_eq!(
++                semantic_contract::numerical_use_standing_with_context(
++                    &raw,
++                    &requested,
++                    Some(&invocation)
++                ),
++                "numerically_eligible"
++            );
++            for key in ["model", "solver_mode"] {
++                let mut wrong = invocation.clone();
++                if key == "model" {
++                    wrong["request"]["model"]["project"]["name"] =
++                        json!("same-id edited after solve");
++                } else {
++                    wrong["solver_mode"] = json!(if mode == PreviewSolverMode::SparseInteractive {
++                        "dense_scrutiny"
++                    } else {
++                        "sparse_interactive"
++                    });
++                }
++                assert_ne!(
++                    semantic_contract::numerical_use_standing_with_context(
++                        &raw,
++                        &requested,
++                        Some(&wrong)
++                    ),
++                    "numerically_eligible"
++                );
++            }
++            for row in raw["results"]
++                .as_array()
++                .unwrap()
++                .iter()
++                .filter(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2")
++            {
++                let signature = semantic_contract::signature_in(
++                    semantic_contract::physics_source_contract(),
++                    row,
++                )
++                .unwrap()
++                .unwrap();
++                assert_eq!(signature["source_basis"], row["metadata"]["basis"]);
++                let account = document["result_envelope"]["row_accounting"]
++                    .as_array()
++                    .unwrap()
++                    .iter()
++                    .find(|r| r["source_result_id"] == row["id"])
++                    .unwrap();
++                let quantity = document
++                    .pointer(account["target_field_path"].as_str().unwrap())
++                    .unwrap();
++                assert_eq!(
++                    quantity["magnitude"].as_f64().unwrap().to_bits(),
++                    row["value"].as_f64().unwrap().to_bits()
++                );
++                assert_eq!(quantity["metadata"], row["metadata"]);
++            }
++            assert_eq!(input, original);
++            if let Ok(folder) = std::env::var("HEADLESS_COMPOSITE_OUTPUT_DIR") {
++                let folder = Path::new(&folder);
++                std::fs::create_dir_all(folder).unwrap();
++                let stem = format!("{name}-{}", mode.as_str());
++                for (suffix, value) in [
++                    ("request", &input),
++                    ("invocation", &invocation),
++                    ("raw", &raw),
++                    ("document", document),
++                ] {
++                    std::fs::write(
++                        folder.join(format!("{stem}.{suffix}.json")),
++                        serde_json::to_vec_pretty(value).unwrap(),
++                    )
++                    .unwrap();
++                }
++                let manifest = json!({"claim":"actual headless invocation and canonical projection; no native UI claim","mode":mode.as_str(),"request_sha256":derivative::digest(&input).unwrap(),"raw_sha256":derivative::digest(&raw).unwrap(),"document_sha256":derivative::digest(document).unwrap()});
++                std::fs::write(
++                    folder.join(format!("{stem}.manifest.json")),
++                    serde_json::to_vec_pretty(&manifest).unwrap(),
++                )
++                .unwrap();
++            }
++        }
++    }
++}

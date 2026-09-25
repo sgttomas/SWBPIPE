@@ -1,0 +1,72 @@
+{
+  "role": "TASK",
+  "reviewer": "/root/physics_resume/joined_consumer_review",
+  "actual_parent": "/root/physics_resume",
+  "scope": "Four frozen CR01b files only; prior36review and later TS/UTF8 separate",
+  "source_manifest_sha256": "a9a27af724aa7fd7fb31e7fea61a34a483d278e5f8a00c0b5415d0b6acd64ab4",
+  "repair_diff_sha256": "51ea6d11363189456944ee0569d28dac1eb6162a8d63ed85d8138d38779f6dcf",
+  "four_sources": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_source.py",
+      "before_sha256": "12b6e9b342668e9d211f0d2d56169f1fb6258703366e0f407de71f3c84f40ab8",
+      "after_sha256": "81487a87d5e170b98b1569a8d2e7c42943b9c1be565f3a71c5b5a18879c4aba1"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "before_sha256": "2de6866121084fa57c9823df3d46b48d4816b57780f04bcf481d2cd8c75c6d61",
+      "after_sha256": "c4e380ee7c01eb1581930013e8fc77f8be37c68e1978dedbb78ab5d3cd656f37"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_physics_source_contract.py",
+      "before_sha256": "751f7e2a7bb0e8eda9e5338717635cf38cd2ac94ffd0a84d13f7732ba7d9281b",
+      "after_sha256": "7bd15b17eb416ff8676fb79c90d44434a19742705781d05a160f7f0b6aac0ca9"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/physics_source_contract.rs",
+      "before_sha256": "8c1eb0c2f68dea4863db0a09e3a6bb8cd578308a927ec0f167fffb7cea1571b0",
+      "after_sha256": "066b8f9ab44fedf9dd5aaba32c8b5978ba8d004818a7ba61705c4065996188ac"
+    }
+  ],
+  "reconstruction_and_current_hashes_match": true,
+  "producer_source": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "b85630992db2e3a8be9c87f395dee09b0d27c68cf80ea9765cddb57b69768fa0"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_material.rs",
+      "sha256": "a7d63cedda6040e03c0583f9c3a7114cf9aff40144ea6a5748252898789de7b2"
+    }
+  ],
+  "review_probe_records": [
+    {
+      "path": "INDEPENDENT_DOMAIN_CONTROLS.json",
+      "sha256": "a34e1193d0bd52b2c0d5b524ecc89ee3ea06c70f2f40fac0f1af97f21d8cf4f8"
+    },
+    {
+      "path": "INITIAL_HASH_CHECK.json",
+      "sha256": "c04c703022006bdbb918b19e26916e9c9f0fd830d7701771fc39d28ce5659e63"
+    },
+    {
+      "path": "ORIGINAL_PROBE_AFTER.json",
+      "sha256": "8e73ec8ee84145a80d2edb269d69f1879933099e32051c195d3091551cb41c8e"
+    },
+    {
+      "path": "probe_pair_domain.py",
+      "sha256": "e2d7b74a3ac09685bbc92e604887414725904e2a80e6d90d032dc9d21cbd3643"
+    }
+  ],
+  "observed_parent_runtime": [
+    {
+      "path": "_run_records/parent-rust-cfg-06.log",
+      "sha256": "fbf832c815d8fb743da4333417a077d38db5169ab00687896b40eef23ff7ca0f"
+    },
+    {
+      "path": "_run_records/parent-rust-integration-07.log",
+      "sha256": "6fe0d50a89ce54ef375c36bf452edc892866fc16f90c098da7ce14f99da1e792"
+    }
+  ],
+  "python73_log_sha256": "4f5f2fbf8486ac458151f624299b113a1a6a1b0887092e53356dbd643629eb81",
+  "result": "clear CR01b",
+  "limits": "Reviewer only bounded Python/static/hash checks; parent Rust4 cfg+7integration observed. No new producer solve/native/TS/build, no general material-range qualification."
+}

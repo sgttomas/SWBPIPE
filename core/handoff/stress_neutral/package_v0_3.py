@@ -1,4 +1,4 @@
-"""Strict precision-1 stress-neutral 0.3 package construction.
+"""Explicit-method stress-neutral 0.3 package construction (pure projection).
 
 The 0.1 builder remains byte-stable in ``package.py``. This module decorates
 its normalized data into the versioned nine-member checked-hash contract.
@@ -12,6 +12,7 @@ import json
 import math
 from pathlib import Path
 import re
+import struct
 from typing import Any, Mapping
 
 from core.serialization.canonical_json.adapter import canonical_json_checked_v1, canonical_sha256_checked_v1
@@ -19,7 +20,8 @@ from .package import build_stress_neutral_export_package, canonical_csv
 from core.analysis_runs.compatibility import (
     _source_contract, _semantic, validate_analysis_run_v0_3, PRECISION_CONTRACT_ID,
     PRECISION_CONTRACT_SHA256, _source_basis_reference, _source_reference_text,
-    _validate_source_reference_fields,
+    _validate_source_reference_fields, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID,
+    PHYSICS_SOURCE_CONTRACT_ID,
 )
 
 VERSION = "0.3.0"
@@ -27,6 +29,32 @@ PROFILE = "openpipestress_jcs_ijson_v1"
 EXPORT_PROFILE = "ops.stress_neutral.v3"
 MEMBERS = ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"]
 SEMANTIC_CONTRACT_REF = {"object_type": "ExternalReference", "ref": "fixtures/results/semantic_contract_v0_3_precision_1.json"}
+SUPPORTED_METHODS = {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID}
+PHYSICAL_METHODS = {PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID}
+RECEIPT_METHODS = {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID}
+
+
+def _method_namespaces(contract_id: str) -> set[str]:
+    return ({"contract_evidence"} if contract_id in PHYSICAL_METHODS else set()) | ({"source_block_recovery"} if contract_id in RECEIPT_METHODS else set())
+
+
+def _transport_contract(package: Mapping[str, Any]) -> tuple[str, str, Path]:
+    """Validate retained transport statements; never reconstruct raw publication.
+
+    Source validation below separately requires the actual supplied raw envelope.
+    This metadata view deliberately has no results, diagnostics or fake status.
+    """
+    metadata = {"schema_version": "0.2.0", **{key: package.get(key) for key in ("producer", "numerical_quality", "formulation_basis")}}
+    for key in ("contract_evidence", "source_block_recovery", "carrier_evidence"):
+        if key in package:
+            metadata[key] = package[key]
+    method = _source_contract(metadata, check_receipt=False)
+    if method[0] not in SUPPORTED_METHODS:
+        raise ValueError("SN-SOURCE-METHOD-UNSUPPORTED")
+    expected = _method_namespaces(method[0])
+    if {key for key in ("contract_evidence", "source_block_recovery") if key in package} != expected:
+        raise ValueError("SN-SOURCE-NAMESPACE-MISMATCH")
+    return method
 WITHHOLDING_CODES = {
     "diagnostic_work": "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK",
     "unknown_semantic": "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC",
@@ -51,6 +79,83 @@ CSV_COLUMNS = [
 ]
 JSON_NUMBER = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\Z")
 MAX_SAFE_INTEGER = (1 << 53) - 1
+UTF8_CSV_CANONICALIZATION = "utf8_csv_record_lf_v1"
+UTF8_CSV_ROW_ORDER = "unicode_scalar_value_result_id"
+
+
+def _csv_policy(package: Mapping[str, Any]) -> tuple[str, str]:
+    """Method-bound CSV wire contract; precision-1 remains unchanged ASCII."""
+    profile = package.get("export_profile", {})
+    producer = package.get("producer", {})
+    if not isinstance(profile, Mapping) or not isinstance(producer, Mapping):
+        raise ValueError("SN-CSV-PROFILE-MISMATCH")
+    method = producer.get("semantic_contract_id")
+    if method == PRECISION_CONTRACT_ID:
+        if "csv_encoding" in profile or "csv_row_order" in profile:
+            raise ValueError("SN-CSV-PROFILE-MISMATCH")
+        return "ascii", "normalized_ascii_lf_text"
+    if not isinstance(method, str) or method not in SUPPORTED_METHODS or profile.get("csv_encoding") != "utf-8" or profile.get("csv_row_order") != UTF8_CSV_ROW_ORDER:
+        raise ValueError("SN-CSV-PROFILE-MISMATCH")
+    return "utf-8", UTF8_CSV_CANONICALIZATION
+
+
+def _utf8_csv_bytes(text: Any) -> bytes:
+    """Strict UTF8 without BOM; record LF is checked without changing field data."""
+    if not isinstance(text, str) or text.startswith("\ufeff") or not text.endswith("\n"):
+        raise ValueError("SN-CSV-UTF8-INVALID")
+    try:
+        encoded = text.encode("utf-8", errors="strict")
+    except UnicodeEncodeError as error:
+        raise ValueError("SN-CSV-UTF8-INVALID") from error
+    state = "start"
+    index = 0
+    while index < len(text):
+        char = text[index]
+        if state == "quoted":
+            if char == '"':
+                if index + 1 < len(text) and text[index + 1] == '"':
+                    index += 1
+                else:
+                    state = "closed"
+        elif char == "\r":
+            raise ValueError("SN-CSV-RECORD-LF-REQUIRED")
+        elif char in {",", "\n"}:
+            state = "start"
+        elif state == "closed":
+            raise ValueError("SN-CSV-QUOTING-INVALID")
+        elif char == '"':
+            if state != "start":
+                raise ValueError("SN-CSV-QUOTING-INVALID")
+            state = "quoted"
+        else:
+            state = "plain"
+        index += 1
+    if state != "start":
+        raise ValueError("SN-CSV-QUOTING-INVALID")
+    return encoded
+
+
+def _render_utf8_csv(rows: list[Mapping[str, Any]]) -> str:
+    """Scalar-order CSV; no whole-text newline or Unicode normalization."""
+    identities = [row.get("result_id") for row in rows]
+    if any(not isinstance(identity, str) or not identity for identity in identities):
+        raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+    def field(text: str) -> str:
+        return '"' + text.replace('"', '""') + '"' if any(c in text for c in ',"\r\n') else text
+    records = [",".join(CSV_COLUMNS)]
+    for row in sorted(rows, key=lambda item: item["result_id"]):
+        values = []
+        for column in CSV_COLUMNS:
+            value = _csv_scalar(row, column)
+            if column == "value":
+                value = str(int(value)) if isinstance(value, float) and value.is_integer() else "" if value is None else str(value)
+            if not isinstance(value, str):
+                raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+            values.append(field(value))
+        records.append(",".join(values))
+    text = "\n".join(records) + "\n"
+    _utf8_csv_bytes(text)
+    return text
 
 
 def _checked(payload: Any, filename: str, scope: str = "member_payload") -> dict[str, Any]:
@@ -114,13 +219,19 @@ def _supported_binary64(text: str, expected: Any) -> bool:
     return parsed == expected_float
 
 
-def _validate_received_csv(csv_text: Any, rows: list[Mapping[str, Any]]) -> None:
-    if not isinstance(csv_text, str) or csv_text != canonical_csv(csv_text):
-        raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
-    try:
-        csv_text.encode("ascii")
-    except UnicodeEncodeError as error:
-        raise ValueError("SN-CSV-ROW-BINDING-MISMATCH") from error
+def _validate_received_csv(csv_text: Any, rows: list[Mapping[str, Any]], *, utf8: bool = False) -> None:
+    if utf8:
+        _utf8_csv_bytes(csv_text)
+        ids = [row.get("result_id") for row in rows]
+        if any(not isinstance(identity, str) for identity in ids) or ids != sorted(ids):
+            raise ValueError("SN-CSV-ROW-ORDER-MISMATCH")
+    else:
+        if not isinstance(csv_text, str) or csv_text != canonical_csv(csv_text):
+            raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+        try:
+            csv_text.encode("ascii")
+        except UnicodeEncodeError as error:
+            raise ValueError("SN-CSV-ROW-BINDING-MISMATCH") from error
     try:
         records = list(csv.reader(io.StringIO(csv_text, newline=""), strict=True))
         if not records or records[0] != CSV_COLUMNS:
@@ -146,18 +257,49 @@ def _validate_received_csv(csv_text: Any, rows: list[Mapping[str, Any]]) -> None
                 raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
 
 
+def _source_witness_disposition(row: Mapping[str, Any], original: Mapping[str, Any] | None, table: Path) -> tuple[str, str | None]:
+    """New-method interpretation from the exact validated source/table signature.
+
+    A unit spelling alone cannot override the table's derivative target. In
+    particular, a disclosed unitless diagnostic may have a ratio target without
+    becoming a physical or governing/compliance ratio result.
+    """
+    if not isinstance(original, Mapping):
+        return "unknown_semantic", None
+    try:
+        semantic, _ = _semantic(original, table)
+    except ValueError:
+        return "contradiction", None
+    if semantic is None:
+        return "unknown_semantic", None
+    if semantic.get("category") == "diagnostic_work":
+        return "diagnostic_work", None
+    dimension = semantic.get("derivative_target_dimension")
+    if not isinstance(dimension, str) or dimension in {"", "TBD"}:
+        return "missing_semantic", None
+    family = (semantic.get("family") or "other") if semantic.get("category") == "physical_quantity" else "other"
+    if row.get("dimension") != dimension or row.get("unit") != original.get("unit") or row.get("result_family") != family or row.get("row_kind") != "result_value" or row.get("correlation_status") != "canonical_id_map":
+        return "contradiction", None
+    return "eligible", dimension
+
+
 def _witnesses(rows: list[dict[str, Any]], provenance: Mapping[str, Any], source: Mapping[str, Any] | None = None) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     witnesses, findings = [], []
     source_rows = {item.get("id"): item for item in source.get("results", [])} if source is not None else {}
-    table = _source_contract(source)[2] if source is not None else None
+    contract_id, _, table = _source_contract(source) if source is not None else (None, None, None)
+    source_qualified_method = contract_id in SUPPORTED_METHODS - {PRECISION_CONTRACT_ID}
     for index, row in enumerate(rows):
-        disposition, interpreted_dimension = _witness_disposition(row)
-        if source is not None:
-            semantic, _ = _semantic(source_rows[row["result_id"]], table)
-            if semantic is not None and semantic.get("category") == "diagnostic_work":
-                disposition, interpreted_dimension = "diagnostic_work", None
-            elif semantic is None:
-                disposition, interpreted_dimension = "unknown_semantic", None
+        if source_qualified_method:
+            disposition, interpreted_dimension = _source_witness_disposition(row, source_rows.get(row["result_id"]), table)
+        else:
+            # Preserve the original precision-1/legacy interpretation and bytes.
+            disposition, interpreted_dimension = _witness_disposition(row)
+            if source is not None:
+                semantic, _ = _semantic(source_rows[row["result_id"]], table)
+                if semantic is not None and semantic.get("category") == "diagnostic_work":
+                    disposition, interpreted_dimension = "diagnostic_work", None
+                elif semantic is None:
+                    disposition, interpreted_dimension = "unknown_semantic", None
         if disposition != "eligible":
             diagnostic_work = disposition == "diagnostic_work"
             findings.append({"code": WITHHOLDING_CODES[disposition], "class": "unit_preservation_witness", "severity": "info" if diagnostic_work else "blocking", "source": {"object_type": "StressNeutralResultRow", "ref": str(row.get("result_id"))}, "affected_object": {"object_type": "StressNeutralUnitWitness", "ref": f"unit-witness:{index}"}, "message": "Diagnostic work evidence is retained as a row but has no physical unit-preservation witness." if diagnostic_work else f"{disposition.replace('_', ' ')} prevents a unit-preservation witness; the received row remains retained without a physical interpretation claim.", "remediation": "Review diagnostic work separately from physical quantity witnesses." if diagnostic_work else "Resolve the source family, unit, dimension and correlation evidence before downstream physical interpretation.", "provenance": deepcopy(dict(provenance))})
@@ -186,6 +328,10 @@ def package_projection(package: Mapping[str, Any]) -> dict[str, Any]:
 def source_row_projection_v0_3(source: Mapping[str, Any], row: Mapping[str, Any]) -> dict[str, Any]:
     """Source-qualified physical identity; never infer meaning from unit alone."""
     _, _, table = _source_contract(source)
+    return _source_row_projection(source, row, table)
+
+
+def _source_row_projection(source: Mapping[str, Any], row: Mapping[str, Any], table: Path) -> dict[str, Any]:
     semantic, _ = _semantic(row, table)
     family = (semantic.get("family") or "other") if semantic and semantic.get("category") == "physical_quantity" else "other"
     dimension = semantic.get("derivative_target_dimension") if semantic else None
@@ -198,6 +344,8 @@ def source_row_projection_v0_3(source: Mapping[str, Any], row: Mapping[str, Any]
     if not isinstance(entity, str) or not entity:
         raise ValueError("SN-PRECISION-ROW-ENTITY-MISSING")
     entity_type = {"pipe": "PipeElement", "node": "Node", "support": "Support", "component": "Component", "material": "Material"}.get(entity.split(":", 1)[0] if ":" in entity else "", "CanonicalObject")
+    if row.get("kind", "").startswith("support_reaction_") and row.get("kind", "").endswith("_v2"):
+        entity_type = "Support"
     metadata = row.get("metadata") if isinstance(row.get("metadata"), Mapping) else {}
     location = metadata.get("location")
     if location is not None and (not isinstance(location, str) or not location):
@@ -217,7 +365,8 @@ def _validate_source_rows(source: Mapping[str, Any], rows: list[Mapping[str, Any
     raw = source.get("results", [])
     if len(rows) != len(raw) or len({row.get("id") for row in raw}) != len(raw) or len({row.get("result_id") for row in rows}) != len(rows):
         raise ValueError("SN-PRECISION-ROW-SOURCE-MISMATCH")
-    expected = {row.get("id"): source_row_projection_v0_3(source, row) for row in raw}
+    contract_id, _, table = _source_contract(source)
+    expected = {row.get("id"): _source_row_projection(source, row, table) for row in raw}
     for row in rows:
         projection = expected.get(row.get("result_id"))
         if projection is None or any(key not in row or row[key] != value for key, value in projection.items()):
@@ -251,6 +400,10 @@ def _validate_stable_id_map(entries: Any, rows: list[Mapping[str, Any]]) -> None
 
 def build_stress_neutral_export_package_v0_3(*, source_envelope: Mapping[str, Any], analysis_record: Mapping[str, Any], expected_basis_refs: list[Mapping[str, str]] | None = None, **source: Any) -> dict[str, Any]:
     validate_analysis_run_v0_3(analysis_record, source_envelope, expected_basis_refs=expected_basis_refs)
+    contract_id, contract_hash, contract_path = _source_contract(source_envelope)
+    if contract_id not in SUPPORTED_METHODS:
+        raise ValueError("SN-SOURCE-METHOD-UNSUPPORTED")
+    semantic_contract_ref = {"object_type": "ExternalReference", "ref": f"fixtures/results/{contract_path.name}"}
     received = [item for item in analysis_record["analysis_run"]["hashes"] if item.get("payload_scope") == "received_result"]
     if len(received) != 1 or received[0] not in source.get("source_hashes", []) or source.get("source_result_ref") != received[0]["payload_ref"] or source.get("source_run_ref") != {"object_type":"AnalysisRun", "ref":source_envelope["run_id"]} or source.get("source_model_ref", {}).get("ref") != source_envelope["model_ref"]:
         raise ValueError("SN-PRECISION-SOURCE-BINDING-MISMATCH")
@@ -262,13 +415,25 @@ def build_stress_neutral_export_package_v0_3(*, source_envelope: Mapping[str, An
             raise ValueError("SN-0.3-PROFILE-IDENTITY-MISMATCH")
         if "profile_version" in supplied_profile and supplied_profile["profile_version"] != VERSION:
             raise ValueError("SN-0.3-PROFILE-IDENTITY-MISMATCH")
+    utf8 = contract_id != PRECISION_CONTRACT_ID
+    if isinstance(supplied_profile, Mapping):
+        if not utf8 and any(key in supplied_profile for key in ("csv_encoding", "csv_row_order")):
+            raise ValueError("SN-CSV-PROFILE-MISMATCH")
+        if utf8 and (("csv_encoding" in supplied_profile and supplied_profile["csv_encoding"] != "utf-8") or ("csv_row_order" in supplied_profile and supplied_profile["csv_row_order"] != UTF8_CSV_ROW_ORDER)):
+            raise ValueError("SN-CSV-PROFILE-MISMATCH")
     legacy = build_stress_neutral_export_package(**deepcopy(source))
+    if utf8:
+        # Legacy normalization is used only for the existing non-CSV records.
+        # Its whole-text CSV cleanup must not change quoted CR/LF field data.
+        legacy["csv_text"] = _render_utf8_csv(legacy["result_rows"])
     witnesses, witness_findings = _witnesses(legacy["result_rows"], legacy["provenance"], source_envelope)
     diagnostics = [deepcopy(item) for item in legacy["diagnostics"] if item.get("code") not in {"SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", "SN-UNIT-DIMENSION-MISSING"}] + witness_findings
     blocking_count = sum(item.get("severity") == "blocking" for item in diagnostics)
-    decision_basis_refs = deepcopy(legacy["unit_system_disclosure"]["decision_basis_refs"]) + [deepcopy(SEMANTIC_CONTRACT_REF), deepcopy(legacy["source_run_ref"])]
+    decision_basis_refs = deepcopy(legacy["unit_system_disclosure"]["decision_basis_refs"]) + [deepcopy(semantic_contract_ref), deepcopy(legacy["source_run_ref"])]
     boundary_notes = list(legacy["manifest"]["boundary_notes"]) + ["Result-row dimensions and witness eligibility are interpreted from the accepted semantic contract and bound analysis run; received numerical values, units, rows and source hashes remain unchanged."]
-    export_profile = {**legacy["export_profile"], "profile_id": EXPORT_PROFILE, "profile_version": VERSION, "boundary_notes": boundary_notes, "source_basis_refs": deepcopy(legacy["export_profile"]["source_basis_refs"]) + [deepcopy(SEMANTIC_CONTRACT_REF), deepcopy(legacy["source_run_ref"])]}
+    export_profile = {**legacy["export_profile"], "profile_id": EXPORT_PROFILE, "profile_version": VERSION, "boundary_notes": boundary_notes, "source_basis_refs": deepcopy(legacy["export_profile"]["source_basis_refs"]) + [deepcopy(semantic_contract_ref), deepcopy(legacy["source_run_ref"])]}
+    if utf8:
+        export_profile.update(csv_encoding="utf-8", csv_row_order=UTF8_CSV_ROW_ORDER)
     validation_report = {"validation_status": "blocked" if blocking_count else "passed", "checks": [{"check_id": "stress-neutral-boundary-diagnostics", "check_status": "blocking" if blocking_count else "passed", "diagnostic_count": len(diagnostics), "blocking_count": blocking_count, "provenance": deepcopy(legacy["provenance"])}], "human_review_required": True, "provenance": deepcopy(legacy["provenance"])}
     loss_report = deepcopy(legacy["loss_report"])
     withholding_count = len(witness_findings) - (1 if witness_findings else 0)
@@ -288,15 +453,19 @@ def build_stress_neutral_export_package_v0_3(*, source_envelope: Mapping[str, An
     }
     for key in ("producer", "numerical_quality", "formulation_basis"):
         package[key] = deepcopy(source_envelope[key])
-    package["semantic_contract_ref"] = {"ref_type":"semantic_contract", "ref_id":PRECISION_CONTRACT_ID}
-    package["semantic_contract"] = {"id":PRECISION_CONTRACT_ID, "sha256":PRECISION_CONTRACT_SHA256}
+    package["semantic_contract_ref"] = {"ref_type":"semantic_contract", "ref_id":contract_id}
+    package["semantic_contract"] = {"id":contract_id, "sha256":contract_hash}
+    for namespace in sorted(_method_namespaces(contract_id)):
+        package[namespace] = deepcopy(source_envelope[namespace])
+    if contract_id != PRECISION_CONTRACT_ID:
+        package["source_annotations"] = _source_annotations(source_envelope)
     package["source_carrier_checksum"] = deepcopy(received[0])
     payloads = {"stress_neutral_results.csv": package["csv_text"], "result_rows.json": package["result_rows"], "unit_system_disclosure.json": package["unit_system_disclosure"], "unit_preservation_witnesses.json": package["unit_preservation_witnesses"], "stable_id_map.json": package["stable_id_map"], "loss_report.json": package["loss_report"], "validation_report.json": package["validation_report"], "diagnostics.json": package["diagnostics"]}
     checksums = []
     for filename, payload in payloads.items():
         if filename.endswith(".csv"):
             import hashlib
-            checksum = {"algorithm": "sha256", "canonicalization": "normalized_ascii_lf_text", "payload_scope": "member_bytes", "payload_ref": {"object_type": "StressNeutralMember", "ref": filename}, "value": hashlib.sha256(payload.encode("ascii")).hexdigest()}
+            checksum = {"algorithm": "sha256", "canonicalization": UTF8_CSV_CANONICALIZATION if utf8 else "normalized_ascii_lf_text", "payload_scope": "member_bytes", "payload_ref": {"object_type": "StressNeutralMember", "ref": filename}, "value": hashlib.sha256(_utf8_csv_bytes(payload) if utf8 else payload.encode("ascii")).hexdigest()}
         else:
             checksum = _checked(payload, filename)
         checksums.append(checksum)
@@ -325,7 +494,8 @@ def materialized_members_v0_3(package: Mapping[str, Any]) -> dict[str, bytes]:
     transport = {"transport_version": VERSION, "manifest": deepcopy(package["manifest"]),
                  "package_metadata": metadata}
     values = {"manifest.json": transport, **{name: package[field] for name, field in _MEMBER_FIELDS.items()}}
-    return {name: (value.encode("ascii") if name.endswith(".csv") else canonical_json_checked_v1(value).encode("utf-8")) for name, value in values.items()}
+    encoding, _ = _csv_policy(package)
+    return {name: ((_utf8_csv_bytes(value) if encoding == "utf-8" else value.encode("ascii")) if name.endswith(".csv") else canonical_json_checked_v1(value).encode("utf-8")) for name, value in values.items()}
 
 
 def _transport_json(payload: bytes) -> Any:
@@ -354,8 +524,17 @@ def reconstruct_materialized_members_v0_3(members: Mapping[str, bytes], **valida
     if set(package) & (set(_MEMBER_FIELDS.values()) | {"manifest"}):
         raise ValueError("SN-TRANSPORT-METADATA-COLLISION")
     package["manifest"] = transport["manifest"]
+    encoding, _ = _csv_policy(package)
     for name, field in _MEMBER_FIELDS.items():
-        package[field] = members[name].decode("ascii") if name.endswith(".csv") else _transport_json(members[name])
+        if name.endswith(".csv"):
+            try:
+                package[field] = members[name].decode(encoding, errors="strict")
+            except UnicodeDecodeError as error:
+                raise ValueError("SN-CSV-ENCODING-INVALID") from error
+            if encoding == "utf-8":
+                _utf8_csv_bytes(package[field])
+        else:
+            package[field] = _transport_json(members[name])
     validate_stress_neutral_export_package_v0_3(package, **validation)
     return package
 
@@ -385,15 +564,30 @@ def validate_stress_neutral_export_package_v0_3(package: Mapping[str, Any], *, s
 
     Neither mode authenticates a producer or qualifies Current numerical use.
     """
-    metadata_source = {"schema_version":"0.2.0", **{key: package.get(key) for key in ("producer", "numerical_quality", "formulation_basis")}}
-    _source_contract(metadata_source)
-    if package.get("semantic_contract") != {"id":PRECISION_CONTRACT_ID, "sha256":PRECISION_CONTRACT_SHA256} or package.get("semantic_contract_ref") != {"ref_type":"semantic_contract", "ref_id":PRECISION_CONTRACT_ID}:
+    contract_id, contract_hash, contract_path = _transport_contract(package)
+    csv_encoding, csv_canonicalization = _csv_policy(package)
+    semantic_contract_ref = {"object_type": "ExternalReference", "ref": f"fixtures/results/{contract_path.name}"}
+    if package.get("semantic_contract") != {"id":contract_id, "sha256":contract_hash} or package.get("semantic_contract_ref") != {"ref_type":"semantic_contract", "ref_id":contract_id}:
         raise ValueError("SN-PRECISION-SEMANTIC-CONTRACT-MISMATCH")
+    source_annotation_rows = {}
+    if contract_id == PRECISION_CONTRACT_ID:
+        if "source_annotations" in package:
+            raise ValueError("SN-SOURCE-ANNOTATION-METHOD-MISMATCH")
+    else:
+        _validate_source_annotations(package, contract_path)
+        source_annotation_rows = {annotation["source_result_id"]: annotation["source_row"] for annotation in package["source_annotations"]}
     carrier = package.get("source_carrier_checksum", {})
     if carrier not in package.get("received_source_checksums", []) or carrier.get("payload_ref") != package.get("source_result_ref") or carrier.get("payload_scope") != "received_result" or carrier.get("algorithm") != "sha256" or carrier.get("canonicalization") != PROFILE:
         raise ValueError("SN-PRECISION-CARRIER-BINDING-MISMATCH")
     if source_envelope is not None:
-        _source_contract(source_envelope)
+        actual_method = _source_contract(source_envelope)
+        if contract_id != PRECISION_CONTRACT_ID and package.get("source_annotations") != _source_annotations(source_envelope):
+            raise ValueError("SN-SOURCE-ANNOTATION-BINDING-MISMATCH")
+        if actual_method != (contract_id, contract_hash, contract_path):
+            raise ValueError("SN-SOURCE-METHOD-BINDING-MISMATCH")
+        for namespace in _method_namespaces(contract_id):
+            if package.get(namespace) != source_envelope.get(namespace):
+                raise ValueError("SN-SOURCE-EVIDENCE-BINDING-MISMATCH")
         _validate_source_reference_fields(source_envelope)
         if any(package.get(key) != source_envelope.get(key) for key in ("producer", "numerical_quality", "formulation_basis")) or carrier.get("value") != canonical_sha256_checked_v1(source_envelope):
             raise ValueError("SN-PRECISION-SOURCE-BINDING-MISMATCH")
@@ -447,7 +641,7 @@ def validate_stress_neutral_export_package_v0_3(package: Mapping[str, Any], *, s
         if filename == "manifest.json":
             return ("sha256", PROFILE, "manifest_seed", "StressNeutralMember", filename)
         if filename.endswith(".csv"):
-            return ("sha256", "normalized_ascii_lf_text", "member_bytes", "StressNeutralMember", filename)
+            return ("sha256", csv_canonicalization, "member_bytes", "StressNeutralMember", filename)
         return ("sha256", PROFILE, "member_payload", "StressNeutralMember", filename)
     for index, filename in enumerate(MEMBERS):
         claim = next((item for item in checksums if item.get("payload_ref", {}).get("ref") == filename), None)
@@ -477,7 +671,7 @@ def validate_stress_neutral_export_package_v0_3(package: Mapping[str, Any], *, s
     row_ids = [row.get("result_id") for row in rows]
     if len(set(row_ids)) != len(rows) or any(not isinstance(row_id, str) or row.get("canonical_ref", {}).get("ref") != row_id or row.get("source_result_ref", {}).get("ref") != row_id for row_id, row in zip(row_ids, rows)):
         raise ValueError("SN-RESULT-ROW-IDENTITY-MISMATCH")
-    _validate_received_csv(package.get("csv_text"), rows)
+    _validate_received_csv(package.get("csv_text"), rows, utf8=csv_encoding == "utf-8")
     _validate_stable_id_map(package.get("stable_id_map"), rows)
     received = package.get("received_source_checksums", [])
     if not any(item.get("payload_ref") == package.get("source_result_ref") for item in received):
@@ -488,7 +682,10 @@ def validate_stress_neutral_export_package_v0_3(package: Mapping[str, Any], *, s
     for witness in package.get("unit_preservation_witnesses", []):
         index = witness.get("source_row_index")
         row = rows[index] if isinstance(index, int) and 0 <= index < len(rows) else None
-        disposition, interpreted_dimension = _witness_disposition(row) if row else ("unknown_semantic", None)
+        if row and contract_id != PRECISION_CONTRACT_ID:
+            disposition, interpreted_dimension = _source_witness_disposition(row, source_annotation_rows.get(row.get("result_id")), contract_path)
+        else:
+            disposition, interpreted_dimension = _witness_disposition(row) if row else ("unknown_semantic", None)
         quantity = {"value": row.get("value"), "unit": row.get("unit"), "dimension": interpreted_dimension} if row and disposition == "eligible" else None
         if row is None or witness.get("witness_id") != f"unit-witness:{index}" or witness.get("result_id") in seen_witnesses or witness.get("result_id") != row.get("result_id") or witness.get("source_quantity") != quantity or witness.get("target_quantity") != quantity or witness.get("conversion_performed") is not False or witness.get("policy") != "preserve_received_value_and_unit":
             raise ValueError("SN-UNIT-WITNESS-BINDING-MISMATCH")
@@ -507,8 +704,12 @@ def validate_stress_neutral_export_package_v0_3(package: Mapping[str, Any], *, s
         if not isinstance(result_id, str) or result_id not in row_ids or result_id in categorized or item.get("severity") != expected_severity:
             raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
         row = rows[row_ids.index(result_id)]
-        expected_category, _ = _witness_disposition(row)
-        if category == "diagnostic_work":
+        expected_category, _ = (_source_witness_disposition(row, source_annotation_rows.get(result_id), contract_path)
+            if contract_id != PRECISION_CONTRACT_ID else _witness_disposition(row))
+        if contract_id != PRECISION_CONTRACT_ID:
+            if category != expected_category:
+                raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+        elif category == "diagnostic_work":
             explicit_work_row = row.get("row_kind") in {"diagnostic_work", "work"} or row.get("result_family") == "diagnostic_work"
             explicit_withheld_semantics = row.get("dimension") in {None, "", "TBD"} and row.get("correlation_status") != "canonical_id_map"
             if expected_category == "eligible" or not (explicit_work_row or explicit_withheld_semantics):
@@ -519,7 +720,7 @@ def validate_stress_neutral_export_package_v0_3(package: Mapping[str, Any], *, s
         categorized[result_id] = category
     if set(categorized) & seen_witnesses or len(categorized) + len(seen_witnesses) != len(rows) or any(row_id not in categorized and row_id not in seen_witnesses for row_id in row_ids):
         raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
-    if SEMANTIC_CONTRACT_REF not in package.get("export_profile", {}).get("source_basis_refs", []) or SEMANTIC_CONTRACT_REF not in package.get("unit_system_disclosure", {}).get("decision_basis_refs", []):
+    if semantic_contract_ref not in package.get("export_profile", {}).get("source_basis_refs", []) or semantic_contract_ref not in package.get("unit_system_disclosure", {}).get("decision_basis_refs", []):
         raise ValueError("SN-SEMANTIC-CONTRACT-BINDING-MISSING")
     blocking_diagnostics = sum(item.get("severity") == "blocking" for item in package.get("diagnostics", []))
     checks = package.get("validation_report", {}).get("checks", [])
@@ -536,3 +737,82 @@ def validate_stress_neutral_export_package_v0_3(package: Mapping[str, Any], *, s
     expected_package = canonical_sha256_checked_v1(package_projection(package))
     if package_checksum.get("value") != expected_package:
         raise ValueError("SN-PACKAGE-CHECKSUM-MISMATCH")
+
+
+def _source_value_bits(value: Any) -> str:
+    """Finite received binary64 identity, outside JCS's zero normalization."""
+    if type(value) not in (int, float):
+        raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
+    try:
+        converted = float(value)
+        if not math.isfinite(converted):
+            raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
+        return struct.pack(">d", converted).hex()
+    except (OverflowError, struct.error) as error:
+        raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS") from error
+
+
+def _source_annotations(source: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Retain row fields plus actual value bits under the unchanged JCS profile.
+
+    source_row.value is the canonical numeric value (+0 for either zero sign).
+    source_value_bits captures the received IEEE754 value before serialization;
+    it is required because JCS intentionally erases negative zero. Other row
+    properties, absent/null distinctions and the checked row hash are retained.
+    No producer custody follows from these transported statements.
+    """
+    annotations = []
+    for index, row in enumerate(source["results"]):
+        value_bits = _source_value_bits(row["value"])
+        canonical_row = deepcopy(row)
+        if canonical_row["value"] == 0:
+            canonical_row["value"] = 0.0
+        annotations.append({"source_row_index": index, "source_result_id": row["id"],
+            "source_row": canonical_row, "source_row_sha256": canonical_sha256_checked_v1(row),
+            "source_value_bits": value_bits})
+    return annotations
+
+
+def _validate_source_value_bits(annotation: Mapping[str, Any]) -> None:
+    bits = annotation.get("source_value_bits")
+    if not isinstance(bits, str) or re.fullmatch(r"[0-9a-f]{16}", bits) is None:
+        raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
+    value = annotation["source_row"].get("value")
+    canonical_bits = _source_value_bits(value)
+    decoded = struct.unpack(">d", bytes.fromhex(bits))[0]
+    if not math.isfinite(decoded) or decoded != float(value):
+        raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
+    if value == 0:
+        if canonical_bits != "0000000000000000" or bits not in {"0000000000000000", "8000000000000000"}:
+            raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
+    elif bits != canonical_bits:
+        raise ValueError("SN-SOURCE-ANNOTATION-VALUE-BITS")
+
+
+def _validate_source_annotations(package: Mapping[str, Any], table: Path) -> None:
+    annotations = package.get("source_annotations")
+    rows = package.get("result_rows")
+    if not isinstance(rows, list) or not isinstance(annotations, list) or len(rows) != len(annotations):
+        raise ValueError("SN-SOURCE-ANNOTATION-COVERAGE")
+    by_id = {row.get("result_id"): row for row in rows}
+    if len(by_id) != len(rows):
+        raise ValueError("SN-SOURCE-ANNOTATION-COVERAGE")
+    seen: set[str] = set()
+    # Only the fallback run identity is needed for row projection. This is not
+    # passed to any raw-source validator or treated as a mechanics publication.
+    projection_identity = {"run_id": package.get("source_run_ref", {}).get("ref")}
+    for index, annotation in enumerate(annotations):
+        if not isinstance(annotation, Mapping) or set(annotation) != {"source_row_index", "source_result_id", "source_row", "source_row_sha256", "source_value_bits"}:
+            raise ValueError("SN-SOURCE-ANNOTATION-SHAPE")
+        original = annotation["source_row"]
+        identity = annotation["source_result_id"]
+        if not isinstance(original, Mapping) or not isinstance(identity, str) or not identity or identity in seen or original.get("id") != identity or type(annotation["source_row_index"]) is not int or annotation["source_row_index"] != index or annotation["source_row_sha256"] != canonical_sha256_checked_v1(original):
+            raise ValueError("SN-SOURCE-ANNOTATION-IDENTITY-OR-HASH")
+        _validate_source_value_bits(annotation)
+        seen.add(identity)
+        row = by_id.get(identity)
+        projection = _source_row_projection(projection_identity, original, table)
+        if row is None or any(key not in row or row[key] != value for key, value in projection.items()):
+            raise ValueError("SN-SOURCE-ANNOTATION-ROW-BINDING")
+    if seen != set(by_id):
+        raise ValueError("SN-SOURCE-ANNOTATION-COVERAGE")

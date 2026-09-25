@@ -1,0 +1,14 @@
+{
+  "owner": "ROOT",
+  "actual_direction": "Select distinct PHYSICS-SOURCE-1 policy8M percase, existing64M perinvocation; source-blocks-1 stays4M, generic exact defaults2M",
+  "basis": "resource-measurement-01.json/log; essential independent capture replay after actual redundant work removal",
+  "measured_dense_case": 6792870,
+  "measured_dense_publication": 320424,
+  "measured_sparse_case": 6791052,
+  "measured_sparse_publication": 317868,
+  "selected_composite_case_limit": 8000000,
+  "invocation_limit": 64000000,
+  "prior_public_refusal": "public-03.log and fields-*-4m-refusal.raw.json",
+  "accuracy": "protected relative1e-9 unchanged, no input/oracle change",
+  "meaning": "Resource allocation for new explicit method, not universal performance/range qualification"
+}

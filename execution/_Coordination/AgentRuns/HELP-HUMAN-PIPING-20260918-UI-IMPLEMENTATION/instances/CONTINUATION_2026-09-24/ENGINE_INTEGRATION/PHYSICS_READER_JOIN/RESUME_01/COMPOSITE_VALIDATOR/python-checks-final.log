@@ -1,0 +1,16 @@
+................................................ [ 34%]
+.......................................s.............................. [ 84%]
+....................ss                                                   [100%]
+=============================== warnings summary ===============================
+projects/chirality-piping/tests/test_physics_consumer_contract.py::test_actual_physics_source_analysis_round_trip[sparse]
+projects/chirality-piping/tests/test_physics_consumer_contract.py::test_actual_physics_source_analysis_round_trip[sparse]
+projects/chirality-piping/tests/test_physics_consumer_contract.py::test_actual_physics_source_analysis_round_trip[dense]
+projects/chirality-piping/tests/test_physics_consumer_contract.py::test_actual_physics_source_analysis_round_trip[dense]
+  /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/schema_validation.py:55: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import RefResolver
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] projects/chirality-piping/tests/test_physics_consumer_contract.py:136: Requires actual headless physics artifacts from the focused Rust lane
+SKIPPED [2] projects/chirality-piping/tests/test_physics_consumer_contract.py:235: Requires actual blocked producer controls from the focused product lane
+137 passed, 3 skipped, 4 warnings, 26 subtests passed in 25.33s

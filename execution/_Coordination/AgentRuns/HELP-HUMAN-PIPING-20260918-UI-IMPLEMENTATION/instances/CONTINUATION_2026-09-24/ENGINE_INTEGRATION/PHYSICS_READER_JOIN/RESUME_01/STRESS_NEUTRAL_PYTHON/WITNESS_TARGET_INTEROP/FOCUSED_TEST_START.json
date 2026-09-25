@@ -1,0 +1,43 @@
+{
+  "started_utc": "2026-09-25T10:22:01.201169+00:00",
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "command": [
+    "/private/tmp/chirality-piping-review-venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_stress_neutral_physics_source.py",
+    "-k",
+    "new_method_diagnostic or precision_package",
+    "-q"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson",
+    "OPENPIPESTRESS_UNITS_BIN": "/private/tmp/piping-units-authority-target/debug/openpipestress_units"
+  },
+  "before": {
+    "/private/tmp/piping-engine-integration-20260925/AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py": "db128dab312dbeced9b5ccab0a4e80f35994e9ebdde5034b77edc9dcf3a967ea",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/test_stress_neutral_physics_source.py": "b486c3e4ab64600d907736a0ead512a92f4c6554b6d456181a8c6cdf51fe5447",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json": "af3d229289c72349f2daa5b7826bd7f0be4924d6b854c6358d480c89d1d991dd",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/analysis_runs/compatibility.py": "5e5083a1ed2d25a0e033031e31a65ae85babb45089c03760937bc2dda1c4b945",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/analysis_runs/physics_source.py": "81487a87d5e170b98b1569a8d2e7c42943b9c1be565f3a71c5b5a18879c4aba1",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/analysis_runs/physics_evidence.py": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/analysis_runs/source_blocks.py": "0007f9049cb50e2dc2f09e9dfa1a377d8fa7c9ab092cc8aaf6a1151cca4c25fa",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/fields-dense_scrutiny.raw.json": "bbe505b3b7459931b9f49a708b62a9082748ff269696e0a620f3193620d60be9",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_source_1.json": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_source_blocks_1.json": "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f",
+    "/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson": "bc1343ef45704c0ec65c1c7ac244c50e349af49de3a9b850dc11578bb2fc6c54",
+    "/private/tmp/piping-units-authority-target/debug/openpipestress_units": "fe28924fb3c0ba61e8789b65771c512da890ab4950406042cdb2c8bff55de464"
+  },
+  "ast_parse": "both owned files passed"
+}

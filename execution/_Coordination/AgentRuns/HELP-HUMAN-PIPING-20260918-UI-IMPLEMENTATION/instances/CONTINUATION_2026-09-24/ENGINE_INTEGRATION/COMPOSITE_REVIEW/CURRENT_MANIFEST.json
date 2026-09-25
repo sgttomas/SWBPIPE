@@ -1,0 +1,64 @@
+{
+  "base": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+  "status": "Current frozen composite producer source after actual replay optimization, exactoperandbinding, ROOT8M policy and namespaceguard",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "44647cf80ef19ef3316c8e0a8e4bad52ecdee310ddd8134226eb306eb0594905",
+      "initial_review_sha256": "1f649ad4885a51c9db4c3be211aa78ee409e7fd11119f18eab1704df14132218"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_recovery.rs",
+      "sha256": "04b1083e0cc750a1e5b9335c31e27f2dccaca965c797bcfbaafff6b4f6056315",
+      "initial_review_sha256": "5112182dc369a529ea5859c0ac2f1212ec1f649ed2bf150b20e72bbeb91c90ef"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "sha256": "94720720cbc0221af00e875faba5f77dfe6b35e791f248c589e87af10e6b8a65",
+      "initial_review_sha256": "e4b3bf5483a48cf5b2d4f78858f38b860f0b34e12345ca07c0be15b927c07249"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt/endpoint_maximum.rs",
+      "sha256": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6",
+      "initial_review_sha256": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt/source.rs",
+      "sha256": "cae846c609e9dfd2a650e91b85419d55b6b8b96137834a5ca9fbaf562bebf4ca",
+      "initial_review_sha256": "cae846c609e9dfd2a650e91b85419d55b6b8b96137834a5ca9fbaf562bebf4ca"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs",
+      "sha256": "17b4570259da139e406a47229131b4a0a8a7640a5625a161af53f67ebe3e8262",
+      "initial_review_sha256": "17b4570259da139e406a47229131b4a0a8a7640a5625a161af53f67ebe3e8262"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs",
+      "sha256": "cd45c7e14898951dc8500129bdd3273a6db2e0fff5351761b87af4e7728f1b18",
+      "initial_review_sha256": "13526bcd71a800e5565112423b3e75c9422f7505d08b69c75d5e4da160260dde"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt/composite.rs",
+      "sha256": "775a18f8cdd9d94eb9a16677dd3070d65b0ff08b363ca63313bb2a1a1b26d757",
+      "initial_review_sha256": "b88ffcd920cb8e612d81f164f10ffbb6afc4cc289eab1f6f89f452174fc7eaf4"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/physics_source_runtime.rs",
+      "sha256": "b951bf46ffc9c5d875b8cfb5ec0c2d997d6e9f26528fa177c0f05ca49aee4ee9",
+      "initial_review_sha256": "b951bf46ffc9c5d875b8cfb5ec0c2d997d6e9f26528fa177c0f05ca49aee4ee9"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/examples/physics_source_connected.rs",
+      "sha256": "98c8adf3ab2d9f051c6109e4939e354871f44087f484fd770b875ed53d1b98a3",
+      "initial_review_sha256": "98c8adf3ab2d9f051c6109e4939e354871f44087f484fd770b875ed53d1b98a3"
+    }
+  ],
+  "patch_sha256": "baa530e2e4518fca8dcf02ca60fd628d327cf1cf356b87b304b4f302de62ad62",
+  "actual_checks": [
+    "COMPOSITE_RECEIPT/public-05.json",
+    "COMPOSITE_RECEIPT/namespace-01.json",
+    "COMPOSITE_RECEIPT/source-layer-02.json"
+  ],
+  "source_captures": "COMPOSITE_RECEIPT/ACTUAL_CAPTURE_02.json",
+  "previous_binding_correction": "COMPOSITE_RECEIPT/PUBLIC_04_BINDING_CORRECTION.json"
+}

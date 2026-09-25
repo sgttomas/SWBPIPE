@@ -1,0 +1,1794 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/stress_neutral_export.v0.3.schema.json",
+  "title": "Precision-1 stress-neutral package 0.3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_items",
+    "objectives",
+    "export_id",
+    "package_status",
+    "schema_conformant",
+    "validation_ready",
+    "source_result_ref",
+    "source_run_ref",
+    "source_model_ref",
+    "received_source_checksums",
+    "unresolved_assumption_refs",
+    "reproducibility_refs",
+    "export_profile",
+    "manifest",
+    "csv_text",
+    "result_rows",
+    "unit_system_disclosure",
+    "unit_preservation_witnesses",
+    "stable_id_map",
+    "loss_report",
+    "validation_report",
+    "diagnostics",
+    "privacy",
+    "provenance",
+    "professional_boundary",
+    "package_checksum",
+    "producer",
+    "numerical_quality",
+    "formulation_basis",
+    "semantic_contract_ref",
+    "semantic_contract",
+    "source_carrier_checksum"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "deliverable_id": {
+      "const": "DEL-17-06"
+    },
+    "package_id": {
+      "const": "PKG-17"
+    },
+    "scope_items": {
+      "const": [
+        "SOW-046",
+        "SOW-074"
+      ]
+    },
+    "objectives": {
+      "const": [
+        "OBJ-007",
+        "OBJ-017",
+        "OBJ-018"
+      ]
+    },
+    "export_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "package_status": {
+      "const": "stress_neutral_export_package"
+    },
+    "schema_conformant": {
+      "const": true
+    },
+    "validation_ready": {
+      "type": "boolean"
+    },
+    "source_result_ref": {
+      "$ref": "#/$defs/Reference"
+    },
+    "source_run_ref": {
+      "$ref": "#/$defs/Reference"
+    },
+    "source_model_ref": {
+      "$ref": "#/$defs/Reference"
+    },
+    "received_source_checksums": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ReceivedChecksum"
+      }
+    },
+    "unresolved_assumption_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Reference"
+      }
+    },
+    "reproducibility_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Reference"
+      }
+    },
+    "export_profile": {
+      "allOf": [
+        {
+          "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/ExportProfile"
+        },
+        {
+          "properties": {
+            "profile_id": {
+              "const": "ops.stress_neutral.v3"
+            },
+            "profile_version": {
+              "const": "0.3.0"
+            }
+          },
+          "required": [
+            "profile_id",
+            "profile_version"
+          ]
+        }
+      ]
+    },
+    "manifest": {
+      "$ref": "#/$defs/Manifest"
+    },
+    "csv_text": {
+      "type": "string",
+      "pattern": "^result_id,canonical_ref,row_kind,result_family,load_case_ref,station_ref,component_ref,value,unit,dimension,correlation_status\\n"
+    },
+    "result_rows": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/ResultRow"
+          },
+          {
+            "properties": {
+              "value": {
+                "type": "number"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "unit_system_disclosure": {
+      "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/UnitSystemDisclosure"
+    },
+    "unit_preservation_witnesses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/UnitWitness"
+      }
+    },
+    "stable_id_map": {
+      "type": "array",
+      "items": {
+        "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/StableIdMapEntry"
+      }
+    },
+    "loss_report": {
+      "type": "array",
+      "items": {
+        "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/LossReportEntry"
+      }
+    },
+    "validation_report": {
+      "$ref": "#/$defs/ValidationReport"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Diagnostic"
+      }
+    },
+    "privacy": {
+      "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/Privacy"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "professional_boundary": {
+      "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/ProfessionalBoundary"
+    },
+    "package_checksum": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/CheckedChecksum"
+        },
+        {
+          "properties": {
+            "payload_scope": {
+              "const": "complete_package_excluding_self_checksum"
+            },
+            "payload_ref": {
+              "properties": {
+                "object_type": {
+                  "const": "StressNeutralExportPackage"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component_name",
+        "component_version",
+        "semantic_contract_id"
+      ],
+      "properties": {
+        "component_name": {
+          "const": "open_pipe_stress_product_physics"
+        },
+        "component_version": {
+          "const": "0.2.0"
+        },
+        "semantic_contract_id": {
+          "const": "openpipestress.result_semantics/0.3.0/precision-1"
+        }
+      }
+    },
+    "numerical_quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value_representation",
+        "publication_quantization",
+        "integrity_policy",
+        "status",
+        "cases"
+      ],
+      "properties": {
+        "value_representation": {
+          "const": "finite_binary64"
+        },
+        "publication_quantization": {
+          "const": "none"
+        },
+        "integrity_policy": {
+          "const": "M03-INTEGRITY-v1"
+        },
+        "status": {
+          "enum": [
+            "not_assessed",
+            "checks_passed",
+            "sensitive",
+            "unresolved",
+            "failed"
+          ]
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "basis_ref",
+              "structural_status",
+              "solve_quality",
+              "model_matrix_fidelity",
+              "accuracy_evidence",
+              "evidence_refs"
+            ],
+            "properties": {
+              "basis_ref": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "ref_type",
+                  "ref_id"
+                ],
+                "properties": {
+                  "ref_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "ref_id": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "structural_status": {
+                "enum": [
+                  "passive_model_basis",
+                  "physical_mechanism_witnessed",
+                  "negative_energy_witnessed",
+                  "numerically_unresolved"
+                ]
+              },
+              "solve_quality": {
+                "enum": [
+                  "not_assessed",
+                  "checks_passed",
+                  "sensitive",
+                  "unresolved",
+                  "failed"
+                ]
+              },
+              "model_matrix_fidelity": {
+                "enum": [
+                  "represented_equations_retained",
+                  "assembly_loss_detected",
+                  "assembly_uncertainty",
+                  "not_assessed"
+                ]
+              },
+              "accuracy_evidence": {
+                "enum": [
+                  "not_claimed",
+                  "reference_verified",
+                  "unresolved"
+                ]
+              },
+              "evidence_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "formulation_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "limitations"
+      ],
+      "properties": {
+        "profile_id": {
+          "const": "product_preview_mechanics_v1"
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "semantic_contract_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "const": "semantic_contract"
+        },
+        "ref_id": {
+          "const": "openpipestress.result_semantics/0.3.0/precision-1"
+        }
+      }
+    },
+    "semantic_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sha256"
+      ],
+      "properties": {
+        "id": {
+          "const": "openpipestress.result_semantics/0.3.0/precision-1"
+        },
+        "sha256": {
+          "const": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+        }
+      }
+    },
+    "source_carrier_checksum": {
+      "$ref": "#/$defs/ReceivedChecksum"
+    }
+  },
+  "$defs": {
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_type",
+        "ref"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ReceivedChecksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^(sha256:)?[0-9a-f]{64}$"
+        }
+      }
+    },
+    "CheckedChecksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_scope",
+        "payload_ref",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "enum": [
+            "openpipestress_jcs_ijson_v1",
+            "normalized_ascii_lf_text"
+          ]
+        },
+        "payload_scope": {
+          "enum": [
+            "member_payload",
+            "member_bytes",
+            "manifest_seed",
+            "complete_package_excluding_self_checksum"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "ManifestMember": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "filename",
+        "checksum"
+      ],
+      "properties": {
+        "filename": {
+          "enum": [
+            "manifest.json",
+            "stress_neutral_results.csv",
+            "result_rows.json",
+            "unit_system_disclosure.json",
+            "unit_preservation_witnesses.json",
+            "stable_id_map.json",
+            "loss_report.json",
+            "validation_report.json",
+            "diagnostics.json"
+          ]
+        },
+        "checksum": {
+          "$ref": "#/$defs/CheckedChecksum"
+        }
+      }
+    },
+    "Manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_id",
+        "export_profile_ref",
+        "boundary_notes",
+        "package_members",
+        "checksums"
+      ],
+      "properties": {
+        "manifest_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "export_profile_ref": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Reference"
+            },
+            {
+              "properties": {
+                "object_type": {
+                  "const": "StressNeutralExportProfile"
+                },
+                "ref": {
+                  "const": "ops.stress_neutral.v3"
+                }
+              },
+              "required": [
+                "object_type",
+                "ref"
+              ]
+            }
+          ]
+        },
+        "boundary_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "package_members": {
+          "type": "array",
+          "minItems": 9,
+          "maxItems": 9,
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "manifest.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "manifest_seed"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "manifest.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "stress_neutral_results.csv"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "normalized_ascii_lf_text"
+                            },
+                            "payload_scope": {
+                              "const": "member_bytes"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "stress_neutral_results.csv"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "result_rows.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "result_rows.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "unit_system_disclosure.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "unit_system_disclosure.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "unit_preservation_witnesses.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "unit_preservation_witnesses.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "stable_id_map.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "stable_id_map.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "loss_report.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "loss_report.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "validation_report.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "validation_report.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "diagnostics.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "diagnostics.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            }
+          ],
+          "items": false
+        },
+        "checksums": {
+          "type": "array",
+          "minItems": 9,
+          "maxItems": 9,
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "normalized_ascii_lf_text"
+                    },
+                    "payload_scope": {
+                      "const": "member_bytes"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "stress_neutral_results.csv"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "result_rows.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "unit_system_disclosure.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "unit_preservation_witnesses.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "stable_id_map.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "loss_report.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "validation_report.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "diagnostics.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "manifest_seed"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "manifest.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "UnitWitness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "witness_id",
+        "source_row_index",
+        "result_id",
+        "source_quantity",
+        "target_quantity",
+        "conversion_performed",
+        "policy"
+      ],
+      "properties": {
+        "witness_id": {
+          "type": "string"
+        },
+        "source_row_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "result_id": {
+          "type": "string"
+        },
+        "source_quantity": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "target_quantity": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "conversion_performed": {
+          "const": false
+        },
+        "policy": {
+          "const": "preserve_received_value_and_unit"
+        }
+      }
+    },
+    "Quantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "unit",
+        "dimension"
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ValidationCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_id",
+        "check_status",
+        "blocking_count",
+        "diagnostic_count",
+        "provenance"
+      ],
+      "properties": {
+        "check_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "check_status": {
+          "enum": [
+            "passed",
+            "blocking"
+          ]
+        },
+        "blocking_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "diagnostic_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ValidationReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validation_status",
+        "checks",
+        "human_review_required",
+        "provenance"
+      ],
+      "properties": {
+        "validation_status": {
+          "enum": [
+            "passed",
+            "blocked"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ValidationCheck"
+          }
+        },
+        "human_review_required": {
+          "const": true
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_object",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "privacy_classification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_status": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

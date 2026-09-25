@@ -1,0 +1,10 @@
+   Compiling open_pipe_stress_result_export v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/reporting/result_export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.81s
+     Running unittests src/lib.rs (/private/tmp/piping-physics-result-export-target/debug/deps/open_pipe_stress_result_export-678ac3f26afada38)
+
+running 2 tests
+test physics_source::review_repair_tests::normalized_named_point_and_strict_bracket_match_actual_materials ... ok
+test physics_source::review_repair_tests::torsion_rejects_subnormal_intermediate_while_preserving_zero_and_normal ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.02s
+

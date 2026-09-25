@@ -1,0 +1,21 @@
+{
+  "recorded_utc": "2026-09-25T08:18:27.091068+00:00",
+  "stage": "source_ready_before_Cargo_lane",
+  "rust_syntax_parse": {
+    "command": "rustfmt --edition 2021 --config skip_children=true --emit stdout core/runner/headless/src/lib.rs core/runner/headless/src/result_envelope_binding.rs > /dev/null",
+    "exit_code": 0,
+    "note": "Parser/format rendering only; no source reformat or compile."
+  },
+  "owned_files": [
+    {
+      "path": "core/runner/headless/src/lib.rs",
+      "before_sha256": "c311cd57d7e86a45e071953c8a4c2ae367d24b57d413ca5e626895517c5ec588",
+      "after_sha256": "30944250c9ec468fc436826b605ad9688709ab0c8ebad2a72e8d7daf007bc86c"
+    },
+    {
+      "path": "core/runner/headless/src/result_envelope_binding.rs",
+      "before_sha256": "d10a4f1e4672d4c27654fd40949ec00f17346eee3fe964ba2b8784e3612353f8",
+      "after_sha256": "a0428358909ff9ec57c4fafe7e8554df14459207972185180584d62440720bf5"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+   Compiling open_pipe_stress_result_export v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/reporting/result_export)
+warning: function `derived` is never used
+   --> src/source_blocks.rs:422:4
+    |
+422 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.90s
+     Running tests/physics_contract.rs (/private/tmp/piping-physics-result-export-target/debug/deps/physics_contract-462dc8cc509cc8f7)
+
+running 10 tests
+test additive_table_retains_frozen_precision_bytes_and_semantics ... ok
+test pressure_ledger_cannot_claim_to_include_thermal_actions ... ok
+test temperature_selection_must_bind_the_exact_case_material_basis ... ok
+test remote_closure_reaction_must_oppose_the_closure_load ... ok
+test actual_pressure_thermal_cases_retain_distinct_pressure_only_ledgers ... ok
+test metadata_only_dispatch_cannot_qualify_missing_raw_evidence_or_reserved_methods ... ok
+test explicit_unavailable_extrema_preserve_signed_rows_and_withhold_headline ... ok
+test canonical_physical_evidence_is_source_bound_even_after_rehash ... ok
+test physical_case_member_material_region_and_extrema_tampering_is_rejected ... ok
+test actual_joined_outputs_admit_preserve_and_validate_physics_derivatives ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.22s
+
+     Running tests/physics_source_contract.rs (/private/tmp/piping-physics-result-export-target/debug/deps/physics_source_contract-2456ff577313dea9)
+
+running 5 tests
+test maximum_signature_requires_explicit_basis_without_claiming_current ... ok
+test physical_transport_never_reconstructs_raw_rows ... FAILED
+test actual_records_require_original_full_invocation ... FAILED
+test old_entrypoints_and_composite_remain_separate ... ok
+test rehashed_false_statements_remain_invalid ... ok
+
+failures:
+
+---- physical_transport_never_reconstructs_raw_rows stdout ----
+
+thread 'physical_transport_never_reconstructs_raw_rows' (80770764) panicked at tests/physics_source_contract.rs:279:9:
+assertion `left == right` failed
+  left: Err("SOURCE_PHYSICS_TRANSPORT_SHAPE")
+ right: Ok(())
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- actual_records_require_original_full_invocation stdout ----
+
+thread 'actual_records_require_original_full_invocation' (80770761) panicked at tests/physics_source_contract.rs:70:13:
+assertion `left == right` failed: n05/sparse_interactive
+  left: Err("PHYSICS_SOURCE_RECEIPT_SHAPE")
+ right: Ok(true)
+
+
+failures:
+    actual_records_require_original_full_invocation
+    physical_transport_never_reconstructs_raw_rows
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s
+
+error: test failed, to rerun pass `--test physics_source_contract`

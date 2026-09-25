@@ -1,0 +1,13 @@
+{
+  "actual_parent": "/root",
+  "actor": "/root/physics_resume",
+  "origin": "ed688b13f633ce8aa6aeede784c3562511c20966",
+  "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+  "before": "a26e1ce2fbe6dce8068be4319f64d4529229e7fda4785dcd5f74e42472b7be31",
+  "dependency": "1d6325ddac0a55a4f5793769aeeb3a9d5c93f0edc43e744fee62d1609ee94ec5",
+  "after": "3005732803a5e0854a3fd2435f3cdd172cdfc862ed5e6190607a3eb1703a33ad",
+  "coverage": "source union of known NUM native plumbing with joined explicit0.3 persistence; full combined review/native still pending",
+  "note": "Value-aware actual request and method context; cfg(test) typed imports retained for existing source tests; no native build executed",
+  "test_applicability": "Imported source1 unchanged-current-document transport test now explicitly authors schema0.2 before real producer invocation; original0.1 fixture remains unchanged and migration tests remain separate. Prevents mistaken unchanged-hash assertion across legitimate0.1 migration; source-level diagnosis, no native execution yet.",
+  "new_control": "Actual native function source test retains recordedG77 but torsion must consume E/nu-derivedG, bothmodes and store/download exact raw custody. Pending native compilation/execution."
+}

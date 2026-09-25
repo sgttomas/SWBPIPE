@@ -1,0 +1,234 @@
+{
+  "runtime": "v24.18.0",
+  "method": "File-only canonical hashes and structural/reference inventory; no solver or production reader execution",
+  "assertions": 87192,
+  "number_visits": 24565,
+  "json_files": 53,
+  "raw_packets": 28,
+  "records": [
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/fields-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/fields.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 82,
+      "case_count": 1,
+      "invocation_charged": 7113282
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/fields-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/fields.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 81,
+      "case_count": 1,
+      "invocation_charged": 7108908
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 193,
+      "case_count": 2,
+      "invocation_charged": 3586573
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 191,
+      "case_count": 2,
+      "invocation_charged": 3583463
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 193,
+      "case_count": 2,
+      "invocation_charged": 3596131
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 191,
+      "case_count": 2,
+      "invocation_charged": 3593021
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/n05-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 82,
+      "case_count": 1,
+      "invocation_charged": 3318555
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 81,
+      "case_count": 1,
+      "invocation_charged": 3316341
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_unicode-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_unicode.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 82,
+      "case_count": 1,
+      "invocation_charged": 3355815
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_unicode-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_unicode.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 81,
+      "case_count": 1,
+      "invocation_charged": 3353601
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 82,
+      "case_count": 1,
+      "invocation_charged": 3318561
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 81,
+      "case_count": 1,
+      "invocation_charged": 3316347
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/n06-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n06.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 81,
+      "case_count": 1,
+      "invocation_charged": 3089545
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/n06-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n06.request.json",
+      "classification": "genuine composite capture",
+      "result_count": 81,
+      "case_count": 1,
+      "invocation_charged": 3089593
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/multicase-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/multicase-dense_scrutiny.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 160,
+      "case_count": 2,
+      "invocation_charged": 6906170
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/multicase-sparse_interactive.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 158,
+      "case_count": 2,
+      "invocation_charged": 6900470
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n05-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/n05-dense_scrutiny.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 80,
+      "case_count": 1,
+      "invocation_charged": 3353511
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 79,
+      "case_count": 1,
+      "invocation_charged": 3350601
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n06-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/n06-dense_scrutiny.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 79,
+      "case_count": 1,
+      "invocation_charged": 3008768
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/n06-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/n06-sparse_interactive.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 79,
+      "case_count": 1,
+      "invocation_charged": 3008816
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json",
+      "classification": "known-bad retained negative",
+      "result_count": 80,
+      "case_count": 1,
+      "invocation_charged": 1924985
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.request.json",
+      "classification": "known-bad retained negative",
+      "result_count": 79,
+      "case_count": 1,
+      "invocation_charged": 1923291
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 160,
+      "case_count": 2,
+      "invocation_charged": 6940682
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/multicase-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/multicase-sparse_interactive.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 158,
+      "case_count": 2,
+      "invocation_charged": 6934982
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n05-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n05-dense_scrutiny.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 80,
+      "case_count": 1,
+      "invocation_charged": 3370647
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 79,
+      "case_count": 1,
+      "invocation_charged": 3367737
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n06-dense_scrutiny.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n06-dense_scrutiny.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 79,
+      "case_count": 1,
+      "invocation_charged": 3025904
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n06-sparse_interactive.raw.json",
+      "input": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n06-sparse_interactive.request.json",
+      "classification": "genuine inherited source capture",
+      "result_count": 79,
+      "case_count": 1,
+      "invocation_charged": 3025952
+    }
+  ]
+}

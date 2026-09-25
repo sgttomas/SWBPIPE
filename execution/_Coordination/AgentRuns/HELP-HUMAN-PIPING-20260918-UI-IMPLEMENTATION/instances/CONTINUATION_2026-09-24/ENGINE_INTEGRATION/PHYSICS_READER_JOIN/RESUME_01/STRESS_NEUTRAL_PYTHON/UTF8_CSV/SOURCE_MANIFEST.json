@@ -1,0 +1,35 @@
+{
+  "task": "/root/physics_resume/physics_reader_join/physics_rust_export",
+  "frozen_utc": "2026-09-25T10:08:19.548017+00:00",
+  "owned_files": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "8b07faea35dacabfda35f4537d708a57ba585e918760c988b550f1d3f9414921"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "af3d229289c72349f2daa5b7826bd7f0be4924d6b854c6358d480c89d1d991dd"
+    },
+    {
+      "path": "tests/test_stress_neutral_physics_source.py",
+      "sha256": "82abba8a3fb720f4a78fed36bd45b23f0e78dc8981bd410220ebe6ede4fab3f5"
+    }
+  ],
+  "actual_tests": {
+    "exit_code": 0,
+    "result": "3 passed,53 deselected; actual Unicode both modes and p1 byte golden",
+    "log_sha256": "2f3d1a537c30a3a9d3490712cb15f4ad8b7217a24f97a63edb980232641704d8",
+    "input_hash_drift": []
+  },
+  "pure_tests": {
+    "exit_code": 0,
+    "result": "28 passed,28 deselected; includes pure UTF8/CRLF/quote/scalar order/labels and p1/CR02 tests",
+    "execution_deviation": "Implicit units release build due to omitted OPENPIPESTRESS_UNITS_BIN; exact command/binary/hash/log preserved in pure-utf8-01.json/.log; reported immediately."
+  },
+  "contract": {
+    "csv_encoding": "utf-8",
+    "csv_row_order": "unicode_scalar_value_result_id",
+    "csv_checksum_token": "utf8_csv_record_lf_v1",
+    "p1": "Unchanged ASCII, no added fields, original full package and all9 member goldens pass."
+  }
+}

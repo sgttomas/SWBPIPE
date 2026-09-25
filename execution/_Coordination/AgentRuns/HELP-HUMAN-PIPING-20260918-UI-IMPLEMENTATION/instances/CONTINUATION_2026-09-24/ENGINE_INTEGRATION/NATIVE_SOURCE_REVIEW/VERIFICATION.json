@@ -1,0 +1,50 @@
+{
+  "actor": "/root/physics_resume/joined_producer_review",
+  "parent": "/root/physics_resume",
+  "role": "TASK Type2",
+  "method": "Static source/diff/fixture checks and TOML lock comparison; no build/runtime",
+  "base": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+  "patch_sha256": "cc1b6bbdd9aa5f1a0cd687e5cafd206cc58367f62d108361ac6b337904a77a23",
+  "final_reviewed_hashes": {
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "3859d254cc2da58a5fdcb336cf78fe400caa8f96719cb39010fa233a2d19009f",
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c"
+  },
+  "lock_packages_before": 487,
+  "lock_packages_after": 487,
+  "package_version_source_checksum_metadata_unchanged": true,
+  "exact_dependency_changes": [
+    {
+      "package": "open_pipe_stress_product_physics",
+      "added": [
+        "open_pipe_stress_canonical_json",
+        "sha2"
+      ],
+      "removed": []
+    },
+    {
+      "package": "open_pipe_stress_result_export",
+      "added": [
+        "open_pipe_stress_units"
+      ],
+      "removed": []
+    }
+  ],
+  "fixture_original_schema": "0.1.0",
+  "native_test_authored_schema_before_invocation": "0.2.0",
+  "complete_fixture_request_matches_native_wrapper": true,
+  "observed_context_hashes": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "44647cf80ef19ef3316c8e0a8e4bad52ecdee310ddd8134226eb306eb0594905",
+    "projects/chirality-piping/core/product_physics/src/source_receipt.rs": "94720720cbc0221af00e875faba5f77dfe6b35e791f248c589e87af10e6b8a65",
+    "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs": "a04750cc32b62618df10515c06a869c1bfe94a449ab4f68f47bd1cfcbb240aaf",
+    "projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs": "97efff92be2502317fa9d7f8783d013e4f341c2b7f2fed85019ada49ee4d3303",
+    "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs": "2de6866121084fa57c9823df3d46b48d4816b57780f04bcf481d2cd8c75c6d61",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts": "242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57",
+    "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts": "b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs": "2a716bf0e39a09dfc033ce526655cea897ff9701f437a026b9610ff696ab42d7",
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml": "ae8eb2d1193fb96d742820614eebb6b69eaefa2256d23d79193c3b4b3dcb0b16",
+    "projects/chirality-piping/core/product_physics/Cargo.toml": "2c037f109240275806d424aba371553575dec20a8b786d3ff29ecac875fe7326",
+    "projects/chirality-piping/core/reporting/result_export/Cargo.toml": "d8c2a4ef608e49324381117fca4f665d563a01b312a773c994da72bf35837b58",
+    "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.request.json": "abfa321ca270b0a2b5dd0670a686afd6dc55e229efb8a8da2fac1c6a93aba85c",
+    "projects/chirality-piping/fixtures/model_operations/exact_pressure_authoring_model.json": "7217f923667dbf366c2d6e8449967c8f3f9efb7e96d77c2ecb34679289d2fa0e"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "task": "/root/physics_resume/physics_reader_join/physics_rust_export",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native bounded followup; no delegation",
+  "start_utc": "2026-09-25T09:58:04.236464+00:00",
+  "scope": [
+    "core/handoff/stress_neutral/package_v0_3.py",
+    "schemas/stress_neutral_export.v0.3.schema.json",
+    "tests/test_stress_neutral_physics_source.py",
+    "RESUME_01/STRESS_NEUTRAL_PYTHON/UTF8_CSV/**"
+  ],
+  "csv_contract": {
+    "new_methods_only": true,
+    "export_profile.csv_encoding": "utf-8",
+    "export_profile.csv_row_order": "unicode_scalar_value_result_id",
+    "csv_checksum_canonicalization": "utf8_csv_record_lf_v1",
+    "record_separator": "LF; quoted-field CR/LF unchanged",
+    "unicode": "strict UTF8/no BOM/no normalization/no unpaired surrogates"
+  },
+  "failure_basis": {
+    "origin": "/private/tmp/piping-resume-ts-core-02.log",
+    "sha256": "b889c8ff80cbd0777cc9357d40cfe47271e87618628f4d9a80302278c12cecda",
+    "finding": "Two genuine n05_unicode TS failures: ASCII-only CSV guard; original log retained unchanged."
+  },
+  "before": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "1e833ff9efd2ec72482a84cb1fa622615e777ef412555b3a31d5470fe0ada0ab"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "3e6b89643324ba1b22efa0918e8a511500e199ca367250bc30574c948ba9a994"
+    },
+    {
+      "path": "tests/test_stress_neutral_physics_source.py",
+      "sha256": "e12b2b243f48a3361a89443d837d8e33c31abf9f26d623b098757fef2f092c97"
+    }
+  ]
+}

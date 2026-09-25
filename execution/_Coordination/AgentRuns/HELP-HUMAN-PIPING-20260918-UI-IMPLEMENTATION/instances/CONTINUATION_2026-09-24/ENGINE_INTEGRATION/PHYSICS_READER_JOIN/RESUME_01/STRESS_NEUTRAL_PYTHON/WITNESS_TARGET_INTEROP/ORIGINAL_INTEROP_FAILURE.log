@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/probe_interop.py", line 18, in <module>
+    sn.validate_stress_neutral_export_package_v0_3(packet,source_envelope=source,analysis_record=analysis)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py", line 571, in validate_stress_neutral_export_package_v0_3
+    raise ValueError("SN-PRECISION-WITNESS-BINDING-MISMATCH")
+ValueError: SN-PRECISION-WITNESS-BINDING-MISMATCH

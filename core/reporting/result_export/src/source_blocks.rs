@@ -76,29 +76,66 @@ fn schema() -> &'static Value {
         .expect("closed receipt schema")
     })
 }
-fn shape(v: &Value, s: &Value) -> bool {
+// JSON Schema compares numbers by value: producer 0.0 must satisfy const/enum 0.
+// serde_json::Number representation equality alone distinguishes integer and f64.
+fn schema_scalar_equal(value: &Value, expected: &Value) -> bool {
+    match (value.as_f64(), expected.as_f64()) {
+        (Some(a), Some(b)) => a.is_finite() && b.is_finite() && a == b,
+        _ => value == expected,
+    }
+}
+pub(crate) fn shape_in(v: &Value, s: &Value, root: &Value) -> bool {
     if let Some(reference) = s["$ref"].as_str() {
-        return schema()
+        return root
             .pointer(reference.trim_start_matches('#'))
-            .is_some_and(|target| shape(v, target));
+            .is_some_and(|target| shape_in(v, target, root));
     }
     if let Some(branches) = s["anyOf"].as_array() {
-        if !branches.iter().any(|s| shape(v, s)) {
+        if !branches.iter().any(|s| shape_in(v, s, root)) {
             return false;
         }
     }
+    if let Some(branches) = s["oneOf"].as_array() {
+        if branches.iter().filter(|s| shape_in(v, s, root)).count() != 1 {
+            return false;
+        }
+    }
+    if let Some(branches) = s["allOf"].as_array() {
+        if !branches.iter().all(|s| shape_in(v, s, root)) {
+            return false;
+        }
+    }
+    if let Some(types) = s["type"].as_array() {
+        return types.iter().any(|kind| {
+            let mut branch = s.clone();
+            branch["type"] = kind.clone();
+            shape_in(v, &branch, root)
+        });
+    }
     if let Some(constant) = s.get("const") {
-        if v != constant {
+        if !schema_scalar_equal(v, constant) {
             return false;
         }
     }
     if let Some(values) = s["enum"].as_array() {
-        if !values.contains(v) {
+        if !values
+            .iter()
+            .any(|expected| schema_scalar_equal(v, expected))
+        {
             return false;
         }
     }
-    match s["type"].as_str() {
+    match s["type"].as_str().or_else(|| {
+        if s.get("properties").is_some() {
+            Some("object")
+        } else if s.get("items").is_some() {
+            Some("array")
+        } else {
+            None
+        }
+    }) {
         Some("null") => v.is_null(),
+        Some("boolean") => v.is_boolean(),
         Some("object") => {
             let Some(o) = v.as_object() else { return false };
             let Some(properties) = s["properties"].as_object() else {
@@ -110,12 +147,12 @@ fn shape(v: &Value, s: &Value) -> bool {
             }) && (s["additionalProperties"] != false
                 || o.keys().all(|k| properties.contains_key(k)))
                 && o.iter()
-                    .all(|(k, v)| properties.get(k).is_none_or(|s| shape(v, s)))
+                    .all(|(k, v)| properties.get(k).is_none_or(|s| shape_in(v, s, root)))
         }
         Some("array") => v.as_array().is_some_and(|a| {
             a.len() >= s["minItems"].as_u64().unwrap_or(0) as usize
                 && a.len() <= s["maxItems"].as_u64().unwrap_or(16384) as usize
-                && a.iter().all(|v| shape(v, &s["items"]))
+                && a.iter().all(|v| shape_in(v, &s["items"], root))
         }),
         Some("string") => v.as_str().is_some_and(|t| {
             t.chars().count() >= s["minLength"].as_u64().unwrap_or(0) as usize
@@ -131,6 +168,7 @@ fn shape(v: &Value, s: &Value) -> bool {
                 && (s["type"] != "integer" || n.fract() == 0.0)
                 && n >= s["minimum"].as_f64().unwrap_or(f64::NEG_INFINITY)
                 && n <= s["maximum"].as_f64().unwrap_or(f64::INFINITY)
+                && n > s["exclusiveMinimum"].as_f64().unwrap_or(f64::NEG_INFINITY)
         }),
         None => true,
         _ => false,
@@ -148,11 +186,18 @@ pub fn domain_hash(domain: &str, payload: &Value) -> Result<String, String> {
     Ok(format!("{:x}", Sha256::digest(checked.as_bytes())))
 }
 pub fn validate_receipt_shape(receipt: &Value) -> Result<(), String> {
-    require!(shape(receipt, schema()), "RECEIPT_SHAPE");
+    require!(shape_in(receipt, schema(), schema()), "RECEIPT_SHAPE");
     Ok(())
 }
-fn signature(row: &Value) -> Result<Option<&'static Value>, String> {
-    let s = signature_in(source_blocks_contract(), row)?;
+fn signature(row: &Value, composite: bool) -> Result<Option<&'static Value>, String> {
+    let s = signature_in(
+        if composite {
+            crate::semantic_contract::physics_source_contract()
+        } else {
+            source_blocks_contract()
+        },
+        row,
+    )?;
     Ok(s.filter(|s| s["component"].is_null() || s["component"] == row["metadata"]["component"]))
 }
 fn ordinary_method(mode: &Value) -> Option<&'static str> {
@@ -296,7 +341,7 @@ fn source_plan(p: &Value, projections: &[Value], model: Option<&Value>) -> Resul
     }
     Ok(())
 }
-fn projection(p: &Value, row: &Value) -> Result<(), String> {
+fn projection(p: &Value, row: &Value, composite: bool) -> Result<(), String> {
     let value = number(&p["value"])?;
     let lo = number(&p["interval"][0])?;
     let hi = number(&p["interval"][1])?;
@@ -380,14 +425,22 @@ fn projection(p: &Value, row: &Value) -> Result<(), String> {
         _ => false,
     };
     require!(
-        valid && signature(row)?.is_some(),
+        valid && signature(row, composite)?.is_some(),
         "PROJECTION_TYPED_QUANTITY"
     );
     Ok(())
 }
 fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    derived_in(recipe, row, inputs, false)
+}
+fn derived_in(
+    recipe: &Value,
+    row: &Value,
+    inputs: &[&Value],
+    composite: bool,
+) -> Result<(), String> {
     let kind = text(&row["kind"])?;
-    let s = signature(row)?.ok_or("SOURCE_BLOCKS_DERIVED_SIGNATURE")?;
+    let s = signature(row, composite)?.ok_or("SOURCE_BLOCKS_DERIVED_SIGNATURE")?;
     let kinds: Vec<_> = inputs.iter().filter_map(|r| r["kind"].as_str()).collect();
     match text(recipe)? {
         "translation_norm_scaled_v1" => require!(
@@ -601,6 +654,14 @@ fn stress_summary_observation(row: &Value, inputs: &[&Value]) -> Result<(), Stri
 /// `actual_invocation` is the independent original {request,solver_mode} Value.
 /// Without it, a supported consistent receipt returns false, never admission.
 pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<bool, String> {
+    validate_in(source, actual_invocation, false)
+}
+/// Explicit method context; never alters received bytes to fit another contract.
+pub(crate) fn validate_in(
+    source: &Value,
+    actual_invocation: Option<&Value>,
+    composite: bool,
+) -> Result<bool, String> {
     require!(
         keys(
             source,
@@ -620,19 +681,29 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
                 "accepted_model_state_mutated",
                 "source_block_recovery"
             ]
+            .iter()
+            .copied()
+            .chain(composite.then_some("contract_evidence"))
+            .collect::<Vec<_>>()
+            .as_slice()
         ),
         "RAW_FIELDS"
     );
     require!(
         source["schema_version"] == "0.2.0"
             && source["producer"]
-                == json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":CONTRACT_ID}),
+                == json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":if composite {crate::physics_source::CONTRACT_ID} else {CONTRACT_ID}}),
         "PRODUCER"
     );
     let formulation = &source["formulation_basis"];
     require!(
         keys(formulation, &["profile_id", "limitations"])
-            && formulation["profile_id"] == "product_preview_mechanics_v1"
+            && formulation["profile_id"]
+                == if composite {
+                    crate::physics_source::PROFILE
+                } else {
+                    "product_preview_mechanics_v1"
+                }
             && formulation["limitations"]
                 .as_array()
                 .is_some_and(|a| !a.is_empty()
@@ -640,7 +711,11 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
         "FORMULATION"
     );
     let receipt = &source["source_block_recovery"];
-    validate_receipt_shape(receipt)?;
+    if composite {
+        crate::physics_source::validate_receipt_shape(receipt)?;
+    } else {
+        validate_receipt_shape(receipt)?;
+    }
     let body = &receipt["body"];
     require!(
         receipt["receipt_sha256"] == domain_hash("source_blocks_receipt_v1", body)?,
@@ -839,7 +914,7 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
             integer(&work["charged"])?
                 .saturating_add(integer(&work["reserved_unobserved_failure"])?)
                 <= integer(&work["limit"])?
-                && integer(&work["limit"])? <= 4_000_000
+                && integer(&work["limit"])? <= if composite { 8_000_000 } else { 4_000_000 }
                 && ((rejected["kind"] == "overflow" && rejected["amount"].is_null())
                     || (rejected["kind"] == "finite" && !rejected["amount"].is_null())),
             "WORK_LEDGER"
@@ -936,7 +1011,7 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
             matches!(
                 row["recipe_id"].as_str(),
                 Some("straight_open_stress_v1" | "reviewed_stress_summary_v1")
-            )
+            ) || (composite && row["recipe_id"] == "retained_source_straight_stress_v1")
         }) {
             let relative = ps
                 .iter()
@@ -966,7 +1041,7 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
         let mut used = HashSet::new();
         for (&id, treatment) in &treatments {
             let row = raw[id];
-            let s = signature(row)?;
+            let s = signature(row, composite)?;
             let inputs = array(&treatment["input_result_ids"])?;
             require!(
                 unique(inputs)
@@ -988,7 +1063,7 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
                             && inputs.is_empty(),
                         "PROJECTION_ROW"
                     );
-                    projection(p, row)?;
+                    projection(p, row, composite)?;
                     used.insert(text(&p["projection_id"])?);
                 }
                 "checked_derived" => {
@@ -1004,7 +1079,19 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
                         String,
                     >>(
                     )?;
-                    derived(&treatment["recipe_id"], row, &input_rows)?;
+                    if composite
+                        && crate::physics_source::is_composite_recipe(&treatment["recipe_id"])
+                    {
+                        crate::physics_source::validate_derived(
+                            source,
+                            case,
+                            treatment,
+                            row,
+                            &input_rows,
+                        )?;
+                    } else {
+                        derived_in(&treatment["recipe_id"], row, &input_rows, composite)?;
+                    }
                     if matches!(
                         treatment["recipe_id"].as_str(),
                         Some("translation_norm_scaled_v1" | "support_force_norm_scaled_v1")
@@ -1034,15 +1121,24 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
                         "UNQUALIFIED_DERIVED_INPUT"
                     );
                 }
-                "ordinary_checked" => require!(
-                    success
-                        && method != Some(EXACT)
-                        && treatment["projection_id"].is_null()
-                        && treatment["recipe_id"].is_null()
-                        && s.is_some()
-                        && row["kind"] != "support_reaction_component_v2",
-                    "ORDINARY_ROW"
-                ),
+                token
+                    if token
+                        == if composite {
+                            "ordinary_physics_checked"
+                        } else {
+                            "ordinary_checked"
+                        } =>
+                {
+                    require!(
+                        success
+                            && method != Some(EXACT)
+                            && treatment["projection_id"].is_null()
+                            && treatment["recipe_id"].is_null()
+                            && s.is_some()
+                            && (composite || row["kind"] != "support_reaction_component_v2"),
+                        "ORDINARY_ROW"
+                    )
+                }
                 "inspection_only" => {
                     require!(
                         treatment["projection_id"].is_null() && treatment["recipe_id"].is_null(),
@@ -1077,8 +1173,11 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
             done.extend(ready);
         }
         if success && method == Some(EXACT) {
-            supports(case, &raw, ps, model)?;
-            required_affine(case, &raw, ps, model)?;
+            supports(case, &raw, ps, model, composite)?;
+            required_affine(case, &raw, ps, model, composite)?;
+            if composite {
+                crate::physics_source::validate_source_case(source, case, actual_invocation)?;
+            }
         } else {
             require!(
                 array(&case["supports"])?.is_empty(),
@@ -1102,7 +1201,7 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
         let row = *raw.get(id).ok_or("SOURCE_BLOCKS_OBSERVATION_REF")?;
         require!(
             row["basis_ref"].is_null()
-                && signature(row)?.is_some_and(|s| s["category"] != "physical_quantity"),
+                && signature(row, composite)?.is_some_and(|s| s["category"] != "physical_quantity"),
             "PHYSICAL_OBSERVATION_ESCAPE"
         );
     }
@@ -1125,7 +1224,7 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<boo
         "unavailable"
     };
     require!(body["status"] == aggregate, "AGGREGATE_STATUS");
-    summary(source, &raw, model)?;
+    summary(source, &raw, model, composite)?;
     if model.is_some_and(|m| m["combinations"].as_array().is_some_and(|a| !a.is_empty())) {
         usable = false;
     }
@@ -1139,6 +1238,7 @@ fn supports(
     raw: &HashMap<&str, &Value>,
     ps: &[Value],
     model: Option<&Value>,
+    composite: bool,
 ) -> Result<(), String> {
     let records = array(&case["supports"])?;
     let plan = &case["source"];
@@ -1215,7 +1315,7 @@ fn supports(
                     && row["basis_ref"] == case["basis_ref"]
                     && row["unit"] == if slot < 3 { "N" } else { "N*m" }
                     && row["metadata"]
-                        == json!({"component":COMPONENTS[slot],"coordinate_system":"global","location":"node","basis":"recovered_from_assembled_support_law","sign_convention":SUPPORT_SIGN}),
+                        == json!({"component":COMPONENTS[slot],"coordinate_system":"global","location":"node","basis":"recovered_from_assembled_support_law","sign_convention":if composite {crate::physics_source::SUPPORT_SIGN} else {SUPPORT_SIGN}}),
                 "SUPPORT_ROW_SEMANTICS"
             );
             let terms = array(&component["action_terms"])?;
@@ -1306,6 +1406,7 @@ fn required_affine(
     raw: &HashMap<&str, &Value>,
     ps: &[Value],
     model: Option<&Value>,
+    composite: bool,
 ) -> Result<(), String> {
     let rows = ps
         .iter()
@@ -1365,13 +1466,32 @@ fn required_affine(
                 );
             }
         }
-        require!(case_rows.iter().filter(|r|r["entity_ref"]==*member&&r["kind"]=="open_formula_stress_summary").count()==1,"MEMBER_SUMMARY_COVERAGE");
+        require!(
+            case_rows
+                .iter()
+                .filter(|r| r["entity_ref"] == *member
+                    && r["kind"]
+                        == if composite {
+                            "pipe_elastic_normal_stress_maximum_v2"
+                        } else {
+                            "open_formula_stress_summary"
+                        })
+                .count()
+                == 1,
+            "MEMBER_SUMMARY_COVERAGE"
+        );
     }
     for support in array(&case["source"]["support_ids"])? {
         require!(
             case_rows
                 .iter()
-                .filter(|r| r["entity_ref"] == *support && r["kind"] == "reaction_resultant")
+                .filter(|r| r["entity_ref"] == *support
+                    && r["kind"]
+                        == if composite {
+                            "support_reaction_force_magnitude_v2"
+                        } else {
+                            "reaction_resultant"
+                        })
                 .count()
                 == 1,
             "SUPPORT_MAGNITUDE_COVERAGE"
@@ -1414,6 +1534,7 @@ fn summary(
     source: &Value,
     raw: &HashMap<&str, &Value>,
     model: Option<&Value>,
+    composite: bool,
 ) -> Result<(), String> {
     let summary = &source["summary"];
     if let Some(model) = model {
@@ -1431,7 +1552,14 @@ fn summary(
     }
     for (field, kind) in [
         ("max_displacement", "displacement_magnitude"),
-        ("max_open_formula_stress", "open_formula_stress_summary"),
+        (
+            "max_open_formula_stress",
+            if composite {
+                "pipe_elastic_normal_stress_maximum_v2"
+            } else {
+                "open_formula_stress_summary"
+            },
+        ),
     ] {
         let headline = &summary[field];
         let candidates = raw

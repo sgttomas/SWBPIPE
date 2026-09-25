@@ -160,6 +160,7 @@ dependencies = [
 name = "open_pipe_stress_product_physics"
 version = "0.2.0"
 dependencies = [
+ "open_pipe_stress_canonical_json",
  "open_pipe_stress_curved_bend",
  "open_pipe_stress_frame_kernel",
  "open_pipe_stress_linear_supports",
@@ -174,6 +175,7 @@ dependencies = [
  "open_pipe_stress_units",
  "serde",
  "serde_json",
+ "sha2",
 ]
 
 [[package]]

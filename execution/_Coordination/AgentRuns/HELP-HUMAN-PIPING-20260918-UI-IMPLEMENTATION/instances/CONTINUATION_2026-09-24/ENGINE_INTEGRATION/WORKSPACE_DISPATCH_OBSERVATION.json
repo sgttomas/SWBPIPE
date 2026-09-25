@@ -1,0 +1,21 @@
+{
+  "observed_at_utc": "2026-09-25T10:12:23.926465+00:00",
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "command": [
+    "npm",
+    "--offline",
+    "exec",
+    "--workspace",
+    "apps/desktop",
+    "--",
+    "node",
+    "-p",
+    "process.cwd()"
+  ],
+  "exit": 0,
+  "stdout": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop\n",
+  "meaning": "Current workspace dispatch cwd observation; not a retrospective build trace.",
+  "prior_check_inventory": "PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/EXECUTION_PROVENANCE.json",
+  "dependency_mutation": "none",
+  "root_next": "ROOT disconnected isolated native dependency tree; bind only after final source handoff and verify native input/bundle identity."
+}

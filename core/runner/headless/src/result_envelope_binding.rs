@@ -239,7 +239,12 @@ pub fn build_result_export_document_with_evidence(request: &RunnerRequest, runne
     let make=|| -> Result<Value,String> {
         let source=serde_json::to_value(mechanics).map_err(|e|e.to_string())?;
         let request_value=serde_json::to_value(request).map_err(|e|e.to_string())?;
-        if digest(&evidence.solve_payload)? != evidence.solve_payload_digest || digest(&source)? != evidence.mechanics_digest || digest(&serde_json::to_value(runner_result).map_err(|e|e.to_string())?)? != evidence.runner_digest || digest(&request_value)? != evidence.request_digest || evidence.run_id != runner_result.run_id {
+        if digest(&evidence.solve_payload)? != evidence.solve_payload_digest
+            || digest(&evidence.actual_invocation)? != evidence.invocation_digest
+            || evidence.actual_invocation["request"] != evidence.solve_payload
+            || !matches!(evidence.actual_invocation["solver_mode"].as_str(), Some("sparse_interactive" | "dense_scrutiny"))
+            || evidence.actual_invocation.as_object().map_or(true, |o| o.len() != 2)
+            || digest(&source)? != evidence.mechanics_digest || digest(&serde_json::to_value(runner_result).map_err(|e|e.to_string())?)? != evidence.runner_digest || digest(&request_value)? != evidence.request_digest || evidence.run_id != runner_result.run_id {
             return Err("SOLVED_SOURCE_BINDING_MISMATCH".into());
         }
         let model=&evidence.solve_payload["model"];
@@ -250,14 +255,14 @@ pub fn build_result_export_document_with_evidence(request: &RunnerRequest, runne
             case["id"].as_str().filter(|id| !id.is_empty())
                 .map(|id| reference("load_case", id)).ok_or("REQUESTED_NUMERICAL_BASIS_UNAVAILABLE")
         }).collect::<Result<_, _>>()?;
-        if export::semantic_contract::numerical_use_standing(&source, &requested) != "numerically_eligible" {
+        if export::semantic_contract::numerical_use_standing_with_context(&source, &requested, Some(&evidence.actual_invocation)) != "numerically_eligible" {
             return Err("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE".into());
         }
         let payload_ref=reference("attested_headless_producer",envelope_id);
         let carrier=checksum(&source,"attested_headless_producer_carrier",payload_ref)?;
         let actual_ref=reference("model_payload",mechanics.model_ref.as_str());
         let alias=if request.model_ref.ref_id!=mechanics.model_ref {serde_json::json!(format!("request model_ref {} is a provenance alias; actual model {}",request.model_ref.ref_id,mechanics.model_ref))}else{Value::Null};
-        let origin=serde_json::json!({"origin_id":"source-origin:headless-actual-solve","origin_class":"attested_headless_producer","qualification_ref":reference("private_solve_evidence",&format!("{}:{}",evidence.run_id,evidence.solve_payload_digest)),"authentic_producer_available":true,"received_carrier_checksum":carrier,"original_producer_checksum":carrier,"origin_limit":"Private same-Value actual solve evidence; exact solve payload incl material overrides retained; no model reconstruction","actual_model_ref":actual_ref,"mechanics_run_ref":reference("mechanics_run",&mechanics.run_id),"request_model_ref":export_reference_json(&request.model_ref),"request_run_ref":reference("runner_run",&runner_result.run_id),"request_alias_disclosure":alias});
+        let origin=serde_json::json!({"origin_id":"source-origin:headless-actual-solve","origin_class":"attested_headless_producer","qualification_ref":reference("private_solve_evidence",&format!("{}:{}",evidence.run_id,evidence.invocation_digest)),"authentic_producer_available":true,"received_carrier_checksum":carrier,"original_producer_checksum":carrier,"origin_limit":"Private same-Value actual solve evidence; exact request and solver mode including material overrides retained; no model reconstruction","actual_model_ref":actual_ref,"mechanics_run_ref":reference("mechanics_run",&mechanics.run_id),"request_model_ref":export_reference_json(&request.model_ref),"request_run_ref":reference("runner_run",&runner_result.run_id),"request_alias_disclosure":alias});
         let base=build_base_result_export_document(request,runner_result,mechanics).map_err(|e|e.message)?;
         derive_document(base,model,&source,origin,Some(&request_value))
     };
@@ -540,17 +545,40 @@ mod tests {
    }
  }
  #[test]
- fn sensitive_actual_source_cannot_mint_qualified_canonical_export() {
+ fn ordinary_sensitive_typed_source_cannot_mint_qualified_canonical_export() {
    let model: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/numerical_sensitive_torsion_model.json")).unwrap();
    for mode in [open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny, open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive] {
-     let output = crate::run_preview_model_value_with_mode(request(), serde_json::json!({"model": model, "materials": []}), mode).unwrap();
+     // The original Sensitive oracle belongs to the ordinary typed algorithm.
+     // The new actual-Value method is independently tested on source-block cases.
+     let typed = serde_json::from_value(serde_json::json!({"model": model, "materials": []})).unwrap();
+     let output = crate::run_preview_in_memory_mode(request(), typed, None, mode);
      let raw = output.mechanics_envelope.as_ref().unwrap();
      assert_eq!(raw.status.mechanics, "MECHANICS_SOLVED");
      assert_eq!(raw.numerical_quality.status, open_pipe_stress_product_physics::NumericalQualityStatus::Sensitive);
+     assert!(raw.source_block_recovery.is_none());
      assert!(!raw.results.is_empty());
      assert!(output.result_envelope_document.is_none());
      assert!(output.qualified_preview_evidence.is_none());
-     assert!(output.canonical_export_unavailability.as_deref().unwrap().contains("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE"));
+     assert_eq!(output.canonical_export_unavailability.as_deref(), Some("EXACT_SOLVED_MODEL_EVIDENCE_UNAVAILABLE"));
+   }
+ }
+ #[test]
+ fn actual_value_stress_publication_range_refusal_cannot_qualify_export() {
+   for mode in [open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive, open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny] {
+     // Preserved source-owned range counterexample: use its actual input, never
+     // the earlier erroneously qualified raw packet as a new invocation.
+     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+       .join("../../../fixtures/product_preview/source_blocks/rejected_stress_range")
+       .join(format!("{}.request.json", mode.as_str()));
+     let input = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+     let output = crate::run_preview_model_value_with_mode(request(), input, mode).unwrap();
+     assert!(output.qualified_preview_evidence.is_none());
+     assert!(output.result_envelope_document.is_none());
+     assert!(output.canonical_export_unavailability.is_some());
+     let raw = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
+     if let Some(body) = raw.get("source_block_recovery").and_then(|r| r.get("body")) {
+       assert_ne!(body["status"], "qualified");
+     }
    }
  }
  #[test]
@@ -573,4 +601,163 @@ mod tests {
  #[test]fn typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes(){
    let model=unpressurized_binding_model(serde_json::from_str(PREVIEW_MODEL_FIXTURE).unwrap());let typed:LinearStaticPreviewRequest=serde_json::from_value(serde_json::json!({"model":model,"materials":[]})).unwrap();let output=run_preview_in_memory(request(),typed);assert_eq!(output.runner_result.job.state,JobStateKind::Completed);assert!(output.runner_result.diagnostics.is_empty());assert!(output.result_envelope_document.is_none());assert_eq!(output.canonical_export_unavailability.as_deref(),Some("EXACT_SOLVED_MODEL_EVIDENCE_UNAVAILABLE"));
  }
+
+ fn source_input(stem: &str, mode: open_pipe_stress_product_physics::PreviewSolverMode) -> Value {
+   let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+     .join("../../../fixtures/product_preview/source_blocks/ui")
+     .join(format!("{stem}-{}.request.json", mode.as_str()));
+   serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap()
+ }
+
+ #[test]
+ fn actual_source_blocks_bind_exact_invocation_and_canonical_source_both_modes() {
+   use open_pipe_stress_product_physics::PreviewSolverMode;
+   use export::derivative::{digest, validate_document};
+   for stem in ["n05", "n06", "multicase"] {
+     for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+       let input = source_input(stem, mode);
+       let output = crate::run_preview_model_value_with_mode(request(), input.clone(), mode).unwrap();
+       let mechanics = output.mechanics_envelope.as_ref().unwrap();
+       let raw = serde_json::to_value(mechanics).unwrap();
+       assert_eq!(mechanics.producer.semantic_contract_id, export::source_blocks::CONTRACT_ID);
+       assert_eq!(mechanics.status.mechanics, "MECHANICS_SOLVED");
+       assert_ne!(mechanics.numerical_quality.status, open_pipe_stress_product_physics::NumericalQualityStatus::ChecksPassed,
+         "source method must retain the ordinary method's non-passing observation");
+       assert_eq!(raw["source_block_recovery"]["body"]["status"], "qualified");
+       let invocation = serde_json::json!({"request":input,"solver_mode":mode.as_str()});
+       let requested = input["model"]["load_cases"].as_array().unwrap().iter().map(|case| serde_json::json!({"ref_type":"load_case","ref_id":case["id"]})).collect::<Vec<_>>();
+       assert_eq!(export::semantic_contract::numerical_use_standing(&raw, &requested), "needs_recompute");
+       assert_eq!(export::semantic_contract::numerical_use_standing_with_context(&raw, &requested, Some(&invocation)), "numerically_eligible");
+       let proof = output.qualified_preview_evidence.as_ref().unwrap();
+       assert_eq!(proof.solve_payload, input);
+       assert_eq!(proof.actual_invocation, invocation);
+       assert_eq!(proof.invocation_digest, digest(&invocation).unwrap());
+       let doc = output.result_envelope_document.as_ref().unwrap_or_else(|| panic!("{stem}/{mode:?}: {:?}", output.canonical_export_unavailability));
+       assert_eq!(doc["result_envelope"]["source_block_recovery"], raw["source_block_recovery"]);
+       assert_eq!(doc["result_envelope"]["reproducibility"]["source_origin_bindings"][0]["received_carrier_checksum"]["value"], digest(&raw).unwrap());
+       validate_document(doc, &raw).unwrap();
+       assert!(!crate::validate_result_with_optional_envelope_payload(&output.runner_result, Some(doc)).has_blocking_diagnostics());
+       assert_eq!(*doc, build_result_export_document_with_evidence(&request(), &output.runner_result, mechanics, proof).unwrap());
+       let mut mode_tamper = proof.clone();
+       mode_tamper.actual_invocation["solver_mode"] = serde_json::json!(if mode == PreviewSolverMode::SparseInteractive { "dense_scrutiny" } else { "sparse_interactive" });
+       assert!(build_result_export_document_with_evidence(&request(), &output.runner_result, mechanics, &mode_tamper).is_err());
+       // Even a new hash of altered claimed context cannot agree with the
+       // actual source receipt's independently captured invocation binding.
+       mode_tamper.invocation_digest = digest(&mode_tamper.actual_invocation).unwrap();
+       assert!(build_result_export_document_with_evidence(&request(), &output.runner_result, mechanics, &mode_tamper).is_err());
+       let mut payload_tamper = proof.clone();
+       payload_tamper.solve_payload["model"]["project"]["description"] = serde_json::json!("same-ID substituted after execution");
+       assert!(build_result_export_document_with_evidence(&request(), &output.runner_result, mechanics, &payload_tamper).is_err());
+       let reloaded: Value = serde_json::from_slice(&serde_json::to_vec(&raw).unwrap()).unwrap();
+       assert_eq!(reloaded, raw);
+       validate_document(doc, &reloaded).unwrap();
+       assert_eq!(export::source_blocks::validate(&reloaded, None), Ok(false));
+       // Reparsed public receipt bytes are not the library's opaque proof.
+       let mut reparsed = mechanics.clone();
+       reparsed.source_block_recovery = Some(reloaded["source_block_recovery"].clone());
+       assert!(build_result_export_document(&request(), &output.runner_result, &reparsed).is_err());
+       let wire = serde_json::to_value(&output).unwrap();
+       assert!(wire.get("qualified_preview_evidence").is_none());
+       assert!(wire.get("actual_invocation").is_none());
+       if let Ok(dir) = std::env::var("HEADLESS_SOURCE_BLOCK_OUTPUT_DIR") {
+         let dir = std::path::Path::new(&dir); std::fs::create_dir_all(dir).unwrap();
+         let name = format!("{stem}-{}", mode.as_str());
+         for (suffix, value) in [("request", &input), ("invocation", &invocation), ("raw", &raw), ("document", doc)] {
+           std::fs::write(dir.join(format!("{name}.{suffix}.json")), serde_json::to_vec_pretty(value).unwrap()).unwrap();
+         }
+         let manifest = serde_json::json!({"source":"actual headless Value invocation; no native UI claim","mode":mode.as_str(),"request_digest":digest(&input).unwrap(),"invocation_digest":digest(&invocation).unwrap(),"raw_digest":digest(&raw).unwrap(),"document_digest":digest(doc).unwrap()});
+         std::fs::write(dir.join(format!("{name}.manifest.json")), serde_json::to_vec_pretty(&manifest).unwrap()).unwrap();
+       }
+     }
+   }
+ }
+
+ #[test]
+ fn source_block_capture_retains_material_overrides_order_and_extra_request_fields() {
+   use open_pipe_stress_product_physics::PreviewSolverMode;
+   use export::derivative::digest;
+   let mut input = source_input("n05", PreviewSolverMode::SparseInteractive);
+   let mut overrides = input["model"]["materials"].as_array().unwrap().clone();
+   let mut unused = overrides[0].clone(); unused["id"] = serde_json::json!("invented:unused-override");
+   overrides.push(unused);
+   input["materials"] = serde_json::json!(overrides);
+   input["capture_only_extra"] = serde_json::json!({"authored_order":["second","first"],"omission_is_not_null":null});
+   let output = crate::run_preview_model_value_with_mode(request(), input.clone(), PreviewSolverMode::SparseInteractive).unwrap();
+   let mechanics = output.mechanics_envelope.as_ref().unwrap();
+   let raw = serde_json::to_value(mechanics).unwrap();
+   assert_eq!(mechanics.producer.semantic_contract_id, export::source_blocks::CONTRACT_ID);
+   let proof = output.qualified_preview_evidence.as_ref().unwrap();
+   assert_eq!(proof.actual_invocation["request"], input);
+   assert_eq!(proof.solve_payload, input);
+   assert_eq!(raw["source_block_recovery"]["body"]["invocation"]["value"], export::source_blocks::domain_hash("source_blocks_invocation_v1", &proof.actual_invocation).unwrap());
+   for alteration in ["omit_extra", "reorder_materials", "material_value", "model_metadata"] {
+     let mut forged = proof.clone();
+     match alteration {
+       "omit_extra" => { forged.actual_invocation["request"].as_object_mut().unwrap().remove("capture_only_extra"); },
+       "reorder_materials" => forged.actual_invocation["request"]["materials"].as_array_mut().unwrap().reverse(),
+       "material_value" => forged.actual_invocation["request"]["materials"][0]["elastic_modulus"]["value"] = serde_json::json!(1.0),
+       _ => forged.actual_invocation["request"]["model"]["extra"] = serde_json::json!(true),
+     }
+     forged.solve_payload = forged.actual_invocation["request"].clone();
+     forged.solve_payload_digest = digest(&forged.solve_payload).unwrap();
+     forged.invocation_digest = digest(&forged.actual_invocation).unwrap();
+     assert!(build_result_export_document_with_evidence(&request(), &output.runner_result, mechanics, &forged).is_err(), "{alteration}");
+   }
+   let typed = serde_json::from_value(input).unwrap();
+   let typed_output = run_preview_in_memory(request(), typed);
+   assert!(typed_output.qualified_preview_evidence.is_none());
+   assert!(typed_output.result_envelope_document.is_none());
+   assert!(typed_output.mechanics_envelope.as_ref().unwrap().source_block_recovery.is_none());
+ }
+
+ #[test]
+ fn source_block_rule_revisions_leave_producer_bytes_and_receipt_unchanged() {
+   use open_pipe_stress_product_physics::PreviewSolverMode;
+   use export::derivative::digest;
+   for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+     let input = source_input("n05", mode);
+     let baseline = crate::run_preview_model_value_mode(request(), input.clone(), None, mode).unwrap();
+     let raw = serde_json::to_value(baseline.mechanics_envelope.as_ref().unwrap()).unwrap();
+     let checksum = baseline.runner_result.checksums.iter().find(|c| c.payload_ref.ref_type == "result_envelope").unwrap();
+     for (aggregate, expected) in [("USER_RULE_CHECKED", crate::AnalysisStatus::UserRuleChecked), ("USER_RULE_FAILED", crate::AnalysisStatus::UserRuleFailed), ("RULE_INPUTS_INCOMPLETE", crate::AnalysisStatus::RuleInputsIncomplete)] {
+       let revised = crate::run_preview_model_value_mode(request(), input.clone(), Some(aggregate), mode).unwrap();
+       assert_eq!(serde_json::to_value(revised.mechanics_envelope.as_ref().unwrap()).unwrap(), raw);
+       assert_eq!(revised.qualified_preview_evidence.as_ref().unwrap().mechanics_digest, digest(&raw).unwrap());
+       assert_eq!(revised.runner_result.checksums.iter().find(|c| c.payload_ref.ref_type == "result_envelope").unwrap(), checksum);
+       assert!(revised.runner_result.analysis_status.contains(&expected));
+       let doc = revised.result_envelope_document.as_ref().unwrap();
+       assert_eq!(doc["result_envelope"]["source_block_recovery"], raw["source_block_recovery"]);
+       assert!(doc["result_envelope"]["analysis_status"].as_array().unwrap().contains(&serde_json::json!(aggregate)));
+     }
+   }
+ }
+
+ #[test]
+ fn headless_invalid_runner_request_cannot_execute_the_value_producer() {
+   let mut invalid = request(); invalid.request_id.clear();
+   // Malformed producer payload is deliberate: runner metadata must block first.
+   let output = crate::run_preview_model_value(invalid, serde_json::json!(null)).unwrap();
+   assert!(output.mechanics_envelope.is_none());
+   assert!(output.qualified_preview_evidence.is_none());
+   assert_eq!(output.runner_result.job.state, JobStateKind::Failed);
+ }
+
+
+ #[test]
+ fn actual_pressure_thermal_headless_route_retains_physics_identity() {
+   let model: Value = serde_json::from_str(include_str!("../../../../fixtures/model_operations/physics_thermal_ui_model.json")).unwrap();
+   for mode in [open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive, open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny] {
+     let payload = serde_json::json!({"model":model,"materials":[]});
+     let output = crate::run_preview_model_value_with_mode(request(), payload.clone(), mode).unwrap();
+     let raw = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
+     assert_eq!(raw["producer"]["semantic_contract_id"], export::semantic_contract::PHYSICS_ID);
+     assert_eq!(raw["contract_evidence"]["pressure"][0]["materials"][0]["thermal_consumed"], true);
+     assert_eq!(raw["contract_evidence"]["pressure"][0]["applied_loads"][0]["thermal_included"], false);
+     assert!(raw.get("source_block_recovery").is_none());
+     let proof = output.qualified_preview_evidence.as_ref().unwrap();
+     assert_eq!(proof.actual_invocation, serde_json::json!({"request":payload,"solver_mode":mode.as_str()}));
+     export::derivative::validate_document(output.result_envelope_document.as_ref().unwrap(), &raw).unwrap();
+   }
+ }
+
 }

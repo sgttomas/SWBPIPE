@@ -1,0 +1,38 @@
+{
+  "task": "/root/physics_resume/physics_reader_join/physics_rust_export",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native bounded confirmed CR02 repair; no delegation",
+  "created_utc": "2026-09-25T09:07:46.602231+00:00",
+  "scope": [
+    "core/handoff/stress_neutral/package_v0_3.py",
+    "schemas/stress_neutral_export.v0.3.schema.json",
+    "tests/test_stress_neutral_physics_source.py"
+  ],
+  "policy": "Five-key non-p1 annotations preserve actual received value bits separately from JCS numeric zero normalization. No JCS/p1/nine-member change.",
+  "before": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "4db371c6e70cd09925f88f5698a59292c5a2101aa59f1ca1cd9334fd12564ef6"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "1311149a04e900ea01bd22e5dd3cc7f8a85bc6db8923cca9bf63d9f941bbaafc"
+    },
+    {
+      "path": "tests/test_stress_neutral_physics_source.py",
+      "sha256": "7e7026a36940143e76f1f267b47c3966abc9daeddfc820ad5d04ab31757a6e0f"
+    }
+  ],
+  "preserved_review": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STABLE_READER_FREEZE/INDEPENDENT_REVIEW/STRESS_TRANSPORT_PROBE.json",
+      "sha256": "9ae3e7124a77ef39c7bf64b7908fb6f22c01faf89f5e6850231f6659edf417c5"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STABLE_READER_FREEZE/INDEPENDENT_REVIEW/probe_stress_transport.py",
+      "sha256": "bfcc61ac9fada78538e714e168e001e810727bd433739dfbe9545c463fca6b51"
+    }
+  ],
+  "recorded_failure_count": 31
+}

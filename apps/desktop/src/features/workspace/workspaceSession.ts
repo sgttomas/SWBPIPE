@@ -750,7 +750,9 @@ export function useWorkspaceSession() {
           "INPUT-MANIFEST-MODEL-INCOMPLETE: a current session model is required before solve."
         );
       }
-      const solveModel = clonePreviewModel(model);
+      // Keep the caller representation in the manifest (including -0). The
+      // native service separately captures the exact serialized dispatch.
+      const solveModel = structuredClone(model);
       const solveModelRevision = modelRevision.current;
       const solveModelHash = await computeModelHash(solveModel);
       if (
@@ -765,7 +767,8 @@ export function useWorkspaceSession() {
         setSolveJob(cancelledBeforeBackendStartSolveJob(solveModel));
         return;
       }
-      const startReceipt = await startPreviewMechanicsJob(solveModel, solverMode);
+      // Capture the original live caller representation as well as dispatched JSON.
+      const startReceipt = await startPreviewMechanicsJob(model, solverMode);
       // Reference records never create a fresh solve. Only a real backend job
       // can publish current result/manifest/proof cells through this path.
       if (startReceipt.mode !== "backend_job") {
@@ -792,6 +795,7 @@ export function useWorkspaceSession() {
         }
         return;
       }
+      if (startReceipt.mode !== "backend_job") throw new Error("BROWSER_REFERENCE_RECEIPT_NOT_A_CURRENT_SOLVE");
       startedJob = startSolveJob(solveModel, startReceipt);
       const cancellationRequested =
         solveRunGate.current.isCancellationRequested(runGeneration) ||

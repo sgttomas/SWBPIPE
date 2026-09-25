@@ -18,6 +18,15 @@ import { resultSemantics, completeSourceMetadata } from "../results/resultSemant
 import { buildRenderableReportInput } from "./renderableReportInput";
 import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSections";
 
+export const SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE = "REPORT-PACKAGE-SOURCE-BLOCKS-UNAVAILABLE: This report package cannot preserve source-recovery evidence and signed support components. Use the supported result exports; report-package support for this method is unavailable.";
+export function reportPackageUnavailableReason(result: MechanicsResult | null | undefined): string | null {
+  if (!result) return null;
+  const route = sourceContract(result);
+  if (route === "source_blocks" || route === "physics_source") return SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE;
+  if (route === "physics") return "REPORT-PACKAGE-PHYSICS-PROJECTION-UNAVAILABLE: this report transport does not preserve exact physical evidence; use canonical result export.";
+  return null;
+}
+
 const UNIT_SYSTEM_REF = "unit-system:dec-018-si-dual-display";
 const PROFESSIONAL_BOUNDARY = {
   human_review_required: true,
@@ -84,7 +93,7 @@ function reportSolverIdentity(result: MechanicsResult, analysisRun: AnalysisRunE
   const recordedSolver = analysisRun.analysis_run.solver_version;
   const precision = analysisRun.schema_version === "0.3.0";
   if (!precision && (!(result.schema_version === "0.1.0" || result.schema_version === "0.2.0") ||
-    ["producer", "numerical_quality", "formulation_basis"].some(key => Object.hasOwn(result, key)))) {
+    ["producer", "numerical_quality", "formulation_basis", "source_block_recovery"].some(key => Object.hasOwn(result, key)))) {
     throw new Error("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
   }
   // Legacy 0.1 records may lack a solver-version field; the verified manifest
@@ -212,6 +221,8 @@ export async function buildReportPackageRequest({
   comparison: PreviewComparison | null;
   ruleCheckAggregate: string | null;
 }) {
+  const unavailable = reportPackageUnavailableReason(result);
+  if (unavailable) throw new Error(unavailable);
   const resultHashScope = analysisResultHashScope(analysisRun.schema_version);
   const strictAnalysis = resultHashScope === "received_result";
   if (resultHashScope === null) {

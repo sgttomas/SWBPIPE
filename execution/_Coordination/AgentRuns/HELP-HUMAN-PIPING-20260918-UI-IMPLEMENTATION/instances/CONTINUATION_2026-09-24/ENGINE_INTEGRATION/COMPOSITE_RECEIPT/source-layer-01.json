@@ -1,0 +1,22 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--offline",
+    "--locked",
+    "-j",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-engine-integration-product-target",
+    "--lib",
+    "source_receipt",
+    "--",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "source_binding": "public-03.json",
+  "actor": "/root/physics_resume"
+}

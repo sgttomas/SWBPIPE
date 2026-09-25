@@ -1,0 +1,9 @@
+# TASK — explicit source-block result and analysis schema join
+
+Resume from22452 under WORKING_ITEMS /root/physics_resume/physics_reader_join. Existing owner hold explicitly revoked. Read Root/PipingAGENTS/loop and full agents/AGENT_TASK.md; Type2 no delegation. One connected engine consumer tranche, no new validation programme or broad mechanics.
+
+Sole writes schemas/results.v0.3.schema.yaml, schemas/analysis_run.v0.3.schema.json and new tests/test_source_block_schema_contract.py; evidence RESUME_01/SCHEMA_TASK. Existing source_block_recovery.schema.json read-only. Preserve all original precision/physics schema branches and ID/hash links; add explicit source-blocks-1 table ID5f299065... branch, ordinary profile, required closed source_block_recovery namespace. Foreign namespace must be forbidden on all older branches, including false/null/empty presence. Analysisrun retains source receipt under same exact method binding and proper source hash. Read actual imported source_blocks Rust/Python builders and genuine fixtures/product_preview/source_blocks/{ui/ optional} request/raw pairs. Use real outputs and actual low-level builder/derivative path; no fabricated headers or newCurrent. No composite physics-source branch until concrete receipt wire supplied.
+
+Read SOURCE_BLOCK_FANIN/READER_RESOLUTION/RETURN.md +SOURCE_BLOCK_JOIN_PLAN and prior CHECKPOINT_RETURN. Primary d90e4ee graph/validation-programmeREADME are context, not new campaign. Tests must exercise actual positive source output→schema/record and crossmethod/receipt contradictions, retaining oldactualphysics/p1 controls. Don't refactor unrelated schema or authoring model contracts. Python static/small checks only; any Cargo/npm lane requires parent approval. No native/browser/Git. Return early exact schema ref/version needs; source patch+hashes/checks/remaining composite scope.
+
+Full TASK role supplied by parent in dispatch and actual file.

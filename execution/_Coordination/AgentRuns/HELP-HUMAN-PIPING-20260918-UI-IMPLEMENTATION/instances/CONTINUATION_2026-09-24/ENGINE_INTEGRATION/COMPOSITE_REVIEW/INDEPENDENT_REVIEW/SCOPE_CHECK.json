@@ -1,0 +1,29 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/source_recovery.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/endpoint_maximum.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/source.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/composite.rs",
+    "projects/chirality-piping/core/product_physics/tests/physics_source_runtime.rs",
+    "projects/chirality-piping/core/product_physics/examples/physics_source_connected.rs"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/source_recovery.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/endpoint_maximum.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/source.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/composite.rs",
+    "projects/chirality-piping/core/product_physics/tests/physics_source_runtime.rs",
+    "projects/chirality-piping/core/product_physics/examples/physics_source_connected.rs"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

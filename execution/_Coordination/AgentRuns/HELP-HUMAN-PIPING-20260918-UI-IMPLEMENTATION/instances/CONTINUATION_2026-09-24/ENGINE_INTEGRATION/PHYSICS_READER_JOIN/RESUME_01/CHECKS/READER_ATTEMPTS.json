@@ -1,0 +1,23 @@
+{
+  "command": "env CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-physics-result-export-target cargo test --offline --manifest-path core/reporting/result_export/Cargo.toml --test physics_source_contract --test physics_contract --test source_blocks",
+  "attempt1": {
+    "exit": 101,
+    "cause": "New integration test imported private physics_evidence module; manager used existing public semantic export plus explicit transport helper reexport. Production library compiled."
+  },
+  "attempt2": {
+    "exit": 101,
+    "physics_contract_passed": 10,
+    "physics_source_passed": 3,
+    "physics_source_failed": 2,
+    "source_blocks": "not reached",
+    "failures": [
+      "actual n05 sparse PHYSICS_SOURCE_RECEIPT_SHAPE",
+      "actual physical transport SOURCE_PHYSICS_TRANSPORT_SHAPE"
+    ]
+  },
+  "logs": {
+    "reader-01.log": "069699d8d61b793f500206af2eb9afb5f7896dd3da3e6a06ce6f2621bf669a61",
+    "reader-02.log": "8140f1c668a6a6c70148894c7fe40a201679bc5935865af6d7669fb3252d523b"
+  },
+  "lane": "Explicit ROOT shortwindow returned afterexit before requiredCI-bound sweep. No headless/CLI/WASM/native run."
+}

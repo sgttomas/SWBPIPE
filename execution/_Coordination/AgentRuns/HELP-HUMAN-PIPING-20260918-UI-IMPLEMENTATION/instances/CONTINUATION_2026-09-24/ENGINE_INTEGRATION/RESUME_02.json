@@ -1,0 +1,35 @@
+{
+  "actor": "/root/physics_resume",
+  "actual_parent": "/root",
+  "role": "WORKING_ITEMS Type1",
+  "mechanism": "resumed delegated-harness-native task",
+  "prior_checkpoint": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+  "authorization": "Owner explicitly resumed from prior hold, following the selected course; ROOT delegates one coherent composite engine",
+  "instructions": {
+    "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "agents/AGENT_WORKING_ITEMS.md": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+  },
+  "selected_context": [
+    {
+      "revision": "d90e4ee",
+      "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "sha256": "7d2a5b909859df2dfe0de150f871c9d1c4a9a87ada9b478f13bc5a1286a73755"
+    },
+    {
+      "revision": "d90e4ee",
+      "path": "projects/chirality-piping/docs/references/validation-programme/README.md",
+      "sha256": "94c3001655b6cd48403999dcfd99baa23601a27d4ac3d05be5aecadf57652449"
+    }
+  ],
+  "ownership": {
+    "product_facade_native": "/root/physics_resume",
+    "source_owned_receipt_helpers": "/root/physics_resume/composite_receipt",
+    "consumer_schema_headless_table": "/root/physics_resume/physics_reader_join",
+    "FE01_FE02_dependency": "/root/root_solver_checkpoint_review",
+    "external_git_main_native_CI": "/root"
+  },
+  "limits": "Existing method identities and protected references retained; external reference docs inform field/interaction coverage, not automatic oracle/tool/campaign activation. Broader load-state/joint/shear deferred."
+}

@@ -1,0 +1,332 @@
+--- a/projects/chirality-piping/core/analysis_runs/physics_source.py
++++ b/projects/chirality-piping/core/analysis_runs/physics_source.py
+@@ -342,6 +342,32 @@
+     return nu
+ 
+ 
++def _checked_material_pair(e_pa, nu, stage):
++    """Mirror pressure_exact::IsotropicENu::new's Scaled representability domain.
++
++    The denominator uses the same bounded binary64 operations as Scaled add/mul:
++    -1 < nu < .5 makes 1+nu and 2*(1+nu) positive normal. The E division must
++    stay in normalized mantissa/exponent form until the producer's to_f64 rules.
++    frexp also normalizes subnormal E exactly; no full-range direct quotient.
++    """
++    _require(physical._number(e_pa) and e_pa > 0 and physical._number(nu) and -1 < nu < .5, f"ACTUAL_PAIR_INPUT_RANGE:{stage}")
++    denominator = 2.0 * (1.0 + nu)
++    em, ee = math.frexp(e_pa)
++    dm, de = math.frexp(denominator)
++    gm, ge = math.frexp(em / dm)  # Scaled::div then from_parts normalization
++    exponent = ee - de + ge
++    if exponent > 1024:
++        g_pa = math.inf
++    elif exponent == 1024:
++        g_pa = (gm * math.ldexp(1.0, 1023)) * 2.0
++    elif exponent < -1074:
++        g_pa = 0.0
++    else:
++        g_pa = gm * math.ldexp(1.0, exponent)
++    _require(math.isfinite(g_pa) and g_pa > 0, f"ACTUAL_DERIVED_SHEAR_RANGE:{stage}")
++    return g_pa
++
++
+ def _selected_material(authored, actual, canonical):
+     def normalized_record(record):
+         result = dict(record)
+@@ -350,8 +376,8 @@
+                 result[key] = {"value":canonical(record[key],dimension)}
+         return result
+     base = normalized_record(authored)
+-    _require(base["elastic_modulus"]["value"] > 0, "ACTUAL_MODULUS_RANGE")
+-    _poisson(base["poisson_ratio"])  # producer resolve_base precedes all exact cases
++    # Producer resolve_base precedes every exact case, including selected points.
++    _checked_material_pair(base["elastic_modulus"]["value"], _poisson(base["poisson_ratio"]), "base")
+     points = [normalized_record(point) for point in authored.get("temperature_points", [])]
+     _require(actual.get("modulus_basis_ref") is None or actual.get("modulus_basis_temperature") is None, "ACTUAL_MATERIAL_SELECTION_CONFLICT")
+     if actual.get("modulus_basis_ref") is not None:
+@@ -368,11 +394,13 @@
+         f = (t-a["temperature"]["value"])/(b["temperature"]["value"]-a["temperature"]["value"])
+         interpolate = lambda a,b: (1-f)*a+f*b
+         e0,e1 = a["elastic_modulus"]["value"],b["elastic_modulus"]["value"]
+-        _require(e0 > 0 and e1 > 0,"ACTUAL_MODULUS_RANGE")
++        nu0,nu1 = _poisson(a["poisson_ratio"]),_poisson(b["poisson_ratio"])
++        _checked_material_pair(e0,nu0,"lower_bracket")
++        _checked_material_pair(e1,nu1,"upper_bracket")
+         alpha = None if a.get("thermal_expansion_coefficient") is None or b.get("thermal_expansion_coefficient") is None else {"value":interpolate(a["thermal_expansion_coefficient"]["value"],b["thermal_expansion_coefficient"]["value"])}
+-        selected = {"elastic_modulus":{"value":interpolate(e0,e1)},"poisson_ratio":{"unit":"1","value":interpolate(_poisson(a["poisson_ratio"]),_poisson(b["poisson_ratio"]))},"thermal_expansion_coefficient":alpha}
++        selected = {"elastic_modulus":{"value":interpolate(e0,e1)},"poisson_ratio":{"unit":"1","value":interpolate(nu0,nu1)},"thermal_expansion_coefficient":alpha}
+     e,nu = selected["elastic_modulus"]["value"],_poisson(selected["poisson_ratio"])
+-    _require(physical._number(e) and e > 0,"ACTUAL_MODULUS_RANGE")
++    _checked_material_pair(e,nu,"selected")
+     alpha = (selected.get("thermal_expansion_coefficient") or {}).get("value")
+     _require(alpha is None or physical._number(alpha),"ACTUAL_ALPHA_RANGE")
+     return e,nu,alpha
+--- a/projects/chirality-piping/core/reporting/result_export/src/physics_source.rs
++++ b/projects/chirality-piping/core/reporting/result_export/src/physics_source.rs
+@@ -757,13 +757,63 @@
+     }
+     Ok(normalized)
+ }
++// Exact positive normalization used by pressure_exact::Scaled::from_f64.
++// Integer fraction conversion and its power-of-two division are exact for subnormals.
++fn positive_mantissa_exponent(value: f64) -> (f64, i32) {
++    let bits = value.to_bits();
++    let biased = ((bits >> 52) & 0x7ff) as i32;
++    let fraction = bits & ((1u64 << 52) - 1);
++    if biased != 0 {
++        (f64::from_bits((1022u64 << 52) | fraction), biased - 1022)
++    } else {
++        let highest = 63 - fraction.leading_zeros() as i32;
++        let scale = f64::from_bits(((highest + 1 + 1023) as u64) << 52);
++        ((fraction as f64) / scale, highest + 1 - 1074)
++    }
++}
++fn checked_material_pair(e_pa: f64, nu: f64, stage: &str) -> Result<f64, String> {
++    require(
++        e_pa.is_finite() && e_pa > 0.0 && nu.is_finite() && -1.0 < nu && nu < 0.5,
++        &format!("ACTUAL_PAIR_INPUT_RANGE:{stage}"),
++    )?;
++    // In this admitted nu range the producer's Scaled add/mul denominator is
++    // exactly these ordered, bounded, normal binary64 operations. Only division
++    // needs the full Scaled domain; do not admit by a direct E/denominator test.
++    let denominator = 2.0 * (1.0 + nu);
++    let (em, ee) = positive_mantissa_exponent(e_pa);
++    let (dm, de) = positive_mantissa_exponent(denominator);
++    let (gm, ge) = positive_mantissa_exponent(em / dm);
++    let exponent = ee - de + ge;
++    // Preserve Scaled::to_f64 including its strict lower cutoff and split upper
++    // boundary multiply. Positive subnormal G is allowed if it survives rounding.
++    let g_pa = if exponent > 1024 {
++        f64::INFINITY
++    } else if exponent == 1024 {
++        (gm * f64::from_bits(2046u64 << 52)) * 2.0
++    } else if exponent < -1074 {
++        0.0
++    } else {
++        let scale = if exponent >= -1022 {
++            f64::from_bits(((exponent + 1023) as u64) << 52)
++        } else {
++            f64::from_bits(1u64 << (exponent + 1074))
++        };
++        gm * scale
++    };
++    require(
++        g_pa.is_finite() && g_pa > 0.0,
++        &format!("ACTUAL_DERIVED_SHEAR_RANGE:{stage}"),
++    )?;
++    Ok(g_pa)
++}
+ fn selected_material(authored: &Value, actual: &Value) -> Result<MaterialSelection, String> {
+     let base = normalize_material_record(authored)?;
+-    require(
+-        num(&base["elastic_modulus"]["value"])? > 0.0,
+-        "ACTUAL_MODULUS_RANGE",
+-    )?;
+-    poisson(&base["poisson_ratio"])?; // resolve_base precedes every exact case.
++    // Producer resolve_base precedes every exact case, including selected points.
++    checked_material_pair(
++        num(&base["elastic_modulus"]["value"])?,
++        poisson(&base["poisson_ratio"])?,
++        "base",
++    )?;
+     let points = authored["temperature_points"]
+         .as_array()
+         .map_or(Ok(Vec::new()), |points| {
+@@ -816,7 +866,10 @@
+         let interpolate = |a: f64, b: f64| (1.0 - f) * a + f * b;
+         let e0 = num(&p[0]["elastic_modulus"]["value"])?;
+         let e1 = num(&p[1]["elastic_modulus"]["value"])?;
+-        require(e0 > 0.0 && e1 > 0.0, "ACTUAL_MODULUS_RANGE")?;
++        let nu0 = poisson(&p[0]["poisson_ratio"])?;
++        let nu1 = poisson(&p[1]["poisson_ratio"])?;
++        checked_material_pair(e0, nu0, "lower_bracket")?;
++        checked_material_pair(e1, nu1, "upper_bracket")?;
+         let alpha = if p[0]["thermal_expansion_coefficient"].is_null()
+             || p[1]["thermal_expansion_coefficient"].is_null()
+         {
+@@ -827,12 +880,12 @@
+                 num(&p[1]["thermal_expansion_coefficient"]["value"])?,
+             ))
+         };
+-        json!({"elastic_modulus":{"value":interpolate(e0,e1)}, "poisson_ratio":{"value":interpolate(poisson(&p[0]["poisson_ratio"])?, poisson(&p[1]["poisson_ratio"])?),"unit":"1"},
++        json!({"elastic_modulus":{"value":interpolate(e0,e1)}, "poisson_ratio":{"value":interpolate(nu0, nu1),"unit":"1"},
+             "thermal_expansion_coefficient":alpha.map(|v|json!({"value":v}))})
+     };
+     let e = num(&selected["elastic_modulus"]["value"])?;
+-    require(e > 0.0, "ACTUAL_MODULUS_RANGE")?;
+     let nu = poisson(&selected["poisson_ratio"])?;
++    checked_material_pair(e, nu, "selected")?;
+     let alpha = if selected["thermal_expansion_coefficient"].is_null() {
+         None
+     } else {
+@@ -1205,4 +1258,65 @@
+             ((1.0 - f) * a + f * b).to_bits()
+         );
+     }
+-}
++    #[test]
++    fn pair_domain_matches_scaled_adjacent_underflow_overflow_boundaries() {
++        // Source-domain scalar controls, no received result or Current claim.
++        let minimum = f64::from_bits(1);
++        let near_zero = -2.0_f64.powi(-54);
++        let cases = [
++            (minimum, 0.25, None),
++            (minimum, 0.0, None),
++            (minimum, near_zero, None),
++            (minimum, near_zero.next_down(), Some(minimum)),
++            (f64::from_bits(2), 0.25, Some(minimum)),
++            (minimum, -0.5, Some(minimum)),
++            (f64::MAX, -0.5, Some(f64::MAX)),
++            (f64::MAX, (-0.5_f64).next_down(), None),
++            (f64::MAX, (-0.5_f64).next_up(), Some(f64::MAX)),
++            (f64::MAX, 0.0, Some(f64::MAX * 0.5)),
++        ];
++        for (e, nu, expected) in cases {
++            let actual = checked_material_pair(e, nu, "boundary");
++            match expected {
++                Some(value) => assert_eq!(
++                    actual.unwrap().to_bits(),
++                    value.to_bits(),
++                    "E={e:e};nu={nu:e}"
++                ),
++                None => assert_eq!(
++                    actual,
++                    Err("PHYSICS_SOURCE_ACTUAL_DERIVED_SHEAR_RANGE:boundary".into())
++                ),
++            }
++        }
++    }
++    #[test]
++    fn every_consumed_pair_is_checked_before_selected_material_publication() {
++        for stage in ["base", "lower_bracket", "upper_bracket", "selected"] {
++            let request: Value = serde_json::from_str(include_str!(
++                "../../../../fixtures/product_preview/physics_source/mixed_units.request.json"
++            ))
++            .unwrap();
++            let mut material = request["model"]["materials"][0].clone();
++            let mut case = request["model"]["load_cases"][1].clone();
++            let invalid = json!({"value":f64::from_bits(1),"unit":"Pa"});
++            match stage {
++                "base" => material["elastic_modulus"] = invalid,
++                "lower_bracket" => material["temperature_points"][0]["elastic_modulus"] = invalid,
++                "upper_bracket" => material["temperature_points"][1]["elastic_modulus"] = invalid,
++                _ => {
++                    case.as_object_mut()
++                        .unwrap()
++                        .remove("modulus_basis_temperature");
++                    case["modulus_basis_ref"] = json!("point:lower");
++                    material["temperature_points"][0]["elastic_modulus"] = invalid;
++                }
++            }
++            let outcome = selected_material(&material, &case);
++            assert_eq!(
++                outcome.err(),
++                Some(format!("PHYSICS_SOURCE_ACTUAL_DERIVED_SHEAR_RANGE:{stage}"))
++            );
++        }
++    }
++}
+--- a/projects/chirality-piping/tests/test_physics_source_contract.py
++++ b/projects/chirality-piping/tests/test_physics_source_contract.py
+@@ -218,3 +218,56 @@
+     expected=(1-f)*canonical(a["thermal_expansion_coefficient"],"thermal_expansion_coefficient")+f*canonical(b["thermal_expansion_coefficient"],"thermal_expansion_coefficient")
+     assert composite._same(alpha,expected)
+     assert composite._selected_material(authored,{"modulus_basis_ref":"point:upper"},canonical)[2]==canonical(b["thermal_expansion_coefficient"],"thermal_expansion_coefficient")
++
++
++@pytest.mark.parametrize("e,nu,expected", [
++    (float.fromhex("0x0.0000000000001p-1022"), .25, None),
++    (float.fromhex("0x0.0000000000001p-1022"), 0.0, None),
++    (float.fromhex("0x0.0000000000001p-1022"), -2.0**-54, None),
++    (float.fromhex("0x0.0000000000001p-1022"), float.fromhex("-0x1.0000000000001p-54"), float.fromhex("0x0.0000000000001p-1022")),
++    (float.fromhex("0x0.0000000000002p-1022"), .25, float.fromhex("0x0.0000000000001p-1022")),
++    (float.fromhex("0x0.0000000000001p-1022"), -.5, float.fromhex("0x0.0000000000001p-1022")),
++    (float.fromhex("0x1.fffffffffffffp+1023"), -.5, float.fromhex("0x1.fffffffffffffp+1023")),
++    (float.fromhex("0x1.fffffffffffffp+1023"), float.fromhex("-0x1.0000000000001p-1"), None),
++    (float.fromhex("0x1.fffffffffffffp+1023"), float.fromhex("-0x1.fffffffffffffp-2"), float.fromhex("0x1.fffffffffffffp+1023")),
++    (float.fromhex("0x1.fffffffffffffp+1023"), 0, float.fromhex("0x1.fffffffffffffp+1022")),
++])
++def test_material_pair_matches_producer_scaled_boundary_domain(e, nu, expected):
++    # Scalar source-domain controls, not fabricated producer output. Boundaries
++    # follow pressure_exact.rs Scaled::to_f64 and IsotropicENu::new exactly.
++    if expected is None:
++        with pytest.raises(ValueError,match="ACTUAL_DERIVED_SHEAR_RANGE:boundary"):
++            composite._checked_material_pair(e,nu,"boundary")
++    else:
++        assert composite._same(composite._checked_material_pair(e,nu,"boundary"),expected)
++
++
++@pytest.mark.parametrize("stage", ["base","lower_bracket","upper_bracket","selected"])
++def test_every_consumed_material_pair_checks_source_domain(stage):
++    _,invocation=actual("mixed_units")
++    material=invocation["request"]["model"]["materials"][0]
++    selected_case=invocation["request"]["model"]["load_cases"][1]
++    minimum=float.fromhex("0x0.0000000000001p-1022")
++    if stage=="base":material["elastic_modulus"]={"value":minimum,"unit":"Pa"}
++    elif stage in {"lower_bracket","upper_bracket"}:
++        material["temperature_points"][0 if stage=="lower_bracket" else 1]["elastic_modulus"]={"value":minimum,"unit":"Pa"}
++    else:
++        selected_case.pop("modulus_basis_temperature")
++        selected_case["modulus_basis_ref"]="point:lower"
++        material["temperature_points"][0]["elastic_modulus"]={"value":minimum,"unit":"Pa"}
++    canonical=composite._canonical_inputs(invocation)
++    with pytest.raises(ValueError,match=f"ACTUAL_DERIVED_SHEAR_RANGE:{stage}"):
++        composite._selected_material(material,selected_case,canonical)
++
++
++@pytest.mark.parametrize("bad_endpoint", [0,1])
++def test_public_rehashed_copy_cannot_hide_invalid_bracket_pair_behind_finite_selection(bad_endpoint):
++    source,invocation=actual("mixed_units")
++    points=invocation["request"]["model"]["materials"][0]["temperature_points"]
++    points[bad_endpoint]["elastic_modulus"]={"value":float.fromhex("0x0.0000000000001p-1022"),"unit":"Pa"}
++    points[1-bad_endpoint]["elastic_modulus"]={"value":4000.0,"unit":"Pa"}
++    # This is the reviewer's deliberately false, rehashed copy; it is never an
++    # actual producer/native witness. Its rounded selected E still equals 2000.
++    reseal_negative(source,invocation)
++    with pytest.raises(ValueError,match="ACTUAL_DERIVED_SHEAR_RANGE:"+("lower_bracket" if bad_endpoint==0 else "upper_bracket")):
++        composite.validate_physics_source(source,invocation)
+--- a/projects/chirality-piping/core/reporting/result_export/tests/physics_source_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/physics_source_contract.rs
+@@ -61,7 +61,15 @@
+ }
+ #[test]
+ fn actual_records_require_original_full_invocation() {
+-    for name in ["n05", "n06", "mixed", "fields", "n05_units", "mixed_units", "n05_unicode"] {
++    for name in [
++        "n05",
++        "n06",
++        "mixed",
++        "fields",
++        "n05_units",
++        "mixed_units",
++        "n05_unicode",
++    ] {
+         for mode in ["sparse_interactive", "dense_scrutiny"] {
+             let (source, invocation) = actual(name, mode);
+             let original = source.clone();
+@@ -308,3 +316,25 @@
+         );
+     }
+ }
++
++#[test]
++fn public_rehashed_copy_cannot_hide_an_invalid_interpolation_pair() {
++    for bad_endpoint in [0usize, 1] {
++        let (mut source, mut invocation) = actual("mixed_units", "sparse_interactive");
++        invocation["request"]["model"]["materials"][0]["temperature_points"][bad_endpoint]
++            ["elastic_modulus"] = json!({"value":f64::from_bits(1),"unit":"Pa"});
++        invocation["request"]["model"]["materials"][0]["temperature_points"][1 - bad_endpoint]
++            ["elastic_modulus"] = json!({"value":4000.0,"unit":"Pa"});
++        // Negative false statement only: rounded interpolated E still equals 2000.
++        reseal_negative(&mut source, Some(&invocation));
++        let stage = if bad_endpoint == 0 {
++            "lower_bracket"
++        } else {
++            "upper_bracket"
++        };
++        assert_eq!(
++            physics_source::validate(&source, Some(&invocation)),
++            Err(format!("PHYSICS_SOURCE_ACTUAL_DERIVED_SHEAR_RANGE:{stage}"))
++        );
++    }
++}

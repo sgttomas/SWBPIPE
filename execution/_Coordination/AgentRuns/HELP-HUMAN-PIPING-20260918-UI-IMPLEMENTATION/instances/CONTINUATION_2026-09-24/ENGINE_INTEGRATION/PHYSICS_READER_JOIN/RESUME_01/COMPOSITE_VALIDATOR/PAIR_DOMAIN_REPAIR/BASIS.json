@@ -1,0 +1,47 @@
+{
+  "time": "2026-09-25T09:56:44.092903+00:00",
+  "role": "TASK Type2; no delegation",
+  "agent": "/root/physics_resume/physics_reader_join/reference_browser_tests",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "scope": "CR01b derived-G pair domain only",
+  "owned_relative_paths": [
+    "core/analysis_runs/physics_source.py",
+    "core/reporting/result_export/src/physics_source.rs",
+    "tests/test_physics_source_contract.py",
+    "core/reporting/result_export/tests/physics_source_contract.rs"
+  ],
+  "context": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_VALIDATOR_BRIEF.md",
+      "sha256": "445e5364595e0ee342d732a9d69cb7790bd183cf41f49907460e968479261580"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/REPAIR_SUPPLEMENT/INDEPENDENT_REVIEW/probe_interpolation_pair_range.py",
+      "sha256": "25cc5fce558ccd7b339b35a3b79cbf9cb5591a685296f42539505d4f52bcfb33"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "b85630992db2e3a8be9c87f395dee09b0d27c68cf80ea9765cddb57b69768fa0"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_material.rs",
+      "sha256": "a7d63cedda6040e03c0583f9c3a7114cf9aff40144ea6a5748252898789de7b2"
+    }
+  ]
+}

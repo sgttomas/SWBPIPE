@@ -1,0 +1,8 @@
+{
+  "original_record": "public-04.json",
+  "original_log": "public-04.log",
+  "error": "test_sha256 was copied from public01 template instead of refreshed; log actually ran5tests",
+  "superseding_complete_before_after_binding": "public-05.json",
+  "original_record_preserved": true,
+  "no_test_oracle_input_change_for_rerun": true
+}

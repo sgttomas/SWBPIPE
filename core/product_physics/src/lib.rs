@@ -695,6 +695,7 @@ pub struct MechanicsEnvelope {
 pub const MECHANICS_SCHEMA_VERSION: &str = "0.2.0";
 // Initial source-method work-reservation policy; generic/strict-gap defaults are separate.
 const SOURCE_BLOCKS_WORK_LIMIT: usize = 4_000_000;
+const PHYSICS_SOURCE_WORK_LIMIT: usize = 8_000_000;
 const SOURCE_BLOCKS_INVOCATION_WORK_LIMIT: usize = 64_000_000;
 #[derive(Debug)]
 struct SourceRecoveryBudget {
@@ -731,6 +732,8 @@ impl SourceRecoveryBudget {
 
 pub const SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID: &str =
     "openpipestress.result_semantics/0.3.0/source-blocks-1";
+pub const PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID: &str =
+    "openpipestress.result_semantics/0.3.0/physics-source-1";
 pub const PRECISION_SEMANTIC_CONTRACT_ID: &str =
     "openpipestress.result_semantics/0.3.0/precision-1";
 pub const PHYSICS_SEMANTIC_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
@@ -1227,15 +1230,17 @@ pub fn run_linear_static_preview_value_with_mode(
     actual_request: serde_json::Value,
     solver_mode: PreviewSolverMode,
 ) -> Result<MechanicsEnvelope, String> {
-    if !matches!(actual_request.pointer("/model/schema_version").and_then(serde_json::Value::as_str), Some("0.1.0" | "0.2.0"))
-        || actual_request.pointer("/model/pressure_contract").is_some()
-    {
-        return Err("SOURCE_MODEL_PROFILE_UNSUPPORTED_BY_THIS_ENGINE".into());
-    }
     let (request, capture) = source_receipt::CapturedInvocation::parse(actual_request, solver_mode)
         .map_err(|error| error.0)?;
-    let result = run_linear_static_preview_captured(request, solver_mode, Some(&capture), &mut SourceRecoveryBudget::default());
-    if result.producer.semantic_contract_id == SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID
+    // The composite profile pays for retained-source and physical evidence.
+    // This closed resource policy does not change old source-blocks-1 or the
+    // exact helper defaults, and never changes the numerical criterion.
+    let mut budget = SourceRecoveryBudget::default();
+    if pressure_runtime::is_exact(&request.model) {
+        budget.per_case_limit = PHYSICS_SOURCE_WORK_LIMIT;
+    }
+    let result = run_linear_static_preview_captured(request, solver_mode, Some(&capture), &mut budget);
+    if matches!(result.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID)
         && result.source_block_recovery.is_none()
     {
         return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
@@ -1514,7 +1519,16 @@ fn run_linear_static_preview_captured(
     let mut support_vectors_by_case = HashMap::new();
     for (index, solve) in load_case_solves.into_iter().enumerate() {
         pressure_evidence.extend(solve.pressure_evidence.iter().cloned());
-        exact_cases.extend(solve.exact_case_evidence.iter().cloned());
+        if let Some(mut evidence) = solve.exact_case_evidence.clone() {
+            if source_selected {
+                evidence["recovery_method"] = serde_json::json!(if solve.source_selected {
+                    "retained_source_blocks_exact_v1"
+                } else if solver_mode == PreviewSolverMode::DenseScrutiny {
+                    "ordinary_dense_structural_v1"
+                } else { "ordinary_sparse_structural_v1" });
+            }
+            exact_cases.push(evidence);
+        }
         let is_default = index == 0;
         let load_case_id = solve.load_case_id.clone();
         support_vectors_by_case.insert(load_case_id.clone(), solve.support_force_vectors);
@@ -1596,6 +1610,7 @@ fn run_linear_static_preview_captured(
         return solver_blocked(model, diagnostics, error);
     }
     // Publish finite computed binary64 quantities without an absolute decimal quantum.
+    let composite = source_selected && pressure_runtime::is_exact(&model);
     let mut envelope = MechanicsEnvelope {
         contract_evidence: pressure_runtime::is_exact(&model)
             .then(|| serde_json::json!({"pressure": pressure_evidence, "connector": [], "exact_cases": exact_cases})),
@@ -1630,9 +1645,14 @@ fn run_linear_static_preview_captured(
         accepted_model_state_mutated: false,
     };
     if source_selected {
-        envelope.producer.semantic_contract_id = SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID.into();
+        envelope.producer.semantic_contract_id = if composite { PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID } else { SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID }.into();
         if let Some(capture) = capture {
-            match source_receipt::FinalizedSourceBlockReceipt::finalize(capture, &envelope, source_cases, source_budget) {
+            let finalized = if composite {
+                source_receipt::FinalizedSourceBlockReceipt::finalize_composite(capture, &envelope, source_cases, source_budget)
+            } else {
+                source_receipt::FinalizedSourceBlockReceipt::finalize(capture, &envelope, source_cases, source_budget)
+            };
+            match finalized {
                 Ok(receipt) => envelope.source_block_recovery = Some(receipt.into_wire()),
                 Err(error) => envelope.diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![])),
             }
@@ -2135,7 +2155,7 @@ fn solve_load_case(
                 }
             }
             }
-            if let Some(action) = source_action {
+            if let Some(action) = source_action.filter(|_| !pressure_runtime::is_exact(model)) {
                 for (component, name) in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"].iter().enumerate() {
                     results.push(ResultItem {
                         id: format!("result:support-component-v2:{}:{name}", exact_source_identity(&[&load_case.id, &support.id])),
@@ -2159,8 +2179,22 @@ fn solve_load_case(
                 force_vector[0].hypot(force_vector[1]).hypot(force_vector[2])
             };
             support_force_vectors.insert(support.id.clone(), [vector[0], vector[1], vector[2]]);
-            if pressure_runtime::is_exact(model) && selected_source.is_none() {
-                append_signed_support_results(&mut results, load_case, support, vector);
+            if pressure_runtime::is_exact(model) {
+                if let Some(selected) = selected_source.as_mut() {
+                    match source_receipt::composite_support_norms(&recovery_input(), selected, &support.id) {
+                        Ok(norms) => {
+                            append_signed_support_results(&mut results, load_case, support, vector);
+                            let end = results.len();
+                            results[end - 2].value = norms[0];
+                            results[end - 1].value = norms[1];
+                        }
+                        Err(error) => diagnostics.push(diag(
+                            &format!("diagnostic:source-recovery:{}:{}:support-norm", load_case.id, support.id),
+                            "SOURCE_BLOCK_RECOVERY_DERIVED_UNAVAILABLE", "blocking", error.0,
+                            vec![load_case.id.clone(), support.id.clone()],
+                        )),
+                    }
+                } else { append_signed_support_results(&mut results, load_case, support, vector); }
             }
             if !pressure_runtime::is_exact(model) {
                 results.push(ResultItem {
@@ -2385,9 +2419,14 @@ fn solve_load_case(
             stations
         };
         let endpoint_resultants = if let Some(member) = recovered_member {
-            // Checked derived stress uses the actual published primary actions.
-            // Unary sign conversion does not reconstruct a tiny twist from u.
-            [std::array::from_fn(|i| -member.end_forces[i]), std::array::from_fn(|i| member.end_forces[6 + i])]
+            if pressure_runtime::is_exact(model) {
+                // Composite stresses and endpoint maxima share the actual
+                // retained section-cut functionals, including endpoint zeros.
+                [member.sections[0], member.sections[4]]
+            } else {
+                // Retained source-blocks-1 keeps its original publication basis.
+                [std::array::from_fn(|i| -member.end_forces[i]), std::array::from_fn(|i| member.end_forces[6 + i])]
+            }
         } else if let Some(bend) = macro_bend {
             let evaluate = |fraction| {
                 curved_bend_section_resultants(
@@ -2622,7 +2661,30 @@ fn solve_load_case(
                 )),
             }
         }
-        let summary_value = if pressure_runtime::is_exact(model) {
+        let summary_value = if pressure_runtime::is_exact(model) && selected_source.is_some() {
+            let maximum = source_receipt::composite_member_maximum(
+                &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
+            );
+            match maximum {
+                Ok(maximum) => {
+                    let value = maximum.value_pa();
+                    let result_id = format!("result:elastic-maximum:{}:{}:{}:{}", load_case.id.len(), load_case.id, pipe.element_id.len(), pipe.element_id);
+                    results.push(ResultItem { id: result_id.clone(), kind: "pipe_elastic_normal_stress_maximum_v2".into(), value, unit: "Pa".into(), entity_ref: pipe.element_id.clone(), basis_ref: None, source_result_refs: Vec::new(), metadata: Some(ResultMetadata {
+                        component: "maximum_absolute_normal_stress".into(), coordinate_system: "pipe_section".into(), location: "governing_station".into(), basis: "retained_source_endpoint_normal_max_v1".into(),
+                        sign_convention: "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate".into(),
+                    }) });
+                    if max_stress.as_ref().is_none_or(|q: &LocatedQuantity| value > q.value || (value == q.value && pipe.element_id < q.location_ref)) {
+                        max_stress = Some(LocatedQuantity { value, unit: "Pa".into(), location_ref: pipe.element_id.clone(), result_ref: result_id.clone() });
+                    }
+                    pipe_stress_extrema.push(maximum.evidence(&result_id));
+                }
+                Err(error) => {
+                    unavailable_stress_maximum_members.push(pipe.element_id.clone());
+                    diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum",load_case.id,pipe.element_id), "SOURCE_ENDPOINT_MAXIMUM_UNAVAILABLE", "warning", error.0, vec![load_case.id.clone(),pipe.element_id.clone()]));
+                }
+            }
+            None
+        } else if pressure_runtime::is_exact(model) {
             match exact_straight_summary_extrema(
                 pipe,
                 exact_mechanical_local_forces
@@ -2785,11 +2847,23 @@ fn solve_load_case(
         let qualified = qualify_source_case_rows(model, &load_case.id, &results);
         let finalized = if let Some(selected) = selected_source.take() {
             match source_row_bindings(&selected, &qualified) {
-                Ok(bindings) => source_receipt::FinalizedSourceBlockCase::exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings),
+                Ok(bindings) => {
+                    if pressure_runtime::is_exact(model) {
+                        let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
+                        physical["recovery_method"] = serde_json::json!("retained_source_blocks_exact_v1");
+                        source_receipt::FinalizedSourceBlockCase::composite_exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings, &physical)
+                    } else {
+                        source_receipt::FinalizedSourceBlockCase::exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings)
+                    }
+                },
                 Err(message) => Err(source_receipt::ReceiptError(message, Some(selected.summary().work))),
             }
         } else if let Some(failure) = &source_failure {
             source_receipt::FinalizedSourceBlockCase::failed(capture, &load_case.id, ordinary_attempt, failure, &format!("diagnostic:source-recovery:{}", load_case.id), &qualified)
+        } else if pressure_runtime::is_exact(model) {
+            let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
+            physical["recovery_method"] = serde_json::json!(if solver_mode == PreviewSolverMode::DenseScrutiny { "ordinary_dense_structural_v1" } else { "ordinary_sparse_structural_v1" });
+            source_receipt::FinalizedSourceBlockCase::ordinary_physics(capture, &load_case.id, ordinary_attempt, &qualified, &physical, &pressure_evidence)
         } else {
             source_receipt::FinalizedSourceBlockCase::ordinary(capture, &load_case.id, ordinary_attempt, &qualified)
         };

@@ -1,0 +1,219 @@
+{
+  "scope": "Observed execution provenance; no dependency mutation or new build",
+  "cwd_for_all_manager_commands": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "dependency_root": {
+    "link": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/node_modules",
+    "target": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules",
+    "workspace_alias_realpath": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop"
+  },
+  "commands": {
+    "wasm": "env -u CARGO_TARGET_DIR CARGO_BUILD_JOBS=2 npm run build:wasm --workspace apps/desktop",
+    "vitest": "PHYSICS_SOURCE_TS_OUTPUT_DIR=/private/tmp/piping-composite-ts-artifacts-resume1 npm test --workspace apps/desktop -- <explicit source test paths> --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner",
+    "tsc": "./node_modules/.bin/tsc -p apps/desktop/tsconfig.json --noEmit"
+  },
+  "evidence_boundary": [
+    "Vitest logs identify RUN candidate/apps/desktop; explicit external config imports candidate vite config, sets candidate root and private cacheDir. No workspace alias import was used by task source.",
+    "tsc config path was explicit candidate relative path from recorded candidate cwd. Dependency executable symlinks remain primary.",
+    "WASM script derives absolute source manifests and public outputs from its own import.meta.url. Build log reports relative output folders, without an explicit printed script realpath. Candidate WASM mtimes coincide with log (2026-09-25T09:30), primary artifacts are older (2026-09-24T22:21) and differ in bytes. This is supporting artifact evidence, not instrumentation of the original process cwd.",
+    "No before-build hash manifest was written for this WASM run. Current source/manifest/artifact hashes below are observed at inventory time; earlier source freeze evidence is referenced separately.",
+    "Node loader probes module-relative assets then process.cwd candidates. Tests did not instrument which exact WASM path was opened. Final native build should use ROOT disconnected dependencies and explicit candidate script paths."
+  ],
+  "current_inventory": [
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs",
+      "sha256": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5",
+      "bytes": 8425,
+      "mtime_ns": 1790307426186421178
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/vite.config.ts",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/vite.config.ts",
+      "sha256": "9e59361cfb4e89b53d2ce1acfe7a9b000b6d87c38fd7cae283019efc13d04bf9",
+      "bytes": 3317,
+      "mtime_ns": 1790307426233379621
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/tsconfig.json",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/tsconfig.json",
+      "sha256": "cc32a3c2be133425d30e112e3dc863c9dbe1ecbbdd81123abf6d6a0300a8ae5c",
+      "bytes": 525,
+      "mtime_ns": 1790307426233284704
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "sha256": "fbd8f9b474484086395b6b7fd09de0ef3bc265736f58c2b1104781785a6e5073",
+      "bytes": 8936,
+      "mtime_ns": 1790307426232192483
+    },
+    {
+      "path": "/private/tmp/piping-physics-ts-vitest.config.mjs",
+      "realpath": "/private/tmp/piping-physics-ts-vitest.config.mjs",
+      "sha256": "339675ed27bb6c62311cbfd7bdd5a59229a89b147a9339990e7adae8e224962c",
+      "bytes": 299,
+      "mtime_ns": 1790309120399543912
+    },
+    {
+      "path": "/private/tmp/piping-resume-wasm-01.log",
+      "realpath": "/private/tmp/piping-resume-wasm-01.log",
+      "sha256": "ba3dfdd5203f3df0924c73294b3e70d64b4b7ec107b85289a5cd8181f6e26d46",
+      "bytes": 760,
+      "mtime_ns": 1790328630738983003
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "sha256": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8",
+      "bytes": 4253,
+      "mtime_ns": 1790328613084461603
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+      "sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+      "bytes": 14773,
+      "mtime_ns": 1790328613084383811
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "sha256": "bff2a4e3b00e4c86353dfcc0c8c209332fdcdd88b0b4154b558c74a4283f9085",
+      "bytes": 1723335,
+      "mtime_ns": 1790328613084191935
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "sha256": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16",
+      "bytes": 1467,
+      "mtime_ns": 1790328613084547896
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+      "bytes": 1688,
+      "mtime_ns": 1790328630733586216
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+      "bytes": 6961,
+      "mtime_ns": 1790328630733496507
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "sha256": "9f0963d520b36fa6297e45b2d23c03d7062be4da70f3312c7c0ebd7309ac4725",
+      "bytes": 918073,
+      "mtime_ns": 1790328630733313172
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+      "bytes": 520,
+      "mtime_ns": 1790328630733658550
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "realpath": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "sha256": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8",
+      "bytes": 4253,
+      "mtime_ns": 1790288470815327367
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+      "realpath": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+      "sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+      "bytes": 14773,
+      "mtime_ns": 1790288470815238449
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "realpath": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "sha256": "c217f73259a0a9400544b74a65aebc681e9cb2d2bd620ea44d0ad6895670b805",
+      "bytes": 1003020,
+      "mtime_ns": 1790288470814644940
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "realpath": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "sha256": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16",
+      "bytes": 1467,
+      "mtime_ns": 1790288470815404243
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "realpath": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+      "bytes": 1688,
+      "mtime_ns": 1790288486674227627
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "realpath": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+      "bytes": 6961,
+      "mtime_ns": 1790288486674152334
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "realpath": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "sha256": "a5736689d1a2064b2f4e6a58a2f1bea5fe180160e96d790128360fd2a6df2769",
+      "bytes": 684845,
+      "mtime_ns": 1790288486673991999
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "realpath": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+      "bytes": 520,
+      "mtime_ns": 1790288486674294461
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+      "sha256": "cfa2c68fe4f25365bdec83be7471d8904c823120c90081ce1e8ada06eef60fb3",
+      "bytes": 1238,
+      "mtime_ns": 1790307519728236066
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+      "sha256": "40af164db9c5f70cae7ca2a7d3305d28da2326323af16b949395ff701fb4e159",
+      "bytes": 9412,
+      "mtime_ns": 1790328591020581373
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+      "sha256": "9d6527f2f1ab3e303df12f6e03352e96fd39334bcf9b111230fe136a4cb9d391",
+      "bytes": 647,
+      "mtime_ns": 1790307519727605851
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "sha256": "4b56e2f3a78771b5c41639fb74625a901f8f94b1adc9af9ba3792040baa2714c",
+      "bytes": 9905,
+      "mtime_ns": 1790328613126693353
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/units/Cargo.toml",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/units/Cargo.toml",
+      "sha256": "faac80dc6a59829130bb3f76913e5268abab45a32e1a000ec2d027314012ba01",
+      "bytes": 565,
+      "mtime_ns": 1790327534647728670
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/units/Cargo.lock",
+      "realpath": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/units/Cargo.lock",
+      "sha256": "1bb3d1300b3e24efe7d41e183c8d929029e963588f7eb839cf99e1c17c924d42",
+      "bytes": 2681,
+      "mtime_ns": 1790327575124466394
+    }
+  ]
+}

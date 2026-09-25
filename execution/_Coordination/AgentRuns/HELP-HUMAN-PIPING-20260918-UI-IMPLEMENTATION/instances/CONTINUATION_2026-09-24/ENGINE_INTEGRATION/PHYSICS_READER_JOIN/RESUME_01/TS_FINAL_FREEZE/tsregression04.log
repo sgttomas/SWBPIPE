@@ -1,0 +1,44 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/stress-neutral/StressNeutralExportPanel.test.tsx src/services/previewService.test.ts src/services/analysisRunCompatibility.test.ts src/services/ruleCheckService.test.ts src/features/workspace/resultsSessionState.test.ts src/features/result-export/resultExportAdapter.test.ts src/features/result-export/physicsResultExport.test.ts src/features/result-export/ResultExportPanel.test.tsx src/features/report/reportPackageRequest.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner
+
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+ ❯ src/services/previewService.test.ts (48 tests | 1 failed) 1006ms
+     × captures the actual submitted model before caller mutation while the simulated transport is pending 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/services/previewService.test.ts > native invocation provenance under bounded unit transport replay > captures the actual submitted model before caller mutation while the simulated transport is pending
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/services/previewService.test.ts:661:65
+    659|     pair.model.nodes[0].position.x += 0.5;
+    660|     release(); const result = await pending;
+    661|     expect(hasNativeMechanicsInvocation(result, expectedModel)).toBe(t…
+       |                                                                 ^
+    662|     expect(hasNativeMechanicsInvocation(result, pair.model)).toBe(fals…
+    663|     expect(invokeMock.mock.calls[0][1].model).toEqual(expectedModel);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 8 passed (9)
+      Tests  1 failed | 177 passed (178)
+   Start at  04:01:16
+   Duration  11.36s (transform 514ms, setup 320ms, import 941ms, tests 18.92s, environment 1.59s)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/stress-neutral/StressNeutralExportPanel.test.tsx src/services/previewService.test.ts src/services/analysisRunCompatibility.test.ts src/services/ruleCheckService.test.ts src/features/workspace/resultsSessionState.test.ts src/features/result-export/resultExportAdapter.test.ts src/features/result-export/physicsResultExport.test.ts src/features/result-export/ResultExportPanel.test.tsx src/features/report/reportPackageRequest.test.ts --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner

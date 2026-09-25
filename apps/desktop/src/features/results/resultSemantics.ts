@@ -1,15 +1,23 @@
+import physicsSourceContract from '../../../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json';
 import contract from '../../../../../fixtures/results/semantic_contract_v0_2.json';
+import sourceBlocksContract from '../../../../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json';
 import physicsContract from '../../../../../fixtures/results/semantic_contract_v0_3_physics_1.json';
 import precisionContract from '../../../../../fixtures/results/semantic_contract_v0_3_precision_1.json';
 import { sourceContract } from './numericalResultQuality';
 import type { MechanicsResult } from '../../types';
 export type SourceRow = MechanicsResult['results'][number];
-export type SemanticSignature = (typeof contract.rows)[number];
+export type SemanticSignature = (typeof contract.rows)[number] & { source_basis?: string };
 export { contract as resultSemanticContract };
+/** A new-method discriminator only; old table signatures omit this field. */
+export function semanticSourceBasisMatches(signature: { kind: string; source_basis?: string }, row: SourceRow): boolean {
+  return !("source_basis" in signature) || signature.source_basis === row.metadata?.basis;
+}
 export function semanticContractForSource(source?: MechanicsResult) {
   if (!source || sourceContract(source) === 'legacy') return contract;
   if (sourceContract(source) === 'precision') return precisionContract;
   if (sourceContract(source) === 'physics') return physicsContract;
+  if (sourceContract(source) === 'physics_source') return physicsSourceContract;
+  if (sourceContract(source) === 'source_blocks') return sourceBlocksContract;
   throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');
 }
 export function resultSemantics(row: SourceRow, source?: MechanicsResult): SemanticSignature | null {
@@ -19,8 +27,10 @@ export function resultSemantics(row: SourceRow, source?: MechanicsResult): Seman
   if (!units.length) throw new Error(`SOURCE_UNIT_CONTRADICTION: ${row.kind}`);
   const observedComponent = row.metadata?.component;
   const component = typeof observedComponent === "string" && observedComponent.length > 0 ? observedComponent : undefined;
-  const exact = units.find(s => s.component === null || s.component === component);
+  const variants = units.filter(s => s.component === null || s.component === component);
+  const exact = variants.find(s => semanticSourceBasisMatches(s, row));
   if (exact) return exact;
+  if (variants.length) throw new Error(`SOURCE_BASIS_CONTRADICTION: ${row.kind}`);
   if (component) throw new Error(`SOURCE_COMPONENT_CONTRADICTION: ${row.kind}`);
   return units[0]; // incomplete disclosure only; never a guessed physical variant
 }

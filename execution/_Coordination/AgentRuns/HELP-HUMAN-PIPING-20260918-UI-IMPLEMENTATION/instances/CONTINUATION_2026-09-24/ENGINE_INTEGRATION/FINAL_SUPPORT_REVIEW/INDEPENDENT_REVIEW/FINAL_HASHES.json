@@ -1,0 +1,13 @@
+{
+  "completed_utc": "2026-09-25T10:20:18.391736+00:00",
+  "outputs": {
+    "RETURN.md": "f584227accca9c76c4c0f3e967351b97e19bfb98874e46a8095d67957208af12",
+    "FINDINGS.json": "f59e1423b14dd92c34afd225569edf738311f2b08c13240fc56f7f191c40a48b",
+    "EXECUTION.json": "6aa2cf7f3aeb66eb11c6ec10cea97365a6191918b8ee0f7f604b4f6d53ba0032",
+    "VERIFICATION.json": "04f515a4db964d5f2040ea8183e5f41aeaf1e6e9bcc460f15e7eaf03166dc192",
+    "CAPTURE_VERIFICATION.json": "70c66c84b114b1857b37a23c330c1426ea6613cafaf6dea4c5c417f76e83f492",
+    "SCOPE_CHECK.json": "fd165fef6f39ee6948d8b7db86653b6acbd877b3fd2de2c7377502e42f3eafe7",
+    "check_scope_origins.py": "544b2131e18e62a876f1161c96cf563f3c1df757273026acc2090d015a18225d",
+    "check_captures.mjs": "f597ea8c8b0c075575d3f319abad37f211f875f33a5e3ef33e15fe3144802894"
+  }
+}

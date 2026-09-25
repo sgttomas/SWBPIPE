@@ -1,0 +1,28 @@
+{
+  "purpose": "Actual unchanged producer binary/input with UTF-8 case/member/support identities; no relabelled output",
+  "binary_binding": "ACTUAL_UNIT_CAPTURE.json",
+  "binary_sha256": "d7cfc29f6b26123e3f7b95a647b7f433d7b576f567109968283e48e4664d7d24",
+  "input_sha256": "494310fccac2ff287f7da79614e243d25cb889997adf7fa6b6ff2fc39ec177e9",
+  "runs": [
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "sparse",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/n05_unicode.request.json"
+      ],
+      "exit_code": 0,
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_unicode-sparse_interactive.raw.json",
+      "output_sha256": "468e2ce76a179b1419fc501fe6d38b7bca80adf21d0ee94fd65b85ead1a1c9a5"
+    },
+    {
+      "command": [
+        "/private/tmp/piping-engine-integration-product-target/debug/examples/physics_source_connected",
+        "dense",
+        "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/physics_source/n05_unicode.request.json"
+      ],
+      "exit_code": 0,
+      "output": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_unicode-dense_scrutiny.raw.json",
+      "output_sha256": "8bb7f19dbac1444ac352a1ad793ee893a2f7bb41f32ff20b92f005ef5608cd43"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "task": "/root/physics_resume/physics_reader_join/physics_rust_export",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native bounded followup; no delegation",
+  "created_utc": "2026-09-25T08:27:34.529214+00:00",
+  "scope": [
+    "core/handoff/stress_neutral/package_v0_3.py",
+    "schemas/stress_neutral_export.v0.3.schema.json",
+    "tests/test_stress_neutral_physics_source.py",
+    "PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/**"
+  ],
+  "limits": [
+    "Pure packet projection only; no Current/authentication",
+    "No Cargo/npm without lane",
+    "No edits to shared validators/analysis/other schemas"
+  ],
+  "before": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "before_sha256": "d2248bc6c9a82a9c76ad2df1783c1412970c3b242340844964235ea154831683"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.3.schema.json",
+      "before_sha256": "88647b3499e56530f8628e071686b86f2beacf005f8a351a5981593f1aa7e50f"
+    }
+  ],
+  "basis": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "18456d27e5347f1a1eb378cb5cf03c0ea4f3f4f659da6f2a196cb52614972a40"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/analysis_runs/physics_source.py",
+      "sha256": "ccee507b647d333b56212beb3459242030093f7a863e02040c81154dd7dc524e"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/handoff/stress_neutral/package.py",
+      "sha256": "cb25f09a26922ead575b914dc9d8b054e8d3988b6c14f64bf36a830009739415"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/test_stress_neutral_precision.py",
+      "sha256": "da5095b9a7e182925a6185955a692a02317c469209e953dffe15efe4e9662782"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/test_stress_neutral_export_package.py",
+      "sha256": "1679b078dd286e49057affa33b4a7f8c7e60e43d7212a1ba39f5db952ad7bc36"
+    },
+    {
+      "origin": "/private/tmp/piping-source-recovery-20260924/projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "f24e9de39553add1298276ed1f1057befe77b0144474cb357518d4b2639434b0"
+    }
+  ],
+  "source_NUM_reference": "Read-only implementation comparison, review coverage pending; not a reviewed import."
+}

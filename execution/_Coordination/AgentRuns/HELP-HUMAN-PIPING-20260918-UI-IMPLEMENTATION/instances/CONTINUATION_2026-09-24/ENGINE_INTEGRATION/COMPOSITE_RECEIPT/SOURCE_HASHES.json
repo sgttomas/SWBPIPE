@@ -1,0 +1,9 @@
+{
+  "projects/chirality-piping/core/product_physics/src/source_recovery.rs": "04b1083e0cc750a1e5b9335c31e27f2dccaca965c797bcfbaafff6b4f6056315",
+  "projects/chirality-piping/core/product_physics/src/source_receipt.rs": "94720720cbc0221af00e875faba5f77dfe6b35e791f248c589e87af10e6b8a65",
+  "projects/chirality-piping/core/product_physics/src/source_receipt/composite.rs": "775a18f8cdd9d94eb9a16677dd3070d65b0ff08b363ca63313bb2a1a1b26d757",
+  "projects/chirality-piping/core/product_physics/src/source_receipt/endpoint_maximum.rs": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6",
+  "projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs": "17b4570259da139e406a47229131b4a0a8a7640a5625a161af53f67ebe3e8262",
+  "projects/chirality-piping/core/product_physics/src/source_receipt/source.rs": "cae846c609e9dfd2a650e91b85419d55b6b8b96137834a5ca9fbaf562bebf4ca",
+  "projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs": "cd45c7e14898951dc8500129bdd3273a6db2e0fff5351761b87af4e7728f1b18"
+}

@@ -1,0 +1,84 @@
+{
+  "command": [
+    "/private/tmp/chirality-piping-review-venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_stress_neutral_physics_source.py",
+    "-k",
+    "utf8_actual_unicode or precision_package"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "start_utc": "2026-09-25T10:06:22.924417+00:00",
+  "environment": {
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson",
+    "OPENPIPESTRESS_UNITS_BIN": "/private/tmp/piping-units-authority-target/debug/openpipestress_units",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "executables": {
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "bc1343ef45704c0ec65c1c7ac244c50e349af49de3a9b850dc11578bb2fc6c54",
+    "OPENPIPESTRESS_UNITS_BIN": "fe28924fb3c0ba61e8789b65771c512da890ab4950406042cdb2c8bff55de464"
+  },
+  "inputs": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "8b07faea35dacabfda35f4537d708a57ba585e918760c988b550f1d3f9414921"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "af3d229289c72349f2daa5b7826bd7f0be4924d6b854c6358d480c89d1d991dd"
+    },
+    {
+      "path": "tests/test_stress_neutral_physics_source.py",
+      "sha256": "82abba8a3fb720f4a78fed36bd45b23f0e78dc8981bd410220ebe6ede4fab3f5"
+    },
+    {
+      "path": "core/analysis_runs/compatibility.py",
+      "sha256": "5e5083a1ed2d25a0e033031e31a65ae85babb45089c03760937bc2dda1c4b945"
+    },
+    {
+      "path": "core/analysis_runs/physics_source.py",
+      "sha256": "81487a87d5e170b98b1569a8d2e7c42943b9c1be565f3a71c5b5a18879c4aba1"
+    },
+    {
+      "path": "core/analysis_runs/physics_evidence.py",
+      "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+    },
+    {
+      "path": "core/analysis_runs/source_blocks.py",
+      "sha256": "0007f9049cb50e2dc2f09e9dfa1a377d8fa7c9ab092cc8aaf6a1151cca4c25fa"
+    },
+    {
+      "path": "core/units/adapter.py",
+      "sha256": "956497faf5063cd910698b09be086744fef6c0df39467c77f660d772f8d1d3b2"
+    },
+    {
+      "path": "tests/conftest.py",
+      "sha256": "e60106277cb7f586c83ffc25e3fcadd9bc04dec291770b6173b7b8cd8658e75e"
+    },
+    {
+      "path": "schemas/physics_source_recovery.schema.json",
+      "sha256": "3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n05_unicode-sparse_interactive.raw.json",
+      "sha256": "468e2ce76a179b1419fc501fe6d38b7bca80adf21d0ee94fd65b85ead1a1c9a5"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n05_unicode-dense_scrutiny.raw.json",
+      "sha256": "8bb7f19dbac1444ac352a1ad793ee893a2f7bb41f32ff20b92f005ef5608cd43"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n05_unicode.request.json",
+      "sha256": "494310fccac2ff287f7da79614e243d25cb889997adf7fa6b6ff2fc39ec177e9"
+    }
+  ],
+  "exit_code": 0,
+  "end_utc": "2026-09-25T10:06:36.737761+00:00",
+  "log": "actual-unicode-01.log",
+  "log_sha256": "2f3d1a537c30a3a9d3490712cb15f4ad8b7217a24f97a63edb980232641704d8",
+  "input_hash_drift": []
+}

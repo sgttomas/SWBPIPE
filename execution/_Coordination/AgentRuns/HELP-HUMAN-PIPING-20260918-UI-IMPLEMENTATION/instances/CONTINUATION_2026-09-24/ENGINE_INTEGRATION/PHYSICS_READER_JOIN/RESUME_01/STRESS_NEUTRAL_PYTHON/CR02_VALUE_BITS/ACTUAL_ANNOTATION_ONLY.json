@@ -1,0 +1,35 @@
+{
+  "scope": "Actual mixed source annotation serialization only; deliberately does NOT invoke moving CR01/03 raw/metadata validators and is NOT the pending complete nine-member backcheck.",
+  "created_utc": "2026-09-25T09:13:50.111072+00:00",
+  "code_sha256": "1e833ff9efd2ec72482a84cb1fa622615e777ef412555b3a31d5470fe0ada0ab",
+  "results": [
+    {
+      "mode": "sparse_interactive",
+      "source_sha256": "4134fc480d7c77aa412664e0484e08eb3e0c2f44174bbfd6f42023548c4ff4d1",
+      "rows": 191,
+      "received_negative_zeros": 31,
+      "received_positive_zeros": 114,
+      "changed_received_bits_sidecar": [],
+      "canonical_row_zeros": "all positive zero",
+      "annotation_hash_before": "ada7aca1d03cdc05928fff04bc9ba2a9db8e31e7118f00dd438433f9f6859f55",
+      "annotation_hash_after": "ada7aca1d03cdc05928fff04bc9ba2a9db8e31e7118f00dd438433f9f6859f55"
+    },
+    {
+      "mode": "dense_scrutiny",
+      "source_sha256": "a240ba6cc38196a806a4720ffd24ac215f4bafca4e70ed2cb3959ca29e506030",
+      "rows": 193,
+      "received_negative_zeros": 31,
+      "received_positive_zeros": 115,
+      "changed_received_bits_sidecar": [],
+      "canonical_row_zeros": "all positive zero",
+      "annotation_hash_before": "c9d011205322406e51b350704c4c804f9fa2e4e98509ac7ce668ea5eb5df6612",
+      "annotation_hash_after": "c9d011205322406e51b350704c4c804f9fa2e4e98509ac7ce668ea5eb5df6612"
+    }
+  ],
+  "execution": {
+    "command": "OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson /private/tmp/chirality-piping-review-venv/bin/python -B - (stdin script)",
+    "exit_code": 0,
+    "replay_script": "probe_actual_annotations.py",
+    "replay_note": "Equivalent maintained replay of the executed stdin probe; original output preserved here."
+  }
+}

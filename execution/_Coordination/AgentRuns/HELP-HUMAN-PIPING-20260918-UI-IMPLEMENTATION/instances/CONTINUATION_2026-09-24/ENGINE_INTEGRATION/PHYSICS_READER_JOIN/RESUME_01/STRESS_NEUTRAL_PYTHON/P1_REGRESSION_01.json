@@ -1,0 +1,7 @@
+{
+  "command": "OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson PYTHONPATH=tests /private/tmp/chirality-piping-review-venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_stress_neutral_physics_source.py -k \"precision_package or shape_definitions\"",
+  "exit_code": 0,
+  "output": "2 passed, 23 deselected in 0.27s",
+  "checked_json_sha256": "bc1343ef45704c0ec65c1c7ac244c50e349af49de3a9b850dc11578bb2fc6c54",
+  "scope": "Pre-existing p1 packet/full9member bytes and copied physics schema definitions only; actual source-method runs pending stable validation basis."
+}

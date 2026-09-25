@@ -1,0 +1,11 @@
+{
+  "completed_utc": "2026-09-25T08:51:12.565661+00:00",
+  "outputs": {
+    "RETURN.md": "a4da70f6097b3d8a62d807b3ea738aa4c975cfb2ad5d820441bbb857ed1ad923",
+    "EXECUTION.json": "c502793b528499f6d9f682ee257358adbb3984381f9ab10c333c479bc3ac64be",
+    "verify_composite.py": "a0dfd716e4f97007411cc3d49c22e199bdde23363d4bc26d460a84832141731d",
+    "VERIFICATION.json": "bda3049fbfa3ea22ed25500923a0fc7ae03306cb1e6dc8ef9b1fd474f35ea5e6",
+    "SCOPE_CHECK.json": "1ea1c074990eeaedca1a7cfedde27ba24db3e70f8d2825edd23e6407c3197a58",
+    "POLICY_RECORD_REVIEW.json": "b7c6e9a2cc3ecec03ca8b2edd2776ba75cbb455167847667b874d9b066a7c181"
+  }
+}

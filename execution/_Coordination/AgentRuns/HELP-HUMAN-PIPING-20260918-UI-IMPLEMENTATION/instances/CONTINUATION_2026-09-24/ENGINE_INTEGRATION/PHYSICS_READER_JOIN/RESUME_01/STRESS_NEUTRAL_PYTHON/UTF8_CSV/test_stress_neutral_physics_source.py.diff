@@ -1,0 +1,130 @@
+--- before/tests/test_stress_neutral_physics_source.py
++++ after/tests/test_stress_neutral_physics_source.py
+@@ -6,6 +6,8 @@
+ from copy import deepcopy
+ from functools import lru_cache
+ import hashlib
++import csv
++import io
+ import json
+ import math
+ import struct
+@@ -308,3 +310,118 @@
+         sn.validate_stress_neutral_export_package_v0_3(malformed)
+     with pytest.raises(AssertionError):
+         validate_instance(json.loads(SCHEMA.read_text()), malformed, instance_label="missing CR02 sidecar")
++
++
++UTF8_METHODS = [PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID]
++
++
++def csv_transport_row(identity, value=1.25):
++    # A CSV transport vector only; it is not a claimed producer result.
++    return {"result_id": identity, "canonical_ref": {"object_type": "Result", "ref": identity},
++        "row_kind": "result_value", "result_family": "force",
++        "load_case_ref": {"object_type": "LoadCase", "ref": 'case:温度,"a"\r\nline'},
++        "station_ref": {"object_type": "Station", "ref": '端点,"i"\nnext'},
++        "component_ref": {"object_type": "PipeElement", "ref": 'pipe:é\rline'},
++        "value": value, "unit": "N", "dimension": "force", "correlation_status": "canonical_id_map"}
++
++
++def test_utf8_csv_transport_preserves_delimiters_quotes_and_embedded_cr_lf_scalar_order():
++    identities = ['result:😀', 'result:\ue000', 'result:é', 'result:e\u0301', 'result:a,"quoted"\r\nnext', 'result:温度', '\ufeffresult:authored', 'result:\ufeff,"kept"']
++    rows = [csv_transport_row(identity) for identity in identities]
++    text = sn._render_utf8_csv(rows)
++    wire = sn._utf8_csv_bytes(text)
++    assert wire == text.encode("utf-8") and not wire.startswith(b"\xef\xbb\xbf")
++    parsed = list(csv.DictReader(io.StringIO(wire.decode("utf-8"), newline=""), strict=True))
++    assert [row["result_id"] for row in parsed] == sorted(identities)
++    assert identities.index('result:😀') < identities.index('result:\ue000')
++    assert [row["result_id"] for row in parsed].index('result:\ue000') < [row["result_id"] for row in parsed].index('result:😀'), "Scalar order differs from UTF16 code-unit order"
++    assert {row["result_id"] for row in parsed} >= {'\ufeffresult:authored', 'result:\ufeff,"kept"'}, "U+FEFF within fields is data, not a file BOM"
++    assert {row["result_id"] for row in parsed} >= {'result:é', 'result:e\u0301'}, "No Unicode normalization"
++    for row in parsed:
++        assert row["load_case_ref"] == 'case:温度,"a"\r\nline'
++        assert row["station_ref"] == '端点,"i"\nnext'
++        assert row["component_ref"] == 'pipe:é\rline'
++    sn._validate_received_csv(text, sorted(rows, key=lambda row: row["result_id"]), utf8=True)
++    with pytest.raises(ValueError, match="ROW-ORDER"):
++        sn._validate_received_csv(text, rows, utf8=True)
++    with pytest.raises(ValueError, match="ROW-BINDING"):
++        sn._validate_received_csv(text, sorted(rows, key=lambda row: row["result_id"]))
++
++
++@pytest.mark.parametrize("mutate", [
++    lambda text: "\ufeff" + text,
++    lambda text: text.replace("\n", "\r\n", 1),
++    lambda text: text[:-1],
++    lambda text: text.replace("result:温度", "result:\ud800"),
++    lambda text: text.replace("result:温度", 'result:bad"quote'),
++])
++def test_utf8_csv_transport_rejects_bom_record_cr_surrogates_and_broken_quoting(mutate):
++    text = sn._render_utf8_csv([csv_transport_row("result:温度")])
++    with pytest.raises(ValueError, match="SN-CSV-"):
++        sn._utf8_csv_bytes(mutate(text))
++
++
++@pytest.mark.parametrize("method", UTF8_METHODS)
++def test_utf8_csv_profile_is_explicit_for_each_new_method(method):
++    minimal = {"producer": {"semantic_contract_id": method}, "export_profile": {"csv_encoding": "utf-8", "csv_row_order": "unicode_scalar_value_result_id"}}
++    assert sn._csv_policy(minimal) == ("utf-8", "utf8_csv_record_lf_v1")
++    for key, bad in [("csv_encoding", "ascii"), ("csv_encoding", "UTF-8"), ("csv_row_order", "utf16_code_units")]:
++        mutated = deepcopy(minimal); mutated["export_profile"][key] = bad
++        with pytest.raises(ValueError, match="CSV-PROFILE"): sn._csv_policy(mutated)
++    for key in ["csv_encoding", "csv_row_order"]:
++        mutated = deepcopy(minimal); del mutated["export_profile"][key]
++        with pytest.raises(ValueError, match="CSV-PROFILE"): sn._csv_policy(mutated)
++    minimal["producer"]["semantic_contract_id"] = sn.PRECISION_CONTRACT_ID
++    with pytest.raises(ValueError, match="CSV-PROFILE"): sn._csv_policy(minimal)
++    minimal["export_profile"] = {}
++    assert sn._csv_policy(minimal) == ("ascii", "normalized_ascii_lf_text")
++
++
++@pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
++def test_utf8_actual_unicode_source_roundtrips_exact_nine_members_and_value_bits(mode, tmp_path):
++    path = COMPOSITE_DIR / f"n05_unicode-{mode}.raw.json"
++    assert path.exists(), "Requires actual Unicode producer capture, not relabelled source headers"
++    raw, analysis, packet = captured(path)
++    original_request = json.loads((COMPOSITE_DIR / "n05_unicode.request.json").read_text())
++    from core.analysis_runs.source_blocks import domain_hash
++    assert original_request["model"]["project"]["id"] == raw["model_ref"]
++    assert raw["source_block_recovery"]["body"]["invocation"]["value"] == domain_hash("source_blocks_invocation_v1", {"request": original_request, "solver_mode": mode})
++    assert any(not row["id"].isascii() for row in raw["results"])
++    assert packet["export_profile"]["csv_encoding"] == "utf-8"
++    assert packet["export_profile"]["csv_row_order"] == "unicode_scalar_value_result_id"
++    members = sn.materialized_members_v0_3(packet)
++    assert list(members) == sn.MEMBERS
++    wire = members["stress_neutral_results.csv"]
++    assert wire == packet["csv_text"].encode("utf-8") and not wire.startswith(b"\xef\xbb\xbf")
++    assert any(byte > 127 for byte in wire)
++    checksum = next(c for c in packet["manifest"]["checksums"] if c["payload_ref"]["ref"] == "stress_neutral_results.csv")
++    assert checksum["canonicalization"] == "utf8_csv_record_lf_v1"
++    assert checksum["value"] == hashlib.sha256(wire).hexdigest()
++    sn.write_materialized_members_v0_3(packet, tmp_path)
++    reopened = sn.read_materialized_members_v0_3(tmp_path, source_envelope=raw, analysis_record=analysis)
++    validate_instance(json.loads(SCHEMA.read_text()), reopened, instance_label=f"UTF8 actual {mode}")
++    assert reopened == packet
++    raw_by_id = {row["id"]: row for row in raw["results"]}
++    assert [row["result_id"] for row in reopened["result_rows"]] == sorted(raw_by_id)
++    for annotation in reopened["source_annotations"]:
++        original = raw_by_id[annotation["source_result_id"]]
++        assert annotation["source_value_bits"] == struct.pack(">d", float(original["value"])).hex()
++        assert annotation["source_row"].get("metadata") == original.get("metadata")
++    for bad_wire in [b"\xff" + wire, b"\xc0\x80" + wire, b"\xed\xa0\x80" + wire, b"\xe2\x82", b"\xef\xbb\xbf" + wire, wire.replace(b"\n", b"\r\n", 1)]:
++        corrupted = dict(members); corrupted["stress_neutral_results.csv"] = bad_wire
++        with pytest.raises(ValueError, match="SN-CSV-"):
++            sn.reconstruct_materialized_members_v0_3(corrupted, source_envelope=raw)
++    bad = deepcopy(packet); bad["export_profile"]["csv_encoding"] = "ascii"
++    bad["package_checksum"]["value"] = canonical_sha256_checked_v1(sn.package_projection(bad))
++    with pytest.raises(ValueError, match="CSV-PROFILE"):
++        sn.validate_stress_neutral_export_package_v0_3(bad)
++    with pytest.raises(AssertionError): validate_instance(json.loads(SCHEMA.read_text()), bad, instance_label="wrong UTF8 label")
++    bad = deepcopy(packet)
++    for claim in bad["manifest"]["checksums"]:
++        if claim["payload_ref"]["ref"] == "stress_neutral_results.csv": claim["canonicalization"] = "normalized_ascii_lf_text"
++    for member in bad["manifest"]["package_members"]:
++        if member["filename"] == "stress_neutral_results.csv": member["checksum"]["canonicalization"] = "normalized_ascii_lf_text"
++    bad["package_checksum"]["value"] = canonical_sha256_checked_v1(sn.package_projection(bad))
++    with pytest.raises(ValueError, match="CHECKSUM-METADATA"):
++        sn.validate_stress_neutral_export_package_v0_3(bad)
++    with pytest.raises(AssertionError): validate_instance(json.loads(SCHEMA.read_text()), bad, instance_label="wrong UTF8 checksum label")

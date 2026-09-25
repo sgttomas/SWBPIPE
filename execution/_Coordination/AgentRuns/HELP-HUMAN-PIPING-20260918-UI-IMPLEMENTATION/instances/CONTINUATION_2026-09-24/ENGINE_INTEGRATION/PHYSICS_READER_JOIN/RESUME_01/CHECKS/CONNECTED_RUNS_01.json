@@ -1,0 +1,471 @@
+{
+  "frozen_source_unchanged": true,
+  "freeze_backcheck": [
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "frozen_sha256": "04f85b53315f9eec2c7785abb8bbf724d6fdf58026510e738363fec6d0b8f24f",
+      "current_sha256": "04f85b53315f9eec2c7785abb8bbf724d6fdf58026510e738363fec6d0b8f24f"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "frozen_sha256": "a04750cc32b62618df10515c06a869c1bfe94a449ab4f68f47bd1cfcbb240aaf",
+      "current_sha256": "a04750cc32b62618df10515c06a869c1bfe94a449ab4f68f47bd1cfcbb240aaf"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "frozen_sha256": "c3e5c91e17cd124bf980a305af8f56e938f3d7cc992177b51d1decd42c7dfa29",
+      "current_sha256": "c3e5c91e17cd124bf980a305af8f56e938f3d7cc992177b51d1decd42c7dfa29"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_evidence.rs",
+      "frozen_sha256": "f17c0f4cfa62070fa7b0b1b75e852b04cae6bfca5e82551f621d24c44e466076",
+      "current_sha256": "f17c0f4cfa62070fa7b0b1b75e852b04cae6bfca5e82551f621d24c44e466076"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs",
+      "frozen_sha256": "97efff92be2502317fa9d7f8783d013e4f341c2b7f2fed85019ada49ee4d3303",
+      "current_sha256": "97efff92be2502317fa9d7f8783d013e4f341c2b7f2fed85019ada49ee4d3303"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "frozen_sha256": "b276da57919af432eb866a180d53900a91bbdaa8776eac8b10d33dacea0ee104",
+      "current_sha256": "b276da57919af432eb866a180d53900a91bbdaa8776eac8b10d33dacea0ee104"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/physics_source_contract.rs",
+      "frozen_sha256": "0853c260a18414ebbaefaf26c56b82a35077b1e1a946fee87004cf3e3f4246e7",
+      "current_sha256": "0853c260a18414ebbaefaf26c56b82a35077b1e1a946fee87004cf3e3f4246e7"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "frozen_sha256": "5e5083a1ed2d25a0e033031e31a65ae85babb45089c03760937bc2dda1c4b945",
+      "current_sha256": "5e5083a1ed2d25a0e033031e31a65ae85babb45089c03760937bc2dda1c4b945"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_evidence.py",
+      "frozen_sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad",
+      "current_sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/source_blocks.py",
+      "frozen_sha256": "0007f9049cb50e2dc2f09e9dfa1a377d8fa7c9ab092cc8aaf6a1151cca4c25fa",
+      "current_sha256": "0007f9049cb50e2dc2f09e9dfa1a377d8fa7c9ab092cc8aaf6a1151cca4c25fa"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_source.py",
+      "frozen_sha256": "6128a9d12a2e412b0e89a07215376dab9a8693c82fc56d68d01573cf37fbaabd",
+      "current_sha256": "6128a9d12a2e412b0e89a07215376dab9a8693c82fc56d68d01573cf37fbaabd"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_physics_source_contract.py",
+      "frozen_sha256": "bff73f919701d3204541f2b70cfc36bf58aeed0f4cac64ee739d9ec49c34c6c3",
+      "current_sha256": "bff73f919701d3204541f2b70cfc36bf58aeed0f4cac64ee739d9ec49c34c6c3"
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+      "frozen_sha256": "4db371c6e70cd09925f88f5698a59292c5a2101aa59f1ca1cd9334fd12564ef6",
+      "current_sha256": "4db371c6e70cd09925f88f5698a59292c5a2101aa59f1ca1cd9334fd12564ef6"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json",
+      "frozen_sha256": "1311149a04e900ea01bd22e5dd3cc7f8a85bc6db8923cca9bf63d9f941bbaafc",
+      "current_sha256": "1311149a04e900ea01bd22e5dd3cc7f8a85bc6db8923cca9bf63d9f941bbaafc"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_stress_neutral_physics_source.py",
+      "frozen_sha256": "7e7026a36940143e76f1f267b47c3966abc9daeddfc820ad5d04ab31757a6e0f",
+      "current_sha256": "7e7026a36940143e76f1f267b47c3966abc9daeddfc820ad5d04ab31757a6e0f"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "frozen_sha256": "5b9144c3e0f42fb2e1b82a7f83a8b5f20d3e542aade601a4335e7aa39c9c201b",
+      "current_sha256": "5b9144c3e0f42fb2e1b82a7f83a8b5f20d3e542aade601a4335e7aa39c9c201b"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "frozen_sha256": "61c869ef54901e90c66e0900807dfcf7f9610b91b7049f04b25b6b0ea506bb5d",
+      "current_sha256": "61c869ef54901e90c66e0900807dfcf7f9610b91b7049f04b25b6b0ea506bb5d"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+      "frozen_sha256": "ab2c09da9866af0c789fc15386f34260e8a76b91c21740194311bb4119bd8bae",
+      "current_sha256": "ab2c09da9866af0c789fc15386f34260e8a76b91c21740194311bb4119bd8bae"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "frozen_sha256": "a527f083dabc9e64ab7103e16c51103e85b6a67f5cef1427d1e8e908d7f5cc9f",
+      "current_sha256": "a527f083dabc9e64ab7103e16c51103e85b6a67f5cef1427d1e8e908d7f5cc9f"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+      "frozen_sha256": "f81f1c8e04ba3ecce5da51d72f303d41f6d710b26ea1a77f9163cfe94cae6abe",
+      "current_sha256": "f81f1c8e04ba3ecce5da51d72f303d41f6d710b26ea1a77f9163cfe94cae6abe"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/physics_source_recovery.schema.json",
+      "frozen_sha256": "3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c",
+      "current_sha256": "3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_source_block_schema_contract.py",
+      "frozen_sha256": "61dcfd33b6977bdeaf4cdcabeae9d01271c5c85525677b0213f02ec97f9f6a5e",
+      "current_sha256": "61dcfd33b6977bdeaf4cdcabeae9d01271c5c85525677b0213f02ec97f9f6a5e"
+    },
+    {
+      "path": "projects/chirality-piping/tests/schema_validation.py",
+      "frozen_sha256": "717891a83c0998bfdc5dbfc150e1697a8a385cef2cc019109bc63e91050550eb",
+      "current_sha256": "717891a83c0998bfdc5dbfc150e1697a8a385cef2cc019109bc63e91050550eb"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_source_1.json",
+      "frozen_sha256": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1",
+      "current_sha256": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
+    }
+  ],
+  "new_test_supplement": {
+    "path": "projects/chirality-piping/core/runner/headless/tests/physics_source_connected.rs",
+    "sha256": "b56a5fd3e986f1cf921f969ee736a0a6dc4b4e4c16bb6e39e7dc0746001f399c"
+  },
+  "checks": [
+    {
+      "log": "reader-03.log",
+      "exit": 0,
+      "passed": 25,
+      "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-physics-result-export-target cargo test --offline --manifest-path core/reporting/result_export/Cargo.toml --test physics_source_contract --test physics_contract --test source_blocks"
+    },
+    {
+      "log": "headless-01.log",
+      "exit": 0,
+      "passed": 11,
+      "filtered": 33,
+      "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-physics-headless-target HEADLESS_SOURCE_BLOCK_OUTPUT_DIR=/private/tmp/piping-headless-source-artifacts-resume1 cargo test --offline --manifest-path core/runner/headless/Cargo.toml --lib result_envelope_binding::tests"
+    },
+    {
+      "log": "cli-01.log",
+      "exit": 0,
+      "passed": 18,
+      "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-physics-headless-target HEADLESS_SOURCE_BLOCK_OUTPUT_DIR=/private/tmp/piping-headless-source-artifacts-resume1 cargo test --offline --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner"
+    },
+    {
+      "log": "headless-composite-01.log",
+      "exit": 0,
+      "passed": 1,
+      "actual_invocations": 8,
+      "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-physics-headless-target HEADLESS_COMPOSITE_OUTPUT_DIR=/private/tmp/piping-headless-composite-artifacts-resume1 cargo test --offline --manifest-path core/runner/headless/Cargo.toml --test physics_source_connected"
+    },
+    {
+      "log": "schema-04-failed.log",
+      "exit": 1,
+      "passed": 100,
+      "failed": 10,
+      "cause": "Cross-schema RefResolver returns to wrong scope; local ResultSet reference unresolved. No schema shape weakening applied.",
+      "command": "OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson HEADLESS_SOURCE_BLOCK_OUTPUT_DIR=/private/tmp/piping-headless-source-artifacts-resume1 /private/tmp/chirality-piping-review-venv/bin/python -m pytest -q tests/test_source_block_schema_contract.py"
+    }
+  ],
+  "log_hashes": {
+    "reader-03.log": "c837a91d876f8e932d9f7ede5fc6496ff554eceb0a3b6cbe411df3c6687c5408",
+    "headless-01.log": "9aade990285d8596d41d8414b83523293ec34bd009ba13ad9690e26615aec6fb",
+    "cli-01.log": "5cae413b4885fd5fe8ee9b8bcf52790ea39b4f31c07adff40125e96b67811371",
+    "schema-04-failed.log": "eac7cbc14995314c0b1b320a459abeda55a695c23305d3670e1f08b9b0869e4d",
+    "headless-composite-01.log": "e2998db91c828ae134638013eca122966bfd0a94ba3a0f5454ba05748dd43b4b"
+  },
+  "artifact_hashes": [
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/cli-n05-dense_scrutiny.input.json",
+      "sha256": "9b36feb4eb2e31e1fe395394f458e63b33eaad1100ad03898a7b4e1e3b568966"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/cli-n05-dense_scrutiny.output.json",
+      "sha256": "df5cee3b3a7820baf8848c902f8abe78dc7d9f90f2095502c4f565d5f80ded13"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/cli-n05-sparse_interactive.input.json",
+      "sha256": "9b36feb4eb2e31e1fe395394f458e63b33eaad1100ad03898a7b4e1e3b568966"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/cli-n05-sparse_interactive.output.json",
+      "sha256": "735b379076fd90e1eecb312805848ecb58d66bde2a841b2a725524ad3982b315"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/multicase-dense_scrutiny.document.json",
+      "sha256": "d190c43d5b9f5b9f6f90f2b6bd410320a7b318c1953a03ab568b5b458cfa4ad9"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/multicase-dense_scrutiny.invocation.json",
+      "sha256": "62fb42479454956f2593416a1d4a05bcf18a0b3852bd55d9ed00f68ddbaddba1"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/multicase-dense_scrutiny.manifest.json",
+      "sha256": "74804f1b066d2046dba7f823216e15275359e946ae76aa629f74955489d7044f"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/multicase-dense_scrutiny.raw.json",
+      "sha256": "6569258bc3e672a734cbea996e50a41e2d7da301a87a0c197a14b13b83eb5869"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/multicase-dense_scrutiny.request.json",
+      "sha256": "aeeaaf19760c1d02fc3a8125ade88eb2b74b6f795ff7b300171c08172c4d24d6"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/multicase-sparse_interactive.document.json",
+      "sha256": "8385c9008038e664afe8507a59648a0ff7bfb2bff65ce4f183614ea14e9f252d"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/multicase-sparse_interactive.invocation.json",
+      "sha256": "19ff545c247ac085b44fcb26e0c23d52556636e3d0bc082728126870c96ad6d8"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/multicase-sparse_interactive.manifest.json",
+      "sha256": "3867c99eb8a96b6456a1b2bb3e441d0bd0fcf892098dfb698012d8200e526309"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/multicase-sparse_interactive.raw.json",
+      "sha256": "0fb36f522ee4899b0ed00d743df2a57a6d704fbc6285d519413658d2ac52b54d"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/multicase-sparse_interactive.request.json",
+      "sha256": "aeeaaf19760c1d02fc3a8125ade88eb2b74b6f795ff7b300171c08172c4d24d6"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n05-dense_scrutiny.document.json",
+      "sha256": "75bc3e3b8ba2b3ddfd2e34c03dc3cede28aa9b4207be9621f73d0b9928f442e5"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n05-dense_scrutiny.invocation.json",
+      "sha256": "87811d91f672eb7baf0db47fa2b78650d13559d76e3c694e49815061d2a493db"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n05-dense_scrutiny.manifest.json",
+      "sha256": "41c45075278c5d387239ce8089ca421efbb1d596a0148d39bbe3ba3e3432c69b"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n05-dense_scrutiny.raw.json",
+      "sha256": "90a3d42ee65ecd2a2c907e26d15afd0a85d45e65e70f905f4c55fc01050fc4d8"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n05-dense_scrutiny.request.json",
+      "sha256": "abfa321ca270b0a2b5dd0670a686afd6dc55e229efb8a8da2fac1c6a93aba85c"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n05-sparse_interactive.document.json",
+      "sha256": "78af2d7e3c6635e43f39dced83b09a2f90f2b3313e84506fb54bf6007ceafd84"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n05-sparse_interactive.invocation.json",
+      "sha256": "48284021527d1384d8d8324e7beeb89e74127b134da937c580bc48f99e4f5992"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n05-sparse_interactive.manifest.json",
+      "sha256": "4d759a1de4c079135b195bb544ce5a83381bbca65e4c9bceb2bce44e3e1515e8"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n05-sparse_interactive.raw.json",
+      "sha256": "74ee74036d2ef2713c240ce58c45133fcaba92593634f1d7d45abf1634087f03"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n05-sparse_interactive.request.json",
+      "sha256": "abfa321ca270b0a2b5dd0670a686afd6dc55e229efb8a8da2fac1c6a93aba85c"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n06-dense_scrutiny.document.json",
+      "sha256": "ce6c71f74b7d185859b5e238b8a63f734eab7327873de5f9b313dc05b208c57d"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n06-dense_scrutiny.invocation.json",
+      "sha256": "24b237c655080a08854348d70b84e4c05208b6b0df1c78d4c7e6ed9f32c400b4"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n06-dense_scrutiny.manifest.json",
+      "sha256": "adae0ff5c169316caa594170b4223a0e201f6b3126e569688a72b5a3f7d1bf4a"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n06-dense_scrutiny.raw.json",
+      "sha256": "7edb11b9c4fee9cdb1e697e9509d99e37323dc85d72f5ca9981bcc6d4ac9b63a"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n06-dense_scrutiny.request.json",
+      "sha256": "39b9a33b5826feea1ac99f01255e9ac2496eab4f262461e2cd23a3b09a6ff2bd"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n06-sparse_interactive.document.json",
+      "sha256": "a5900dc2406ffda91cea10086e68ad95ff3c0461227b461ffe0e6a4a1df898d6"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n06-sparse_interactive.invocation.json",
+      "sha256": "a8e9d9c71f65b8e8daba5a623ab5c73f92c75e11b1aa5abd8931edc047c1aaa3"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n06-sparse_interactive.manifest.json",
+      "sha256": "e2badf6b72a328316b785cda3a02aa23b81277dfed2b9764a0f93279042ba6a2"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n06-sparse_interactive.raw.json",
+      "sha256": "4e222ae5a6d8678c504afcb218bec54f9d0fc2b65491a245e2c66ac19ec7fa12"
+    },
+    {
+      "path": "/private/tmp/piping-headless-source-artifacts-resume1/n06-sparse_interactive.request.json",
+      "sha256": "39b9a33b5826feea1ac99f01255e9ac2496eab4f262461e2cd23a3b09a6ff2bd"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/fields-dense_scrutiny.document.json",
+      "sha256": "34088ebd3ce82ea5ae67aca3d7f57fd60b147cf5f83e4387e4ea7fb20449bfac"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/fields-dense_scrutiny.invocation.json",
+      "sha256": "bc8d10fdbcb6b58ae5db3e9b3d74c4054f39f238abae9268944f2e084b12f2cf"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/fields-dense_scrutiny.manifest.json",
+      "sha256": "0d70d3e2062faa5393e9f96f0798493dcff60611ca48455a67b8e0f9565c5322"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/fields-dense_scrutiny.raw.json",
+      "sha256": "730615935bb8a1667b47aedccc91d9b1cdf9fbf98037d1abe459b87568f9cfac"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/fields-dense_scrutiny.request.json",
+      "sha256": "34bd3eeedc2208e73173a1371aa4d59f766fadf5aa8786a629da684eaa6c0264"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/fields-sparse_interactive.document.json",
+      "sha256": "0dc1067690c8ccefab67cf4078cc391636c1d6efe986741e7ac7b9c30ba69725"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/fields-sparse_interactive.invocation.json",
+      "sha256": "4935b1700699a75dcf3107b77b884f12eb37dc71a727a199786592251e2d5eaf"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/fields-sparse_interactive.manifest.json",
+      "sha256": "a49ad173fda5fc17c892f91cf06a85a9bb7bb8bd4be63ea3cc281d03621de329"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/fields-sparse_interactive.raw.json",
+      "sha256": "b48dee18257444c5fc590c763561720929e546e867589b1ff32a710eb85b91d1"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/fields-sparse_interactive.request.json",
+      "sha256": "34bd3eeedc2208e73173a1371aa4d59f766fadf5aa8786a629da684eaa6c0264"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/mixed-dense_scrutiny.document.json",
+      "sha256": "e042da781e410cb86968f2e4b93996d8d4102d7a8fc8fdce1339059de6dd0799"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/mixed-dense_scrutiny.invocation.json",
+      "sha256": "41a62ad1e799558b664e1ccc54f2d67cd31a149a17f5b8ccedff1be17b283134"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/mixed-dense_scrutiny.manifest.json",
+      "sha256": "966e1d53b29f4b2b2c1b88c90481eab80583e475d54c59418fce4b6dc8551838"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/mixed-dense_scrutiny.raw.json",
+      "sha256": "89eaa660403e15f240f1c34e7cd6a1d90628d6001ffe9e30423a114a5228990c"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/mixed-dense_scrutiny.request.json",
+      "sha256": "128094d364032dc985d9b9e6d174e92899ceadb99f4a2b7c55f4cb61e80d493b"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/mixed-sparse_interactive.document.json",
+      "sha256": "7c5b3afb03c92c50e182106154ea6ea6c111299eaad22c03c232714fb0bba475"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/mixed-sparse_interactive.invocation.json",
+      "sha256": "b4d6a0188aa334d6260141ebfb560b514537eaf4e63f26f6329b5c7c9bed1146"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/mixed-sparse_interactive.manifest.json",
+      "sha256": "5d74be20fc461a29a993de499b9f0dc236b14ed01decb3aab138869dbe25daff"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/mixed-sparse_interactive.raw.json",
+      "sha256": "b32b6b8e74034fffc29b13d7859aab7fe305bbee68484237a22118d91e639738"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/mixed-sparse_interactive.request.json",
+      "sha256": "128094d364032dc985d9b9e6d174e92899ceadb99f4a2b7c55f4cb61e80d493b"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n05-dense_scrutiny.document.json",
+      "sha256": "4626fa0326c815f0995c49851ad0239dfa1bb72bb3a2af9c145fad6d23c3676a"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n05-dense_scrutiny.invocation.json",
+      "sha256": "05cd1d102bb452a103478676cae7eb90e5732b5150c29677a6f0d483d758732f"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n05-dense_scrutiny.manifest.json",
+      "sha256": "084bc9cb2054dca1bed9c1a4f1a18eb2a6e358d6cec9908484b559558d88074b"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n05-dense_scrutiny.raw.json",
+      "sha256": "668f67a9fb1b7af713df159face98e4fbcb922059a63a9ebe6d633b8bca7bc38"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n05-dense_scrutiny.request.json",
+      "sha256": "dd5d2049ed5324f8041818f46b1ed0889f8529ec3df3d7933600f8fcd9e6ab09"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n05-sparse_interactive.document.json",
+      "sha256": "496c989ce543940e70a7ef33e83bc9ff4a49e72d29e0d39b4f7c7c0965c9ba01"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n05-sparse_interactive.invocation.json",
+      "sha256": "6b8f495a24b1401b927e131158d82eb52e8cefb1187863ec68c4918d4ea8dd7d"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n05-sparse_interactive.manifest.json",
+      "sha256": "0f01ce472cdb48bfe35dbfe492853056ba0f3f67a8c6ae25d5987aadecfe3537"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n05-sparse_interactive.raw.json",
+      "sha256": "04f6b2ada6b9686a8d321fb5f61af00c5233606467febfeab1717a4dc4bdbe49"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n05-sparse_interactive.request.json",
+      "sha256": "dd5d2049ed5324f8041818f46b1ed0889f8529ec3df3d7933600f8fcd9e6ab09"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n06-dense_scrutiny.document.json",
+      "sha256": "3ec9561ca8b64b59a88bf3d5187a4bd3122e2af998d7ec05d7888d3af2c9676e"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n06-dense_scrutiny.invocation.json",
+      "sha256": "b1032811be11348f484fb94969e1f0d49edfa14900aec711d7452ad49e690006"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n06-dense_scrutiny.manifest.json",
+      "sha256": "60187c423cb1340e974695693e380a3e8b0d1299ee929490eea7a2c2cb9f0bed"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n06-dense_scrutiny.raw.json",
+      "sha256": "4d3c26965433de2963a0187c83a53671a24aa73cea792e3eb51da61b9662b348"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n06-dense_scrutiny.request.json",
+      "sha256": "3292f1a42826a6d1772960b8dc6c65d53aafc4d72c5dfd447b5bbd5f53b2d661"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n06-sparse_interactive.document.json",
+      "sha256": "8914fa5a4e6d5804f974503f182e740901bae8682810995805c20e683250f492"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n06-sparse_interactive.invocation.json",
+      "sha256": "a3562ccbbd5c39b8df31ce8da666d80c4eccabe494854d71851adfae5214e0ed"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n06-sparse_interactive.manifest.json",
+      "sha256": "74f839c51f64a7abb87cd05b5c00cfc2389cb2198bd98e8e4620b6a7cc719e07"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n06-sparse_interactive.raw.json",
+      "sha256": "412bb7e3cf1ac24480f69aadd1492a8dae6c43123840d2a36a1c1ac945f76e7f"
+    },
+    {
+      "path": "/private/tmp/piping-headless-composite-artifacts-resume1/n06-sparse_interactive.request.json",
+      "sha256": "3292f1a42826a6d1772960b8dc6c65d53aafc4d72c5dfd447b5bbd5f53b2d661"
+    }
+  ],
+  "limits": "Actual headless/library and CLI dispatch tests; no native UI, standalone installed CLI subprocess, whole product/WASM, final source/e2e/CI qualification. Earlier failed attempts retained. Runtime warnings preserved."
+}

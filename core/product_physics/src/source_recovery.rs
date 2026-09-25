@@ -120,6 +120,7 @@ pub(super) struct SelectedSourceRecovery {
     // Retaining the live attempt ledger lets explicit expected-invocation replay
     // continue the same budget; replay never resets the selection's work cap.
     budget: AttemptBudget,
+    retained_identity_digest: Option<String>,
 }
 impl SelectedSourceRecovery {
     pub fn displacements(&self) -> &[f64] {
@@ -151,6 +152,36 @@ impl SelectedSourceRecovery {
         &self.summary
     }
 
+    /// Lazily hash this immutable owned response once; never accept a caller's
+    /// claimed digest. Repeated derived recipes reserve only the returned copy.
+    pub fn retained_identity_digest(&mut self) -> Result<String, RecoveryFailure> {
+        use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
+        use sha2::{Digest, Sha256};
+        if self.retained_identity_digest.is_some() {
+            self.charge_finalization(128)?;
+            return Ok(self
+                .retained_identity_digest
+                .as_ref()
+                .expect("owned digest")
+                .clone());
+        }
+        self.charge_finalization(
+            self.retained
+                .response()
+                .source_identity()
+                .len()
+                .saturating_mul(12)
+                .saturating_add(1024),
+        )?;
+        let result=(|| {
+            let text=serde_json::to_string(&serde_json::json!({"domain":"physics_source_retained_identity_v1","payload":self.retained.response().source_identity()})).map_err(|_|mismatch("identity digest serialization"))?;
+            let canonical=canonical_json_checked_v1_text(&text).map_err(|_|mismatch("identity digest checked JSON"))?;
+            Ok::<String,RecoveryError>(format!("{:x}",Sha256::digest(canonical.as_bytes())))
+        })().map_err(|error|failure("retained identity digest",error,&self.budget))?;
+        self.retained_identity_digest = Some(result.clone());
+        Ok(result)
+    }
+
     /// Final row binding and receipt hashing are part of the same bounded attempt.
     pub fn charge_finalization(&mut self, operations: usize) -> Result<(), RecoveryFailure> {
         let result = self.budget.charge(AttemptStage::Replay, operations);
@@ -163,11 +194,15 @@ impl SelectedSourceRecovery {
     pub fn check_binding_against(&mut self, input: Input<'_>) -> Result<(), RecoveryFailure> {
         let result = (|| {
             let source = prepare_sources(&input, &mut self.budget)?;
-            self.retained.check_binding_with_budget(
-                &source.system(&input), &source.identity,
-                exact::ForceBasis::IdentifiedContributions(&source.force_terms),
-                &source.descriptors, &mut self.budget,
-            ).result?;
+            self.retained
+                .check_binding_with_budget(
+                    &source.system(&input),
+                    &source.identity,
+                    exact::ForceBasis::IdentifiedContributions(&source.force_terms),
+                    &source.descriptors,
+                    &mut self.budget,
+                )
+                .result?;
             Ok::<(), RecoveryError>(())
         })();
         self.summary.work = self.budget.report();
@@ -399,6 +434,28 @@ fn prepare_sources(
         return Err(unsupported(
             "component, curved, user-matrix or release source family",
         ));
+    }
+    // Presence is the producer inventory: a zero-valued pressure region is
+    // still unsupported. Exact source cases require an explicitly empty list.
+    if super::pressure_runtime::is_exact(input.model) {
+        if !input
+            .load_case
+            .pressure_regions
+            .as_ref()
+            .is_some_and(Vec::is_empty)
+        {
+            return Err(unsupported(
+                "exact source recovery requires explicitly empty pressure regions",
+            ));
+        }
+        if input.built.exact_sections.len() != member_count {
+            return Err(mismatch("exact source geometry inventory"));
+        }
+    } else if !matches!(input.model.schema_version.as_str(), "0.1.0" | "0.2.0")
+        || input.model.pressure_contract.is_some()
+        || input.load_case.pressure_regions.is_some()
+    {
+        return Err(unsupported("legacy source-blocks namespace requires model0.1/0.2 without pressure contract or regions"));
     }
     if input.load_case.equivalent_static.is_some()
         || !input.load_application.element_uniform_loads.is_empty()
@@ -933,7 +990,9 @@ fn prepare_sources(
                 key: key(
                     &input.load_case.id,
                     FunctionalQuantity::SupportAction {
-                        support: id.clone(), node: *node, component: component as u8,
+                        support: id.clone(),
+                        node: *node,
+                        component: component as u8,
                     },
                     component,
                     FunctionalConvention::SupportOnStructure,
@@ -1189,6 +1248,7 @@ pub(super) fn solve(
             retained,
             summary,
             budget,
+            retained_identity_digest: None,
         }),
         Err(error) => Err(failure(stage, error, &budget)),
     }

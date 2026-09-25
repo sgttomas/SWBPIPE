@@ -1,0 +1,58 @@
+{
+  "scope": "Pure wire vectors and unchanged actual source-to-nine-member projections; no new producer/native invocation",
+  "pure_wire_sha256": "b5d57f52b561bd588c782005d86fcd88be7bde330c2e82d7703a641e598f7d5c",
+  "pure_exact_ids_and_quoted_CR_LF": true,
+  "actual": [
+    {
+      "mode": "sparse_interactive",
+      "source_sha256": "468e2ce76a179b1419fc501fe6d38b7bca80adf21d0ee94fd65b85ead1a1c9a5",
+      "rows": 81,
+      "sidecars_and_metadata_exact": true,
+      "nine_members": 9,
+      "refused_wires": [
+        "bad_utf8",
+        "overlong",
+        "surrogate",
+        "BOM",
+        "record_CRLF"
+      ],
+      "members": {
+        "manifest.json": "ee16d818f1df3ef715e5ae6f334d64b101f85455767610ee1826dea8e0e9ae14",
+        "stress_neutral_results.csv": "b27c8bac42aea39829a2198cf92e3dc11f0287901dd5b99d91131e4e7b063f5f",
+        "result_rows.json": "1919585cdf62e19ab4671e1ee86d658b84d49753491ad89896a02d29c3e8425b",
+        "unit_system_disclosure.json": "0eee0fe34e8306203dbbf155c02344f2470a73448598be85ab0053e989a2acc9",
+        "unit_preservation_witnesses.json": "a58bb7e87630c2c970fbf97c75a6464fd94e0a040ff35a93c18d93bb7094a875",
+        "stable_id_map.json": "01c0aa416878e16efd1a9d5f45b042d5faebcd7db980904d62aaddc7f8ad3fd1",
+        "loss_report.json": "b13d52c70eac1f6016fc68fe73ea327cbe6db180054b48dc924207bb282e08ba",
+        "validation_report.json": "65be20ef22800df89d862a810a2da45bd6fa2ab1be3d01b5a8e399219f805d13",
+        "diagnostics.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "mode": "dense_scrutiny",
+      "source_sha256": "8bb7f19dbac1444ac352a1ad793ee893a2f7bb41f32ff20b92f005ef5608cd43",
+      "rows": 82,
+      "sidecars_and_metadata_exact": true,
+      "nine_members": 9,
+      "refused_wires": [
+        "bad_utf8",
+        "overlong",
+        "surrogate",
+        "BOM",
+        "record_CRLF"
+      ],
+      "members": {
+        "manifest.json": "96a932b69be800252dd3998960510037466ce7ff3fcb57f17f0db2ccee2737e7",
+        "stress_neutral_results.csv": "402ce4cd774772d2dbb1b6f69afc7354d32d2f92b1e6f62912d8e51f8eaebba0",
+        "result_rows.json": "6a647ceada60c89d290a8c63d1fa673ff1105859caa4a607ff13875caa936dde",
+        "unit_system_disclosure.json": "718dc497c4e5a3b891f99a3c0a9962003df2446a17b72432e5eb390b1042989d",
+        "unit_preservation_witnesses.json": "e411ff98d9d8cfed640a172cf7802cff9badda88bac0af5b49e7cb028e3c6682",
+        "stable_id_map.json": "f06c11d197e3ed85817eb5f21104813ebf67381e4103b7f94093df5686ab99fe",
+        "loss_report.json": "0d2e76a9133bb69ad73130d7374051464d7aed2fc0696ca67d51b95b5c4ff327",
+        "validation_report.json": "82f6376fd5b3e2c66b2826960ae3a3e00a3ce6bcf55dbfbd19b4834a6464574f",
+        "diagnostics.json": "8a8b864db71da8f568f95d7d1b9b0755c9fcb97aa0052938a8563ebb00a2f38c"
+      }
+    }
+  ],
+  "p1_packet_and_nine_members": "unchanged golden pass"
+}

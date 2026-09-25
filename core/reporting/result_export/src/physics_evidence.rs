@@ -216,10 +216,16 @@ fn pipe_kind(kind: &str) -> bool {
     pressure_kind(kind) || kind == "pipe_elastic_normal_stress_maximum_v2"
 }
 
-fn physical_row(row: &Value) -> Check {
+fn physical_row(row: &Value, source_selected: bool, composite: bool) -> Check {
     let kind = text(&row["kind"])?;
-    let signature =
-        crate::semantic_contract::signature_in(crate::semantic_contract::physics_contract(), row)?;
+    let signature = crate::semantic_contract::signature_in(
+        if composite {
+            crate::semantic_contract::physics_source_contract()
+        } else {
+            crate::semantic_contract::physics_contract()
+        },
+        row,
+    )?;
     if !kind.ends_with("_v2") {
         return Ok(());
     }
@@ -269,7 +275,20 @@ fn physical_row(row: &Value) -> Check {
             "effective wall-fluid resultant S=Nw-pAi; not material stress or a support reaction",
         )
     } else if kind == "pipe_elastic_normal_stress_maximum_v2" {
-        ("pipe_section", "recovered_from_open_mechanics_stress_components", md["location"] == "governing_station", "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim")
+        (
+            "pipe_section",
+            if source_selected {
+                crate::physics_source::MAX_BASIS
+            } else {
+                "recovered_from_open_mechanics_stress_components"
+            },
+            md["location"] == "governing_station",
+            if source_selected {
+                crate::physics_source::MAX_SIGN
+            } else {
+                "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
+            },
+        )
     } else {
         let sign = match kind {
             "pipe_axial_membrane_stress_v2" => "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar",
@@ -298,9 +317,13 @@ fn physical_row(row: &Value) -> Check {
 /// Strict direct-case admission. Combination operands and source-block recovery
 /// require their own semantic contract; no name or accuracy label enables them.
 pub fn validate_physics_evidence(source: &Value) -> Check {
+    validate_physics_evidence_in(source, false)
+}
+pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> Check {
     finite_tree(source)?;
     require(
-        source.get("source_block_recovery").is_none() && source.get("carrier_evidence").is_none(),
+        (composite || source.get("source_block_recovery").is_none())
+            && source.get("carrier_evidence").is_none(),
         "FOREIGN_METHOD_EVIDENCE",
     )?;
     let evidence = &source["contract_evidence"];
@@ -372,7 +395,12 @@ pub fn validate_physics_evidence(source: &Value) -> Check {
                     "pipe_stress_extrema",
                     "stress_maximum_coverage",
                     "pressure_rhs_assembly",
-                ],
+                ]
+                .iter()
+                .copied()
+                .chain(composite.then_some("recovery_method"))
+                .collect::<Vec<_>>()
+                .as_slice(),
             ),
             "CASE_SHAPE",
         )?;
@@ -415,6 +443,14 @@ pub fn validate_physics_evidence(source: &Value) -> Check {
             "EXTREMA_MEMBER_COVERAGE",
         )?;
         for (pipe, ex) in extrema {
+            if composite && case["recovery_method"] == crate::physics_source::EXACT {
+                crate::physics_source::validate_maximum(source, case, ex, &rows)?;
+                require(
+                    extrema_ids.insert(text(&ex["result_id"])?),
+                    "EXTREMA_RESULT_DUPLICATE",
+                )?;
+                continue;
+            }
             require(
                 keys(
                     ex,
@@ -487,7 +523,11 @@ pub fn validate_physics_evidence(source: &Value) -> Check {
             "DERIVED_ROWS_UNSUPPORTED",
         )?;
         let kind = text(&row["kind"])?;
-        physical_row(row)?;
+        physical_row(
+            row,
+            composite && cases[case]["recovery_method"] == crate::physics_source::EXACT,
+            composite,
+        )?;
         if pipe_kind(kind) {
             require(
                 case_members[case].contains(text(&row["entity_ref"])?),
@@ -953,6 +993,121 @@ fn assembly(v: &Value, case: &str, regions: &HashMap<(&str, &str), &Value>) -> C
                 }
                 _ => return Err("SOURCE_PHYSICS_RHS_TERM_KIND".into()),
             }
+        }
+    }
+    Ok(())
+}
+
+/// Retained physical statements without raw rows: shape and internal joins only.
+/// This cannot qualify a result publication or a current invocation.
+pub fn validate_transport_metadata(source: &Value) -> Check {
+    let schema: Value =
+        serde_json::from_str(include_str!("../../../../schemas/results.v0.3.schema.yaml"))
+            .map_err(|e| e.to_string())?;
+    let evidence = &source["contract_evidence"];
+    require(
+        crate::source_blocks::shape_in(
+            evidence,
+            &schema["$defs"]["PhysicsContractEvidence"],
+            &schema,
+        ),
+        "TRANSPORT_SHAPE",
+    )?;
+    finite_tree(evidence)?;
+    let cases = indexed(&evidence["exact_cases"], "load_case_id")?;
+    let mut ids = HashSet::new();
+    for (cid, case) in &cases {
+        let materials = indexed(&case["pipe_materials"], "pipe_id")?;
+        let sections = indexed(&case["pipe_sections"], "pipe_id")?;
+        require(
+            !materials.is_empty()
+                && materials.keys().copied().collect::<HashSet<_>>()
+                    == sections.keys().copied().collect(),
+            "TRANSPORT_MEMBERS",
+        )?;
+        for value in materials.values() {
+            material(value)?;
+        }
+        for value in sections.values() {
+            geometry(value)?;
+        }
+        let missing = strings(&case["stress_maximum_coverage"]["unavailable_pipe_ids"])?;
+        let members = sections.keys().copied().collect::<HashSet<_>>();
+        require(
+            missing.is_subset(&members)
+                && case["stress_maximum_coverage"]["complete"].as_bool()
+                    == Some(missing.is_empty()),
+            "TRANSPORT_MAXIMUM_COVERAGE",
+        )?;
+        let maxima = indexed(&case["pipe_stress_extrema"], "pipe_id")?;
+        require(
+            maxima.keys().copied().collect::<HashSet<_>>()
+                == members.difference(&missing).copied().collect(),
+            "TRANSPORT_MAXIMUM_MEMBERS",
+        )?;
+        for ex in maxima.values() {
+            require(
+                ids.insert(text(&ex["result_id"])?),
+                "TRANSPORT_MAXIMUM_RESULT",
+            )?;
+            let lo = number(&ex["value_lower_pa"])?;
+            let hi = number(&ex["value_upper_pa"])?;
+            let upper = number(&ex["global_upper_bound_pa"])?;
+            let gap = number(&ex["certified_gap_pa"])?;
+            require(
+                lo >= 0.0
+                    && lo <= hi
+                    && hi <= upper
+                    && upper - lo <= gap
+                    && gap >= 0.0
+                    && gap <= 1e-12 + 1e-12 * lo,
+                "TRANSPORT_MAXIMUM_BOUNDS",
+            )?;
+        }
+        let regions = array(&evidence["pressure"])?
+            .iter()
+            .filter(|p| p["load_case_id"] == *cid)
+            .map(|p| Ok(((text(&p["load_case_id"])?, text(&p["region_id"])?), p)))
+            .collect::<Result<HashMap<_, _>, String>>()?;
+        assembly(&case["pressure_rhs_assembly"], cid, &regions)?;
+    }
+    let mut regions = HashSet::new();
+    for region in array(&evidence["pressure"])? {
+        let cid = text(&region["load_case_id"])?;
+        let rid = text(&region["region_id"])?;
+        require(
+            regions.insert((cid, rid))
+                && cases.contains_key(cid)
+                && number(&region["p_pa"])? >= 0.0,
+            "TRANSPORT_PRESSURE_REGION",
+        )?;
+        let case = cases[cid];
+        let sections = indexed(&case["pipe_sections"], "pipe_id")?;
+        let materials = indexed(&case["pipe_materials"], "pipe_id")?;
+        let gm = indexed(&region["geometry"], "pipe_id")?;
+        let mm = indexed(&region["materials"], "pipe_id")?;
+        let members = strings(&region["member_pipe_ids"])?;
+        require(
+            !members.is_empty()
+                && members == gm.keys().copied().collect()
+                && members == mm.keys().copied().collect(),
+            "TRANSPORT_REGION_MEMBERS",
+        )?;
+        for pid in members {
+            require(
+                sections
+                    .get(pid)
+                    .is_some_and(|s| without(gm[pid], "traversal_forward") == **s)
+                    && materials
+                        .get(pid)
+                        .is_some_and(|m| without(mm[pid], "temperature_basis") == **m),
+                "TRANSPORT_REGION_FACTS",
+            )?;
+            temperature(
+                &mm[pid]["temperature_basis"],
+                text(&case["material_basis"])?,
+                text(&mm[pid]["material_id"])?,
+            )?;
         }
     }
     Ok(())

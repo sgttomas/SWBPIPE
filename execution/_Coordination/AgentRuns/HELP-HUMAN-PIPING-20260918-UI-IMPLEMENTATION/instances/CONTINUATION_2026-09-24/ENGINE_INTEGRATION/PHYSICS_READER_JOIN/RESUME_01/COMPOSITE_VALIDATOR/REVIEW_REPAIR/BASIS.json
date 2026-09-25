@@ -1,0 +1,93 @@
+{
+  "time": "2026-09-25T09:09:06.757409+00:00",
+  "mechanism": "delegated-harness-native followup",
+  "role": "TASK Type2 no delegation",
+  "agent": "/root/physics_resume/physics_reader_join/reference_browser_tests",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "scope": "CR01+CR03 only; parent additionally authorized result_export Cargo.toml units dependency, lock/bridge manager-owned",
+  "owned_relative_files": [
+    "core/analysis_runs/physics_source.py",
+    "core/reporting/result_export/src/physics_source.rs",
+    "tests/test_physics_source_contract.py",
+    "core/reporting/result_export/tests/physics_source_contract.rs",
+    "core/reporting/result_export/Cargo.toml"
+  ],
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_source.py",
+      "sha256": "6128a9d12a2e412b0e89a07215376dab9a8693c82fc56d68d01573cf37fbaabd"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "sha256": "b276da57919af432eb866a180d53900a91bbdaa8776eac8b10d33dacea0ee104"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_physics_source_contract.py",
+      "sha256": "bff73f919701d3204541f2b70cfc36bf58aeed0f4cac64ee739d9ec49c34c6c3"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/physics_source_contract.rs",
+      "sha256": "0853c260a18414ebbaefaf26c56b82a35077b1e1a946fee87004cf3e3f4246e7"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/Cargo.toml",
+      "sha256": "196fb7e2adbe364eb725bd291a40fb47f37a3da02f5d05177b6cc77dabeeb36a"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_material.rs",
+      "sha256": "a7d63cedda6040e03c0583f9c3a7114cf9aff40144ea6a5748252898789de7b2"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs",
+      "sha256": "17b4570259da139e406a47229131b4a0a8a7640a5625a161af53f67ebe3e8262"
+    },
+    {
+      "path": "projects/chirality-piping/core/units/src/lib.rs",
+      "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "44647cf80ef19ef3316c8e0a8e4bad52ecdee310ddd8134226eb306eb0594905"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units.request.json",
+      "sha256": "4774ffdeb00bf3a400032994f18b85b8b53b37695e88a6e15c7f6c8b3abb2775"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units.request.json",
+      "sha256": "065f004d03ab11324958a6b5a0c8763e063e18f9a413c9ffee336903d4a1725a"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units-sparse_interactive.raw.json",
+      "sha256": "2b6849285aea5074224bbcd505ad5db8f4208268c72cd97911843ff9af47cefe"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units-dense_scrutiny.raw.json",
+      "sha256": "02d761ab7e64cf3d41a2336a1049a5b20093aa94951ccc0a4739f1250ec32642"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units-sparse_interactive.raw.json",
+      "sha256": "0fc195a0e5ca8ded8c0393bded4329d63bc31e6776a3175a70bde9928adbdfb9"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units-dense_scrutiny.raw.json",
+      "sha256": "c0481764c0f5057dda96cf78529b0df0788f301dd8b1497501ae4bff0d7e1706"
+    }
+  ]
+}

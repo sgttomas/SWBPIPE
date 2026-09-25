@@ -1,0 +1,27 @@
+{
+  "command": [
+    "cargo",
+    "check",
+    "--manifest-path",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--offline",
+    "--locked",
+    "-j",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-engine-integration-product-target"
+  ],
+  "source_sha256": {
+    "core/product_physics/src/lib.rs": "eb93c65706c1fcdde948cfeca32c73de4429a47593d1ac2b8e2f3a1f32d41eb5",
+    "core/product_physics/src/source_recovery.rs": "7e9da6a057abd2e9de185b798014c78e0cbb616911844588c5445429bd39a524",
+    "core/product_physics/src/source_receipt/endpoint_maximum.rs": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6",
+    "core/product_physics/src/source_receipt/source.rs": "aa34fec1174848cd17ae96fe29949758f5172384fec3f10b90043a67b4a3c31c",
+    "core/product_physics/src/source_receipt/rows.rs": "ddf6797cc707c16594516cb154eeb5f9f4a14ed8c737b4e14510220ab672f5a1",
+    "core/product_physics/src/source_receipt/tests.rs": "a4403c065070ad90ae1292e53c641e3f6a4a1b550cb39c57ed239e75b1a72d9a",
+    "core/product_physics/src/source_receipt/composite.rs": "280328dbf412d978a25a72ce5e47216fdae2d4f3d05d48ce9695639b3ff03710",
+    "core/product_physics/src/source_receipt.rs": "65c4ef8b9fba9b84c63bee8143b1b50b51b6eb7918ecc5c11c2e61070a0c30fc"
+  },
+  "actor": "/root/physics_resume",
+  "status": "first composite compile, no public qualification",
+  "exit_code": 0
+}

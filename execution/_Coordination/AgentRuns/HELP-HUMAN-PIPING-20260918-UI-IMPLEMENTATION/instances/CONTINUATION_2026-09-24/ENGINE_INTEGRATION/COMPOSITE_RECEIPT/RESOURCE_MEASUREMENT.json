@@ -1,0 +1,166 @@
+{
+  "runs": [
+    {
+      "case_work": {
+        "charged": 6792870,
+        "limit": 16000000,
+        "rejected_reservation": {
+          "amount": 0,
+          "kind": "finite"
+        },
+        "reserved_unobserved_failure": 0
+      },
+      "diagnostics": [],
+      "invocation_charged": 7113294,
+      "mode": "dense_scrutiny",
+      "private_per_case_limit": 16000000,
+      "public_per_case_limit": 4000000,
+      "publication_charged": 320424,
+      "purpose": "private resource measurement; not public policy or qualification",
+      "receipt_status": "qualified",
+      "stage_trace": [
+        {
+          "charged": 3161034,
+          "rejected": 0,
+          "stage": "derived_recipe_entry",
+          "delta_from_previous": 3161034
+        },
+        {
+          "charged": 3165130,
+          "rejected": 0,
+          "stage": "derived_recipe_entry",
+          "delta_from_previous": 4096
+        },
+        {
+          "charged": 3169226,
+          "rejected": 0,
+          "stage": "derived_recipe_entry",
+          "delta_from_previous": 4096
+        },
+        {
+          "charged": 3211066,
+          "rejected": 0,
+          "stage": "source_case_finalization_entry",
+          "delta_from_previous": 41840
+        },
+        {
+          "charged": 3535872,
+          "rejected": 0,
+          "stage": "source_case_finalization_reserved",
+          "delta_from_previous": 324806
+        },
+        {
+          "charged": 6697019,
+          "rejected": 0,
+          "stage": "captured_source_replay_complete",
+          "delta_from_previous": 3161147
+        },
+        {
+          "charged": 6788518,
+          "rejected": 0,
+          "stage": "current_source_binding_complete",
+          "delta_from_previous": 91499
+        },
+        {
+          "charged": 6788518,
+          "rejected": 0,
+          "stage": "derived_recipe_entry",
+          "delta_from_previous": 0
+        },
+        {
+          "charged": 6792870,
+          "rejected": 0,
+          "stage": "source_case_finalization_complete",
+          "delta_from_previous": 4352
+        }
+      ]
+    },
+    {
+      "case_work": {
+        "charged": 6791052,
+        "limit": 16000000,
+        "rejected_reservation": {
+          "amount": 0,
+          "kind": "finite"
+        },
+        "reserved_unobserved_failure": 0
+      },
+      "diagnostics": [],
+      "invocation_charged": 7108920,
+      "mode": "sparse_interactive",
+      "private_per_case_limit": 16000000,
+      "public_per_case_limit": 4000000,
+      "publication_charged": 317868,
+      "purpose": "private resource measurement; not public policy or qualification",
+      "receipt_status": "qualified",
+      "stage_trace": [
+        {
+          "charged": 3161034,
+          "rejected": 0,
+          "stage": "derived_recipe_entry",
+          "delta_from_previous": 3161034
+        },
+        {
+          "charged": 3165130,
+          "rejected": 0,
+          "stage": "derived_recipe_entry",
+          "delta_from_previous": 4096
+        },
+        {
+          "charged": 3169226,
+          "rejected": 0,
+          "stage": "derived_recipe_entry",
+          "delta_from_previous": 4096
+        },
+        {
+          "charged": 3211066,
+          "rejected": 0,
+          "stage": "source_case_finalization_entry",
+          "delta_from_previous": 41840
+        },
+        {
+          "charged": 3534054,
+          "rejected": 0,
+          "stage": "source_case_finalization_reserved",
+          "delta_from_previous": 322988
+        },
+        {
+          "charged": 6695201,
+          "rejected": 0,
+          "stage": "captured_source_replay_complete",
+          "delta_from_previous": 3161147
+        },
+        {
+          "charged": 6786700,
+          "rejected": 0,
+          "stage": "current_source_binding_complete",
+          "delta_from_previous": 91499
+        },
+        {
+          "charged": 6786700,
+          "rejected": 0,
+          "stage": "derived_recipe_entry",
+          "delta_from_previous": 0
+        },
+        {
+          "charged": 6791052,
+          "rejected": 0,
+          "stage": "source_case_finalization_complete",
+          "delta_from_previous": 4352
+        }
+      ]
+    }
+  ],
+  "proposed_composite_policy": {
+    "per_case_limit": 8000000,
+    "invocation_limit": 64000000,
+    "selection": "Selected by ROOT; see ROOT_RESOURCE_SELECTION.json; parent implements8M only for exact Value-aware invocation; finalizer enforces method-specific cap"
+  },
+  "unchanged_prior_limits": {
+    "generic": 2000000,
+    "source_blocks_case": 4000000,
+    "source_blocks_invocation": 64000000
+  },
+  "criterion_unchanged": 1e-09,
+  "command_record": "resource-measurement-01.json"
+}

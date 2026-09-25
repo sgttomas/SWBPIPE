@@ -1,0 +1,33 @@
+{
+  "frozen_at_utc": "2026-09-25T10:01:33.564177+00:00",
+  "owned_files": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_source.py",
+      "before_sha256": "12b6e9b342668e9d211f0d2d56169f1fb6258703366e0f407de71f3c84f40ab8",
+      "after_sha256": "81487a87d5e170b98b1569a8d2e7c42943b9c1be565f3a71c5b5a18879c4aba1"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "before_sha256": "2de6866121084fa57c9823df3d46b48d4816b57780f04bcf481d2cd8c75c6d61",
+      "after_sha256": "c4e380ee7c01eb1581930013e8fc77f8be37c68e1978dedbb78ab5d3cd656f37"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_physics_source_contract.py",
+      "before_sha256": "751f7e2a7bb0e8eda9e5338717635cf38cd2ac94ffd0a84d13f7732ba7d9281b",
+      "after_sha256": "7bd15b17eb416ff8676fb79c90d44434a19742705781d05a160f7f0b6aac0ca9"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/physics_source_contract.rs",
+      "before_sha256": "8c1eb0c2f68dea4863db0a09e3a6bb8cd578308a927ec0f167fffb7cea1571b0",
+      "after_sha256": "066b8f9ab44fedf9dd5aaba32c8b5978ba8d004818a7ba61705c4065996188ac"
+    }
+  ],
+  "repair_diff_sha256": "51ea6d11363189456944ee0569d28dac1eb6162a8d63ed85d8138d38779f6dcf",
+  "checks": {
+    "python_focused_tests": "73 passed",
+    "rustfmt_parser": "passed",
+    "python_ast": "passed",
+    "scoped_whitespace": "passed",
+    "rust_build_test": "not run; parent owns lane"
+  }
+}

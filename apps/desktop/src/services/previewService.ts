@@ -1,4 +1,6 @@
-import { sourceContract } from '../features/results/numericalResultQuality';
+import { validatePhysicsSourceRecovery } from "../features/results/physicsSourceRecovery";
+import { validateSourceBlockRecovery } from "../features/results/sourceBlockRecovery";
+import { sourceContract, hasCurrentSourceContract } from '../features/results/numericalResultQuality';
 import { invoke } from "@tauri-apps/api/core";
 import type {
   AgentProposal,
@@ -65,7 +67,16 @@ export type NativeMechanicsInvocation = {
   request: { model: PreviewModel; materials: [] };
   solver_mode: PreviewSolverMode;
 };
-type CapturedNativeInvocation = { invocation: NativeMechanicsInvocation; fingerprint: string; invalidated: boolean; terminalClaimed: boolean };
+type CapturedNativeInvocation = {
+  invocation: NativeMechanicsInvocation;
+  fingerprint: string;
+  // Caller representation and the exact JSON payload sent to native are two
+  // separate facts. Preserve the original zero signs and detect later edits.
+  callerModel: PreviewModel;
+  callerFingerprint: string;
+  invalidated: boolean;
+  terminalClaimed: boolean;
+};
 type NativeSourceRegistration = { capture: CapturedNativeInvocation; sourceFingerprint: string };
 const nativeSourceInvocations = new WeakMap<MechanicsResult, NativeSourceRegistration>();
 const jobInvocations = new Map<string, CapturedNativeInvocation>();
@@ -91,19 +102,21 @@ function captureNativeInvocation(model: PreviewModel | null | undefined, solverM
     // Mirror the native API's actual {model, materials:[]} request and send this
     // captured JSON model, not a later caller mutation or a reconstructed result.
     const invocation = JSON.parse(checkedJsonText({ request: { model, materials: [] }, solver_mode: solverMode })) as NativeMechanicsInvocation;
-    return { invocation, fingerprint: nativeContentFingerprint(invocation), invalidated: false, terminalClaimed: false };
+    return { invocation, fingerprint: nativeContentFingerprint(invocation), callerModel: model, callerFingerprint: nativeContentFingerprint(model), invalidated: false, terminalClaimed: false };
   } catch { return null; } // Raw native diagnostics remain available; no registration.
 }
 async function validateCapturedSource(source: MechanicsResult, capture: CapturedNativeInvocation | null): Promise<void> {
   if (!capture || capture.invalidated) return;
   try {
-    if (source.model_ref !== capture.invocation.request.model.project.id || nativeContentFingerprint(capture.invocation) !== capture.fingerprint) return;
+    if (source.model_ref !== capture.invocation.request.model.project.id || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
     const sourceFingerprint = nativeContentFingerprint(source);
     // Registration is reachable only after actual direct IPC or a completed
     // known job. Method-specific source-block validation composes here when its
     // separately reviewed join is selected; none is inferred from these bytes.
+    if (sourceContract(source) === "source_blocks") await validateSourceBlockRecovery(source, capture.invocation, capture.callerModel);
+    if (sourceContract(source) === "physics_source") await validatePhysicsSourceRecovery(source, capture.invocation, capture.callerModel);
     await canonicalSha256HexCheckedV1(source);
-    if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint) return;
+    if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
     nativeSourceInvocations.set(source, { capture, sourceFingerprint });
   } catch { /* Preserve received source for inspection, without qualified standing. */ }
 }
@@ -122,7 +135,9 @@ export function hasNativeMechanicsInvocation(
       && (solverMode === undefined || solverMode === invocation.solver_mode)
       && nativeContentFingerprint(invocation) === registered.capture.fingerprint
       && nativeContentFingerprint(source) === registered.sourceFingerprint
-      && nativeContentFingerprint(JSON.parse(checkedJsonText(model))) === nativeContentFingerprint(invocation.request.model);
+      && nativeContentFingerprint(registered.capture.callerModel) === registered.capture.callerFingerprint
+      && (nativeContentFingerprint(model) === registered.capture.callerFingerprint
+        || nativeContentFingerprint(model) === nativeContentFingerprint(invocation.request.model));
   } catch { return false; }
 }
 export function retainedNativeMechanicsInvocation(source: MechanicsResult, model: PreviewModel): NativeMechanicsInvocation | null {
@@ -270,8 +285,7 @@ export async function buildAnalysisRunPreview(
 ): Promise<AnalysisRunEnvelope> {
   await verifyCurrentSessionInputManifest(inputManifest);
   const effective = appliedRuleCheckStatus(result.status.rule_check, ruleCheckAggregate);
-  const route = sourceContract(result);
-  if (route !== "precision" && route !== "physics") throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+  if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
   return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload));
 }
 
@@ -302,6 +316,11 @@ export function declaredSourceResultDimension(
     Partial<Pick<MechanicsResult["results"][number], "dimension">>,
 ): CanonicalResultDimension {
   const kind = item.kind;
+  if (kind === "support_reaction_component_v2") {
+    if (["Fx", "Fy", "Fz"].includes(item.metadata?.component ?? "")) return "force";
+    if (["Mx", "My", "Mz"].includes(item.metadata?.component ?? "")) return "moment";
+    throw new Error("SUPPORT_COMPONENT_UNSUPPORTED");
+  }
   const component = item.metadata?.component;
   if (kind === "component_user_stiffness_macro_element_review") {
     if (

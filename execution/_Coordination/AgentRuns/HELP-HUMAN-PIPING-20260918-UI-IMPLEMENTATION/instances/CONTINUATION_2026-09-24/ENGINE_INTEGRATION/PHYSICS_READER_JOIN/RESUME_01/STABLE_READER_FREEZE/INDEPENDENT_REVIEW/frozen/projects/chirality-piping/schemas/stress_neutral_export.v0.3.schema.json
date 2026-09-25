@@ -1,0 +1,2866 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/stress_neutral_export.v0.3.schema.json",
+  "title": "Explicit-method stress-neutral 0.3 export package; pure projection without Current authentication",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_items",
+    "objectives",
+    "export_id",
+    "package_status",
+    "schema_conformant",
+    "validation_ready",
+    "source_result_ref",
+    "source_run_ref",
+    "source_model_ref",
+    "received_source_checksums",
+    "unresolved_assumption_refs",
+    "reproducibility_refs",
+    "export_profile",
+    "manifest",
+    "csv_text",
+    "result_rows",
+    "unit_system_disclosure",
+    "unit_preservation_witnesses",
+    "stable_id_map",
+    "loss_report",
+    "validation_report",
+    "diagnostics",
+    "privacy",
+    "provenance",
+    "professional_boundary",
+    "package_checksum",
+    "producer",
+    "numerical_quality",
+    "formulation_basis",
+    "semantic_contract_ref",
+    "semantic_contract",
+    "source_carrier_checksum"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "deliverable_id": {
+      "const": "DEL-17-06"
+    },
+    "package_id": {
+      "const": "PKG-17"
+    },
+    "scope_items": {
+      "const": [
+        "SOW-046",
+        "SOW-074"
+      ]
+    },
+    "objectives": {
+      "const": [
+        "OBJ-007",
+        "OBJ-017",
+        "OBJ-018"
+      ]
+    },
+    "export_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "package_status": {
+      "const": "stress_neutral_export_package"
+    },
+    "schema_conformant": {
+      "const": true
+    },
+    "validation_ready": {
+      "type": "boolean"
+    },
+    "source_result_ref": {
+      "$ref": "#/$defs/Reference"
+    },
+    "source_run_ref": {
+      "$ref": "#/$defs/Reference"
+    },
+    "source_model_ref": {
+      "$ref": "#/$defs/Reference"
+    },
+    "received_source_checksums": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ReceivedChecksum"
+      }
+    },
+    "unresolved_assumption_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Reference"
+      }
+    },
+    "reproducibility_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Reference"
+      }
+    },
+    "export_profile": {
+      "allOf": [
+        {
+          "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/ExportProfile"
+        },
+        {
+          "properties": {
+            "profile_id": {
+              "const": "ops.stress_neutral.v3"
+            },
+            "profile_version": {
+              "const": "0.3.0"
+            }
+          },
+          "required": [
+            "profile_id",
+            "profile_version"
+          ]
+        }
+      ]
+    },
+    "manifest": {
+      "$ref": "#/$defs/Manifest"
+    },
+    "csv_text": {
+      "type": "string",
+      "pattern": "^result_id,canonical_ref,row_kind,result_family,load_case_ref,station_ref,component_ref,value,unit,dimension,correlation_status\\n"
+    },
+    "result_rows": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/ResultRow"
+          },
+          {
+            "properties": {
+              "value": {
+                "type": "number"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "unit_system_disclosure": {
+      "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/UnitSystemDisclosure"
+    },
+    "unit_preservation_witnesses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/UnitWitness"
+      }
+    },
+    "stable_id_map": {
+      "type": "array",
+      "items": {
+        "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/StableIdMapEntry"
+      }
+    },
+    "loss_report": {
+      "type": "array",
+      "items": {
+        "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/LossReportEntry"
+      }
+    },
+    "validation_report": {
+      "$ref": "#/$defs/ValidationReport"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Diagnostic"
+      }
+    },
+    "privacy": {
+      "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/Privacy"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "professional_boundary": {
+      "$ref": "stress_neutral_export.v0.1.schema.json#/$defs/ProfessionalBoundary"
+    },
+    "package_checksum": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/CheckedChecksum"
+        },
+        {
+          "properties": {
+            "payload_scope": {
+              "const": "complete_package_excluding_self_checksum"
+            },
+            "payload_ref": {
+              "properties": {
+                "object_type": {
+                  "const": "StressNeutralExportPackage"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component_name",
+        "component_version",
+        "semantic_contract_id"
+      ],
+      "properties": {
+        "component_name": {
+          "const": "open_pipe_stress_product_physics"
+        },
+        "component_version": {
+          "const": "0.2.0"
+        },
+        "semantic_contract_id": {
+          "enum": [
+            "openpipestress.result_semantics/0.3.0/precision-1",
+            "openpipestress.result_semantics/0.3.0/physics-1",
+            "openpipestress.result_semantics/0.3.0/source-blocks-1",
+            "openpipestress.result_semantics/0.3.0/physics-source-1"
+          ]
+        }
+      }
+    },
+    "numerical_quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value_representation",
+        "publication_quantization",
+        "integrity_policy",
+        "status",
+        "cases"
+      ],
+      "properties": {
+        "value_representation": {
+          "const": "finite_binary64"
+        },
+        "publication_quantization": {
+          "const": "none"
+        },
+        "integrity_policy": {
+          "const": "M03-INTEGRITY-v1"
+        },
+        "status": {
+          "enum": [
+            "not_assessed",
+            "checks_passed",
+            "sensitive",
+            "unresolved",
+            "failed"
+          ]
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "basis_ref",
+              "structural_status",
+              "solve_quality",
+              "model_matrix_fidelity",
+              "accuracy_evidence",
+              "evidence_refs"
+            ],
+            "properties": {
+              "basis_ref": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "ref_type",
+                  "ref_id"
+                ],
+                "properties": {
+                  "ref_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "ref_id": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "structural_status": {
+                "enum": [
+                  "passive_model_basis",
+                  "physical_mechanism_witnessed",
+                  "negative_energy_witnessed",
+                  "numerically_unresolved"
+                ]
+              },
+              "solve_quality": {
+                "enum": [
+                  "not_assessed",
+                  "checks_passed",
+                  "sensitive",
+                  "unresolved",
+                  "failed"
+                ]
+              },
+              "model_matrix_fidelity": {
+                "enum": [
+                  "represented_equations_retained",
+                  "assembly_loss_detected",
+                  "assembly_uncertainty",
+                  "not_assessed"
+                ]
+              },
+              "accuracy_evidence": {
+                "enum": [
+                  "not_claimed",
+                  "reference_verified",
+                  "unresolved"
+                ]
+              },
+              "evidence_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "formulation_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "limitations"
+      ],
+      "properties": {
+        "profile_id": {
+          "enum": [
+            "product_preview_mechanics_v1",
+            "exact_straight_pressure_v2"
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "semantic_contract_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "const": "semantic_contract"
+        },
+        "ref_id": {
+          "enum": [
+            "openpipestress.result_semantics/0.3.0/precision-1",
+            "openpipestress.result_semantics/0.3.0/physics-1",
+            "openpipestress.result_semantics/0.3.0/source-blocks-1",
+            "openpipestress.result_semantics/0.3.0/physics-source-1"
+          ]
+        }
+      }
+    },
+    "semantic_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sha256"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "openpipestress.result_semantics/0.3.0/precision-1",
+            "openpipestress.result_semantics/0.3.0/physics-1",
+            "openpipestress.result_semantics/0.3.0/source-blocks-1",
+            "openpipestress.result_semantics/0.3.0/physics-source-1"
+          ]
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "source_carrier_checksum": {
+      "$ref": "#/$defs/ReceivedChecksum"
+    },
+    "contract_evidence": {
+      "type": "object"
+    },
+    "source_block_recovery": {
+      "type": "object"
+    },
+    "source_annotations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SourceRowAnnotation"
+      }
+    }
+  },
+  "$defs": {
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_type",
+        "ref"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ReceivedChecksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^(sha256:)?[0-9a-f]{64}$"
+        }
+      }
+    },
+    "CheckedChecksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_scope",
+        "payload_ref",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "enum": [
+            "openpipestress_jcs_ijson_v1",
+            "normalized_ascii_lf_text"
+          ]
+        },
+        "payload_scope": {
+          "enum": [
+            "member_payload",
+            "member_bytes",
+            "manifest_seed",
+            "complete_package_excluding_self_checksum"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "ManifestMember": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "filename",
+        "checksum"
+      ],
+      "properties": {
+        "filename": {
+          "enum": [
+            "manifest.json",
+            "stress_neutral_results.csv",
+            "result_rows.json",
+            "unit_system_disclosure.json",
+            "unit_preservation_witnesses.json",
+            "stable_id_map.json",
+            "loss_report.json",
+            "validation_report.json",
+            "diagnostics.json"
+          ]
+        },
+        "checksum": {
+          "$ref": "#/$defs/CheckedChecksum"
+        }
+      }
+    },
+    "Manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_id",
+        "export_profile_ref",
+        "boundary_notes",
+        "package_members",
+        "checksums"
+      ],
+      "properties": {
+        "manifest_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "export_profile_ref": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Reference"
+            },
+            {
+              "properties": {
+                "object_type": {
+                  "const": "StressNeutralExportProfile"
+                },
+                "ref": {
+                  "const": "ops.stress_neutral.v3"
+                }
+              },
+              "required": [
+                "object_type",
+                "ref"
+              ]
+            }
+          ]
+        },
+        "boundary_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "package_members": {
+          "type": "array",
+          "minItems": 9,
+          "maxItems": 9,
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "manifest.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "manifest_seed"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "manifest.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "stress_neutral_results.csv"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "normalized_ascii_lf_text"
+                            },
+                            "payload_scope": {
+                              "const": "member_bytes"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "stress_neutral_results.csv"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "result_rows.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "result_rows.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "unit_system_disclosure.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "unit_system_disclosure.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "unit_preservation_witnesses.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "unit_preservation_witnesses.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "stable_id_map.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "stable_id_map.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "loss_report.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "loss_report.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "validation_report.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "validation_report.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ManifestMember"
+                },
+                {
+                  "properties": {
+                    "filename": {
+                      "const": "diagnostics.json"
+                    },
+                    "checksum": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/CheckedChecksum"
+                        },
+                        {
+                          "properties": {
+                            "algorithm": {
+                              "const": "sha256"
+                            },
+                            "canonicalization": {
+                              "const": "openpipestress_jcs_ijson_v1"
+                            },
+                            "payload_scope": {
+                              "const": "member_payload"
+                            },
+                            "payload_ref": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/$defs/Reference"
+                                },
+                                {
+                                  "properties": {
+                                    "object_type": {
+                                      "const": "StressNeutralMember"
+                                    },
+                                    "ref": {
+                                      "const": "diagnostics.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "object_type",
+                                    "ref"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "algorithm",
+                            "canonicalization",
+                            "payload_scope",
+                            "payload_ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "checksum"
+                  ]
+                }
+              ]
+            }
+          ],
+          "items": false
+        },
+        "checksums": {
+          "type": "array",
+          "minItems": 9,
+          "maxItems": 9,
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "normalized_ascii_lf_text"
+                    },
+                    "payload_scope": {
+                      "const": "member_bytes"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "stress_neutral_results.csv"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "result_rows.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "unit_system_disclosure.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "unit_preservation_witnesses.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "stable_id_map.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "loss_report.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "validation_report.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "member_payload"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "diagnostics.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CheckedChecksum"
+                },
+                {
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "canonicalization": {
+                      "const": "openpipestress_jcs_ijson_v1"
+                    },
+                    "payload_scope": {
+                      "const": "manifest_seed"
+                    },
+                    "payload_ref": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/Reference"
+                        },
+                        {
+                          "properties": {
+                            "object_type": {
+                              "const": "StressNeutralMember"
+                            },
+                            "ref": {
+                              "const": "manifest.json"
+                            }
+                          },
+                          "required": [
+                            "object_type",
+                            "ref"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "canonicalization",
+                    "payload_scope",
+                    "payload_ref"
+                  ]
+                }
+              ]
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "UnitWitness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "witness_id",
+        "source_row_index",
+        "result_id",
+        "source_quantity",
+        "target_quantity",
+        "conversion_performed",
+        "policy"
+      ],
+      "properties": {
+        "witness_id": {
+          "type": "string"
+        },
+        "source_row_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "result_id": {
+          "type": "string"
+        },
+        "source_quantity": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "target_quantity": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "conversion_performed": {
+          "const": false
+        },
+        "policy": {
+          "const": "preserve_received_value_and_unit"
+        }
+      }
+    },
+    "Quantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "unit",
+        "dimension"
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ValidationCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_id",
+        "check_status",
+        "blocking_count",
+        "diagnostic_count",
+        "provenance"
+      ],
+      "properties": {
+        "check_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "check_status": {
+          "enum": [
+            "passed",
+            "blocking"
+          ]
+        },
+        "blocking_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "diagnostic_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ValidationReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validation_status",
+        "checks",
+        "human_review_required",
+        "provenance"
+      ],
+      "properties": {
+        "validation_status": {
+          "enum": [
+            "passed",
+            "blocked"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ValidationCheck"
+          }
+        },
+        "human_review_required": {
+          "const": true
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_object",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "privacy_classification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_status": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "PhysicsContractEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pressure",
+        "connector",
+        "exact_cases"
+      ],
+      "properties": {
+        "pressure": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "load_case_id",
+              "region_id",
+              "profile_mode",
+              "profile_version",
+              "pressure_basis",
+              "p_pa",
+              "external_pressure_increment_pa",
+              "member_pipe_ids",
+              "geometry",
+              "materials",
+              "terminals",
+              "applied_loads",
+              "approximation",
+              "provenance",
+              "geometry_representation_guard",
+              "result_ids"
+            ],
+            "properties": {
+              "load_case_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "region_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "profile_mode": {
+                "const": "exact_straight_pressure_v2"
+              },
+              "profile_version": {
+                "const": "2.0.0"
+              },
+              "pressure_basis": {
+                "const": "internal_differential_zero_external_v1"
+              },
+              "p_pa": {
+                "type": "number"
+              },
+              "external_pressure_increment_pa": {
+                "const": 0
+              },
+              "member_pipe_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "geometry": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "outside_diameter_m",
+                    "effective_wall_thickness_m",
+                    "ri_m",
+                    "ro_m",
+                    "Ai_m2",
+                    "As_m2",
+                    "I_m4",
+                    "J_m4",
+                    "Z_m3",
+                    "pipe_id",
+                    "geometry_basis",
+                    "traversal_forward"
+                  ],
+                  "properties": {
+                    "outside_diameter_m": {
+                      "type": "number"
+                    },
+                    "effective_wall_thickness_m": {
+                      "type": "number"
+                    },
+                    "ri_m": {
+                      "type": "number"
+                    },
+                    "ro_m": {
+                      "type": "number"
+                    },
+                    "Ai_m2": {
+                      "type": "number"
+                    },
+                    "As_m2": {
+                      "type": "number"
+                    },
+                    "I_m4": {
+                      "type": "number"
+                    },
+                    "J_m4": {
+                      "type": "number"
+                    },
+                    "Z_m3": {
+                      "type": "number"
+                    },
+                    "pipe_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "geometry_basis": {
+                      "const": "authored_normalized_od_wall_v1"
+                    },
+                    "traversal_forward": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "materials": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pipe_id",
+                    "material_id",
+                    "E_pa",
+                    "nu",
+                    "G_pa",
+                    "constitutive_basis",
+                    "thermal_consumed",
+                    "alpha_per_kelvin",
+                    "provenance",
+                    "temperature_basis"
+                  ],
+                  "properties": {
+                    "pipe_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "material_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "E_pa": {
+                      "type": "number"
+                    },
+                    "nu": {
+                      "type": "number"
+                    },
+                    "G_pa": {
+                      "type": "number"
+                    },
+                    "constitutive_basis": {
+                      "const": "homogeneous_isotropic_E_nu_v1"
+                    },
+                    "thermal_consumed": {
+                      "type": "boolean"
+                    },
+                    "alpha_per_kelvin": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "temperature_basis": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "selection"
+                          ],
+                          "properties": {
+                            "selection": {
+                              "const": "base_material"
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "selection",
+                            "point_id"
+                          ],
+                          "properties": {
+                            "selection": {
+                              "const": "exact_point"
+                            },
+                            "point_id": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "selection",
+                            "temperature_value",
+                            "temperature_unit"
+                          ],
+                          "properties": {
+                            "selection": {
+                              "const": "interpolation"
+                            },
+                            "temperature_value": {
+                              "type": "number"
+                            },
+                            "temperature_unit": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "terminals": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "node_ref",
+                    "closure_transfer",
+                    "provenance",
+                    "closure_pressure_load_global_n",
+                    "pipe_cap_transfer_global_n",
+                    "remote_closure_excluded_from_pipe_solve",
+                    "remote_closure_support_reaction_global_n"
+                  ],
+                  "properties": {
+                    "node_ref": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "closure_transfer": {
+                      "enum": [
+                        "transfers_to_wall",
+                        "separately_supported_or_compensated"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "closure_pressure_load_global_n": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "pipe_cap_transfer_global_n": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "remote_closure_excluded_from_pipe_solve": {
+                      "type": "boolean"
+                    },
+                    "remote_closure_support_reaction_global_n": {
+                      "oneOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "array",
+                          "minItems": 3,
+                          "maxItems": 3,
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "applied_loads": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pipe_id",
+                    "eigenload_pair_local_n",
+                    "local_x_global",
+                    "mathematical_cap_pair_local_n",
+                    "thermal_included"
+                  ],
+                  "properties": {
+                    "pipe_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "eigenload_pair_local_n": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "local_x_global": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "mathematical_cap_pair_local_n": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "thermal_included": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "approximation": {
+                "const": "long_straight_annulus_small_strain_v2"
+              },
+              "provenance": {
+                "type": "string",
+                "minLength": 1
+              },
+              "geometry_representation_guard": {
+                "const": {
+                  "epsilon_multiplier": 64,
+                  "meaning": "arithmetic_representation_only"
+                }
+              },
+              "result_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "connector": {
+          "const": []
+        },
+        "exact_cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "load_case_id",
+              "profile_mode",
+              "material_basis",
+              "pipe_materials",
+              "pipe_sections",
+              "pipe_stress_extrema",
+              "stress_maximum_coverage",
+              "pressure_rhs_assembly"
+            ],
+            "properties": {
+              "load_case_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "profile_mode": {
+                "const": "exact_straight_pressure_v2"
+              },
+              "material_basis": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pipe_materials": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/PhysicsMaterial"
+                }
+              },
+              "pipe_sections": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/PhysicsGeometry"
+                }
+              },
+              "pipe_stress_extrema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pipe_id",
+                    "result_id",
+                    "station_fraction",
+                    "span_index",
+                    "local_fraction",
+                    "value_lower_pa",
+                    "value_upper_pa",
+                    "global_upper_bound_pa",
+                    "certified_gap_pa",
+                    "subdivisions",
+                    "approximation",
+                    "coefficient_basis",
+                    "enclosure_scope"
+                  ],
+                  "properties": {
+                    "pipe_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "result_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "station_fraction": {
+                      "type": "number"
+                    },
+                    "span_index": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "local_fraction": {
+                      "type": "number"
+                    },
+                    "value_lower_pa": {
+                      "type": "number"
+                    },
+                    "value_upper_pa": {
+                      "type": "number"
+                    },
+                    "global_upper_bound_pa": {
+                      "type": "number"
+                    },
+                    "certified_gap_pa": {
+                      "type": "number"
+                    },
+                    "subdivisions": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 131072
+                    },
+                    "approximation": {
+                      "const": "piecewise_quadratic_straight_section_statics"
+                    },
+                    "coefficient_basis": {
+                      "const": "j_side_section_equilibrium_binary64"
+                    },
+                    "enclosure_scope": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "stress_maximum_coverage": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "complete",
+                  "unavailable_pipe_ids"
+                ],
+                "properties": {
+                  "complete": {
+                    "type": "boolean"
+                  },
+                  "unavailable_pipe_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "pressure_rhs_assembly": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "method",
+                  "load_case_id",
+                  "node_order",
+                  "dof_order",
+                  "dof_units",
+                  "assembled_pressure_rhs_global",
+                  "rounded_cap_rhs_global",
+                  "rounded_poisson_rhs_global",
+                  "groups",
+                  "rounded_cap_and_eigen_ledgers_are_observational",
+                  "cancellation_screen",
+                  "screen_limit",
+                  "screen_roundoff_multiplier",
+                  "screen_is_not_numerical_qualification"
+                ],
+                "properties": {
+                  "method": {
+                    "const": "source_factor_grouped_pressure_rhs_v1"
+                  },
+                  "load_case_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "node_order": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "dof_order": {
+                    "const": [
+                      "Fx",
+                      "Fy",
+                      "Fz",
+                      "Mx",
+                      "My",
+                      "Mz"
+                    ]
+                  },
+                  "dof_units": {
+                    "const": [
+                      "N",
+                      "N",
+                      "N",
+                      "N*m",
+                      "N*m",
+                      "N*m"
+                    ]
+                  },
+                  "assembled_pressure_rhs_global": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "rounded_cap_rhs_global": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "rounded_poisson_rhs_global": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "groups": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "node_ref",
+                        "component",
+                        "pressure_bits",
+                        "source_inner_radius_hi_bits",
+                        "source_inner_radius_lo_bits",
+                        "direction_component_magnitude",
+                        "coefficient_sum",
+                        "assembled_force_n",
+                        "terms"
+                      ],
+                      "properties": {
+                        "node_ref": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "component": {
+                          "enum": [
+                            "Fx",
+                            "Fy",
+                            "Fz"
+                          ]
+                        },
+                        "pressure_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "source_inner_radius_hi_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "source_inner_radius_lo_bits": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{16}$"
+                        },
+                        "direction_component_magnitude": {
+                          "type": "number"
+                        },
+                        "coefficient_sum": {
+                          "type": "number"
+                        },
+                        "assembled_force_n": {
+                          "type": "number"
+                        },
+                        "terms": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "coefficient",
+                              "region_id",
+                              "pipe_id",
+                              "kind"
+                            ],
+                            "properties": {
+                              "coefficient": {
+                                "type": "number"
+                              },
+                              "region_id": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "pipe_id": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "kind": {
+                                "enum": [
+                                  "poisson_eigen",
+                                  "terminal_cap"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "rounded_cap_and_eigen_ledgers_are_observational": {
+                    "const": true
+                  },
+                  "cancellation_screen": {
+                    "type": "number"
+                  },
+                  "screen_limit": {
+                    "const": 1e-09
+                  },
+                  "screen_roundoff_multiplier": {
+                    "const": 32
+                  },
+                  "screen_is_not_numerical_qualification": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "PhysicsGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outside_diameter_m",
+        "effective_wall_thickness_m",
+        "ri_m",
+        "ro_m",
+        "Ai_m2",
+        "As_m2",
+        "I_m4",
+        "J_m4",
+        "Z_m3",
+        "pipe_id",
+        "geometry_basis"
+      ],
+      "properties": {
+        "outside_diameter_m": {
+          "type": "number"
+        },
+        "effective_wall_thickness_m": {
+          "type": "number"
+        },
+        "ri_m": {
+          "type": "number"
+        },
+        "ro_m": {
+          "type": "number"
+        },
+        "Ai_m2": {
+          "type": "number"
+        },
+        "As_m2": {
+          "type": "number"
+        },
+        "I_m4": {
+          "type": "number"
+        },
+        "J_m4": {
+          "type": "number"
+        },
+        "Z_m3": {
+          "type": "number"
+        },
+        "pipe_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "geometry_basis": {
+          "const": "authored_normalized_od_wall_v1"
+        }
+      }
+    },
+    "PhysicsMaterial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pipe_id",
+        "material_id",
+        "E_pa",
+        "nu",
+        "G_pa",
+        "constitutive_basis",
+        "thermal_consumed",
+        "alpha_per_kelvin",
+        "provenance"
+      ],
+      "properties": {
+        "pipe_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "material_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "E_pa": {
+          "type": "number"
+        },
+        "nu": {
+          "type": "number"
+        },
+        "G_pa": {
+          "type": "number"
+        },
+        "constitutive_basis": {
+          "const": "homogeneous_isotropic_E_nu_v1"
+        },
+        "thermal_consumed": {
+          "type": "boolean"
+        },
+        "alpha_per_kelvin": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "SourceRowAnnotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_row_index",
+        "source_result_id",
+        "source_row",
+        "source_row_sha256"
+      ],
+      "properties": {
+        "source_row_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_result_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_row_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "source_row": {
+          "type": "object",
+          "required": [
+            "id",
+            "kind",
+            "value",
+            "unit",
+            "entity_ref"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value": {
+              "type": "number"
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            },
+            "entity_ref": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "producer": {
+          "properties": {
+            "semantic_contract_id": {
+              "const": "openpipestress.result_semantics/0.3.0/precision-1"
+            }
+          }
+        },
+        "semantic_contract_ref": {
+          "properties": {
+            "ref_id": {
+              "const": "openpipestress.result_semantics/0.3.0/precision-1"
+            }
+          }
+        },
+        "semantic_contract": {
+          "properties": {
+            "id": {
+              "const": "openpipestress.result_semantics/0.3.0/precision-1"
+            },
+            "sha256": {
+              "const": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+            }
+          }
+        },
+        "formulation_basis": {
+          "properties": {
+            "profile_id": {
+              "const": "product_preview_mechanics_v1"
+            }
+          }
+        }
+      },
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "contract_evidence"
+            ]
+          },
+          {
+            "required": [
+              "source_block_recovery"
+            ]
+          },
+          {
+            "required": [
+              "source_annotations"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "properties": {
+        "producer": {
+          "properties": {
+            "semantic_contract_id": {
+              "const": "openpipestress.result_semantics/0.3.0/physics-1"
+            }
+          }
+        },
+        "semantic_contract_ref": {
+          "properties": {
+            "ref_id": {
+              "const": "openpipestress.result_semantics/0.3.0/physics-1"
+            }
+          }
+        },
+        "semantic_contract": {
+          "properties": {
+            "id": {
+              "const": "openpipestress.result_semantics/0.3.0/physics-1"
+            },
+            "sha256": {
+              "const": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+            }
+          }
+        },
+        "formulation_basis": {
+          "properties": {
+            "profile_id": {
+              "const": "exact_straight_pressure_v2"
+            }
+          }
+        },
+        "contract_evidence": {
+          "$ref": "#/$defs/PhysicsContractEvidence"
+        }
+      },
+      "required": [
+        "contract_evidence",
+        "source_annotations"
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "source_block_recovery"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "properties": {
+        "producer": {
+          "properties": {
+            "semantic_contract_id": {
+              "const": "openpipestress.result_semantics/0.3.0/source-blocks-1"
+            }
+          }
+        },
+        "semantic_contract_ref": {
+          "properties": {
+            "ref_id": {
+              "const": "openpipestress.result_semantics/0.3.0/source-blocks-1"
+            }
+          }
+        },
+        "semantic_contract": {
+          "properties": {
+            "id": {
+              "const": "openpipestress.result_semantics/0.3.0/source-blocks-1"
+            },
+            "sha256": {
+              "const": "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
+            }
+          }
+        },
+        "formulation_basis": {
+          "properties": {
+            "profile_id": {
+              "const": "product_preview_mechanics_v1"
+            }
+          }
+        },
+        "source_block_recovery": {
+          "$ref": "source_block_recovery.schema.json"
+        }
+      },
+      "required": [
+        "source_block_recovery",
+        "source_annotations"
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "contract_evidence"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "properties": {
+        "producer": {
+          "properties": {
+            "semantic_contract_id": {
+              "const": "openpipestress.result_semantics/0.3.0/physics-source-1"
+            }
+          }
+        },
+        "semantic_contract_ref": {
+          "properties": {
+            "ref_id": {
+              "const": "openpipestress.result_semantics/0.3.0/physics-source-1"
+            }
+          }
+        },
+        "semantic_contract": {
+          "properties": {
+            "id": {
+              "const": "openpipestress.result_semantics/0.3.0/physics-source-1"
+            },
+            "sha256": {
+              "const": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
+            }
+          }
+        },
+        "formulation_basis": {
+          "properties": {
+            "profile_id": {
+              "const": "exact_straight_pressure_v2"
+            }
+          }
+        },
+        "contract_evidence": {
+          "$ref": "physics_source_recovery.schema.json#/$defs/physical_evidence"
+        },
+        "source_block_recovery": {
+          "$ref": "physics_source_recovery.schema.json"
+        }
+      },
+      "required": [
+        "contract_evidence",
+        "source_block_recovery",
+        "source_annotations"
+      ]
+    }
+  ]
+}

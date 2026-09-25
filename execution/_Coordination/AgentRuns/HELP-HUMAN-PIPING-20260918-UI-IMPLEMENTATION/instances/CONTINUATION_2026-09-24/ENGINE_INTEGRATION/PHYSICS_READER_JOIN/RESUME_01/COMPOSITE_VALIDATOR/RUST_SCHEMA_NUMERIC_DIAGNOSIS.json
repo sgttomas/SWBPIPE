@@ -1,0 +1,58 @@
+[
+  {
+    "kind": "composite",
+    "schema": "projects/chirality-piping/schemas/physics_source_recovery.schema.json",
+    "source": "projects/chirality-piping/fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json",
+    "original_serde_number_representation_mismatches": [
+      {
+        "path": "/body/cases/0/source/endpoint_sections/0/endpoints/0/station_fraction",
+        "keyword": "enum",
+        "actual": 0.0,
+        "schema": 0,
+        "actual_python_type": "float",
+        "schema_python_type": "int"
+      },
+      {
+        "path": "/body/cases/0/source/endpoint_sections/0/endpoints/1/station_fraction",
+        "keyword": "enum",
+        "actual": 1.0,
+        "schema": 1,
+        "actual_python_type": "float",
+        "schema_python_type": "int"
+      },
+      {
+        "path": "/body/cases/0/source/section_functionals/0/stations/0/station_fraction",
+        "keyword": "enum",
+        "actual": 0.0,
+        "schema": 0,
+        "actual_python_type": "float",
+        "schema_python_type": "int"
+      },
+      {
+        "path": "/body/cases/0/source/section_functionals/0/stations/4/station_fraction",
+        "keyword": "enum",
+        "actual": 1.0,
+        "schema": 1,
+        "actual_python_type": "float",
+        "schema_python_type": "int"
+      }
+    ],
+    "json_schema_numeric_shape_after_correction": true
+  },
+  {
+    "kind": "physical",
+    "schema": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+    "source": "projects/chirality-piping/fixtures/results/physics_connected_mechanics_sparse.json",
+    "original_serde_number_representation_mismatches": [
+      {
+        "path": "/pressure/0/external_pressure_increment_pa",
+        "keyword": "const",
+        "actual": 0.0,
+        "schema": 0,
+        "actual_python_type": "float",
+        "schema_python_type": "int"
+      }
+    ],
+    "json_schema_numeric_shape_after_correction": true
+  }
+]

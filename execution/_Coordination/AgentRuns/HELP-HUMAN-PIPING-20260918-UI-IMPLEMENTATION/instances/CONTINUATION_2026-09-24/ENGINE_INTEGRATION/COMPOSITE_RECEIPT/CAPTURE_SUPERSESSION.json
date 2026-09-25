@@ -1,0 +1,36 @@
+{
+  "basis": "ROOT method-specific8M policy; old actual source and failures preserved, no source field editing",
+  "prior_manifest": "ACTUAL_CAPTURE_01.json",
+  "retained_artifacts": [
+    {
+      "original_path": "projects/chirality-piping/fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json",
+      "retained_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/PRE_8M_CAPTURE/n05-sparse_interactive.raw.json",
+      "sha256": "e281c338831ed48b3ceaa8a52908c3e50e7287fc9e7ececaa79d2a62b0545552"
+    },
+    {
+      "original_path": "projects/chirality-piping/fixtures/product_preview/physics_source/n05-dense_scrutiny.raw.json",
+      "retained_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/PRE_8M_CAPTURE/n05-dense_scrutiny.raw.json",
+      "sha256": "9d5c5551136a8bb63ef7b8f516ecf93143c0e93a9292ae4c8e1f1ef360dff01c"
+    },
+    {
+      "original_path": "projects/chirality-piping/fixtures/product_preview/physics_source/n06-sparse_interactive.raw.json",
+      "retained_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/PRE_8M_CAPTURE/n06-sparse_interactive.raw.json",
+      "sha256": "95a4353fe73a675776ccd6150ec2513a7b084bea37441b725ec258d42bb17768"
+    },
+    {
+      "original_path": "projects/chirality-piping/fixtures/product_preview/physics_source/n06-dense_scrutiny.raw.json",
+      "retained_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/PRE_8M_CAPTURE/n06-dense_scrutiny.raw.json",
+      "sha256": "e81551a431d6ac307e88ad03be4205ff1855b305b57a5955644d3f8f3ee0b017"
+    },
+    {
+      "original_path": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json",
+      "retained_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/PRE_8M_CAPTURE/mixed-sparse_interactive.raw.json",
+      "sha256": "0f336c736dcfb2429c70be7e6ff68b3a137304a2cf3b186ab919a2766029fd99"
+    },
+    {
+      "original_path": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed-dense_scrutiny.raw.json",
+      "retained_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/PRE_8M_CAPTURE/mixed-dense_scrutiny.raw.json",
+      "sha256": "fa5bdf68e26d8d8700f4e13b6ceb32698f04f0395686ae4a7e28c8bdcedee13d"
+    }
+  ]
+}

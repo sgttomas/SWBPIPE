@@ -12,7 +12,8 @@ pub mod result_envelope_binding;
 
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_product_physics::{
-    run_linear_static_preview_with_mode, LinearStaticPreviewRequest, MechanicsEnvelope, PreviewSolverMode,
+    run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode,
+    LinearStaticPreviewRequest, MechanicsEnvelope, PreviewSolverMode,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -707,31 +708,41 @@ pub struct PreviewRunnerOutput {
 pub struct QualifiedPreviewEvidence {
     pub(crate) solve_payload: Value,
     pub(crate) solve_payload_digest: String,
+    pub(crate) actual_invocation: Value,
+    pub(crate) invocation_digest: String,
     pub(crate) mechanics_digest: String,
     pub(crate) runner_digest: String,
     pub(crate) request_digest: String,
     pub(crate) run_id: String,
 }
 
-/// Parse the exact retained solve payload once and solve that same typed input.
-/// Unknown authored JSON remains in evidence and model digest; overrides stay
-/// separately scoped solve input rather than being merged into model identity.
+/// Pass the exact retained request Value and selected mode to the producer's
+/// capture boundary. Unknown accepted JSON remains in private invocation evidence;
+/// material overrides stay separate from model identity. Typed reserialization
+/// cannot substitute for this route.
 pub fn run_preview_model_value_with_rule_check(request: RunnerRequest, solve_payload: Value, aggregate: Option<&str>) -> Result<PreviewRunnerOutput, String> {
     run_preview_model_value_mode(request,solve_payload,aggregate,PreviewSolverMode::SparseInteractive)
 }
 /// Library-only dense scrutiny/default sparse mode; no CLI/native option added.
 pub fn run_preview_model_value_with_mode(request:RunnerRequest,solve_payload:Value,mode:PreviewSolverMode)->Result<PreviewRunnerOutput,String>{run_preview_model_value_mode(request,solve_payload,None,mode)}
+/// Explicit production mode with a derived rule revision; the selected mode is
+/// captured by the same actual Value invocation as the no-aggregate route.
+pub fn run_preview_model_value_with_mode_and_rule_check(request:RunnerRequest,solve_payload:Value,mode:PreviewSolverMode,aggregate:Option<&str>)->Result<PreviewRunnerOutput,String>{run_preview_model_value_mode(request,solve_payload,aggregate,mode)}
 fn run_preview_model_value_mode(request: RunnerRequest, solve_payload: Value, aggregate: Option<&str>, mode:PreviewSolverMode) -> Result<PreviewRunnerOutput, String> {
-    let typed: LinearStaticPreviewRequest = serde_json::from_value(solve_payload.clone()).map_err(|e|format!("SOLVE_PAYLOAD_INVALID: {e}"))?;
+    // Capture before execution; the exact same request Value is passed into the
+    // product boundary. No model-only projection or typed reconstruction occurs.
+    let actual_invocation = serde_json::json!({"request": &solve_payload, "solver_mode": mode.as_str()});
     let retained_request=request.clone();
-    let mut output=run_preview_in_memory_mode(request,typed,aggregate,mode);
+    let mut output=run_preview_with_producer(request, aggregate, || {
+        run_linear_static_preview_value_with_mode(solve_payload.clone(), mode)
+    })?;
     let qualified=|| -> Result<QualifiedPreviewEvidence,String> {
         use open_pipe_stress_result_export::derivative::{digest,guard_json};
         guard_json(&solve_payload)?;
         let mechanics=output.mechanics_envelope.as_ref().ok_or("SOURCE_UNAVAILABLE")?;
         if mechanics.status.mechanics!="MECHANICS_SOLVED" {return Err("SOURCE_NOT_SOLVED".into());}
         if solve_payload["model"]["project"]["id"]!=mechanics.model_ref {return Err("SOURCE_MODEL_IDENTITY_MISMATCH".into());}
-        Ok(QualifiedPreviewEvidence {solve_payload_digest:digest(&solve_payload)?,solve_payload,mechanics_digest:digest(&serde_json::to_value(mechanics).map_err(|e|e.to_string())?)?,runner_digest:digest(&serde_json::to_value(&output.runner_result).map_err(|e|e.to_string())?)?,request_digest:digest(&serde_json::to_value(&retained_request).map_err(|e|e.to_string())?)?,run_id:output.runner_result.run_id.clone()})
+        Ok(QualifiedPreviewEvidence {solve_payload_digest:digest(&solve_payload)?,invocation_digest:digest(&actual_invocation)?,actual_invocation,solve_payload,mechanics_digest:digest(&serde_json::to_value(mechanics).map_err(|e|e.to_string())?)?,runner_digest:digest(&serde_json::to_value(&output.runner_result).map_err(|e|e.to_string())?)?,request_digest:digest(&serde_json::to_value(&retained_request).map_err(|e|e.to_string())?)?,run_id:output.runner_result.run_id.clone()})
     }();
     match qualified {
         Ok(evidence)=>match result_envelope_binding::build_result_export_document_with_evidence(&retained_request,&output.runner_result,output.mechanics_envelope.as_ref().unwrap(),&evidence){
@@ -768,7 +779,7 @@ pub fn run_preview_in_memory(
 }
 
 /// As [`run_preview_in_memory`], but drives an automatic rule-check aggregate
-/// status into the solve envelope and the runner result's `analysis_status`, so
+/// status into the runner result's derived `analysis_status`, so
 /// a run that actually executed rule checks reports `USER_RULE_CHECKED` /
 /// `USER_RULE_FAILED` instead of the solve-only `RULE_INPUTS_INCOMPLETE`
 /// default. `rule_check_aggregate` is the `rule_check_runner` aggregate as its
@@ -789,11 +800,25 @@ pub fn run_preview_in_memory_with_rule_check(
     run_preview_in_memory_mode(request,preview_request,rule_check_aggregate,PreviewSolverMode::SparseInteractive)
 }
 fn run_preview_in_memory_mode(request:RunnerRequest,preview_request:LinearStaticPreviewRequest,rule_check_aggregate:Option<&str>,mode:PreviewSolverMode)->PreviewRunnerOutput {
+    // Typed compatibility remains inspectable but cannot capture authored JSON
+    // or mint QualifiedPreviewEvidence/source-block invocation proof.
+    run_preview_with_producer(request, rule_check_aggregate, || {
+        Ok(run_linear_static_preview_with_mode(preview_request, mode))
+    }).expect("typed preview producer is infallible")
+}
+
+/// Shared runner assembly validates its own metadata before invoking either
+/// producer route; only the private Value wrapper above can mint solve evidence.
+fn run_preview_with_producer(
+    request: RunnerRequest,
+    rule_check_aggregate: Option<&str>,
+    produce: impl FnOnce() -> Result<MechanicsEnvelope, String>,
+) -> Result<PreviewRunnerOutput, String> {
     let request_validation = validate_request(&request);
     let run_id = format!("run:headless-preview:{}", request.request_id);
 
     if request_validation.has_blocking_diagnostics() {
-        return PreviewRunnerOutput {
+        return Ok(PreviewRunnerOutput {
             runner_result: RunnerResult {
                 run_id: run_id.clone(),
                 job: JobState {
@@ -834,10 +859,10 @@ fn run_preview_in_memory_mode(request:RunnerRequest,preview_request:LinearStatic
             result_envelope_document: None,
             canonical_export_unavailability: Some("SOURCE_UNAVAILABLE".into()),
             qualified_preview_evidence: None,
-        };
+        });
     }
 
-    let mechanics = run_linear_static_preview_with_mode(preview_request,mode);
+    let mechanics = produce()?;
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
     // Rule checks revise the derived analysis, never the producer result. Keep
     // the same raw bytes, numerical evidence and received-source checksum for
@@ -905,13 +930,13 @@ fn run_preview_in_memory_mode(request:RunnerRequest,preview_request:LinearStatic
         attach_result_envelope_document(&request, &mut runner_result, &mechanics);
 
     let canonical_export_unavailability = Some(if mechanics.status.mechanics == "MECHANICS_SOLVED" {"EXACT_SOLVED_MODEL_EVIDENCE_UNAVAILABLE"} else {"SOURCE_NOT_SOLVED"}.into());
-    PreviewRunnerOutput {
+    Ok(PreviewRunnerOutput {
         runner_result,
         mechanics_envelope: Some(mechanics),
         result_envelope_document,
         canonical_export_unavailability,
         qualified_preview_evidence: None,
-    }
+    })
 }
 
 /// Produce and attach the DEL-08-04 envelope document for a completed solve

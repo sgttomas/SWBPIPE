@@ -1,0 +1,23 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--offline",
+    "--locked",
+    "-j",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-engine-integration-product-target",
+    "--test",
+    "physics_source_runtime",
+    "--",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "source_check_record": "product-check-01.json",
+  "test_sha256": "df3c284c2319edc979e39ece4f68976338c19287eda68e847e8f5bd6399cd2d9",
+  "scope": "First actual both-mode public composite groups; original references unchanged",
+  "exit_code": 101
+}

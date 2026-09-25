@@ -1,0 +1,34 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--manifest-path",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--lib",
+    "composite_fields_work_measurement",
+    "--",
+    "--ignored",
+    "--nocapture"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925",
+  "environment": {
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_TARGET_DIR": "/private/tmp/piping-engine-integration-product-target"
+  },
+  "exit_code": 0,
+  "elapsed_seconds": 2.8010759353637695,
+  "source_sha256": {
+    "projects/chirality-piping/core/product_physics/src/source_receipt/endpoint_maximum.rs": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/source.rs": "cae846c609e9dfd2a650e91b85419d55b6b8b96137834a5ca9fbaf562bebf4ca",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs": "17b4570259da139e406a47229131b4a0a8a7640a5625a161af53f67ebe3e8262",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs": "13526bcd71a800e5565112423b3e75c9422f7505d08b69c75d5e4da160260dde",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/composite.rs": "b88ffcd920cb8e612d81f164f10ffbb6afc4cc289eab1f6f89f452174fc7eaf4",
+    "projects/chirality-piping/core/product_physics/src/source_receipt.rs": "e4b3bf5483a48cf5b2d4f78858f38b860f0b34e12345ca07c0be15b927c07249",
+    "projects/chirality-piping/core/product_physics/src/source_recovery.rs": "5112182dc369a529ea5859c0ac2f1212ec1f649ed2bf150b20e72bbeb91c90ef",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "1f649ad4885a51c9db4c3be211aa78ee409e7fd11119f18eab1704df14132218"
+  },
+  "source_unchanged": true,
+  "purpose": "Private 16M diagnostic only; public cap unchanged; not production qualification"
+}

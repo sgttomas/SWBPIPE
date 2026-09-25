@@ -1,0 +1,13 @@
+{
+  "scope": "Rehashed deliberately false retained source/invocation copy, never actual producer or Current proof",
+  "reader_sha256": "12b6e9b342668e9d211f0d2d56169f1fb6258703366e0f407de71f3c84f40ab8",
+  "selected": [
+    2000.0,
+    0.25,
+    null
+  ],
+  "lower_E_pa": 5e-324,
+  "lower_nu": 0.25,
+  "lower_derived_G_pa": 0.0,
+  "public_reader_outcome": true
+}

@@ -1,0 +1,58 @@
+{
+  "agent": "/root/physics_resume/composite_receipt",
+  "parent": "/root/physics_resume",
+  "role": "TASK Type2",
+  "parent_role": "WORKING_ITEMS",
+  "mechanism": "delegated-harness-native",
+  "descendants": [],
+  "actual_checkout": "/private/tmp/piping-engine-integration-20260925",
+  "git_head": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+  "instructions_and_selected_basis": [
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/BRIEF.md",
+      "sha256": "094a70b3fb28c746a80d6873ad18a93381dea6d136b8d19cd863f31cf0bf82df"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_JOIN_PLAN.md",
+      "sha256": "2481106bc6512c520416c532a6202d3151118b2609cf902c4bdf06463273cef8"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/RETURN.md",
+      "sha256": "ca1ceb9cec4795d7a1f6550d862e0dee9e75bd04ebea1f82c1be2ad93a347a85"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/endpoint_maximum.rs",
+      "sha256": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "50293a99d76e46ee6ed532d3937f20fbe810681e5dc2c7c0503776a8c9a87e83"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/SELECTION.md",
+      "sha256": "2d07e95a7cafb67018fa61594c4171be8734ec30750f429a2b9f45546c731b6c"
+    },
+    {
+      "path": "/private/tmp/piping-source-recovery-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/SOURCE_RECOVERY_IMPLEMENTATION_01/INTEGRATION_HANDOFF.md",
+      "sha256": "15afd47530034b4a8163c5c2202e441c8415005da36f5b1874b4553a1cd68120"
+    }
+  ],
+  "write_boundary": "source_recovery.rs,source_receipt.rs,source_receipt module tree and COMPOSITE_RECEIPT evidence only",
+  "execution_boundary": "No external/native/Git mutations; parent-coordinated isolated jobs2 cargo only. Public cap unchanged during measurement. Pure endpoint helper unchanged."
+}

@@ -1,0 +1,203 @@
+{
+  "candidate": "22452 checkpoint plus unmerged resumed integration; independent consumer repair backcheck pending",
+  "binary": {
+    "path": "/private/tmp/piping-physics-headless-target/debug/openpipestress-runner",
+    "sha256": "a02b67fed724af6c13e0ce9ee53c8c4d5e79446c64d1384c548e611e12034160"
+  },
+  "stdin_sha256": "cfef0f47721a94ac8d76c3c8336a0a5b85db66b4b3964b5ba5e4c84655481506",
+  "source": [
+    {
+      "path": "core/runner/headless/src/lib.rs",
+      "sha256": "5b9144c3e0f42fb2e1b82a7f83a8b5f20d3e542aade601a4335e7aa39c9c201b"
+    },
+    {
+      "path": "core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "61c869ef54901e90c66e0900807dfcf7f9610b91b7049f04b25b6b0ea506bb5d"
+    },
+    {
+      "path": "core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "ab2c09da9866af0c789fc15386f34260e8a76b91c21740194311bb4119bd8bae"
+    },
+    {
+      "path": "core/product_physics/src/lib.rs",
+      "sha256": "44647cf80ef19ef3316c8e0a8e4bad52ecdee310ddd8134226eb306eb0594905"
+    },
+    {
+      "path": "core/reporting/result_export/src/physics_source.rs",
+      "sha256": "2de6866121084fa57c9823df3d46b48d4816b57780f04bcf481d2cd8c75c6d61"
+    },
+    {
+      "path": "core/units/src/lib.rs",
+      "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/fields.request.json",
+      "sha256": "7f8ff9d5e23712cedd6ca58a86a690517a8e820b9b072962ca43ad60be286002"
+    }
+  ],
+  "runs": [
+    {
+      "mode_argument": "sparse_interactive",
+      "command": [
+        "/private/tmp/piping-physics-headless-target/debug/openpipestress-runner",
+        "solve",
+        "--input",
+        "-",
+        "--explicit-local-private-intent",
+        "--solver-mode",
+        "sparse_interactive"
+      ],
+      "exit": 0,
+      "stdout_sha256": "262fb9bc7559a3c127e26e049c44ba4080bcd76e5c21d65477754c9718a20491",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "wrapper_keys": [
+        "payload",
+        "decisions",
+        "findings",
+        "blocked",
+        "summary"
+      ],
+      "payload_keys": [
+        "artifact",
+        "command",
+        "deliverable_id",
+        "diagnostics",
+        "mechanics_envelope",
+        "operation",
+        "package_id",
+        "policy",
+        "request_validation",
+        "result_validation",
+        "runner_result",
+        "schema_version",
+        "suite_run"
+      ],
+      "raw_contract": {
+        "component_name": "open_pipe_stress_product_physics",
+        "component_version": "0.2.0",
+        "semantic_contract_id": "openpipestress.result_semantics/0.3.0/physics-source-1"
+      },
+      "raw_namespace": "payload.mechanics_envelope",
+      "canonical_document_present": false
+    },
+    {
+      "mode_argument": "dense_scrutiny",
+      "command": [
+        "/private/tmp/piping-physics-headless-target/debug/openpipestress-runner",
+        "solve",
+        "--input",
+        "-",
+        "--explicit-local-private-intent",
+        "--solver-mode",
+        "dense_scrutiny"
+      ],
+      "exit": 0,
+      "stdout_sha256": "9ff3ce1a9dd8c95465384bb4f79a803e253d83d9dc45d05df9460a662b9cee9f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "wrapper_keys": [
+        "payload",
+        "decisions",
+        "findings",
+        "blocked",
+        "summary"
+      ],
+      "payload_keys": [
+        "artifact",
+        "command",
+        "deliverable_id",
+        "diagnostics",
+        "mechanics_envelope",
+        "operation",
+        "package_id",
+        "policy",
+        "request_validation",
+        "result_validation",
+        "runner_result",
+        "schema_version",
+        "suite_run"
+      ],
+      "raw_contract": {
+        "component_name": "open_pipe_stress_product_physics",
+        "component_version": "0.2.0",
+        "semantic_contract_id": "openpipestress.result_semantics/0.3.0/physics-source-1"
+      },
+      "raw_namespace": "payload.mechanics_envelope",
+      "canonical_document_present": false
+    },
+    {
+      "mode_argument": "default",
+      "command": [
+        "/private/tmp/piping-physics-headless-target/debug/openpipestress-runner",
+        "solve",
+        "--input",
+        "-",
+        "--explicit-local-private-intent"
+      ],
+      "exit": 0,
+      "stdout_sha256": "262fb9bc7559a3c127e26e049c44ba4080bcd76e5c21d65477754c9718a20491",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "wrapper_keys": [
+        "payload",
+        "decisions",
+        "findings",
+        "blocked",
+        "summary"
+      ],
+      "payload_keys": [
+        "artifact",
+        "command",
+        "deliverable_id",
+        "diagnostics",
+        "mechanics_envelope",
+        "operation",
+        "package_id",
+        "policy",
+        "request_validation",
+        "result_validation",
+        "runner_result",
+        "schema_version",
+        "suite_run"
+      ],
+      "raw_contract": {
+        "component_name": "open_pipe_stress_product_physics",
+        "component_version": "0.2.0",
+        "semantic_contract_id": "openpipestress.result_semantics/0.3.0/physics-source-1"
+      },
+      "raw_namespace": "payload.mechanics_envelope",
+      "canonical_document_present": false
+    },
+    {
+      "command": [
+        "/private/tmp/piping-physics-headless-target/debug/openpipestress-runner",
+        "solve",
+        "--solver-mode"
+      ],
+      "exit": 2,
+      "stderr": "openpipestress-runner: --solver-mode requires sparse_interactive or dense_scrutiny\nusage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]\n"
+    },
+    {
+      "command": [
+        "/private/tmp/piping-physics-headless-target/debug/openpipestress-runner",
+        "solve",
+        "--solver-mode",
+        "dense"
+      ],
+      "exit": 2,
+      "stderr": "openpipestress-runner: unsupported solver mode dense\nusage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]\n"
+    },
+    {
+      "command": [
+        "/private/tmp/piping-physics-headless-target/debug/openpipestress-runner",
+        "solve",
+        "--solver-mode",
+        "dense_scrutiny",
+        "--solver-mode",
+        "sparse_interactive"
+      ],
+      "exit": 2,
+      "stderr": "openpipestress-runner: --solver-mode is accepted once for solve only\nusage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]\n"
+    }
+  ],
+  "canonical_limit": "Stable CLI wrapper1.0.0 emits raw mechanics+runner metadata inside ControlledExport.payload, not result_envelope_document. Separate actual library artifacts under /private/tmp/piping-headless-composite-artifacts-resume1 hold canonical0.3 derivatives and their own RunnerRequest identity; not falsely attributed to this CLI stdout.",
+  "meaning": "Actual complete stdin/stdout subprocess captures from current built candidate. No native UI or reviewed production-release claim."
+}

@@ -1,0 +1,18 @@
+{
+  "basis": "public-04.json and source-layer-02.json",
+  "changed_owned_files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_recovery.rs",
+      "before_sha256": "5112182dc369a529ea5859c0ac2f1212ec1f649ed2bf150b20e72bbeb91c90ef",
+      "after_sha256": "04b1083e0cc750a1e5b9335c31e27f2dccaca965c797bcfbaafff6b4f6056315"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs",
+      "before_sha256": "60f04b58808d4c9f7ebe080768ad285b3a51710a8e378722f118b2baa987523a",
+      "after_sha256": "cd45c7e14898951dc8500129bdd3273a6db2e0fff5351761b87af4e7728f1b18"
+    }
+  ],
+  "scope": "Nonexact source gate retains old model0.1/.2 no-pressure-contract namespace; new both-mode actual Value negative regression only",
+  "runtime_backcheck": "pending parent focused run",
+  "source_frozen": true
+}

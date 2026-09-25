@@ -1,0 +1,50 @@
+{
+  "scope": "Existing actual retained source -> nine-member readback; isolated reader negatives, no new solve/native qualification",
+  "transport": [
+    {
+      "mode": "sparse_interactive",
+      "negative_zero_population": 31,
+      "all_received_row_value_bits_retained": true,
+      "sidecar_unhashed_change_refused": true,
+      "coherently_rehashed_sidecar_requires_original_binding": true,
+      "schema_accepted": true,
+      "member_hashes": {
+        "manifest.json": "0af6e6d7938b4c60f156dfbb7fb4800ad6d26b5935395e5d5240db319447dff3",
+        "stress_neutral_results.csv": "9f18f25de8fb249866c904b04ab36a826bfbe06f9f1723c75f71b7ebd4e70c37",
+        "result_rows.json": "6692b1b12ea60700376ff0e6ac2e74a63d73a3a44fb39a320e32fc28b5b8e66d",
+        "unit_system_disclosure.json": "d82c41c035aa4330a47c5646308704fcd4af5bcd847c4a70f5a5ef2451097f44",
+        "unit_preservation_witnesses.json": "ab2ebe9a406f2b85950ea033a756f92df417dc963eb91090f5bc754f611a8e6e",
+        "stable_id_map.json": "b15b9a60fa934819edf4a6f09ae96ff6f9db41bbb7892b3eb41ab602926492a7",
+        "loss_report.json": "27fa3d8d0b1513f66862673074cb38f79a9de17b1c31ba9c6022c4920cc1ce11",
+        "validation_report.json": "65be20ef22800df89d862a810a2da45bd6fa2ab1be3d01b5a8e399219f805d13",
+        "diagnostics.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "mode": "dense_scrutiny",
+      "negative_zero_population": 31,
+      "all_received_row_value_bits_retained": true,
+      "sidecar_unhashed_change_refused": true,
+      "coherently_rehashed_sidecar_requires_original_binding": true,
+      "schema_accepted": true,
+      "member_hashes": {
+        "manifest.json": "13b15e74971635c058ca60f3422e109cd6fcdfab9ee959aca43cc49cca34605e",
+        "stress_neutral_results.csv": "2f12f591ca4fea443d6fd50ed1d3a32a42969b5b522e3e13d26cf994fdf7e31a",
+        "result_rows.json": "c5a4dfd8eb8adc9823f4b1bc5f9340a23c3772fad64de3d7514554992c7f559e",
+        "unit_system_disclosure.json": "4dbbb6ec5c9abf9306b423988a3b81d408d263777d5a5046480b1a77a6aa1bf2",
+        "unit_preservation_witnesses.json": "4b102f41d16354bdebf72685ccd176ad9bb870bd0f3f3f05200b79e2a7b9df96",
+        "stable_id_map.json": "21e3ad60cada06e5d0b6ac42dfbdabed4688c3162cc56f9e07a71532be13aaed",
+        "loss_report.json": "fdd718a7f2468cbd113241bc098d5156ccc8db3ec7a113a239196a62b1d8a54a",
+        "validation_report.json": "ed0a1c6d35d7b4a46a4006e19a1b56e7aea6b26b29031d60a1488aa9e3204c2c",
+        "diagnostics.json": "e5308b75d673a7b82d52259828383124690d1410200b3fbe8cab31c48964ee64"
+      }
+    }
+  ],
+  "p1_packet_and_nine_member_goldens": "pass",
+  "selected_consequence_checks": {
+    "invalid_dimension_or_spelling": 5,
+    "torsion_zero_or_normal": 4,
+    "named_point_strict_bracket": 1,
+    "normalized_alpha": 1
+  }
+}

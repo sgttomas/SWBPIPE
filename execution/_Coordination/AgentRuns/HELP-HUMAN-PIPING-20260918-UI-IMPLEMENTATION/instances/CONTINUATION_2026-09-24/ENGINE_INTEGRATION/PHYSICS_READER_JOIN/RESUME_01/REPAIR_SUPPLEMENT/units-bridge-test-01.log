@@ -1,0 +1,22 @@
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling syn v2.0.117
+   Compiling serde_json v1.0.150
+   Compiling serde v1.0.228
+   Compiling serde_derive v1.0.228
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.2
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/units)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.19s
+     Running unittests src/bin/openpipestress_units.rs (/private/tmp/piping-units-authority-target/debug/deps/openpipestress_units-bc2fa9304e6665bd)
+
+running 3 tests
+test tests::conversions_are_the_actual_library_result ... ok
+test tests::closed_shape_dimension_and_finite_errors_refuse_without_results ... ok
+test tests::same_unit_roundtrip_preserves_library_binary64_behavior ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

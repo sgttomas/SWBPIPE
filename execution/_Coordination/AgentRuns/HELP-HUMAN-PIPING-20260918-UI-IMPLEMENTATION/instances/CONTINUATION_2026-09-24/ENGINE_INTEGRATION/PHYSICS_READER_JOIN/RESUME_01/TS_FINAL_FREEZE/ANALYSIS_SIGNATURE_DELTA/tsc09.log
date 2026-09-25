@@ -1,0 +1,2 @@
+apps/desktop/src/features/results/physicsSourceIntegration.test.tsx(56,14): error TS2532: Object is possibly 'undefined'.
+apps/desktop/src/features/results/physicsSourceIntegration.test.tsx(99,5): error TS18048: 'reference.semantic_contract' is possibly 'undefined'.

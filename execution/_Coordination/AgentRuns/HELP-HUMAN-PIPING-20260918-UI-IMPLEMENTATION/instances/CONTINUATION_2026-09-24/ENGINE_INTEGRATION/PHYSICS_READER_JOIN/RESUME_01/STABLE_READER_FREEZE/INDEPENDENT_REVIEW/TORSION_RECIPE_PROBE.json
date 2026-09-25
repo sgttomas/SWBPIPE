@@ -1,0 +1,12 @@
+{
+  "scope": "Only isolated existing Python consumer scalar recipe, not complete/resealed source admission, actual solve or native proof",
+  "reader_sha256": "6128a9d12a2e412b0e89a07215376dab9a8693c82fc56d68d01573cf37fbaabd",
+  "action": 1e-280,
+  "radius": 1e-40,
+  "torsion_constant": 1e-160,
+  "intermediate": 1e-320,
+  "published_mpa": 9.99988867182683e-167,
+  "relative_error_against_exact_represented_operands": 1.1132817316882137e-05,
+  "reader_recipe_outcome": "accepted",
+  "producer_guard": "source_receipt/rows.rs rejects nonzero action*radius unless normal"
+}

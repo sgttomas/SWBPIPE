@@ -1,0 +1,174 @@
+{
+  "scope": "Actual retained mixed producer source; pure nine-member projection/readback only, no current/native proof.",
+  "source_sha256": "4134fc480d7c77aa412664e0484e08eb3e0c2f44174bbfd6f42023548c4ff4d1",
+  "package_code_sha256": "4db371c6e70cd09925f88f5698a59292c5a2101aa59f1ca1cd9334fd12564ef6",
+  "original_source_validation_and_package_readback": "passed",
+  "changed_source_value_bits": [
+    {
+      "id": "result:support-action:22:case:ordinary-pressure:18:independent-spring:Mx",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:force:independent-member:quarter-1:shear-y",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:force:independent-member:quarter-1:shear-z",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-1:torsion",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-1:bending-y",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-1:bending-z",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:force:independent-member:midspan:shear-y",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:force:independent-member:midspan:shear-z",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:midspan:torsion",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:midspan:bending-y",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:midspan:bending-z",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:force:independent-member:quarter-3:shear-y",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:force:independent-member:quarter-3:shear-z",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-3:torsion",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-3:bending-y",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:moment:independent-member:quarter-3:bending-z",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-i:bending-normal-y",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-i:bending-normal-z",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-i:torsional-shear",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-j:bending-normal-y",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-j:bending-normal-z",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:end-j:torsional-shear",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-1:bending-normal-y",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-1:bending-normal-z",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-1:torsional-shear",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:midspan:bending-normal-y",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:midspan:bending-normal-z",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:midspan:torsional-shear",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-3:bending-normal-y",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-3:bending-normal-z",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    },
+    {
+      "id": "result:loadcase:case-ordinary-pressure:stress:independent-member:quarter-3:torsional-shear",
+      "before_bits": "8000000000000000",
+      "after_bits": "0000000000000000"
+    }
+  ],
+  "members": {
+    "manifest.json": "b940be7736f5c74a2a3391b05ceb80703692b6de35e8736424a5661ae7e964f6",
+    "stress_neutral_results.csv": "9f18f25de8fb249866c904b04ab36a826bfbe06f9f1723c75f71b7ebd4e70c37",
+    "result_rows.json": "6692b1b12ea60700376ff0e6ac2e74a63d73a3a44fb39a320e32fc28b5b8e66d",
+    "unit_system_disclosure.json": "d82c41c035aa4330a47c5646308704fcd4af5bcd847c4a70f5a5ef2451097f44",
+    "unit_preservation_witnesses.json": "ab2ebe9a406f2b85950ea033a756f92df417dc963eb91090f5bc754f611a8e6e",
+    "stable_id_map.json": "b15b9a60fa934819edf4a6f09ae96ff6f9db41bbb7892b3eb41ab602926492a7",
+    "loss_report.json": "27fa3d8d0b1513f66862673074cb38f79a9de17b1c31ba9c6022c4920cc1ce11",
+    "validation_report.json": "65be20ef22800df89d862a810a2da45bd6fa2ab1be3d01b5a8e399219f805d13",
+    "diagnostics.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  }
+}

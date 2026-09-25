@@ -1,0 +1,309 @@
+.................................................................sssssss [ 74%]
+ssss.FFssssssssssssssssss                                                [100%]
+=================================== FAILURES ===================================
+_ test_original_receipt_never_matches_composite_schema_without_relabeling[n05-sparse_interactive] _
+
+self = <jsonschema.validators._RefResolver object at 0x1112184d0>
+url = 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+    def resolve_from_url(self, url):
+        """
+        Resolve the given URL.
+        """
+        url, fragment = urldefrag(url)
+        if not url:
+            url = self.base_uri
+    
+        try:
+>           document = self.store[url]
+                       ^^^^^^^^^^^^^^^
+
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:1118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = {'https://json-schema.org/draft/2019-09/schema': {'$schema': 'https://json-schema.org/draft/2019-09/schema', '$id': 'h...minimum': 0, 'maximum': 64000000}, 'publication_charged': {'type': 'integer', 'minimum': 0, 'maximum': 64000000}}}}}}}}
+uri = 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+    def __getitem__(self, uri):
+>       return self.store[self.normalize(uri)]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/_utils.py:20: KeyError
+
+During handling of the above exception, another exception occurred:
+
+self = <jsonschema.validators._RefResolver object at 0x1112184d0>
+url = 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+    def resolve_from_url(self, url):
+        """
+        Resolve the given URL.
+        """
+        url, fragment = urldefrag(url)
+        if not url:
+            url = self.base_uri
+    
+        try:
+            document = self.store[url]
+        except KeyError:
+            try:
+>               document = self.resolve_remote(url)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:1121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:1228: in resolve_remote
+    with urlopen(uri) as url:  # noqa: S310
+         ^^^^^^^^^^^^
+/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/urllib/request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/urllib/request.py:473: in open
+    req = Request(fullurl, data)
+          ^^^^^^^^^^^^^^^^^^^^^^
+/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/urllib/request.py:292: in __init__
+    self.full_url = url
+    ^^^^^^^^^^^^^
+/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/urllib/request.py:318: in full_url
+    self._parse()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <urllib.request.Request object at 0x1112e4c20>
+
+    def _parse(self):
+        self.type, rest = _splittype(self._full_url)
+        if self.type is None:
+>           raise ValueError("unknown url type: %r" % self.full_url)
+E           ValueError: unknown url type: 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/urllib/request.py:347: ValueError
+
+The above exception was the direct cause of the following exception:
+
+name = 'n05-sparse_interactive'
+
+    @pytest.mark.parametrize("name", ("n05-sparse_interactive", "ui/multicase-dense_scrutiny"))
+    def test_original_receipt_never_matches_composite_schema_without_relabeling(name):
+        receipt = source_analysis(name)[0]["source_block_recovery"]
+>       require_schema(RECEIPT_REF, receipt)
+
+tests/test_source_block_schema_contract.py:273: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_source_block_schema_contract.py:51: in require_schema
+    validate_instance(schema(name), instance, instance_label="actual source-bound artifact")
+tests/schema_validation.py:73: in validate_instance
+    errors = sorted(validator.iter_errors(instance), key=lambda error: list(error.path))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:383: in iter_errors
+    for error in errors:
+                 ^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/_keywords.py:296: in properties
+    yield from validator.descend(
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:431: in descend
+    for error in errors:
+                 ^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/_keywords.py:275: in ref
+    yield from validator._validate_reference(ref=ref, instance=instance)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:481: in _validate_reference
+    return list(self.descend(instance, resolved))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:431: in descend
+    for error in errors:
+                 ^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/_keywords.py:296: in properties
+    yield from validator.descend(
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:431: in descend
+    for error in errors:
+                 ^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/_keywords.py:275: in ref
+    yield from validator._validate_reference(ref=ref, instance=instance)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:477: in _validate_reference
+    scope, resolved = resolve(ref)
+                      ^^^^^^^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:1107: in resolve
+    return url, self._remote_cache(url)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <jsonschema.validators._RefResolver object at 0x1112184d0>
+url = 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+    def resolve_from_url(self, url):
+        """
+        Resolve the given URL.
+        """
+        url, fragment = urldefrag(url)
+        if not url:
+            url = self.base_uri
+    
+        try:
+            document = self.store[url]
+        except KeyError:
+            try:
+                document = self.resolve_remote(url)
+            except Exception as exc:
+>               raise exceptions._RefResolutionError(exc) from exc
+E               jsonschema.exceptions._RefResolutionError: unknown url type: 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:1123: _RefResolutionError
+_ test_original_receipt_never_matches_composite_schema_without_relabeling[ui/multicase-dense_scrutiny] _
+
+self = <jsonschema.validators._RefResolver object at 0x111461350>
+url = 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+    def resolve_from_url(self, url):
+        """
+        Resolve the given URL.
+        """
+        url, fragment = urldefrag(url)
+        if not url:
+            url = self.base_uri
+    
+        try:
+>           document = self.store[url]
+                       ^^^^^^^^^^^^^^^
+
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:1118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = {'https://json-schema.org/draft/2019-09/schema': {'$schema': 'https://json-schema.org/draft/2019-09/schema', '$id': 'h...minimum': 0, 'maximum': 64000000}, 'publication_charged': {'type': 'integer', 'minimum': 0, 'maximum': 64000000}}}}}}}}
+uri = 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+    def __getitem__(self, uri):
+>       return self.store[self.normalize(uri)]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/_utils.py:20: KeyError
+
+During handling of the above exception, another exception occurred:
+
+self = <jsonschema.validators._RefResolver object at 0x111461350>
+url = 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+    def resolve_from_url(self, url):
+        """
+        Resolve the given URL.
+        """
+        url, fragment = urldefrag(url)
+        if not url:
+            url = self.base_uri
+    
+        try:
+            document = self.store[url]
+        except KeyError:
+            try:
+>               document = self.resolve_remote(url)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:1121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:1228: in resolve_remote
+    with urlopen(uri) as url:  # noqa: S310
+         ^^^^^^^^^^^^
+/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/urllib/request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/urllib/request.py:473: in open
+    req = Request(fullurl, data)
+          ^^^^^^^^^^^^^^^^^^^^^^
+/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/urllib/request.py:292: in __init__
+    self.full_url = url
+    ^^^^^^^^^^^^^
+/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/urllib/request.py:318: in full_url
+    self._parse()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <urllib.request.Request object at 0x1112e91d0>
+
+    def _parse(self):
+        self.type, rest = _splittype(self._full_url)
+        if self.type is None:
+>           raise ValueError("unknown url type: %r" % self.full_url)
+E           ValueError: unknown url type: 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/urllib/request.py:347: ValueError
+
+The above exception was the direct cause of the following exception:
+
+name = 'ui/multicase-dense_scrutiny'
+
+    @pytest.mark.parametrize("name", ("n05-sparse_interactive", "ui/multicase-dense_scrutiny"))
+    def test_original_receipt_never_matches_composite_schema_without_relabeling(name):
+        receipt = source_analysis(name)[0]["source_block_recovery"]
+>       require_schema(RECEIPT_REF, receipt)
+
+tests/test_source_block_schema_contract.py:273: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_source_block_schema_contract.py:51: in require_schema
+    validate_instance(schema(name), instance, instance_label="actual source-bound artifact")
+tests/schema_validation.py:73: in validate_instance
+    errors = sorted(validator.iter_errors(instance), key=lambda error: list(error.path))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:383: in iter_errors
+    for error in errors:
+                 ^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/_keywords.py:296: in properties
+    yield from validator.descend(
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:431: in descend
+    for error in errors:
+                 ^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/_keywords.py:275: in ref
+    yield from validator._validate_reference(ref=ref, instance=instance)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:481: in _validate_reference
+    return list(self.descend(instance, resolved))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:431: in descend
+    for error in errors:
+                 ^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/_keywords.py:296: in properties
+    yield from validator.descend(
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:431: in descend
+    for error in errors:
+                 ^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/_keywords.py:275: in ref
+    yield from validator._validate_reference(ref=ref, instance=instance)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:477: in _validate_reference
+    scope, resolved = resolve(ref)
+                      ^^^^^^^^^^^^
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:1107: in resolve
+    return url, self._remote_cache(url)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <jsonschema.validators._RefResolver object at 0x111461350>
+url = 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+    def resolve_from_url(self, url):
+        """
+        Resolve the given URL.
+        """
+        url, fragment = urldefrag(url)
+        if not url:
+            url = self.base_uri
+    
+        try:
+            document = self.store[url]
+        except KeyError:
+            try:
+                document = self.resolve_remote(url)
+            except Exception as exc:
+>               raise exceptions._RefResolutionError(exc) from exc
+E               jsonschema.exceptions._RefResolutionError: unknown url type: 'openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/openpipestress.source_block_receipt/1.0.0'
+
+../../../chirality-piping-review-venv/lib/python3.13/site-packages/jsonschema/validators.py:1123: _RefResolutionError
+=============================== warnings summary ===============================
+tests/test_source_block_schema_contract.py: 160 warnings
+  /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/schema_validation.py:55: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import RefResolver
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_source_block_schema_contract.py::test_original_receipt_never_matches_composite_schema_without_relabeling[n05-sparse_interactive]
+FAILED tests/test_source_block_schema_contract.py::test_original_receipt_never_matches_composite_schema_without_relabeling[ui/multicase-dense_scrutiny]
+2 failed, 66 passed, 29 skipped, 160 warnings in 30.19s

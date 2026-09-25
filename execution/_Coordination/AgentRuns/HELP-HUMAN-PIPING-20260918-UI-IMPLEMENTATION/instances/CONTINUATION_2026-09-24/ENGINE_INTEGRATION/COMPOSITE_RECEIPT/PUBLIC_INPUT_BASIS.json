@@ -1,0 +1,33 @@
+{
+  "status": "authoredmaintainedinputsbeforeactualproducerexecution",
+  "inputs": [
+    {
+      "source": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.request.json",
+      "source_sha256": "abfa321ca270b0a2b5dd0670a686afd6dc55e229efb8a8da2fac1c6a93aba85c",
+      "companion": "projects/chirality-piping/fixtures/product_preview/physics_source/n05.request.json",
+      "sha256": "332319ee6f47870a074a6c16fbf2f43c0171e376a0b4cd1cb7f7ad8b59254b00",
+      "changes": [
+        "explicit0.3 exact profile",
+        "explicitnu0.25 matching original E/G pair",
+        "explicitemptyregions",
+        "distinctsyntheticprojectidentity"
+      ],
+      "note": "Original N05/N06 inputs/raw/reference remain unchanged; this is an explicitly authored physical-profile companion, not original proof relabeling."
+    },
+    {
+      "source": "projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n06-sparse_interactive.request.json",
+      "source_sha256": "39b9a33b5826feea1ac99f01255e9ac2496eab4f262461e2cd23a3b09a6ff2bd",
+      "companion": "projects/chirality-piping/fixtures/product_preview/physics_source/n06.request.json",
+      "sha256": "5551f164b9e8ab88f04f3abce810e1e1b1ff47236bba6a296e32905f628be931",
+      "changes": [
+        "explicit0.3 exact profile",
+        "explicitnu0.25 matching original E/G pair",
+        "explicitemptyregions",
+        "distinctsyntheticprojectidentity"
+      ],
+      "note": "Original N05/N06 inputs/raw/reference remain unchanged; this is an explicitly authored physical-profile companion, not original proof relabeling."
+    }
+  ],
+  "field_reference": "global root actions -appliedforce and -appliedmoment-r_cross_force, springRX=-tiptorque; axial/bendingstress from circularsection and actual source end actions",
+  "mixed_case": "explicit different user temperature-point material in secondcase changes represented matrix; actualmethodclassification remains tobeobserved, no pass implied"
+}

@@ -331,11 +331,18 @@ it('refuses precision header presence on rehashed legacy packets without alterin
  await expect(validateStressNeutralExportPacket(base)).resolves.toBeUndefined();
 });
 
-it('refuses physics projection instead of labeling physical evidence as legacy',async()=>{
+it('projects received physics with its own identity and complete physical evidence',async()=>{
  const {model,source:result}=nativeMechanicsReplayPair();
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'received-physics-reference',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest}),before=JSON.stringify(result);
- await expect(buildStressNeutralExportPacket({model,result,analysisRun})).rejects.toThrow('SN-PHYSICS-PROJECTION-UNAVAILABLE');
+ const packet=await buildStressNeutralExportPacket({model,result,analysisRun});
+ expect(packet.schema_version).toBe('0.3.0');
+ expect(packet.semantic_contract.id).toBe(result.producer!.semantic_contract_id);
+ expect(packet.contract_evidence).toEqual(result.contract_evidence);
+ expect(packet).not.toHaveProperty('source_block_recovery');
+ expect(packet.source_annotations).toHaveLength(result.results.length);
+ expect(packet.manifest.package_members).toHaveLength(9);
+ await expect(validateStressNeutralExportPacket(packet,result,analysisRun)).resolves.toBeUndefined();
  expect(JSON.stringify(result)).toBe(before);
 });
 

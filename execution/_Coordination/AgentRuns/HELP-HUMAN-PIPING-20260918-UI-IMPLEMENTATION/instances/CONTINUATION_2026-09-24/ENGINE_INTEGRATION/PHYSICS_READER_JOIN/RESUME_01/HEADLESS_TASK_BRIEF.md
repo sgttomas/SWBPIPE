@@ -1,0 +1,9 @@
+# TASK — actual source invocation through headless
+
+Resume from22452 under WORKING_ITEMS /root/physics_resume/physics_reader_join. Owner hold explicitly revoked. Read Root/PipingAGENTS/loop and full agents/AGENT_TASK.md; Type2 no delegation.
+
+Sole writes core/runner/headless/src/lib.rs and result_envelope_binding.rs and their contained/new focused tests; evidence RESUME_01/HEADLESS_TASK. No product/export-reader/schema/frontend writes. Preserve current rawimmutability, qualified private model/source/request digest bindings, p1/physics behavior, typed legacy no-proof route and explicit noCurrent/Sensitive/source guards. Change model-Value actual route to product run_linear_static_preview_value_with_mode, capture full actual Value+actual mode before execution incl materials/order/extra accepted request fields. Store private mode/context with evidence; numerical_use_standing_with_context receives exact captured {request,solver_mode}, not reconstructed model or claimed receipt hash. Typed route cannot mintsource receipt or proof.
+
+Read source-recovery checkpoint headless implementation read-only as useful API basis but compose with joined immutability+physics changes, no wholesale overwrite. Use genuine maintained N05/N06/multicase bothmode inputs, actual solver via headless, canonical export/received checksum and negative context/model/mode/reparsed receipt tests. Do not create fake Current by modifying results or flags. Preserve actual pressure/thermal/source geometry and blocked physics controls. Parent owns facade/native; receiptTASK moving source modules, so coordinated compile only when parent grants lane. Static/parser/small checks okay. No Cargo/npm/build/native/browser/Git without explicit lane.
+
+Existing source-blocks1 dispatch only now. Parent handles composite later after wire; don't allocate newtable or change producerheaders. Return concrete evidence/context API and source-ready diff/hash/testing needs early.

@@ -1,0 +1,43 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/results/physicsSourceRecovery.test.ts src/features/results/sourceBlockRecovery.test.ts src/features/results/physicsResultEvidence.parity.test.ts src/features/results/PhysicsSourceEvidencePanel.test.tsx src/features/results/physicsSourceIntegration.test.tsx --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner
+
+
+ RUN  v4.1.10 /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/results/physicsSourceIntegration.test.tsx (15 tests | 2 failed) 34524ms
+     × n05_unicode sparse_interactive binds actual input, Current gates and portable evidence 724ms
+     × n05_unicode dense_scrutiny binds actual input, Current gates and portable evidence 724ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05_unicode sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05_unicode dense_scrutiny binds actual input, Current gates and portable evidence
+Error: SN-CSV-ROW-BINDING-MISMATCH
+ ❯ fail src/features/stress-neutral/StressNeutralExportPanel.tsx:750:37
+    748| /** Validate received spelling without replacing independently hashed …
+    749| function validatePrecisionCsv(text: unknown, rows: StressNeutralRow[])…
+    750|   const fail = (): never => { throw new Error("SN-CSV-ROW-BINDING-MISM…
+       |                                     ^
+    751|   if (typeof text !== "string" || /[^\x00-\x7f]/.test(text)) fail();
+    752|   const csv = text as string;
+ ❯ validatePrecisionCsv src/features/stress-neutral/StressNeutralExportPanel.tsx:751:62
+ ❯ validateStressNeutralExportPacket src/features/stress-neutral/StressNeutralExportPanel.tsx:683:18
+ ❯ Module.buildStressNeutralExportPacket src/features/stress-neutral/StressNeutralExportPanel.tsx:580:3
+ ❯ src/features/results/physicsSourceIntegration.test.tsx:57:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  2 failed | 193 passed (195)
+   Start at  03:38:18
+   Duration  36.25s (transform 980ms, setup 263ms, import 1.88s, tests 47.09s, environment 1.19s)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/results/physicsSourceRecovery.test.ts src/features/results/sourceBlockRecovery.test.ts src/features/results/physicsResultEvidence.parity.test.ts src/features/results/PhysicsSourceEvidencePanel.test.tsx src/features/results/physicsSourceIntegration.test.tsx --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner

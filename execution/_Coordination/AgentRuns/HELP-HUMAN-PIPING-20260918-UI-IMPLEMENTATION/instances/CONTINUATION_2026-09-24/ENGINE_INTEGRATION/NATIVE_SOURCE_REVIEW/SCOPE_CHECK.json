@@ -1,0 +1,13 @@
+{
+  "allowed": [
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs"
+  ],
+  "paths": [
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

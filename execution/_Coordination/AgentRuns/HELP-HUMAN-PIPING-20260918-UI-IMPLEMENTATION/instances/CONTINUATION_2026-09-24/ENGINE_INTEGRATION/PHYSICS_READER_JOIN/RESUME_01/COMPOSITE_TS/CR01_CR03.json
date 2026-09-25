@@ -1,0 +1,117 @@
+{
+  "actor": "/root/physics_resume/physics_reader_join/physics_ts_readers",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "role": "TASK",
+  "scope": [
+    "apps/desktop/src/features/results/physicsSourceRecovery.ts",
+    "apps/desktop/src/features/results/physicsSourceRecovery.test.ts"
+  ],
+  "input_source_snapshot": [
+    {
+      "path": "apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "sha256": "35b6e817767464d745beefdc32e97aeaf188de9f22bc096428499791b16d52aa"
+    },
+    {
+      "path": "apps/desktop/src/features/results/physicsSourceRecovery.test.ts",
+      "sha256": "1752b5e54edb17653ce5b6d3e5eef9d4d2bf1c4b1d1c92fdb7edd83f4a2a8ea4"
+    }
+  ],
+  "instruction_reread": {
+    "path": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+  },
+  "producer_authorities": [
+    {
+      "path": "core/product_physics/src/lib.rs",
+      "sha256": "44647cf80ef19ef3316c8e0a8e4bad52ecdee310ddd8134226eb306eb0594905"
+    },
+    {
+      "path": "core/product_physics/src/pressure_material.rs",
+      "sha256": "a7d63cedda6040e03c0583f9c3a7114cf9aff40144ea6a5748252898789de7b2"
+    },
+    {
+      "path": "core/product_physics/src/pressure_exact.rs",
+      "sha256": "b85630992db2e3a8be9c87f395dee09b0d27c68cf80ea9765cddb57b69768fa0"
+    },
+    {
+      "path": "core/model_operations/operation_applier/src/display_units.rs",
+      "sha256": "947b86b13e097cf498438b6b1ca39cde60d35d4130ba35056c2c6e5e68a2c020"
+    },
+    {
+      "path": "core/units/src/lib.rs",
+      "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+    }
+  ],
+  "actual_unit_capture": {
+    "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_UNIT_CAPTURE.json",
+    "sha256": "e4a7fb59aeadcfa6449dd2e5790487fa69f9456eb80ad7cef2755dda2d6d3f92"
+  },
+  "actual_units": [
+    {
+      "path": "fixtures/product_preview/physics_source/n05_units.request.json",
+      "sha256": "4774ffdeb00bf3a400032994f18b85b8b53b37695e88a6e15c7f6c8b3abb2775"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n05_units-sparse_interactive.raw.json",
+      "sha256": "2b6849285aea5074224bbcd505ad5db8f4208268c72cd97911843ff9af47cefe"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/n05_units-dense_scrutiny.raw.json",
+      "sha256": "02d761ab7e64cf3d41a2336a1049a5b20093aa94951ccc0a4739f1250ec32642"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/mixed_units.request.json",
+      "sha256": "065f004d03ab11324958a6b5a0c8763e063e18f9a413c9ffee336903d4a1725a"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/mixed_units-sparse_interactive.raw.json",
+      "sha256": "0fc195a0e5ca8ded8c0393bded4329d63bc31e6776a3175a70bde9928adbdfb9"
+    },
+    {
+      "path": "fixtures/product_preview/physics_source/mixed_units-dense_scrutiny.raw.json",
+      "sha256": "c0481764c0f5057dda96cf78529b0df0788f301dd8b1497501ae4bff0d7e1706"
+    }
+  ],
+  "findings": [
+    {
+      "id": "CR01",
+      "before": "WASM Pa/K conversions already used. Exact-temperature fallback was inconsistent with exact-pressure resolve_case. Existing source-case-only material checks did not exercise mixed_units ordinary-case interpolation.",
+      "repair": "Normalize base/point E, optional authoredG unitvalidity, alpha and temperatures through existing WASM convertDisplayQuantitiesJson (same units crate convert_for_dimension). Require explicit unit1 nu/range, base/selected pair positivity; use strict normalizedK interior bracket and no endpoint fallback. Interpolate normalized Pa, nu and same-basis alpha in producer operand order. Bind every composite case to actual model section/material quantities and per-pipe thermal consumption. Derived G retains existing physical reader2ULP scaled-rounding guard, binding normalized selected E/nu; never accepts authoredG as modulus authority."
+    },
+    {
+      "id": "CR03",
+      "before": "T*radius product normality was already required alongside Pa/MPa.",
+      "repair": "Retained guard with explicit explanation and isolated nonzero-subnormal negative and structural-zero subcheck regressions."
+    }
+  ],
+  "small_probe": {
+    "product": 1e-320,
+    "published": 9.99988867182683e-167,
+    "relative_difference_vs_stable_order": 1.1132817317024237e-05,
+    "product_normal": false,
+    "published_normal": true,
+    "claim": "Isolated binary64 arithmetic, not a qualified producer carrier."
+  },
+  "tests_added": "Four actual unit pairs join unchanged8; explicit four normalized material oracles, rehashed ordinarymaterial contradiction, strict endpoint/duplicate refusals, nine unit/range mutations, two isolated torsion controls. No fabricated passed Current/native carrier.",
+  "checks": [
+    {
+      "name": "TypeScript createSourceFile parseDiagnostics",
+      "result": "0 in both owned files; syntax only"
+    },
+    {
+      "name": "scoped git diff --check",
+      "result": "exit0; files untracked current source managed by parent"
+    }
+  ],
+  "pending": "Vitest and tsc not run: manager lane hold. Four real unit positives and all regressions require runtime. No actual composite ordinary-thermal capture supplied, so selected-alpha implementation is producer-audited but no such full positive capture claimed.",
+  "source_snapshot": [
+    {
+      "path": "apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "sha256": "68759a75733e20c16afa3fc884b8de0376053db4cdb9350997b3fa3db49ae710"
+    },
+    {
+      "path": "apps/desktop/src/features/results/physicsSourceRecovery.test.ts",
+      "sha256": "a91de21bd6b8a14af40661672aac8ef0c7f253f6a035e6f50563d2ac4762a3e1"
+    }
+  ]
+}

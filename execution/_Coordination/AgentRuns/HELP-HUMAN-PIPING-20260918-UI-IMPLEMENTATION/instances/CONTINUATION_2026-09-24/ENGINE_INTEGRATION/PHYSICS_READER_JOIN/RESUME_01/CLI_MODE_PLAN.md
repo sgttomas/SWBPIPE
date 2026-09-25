@@ -1,0 +1,7 @@
+# Stable production CLI mode option
+
+ROOT explicitly allocated this narrow headless extension; parent approved closed solve-only syntax. Stable binary: openpipestress-runner solve --input <request.json>|- [--output <result.json>] [--explicit-local-private-intent] [--solver-mode <sparse_interactive|dense_scrutiny>]. Omission retains sparse. Missing/unknown/duplicate mode or use on another verb refuses usage with exit2. The provisional headless_preview_runner compatibility syntax remains unchanged.
+
+No JSON input/RunnerRequest/output DTO property is added; CLI output schema1.0.0 stays unchanged. New library run_preview_model_value_with_mode_and_rule_check preserves existing wrappers. The mode is captured in the actual wholeValue invocation and source receipt/hash; real outputs retain their actual mode evidence. Producer errors now produce structured failure rather than expect panic. No schema bump or fake result mode claim.
+
+The original invented legacy-pressure input stays an explicit refused current control. The existing stdout/policy success test uses the separately maintained actualprecisionUI model because pressure was incidental to that test's purpose; original fixture bytes unchanged. New tests parse closedflags/default and execute maintainedN05 in bothactualmodes with originalinvocation validation, raw-rule immutability, derived rule status and absentmode/default equality. HEADLESS_SOURCE_BLOCK_OUTPUT_DIR emits actualrequest/output artifacts if supplied. Runtime pending after ROOT sweep; only Rustsyntax parse ran.

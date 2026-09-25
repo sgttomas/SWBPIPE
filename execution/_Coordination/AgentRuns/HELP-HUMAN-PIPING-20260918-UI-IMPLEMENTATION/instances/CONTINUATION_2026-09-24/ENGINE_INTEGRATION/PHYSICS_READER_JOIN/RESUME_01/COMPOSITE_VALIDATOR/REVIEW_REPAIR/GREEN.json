@@ -1,0 +1,35 @@
+{
+  "scope": "CR01 actual full producer outputs; CR03 isolated synthetic recipe only, never full source/current proof",
+  "reader_sha256": "12b6e9b342668e9d211f0d2d56169f1fb6258703366e0f407de71f3c84f40ab8",
+  "units": [
+    {
+      "name": "n05_units",
+      "mode": "sparse_interactive",
+      "outcome": true
+    },
+    {
+      "name": "n05_units",
+      "mode": "dense_scrutiny",
+      "outcome": true
+    },
+    {
+      "name": "mixed_units",
+      "mode": "sparse_interactive",
+      "outcome": true
+    },
+    {
+      "name": "mixed_units",
+      "mode": "dense_scrutiny",
+      "outcome": true
+    }
+  ],
+  "torsion": {
+    "action": 1e-280,
+    "radius": 1e-40,
+    "torsion_constant": 1e-160,
+    "intermediate": 1e-320,
+    "published_mpa": 9.99988867182683e-167,
+    "relative_error_against_exact_operands": 1.1132817316882137e-05,
+    "outcome": "ValueError: PHYSICS_SOURCE_STRESS_TORSION_INTERMEDIATE_RANGE"
+  }
+}

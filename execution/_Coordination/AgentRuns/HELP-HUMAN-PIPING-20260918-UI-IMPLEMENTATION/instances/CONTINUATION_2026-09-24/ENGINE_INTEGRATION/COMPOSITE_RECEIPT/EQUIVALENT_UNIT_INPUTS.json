@@ -1,0 +1,18 @@
+[
+  {
+    "source": "projects/chirality-piping/fixtures/product_preview/physics_source/n05.request.json",
+    "source_sha256": "332319ee6f47870a074a6c16fbf2f43c0171e376a0b4cd1cb7f7ad8b59254b00",
+    "input": "projects/chirality-piping/fixtures/product_preview/physics_source/n05_units.request.json",
+    "input_sha256": "4774ffdeb00bf3a400032994f18b85b8b53b37695e88a6e15c7f6c8b3abb2775",
+    "expected_basis": "Ebase200GPa/nu.25 =>G80GPa; mixed68degF=20degC brackets0degC..313.15K and interpolates1000..3000Pa to2000Pa",
+    "status": "actualproducerinvocationpending, no source relabeling"
+  },
+  {
+    "source": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed.request.json",
+    "source_sha256": "a623608d33423c9bcf40a6ef5324f11576c52501953c3f0e6d08d24ddcb84abf",
+    "input": "projects/chirality-piping/fixtures/product_preview/physics_source/mixed_units.request.json",
+    "input_sha256": "065f004d03ab11324958a6b5a0c8763e063e18f9a413c9ffee336903d4a1725a",
+    "expected_basis": "Ebase200GPa/nu.25 =>G80GPa; mixed68degF=20degC brackets0degC..313.15K and interpolates1000..3000Pa to2000Pa",
+    "status": "actualproducerinvocationpending, no source relabeling"
+  }
+]

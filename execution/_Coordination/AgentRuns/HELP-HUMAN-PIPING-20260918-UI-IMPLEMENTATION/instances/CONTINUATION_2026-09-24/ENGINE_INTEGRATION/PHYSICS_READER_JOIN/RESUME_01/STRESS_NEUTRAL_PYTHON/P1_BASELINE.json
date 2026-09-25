@@ -1,0 +1,23 @@
+{
+  "package_checksum": {
+    "algorithm": "sha256",
+    "canonicalization": "openpipestress_jcs_ijson_v1",
+    "payload_scope": "complete_package_excluding_self_checksum",
+    "payload_ref": {
+      "object_type": "StressNeutralExportPackage",
+      "ref": "stress-neutral:invented-del-17-06"
+    },
+    "value": "3677f468fb9dde4683de9fd5d9483fcce135cd4050d2f3fa7fa24d369a97359e"
+  },
+  "members": {
+    "manifest.json": "244baa3ba952493f7a2dcd5eceef478cf9b1d38d08794520a8e33e66c0cec601",
+    "stress_neutral_results.csv": "e8d604f65489413da7f421f0f2d95432c4f7df16a7f8566c5902ececbaefb59d",
+    "result_rows.json": "eb752adaefb92719b5563322d00369f3657974e787f39da7f6dde3a3eb10b876",
+    "unit_system_disclosure.json": "3ad54b12cfc3081b51a2b394834826cbe4549e3c74d1dd8a6fa935d5a1a831e3",
+    "unit_preservation_witnesses.json": "1824cf8af549dea6d204e4a53fd2b4d30c676148d5253ad289dc5009c5547fc1",
+    "stable_id_map.json": "5feea93687527da9da108480548fd575c76132655a15793371374cdf419c17e6",
+    "loss_report.json": "c720c6fb2cfeb516cf6d28637c68b0b54147fc41cec5b1da412a3f60006c2d4e",
+    "validation_report.json": "65be20ef22800df89d862a810a2da45bd6fa2ab1be3d01b5a8e399219f805d13",
+    "diagnostics.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  }
+}

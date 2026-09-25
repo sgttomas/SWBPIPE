@@ -1,0 +1,16 @@
+{
+  "command": [
+    "cargo",
+    "update",
+    "--offline",
+    "--manifest-path",
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+    "-p",
+    "open_pipe_stress_result_export"
+  ],
+  "exit_code": 0,
+  "before_sha256": "1f1206d4e2f716fdc1de2092735e3bdf08a6b2a8c4f237830e2b2d14822a9896",
+  "after_sha256": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+  "registry_and_package_versions_unchanged": true,
+  "scope": "Native local dependency metadata only; no compilation/native execution"
+}

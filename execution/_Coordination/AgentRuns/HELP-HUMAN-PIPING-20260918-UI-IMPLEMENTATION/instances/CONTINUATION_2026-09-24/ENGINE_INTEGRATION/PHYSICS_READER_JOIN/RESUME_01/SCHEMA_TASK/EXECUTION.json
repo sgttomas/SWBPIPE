@@ -1,0 +1,195 @@
+{
+  "actor": "/root/physics_resume/physics_reader_join/physics_ts_readers",
+  "parent": "/root/physics_resume/physics_reader_join",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native resume after explicit owner-hold revocation",
+  "delegation": [],
+  "base_revision": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+  "write_scope": [
+    "schemas/results.v0.3.schema.yaml",
+    "schemas/analysis_run.v0.3.schema.json",
+    "schemas/physics_source_recovery.schema.json",
+    "tests/test_source_block_schema_contract.py",
+    "tests/schema_validation.py"
+  ],
+  "scope_extension": "Parent authorized minimal schema_validation.py retrieval alias fix; later newphysics_source_recovery.schema.json and exact wire/table4th branches after actual producer interface. Original source receipt schema read-only.",
+  "loaded_origins": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/SCHEMA_TASK_BRIEF.md",
+      "sha256": "b385067317051ea0c5cb3d13af7ffb253a60ee9993850b5cd5dd8db316445a95"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/READER_RESOLUTION/RETURN.md",
+      "sha256": "f4519ceaf4cd0bead5d56f17e716606a9ac69a7519637228c150ca1a74377847"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_JOIN_PLAN.md",
+      "sha256": "2481106bc6512c520416c532a6202d3151118b2609cf902c4bdf06463273cef8"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/CHECKPOINT_RETURN.md",
+      "sha256": "78966c143b323098fd372988566b84c4621c850c17fe413e7efe007921273836"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_VALIDATOR_BRIEF.md",
+      "sha256": "445e5364595e0ee342d732a9d69cb7790bd183cf41f49907460e968479261580"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/BRIEF.md",
+      "sha256": "094a70b3fb28c746a80d6873ad18a93381dea6d136b8d19cd863f31cf0bf82df"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/schemas/source_block_recovery.schema.json",
+      "sha256": "544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_source_blocks_1.json",
+      "sha256": "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/product_preview/source_blocks/generation.json",
+      "sha256": "7345cbcade5777b4e4ffc190dff1d4f4231fcf3340f30bca342c1c95c19558b4"
+    }
+  ],
+  "source1_snapshot": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "395f402b80a4d4dcc179f762b4a83a631b1c7fe455ed58ad9616823f7c267ae5"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+      "sha256": "b9386ffcced31704c32a77b0066bc2f90e85c1e3f800932e01fba4ea842ea61c"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/test_source_block_schema_contract.py",
+      "sha256": "7f2be00356344e47fa0ecbc386925f6c3066cc5fb2a47f451917b6297d1aa0a1"
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/tests/schema_validation.py",
+      "sha256": "ada1aa4a1b1469ba9dc5f994cde54f98e5006182110692bfaee4487c018ba61d"
+    }
+  ],
+  "schema_reference_resolution": "Use standard relative source_block_recovery.schema.json retrieval ref. Receipt keeps original relative$id openpipestress.source_block_receipt/1.0.0. Shared test resolver now registers file URI, URI resolved under containing schema$id, and the declared$id resolved under each retrieval URI, preserving old store keys and avoiding network lookup.",
+  "validation": [
+    {
+      "command": "OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson /private/tmp/chirality-piping-review-venv/bin/python -m pytest tests/test_source_block_schema_contract.py -q",
+      "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+      "exit_code": 0,
+      "result": "65passed11skipped; canonical artifact tests unavailable and not claimed passed",
+      "log": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/schema-tests-01.log"
+    },
+    {
+      "command": "same bounded pytest tests/test_source_block_schema_contract.py",
+      "exit_code": 1,
+      "log": "../schema-tests-02.log",
+      "result": "66passed29skipped2failed (relative root$id schema resolution); repaired retrieval-base resolver and4targetedbackcheckpassed",
+      "repair_log": "../schema-resolution-backcheck-01.log"
+    },
+    {
+      "command": "pytest tests/test_source_block_schema_contract.py tests/test_analysis_run_schema.py tests/test_results_schema.py -q using same checked-json/venv",
+      "exit_code": 1,
+      "log": "../schema-tests-03.log",
+      "result": "60passed29skipped13failed during parent concurrent API transition: physics_evidence.validate_transport_metadata import missing; parent repaired eager import after run, no schema workaround."
+    },
+    {
+      "command": "same checked-json/venv pytest tests/test_source_block_schema_contract.py -k actual_composite_receipt_and_physical_shapes_without_reconstructing_source -q",
+      "exit_code": 0,
+      "result": "6 passed, 95 deselected; actual n05/n06/mixed sparse/dense receipt and physical schema shapes only",
+      "log": "../composite-schema-shapes-01.log"
+    },
+    {
+      "command": "checked-json/venv pytest tests/test_source_block_schema_contract.py -k \"actual_composite_receipt_and_physical_shapes_without_reconstructing_source or composite_schema_is_distinct or composite_work_limit_changes_only_its_policy_bound or actual_composite_maximum_metadata_has_a_method_scoped_canonical_route or actual_composite_receipt_cannot_claim_an_older_work_policy\" -q",
+      "exit_code": 0,
+      "result": "12 passed, 94 deselected in1.61s",
+      "log": "../composite-schema-final-bounds-01.log"
+    }
+  ],
+  "checked_json_executable": {
+    "origin": "/private/tmp/piping-numerical-corrections-canonical-resume-target/debug/openpipestress_jcs_ijson",
+    "sha256": "bc1343ef45704c0ec65c1c7ac244c50e349af49de3a9b850dc11578bb2fc6c54"
+  },
+  "constraints": "No Cargo/npm/native/browser/Git mutation. No fabricated source/header/receipt/canonical document. Actual retained source pairs feed actual low-level analysis and checked source hash. Schema shape validation establishes neither numerical qualification nor fresh Current.",
+  "current_owned_snapshot": [
+    {
+      "path": "schemas/results.v0.3.schema.yaml",
+      "sha256": "a527f083dabc9e64ab7103e16c51103e85b6a67f5cef1427d1e8e908d7f5cc9f"
+    },
+    {
+      "path": "schemas/analysis_run.v0.3.schema.json",
+      "sha256": "f81f1c8e04ba3ecce5da51d72f303d41f6d710b26ea1a77f9163cfe94cae6abe"
+    },
+    {
+      "path": "schemas/physics_source_recovery.schema.json",
+      "sha256": "3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c"
+    },
+    {
+      "path": "tests/test_source_block_schema_contract.py",
+      "sha256": "ee6ea5332c0db29bd99fe62ce359545fcf9f4a46e424f95169c6814e0080d0dc"
+    },
+    {
+      "path": "tests/schema_validation.py",
+      "sha256": "717891a83c0998bfdc5dbfc150e1697a8a385cef2cc019109bc63e91050550eb"
+    }
+  ],
+  "composite_wire_confirmation": "Actual producerTASK messages plus source_receipt/composite.rs: separatepolicyPHYSICS-SOURCE-1,version1.0.0,qualified-only case/body;requiredphysical casehash,derivednorm checks,source identity/endpoint_sections/all30section_functionals,and20/member section_stress_checks distinctretained_source_straight_stress_v1 recipe. Old source1receipt bytes/id unchanged.",
+  "additional_read_inputs": [
+    {
+      "path": "core/product_physics/src/source_receipt/composite.rs",
+      "sha256": "8712de9b8995981161bb17db8c209b2a8494e9242840ed7943efbdaa81441f1f"
+    },
+    {
+      "path": "core/product_physics/src/source_receipt.rs",
+      "sha256": "e4b3bf5483a48cf5b2d4f78858f38b860f0b34e12345ca07c0be15b927c07249"
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_3_physics_source_1.json",
+      "sha256": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
+    }
+  ],
+  "static_checks": {
+    "schema_documents": "Draft202012 check_schema passes all3owned schema docs",
+    "python_ast": [
+      "True",
+      "True"
+    ],
+    "diff_check": "pass",
+    "original_receipt_sha256": "544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c"
+  },
+  "remaining": [
+    "Full affected Python run after stable shared validator APIs; prior transient import failure retained. Sibling reports helper APIs now ready, but no full rerun claimed.",
+    "Actual source-block and composite canonical headless document positives pending; skipped tests are unavailable, not passed.",
+    "Parent actual8M composite recapture pending. Earlier actual6 capture was4M history; unchanged bytes are shape checks only."
+  ],
+  "actual_composite_capture": {
+    "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_CAPTURE_01.json",
+    "sha256": "df680ee7f286f2990c044742ce6e02a18de68e192eaa41f730095d691a41066c",
+    "positive_pairs": [
+      "n05-sparse_interactive",
+      "n05-dense_scrutiny",
+      "n06-sparse_interactive",
+      "n06-dense_scrutiny",
+      "mixed-sparse_interactive",
+      "mixed-dense_scrutiny"
+    ],
+    "fields": "Actual four-moment refusal; negative evidence only, not an eighth positive."
+  },
+  "final_return_status": "Source frozen after the two explicitly authorized final fixes; parent integrates and runs pending verification. Partial verification return, not completed integration or native qualification.",
+  "final_authorized_delta": "Parent explicitly authorized PHYSICS-SOURCE-1 case work.limit maximum8M/invocation64M, old SOURCE-BLOCKS-1 case4M and generic2M unchanged, plus canonical retained_source_endpoint_normal_max_v1 metadata only under new composite branch. Completed with narrow policy, source-shape and metadata negative tests. Parent will recapture actual8M producer outputs; current4M capture shapes remain historical and are not restamped.",
+  "known_canonical_metadata_gap": "Repaired before final source freeze: old ResultMetadata/QuantityResult/ResultSet definitions preserved; new PhysicsSourceMaximumMetadata is constrained to the emitted maximum component/frame/location/basis, new quantity constrains family stress/kind pipe_elastic_normal_stress_maximum_v2/unitPa/dimension stress, and only fourth ResultEnvelope branch selects new resultset definition."
+}

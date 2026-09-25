@@ -1,0 +1,48 @@
+{
+  "scope": "AnalysisRun and results share exact source_basis predicate; preserves old tables and distinct incomplete component policies",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "before_sha256": "76b434f9bd0789f9182db3c29694f0db2259cfa51ca0252891cf2acaf3e9b8a9",
+      "sha256": "c464a11fe61fe860bba6c6594123d4764f040f68ad9db84483e15e82707cff26"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "before_sha256": "f0140a53e0d8a9b60eb75f7b1a94421be757596b9269b598ee789e037a5474af",
+      "sha256": "7485999e4655ecb2e888fd1d9609148ae38036dd0cddfc8298582417136f2ac0"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx",
+      "before_sha256": "0e404f4c482f5316031c634016766e52416d787fa85e4fc5e37e1564a15d4608",
+      "sha256": "071b39e34359eb3612cd35e56a2ee4d3c4a03b8c6bbbeac8b2ee72013d3f43a0"
+    }
+  ],
+  "patch_sha256": "361a31f2dd63653cd72ad35e8f23aa3748467105e8dae44cf67a1b82c31fad1a",
+  "tests": [
+    {
+      "label": "tsc09",
+      "log": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/ANALYSIS_SIGNATURE_DELTA/tsc09.log",
+      "sha256": "a6836b7ae0d018827410e393865a2ae517d344f32e9d07c097eea4b841328cae",
+      "exit_code": 2,
+      "note": "Two optional-property annotations in newtest; productioncode typecheck noerrors"
+    },
+    {
+      "label": "ts174",
+      "log": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/ANALYSIS_SIGNATURE_DELTA/ts174.log",
+      "sha256": "9ec0455d666744e7a5422ad71c1a045e3f11eea0d761c0322db7d1105562831e",
+      "exit_code": 0,
+      "note": "174passed5suites; TEST_OBSERVED.tsx is exacttestbody at runtime"
+    },
+    {
+      "label": "tsc10",
+      "log": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/ANALYSIS_SIGNATURE_DELTA/tsc10.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "note": "Wholecandidate finaltypecheck after2test-only optional/non-null access annotations"
+    }
+  ],
+  "runtime_command": "PHYSICS_SOURCE_TS_OUTPUT_DIR=/private/tmp/piping-composite-ts-artifacts-resume1 node /private/tmp/piping-engine-integration-20260925/projects/chirality-piping/node_modules/vitest/vitest.mjs run src/features/results/physicsSourceIntegration.test.tsx src/services/analysisRunCompatibility.test.ts src/features/results/physicsSourceRecovery.test.ts src/features/result-export/resultExportAdapter.test.ts src/features/stress-neutral/StressNeutralExportPanel.test.tsx --maxWorkers=2 --config /private/tmp/piping-physics-ts-vitest.config.mjs --configLoader runner",
+  "runtime_cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop",
+  "test_observed_sha256": "c380fdc0f41a8a35ac1a4c1d66978645a85623bd9145906aad2ab9c6138bbd5d",
+  "test_after_runtime_change": "Only optional chaining on asserted present semantic_contract and TypeScript non-null annotation; both retain literal signature expectations and no productionbyte change."
+}

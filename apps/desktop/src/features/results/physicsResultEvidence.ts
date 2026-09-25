@@ -1,3 +1,5 @@
+import { physicsEvidenceTransportShape, physicsSourceReceiptShape, physicsSourcePhysicalShape } from './sourceBlockRecovery';
+import { validatePhysicsSourceMaximum, PHYSICS_SOURCE_MAX_SIGN, PHYSICS_SOURCE_MAX_BASIS } from './physicsSourceRecovery';
 import type { MechanicsResult, PreviewModel } from "../../types";
 
 const PROFILE = "exact_straight_pressure_v2";
@@ -92,14 +94,23 @@ function section(s: unknown, region = false): asserts s is RecordValue {
  * This never recomputes membrane/effective actions from rounded published rows,
  * authenticates a producer, or substitutes for the numerical quality gate. */
 export function validatePhysicsEvidence(source: MechanicsResult, model?: Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>): void {
-  demand(!Object.hasOwn(source, "source_block_recovery") && !Object.hasOwn(source, "carrier_evidence"), "UNSUPPORTED_SOURCE_NAMESPACE");
+  validateKnownPhysicsEvidence(source, model, false);
+}
+/** Explicit composite entry validates the untouched source in its own method. */
+export function validatePhysicsSourceEvidence(source: MechanicsResult, model?: Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>): void {
+  demand(source.producer?.semantic_contract_id === 'openpipestress.result_semantics/0.3.0/physics-source-1' && Object.hasOwn(source, 'source_block_recovery'), 'COMPOSITE_METHOD');
+  demand(physicsSourceReceiptShape(source.source_block_recovery) && physicsSourcePhysicalShape(source.contract_evidence), 'COMPOSITE_SHAPE');
+  validateKnownPhysicsEvidence(source, model, true);
+}
+function validateKnownPhysicsEvidence(source: MechanicsResult, model: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | undefined, composite: boolean): void {
+  demand((composite || !Object.hasOwn(source, "source_block_recovery")) && !Object.hasOwn(source, "carrier_evidence"), "UNSUPPORTED_SOURCE_NAMESPACE");
   const evidence = source.contract_evidence;
   shape(evidence, ["pressure", "connector", "exact_cases"], "SHAPE");
   demand(finiteTree(evidence) && source.results.every(row => finite(row.value)), "NONFINITE");
   demand(Array.isArray(evidence.pressure) && Array.isArray(evidence.exact_cases) && Array.isArray(evidence.connector) && evidence.connector.length === 0, "UNSUPPORTED_COMPOSITION");
   const cases = evidence.exact_cases as RecordValue[], regions = evidence.pressure as RecordValue[];
   for (const c of cases) {
-    shape(c, caseFields, "CASE_SHAPE");
+    shape(c, composite ? [...caseFields, "recovery_method"] : caseFields, "CASE_SHAPE");
     demand(Array.isArray(c.pipe_materials) && Array.isArray(c.pipe_sections) && Array.isArray(c.pipe_stress_extrema), "CASE_INVALID");
   }
   demand(unique(cases.map(c => c.load_case_id)), "CASE_ID_AMBIGUOUS");
@@ -180,6 +191,7 @@ export function validatePhysicsEvidence(source: MechanicsResult, model?: Pick<Pr
     demand(unique(unavailable) && unavailable.every(id => members.includes(id)) && c.stress_maximum_coverage.complete === (unavailable.length === 0)
       && unique(c.pipe_stress_extrema.map((x: RecordValue) => x.pipe_id)) && sameSet(c.pipe_stress_extrema.map((x: RecordValue) => x.pipe_id), members.filter((id: string) => !unavailable.includes(id))), "EXTREMA_COVERAGE");
     for (const x of c.pipe_stress_extrema) {
+      if (composite && c.recovery_method === "retained_source_blocks_exact_v1") { validatePhysicsSourceMaximum(source, c, x, rows); continue; }
       shape(x, ["pipe_id", "result_id", "approximation", "station_fraction", "span_index", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa", "subdivisions", "coefficient_basis", "enclosure_scope"], "EXTREMA_SHAPE");
       const row = rows.get(x.result_id);
       demand(row && row.kind === "pipe_elastic_normal_stress_maximum_v2" && row.entity_ref === x.pipe_id && row.basis_ref?.ref_id === c.load_case_id
@@ -206,7 +218,8 @@ export function validatePhysicsEvidence(source: MechanicsResult, model?: Pick<Pr
     const md = row.metadata;
     shape(md, ["component", "coordinate_system", "location", "basis", "sign_convention"], "ROW_METADATA_SHAPE");
     const unit = row.kind === "support_reaction_component_v2" ? (md?.component.startsWith("M") ? "N*m" : "N") : rule[1];
-    demand(md && rule[0].includes(md.component) && row.unit === unit && md.coordinate_system === rule[2] && md.basis === rule[3] && rule[4].includes(md.location) && md.sign_convention === physicalSigns[row.kind], "ROW_SEMANTICS");
+    const retainedMaximum = composite && row.kind === 'pipe_elastic_normal_stress_maximum_v2' && cases.find(c => c.load_case_id === row.basis_ref!.ref_id)?.recovery_method === 'retained_source_blocks_exact_v1';
+    demand(md && rule[0].includes(md.component) && row.unit === unit && md.coordinate_system === rule[2] && md.basis === (retainedMaximum ? PHYSICS_SOURCE_MAX_BASIS : rule[3]) && rule[4].includes(md.location) && md.sign_convention === (retainedMaximum ? PHYSICS_SOURCE_MAX_SIGN : physicalSigns[row.kind]), "ROW_SEMANTICS");
     if (row.kind.endsWith("_magnitude_v2")) demand(row.value >= 0, "ROW_SEMANTICS");
     const signature = JSON.stringify([row.basis_ref.ref_id, row.entity_ref, row.kind, md.component, md.location]);
     demand(!physicalSignatures.has(signature), "ROW_SEMANTIC_DUPLICATE"); physicalSignatures.add(signature);
@@ -271,6 +284,52 @@ function validateRhs(rhs: unknown, caseId: string, regions: RecordValue[]): void
         && ["poisson_eigen", "terminal_cap"].includes(term.kind), "RHS_TERM");
       const material = region.materials.find((m: RecordValue) => m.pipe_id === term.pipe_id);
       demand(material && Math.abs(term.coefficient) === (term.kind === "terminal_cap" ? 1 : Math.abs(2 * material.nu)), "RHS_TERM_COEFFICIENT");
+    }
+  }
+}
+
+/** Closed received physical statements only; no raw publication or Current proof. */
+export function validatePhysicsTransportMetadata(evidence: unknown): void {
+  demand(physicsEvidenceTransportShape(evidence), 'TRANSPORT_SHAPE');
+  validatePhysicalTransportFacts(evidence as RecordValue, false);
+}
+/** Explicit composite physical facts; its caller additionally checks the closed
+ * composite schema, per-case receipt hashes and retained section linkage. */
+export function validatePhysicsSourceTransportFacts(evidence: unknown): void {
+  validatePhysicalTransportFacts(evidence as RecordValue, true);
+}
+function validatePhysicalTransportFacts(evidence: RecordValue, composite: boolean): void {
+  demand(finiteTree(evidence), 'TRANSPORT_NONFINITE');
+  const cases = evidence.exact_cases as RecordValue[], regions = evidence.pressure as RecordValue[];
+  demand(unique(cases.map(c => c.load_case_id)), 'TRANSPORT_CASES');
+  const maximumIds = new Set<string>(), regionIds = new Set<string>();
+  for (const c of cases) {
+    c.pipe_materials.forEach((m: unknown) => material(m)); c.pipe_sections.forEach((s: unknown) => section(s));
+    const members = c.pipe_sections.map((s: RecordValue) => s.pipe_id);
+    demand(unique(members) && members.length && unique(c.pipe_materials.map((m: RecordValue) => m.pipe_id)) && sameSet(members, c.pipe_materials.map((m: RecordValue) => m.pipe_id)), 'TRANSPORT_MEMBER_COVERAGE');
+    const missing = c.stress_maximum_coverage.unavailable_pipe_ids;
+    demand(unique(missing) && missing.every(id => members.includes(id)) && c.stress_maximum_coverage.complete === (missing.length === 0), 'TRANSPORT_MAXIMUM_COVERAGE');
+    demand(unique(c.pipe_stress_extrema.map((x: RecordValue) => x.pipe_id)) && sameSet(c.pipe_stress_extrema.map((x: RecordValue) => x.pipe_id), members.filter((id: string) => !missing.includes(id))), 'TRANSPORT_MAXIMUM_MEMBERS');
+    for (const x of c.pipe_stress_extrema) {
+      demand(!maximumIds.has(x.result_id), 'TRANSPORT_MAXIMUM_ID'); maximumIds.add(x.result_id);
+      if (!(composite && c.recovery_method === 'retained_source_blocks_exact_v1')) demand(0 <= x.value_lower_pa && x.value_lower_pa <= x.value_upper_pa && x.value_upper_pa <= x.global_upper_bound_pa
+        && 0 <= x.global_upper_bound_pa - x.value_lower_pa && x.global_upper_bound_pa - x.value_lower_pa <= x.certified_gap_pa && x.certified_gap_pa <= 1e-12 + 1e-12 * x.value_lower_pa, 'TRANSPORT_MAXIMUM_BOUNDS');
+    }
+    validateRhs(c.pressure_rhs_assembly, c.load_case_id, regions);
+  }
+  for (const r of regions) {
+    const c = cases.find(c => c.load_case_id === r.load_case_id), key = JSON.stringify([r.load_case_id, r.region_id]);
+    demand(c && !regionIds.has(key) && r.p_pa >= 0, 'TRANSPORT_REGION'); regionIds.add(key);
+    demand(unique(r.member_pipe_ids) && r.member_pipe_ids.length && unique(r.geometry.map((g: RecordValue) => g.pipe_id)) && unique(r.materials.map((m: RecordValue) => m.pipe_id))
+      && sameSet(r.member_pipe_ids, r.geometry.map((g: RecordValue) => g.pipe_id)) && sameSet(r.member_pipe_ids, r.materials.map((m: RecordValue) => m.pipe_id)), 'TRANSPORT_REGION_MEMBERS');
+    for (const id of r.member_pipe_ids) {
+      const geometry = r.geometry.find((g: RecordValue) => g.pipe_id === id), m = r.materials.find((m: RecordValue) => m.pipe_id === id), cs = c.pipe_sections.find((g: RecordValue) => g.pipe_id === id), cm = c.pipe_materials.find((m: RecordValue) => m.pipe_id === id);
+      section(geometry, true); material(m, true);
+      demand(cs && cm && equalFields(geometry, cs, sectionFields) && equalFields(m, cm, materialFields), 'TRANSPORT_REGION_FACTS');
+      const temperature = m.temperature_basis;
+      if (temperature.selection === 'base_material') demand(c.material_basis === 'base_material_common_E_nu', 'TEMPERATURE_CASE_BINDING');
+      else if (temperature.selection === 'exact_point') demand(c.material_basis.includes(`material=${m.material_id};common_E_nu_basis=point:${temperature.point_id};G=E/[2(1+nu)];alpha_same_basis=`), 'TEMPERATURE_CASE_BINDING');
+      else demand(c.material_basis.includes(`material=${m.material_id};common_E_nu_basis=interpolated:`) && c.material_basis.includes(';temperature_kelvin='), 'TEMPERATURE_CASE_BINDING');
     }
   }
 }

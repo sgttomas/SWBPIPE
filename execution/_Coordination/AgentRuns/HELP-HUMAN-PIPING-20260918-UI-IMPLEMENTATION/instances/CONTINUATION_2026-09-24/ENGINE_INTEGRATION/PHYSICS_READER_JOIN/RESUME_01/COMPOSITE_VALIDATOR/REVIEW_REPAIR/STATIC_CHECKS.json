@@ -1,0 +1,9 @@
+{
+  "python_ast": "pass",
+  "rustfmt_parser": "pass; no Cargo command run by this TASK",
+  "git_diff_check": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}
