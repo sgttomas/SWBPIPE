@@ -1,0 +1,20 @@
+{
+  "cause": "Actual b526 governance failure: absolute host roots in copied temporary reviewer views outside raw evidence classification",
+  "rows": [
+    {
+      "path": "integration-RETURN.md",
+      "original_path": "_run_records/INTEGRATION_REVIEW_RAW/integration-RETURN.md",
+      "original_sha256": "26b6aa9788b9a555b6b83aa70738cb9fb445c585e75e672d35d3decf253d8376",
+      "portable_sha256": "c20c844a224d03f6f7d64019bfe0bc05e32f4e458fddf0bc003483bc97f60e4f"
+    },
+    {
+      "path": "integration-HASHES.json",
+      "original_path": "_run_records/INTEGRATION_REVIEW_RAW/integration-HASHES.json",
+      "original_sha256": "95f7fe46bae1a62337f6d7bc88f189c9c40cfa1559c8f247c9c9d0c1cfc4cfdd",
+      "portable_sha256": "58f2eef016bcae3327bf6dc3707ef2204add87e39c8e5cf1da4934a8ac5767d2"
+    }
+  ],
+  "source_changed": false,
+  "classifier_changed": false,
+  "limits": "Raw independent records preserved verbatim; active views are derivative root-token substitutions."
+}

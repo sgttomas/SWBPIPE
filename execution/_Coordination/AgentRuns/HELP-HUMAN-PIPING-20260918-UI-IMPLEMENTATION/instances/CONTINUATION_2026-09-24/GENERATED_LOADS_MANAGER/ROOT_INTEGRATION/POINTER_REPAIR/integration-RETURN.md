@@ -2,7 +2,7 @@
 
 **Source integration and final runtime-evidence custody PASS; one P3 handoff pointer correction remains.** This review is bounded to integration identity, claims, fixture provenance, and evidence. It carries the existing independent complete-source review; it does not claim another complete implementation review or execute tests.
 
-Reviewer `/root/m35_integration_review`, TASK, actual parent `/root`, delegated-harness-native fresh reviewer with no implementation authorship or delegation. Resolved repository is `/private/tmp/piping-generated-loads-20260924`; project is its `projects/chirality-piping` directory. Root/Piping AGENTS, TASK, LOOP_INIT and project `software-code-review` skill were read; actual source-qualified origins and hashes are in `HASHES.json`. Historical ROOT_BRIEF embeds WORKING_ITEMS instructions, consulted for assignment/provenance only.
+Reviewer `/root/m35_integration_review`, TASK, actual parent `/root`, delegated-harness-native fresh reviewer with no implementation authorship or delegation. Resolved repository is `{M35_REPO_ROOT}`; project is its `projects/chirality-piping` directory. Root/Piping AGENTS, TASK, LOOP_INIT and project `software-code-review` skill were read; actual source-qualified origins and hashes are in `HASHES.json`. Historical ROOT_BRIEF embeds WORKING_ITEMS instructions, consulted for assignment/provenance only.
 
 ## Actionable finding
 
@@ -24,3 +24,6 @@ ROOT's final backcheck is truthful about its actual execution and the refused ea
 After the pointer/hash correction, this candidate is suitable for ROOT's integration work. Required actual-candidate CI, clean DEC-025, applicable full suites, native workflow witness, and independent practitioner/usability gates are not cleared by this review. No future or unexecuted CI was reviewed; ROOT owns those gates and Git/PR/native actions. No engineering acceptance, release, M30 completion, or whole-M35 closure is asserted.
 
 Reproducible read-only checks and full results: `verify.py`, `HASHES.json`, `SCOPE_CHECK.json`. All outputs stay in this separate temporary review directory; no checkout edits, Git mutations, product tests/builds, browser/native activity or delegation occurred. Checkout was clean at both recorded boundaries.
+
+
+Portable view: host-specific root spellings are replaced by declared root tokens. The byte-exact reviewer original is retained at `_run_records/INTEGRATION_REVIEW_RAW/integration-RETURN.md`; this does not change that reviewer's original conclusion or execution.

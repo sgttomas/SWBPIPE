@@ -7,8 +7,8 @@
   "mechanism": "delegated-harness-native fresh independent reviewer; no subdelegation",
   "scope": "Integration identity and final evidence custody; prior complete source review is carried, not re-performed",
   "review_limits": "No tests, builds, native/browser activity or Git mutations; writes only in this separate output directory. No review of future CI.",
-  "repo_root": "/private/tmp/piping-generated-loads-20260924",
-  "working_root": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping",
+  "repo_root": "{M35_REPO_ROOT}",
+  "working_root": "{M35_REPO_ROOT}/projects/chirality-piping",
   "candidate": "64487068b740977083275baa4ead5ed4171c6084",
   "reviewed_source_commit": "7654fb36eb0912ba540f40d5a4dfdf736f7cbfce",
   "main": "3c3adae355739b2ad24acdb33d3b5422bb36db95",
@@ -1937,7 +1937,7 @@
       "root_record_hash_matches": true,
       "root_log_hash_matches": true,
       "root_exit_matches": true,
-      "log": "\n RUN  v4.1.10 /private/tmp/piping-generated-loads-20260924/projects/chirality-piping/apps/desktop\n\n\n Test Files  2 passed (2)\n      Tests  20 passed (20)\n   Start at  20:33:50\n   Duration  1.02s (transform 230ms, setup 195ms, import 273ms, tests 744ms, environment 652ms)\n\n"
+      "log": "\n RUN  v4.1.10 {M35_REPO_ROOT}/projects/chirality-piping/apps/desktop\n\n\n Test Files  2 passed (2)\n      Tests  20 passed (20)\n   Start at  20:33:50\n   Duration  1.02s (transform 230ms, setup 195ms, import 273ms, tests 744ms, environment 652ms)\n\n"
     }
   ],
   "check_map_results": [
@@ -2626,5 +2626,10 @@
     }
   ],
   "wider_consultation": "ROOT_BRIEF.md embeds full WORKING_ITEMS role; read as historical assignment/provenance only, no role transition.",
-  "status_after": ""
+  "status_after": "",
+  "_portable_view": {
+    "raw_original": "_run_records/INTEGRATION_REVIEW_RAW/integration-HASHES.json",
+    "raw_original_sha256": "95f7fe46bae1a62337f6d7bc88f189c9c40cfa1559c8f247c9c9d0c1cfc4cfdd",
+    "transformation": "Only declared host root spellings replaced by root tokens; reported source/content hashes preserved."
+  }
 }
