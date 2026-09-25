@@ -687,3 +687,443 @@ pub(crate) fn resolve_strain(
         consumed_segments: thermal.used.segments,
     })
 }
+
+#[cfg(test)]
+mod tests {
+    //! Invented analytical test inputs from the reviewed load/reference-state
+    //! design controls (VERIFICATION.md 4-6); no product output is an oracle.
+    use super::*;
+
+    const ZERO_C: f64 = 273.15;
+    fn k(celsius: f64) -> f64 {
+        celsius + ZERO_C
+    }
+    fn close(actual: f64, expected: f64) {
+        assert!(actual.is_finite());
+        assert!(
+            (actual - expected).abs() <= expected.abs() * 1e-9,
+            "{actual:.17e} versus {expected:.17e}"
+        );
+    }
+    fn table(points: &[(f64, f64)]) -> Vec<ThermalPoint> {
+        points
+            .iter()
+            .map(|&(temperature_kelvin, value)| ThermalPoint {
+                temperature_kelvin,
+                value,
+            })
+            .collect()
+    }
+    fn free(install: f64, operate: f64, law: NormalizedExpansionLaw) -> ThermalInput {
+        ThermalInput::FreeLengthState {
+            installation_kelvin: install,
+            operating_kelvin: operate,
+            law,
+        }
+    }
+    fn resolve(input: ThermalInput) -> Result<ResolvedStrain, StateMathError> {
+        resolve_strain(&input, &FitInput::None)
+    }
+    fn linear_coefficient() -> Vec<ThermalPoint> {
+        table(&[(k(20.0), 10e-6), (k(120.0), 20e-6)])
+    }
+
+    #[test]
+    fn secant_datum_conversion_matches_43_over_25009_and_rejects_wrong_controls() {
+        let law = NormalizedExpansionLaw::EngineeringSecant {
+            datum_kelvin: k(20.0),
+            data: CoefficientData::Table(table(&[
+                (k(20.0), 11e-6),
+                (k(50.0), 12e-6),
+                (k(150.0), 16e-6),
+            ])),
+        };
+        let resolved = resolve(free(k(50.0), k(150.0), law)).unwrap();
+        let expected = 43.0 / 25009.0;
+        close(resolved.thermal_strain, expected);
+        close(resolved.thermal_stretch, 25052.0 / 25009.0);
+        close(resolved.installation_datum_stretch.unwrap(), 1.00036);
+        close(resolved.operating_datum_stretch.unwrap(), 1.00208);
+        assert_eq!(resolved.total_eigenstrain, resolved.thermal_strain);
+        assert_eq!(resolved.fit_strain, 0.0);
+        assert_eq!(resolved.definition, "engineering_secant");
+        assert_eq!(resolved.datum_kelvin, Some(k(20.0)));
+        assert_eq!(resolved.installation_kelvin, Some(k(50.0)));
+        assert_eq!(resolved.operating_kelvin, Some(k(150.0)));
+        assert_eq!(resolved.consumed_point_indices, vec![0, 1, 2]);
+        // alpha_hot*(T-T_install) and a difference of datum dilations are wrong.
+        for wrong in [16e-6 * 100.0, 0.00208 - 0.00036] {
+            assert!((resolved.thermal_strain - wrong).abs() > expected * 1e-6);
+        }
+    }
+
+    #[test]
+    fn celsius_and_kelvin_normalized_inputs_and_constant_interval_need_no_absolute_temperature() {
+        // Normalized inputs arrive in kelvin; an equivalent Kelvin authoring
+        // reaches the same normalized numbers before this kernel.
+        let a = resolve(free(
+            k(20.0),
+            k(100.0),
+            NormalizedExpansionLaw::EngineeringSecant {
+                datum_kelvin: k(20.0),
+                data: CoefficientData::Constant(1e-5),
+            },
+        ))
+        .unwrap();
+        let b = resolve(free(
+            293.15,
+            373.15,
+            NormalizedExpansionLaw::EngineeringSecant {
+                datum_kelvin: 293.15,
+                data: CoefficientData::Constant(1e-5),
+            },
+        ))
+        .unwrap();
+        assert_eq!(a, b);
+        close(a.thermal_strain, 0.0008);
+        let interval = resolve(ThermalInput::ConstantAlphaInterval {
+            coefficient_per_kelvin: 1e-5,
+            temperature_change_kelvin: 80.0,
+        })
+        .unwrap();
+        close(interval.thermal_strain, 0.0008);
+        close(interval.thermal_stretch, 1.0008);
+        assert_eq!(interval.definition, "constant_alpha_interval");
+        assert_eq!(interval.datum_kelvin, None);
+        assert_eq!(interval.installation_kelvin, None);
+        assert_eq!(interval.operating_kelvin, None);
+        assert!(interval.consumed_point_indices.is_empty());
+        let direct = resolve(ThermalInput::ExplicitIntervalStrain { strain: 0.0008 }).unwrap();
+        assert_eq!(direct.thermal_strain, 0.0008);
+        assert_eq!(direct.definition, "explicit_interval_strain");
+        let unchanged = resolve(ThermalInput::UnchangedReference).unwrap();
+        assert_eq!(unchanged.thermal_strain, 0.0);
+        assert_eq!(unchanged.total_eigenstrain, 0.0);
+        assert_eq!(unchanged.definition, "unchanged_reference");
+        assert_eq!(unchanged.operating_kelvin, None);
+    }
+
+    #[test]
+    fn datum_length_integral_and_logarithmic_definitions_remain_distinct() {
+        let datum = resolve(free(
+            k(20.0),
+            k(120.0),
+            NormalizedExpansionLaw::DifferentialPerDatumLength {
+                datum_kelvin: k(20.0),
+                points: linear_coefficient(),
+            },
+        ))
+        .unwrap();
+        let log = resolve(free(
+            k(20.0),
+            k(120.0),
+            NormalizedExpansionLaw::LogarithmicPerCurrentLength {
+                datum_kelvin: k(20.0),
+                points: linear_coefficient(),
+            },
+        ))
+        .unwrap();
+        close(datum.thermal_strain, 0.0015);
+        close(log.thermal_strain, 0.0015f64.exp_m1());
+        close(log.thermal_strain, 0.0015011255627110007);
+        assert_eq!(datum.definition, "differential_per_datum_length");
+        assert_eq!(log.definition, "logarithmic_per_current_length");
+        assert!((datum.thermal_strain - log.thermal_strain).abs() > 1e-6);
+        // Final alpha times the whole interval fails both definitions.
+        for resolved in [&datum, &log] {
+            assert!((resolved.thermal_strain - 0.002).abs() > 4e-4);
+        }
+        assert_eq!(
+            datum.consumed_segments,
+            vec![ConsumedSegment {
+                lower_index: 0,
+                upper_index: 1,
+                start_kelvin: k(20.0),
+                end_kelvin: k(120.0),
+            }]
+        );
+    }
+
+    #[test]
+    fn reversed_split_and_exact_endpoint_intervals_compose_as_free_length_ratios() {
+        for (law, forward, reverse, first, second) in [
+            (
+                NormalizedExpansionLaw::DifferentialPerDatumLength {
+                    datum_kelvin: k(20.0),
+                    points: linear_coefficient(),
+                },
+                0.0015,
+                -3.0 / 2003.0,
+                1.0 / 1600.0,
+                7.0 / 8005.0,
+            ),
+            (
+                NormalizedExpansionLaw::LogarithmicPerCurrentLength {
+                    datum_kelvin: k(20.0),
+                    points: linear_coefficient(),
+                },
+                0.0015011255627110007,
+                -0.0014988755622891258,
+                0.0006251953531964628,
+                0.0008753829241780743,
+            ),
+        ] {
+            let at = |i: f64, o: f64| resolve(free(i, o, law.clone())).unwrap().thermal_strain;
+            close(at(k(20.0), k(120.0)), forward);
+            close(at(k(120.0), k(20.0)), reverse);
+            // Reversal is a ratio inverse, not a sign flip.
+            assert!((at(k(120.0), k(20.0)) + forward).abs() > 1e-9);
+            let (a, b) = (at(k(20.0), k(70.0)), at(k(70.0), k(120.0)));
+            close(a, first);
+            close(b, second);
+            close((1.0 + a) * (1.0 + b) - 1.0, forward);
+            assert_eq!(at(k(120.0), k(120.0)), 0.0);
+        }
+    }
+
+    #[test]
+    fn engineering_dilation_table_requires_zero_at_datum_and_integrates_segment_slopes() {
+        let points = table(&[(k(20.0), 0.0), (k(50.0), 0.00036), (k(150.0), 0.00208)]);
+        let resolved = resolve(free(
+            k(50.0),
+            k(150.0),
+            NormalizedExpansionLaw::EngineeringDilation {
+                datum_kelvin: k(20.0),
+                points: points.clone(),
+            },
+        ))
+        .unwrap();
+        close(resolved.thermal_strain, 43.0 / 25009.0);
+        assert_eq!(resolved.definition, "engineering_dilation");
+        let mut shifted = points;
+        shifted[0].value = 1e-6;
+        assert_eq!(
+            resolve(free(
+                k(50.0),
+                k(150.0),
+                NormalizedExpansionLaw::EngineeringDilation {
+                    datum_kelvin: k(20.0),
+                    points: shifted,
+                },
+            )),
+            Err(StateMathError::NonzeroDilationAtDatum)
+        );
+    }
+
+    #[test]
+    fn signed_fit_composes_with_thermal_state_without_accumulating_on_return() {
+        let law = NormalizedExpansionLaw::EngineeringSecant {
+            datum_kelvin: k(20.0),
+            data: CoefficientData::Constant(1e-5),
+        };
+        let cut_short = FitInput::NaturalLengthChange {
+            change_m: -0.002,
+            reference_length_m: 10.0,
+        };
+        let state = |t: f64| resolve_strain(&free(k(20.0), t, law.clone()), &cut_short).unwrap();
+        let axial_force = |e: f64, strain: f64| -e * 0.001 * strain;
+        let cold = state(k(20.0));
+        let hot = state(k(100.0));
+        let back = state(k(20.0));
+        close(cold.fit_strain, -0.0002);
+        close(cold.fit_stretch, 0.9998);
+        assert_eq!(cold.thermal_strain, 0.0);
+        close(cold.total_eigenstrain, -0.0002);
+        close(axial_force(200e9, cold.total_eigenstrain), 40000.0);
+        close(hot.thermal_strain, 0.0008);
+        close(hot.total_eigenstrain, 0.00059984);
+        close(axial_force(150e9, hot.total_eigenstrain), -89976.0);
+        assert_eq!(back, cold);
+        // Additive strains, cold E, doubled fit and flipped sign are wrong.
+        for wrong in [-90000.0, -119968.0] {
+            assert!((axial_force(150e9, hot.total_eigenstrain) - wrong).abs() > 1.0);
+        }
+        let doubled = resolve_strain(
+            &ThermalInput::UnchangedReference,
+            &FitInput::EngineeringStrain { strain: -0.0004 },
+        )
+        .unwrap();
+        assert!((axial_force(200e9, doubled.total_eigenstrain) - 40000.0).abs() > 1.0);
+        let cut_long = resolve_strain(
+            &ThermalInput::UnchangedReference,
+            &FitInput::NaturalLengthChange {
+                change_m: 0.002,
+                reference_length_m: 10.0,
+            },
+        )
+        .unwrap();
+        close(axial_force(200e9, cut_long.total_eigenstrain), -40000.0);
+        // Strain representation is an equivalent alternative, not a second fit.
+        let as_strain = resolve_strain(
+            &free(k(20.0), k(100.0), law),
+            &FitInput::EngineeringStrain { strain: -0.0002 },
+        )
+        .unwrap();
+        close(as_strain.total_eigenstrain, hot.total_eigenstrain);
+        for change in [-10.0, -10.5] {
+            assert_eq!(
+                resolve_strain(
+                    &ThermalInput::UnchangedReference,
+                    &FitInput::NaturalLengthChange {
+                        change_m: change,
+                        reference_length_m: 10.0,
+                    },
+                ),
+                Err(StateMathError::NonPositiveStretch("fit natural length"))
+            );
+        }
+        for length in [0.0, -1.0, f64::NAN, f64::INFINITY] {
+            assert_eq!(
+                resolve_strain(
+                    &ThermalInput::UnchangedReference,
+                    &FitInput::NaturalLengthChange {
+                        change_m: -0.002,
+                        reference_length_m: length,
+                    },
+                ),
+                Err(StateMathError::InvalidReferenceLength)
+            );
+        }
+    }
+
+    #[test]
+    fn small_interval_is_evaluated_directly_rather_than_from_rounded_long_stretches() {
+        // Invented coefficient data. The represented operating offset is exact
+        // (Sterbenz), so the direct route has only a few final roundings.
+        let (install, operate) = (1000.0_f64, 1000.000001_f64);
+        let d_t = operate - install;
+        for law in [
+            NormalizedExpansionLaw::EngineeringSecant {
+                datum_kelvin: 300.0,
+                data: CoefficientData::Constant(1e-5),
+            },
+            NormalizedExpansionLaw::DifferentialPerDatumLength {
+                datum_kelvin: 300.0,
+                points: table(&[(300.0, 1e-5), (1300.0, 1e-5)]),
+            },
+            NormalizedExpansionLaw::EngineeringDilation {
+                datum_kelvin: 300.0,
+                points: table(&[(300.0, 0.0), (1300.0, 0.01)]),
+            },
+        ] {
+            let resolved = resolve(free(install, operate, law)).unwrap();
+            let expected = 1e-5 * d_t / (1.0 + 1e-5 * 700.0);
+            assert!(
+                (resolved.thermal_strain - expected).abs() <= expected * 1e-12,
+                "{:.17e} versus {expected:.17e}",
+                resolved.thermal_strain
+            );
+            assert!(resolved.thermal_strain > 0.0);
+        }
+    }
+
+    #[test]
+    fn coverage_duplicate_datum_and_nonpositive_free_length_fail_explicitly() {
+        let datum = |points, install, operate, datum| {
+            resolve(free(
+                install,
+                operate,
+                NormalizedExpansionLaw::DifferentialPerDatumLength {
+                    datum_kelvin: datum,
+                    points,
+                },
+            ))
+        };
+        // Missing bracket / no extrapolation / datum outside coverage.
+        assert_eq!(
+            datum(linear_coefficient(), k(20.0), k(121.0), k(20.0)),
+            Err(StateMathError::OutsideTableCoverage)
+        );
+        assert_eq!(
+            datum(linear_coefficient(), k(20.0), k(100.0), k(10.0)),
+            Err(StateMathError::OutsideTableCoverage)
+        );
+        assert_eq!(
+            datum(
+                table(&[(k(20.0), 1e-5), (k(20.0), 2e-5), (k(120.0), 2e-5)]),
+                k(20.0),
+                k(100.0),
+                k(20.0)
+            ),
+            Err(StateMathError::TableNotStrictlyIncreasing { index: 1 })
+        );
+        assert_eq!(
+            datum(table(&[(k(20.0), 1e-5)]), k(20.0), k(20.0), k(20.0)),
+            Err(StateMathError::TableTooShort)
+        );
+        assert_eq!(
+            datum(
+                table(&[(k(20.0), f64::NAN), (k(120.0), 1e-5)]),
+                k(20.0),
+                k(100.0),
+                k(20.0)
+            ),
+            Err(StateMathError::NonFinite("table value"))
+        );
+        assert_eq!(
+            datum(linear_coefficient(), -1.0, k(100.0), k(20.0)),
+            Err(StateMathError::InvalidTemperature)
+        );
+        // Endpoints have unit stretch; the interior stationary point is -1/4.
+        assert_eq!(
+            datum(table(&[(100.0, -0.05), (200.0, 0.05)]), 100.0, 200.0, 100.0),
+            Err(StateMathError::NonPositiveStretch(
+                "datum integral path stretch"
+            ))
+        );
+        // Secant quadratic 1+0.001(T-300)(T-200): 21 at both ends, -3/2 at 250 K.
+        assert_eq!(
+            resolve(free(
+                100.0,
+                400.0,
+                NormalizedExpansionLaw::EngineeringSecant {
+                    datum_kelvin: 200.0,
+                    data: CoefficientData::Table(table(&[(100.0, -0.2), (400.0, 0.1)])),
+                },
+            )),
+            Err(StateMathError::NonPositiveStretch("secant path stretch"))
+        );
+        // Linear dilation fails at an intervening table point.
+        assert_eq!(
+            resolve(free(
+                100.0,
+                200.0,
+                NormalizedExpansionLaw::EngineeringDilation {
+                    datum_kelvin: 100.0,
+                    points: table(&[(100.0, 0.0), (150.0, -1.5), (200.0, 0.0)]),
+                },
+            )),
+            Err(StateMathError::NonPositiveStretch("dilation path stretch"))
+        );
+        for strain in [-1.0, -2.0] {
+            assert_eq!(
+                resolve(ThermalInput::ExplicitIntervalStrain { strain }),
+                Err(StateMathError::NonPositiveStretch("thermal stretch"))
+            );
+        }
+        assert_eq!(
+            resolve(ThermalInput::ExplicitIntervalStrain { strain: f64::NAN }),
+            Err(StateMathError::NonFinite("entered thermal strain"))
+        );
+        assert!(resolve(ThermalInput::ConstantAlphaInterval {
+            coefficient_per_kelvin: f64::INFINITY,
+            temperature_change_kelvin: 1.0,
+        })
+        .is_err());
+        // Large but admissible composition: (1-0.9)(1+0.5)-1 = -0.85. The
+        // kernel returns the correctly rounded exact sum of its binary64 terms.
+        let composed = resolve_strain(
+            &ThermalInput::ExplicitIntervalStrain { strain: 0.5 },
+            &FitInput::EngineeringStrain { strain: -0.9 },
+        )
+        .unwrap();
+        close(composed.total_eigenstrain, -0.85);
+        assert_eq!(
+            resolve_strain(
+                &ThermalInput::ExplicitIntervalStrain { strain: 0.5 },
+                &FitInput::EngineeringStrain { strain: -1.0 },
+            ),
+            Err(StateMathError::NonPositiveStretch("fit stretch"))
+        );
+    }
+}

@@ -7,6 +7,10 @@
 //! private datasets, or professional acceptance are bundled by this crate.
 
 mod annulus_geometry;
+// Private resolved-case kernels; facade integration is owned by the load-state
+// manager and lands with the connected profile.
+#[allow(dead_code)]
+mod case_state;
 mod pressure_sum;
 pub mod self_weight;
 mod source_recovery;

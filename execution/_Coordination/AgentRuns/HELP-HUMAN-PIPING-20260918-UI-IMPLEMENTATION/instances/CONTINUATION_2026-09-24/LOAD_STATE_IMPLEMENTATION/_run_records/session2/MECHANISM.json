@@ -1,0 +1,18 @@
+{
+  "session": "2",
+  "host_capability_observed": "No in-process Agent/subagent spawning tool in this host. SendMessage exists without an agent listing; mcp create_session spawns a separate cloud container that cannot read or write this checkout.",
+  "delegation_performed": "none",
+  "consequence": "All checkpoint-1 work executed sequentially by this manager. Independent review of manager-authored bytes (thermal.rs tests, case_state/mod.rs, lib.rs module declaration) requires a separate non-author reviewer arranged by ROOT.",
+  "non_author_checks_by_manager": [
+    "Recomputed reference_cases.json (authored by session-1 TASK membrane_backcheck) from its own inputs with an independent standard-library script; generator not read or imported.",
+    "Read-review of material.rs (authored by session-1 TASK exact_authoring) and the thermal.rs kernel body (authored by session-1 TASK composite_receipt, interrupted)."
+  ],
+  "authorship_in_checkpoint_1": {
+    "core/product_physics/src/case_state/material.rs": "session-1 TASK exact_authoring; unchanged bytes (sha256 1ae8ac99...); compiled and tested here",
+    "core/product_physics/src/case_state/thermal.rs lines 1-689 (kernel)": "session-1 TASK composite_receipt; unchanged bytes",
+    "core/product_physics/src/case_state/thermal.rs tests module": "this manager",
+    "core/product_physics/src/case_state/mod.rs": "this manager",
+    "core/product_physics/src/lib.rs (+4 lines module declaration)": "this manager",
+    "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json": "session-1 TASK membrane_backcheck; unchanged bytes"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "started_utc": "2026-09-25T16:55:00Z",
+  "actor": "WORKING_ITEMS load-state implementation manager, session 2 (fresh context)",
+  "parent": "HELP_HUMAN ROOT",
+  "role_text_sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+  "mechanism": "Claude Code delegated subagent session dispatched by ROOT; role text supplied verbatim in the dispatch brief",
+  "checkout": "/home/user/wt/loadstate (git worktree, detached at f2112be747b7b37dc4b30e96eacbb75c75a82820 = codex/piping-load-states-20260925, base c278f64ba122eb8b848b9f14e58a0e533e94439a)",
+  "predecessor": "Session-1 manager /root/physics_resume and its three TASK handles are inactive; ownership re-established by this session. Their partial bytes were inspected, not accepted.",
+  "instructions_read_full": {
+    "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "agents/AGENT_WORKING_ITEMS.md": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+    "agents/AGENT_TASK.md (hash only; no TASK dispatched)": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+  },
+  "handoff_inputs_read": {
+    "LOAD_STATE_IMPLEMENTATION/HANDOFF.md": "a8245c8a728b1a15755dad5b019d9ddb3a4a9afb2c6d18d4b05f7afbc8de8ad9",
+    "LOAD_STATE_IMPLEMENTATION/BRIEF.md": "121a2c9d0c08f6d34b507f0fb255cf55b9d57f1b8e5b9cbde96949200ba37216",
+    "LOAD_STATE_IMPLEMENTATION/OWNERSHIP.md": "a8938bd7a6ae192e038ec6ecf5c0e3a38ed6176e14489d622a5eb65754b19c4a",
+    "LOAD_STATE_IMPLEMENTATION/_run_records/ROOT_SELECTION.json": "f5f15a5e2d2f5a7c9ffb974ad7b8c0b040dc4a75c38133279826c841c111fe9c",
+    "LOAD_STATE_IMPLEMENTATION/_run_records/STARTUP.json": "bece1c8e94dec81857d57c97730efacd2acf781b52feffa22912ffdf1913b8d7",
+    "LOAD_STATE_IMPLEMENTATION/MATERIAL_SELECTION/BRIEF.md": "fa3f484921f457eb0d99a5a5cc18ae5fb35c428794e80d87dca5f00a136599c8",
+    "LOAD_STATE_IMPLEMENTATION/MATERIAL_SELECTION/RETURN.md": "68135e8b5d80a1fa5292492955a21326fac89bbfa07f0318eb862628cbe88dc0",
+    "LOAD_STATE_IMPLEMENTATION/THERMAL_FIT/BRIEF.md": "4a30e38aa6133817c721fd6924f72ce3175deb9a1ddadfe0ebdc3501b8a85a8f",
+    "LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/BRIEF.md": "8cd830c8f325d0430a46cd1cb204775ebd5b8f63e8c62b628db7e604d396ddb5",
+    "ANALYTICAL_REFERENCE/_run_records/generate_references.py (hash only; deliberately not read, to keep the recomputation independent)": "429930281dfa3112f993e4536ce4dc4e7f26939890c6f153653275de9c690dcf",
+    "git 94a1cbb RESUME_VALIDATION_COURSE/NEXT_LOAD_STATE_ALLOCATION.md": "c8f36dd1b24678bda987d896044eed0fab1561146361a8fb0a78fc12886e5d96"
+  },
+  "design_sources_git_9e8a55daecdeb9669131fd3e53c0e0303ee550d6": {
+    "DESIGN.md": "2839c65ae56c4ff4674da12848eda4b60f1385663b4c0b5e556099eae7fe4f64",
+    "INTERFACE.md": "18587811735a262187cf4a26bb934d6c3ef03ceb37c78228bb39b7f8afe073bf",
+    "VERIFICATION.md": "061f1f8fa53d426e3af9db58bf684bdfca790b13f3df780935e9353d5402fc57",
+    "REFERENCES.md": "ad3147c69a14ee16d5e4cbbcf8300b94dc092802dfb8b5775beb62e690a1b5fa",
+    "HYDROSTATIC_CONTROL.md": "30041992674e22115722d688a2d8cb2b589febf20425a1bd56434c7fdf3486ef",
+    "RETURN.md": "49e8b8d12a1352c9d8ff182dce9c77f51bbea3dca03524ddcc489773e0b9f554",
+    "match_with_session1_STARTUP": true
+  },
+  "wider_consultation": "None beyond the listed role/project/design inputs; agents/AGENT_TASK.md hashed for later TASK briefs only.",
+  "no_reference_search_or_repeated_design_gate": true
+}
