@@ -142,7 +142,7 @@ class NumericalTests(unittest.TestCase):
             self.assertTrue(any(path.startswith(ci.selection.PROJECT + prefix) for path in references), prefix)
 
     def test_gate_requires_exact_numerical_state(self):
-        for mode, barrier, remainder in [('full', 'success', 'success'), ('lean', 'success', 'skipped'), ('not-applicable', 'skipped', 'skipped')]:
+        for mode, barrier, remainder in [('full', 'skipped', 'success'), ('lean', 'success', 'skipped'), ('not-applicable', 'skipped', 'skipped')]:
             for required, expected in [('true', 'success'), ('false', 'skipped')]:
                 self.assertTrue(ci.selection.aggregate(mode, 'success', barrier, remainder, required, expected))
                 for state in {'failure', 'cancelled', '', 'unknown', 'skipped', 'success'} - {expected}:

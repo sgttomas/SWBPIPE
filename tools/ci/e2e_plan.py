@@ -33,6 +33,17 @@ LAYOUT_TITLES = [
     'workspace Escape event ownership body idle', 'workspace Escape event ownership body captured',
     'workspace Escape event ownership consumed palette', 'workspace Escape event ownership consumed drawer',
 ]
+# Pull-request runs use the compact profile only where the viewport is the
+# subject: accessibility, layout, viewport visibility, tables, compact
+# authoring and the R2 journey both lanes must complete, plus the named
+# ui-foundation layout cases. Every other compact identity repeats its desktop
+# counterpart's code path at a second window size; the desktop profile keeps
+# every identity. Manual full dispatch (the integration milestone and the
+# DEC-093 surface-4 CI binding) and local runs keep both profiles in full.
+COMPACT_SPECS = {FAST, 'e2e/workspace-layout.spec.ts', 'e2e/c3-viewport-visibility.spec.ts',
+                 'e2e/b4-table-editing.spec.ts', 'e2e/b4-sections.spec.ts',
+                 'e2e/linear-authoring.spec.ts', 'e2e/r2-smoke.spec.ts'}
+COMPACT_OMISSION = 'Pull-request compact profile limited to layout/viewport specs; desktop counterpart runs'
 # Only these reviewed module inputs use an actual import-consumer traversal.
 # Fixtures, config, unknown helpers and dynamic resource inputs remain full.
 INSTRUMENT_MODULES = {
@@ -58,8 +69,17 @@ def inventory(root):
                   and not p.name.endswith('-dist.spec.ts'))
 
 
+# Root inputs of the Piping workflows. Piping is self-contained below its
+# project directory, so every other root directory (execution records, root
+# tools, instruction packages, exports) is a known non-input. Root-level files
+# other than prose remain conservative build inputs.
+ROOT_INPUTS = ('.github/workflows/piping-desktop-e2e.yml', '.github/workflows/piping-e2e-cache.yml',
+               '.github/actions/setup-piping-e2e/', '.cargo/')  # cargo reads parent-directory config
+ROOT_PROSE = {'README.md', 'AGENTS.md', 'CLAUDE.md', 'LICENSE.md', '.editorconfig'}
+
+
 def irrelevant(path):
-    """Known non-inputs only; unknown root/shared inputs still run full."""
+    """Known non-inputs only; unknown root files and Piping inputs still run full."""
     if path.startswith('projects/') and not path.startswith(PROJECT):
         return True  # Runtime is not adopted as a Piping product dependency.
     if path.startswith(PROJECT):
@@ -67,8 +87,25 @@ def irrelevant(path):
             return True
         return any(path.startswith(PROJECT + p) for p in
                    ('execution/', 'docs/', 'plans/', 'governance/', 'provenance/', 'loop/', 'validation/evidence/'))
-    # Root agent/workflow packages are not Piping desktop runtime inputs.
-    return path.startswith(('docs/', 'agents/', 'workflows/', '.agents/', 'skills/', 'plans/', 'init/')) or path in {'README.md', 'AGENTS.md', 'CLAUDE.md'}
+    if path.startswith(ROOT_INPUTS):
+        return False
+    return '/' in path or path in ROOT_PROSE
+
+
+def e2e_irrelevant(path):
+    """Browser non-inputs: the desktop consumes apps/, core/, fixtures/, schemas/,
+    examples/, workspace manifests and tools/ci/. Numerical, release and
+    validation tooling keeps its own independent numerical routing."""
+    if irrelevant(path):
+        return True
+    if not path.startswith(PROJECT):
+        return False
+    relative = path[len(PROJECT):]
+    if relative in {'software-workflow.json', 'requirements-dev.txt', 'CONTRIBUTING.md', 'LICENSE.md'}:
+        return True
+    if relative.startswith('tools/') and not relative.startswith('tools/ci/'):
+        return True
+    return relative.startswith(('validation/', 'tests/', 'api/', '_harness/', 'init/', '.github/'))
 
 
 # Maintained Rust resource dependency outside the ordinary validation inputs.
@@ -157,7 +194,7 @@ def make_plan(root, event, base='', head='HEAD', pr=''):
         except (subprocess.CalledProcessError, UnicodeError, IndexError):
             plan['reasons'] = ['Unavailable PR diff; full coverage, target validation still required']
         else:
-            active = [c for c in delta if not irrelevant(c['path'])]
+            active = [c for c in delta if not e2e_irrelevant(c['path'])]
             if not active:
                 plan.update(mode='not-applicable', selected_specs=[], reasons=['No relevant Piping source/build/CI inputs changed'])
             elif all(c['status'] in {'A', 'M'} and c['path'].startswith(E2E) and
@@ -201,7 +238,9 @@ def make_plan(root, event, base='', head='HEAD', pr=''):
             except subprocess.CalledProcessError:
                 pass  # Validation below blocks unresolved or unintegrated targets.
     plan['coverage_full'] = plan['mode'] == 'full'
-    plan['coverage_note'] = ('Full deduplicated source coverage requires barrier and four exact partitions to succeed.'
+    plan['coverage_note'] = (('Full deduplicated desktop source coverage, with compact coverage limited to layout/viewport '
+                              'specs, requires four exact partitions (accessibility included) to succeed.' if event == 'pull_request' else
+                              'Full deduplicated source coverage requires four exact partitions (accessibility included) to succeed.')
         if plan['coverage_full'] else 'Not applicable: no tests selected or claimed passed.' if plan['mode'] == 'not-applicable'
         else 'Partial source coverage; omitted tests are not passed and this is not DEC093 full surface4 evidence.')
     if plan['mode'] != 'not-applicable' and FAST not in specs:
@@ -299,12 +338,27 @@ def select_tests(plan, source):
             for profile in PROJECTS:
                 if sum(t['file'] == file and t['title'] == title and t['project'] == profile for t in source) != 1:
                     raise ValueError('Required title/profile missing or duplicated: ' + title + ' / ' + profile)
-    selected = [t for t in source if plan['mode'] == 'full' or t['file'] in plan['selected_specs']
-                or t['title'] in plan['selected_titles'].get(t['file'], [])
-                or (plan['appearance'] and t['file'] == 'e2e/ui-foundation.spec.ts' and '@explicit-viewport' in t['tags'])]
+    selected = [t for t in source if mode_selects(plan, t) and hosted_profile(plan, t)]
     if not selected or not any(t['file'] == FAST for t in selected):
         raise ValueError('Missing accessibility barrier')
     return selected
+
+
+def mode_selects(plan, row):
+    return (plan['mode'] == 'full' or row['file'] in plan['selected_specs']
+            or row['title'] in plan['selected_titles'].get(row['file'], [])
+            or (plan['appearance'] and row['file'] == 'e2e/ui-foundation.spec.ts' and '@explicit-viewport' in row['tags']))
+
+
+def omission_reason(plan, row):
+    return 'Outside partial ' + plan['mode'] + ' coverage' if not mode_selects(plan, row) else COMPACT_OMISSION
+
+
+def hosted_profile(plan, row):
+    """Desktop always; on pull requests, compact only for layout/viewport subjects."""
+    return (plan.get('event') != 'pull_request' or row['project'] != 'chromium-compact'
+            or row['file'] in COMPACT_SPECS
+            or (row['file'] == 'e2e/ui-foundation.spec.ts' and row['title'] in LAYOUT_TITLES))
 
 
 # Scheduling hints only; never acceptance limits. Filled from retained observed
@@ -333,6 +387,11 @@ def assign_partitions(plan, source, root):
     rest = [t for t in selected if t['file'] != FAST]
     if plan['mode'] != 'full':
         return {'barrier': barrier, **({'selected': rest} if rest else {})}
+    # Full runs start all four shards at once. Accessibility is balanced into
+    # them as an ordinary atomic file group instead of gating them from a fifth
+    # runner that repeated the whole browser setup; a failing shard still
+    # cancels the others (fail-fast matrix).
+    rest = selected
     groups = {}
     bodies = {file: (Path(root) / DESKTOP / file).read_text() for file in {t['file'] for t in rest}}
     for row in rest:
@@ -354,7 +413,7 @@ def assign_partitions(plan, source, root):
         loads[target] += sum(duration_weight(t) for t in rows)
     if any(not rows for rows in bins):
         raise ValueError('Full selection needs four nonempty partitions')
-    return {'barrier': barrier, **{f'shard-{i+1}': rows for i, rows in enumerate(bins)}}
+    return {f'shard-{i+1}': rows for i, rows in enumerate(bins)}
 
 
 def exact_list(rows):
@@ -432,7 +491,7 @@ def collect_candidate(root, plan, stage, shard, evidence_dir):
             raise ValueError('Invalid execution stage or shard')
         keys = {test_key(t) for t in selected}
         evidence.update(status='validated', selected=[dict(t, reason='Selected by ' + plan['mode']) for t in selected],
-            omitted=[dict(t, reason='Outside partial ' + plan['mode'] + ' coverage') for t in source if test_key(t) not in keys],
+            omitted=[dict(t, reason=omission_reason(plan, t)) for t in source if test_key(t) not in keys],
             partition=actual, estimated_seconds={name: round(sum(duration_weight(t) for t in rows), 2) for name, rows in partitions.items()},
             execution_tests=[t for name in names for t in actual[name]],
             execution_commands=[command(directory / (name + '.test-list.txt'), fast=name == 'barrier') for name in names])
@@ -462,7 +521,9 @@ def aggregate(mode, selection, barrier, remainder, numerical_required, numerical
         return False
     if mode == 'not-applicable':
         return barrier == remainder == 'skipped'
-    return mode in {'full', 'changed-specs', 'lean', 'lean-affected'} and barrier == 'success' and remainder == ('success' if mode == 'full' else 'skipped')
+    if mode == 'full':
+        return barrier == 'skipped' and remainder == 'success'
+    return mode in {'changed-specs', 'lean', 'lean-affected'} and barrier == 'success' and remainder == 'skipped'
 
 
 def main():
