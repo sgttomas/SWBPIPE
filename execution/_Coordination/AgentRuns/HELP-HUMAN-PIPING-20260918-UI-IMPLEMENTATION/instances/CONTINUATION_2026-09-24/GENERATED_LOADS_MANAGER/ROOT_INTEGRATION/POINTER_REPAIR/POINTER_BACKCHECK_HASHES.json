@@ -1,0 +1,69 @@
+{
+  "reviewer": "/root/m35_integration_review",
+  "parent": "/root",
+  "role": "TASK",
+  "stage": "Same reviewer, bounded sole-P3 correction backcheck",
+  "observed_at_utc": "2026-09-25T03:18:48.145164+00:00",
+  "head": "64487068b740977083275baa4ead5ed4171c6084",
+  "checks": {
+    "single_occurrence": true,
+    "exact_single_pointer_replacement": true,
+    "preserved_matches_source765": true,
+    "preserved_matches_candidate644": true,
+    "preserved_matches_historical_manifest": true,
+    "repair_before_hash_matches": true,
+    "repair_after_hash_matches": true,
+    "correct_target_exists": true,
+    "correct_target_hash_matches": true,
+    "historical_whitelist_unchanged": true,
+    "only_expected_tracked_delta": true,
+    "only_expected_evidence_hash_delta": true,
+    "all23_source_hashes_unchanged": true,
+    "all_original_review_copies_identical": true,
+    "only_pointer_packet_untracked": true
+  },
+  "before_sha256": "f419449a3c64aa92a2ea9c7142a87fbdfec6d06dfade5ac6ff3a8bff93a3cc6f",
+  "after_sha256": "0dd0dbcaa0e9f4257239a830cebb0d35d8aea41e22927aa53624181810de04ec",
+  "target_sha256": "5ce7fcc48bfbfb9e6ce379704f97dc437bdf2dbe90c1959a544754fe63a46081",
+  "repair_record_sha256": "acdfb6686d2ec54e4528fa8a6cd680dc7501485fb04a05a0aef54b90457421eb",
+  "copies": [
+    {
+      "source": "RETURN.md",
+      "copy": "integration-RETURN.md",
+      "sha256": "26b6aa9788b9a555b6b83aa70738cb9fb445c585e75e672d35d3decf253d8376",
+      "byte_identical": true
+    },
+    {
+      "source": "HASHES.json",
+      "copy": "integration-HASHES.json",
+      "sha256": "95f7fe46bae1a62337f6d7bc88f189c9c40cfa1559c8f247c9c9d0c1cfc4cfdd",
+      "byte_identical": true
+    },
+    {
+      "source": "verify.py",
+      "copy": "integration-verify.py",
+      "sha256": "ded20a08d45dab279b7561d5c28e9aa5b5eb97d5b0bec5a9279471d61ce7d7c9",
+      "byte_identical": true
+    },
+    {
+      "source": "SHA256SUMS",
+      "copy": "integration-SHA256SUMS",
+      "sha256": "48b4944bc392e5bfe08d6bf3bc8376b48b05460e2febd08e391630ce4621960c",
+      "byte_identical": true
+    }
+  ],
+  "unchanged_source_files_verified": 23,
+  "unchanged_other_evidence_files_verified": 278,
+  "tracked_changes": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/NATIVE_WITNESS_HANDOFF.md"
+  ],
+  "untracked_packet_paths": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_INTEGRATION/POINTER_REPAIR/NATIVE_WITNESS_HANDOFF.original.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_INTEGRATION/POINTER_REPAIR/REPAIR.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_INTEGRATION/POINTER_REPAIR/integration-HASHES.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_INTEGRATION/POINTER_REPAIR/integration-RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_INTEGRATION/POINTER_REPAIR/integration-SHA256SUMS",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_INTEGRATION/POINTER_REPAIR/integration-verify.py"
+  ],
+  "limits": "No tests/build/runtime/native/browser/Git mutations; no verification claim for later commit/main merge, future CI, or separately reported 926 native inputs."
+}

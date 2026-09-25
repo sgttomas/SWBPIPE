@@ -1,0 +1,13 @@
+# Connecting native witness for ROOT
+
+This is a proposed check, not performed native evidence. ROOT owns build/UI/host resources. Use the integrated candidate and record its source/build identity; no native endpoint was launched by this manager.
+
+1. Open an explicitly invented straight 2 m cantilever (OD 0.1 m, wall 0.01 m, section density 1000 kg/m³). Generate and review/apply a new self-weight case with gravity −7 m/s² in global Y. Add the separate explicit −11 N global-Y tip load. The maintained Rust connected test supplies the full source/operation route; `_run_records/baseline_artifacts/density_baseline.json` retains the actual original defect input/result, and the golden v1 JSON is historical input only.
+2. Change section density to 2000 kg/m³ through structured authoring, apply, and solve. Expect load-specific stale diagnostics and no successful stale solve. Solving must not modify model/history.
+3. In self-weight authoring select refresh and the existing case. Leave manual preservation unchecked. Review and queue the complete plan, then apply. Expect existing primitive IDs/order/count and the manual tip unchanged. Save, reopen and solve. For this geometry, anchor Y reaction is 90.168134870463 N and root bending-moment magnitude is 101.168134870463 N·m, subject only to the existing product output representation. Retain observed values/diagnostics/source bytes rather than a screenshot alone.
+4. Change only the span to 3 m and solve; no intensity-stale finding should appear. Check total force and moment using actual current q and span (−qL+11, −qL²/2+11L), not the old 2 m totals.
+5. Modify a generated intensity manually. Default refresh must block. Explicit preserve must retain every physical field, update only provenance to the manual marker, and keep that intensity fixed after a later density edit. Ordinary validation still applies.
+6. Queue a valid refresh, then edit a dependency before applying. The queued basis guard must prevent application and preserve current model/history. Cancel, clear, selection/model changes and busy-state interruption must invalidate prepared plans.
+7. For historical v1 input, opening/solving must not rewrite provenance. Explicit method refresh upgrades to stable v2 and retains the verbatim original v1 provenance string. Undo/redo of accepted refresh and save/reopen must preserve the corresponding model states.
+
+The actual Rust route has independently checked force and moment expectations and the Vitest route (when recorded) uses candidate WASM for generation/application. Neither substitutes for this native-host witness, full candidate DEC-025/CI, or engineering acceptance. Broader mass-basis completeness remains M30; no new implicit density/material or curvature recipe is claimed.

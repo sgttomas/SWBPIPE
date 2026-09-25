@@ -1,0 +1,9 @@
+{
+  "finding": "P3 wrong baseline pointer in native witness handoff",
+  "before_sha256": "f419449a3c64aa92a2ea9c7142a87fbdfec6d06dfade5ac6ff3a8bff93a3cc6f",
+  "after_sha256": "0dd0dbcaa0e9f4257239a830cebb0d35d8aea41e22927aa53624181810de04ec",
+  "old_pointer": "_run_records/baseline_artifacts/density_baseline.json",
+  "correct_pointer": "_run_records/checks/baseline_artifacts/density_baseline.json",
+  "source_changed": false,
+  "prior_handoff_manifest": "Historical handoff binds original bytes at7654fb36; original preserved here. This explicit documentation-only delta supersedes only the wrong pointer."
+}
