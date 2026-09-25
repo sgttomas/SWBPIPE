@@ -59,7 +59,9 @@ class PolicyTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertTrue(ci.numerical_input(path))
         for path in [ci.DESKTOP + 'src/App.tsx', ci.PROJECT + 'docs/design.md',
-                ci.PROJECT + 'validation/evidence/other.json', 'projects/other/core/x.rs']:
+                ci.PROJECT + 'validation/evidence/other.json', 'projects/other/core/x.rs',
+                'execution/_Coordination/NOTICE.md', 'tools/validation/test_x.py',
+                '.github/workflows/governance-harness.yml']:
             self.assertFalse(ci.numerical_input(path), path)
         resource = next(iter(ci.NUMERICAL_EVIDENCE_INPUTS))
         self.write(resource)
@@ -77,14 +79,32 @@ class PolicyTests(unittest.TestCase):
 
     def test_known_unrelated_projects_and_records_are_explicit_na(self):
         for path in ['projects/chirality-app-dev/src/App.tsx', 'projects/chirality-runtime/core/a.rs',
-                     ci.PROJECT + 'execution/run/evidence.json', 'docs/design.md']:
+                     ci.PROJECT + 'execution/run/evidence.json', 'docs/design.md',
+                     'execution/_Coordination/NOTICE_2026-09-25.md', 'tools/validation/test_workflow_catalog.py',
+                     '.github/workflows/governance-harness.yml', 'exports/chirality-app/export_public.py',
+                     'LICENSE.md']:
             self.write(path)
         self.commit()
         plan = self.plan()
         self.assertEqual(plan['mode'], 'not-applicable')
         self.assertEqual(plan['selected_specs'], [])
         self.assertFalse(plan['coverage_full'])
+        self.assertFalse(plan['numerical_required'])
         ci.validate(self.root, plan)
+
+    def test_numerical_and_project_tooling_are_not_browser_inputs(self):
+        for path in ['validation/hand_calcs/x.md', 'validation/benchmarks/nonlinear/src/lib.rs',
+                     'tests/test_nonlinear_support_regression.py', 'tools/release/check_release_readiness.py',
+                     'software-workflow.json', '_harness/adapter.yaml', '.github/ISSUE_TEMPLATE/x.yml']:
+            self.write(ci.PROJECT + path)
+        self.commit()
+        plan = self.plan()
+        self.assertEqual(plan['mode'], 'not-applicable')
+        self.assertTrue(plan['numerical_required'])
+        ci.validate(self.root, plan)
+        for path in ['tools/ci/e2e_plan.py', 'fixtures/results/x.json', 'examples/rule_packs/x.json']:
+            with self.subTest(path=path):
+                self.assertFalse(ci.e2e_irrelevant(ci.PROJECT + path))
 
     def test_shared_unknown_ci_dependencies_and_model_inputs_are_full(self):
         for path in ['package.json', '.github/workflows/piping-desktop-e2e.yml',
@@ -297,10 +317,23 @@ class CollectionTests(unittest.TestCase):
 
     def test_full_and_lean_preserve_explicit_selection(self):
         source = self.source()
-        self.assertEqual(ci.select_tests(self.plan(), source), source)
+        self.assertEqual(ci.select_tests(self.plan(), source), [t for t in source if ci.hosted_profile(t)])
         lean = ci.select_tests(self.plan('lean'), source)
-        self.assertEqual(len(lean), 18)
+        self.assertEqual(len(lean), 13)
         self.assertLess(len(lean), len(source))
+
+    def test_hosted_compact_profile_is_limited_to_layout_subjects(self):
+        selected = {(t['file'], t['title'], t['project']) for t in ci.select_tests(self.plan(), self.source())}
+        for file, title in [(ci.FAST, 'accessibility'), ('e2e/r2-smoke.spec.ts', ci.LEAN_TITLES['e2e/r2-smoke.spec.ts'][0]),
+                            ('e2e/workspace-layout.spec.ts', ci.LEAN_TITLES['e2e/workspace-layout.spec.ts'][0]),
+                            ('e2e/ui-foundation.spec.ts', ci.LAYOUT_TITLES[0])]:
+            for project in ci.PROJECTS:
+                self.assertIn((file, title, project), selected)
+        for file in ['e2e/result-compatibility.spec.ts', 'e2e/gui-workflow-validation.spec.ts',
+                     'e2e/b3a-session-status.spec.ts', 'e2e/ui-foundation.spec.ts']:
+            title = ci.LEAN_TITLES[file][0]
+            self.assertIn((file, title, 'chromium-desktop'), selected)
+            self.assertNotIn((file, title, 'chromium-compact'), selected)
 
     def test_missing_duplicate_title_or_profile_fails(self):
         for kind in ['missing', 'duplicate', 'profile']:
@@ -347,7 +380,7 @@ class CollectionTests(unittest.TestCase):
             second = ci.assign_partitions(self.plan(), self.source()[::-1], root)
             self.assertEqual({k: sorted(map(ci.test_key,v)) for k,v in first.items()},
                              {k: sorted(map(ci.test_key,v)) for k,v in second.items()})
-            ci.assert_partition(self.source(), [t for rows in first.values() for t in rows])
+            ci.assert_partition(ci.select_tests(self.plan(), self.source()), [t for rows in first.values() for t in rows])
             for project in ci.PROJECTS:
                 self.assertEqual(sum(any(t['file'] == serial_file and t['project'] == project for t in rows) for rows in first.values()), 1)
             unknown = {**self.source()[0], 'title': 'new', 'title_path': ['new']}
@@ -365,8 +398,9 @@ class CollectionTests(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text('// new file remains atomic')
             partitions = ci.assign_partitions(self.plan(), source, root)
-            ci.assert_partition(source, [t for rows in partitions.values() for t in rows])
-            self.assertEqual(sum(t['file'] == 'e2e/new.spec.ts' for rows in partitions.values() for t in rows), 2)
+            ci.assert_partition(ci.select_tests(self.plan(), source), [t for rows in partitions.values() for t in rows])
+            new = [t for rows in partitions.values() for t in rows if t['file'] == 'e2e/new.spec.ts']
+            self.assertEqual([t['project'] for t in new], ['chromium-desktop'])
 
     def test_json_reporter_tag_spelling_is_normalized(self):
         report = {'specs': [{'id': 'id', 'file': 'a.spec.ts', 'title': 'case', 'line': 1,
