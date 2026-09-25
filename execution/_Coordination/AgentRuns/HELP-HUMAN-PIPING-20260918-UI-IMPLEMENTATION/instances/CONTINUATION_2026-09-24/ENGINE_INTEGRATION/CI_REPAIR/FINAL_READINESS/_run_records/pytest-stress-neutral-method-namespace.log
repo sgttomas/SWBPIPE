@@ -1,0 +1,10 @@
+cmd: /home/user/dec025-venv/bin/python -m pytest -q -p no:cacheprovider tests/test_stress_neutral_physics_source.py -k method_namespace -rA
+head: 6d9c0915f1c46563bc123fc7196109f835d6708a
+    Finished `release` profile [optimized] target(s) in 0.02s
+    Finished `release` profile [optimized] target(s) in 0.02s
+..                                                                       [100%]
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/test_stress_neutral_physics_source.py::test_method_namespace_removal_substitution_and_relabel_are_rejected[physics]
+PASSED tests/test_stress_neutral_physics_source.py::test_method_namespace_removal_substitution_and_relabel_are_rejected[source_blocks]
+2 passed, 61 deselected in 11.92s

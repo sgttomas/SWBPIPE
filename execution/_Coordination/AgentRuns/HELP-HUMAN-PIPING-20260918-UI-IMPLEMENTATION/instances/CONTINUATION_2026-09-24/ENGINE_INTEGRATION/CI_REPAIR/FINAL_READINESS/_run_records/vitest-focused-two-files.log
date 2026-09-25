@@ -1,0 +1,18 @@
+cmd: VITEST_MAX_WORKERS=1 npm test --workspace apps/desktop -- --run src/features/workspace/resultsSessionState.test.ts src/features/workspace/currentResultUnitPolicy.test.tsx
+head: 6d9c0915f1c46563bc123fc7196109f835d6708a
+v24.21.0
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/workspace/resultsSessionState.test.ts src/features/workspace/currentResultUnitPolicy.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  21:43:55
+   Duration  9.04s (transform 2.45s, setup 353ms, import 3.26s, tests 2.69s, environment 2.20s)
+
+exit=
+note: the pipeline exit capture above is empty (subshell); vitest itself reported 2 files, 11 tests passed

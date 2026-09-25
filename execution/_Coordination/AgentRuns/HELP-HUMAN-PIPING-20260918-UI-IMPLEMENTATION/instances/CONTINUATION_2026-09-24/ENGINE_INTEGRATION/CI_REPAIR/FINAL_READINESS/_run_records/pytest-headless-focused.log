@@ -1,0 +1,14 @@
+cmd: CARGO_BUILD_JOBS=1 /home/user/dec025-venv/bin/python -m pytest -q -p no:cacheprovider tests/test_headless_runner_contract.py -k 'unlinked_solver_identity or legacy_pressure or every_active_verb or zip_exact' -rA
+head: 6d9c0915f1c46563bc123fc7196109f835d6708a
+    Finished `release` profile [optimized] target(s) in 0.02s
+    Finished `release` profile [optimized] target(s) in 0.02s
+......                                                                   [100%]
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/test_headless_runner_contract.py::test_final_runner_subprocess_covers_every_active_verb_and_stdout
+PASSED tests/test_headless_runner_contract.py::test_final_runner_refuses_legacy_pressure_demo_as_explicit_control
+PASSED tests/test_headless_runner_contract.py::test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_refuses_unlinked_solver_identity[True-False-request identity does not match]
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_refuses_unlinked_solver_identity[False-True-result envelope identity does not match]
+PASSED tests/test_headless_runner_contract.py::test_compatibility_runner_refuses_legacy_pressure_demo_as_explicit_control
+6 passed, 16 deselected in 17.45s
