@@ -487,3 +487,225 @@ fn thermal_datum_and_table_identities_are_exact_across_units() {
         .iter()
         .all(|segment| segment["use"] == "integration_interval"));
 }
+
+#[test]
+fn pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once() {
+    // Both ends anchored, closed transfers_to_wall region, p = 2 MPa. With no
+    // axial strain the long-annulus relation (N - 2 nu p Ai)/(E As) + eps* = 0
+    // gives N_wall = 2 nu p Ai - E As eps* (derivation in HYDROSTATIC_CONTROL /
+    // existing exact pressure oracle; invented inputs). Case "cold" selects
+    // E 200 GPa/nu 0.3 with no strain; case "hot" E 100 GPa/nu 0.25 and 0.001.
+    let region = json!([{"id": "region:p", "member_pipe_ids": ["pipe:1"],
+        "pressure_basis": "internal_differential_zero_external_v1", "pressure": {"value": 2, "unit": "MPa"},
+        "terminals": [
+            {"node_ref": "node:a", "closure_transfer": "transfers_to_wall", "provenance": "invented"},
+            {"node_ref": "node:b", "closure_transfer": "transfers_to_wall", "provenance": "invented"}],
+        "provenance": "invented"}]);
+    let mut request = model(
+        vec![node("node:a", 0.0), node("node:b", 1.0)],
+        vec![pipe("pipe:1", "node:a", "node:b")],
+        vec![
+            anchor("support:root", "node:a"),
+            anchor("support:far", "node:b"),
+        ],
+        vec![element("pipe:1", "point:stiff")],
+        vec![
+            json!({"support_ref": "support:root", "participation": {"kind": "active_model_device"}}),
+            json!({"support_ref": "support:far", "participation": {"kind": "active_model_device"}}),
+        ],
+        vec![],
+        vec![],
+    );
+    request["model"]["load_cases"][0]["id"] = json!("case:cold");
+    request["model"]["load_cases"][0]["pressure_regions"] = region;
+    let mut hot = request["model"]["load_cases"][0].clone();
+    hot["id"] = json!("case:hot");
+    hot["analysis_state"]["element_states"] = json!([{"pipe_ref": "pipe:1",
+        "material_selection": {"kind": "exact_point", "material_ref": "material:shared", "point_ref": "point:soft"},
+        "thermal_state": {"kind": "explicit_interval_strain", "strain": {"value": 0.001, "unit": "1"},
+            "interval_reference": "invented interval", "provenance": "invented"}}]);
+    request["model"]["load_cases"]
+        .as_array_mut()
+        .unwrap()
+        .push(hot);
+    let pi = std::f64::consts::PI;
+    let (ai, a_s, p) = (pi * 0.09 * 0.09, pi * (0.1 * 0.1 - 0.09 * 0.09), 2e6);
+    for mode in [
+        PreviewSolverMode::SparseInteractive,
+        PreviewSolverMode::DenseScrutiny,
+    ] {
+        let envelope = run(&request, mode);
+        assert!(
+            blocking_codes(&envelope).is_empty(),
+            "{:?}",
+            envelope.diagnostics
+        );
+        for (case, e, nu, eps) in [
+            ("case:cold", 200e9, 0.3, 0.0),
+            ("case:hot", 100e9, 0.25, 0.001),
+        ] {
+            let expected = 2.0 * nu * p * ai - e * a_s * eps;
+            let wall = envelope
+                .results
+                .iter()
+                .find(|row| {
+                    row.kind == "pipe_wall_axial_force_v2"
+                        && row.basis_ref.as_ref().is_some_and(|b| b.ref_id == case)
+                        && row
+                            .metadata
+                            .as_ref()
+                            .is_some_and(|m| m.location == "midspan")
+                })
+                .unwrap_or_else(|| panic!("missing wall row for {case}"))
+                .value;
+            close(wall, expected, expected.abs());
+            // Eigenstrain applied twice (or omitted) would shift N by E As eps.
+            if eps != 0.0 {
+                assert!((wall - (expected - e * a_s * eps)).abs() > 1.0);
+                assert!((wall - (expected + e * a_s * eps)).abs() > 1.0);
+            }
+        }
+        let evidence = &envelope.contract_evidence.as_ref().unwrap();
+        let pressure_materials = evidence["pressure"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|region| {
+                (
+                    region["load_case_id"].clone(),
+                    region["materials"][0]["E_pa"].clone(),
+                )
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(
+            pressure_materials,
+            vec![
+                (json!("case:cold"), json!(200e9)),
+                (json!("case:hot"), json!(100e9))
+            ]
+        );
+        assert_eq!(evidence["exact_cases"][1]["pipe_materials"][0]["nu"], 0.25);
+    }
+}
+
+fn fixture() -> Value {
+    serde_json::from_str(REFERENCES).unwrap()
+}
+
+fn quantity(value: &Value) -> Value {
+    json!({"value": value["value"], "unit": value["unit"]})
+}
+
+/// Free-tip unit-length member; tip UX equals the resolved eigenstrain.
+fn free_tip_with_law(law: Value, install: Value, operate: Value) -> (f64, f64) {
+    let material = identity_material(vec![], json!([law]));
+    let element = json!({"pipe_ref": "pipe:1", "operating_temperature": operate,
+        "material_selection": {"kind": "explicit_base_properties", "material_ref": "material:shared",
+            "applicability_reference": "invented fixed basis"},
+        "thermal_state": {"kind": "free_length_state", "expansion_law_ref": "law:fixture"}});
+    let request = single_member(
+        material,
+        element,
+        json!({"kind": "temperature_reference", "installation_temperature": install}),
+    );
+    let envelope = run(&request, PreviewSolverMode::SparseInteractive);
+    assert!(
+        blocking_codes(&envelope).is_empty(),
+        "{:?}",
+        envelope.diagnostics
+    );
+    let strain = envelope.contract_evidence.as_ref().unwrap()["load_reference_states"][0]
+        ["members"][0]["thermal_strain"]
+        .as_f64()
+        .unwrap();
+    let tip_mm = row(
+        &envelope,
+        "global_nodal_displacement_x",
+        "node:b",
+        "nodal_displacement_x",
+    );
+    (strain, tip_mm / 1000.0)
+}
+
+#[test]
+fn product_route_reproduces_single_and_multi_segment_free_length_references() {
+    let fixture = fixture();
+    let coefficient_law = |definition: &str, inputs: &Value, points_key: &str| {
+        json!({"id": "law:fixture", "definition": definition,
+            "datum_temperature": quantity(&inputs["datum_temperature"]),
+            "data": {"kind": "table", "interpolation": "linear_coefficient",
+                "points": inputs[points_key].as_array().unwrap().iter().map(|p| json!({
+                    "temperature": quantity(&p["temperature"]), "coefficient": quantity(&p["coefficient"])})).collect::<Vec<_>>()},
+            "provenance": "invented fixture inputs"})
+    };
+    // Multi-segment (additive fixture case) and single-segment control 5.
+    let multi = &fixture["cases"]["multi_segment_free_length"]["variants"];
+    let single = &fixture["cases"]["coefficient_definition"]["variants"]["generic_reviewed"];
+    for (inputs, points, expected, pairs) in [
+        (
+            &multi["linear_coefficient_table"]["inputs"],
+            "linear_coefficient_points",
+            &multi["linear_coefficient_table"]["expected"],
+            [
+                (
+                    "differential_per_datum_length",
+                    "datum_length_strain_forward",
+                    "datum_length_strain_reverse",
+                ),
+                (
+                    "logarithmic_per_current_length",
+                    "current_length_strain_forward",
+                    "current_length_strain_reverse",
+                ),
+            ],
+        ),
+        (
+            &single["inputs"],
+            "linear_coefficient_points",
+            &single["expected"],
+            [
+                (
+                    "differential_per_datum_length",
+                    "datum_length_strain_forward",
+                    "datum_length_strain_reverse",
+                ),
+                (
+                    "logarithmic_per_current_length",
+                    "current_length_strain_forward",
+                    "current_length_strain_reverse",
+                ),
+            ],
+        ),
+    ] {
+        let install = quantity(&inputs["installation_temperature"]);
+        let operate = quantity(&inputs["operating_temperature"]);
+        for (definition, forward, reverse) in pairs {
+            let law = coefficient_law(definition, inputs, points);
+            for (from, to, key) in [(&install, &operate, forward), (&operate, &install, reverse)] {
+                let expected_strain = expected[key]["value"].as_f64().unwrap();
+                let (strain, tip) = free_tip_with_law(law.clone(), from.clone(), to.clone());
+                close(strain, expected_strain, 1.0);
+                close(tip, expected_strain, 1.0);
+            }
+        }
+    }
+    let dilation = &multi["linear_dilation_table"];
+    let inputs = &dilation["inputs"];
+    let law = json!({"id": "law:fixture", "definition": "engineering_dilation",
+        "datum_temperature": quantity(&inputs["datum_temperature"]),
+        "data": {"kind": "table", "interpolation": "linear_dilation",
+            "points": inputs["linear_dilation_points"].as_array().unwrap().iter().map(|p| json!({
+                "temperature": quantity(&p["temperature"]), "dilation": quantity(&p["dilation"])})).collect::<Vec<_>>()},
+        "provenance": "invented fixture inputs"});
+    let install = quantity(&inputs["installation_temperature"]);
+    let operate = quantity(&inputs["operating_temperature"]);
+    for (from, to, key) in [
+        (&install, &operate, "dilation_strain_forward"),
+        (&operate, &install, "dilation_strain_reverse"),
+    ] {
+        let expected_strain = dilation["expected"][key]["value"].as_f64().unwrap();
+        let (strain, tip) = free_tip_with_law(law.clone(), from.clone(), to.clone());
+        close(strain, expected_strain, 1.0);
+        close(tip, expected_strain, 1.0);
+    }
+}

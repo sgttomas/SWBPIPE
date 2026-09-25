@@ -1,0 +1,8 @@
+$ git diff --numstat -- core/product_physics/tests/fixtures/load_reference_states/reference_cases.json
+1360	0	projects/chirality-piping/core/product_physics/tests/fixtures/load_reference_states/reference_cases.json
+$ git diff -- core/product_physics/tests/fixtures/load_reference_states/reference_cases.json | grep -c '^-[^-]'
+0
+$ git diff -- core/product_physics/tests/fixtures/load_reference_states/reference_cases.json | grep '^[-+][^-+]' | grep -v '^+' 
+(end of removed-line listing)
+$ python3 -m json.tool core/product_physics/tests/fixtures/load_reference_states/reference_cases.json > /dev/null
+exit=0

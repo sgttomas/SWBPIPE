@@ -2020,6 +2020,262 @@
               "value": -2052606.02021901
             }
           }
+        },
+        "verification_two_point": {
+          "inputs": {
+            "coefficient_definition": "engineering_secant",
+            "datum_temperature": {
+              "unit": "degC",
+              "exact": {
+                "kind": "rational",
+                "rational": "20"
+              },
+              "decimal": "20",
+              "value": 20.0
+            },
+            "installation_temperature": {
+              "unit": "degC",
+              "exact": {
+                "kind": "rational",
+                "rational": "50"
+              },
+              "decimal": "50",
+              "value": 50.0
+            },
+            "operating_temperature": {
+              "unit": "degC",
+              "exact": {
+                "kind": "rational",
+                "rational": "150"
+              },
+              "decimal": "150",
+              "value": 150.0
+            },
+            "alpha_install": {
+              "unit": "1/K",
+              "exact": {
+                "kind": "rational",
+                "rational": "3/250000"
+              },
+              "decimal": "0.000012",
+              "value": 1.2e-05
+            },
+            "alpha_operating": {
+              "unit": "1/K",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/62500"
+              },
+              "decimal": "0.000016",
+              "value": 1.6e-05
+            },
+            "interpolation": "linear_coefficient",
+            "table_points": [
+              {
+                "temperature": {
+                  "unit": "degC",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "50"
+                  },
+                  "decimal": "50",
+                  "value": 50.0
+                },
+                "alpha": {
+                  "unit": "1/K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "3/250000"
+                  },
+                  "decimal": "0.000012",
+                  "value": 1.2e-05
+                }
+              },
+              {
+                "temperature": {
+                  "unit": "degC",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "150"
+                  },
+                  "decimal": "150",
+                  "value": 150.0
+                },
+                "alpha": {
+                  "unit": "1/K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "1/62500"
+                  },
+                  "decimal": "0.000016",
+                  "value": 1.6e-05
+                }
+              }
+            ],
+            "geometry_ref": "annulus_od_0p20_wall_0p01",
+            "L": {
+              "unit": "m",
+              "exact": {
+                "kind": "rational",
+                "rational": "1"
+              },
+              "decimal": "1",
+              "value": 1.0
+            },
+            "E": {
+              "unit": "Pa",
+              "exact": {
+                "kind": "rational",
+                "rational": "200000000000"
+              },
+              "decimal": "200000000000",
+              "value": 200000000000.0
+            },
+            "provenance": "VERIFICATION.md control 4 exact inputs; the table has no coefficient point at the datum temperature."
+          },
+          "admissibility_policy": {
+            "selected_by": "ROOT disposition of CP1 independent review SF2 (CP2_EXTENSION brief)",
+            "rule": "For engineering_secant tables, table coverage and positive free stretch lambda are required only over [min(T_install,T), max(T_install,T)]. No coefficient point at T_m is required, because lambda(T_m)=1 by definition and the strain consumes alpha_sec only at T_install and T.",
+            "datum_coverage_required": false,
+            "negative_control_scope": "negative_contract_controls.datum_outside_thermal_coverage is unchanged. It still applies to differential_per_datum_length, logarithmic_per_current_length and engineering_dilation, whose lambda(T) is referred to T_m through table data; it does not apply to engineering_secant."
+          },
+          "expected": {
+            "dilation_install": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "9/25000"
+              },
+              "decimal": "0.00036",
+              "value": 0.00036
+            },
+            "dilation_operating": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "13/6250"
+              },
+              "decimal": "0.00208",
+              "value": 0.00208
+            },
+            "thermal_stretch": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "25052/25009"
+              },
+              "decimal": "1.001719381022831780558998760446239353832620256707585269303050901675396857131432684234",
+              "value": 1.0017193810228318
+            },
+            "thermal_strain": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "43/25009"
+              },
+              "decimal": "0.001719381022831780558998760446239353832620256707585269303050901675396857131432684233676",
+              "value": 0.0017193810228317806
+            },
+            "datum_temperature_K": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "5863/20"
+              },
+              "decimal": "293.15",
+              "value": 293.15
+            },
+            "installation_temperature_K": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "6463/20"
+              },
+              "decimal": "323.15",
+              "value": 323.15
+            },
+            "operating_temperature_K": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "8463/20"
+              },
+              "decimal": "423.15",
+              "value": 423.15
+            },
+            "required_coverage_low_K": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "6463/20"
+              },
+              "decimal": "323.15",
+              "value": 323.15
+            },
+            "required_coverage_high_K": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "8463/20"
+              },
+              "decimal": "423.15",
+              "value": 423.15
+            },
+            "minimum_datum_stretch_over_required_interval": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "25009/25000"
+              },
+              "decimal": "1.00036",
+              "value": 1.00036
+            },
+            "free_tip_UX": {
+              "unit": "m",
+              "exact": {
+                "kind": "rational",
+                "rational": "43/25009"
+              },
+              "decimal": "0.001719381022831780558998760446239353832620256707585269303050901675396857131432684233676",
+              "value": 0.0017193810228317806
+            },
+            "free_wall_N": {
+              "unit": "N",
+              "exact": {
+                "kind": "rational",
+                "rational": "0"
+              },
+              "decimal": "0",
+              "value": 0.0
+            },
+            "fixed_wall_N": {
+              "unit": "N",
+              "exact": {
+                "kind": "rational_times_pi",
+                "rational": "-16340000000/25009"
+              },
+              "decimal": "-2052606.020219010017053044619248553605813177175648335763714286642341145990592053062401",
+              "value": -2052606.02021901
+            },
+            "fixed_root_Fx": {
+              "unit": "N",
+              "exact": {
+                "kind": "rational_times_pi",
+                "rational": "16340000000/25009"
+              },
+              "decimal": "2052606.020219010017053044619248553605813177175648335763714286642341145990592053062401",
+              "value": 2052606.02021901
+            },
+            "fixed_far_Fx": {
+              "unit": "N",
+              "exact": {
+                "kind": "rational_times_pi",
+                "rational": "-16340000000/25009"
+              },
+              "decimal": "-2052606.020219010017053044619248553605813177175648335763714286642341145990592053062401",
+              "value": -2052606.02021901
+            }
+          }
         }
       },
       "wrong_result_discriminators": {
@@ -3445,6 +3701,1110 @@
           "classification": "excluded",
           "force_N": 999
         }
+      ]
+    },
+    "multi_segment_free_length": {
+      "source": {
+        "document": "VERIFICATION.md",
+        "control": 5,
+        "extension": "Control 5 extended from one consumed table segment to three (CP1 independent review SF1). Inputs are invented by the CP2_EXTENSION TASK; they are not reviewed design values."
+      },
+      "equations": [
+        "alpha(T) and d(T) are piecewise linear between table points; no extrapolation",
+        "I(a,b)=integral_a^b alpha dT = signed sum over consumed segments of (alpha(start)+alpha(end))*(end-start)/2",
+        "differential_per_datum_length: lambda(T)=1+I(T_m,T)",
+        "logarithmic_per_current_length: lambda(T)=exp(I(T_m,T)), so eps(a->b)=exp(I(a,b))-1",
+        "engineering_dilation: lambda(T)=1+d(T), d(T_m)=0",
+        "eps(a->b)=lambda(b)/lambda(a)-1",
+        "(1+eps(a->s))*(1+eps(s->b))=1+eps(a->b)",
+        "(1+eps(a->b))*(1+eps(b->a))=1"
+      ],
+      "variants": {
+        "linear_coefficient_table": {
+          "inputs": {
+            "provenance": "invented",
+            "definitions": [
+              "differential_per_datum_length",
+              "logarithmic_per_current_length"
+            ],
+            "interpolation": "linear_coefficient",
+            "datum_temperature": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "300"
+              },
+              "decimal": "300",
+              "value": 300.0
+            },
+            "installation_temperature": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "350"
+              },
+              "decimal": "350",
+              "value": 350.0
+            },
+            "operating_temperature": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "550"
+              },
+              "decimal": "550",
+              "value": 550.0
+            },
+            "split_temperature": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "450"
+              },
+              "decimal": "450",
+              "value": 450.0
+            },
+            "linear_coefficient_points": [
+              {
+                "temperature": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "300"
+                  },
+                  "decimal": "300",
+                  "value": 300.0
+                },
+                "coefficient": {
+                  "unit": "1/K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "1/100000"
+                  },
+                  "decimal": "0.00001",
+                  "value": 1e-05
+                }
+              },
+              {
+                "temperature": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "400"
+                  },
+                  "decimal": "400",
+                  "value": 400.0
+                },
+                "coefficient": {
+                  "unit": "1/K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "1/50000"
+                  },
+                  "decimal": "0.00002",
+                  "value": 2e-05
+                }
+              },
+              {
+                "temperature": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "500"
+                  },
+                  "decimal": "500",
+                  "value": 500.0
+                },
+                "coefficient": {
+                  "unit": "1/K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "1/100000"
+                  },
+                  "decimal": "0.00001",
+                  "value": 1e-05
+                }
+              },
+              {
+                "temperature": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "600"
+                  },
+                  "decimal": "600",
+                  "value": 600.0
+                },
+                "coefficient": {
+                  "unit": "1/K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "3/100000"
+                  },
+                  "decimal": "0.00003",
+                  "value": 3e-05
+                }
+              }
+            ]
+          },
+          "expected": {
+            "coefficient_install": {
+              "unit": "1/K",
+              "exact": {
+                "kind": "rational",
+                "rational": "3/200000"
+              },
+              "decimal": "0.000015",
+              "value": 1.5e-05
+            },
+            "coefficient_split": {
+              "unit": "1/K",
+              "exact": {
+                "kind": "rational",
+                "rational": "3/200000"
+              },
+              "decimal": "0.000015",
+              "value": 1.5e-05
+            },
+            "coefficient_operating": {
+              "unit": "1/K",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/50000"
+              },
+              "decimal": "0.00002",
+              "value": 2e-05
+            },
+            "integral_datum_to_install": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/1600"
+              },
+              "decimal": "0.000625",
+              "value": 0.000625
+            },
+            "integral_datum_to_split": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "19/8000"
+              },
+              "decimal": "0.002375",
+              "value": 0.002375
+            },
+            "integral_datum_to_operating": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "3/800"
+              },
+              "decimal": "0.00375",
+              "value": 0.00375
+            },
+            "integral_install_to_operating": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/320"
+              },
+              "decimal": "0.003125",
+              "value": 0.003125
+            },
+            "segment_integrals_install_to_operating": [
+              {
+                "table_points": [
+                  0,
+                  1
+                ],
+                "from": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "350"
+                  },
+                  "decimal": "350",
+                  "value": 350.0
+                },
+                "to": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "400"
+                  },
+                  "decimal": "400",
+                  "value": 400.0
+                },
+                "integral": {
+                  "unit": "1",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "7/8000"
+                  },
+                  "decimal": "0.000875",
+                  "value": 0.000875
+                }
+              },
+              {
+                "table_points": [
+                  1,
+                  2
+                ],
+                "from": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "400"
+                  },
+                  "decimal": "400",
+                  "value": 400.0
+                },
+                "to": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "500"
+                  },
+                  "decimal": "500",
+                  "value": 500.0
+                },
+                "integral": {
+                  "unit": "1",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "3/2000"
+                  },
+                  "decimal": "0.0015",
+                  "value": 0.0015
+                }
+              },
+              {
+                "table_points": [
+                  2,
+                  3
+                ],
+                "from": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "500"
+                  },
+                  "decimal": "500",
+                  "value": 500.0
+                },
+                "to": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "550"
+                  },
+                  "decimal": "550",
+                  "value": 550.0
+                },
+                "integral": {
+                  "unit": "1",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "3/4000"
+                  },
+                  "decimal": "0.00075",
+                  "value": 0.00075
+                }
+              }
+            ],
+            "datum_length_strain_forward": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "5/1601"
+              },
+              "decimal": "0.003123048094940662086196127420362273579013116801998750780762023735165521549031855090568",
+              "value": 0.003123048094940662
+            },
+            "datum_length_strain_reverse": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "-5/1606"
+              },
+              "decimal": "-0.003113325031133250311332503113325031133250311332503113325031133250311332503113325031133",
+              "value": -0.00311332503113325
+            },
+            "datum_length_strain_install_to_split": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "14/8005"
+              },
+              "decimal": "0.001748906933166770768269831355402873204247345409119300437226733291692692067457838850718",
+              "value": 0.0017489069331667708
+            },
+            "datum_length_strain_split_to_operating": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/729"
+              },
+              "decimal": "0.001371742112482853223593964334705075445816186556927297668038408779149519890260631001372",
+              "value": 0.0013717421124828531
+            },
+            "datum_length_strain_operating_to_split": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "-1/730"
+              },
+              "decimal": "-0.001369863013698630136986301369863013698630136986301369863013698630136986301369863013699",
+              "value": -0.0013698630136986301
+            },
+            "datum_length_strain_split_to_install": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "-14/8019"
+              },
+              "decimal": "-0.001745853597705449557301409153261005112856964708816560668412520264372116223968075819928",
+              "value": -0.0017458535977054495
+            },
+            "current_length_strain_forward": {
+              "unit": "1",
+              "exact": {
+                "kind": "symbolic",
+                "expression": "exp(1/320)-1"
+              },
+              "decimal": "0.003129887902739148639306274731849117733271172651883918512528254837725762683040995178",
+              "value": 0.0031298879027391487,
+              "evaluation": "Decimal.exp, precision 85"
+            },
+            "current_length_strain_reverse": {
+              "unit": "1",
+              "exact": {
+                "kind": "symbolic",
+                "expression": "exp(-1/320)-1"
+              },
+              "decimal": "-0.0031201222697918600822465885505593623133223969307331924251459595767137176788785457202",
+              "value": -0.00312012226979186,
+              "evaluation": "Decimal.exp, precision 85"
+            },
+            "current_length_strain_install_to_split": {
+              "unit": "1",
+              "exact": {
+                "kind": "symbolic",
+                "expression": "exp(7/4000)-1"
+              },
+              "decimal": "0.001751532143620091242702371787238548567316834542169756729569905419868953816605044596",
+              "value": 0.0017515321436200912,
+              "evaluation": "Decimal.exp, precision 85"
+            },
+            "current_length_strain_split_to_operating": {
+              "unit": "1",
+              "exact": {
+                "kind": "symbolic",
+                "expression": "exp(11/8000)-1"
+              },
+              "decimal": "0.001375945745917206087217908673898501376479743037767754562215792083096359286818355484",
+              "value": 0.001375945745917206,
+              "evaluation": "Decimal.exp, precision 85"
+            },
+            "current_length_strain_operating_to_split": {
+              "unit": "1",
+              "exact": {
+                "kind": "symbolic",
+                "expression": "exp(-11/8000)-1"
+              },
+              "decimal": "-0.0013740551206193341608936888662741412645528424401776732160987247850242045880466642036",
+              "value": -0.001374055120619334,
+              "evaluation": "Decimal.exp, precision 85"
+            },
+            "current_length_strain_split_to_install": {
+              "unit": "1",
+              "exact": {
+                "kind": "symbolic",
+                "expression": "exp(-7/4000)-1"
+              },
+              "decimal": "-0.0017484696428385156420831996722144692268120578676273431478905574767375828749369926759",
+              "value": -0.0017484696428385156,
+              "evaluation": "Decimal.exp, precision 85"
+            }
+          }
+        },
+        "linear_dilation_table": {
+          "inputs": {
+            "provenance": "invented",
+            "definition": "engineering_dilation",
+            "interpolation": "linear_dilation",
+            "datum_temperature": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "300"
+              },
+              "decimal": "300",
+              "value": 300.0
+            },
+            "installation_temperature": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "350"
+              },
+              "decimal": "350",
+              "value": 350.0
+            },
+            "operating_temperature": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "550"
+              },
+              "decimal": "550",
+              "value": 550.0
+            },
+            "split_temperature": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "450"
+              },
+              "decimal": "450",
+              "value": 450.0
+            },
+            "linear_dilation_points": [
+              {
+                "temperature": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "300"
+                  },
+                  "decimal": "300",
+                  "value": 300.0
+                },
+                "dilation": {
+                  "unit": "1",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "0"
+                  },
+                  "decimal": "0",
+                  "value": 0.0
+                }
+              },
+              {
+                "temperature": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "400"
+                  },
+                  "decimal": "400",
+                  "value": 400.0
+                },
+                "dilation": {
+                  "unit": "1",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "1/1000"
+                  },
+                  "decimal": "0.001",
+                  "value": 0.001
+                }
+              },
+              {
+                "temperature": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "500"
+                  },
+                  "decimal": "500",
+                  "value": 500.0
+                },
+                "dilation": {
+                  "unit": "1",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "3/2000"
+                  },
+                  "decimal": "0.0015",
+                  "value": 0.0015
+                }
+              },
+              {
+                "temperature": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "600"
+                  },
+                  "decimal": "600",
+                  "value": 600.0
+                },
+                "dilation": {
+                  "unit": "1",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "7/2000"
+                  },
+                  "decimal": "0.0035",
+                  "value": 0.0035
+                }
+              }
+            ]
+          },
+          "expected": {
+            "dilation_install": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/2000"
+              },
+              "decimal": "0.0005",
+              "value": 0.0005
+            },
+            "dilation_split": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/800"
+              },
+              "decimal": "0.00125",
+              "value": 0.00125
+            },
+            "dilation_operating": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/400"
+              },
+              "decimal": "0.0025",
+              "value": 0.0025
+            },
+            "dilation_strain_forward": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "4/2001"
+              },
+              "decimal": "0.001999000499750124937531234382808595702148925537231384307846076961519240379810094952524",
+              "value": 0.001999000499750125
+            },
+            "dilation_strain_reverse": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "-4/2005"
+              },
+              "decimal": "-0.001995012468827930174563591022443890274314214463840399002493765586034912718204488778055",
+              "value": -0.00199501246882793
+            },
+            "dilation_strain_install_to_split": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/1334"
+              },
+              "decimal": "0.0007496251874062968515742128935532233883058470764617691154422788605697151424287856071964",
+              "value": 0.0007496251874062968
+            },
+            "dilation_strain_split_to_operating": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/801"
+              },
+              "decimal": "0.001248439450686641697877652933832709113607990012484394506866416978776529338327091136080",
+              "value": 0.0012484394506866417
+            },
+            "dilation_strain_operating_to_split": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "-1/802"
+              },
+              "decimal": "-0.001246882793017456359102244389027431421446384039900249376558603491271820448877805486284",
+              "value": -0.0012468827930174563
+            },
+            "dilation_strain_split_to_install": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "-1/1335"
+              },
+              "decimal": "-0.0007490636704119850187265917602996254681647940074906367041198501872659176029962546816479",
+              "value": -0.000749063670411985
+            }
+          }
+        }
+      },
+      "wrong_result_discriminators": {
+        "first_segment_only": {
+          "definition": "Only the first table segment traversed by [T_install, T] ([350 K, 400 K]) contributes to the integral or dilation difference; lambda(T_install) is correct. Truncating I(T_m,T) or d(T)-d(T_m) to its first segment ([300 K, 400 K]) gives the same values here because T_install lies in that segment. Forward direction only.",
+          "datum_length_strain_forward": {
+            "unit": "1",
+            "exact": {
+              "kind": "rational",
+              "rational": "7/8005"
+            },
+            "decimal": "0.0008744534665833853841349156777014366021236727045596502186133666458463460337289194253592",
+            "value": 0.0008744534665833854
+          },
+          "current_length_strain_forward": {
+            "unit": "1",
+            "exact": {
+              "kind": "symbolic",
+              "expression": "exp(7/8000)-1"
+            },
+            "decimal": "0.000875382924178074343223909313062237717283138664834704888591160855455985563163200054",
+            "value": 0.0008753829241780743,
+            "evaluation": "Decimal.exp, precision 85"
+          },
+          "dilation_strain_forward": {
+            "unit": "1",
+            "exact": {
+              "kind": "rational",
+              "rational": "1/2001"
+            },
+            "decimal": "0.0004997501249375312343828085957021489255372313843078460769615192403798100949525237381309",
+            "value": 0.0004997501249375312
+          }
+        },
+        "last_segment_only": {
+          "interval_difference_form": {
+            "definition": "Only the last table segment traversed by [T_install, T] ([500 K, 550 K]) contributes to the numerator integral or dilation difference; lambda(T_install) is correct. Forward direction only.",
+            "datum_length_strain_forward": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "6/8005"
+              },
+              "decimal": "0.0007495315427857589006870705808869456589631480324797001873828856964397251717676452217364",
+              "value": 0.0007495315427857589
+            },
+            "current_length_strain_forward": {
+              "unit": "1",
+              "exact": {
+                "kind": "symbolic",
+                "expression": "exp(3/4000)-1"
+              },
+              "decimal": "0.000750281320325685571536281370193824613286974337530303620568011995825223638621339487",
+              "value": 0.0007502813203256856,
+              "evaluation": "Decimal.exp, precision 85"
+            },
+            "dilation_strain_forward": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "2/2001"
+              },
+              "decimal": "0.0009995002498750624687656171914042978510744627686156921539230384807596201899050474762619",
+              "value": 0.0009995002498750624
+            }
+          },
+          "datum_integral_form": {
+            "definition": "lambda(T) uses I(T_m,T) or d(T)-d(T_m) truncated to the last segment of [T_m, T] ([500 K, 550 K]); lambda(T_install) keeps its only segment [300 K, 350 K]. Forward direction only.",
+            "datum_length_strain_forward": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/8005"
+              },
+              "decimal": "0.0001249219237976264834478450968144909431605246720799500312304809494066208619612742036227",
+              "value": 0.00012492192379762648
+            },
+            "current_length_strain_forward": {
+              "unit": "1",
+              "exact": {
+                "kind": "symbolic",
+                "expression": "exp(1/8000)-1"
+              },
+              "decimal": "0.000125007812825531006113693449326925393628413393534679844038396598573818639357767163",
+              "value": 0.000125007812825531,
+              "evaluation": "Decimal.exp, precision 85"
+            },
+            "dilation_strain_forward": {
+              "unit": "1",
+              "exact": {
+                "kind": "rational",
+                "rational": "1/2001"
+              },
+              "decimal": "0.0004997501249375312343828085957021489255372313843078460769615192403798100949525237381309",
+              "value": 0.0004997501249375312
+            }
+          }
+        },
+        "interior_breakpoints_skipped": {
+          "definition": "One trapezoid from alpha(T_install) to alpha(T), ignoring the 400 K and 500 K table points. Coefficient definitions only; forward direction only.",
+          "datum_length_strain_forward": {
+            "unit": "1",
+            "exact": {
+              "kind": "rational",
+              "rational": "28/8005"
+            },
+            "decimal": "0.003497813866333541536539662710805746408494690818238600874453466583385384134915677701437",
+            "value": 0.0034978138663335416
+          },
+          "current_length_strain_forward": {
+            "unit": "1",
+            "exact": {
+              "kind": "symbolic",
+              "expression": "exp(7/2000)-1"
+            },
+            "decimal": "0.003506132152090316877340500124361742656434595503061037800902082562369305233804608218",
+            "value": 0.003506132152090317,
+            "evaluation": "Decimal.exp, precision 85"
+          }
+        },
+        "endpoint_alpha_times_interval": {
+          "definition": "alpha(T)*(T-T_install), the control-5 wrong control applied to this table.",
+          "strain": {
+            "unit": "1",
+            "exact": {
+              "kind": "rational",
+              "rational": "1/250"
+            },
+            "decimal": "0.004",
+            "value": 0.004
+          }
+        }
+      },
+      "limits": [
+        "All inputs are invented test quantities; they are not material-library, code-rule or vetted engineering data.",
+        "T_install=350 K and T=550 K are interior to the first and last table segments; the 450 K split is interior to the middle segment.",
+        "Free-length strains only. A 1 m free span has tip UX equal to the strain in metres; a fixed span has N=-E*A*eps. No mechanics companion values are allocated here.",
+        "Wrong-result discriminators are given for the forward direction only; correct reverse values are pinned in expected."
+      ]
+    },
+    "temperature_unit_identity": {
+      "source": {
+        "document": "VERIFICATION.md",
+        "control": 4,
+        "clause": "Equivalent degC/K absolute and temperature-interval inputs give identical normalized mechanics.",
+        "motivation": "CP1 independent review SF3; identity values set by the CP2_EXTENSION brief."
+      },
+      "equations": [
+        "K = degC + 273.15",
+        "K = (degF + 459.67)*5/9",
+        "K = degR*5/9",
+        "identity: read the authored decimal as an exact rational, apply the exact affine definition, compare exactly in K"
+      ],
+      "variants": {
+        "exact_affine_identity": {
+          "inputs": {
+            "provenance": "invented",
+            "identity_groups": [
+              {
+                "id": "minus_50_degC",
+                "authored": [
+                  {
+                    "unit": "degC",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "-50"
+                    },
+                    "decimal": "-50",
+                    "value": -50.0
+                  },
+                  {
+                    "unit": "K",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "4463/20"
+                    },
+                    "decimal": "223.15",
+                    "value": 223.15
+                  }
+                ]
+              },
+              {
+                "id": "242_degC",
+                "authored": [
+                  {
+                    "unit": "degC",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "242"
+                    },
+                    "decimal": "242",
+                    "value": 242.0
+                  },
+                  {
+                    "unit": "degF",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "2338/5"
+                    },
+                    "decimal": "467.6",
+                    "value": 467.6
+                  },
+                  {
+                    "unit": "K",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "10303/20"
+                    },
+                    "decimal": "515.15",
+                    "value": 515.15
+                  }
+                ]
+              },
+              {
+                "id": "20_degC_rankine",
+                "authored": [
+                  {
+                    "unit": "degC",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "20"
+                    },
+                    "decimal": "20",
+                    "value": 20.0
+                  },
+                  {
+                    "unit": "degR",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "52767/100"
+                    },
+                    "decimal": "527.67",
+                    "value": 527.67
+                  }
+                ]
+              }
+            ],
+            "non_equal_control": {
+              "id": "minus_49p999999_degC_vs_223p15_K",
+              "authored": [
+                {
+                  "unit": "degC",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "-49999999/1000000"
+                  },
+                  "decimal": "-49.999999",
+                  "value": -49.999999
+                },
+                {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "4463/20"
+                  },
+                  "decimal": "223.15",
+                  "value": 223.15
+                }
+              ]
+            }
+          },
+          "expected": {
+            "identity_groups": [
+              {
+                "id": "minus_50_degC",
+                "kelvin": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "4463/20"
+                  },
+                  "decimal": "223.15",
+                  "value": 223.15
+                },
+                "authored_kelvin": [
+                  {
+                    "unit": "K",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "4463/20"
+                    },
+                    "decimal": "223.15",
+                    "value": 223.15
+                  },
+                  {
+                    "unit": "K",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "4463/20"
+                    },
+                    "decimal": "223.15",
+                    "value": 223.15
+                  }
+                ],
+                "compare_equal": true
+              },
+              {
+                "id": "242_degC",
+                "kelvin": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "10303/20"
+                  },
+                  "decimal": "515.15",
+                  "value": 515.15
+                },
+                "authored_kelvin": [
+                  {
+                    "unit": "K",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "10303/20"
+                    },
+                    "decimal": "515.15",
+                    "value": 515.15
+                  },
+                  {
+                    "unit": "K",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "10303/20"
+                    },
+                    "decimal": "515.15",
+                    "value": 515.15
+                  },
+                  {
+                    "unit": "K",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "10303/20"
+                    },
+                    "decimal": "515.15",
+                    "value": 515.15
+                  }
+                ],
+                "compare_equal": true
+              },
+              {
+                "id": "20_degC_rankine",
+                "kelvin": {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "5863/20"
+                  },
+                  "decimal": "293.15",
+                  "value": 293.15
+                },
+                "authored_kelvin": [
+                  {
+                    "unit": "K",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "5863/20"
+                    },
+                    "decimal": "293.15",
+                    "value": 293.15
+                  },
+                  {
+                    "unit": "K",
+                    "exact": {
+                      "kind": "rational",
+                      "rational": "5863/20"
+                    },
+                    "decimal": "293.15",
+                    "value": 293.15
+                  }
+                ],
+                "compare_equal": true
+              }
+            ],
+            "non_equal_control": {
+              "id": "minus_49p999999_degC_vs_223p15_K",
+              "authored_kelvin": [
+                {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "223150001/1000000"
+                  },
+                  "decimal": "223.150001",
+                  "value": 223.150001
+                },
+                {
+                  "unit": "K",
+                  "exact": {
+                    "kind": "rational",
+                    "rational": "4463/20"
+                  },
+                  "decimal": "223.15",
+                  "value": 223.15
+                }
+              ],
+              "difference_K": {
+                "unit": "K",
+                "exact": {
+                  "kind": "rational",
+                  "rational": "1/1000000"
+                },
+                "decimal": "0.000001",
+                "value": 1e-06
+              },
+              "compare_equal": false
+            }
+          }
+        }
+      },
+      "wrong_result_discriminators": {
+        "binary64_affine_conversion": {
+          "definition": "IEEE-754 binary64 round-to-nearest-even evaluation of the stated expression, then equality of doubles. Exact values are the dyadic rationals of the doubles. The results depend on operation order; they show that binary64 equality after conversion is not temperature identity.",
+          "minus_50_degC": {
+            "expression": "-50.0 + 273.15",
+            "result": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "1962848157905715/8796093022208"
+              },
+              "decimal": "223.1499999999999772626324556767940521240234375",
+              "value": 223.14999999999998
+            },
+            "binary64_223p15_K": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "7851392631622861/35184372088832"
+              },
+              "decimal": "223.150000000000005684341886080801486968994140625",
+              "value": 223.15
+            },
+            "doubles_equal": false
+          },
+          "467p6_degF": {
+            "expression": "(467.6 + 459.67) * 5 / 9",
+            "result": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "1132826830097613/2199023255552"
+              },
+              "decimal": "515.15000000000009094947017729282379150390625",
+              "value": 515.1500000000001
+            },
+            "binary64_242_degC_via_plus_273p15": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "4531307320390451/8796093022208"
+              },
+              "decimal": "515.1499999999999772626324556767940521240234375",
+              "value": 515.15
+            },
+            "binary64_515p15_K": {
+              "unit": "K",
+              "exact": {
+                "kind": "rational",
+                "rational": "4531307320390451/8796093022208"
+              },
+              "decimal": "515.1499999999999772626324556767940521240234375",
+              "value": 515.15
+            },
+            "doubles_equal": false
+          }
+        }
+      },
+      "limits": [
+        "Absolute temperatures only. Temperature intervals and inverse-temperature coefficients convert without offset (1 degC interval = 1 K; 1 degF or degR interval = 5/9 K; alpha[1/K] = alpha[1/degF]*9/5).",
+        "The authored decimals are invented test quantities. The identities are exact consequences of the unit definitions; no product unit-catalog behaviour is asserted here.",
+        "The non-equal control differs by exactly 1e-6 K (relative about 4.5e-9). It must not be matched to 223.15 K by identity, bracketing or exact-point selection."
       ]
     }
   },

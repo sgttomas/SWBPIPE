@@ -33,7 +33,8 @@
           "core/product_physics/tests/fixtures/load_reference_states/models/ (new files)",
           "LOAD_STATE_IMPLEMENTATION/CP2_RUNTIME_TESTS/"
         ],
-        "resources": "syntax checks until manager signals facade compiles; then own test binary only, -j 1, CARGO_TARGET_DIR=/home/user/cargo-targets/loadstate/product_physics_tests"
+        "resources": "syntax checks until manager signals facade compiles; then own test binary only, -j 1, CARGO_TARGET_DIR=/home/user/cargo-targets/loadstate/product_physics_tests",
+        "status": "complete: RETURN.md; test file d5be0bd8; 20/20 both modes on pinned run and manager gate runs"
       },
       {
         "task": "Additive analytical-reference extension and fixture README (review SF1/SF2/N6)",
@@ -44,7 +45,7 @@
           "core/product_physics/tests/fixtures/load_reference_states/README.md",
           "LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/CP2_EXTENSION/"
         ],
-        "status": "spawned by ROOT with full TASK role and 'do not delegate further'; brief and fixture pre-edit hash verified by ROOT",
+        "status": "complete: RETURN.md sha256 42676c024fae64ca28225c89f11f41ef62b4d6e90b9de92e36fcc2bcc7834158; fixture 4d7b7777 (additive, 2656 paths preserved); README fe8149c0",
         "task_sendmessage_id": "a3bb458a695b524aa",
         "parent_of_record": "this manager (a3675abb28ada0834)"
       }

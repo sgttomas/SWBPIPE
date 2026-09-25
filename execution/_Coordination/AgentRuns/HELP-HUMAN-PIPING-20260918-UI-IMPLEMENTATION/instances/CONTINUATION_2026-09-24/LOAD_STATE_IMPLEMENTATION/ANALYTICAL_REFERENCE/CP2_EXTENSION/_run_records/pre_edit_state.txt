@@ -1,0 +1,19 @@
+utc=2026-09-25T18:01:26Z
+checkout=/home/user/wt/loadstate
+branch=codex/piping-load-states-20260925
+head=5511596af66085ec1d70fab1277431b9023744ff
+fixture_git_blob_HEAD=c2342a84cdd5cb8e7f0057b6d689bfe3836e93cc
+fixture_pre_edit_sha256=5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891
+expected_pre_edit_sha256=5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891
+brief_sha256=fe864ffa5afc6695068920fdb84329aca82d142a411c81a321c91e6aeeb5c3d8
+expected_brief_sha256=fe864ffa5afc6695068920fdb84329aca82d142a411c81a321c91e6aeeb5c3d8
+AGENTS.md=c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd
+projects/chirality-piping/AGENTS.md=d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792
+VERIFICATION.md@9e8a55d=061f1f8fa53d426e3af9db58bf684bdfca790b13f3df780935e9353d5402fc57
+INTERFACE.md@9e8a55d=18587811735a262187cf4a26bb934d6c3ef03ceb37c78228bb39b7f8afe073bf
+python=Python 3.11.15
+fixture_dir_listing:
+total 116
+drwxr-xr-x 2 root root   4096 Sep 25 16:48 .
+drwxr-xr-x 4 root root   4096 Sep 25 16:48 ..
+-rw-r--r-- 1 root root 108985 Sep 25 16:48 reference_cases.json

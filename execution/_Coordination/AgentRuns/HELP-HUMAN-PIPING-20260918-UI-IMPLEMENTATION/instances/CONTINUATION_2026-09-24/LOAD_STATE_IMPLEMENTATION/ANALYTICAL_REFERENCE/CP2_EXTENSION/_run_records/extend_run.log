@@ -1,0 +1,27 @@
+$ date -u; python3 --version; sha256sum core/product_physics/tests/fixtures/load_reference_states/reference_cases.json
+2026-09-25T18:07:43Z
+Python 3.11.15
+5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891  core/product_physics/tests/fixtures/load_reference_states/reference_cases.json
+$ python3 execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/extend_reference_cases.py core/product_physics/tests/fixtures/load_reference_states/reference_cases.json
+{
+ "input_sha256": "5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891",
+ "output_sha256": "4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab",
+ "bytes_before": 108985,
+ "bytes_after": 156458,
+ "added": [
+  "cases.thermal_datum_ratio.variants.verification_two_point",
+  "cases.multi_segment_free_length",
+  "cases.temperature_unit_identity"
+ ],
+ "headline": {
+  "datum_length_strain_forward": "5/1601",
+  "datum_length_strain_reverse": "-5/1606",
+  "current_length_strain_forward": "exp(1/320)-1",
+  "dilation_strain_forward": "4/2001",
+  "dilation_strain_reverse": "-4/2005",
+  "verification_two_point_strain": "43/25009"
+ }
+}
+exit=0
+$ sha256sum core/product_physics/tests/fixtures/load_reference_states/reference_cases.json
+4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab  core/product_physics/tests/fixtures/load_reference_states/reference_cases.json

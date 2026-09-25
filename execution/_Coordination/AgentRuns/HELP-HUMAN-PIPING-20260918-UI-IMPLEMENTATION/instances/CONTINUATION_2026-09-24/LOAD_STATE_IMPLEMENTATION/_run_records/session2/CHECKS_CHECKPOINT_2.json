@@ -1,6 +1,6 @@
 {
   "checkpoint": 2,
-  "status": "in progress",
+  "status": "complete pending independent review",
   "environment": {
     "cargo": "1.97.1",
     "jobs": 2,
@@ -118,6 +118,31 @@
       "log": "cp2_freeze_gate_all_tests.log",
       "prehash": "cp2_freeze_gate_prehash.txt (verified stable after run)",
       "result": "lib 297 passed/1 pre-existing ignored (268 pre-existing non-case_state + 29 case_state); load_reference_state_runtime 20 passed; other integration 62 passed unchanged"
+    },
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 --lib case_state::tests::pressure",
+      "exit": 0,
+      "log": "cp2_pressure_combined_1.log",
+      "result": "1 passed: two cases, closed pressure region, per-case E/nu and eigenstrain; analytical N_wall=2 nu p Ai - E As eps* in both modes"
+    },
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 --lib case_state::tests::product_route (after fixture extension 4d7b7777)",
+      "exit": 0,
+      "log": "cp2_fixture_extension_route_1.log",
+      "result": "1 passed: product free-tip route reproduces multi_segment_free_length (datum, log, dilation, forward/reverse) and coefficient_definition single-segment references"
+    },
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 (whole crate) gate 2 on extended fixture",
+      "exit": 0,
+      "log": "cp2_gate2_all_tests.log",
+      "prehash": "cp2_gate2_prehash.txt (verified stable)",
+      "result": "lib 299 passed/1 pre-existing ignored (268 pre-existing non-case_state + 31 case_state); load_reference_state_runtime 20 passed; other integration 62 passed unchanged"
+    },
+    {
+      "command": "python3 independent_fixture_check.py reference_cases.json (after extension)",
+      "exit": 0,
+      "log": "fixture_check_after_extension.log",
+      "result": "200 checks, 0 failures (includes verification_two_point)"
     }
   ]
 }
