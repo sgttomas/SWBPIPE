@@ -68,18 +68,47 @@ pub(crate) fn validate_document(
     request_materials_supplied: bool,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
+    // An explicit null is authored presence in every version: an older
+    // document carrying a new key at all blocks, and a 0.4.0 document may not
+    // author a null where it must either omit the key or supply a value.
+    let carries = model.reference_configurations.is_authored()
+        || model
+            .material_expansion_laws
+            .iter()
+            .any(Authored::is_authored)
+        || !model.request_material_expansion_laws.is_empty()
+        || model
+            .load_cases
+            .iter()
+            .any(|case| case.analysis_state.is_authored());
     if !super::is_load_state(model) {
-        let carries = model.reference_configurations.is_some()
-            || model.material_expansion_laws.iter().any(Option::is_some)
-            || model
-                .load_cases
-                .iter()
-                .any(|case| case.analysis_state.is_some());
         if carries {
             block(diagnostics, "LOAD_STATE_CONTRACT_VERSION_MISMATCH", &["schema_version"],
-                "reference_configurations, material expansion_laws and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document");
+                "reference_configurations, material expansion_laws (model or request materials) and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document, and an explicit null counts as carrying the key");
         }
         return;
+    }
+    let mut nulls = Vec::new();
+    if model.reference_configurations.is_null() {
+        nulls.push("reference_configurations".to_string());
+    }
+    for (index, laws) in model.material_expansion_laws.iter().enumerate() {
+        if laws.is_null() {
+            nulls.push(format!("materials[{index}].expansion_laws"));
+        }
+    }
+    for case in &model.load_cases {
+        if case.analysis_state.is_null() {
+            nulls.push(format!("{}.analysis_state", case.id));
+        }
+    }
+    for path in &nulls {
+        block(
+            diagnostics,
+            "LOAD_STATE_EXPLICIT_NULL_UNSUPPORTED",
+            &[path.as_str()],
+            "an explicit null is authored presence, not absence; omit the key or supply its value",
+        );
     }
     if request_materials_supplied {
         block(diagnostics, "LOAD_STATE_REQUEST_MATERIALS_UNSUPPORTED", &["materials"],
@@ -99,7 +128,7 @@ pub(crate) fn validate_document(
         .map(|pipe| pipe.id.as_str())
         .collect::<HashSet<_>>();
     let mut configurations = HashSet::new();
-    match &model.reference_configurations {
+    match model.reference_configurations.value() {
         None => block(
             diagnostics,
             "LOAD_STATE_REFERENCE_CONFIGURATION_REQUIRED",
@@ -159,7 +188,7 @@ pub(crate) fn validate_document(
     }
     for (material, laws) in model.materials.iter().zip(&model.material_expansion_laws) {
         let mut ids = HashSet::new();
-        for law in laws.iter().flatten() {
+        for law in laws.value().into_iter().flatten() {
             if !nonempty(law.id()) || !ids.insert(law.id()) {
                 block(
                     diagnostics,
@@ -191,7 +220,7 @@ fn validate_case(
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     let id = case.id.as_str();
-    let Some(state) = &case.analysis_state else {
+    let Some(state) = case.analysis_state.value() else {
         block(diagnostics, "LOAD_STATE_ANALYSIS_STATE_REQUIRED", &[id, "analysis_state"],
             "every 0.4.0 load case requires an explicit analysis_state; case labels never imply temperatures, fit or support state");
         return;
@@ -274,7 +303,7 @@ fn validate_case(
         }
         if !matches!(
             support_state.participation,
-            ParticipationInput::ActiveModelDevice
+            ParticipationInput::ActiveModelDevice {}
         ) {
             block(diagnostics, "LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED", &[id, support, "participation"],
                 "inactive and locked support states are outside this capability; the support is not silently kept, removed or locked");
@@ -608,10 +637,10 @@ pub(crate) fn resolve_case(
 ) -> Option<ResolvedCase> {
     let before = diagnostics.len();
     let id = case.id.as_str();
-    let state = case.analysis_state.as_ref()?;
+    let state = case.analysis_state.value()?;
     let configuration = model
         .reference_configurations
-        .as_ref()?
+        .value()?
         .iter()
         .find(|configuration| configuration.id == state.reference_configuration_ref)?;
     let mut members = Vec::new();
@@ -645,7 +674,8 @@ pub(crate) fn resolve_case(
         let law_input = match &element.thermal_state {
             ThermalStateInput::FreeLengthState { expansion_law_ref } => model
                 .material_expansion_laws[*material_index]
-                .iter()
+                .value()
+                .into_iter()
                 .flatten()
                 .find(|law| law.id() == expansion_law_ref),
             _ => None,
@@ -738,7 +768,7 @@ pub(crate) fn resolve_case(
                     continue;
                 }
             },
-            ReferenceBasisInput::DirectStrainReference => None,
+            ReferenceBasisInput::DirectStrainReference {} => None,
         };
         let mut law_id = None;
         let thermal_input = match &element.thermal_state {
@@ -825,7 +855,8 @@ pub(crate) fn resolve_case(
                     continue;
                 };
                 let law = model.material_expansion_laws[*material_index]
-                    .iter()
+                    .value()
+                    .into_iter()
                     .flatten()
                     .find(|law| law.id() == expansion_law_ref);
                 let Some(law) = law else {
@@ -868,7 +899,7 @@ pub(crate) fn resolve_case(
             .hypot(to[1] - from[1])
             .hypot(to[2] - from[2]);
         let (fit_input, fit_kind, fit_value) = match &reference.fit {
-            FitReferenceInput::NoFit => (FitInput::None, "none", Value::Null),
+            FitReferenceInput::NoFit {} => (FitInput::None, "none", Value::Null),
             FitReferenceInput::NaturalLengthChange { length_change } => {
                 match normalized(length_change, Dimension::Length) {
                     Ok(change_m) => (
@@ -936,7 +967,7 @@ pub(crate) fn resolve_case(
             "retained_G_ignored": resolved_material.retained_g_ignored,
             "operating_temperature_k": optional_kelvin(resolved_material.operating_temperature_k),
             "material_selection_temperature_k": optional_kelvin(resolved_material.selection_temperature_k),
-            "reference_basis": match reference.basis { ReferenceBasisInput::TemperatureReference {..} => "temperature_reference", ReferenceBasisInput::DirectStrainReference => "direct_strain_reference" },
+            "reference_basis": match reference.basis { ReferenceBasisInput::TemperatureReference {..} => "temperature_reference", ReferenceBasisInput::DirectStrainReference {} => "direct_strain_reference" },
             "installation_temperature_k": optional_kelvin(installation),
             "thermal_definition": strain.definition,
             "expansion_law_id": law_id,

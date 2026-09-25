@@ -1,0 +1,3312 @@
+{
+ "counts": {
+  "exact": 358,
+  "inherited_leading_code": 20,
+  "declared_language_specific": 9,
+  "undeclared_difference": 0
+ },
+ "accepted": [
+  "ACCEPT-connected-dense",
+  "ACCEPT-connected-sparse",
+  "ACCEPT-contribution-order",
+  "ACCEPT-member-order",
+  "ACCEPT-not-joined-message-text",
+  "ACCEPT-pressure-dense",
+  "ACCEPT-pressure-sparse",
+  "ACCEPT-record-order",
+  "ACCEPT-record-provenance-text",
+  "ACCEPT-source-block-unavailable-info",
+  "ACCEPT-support-component-order",
+  "ACCEPT-unsolved-empty-namespace",
+  "TABLEBYTES-pinned",
+  "TRANSPORT-ACCEPT-connected-dense",
+  "TRANSPORT-ACCEPT-connected-sparse",
+  "TRANSPORT-ACCEPT-pressure-dense",
+  "TRANSPORT-ACCEPT-pressure-sparse",
+  "TRANSPORT-no-diagnostic-binding"
+ ],
+ "rejected": [
+  "CARRIER-present",
+  "CLOSED-applied-magnitude",
+  "CLOSED-connector",
+  "CLOSED-contribution-classification",
+  "CLOSED-contribution-kind",
+  "CLOSED-exact-case-removed",
+  "CLOSED-exact-point-fraction",
+  "CLOSED-exact-point-temperature",
+  "CLOSED-exact-point-without-point",
+  "CLOSED-excluded-classification",
+  "CLOSED-fit-kind",
+  "CLOSED-fit-length-change",
+  "CLOSED-fit-none-input",
+  "CLOSED-fit-strain-stretch",
+  "CLOSED-g-basis-text",
+  "CLOSED-geometry-consistency",
+  "CLOSED-geometry-hash",
+  "CLOSED-geometry-kind",
+  "CLOSED-history-kind",
+  "CLOSED-law-datum-stretch-null",
+  "CLOSED-law-id-null",
+  "CLOSED-law-indices-integer",
+  "CLOSED-law-indices-order",
+  "CLOSED-law-segment-sample",
+  "CLOSED-law-segment-use",
+  "CLOSED-material-basis",
+  "CLOSED-member-contribution-missing",
+  "CLOSED-member-contribution-refs",
+  "CLOSED-member-contribution-value",
+  "CLOSED-member-removed",
+  "CLOSED-numerical-basis-type",
+  "CLOSED-pressure-contribution-missing",
+  "CLOSED-pressure-contribution-unowned",
+  "CLOSED-record-provenance-empty",
+  "CLOSED-record-removed",
+  "CLOSED-reference-basis",
+  "CLOSED-reference-basis-unknown",
+  "CLOSED-region-case-moved",
+  "CLOSED-region-temperature-basis",
+  "CLOSED-retained-flag-type",
+  "CLOSED-selection-kind",
+  "CLOSED-solve-boundary-text",
+  "CLOSED-solve-mode-consistency",
+  "CLOSED-solve-mode-method",
+  "CLOSED-support-contribution-missing",
+  "CLOSED-support-contribution-value",
+  "CLOSED-support-dof",
+  "CLOSED-support-law",
+  "CLOSED-support-node",
+  "CLOSED-support-unit",
+  "CLOSED-temperature-range",
+  "CLOSED-thermal-definition",
+  "CLOSED-thermal-stretch",
+  "CLOSED-unsolved-with-evidence",
+  "CONTRACT-physics-envelope-relabelled",
+  "CONTRACT-physics-envelope-relabelled-keeps-profile",
+  "CONTRACT-record-contract",
+  "DUPLICATE-exact-case",
+  "DUPLICATE-excluded",
+  "DUPLICATE-excluded-included",
+  "DUPLICATE-member",
+  "DUPLICATE-record",
+  "DUPLICATE-source-id-across-kinds",
+  "DUPLICATE-stored-contribution",
+  "DUPLICATE-support-component",
+  "FACTOR-changed-without-magnitude",
+  "FACTOR-negative-zero",
+  "FACTOR-null",
+  "FACTOR-pressure-region-nonnull",
+  "FACTOR-string",
+  "FACTOR-zero",
+  "FORGE-case-E",
+  "FORGE-case-G-one-ulp",
+  "FORGE-case-consistent-E-G",
+  "FORGE-case-material-id",
+  "FORGE-case-nu",
+  "FORGE-case-null-provenance",
+  "FORGE-case-resolved-eigenstrain",
+  "FORGE-case-selection-kind",
+  "FORGE-case-thermal-consumed",
+  "FORGE-member-E-only",
+  "FORGE-member-G",
+  "FORGE-member-consistent-pair",
+  "FORGE-member-nu-range",
+  "FORGE-region-E",
+  "FORGE-region-G",
+  "FORGE-region-nu",
+  "INHERITED-extrema-gap",
+  "INHERITED-headline",
+  "INHERITED-maximum-unit",
+  "INHERITED-region-pressure-rhs",
+  "INHERITED-rhs-method",
+  "INHERITED-section-diameter",
+  "MISSING-case-material-basis",
+  "MISSING-case-resolved-eigenstrain",
+  "MISSING-contract-evidence",
+  "MISSING-excluded-reason",
+  "MISSING-fit-length-change",
+  "MISSING-history-kind",
+  "MISSING-load-reference-states",
+  "MISSING-material-point-flag",
+  "MISSING-member-datum",
+  "MISSING-member-null-optional",
+  "MISSING-member-state-refs",
+  "MISSING-pressure-region-factor",
+  "MISSING-projection-sha256",
+  "MISSING-record-source-recovery",
+  "MISSING-region-temperature-basis",
+  "MISSING-solve-eigenload",
+  "MISSING-source-recovery-code",
+  "MISSING-stored-applied-magnitude",
+  "MISSING-support-state-source",
+  "MISSING-support-state-value",
+  "NONFINITE-factor",
+  "NONFINITE-member-E",
+  "NONFINITE-region-pressure",
+  "NONFINITE-row-value",
+  "NOTJOINED-extra-copy",
+  "NOTJOINED-missing-all",
+  "NOTJOINED-missing-one",
+  "NOTJOINED-severity",
+  "NOTJOINED-wrong-id",
+  "PHYSICS1-with-empty-load-reference-states",
+  "PHYSICS1-with-load-reference-states",
+  "PROFILE-exact",
+  "PROFILE-exact-case-mode-inherited",
+  "PROFILE-physics-envelope-claims-load-profile",
+  "PROFILE-preview",
+  "PROFILE-record",
+  "PROFILE-source-successor",
+  "RECEIPT-inside-evidence",
+  "RECEIPT-present",
+  "RECEIPT-present-pressure",
+  "RECOVERY-code",
+  "RECOVERY-status-joined",
+  "RECOVERY-status-recovered-second-case",
+  "SWAP-case-materials",
+  "SWAP-not-joined-affected-case",
+  "SWAP-numerical-evidence-inherited",
+  "SWAP-pressure-record-case-ids",
+  "SWAP-record-case-ids",
+  "SWAP-record-contributions",
+  "SWAP-record-members",
+  "SWAP-region-materials",
+  "TABLE-id-physics-1",
+  "TABLE-id-physics-1-exact-profile",
+  "TABLE-id-physics-source-1-exact-profile",
+  "TABLE-id-precision-1",
+  "TABLE-id-reserved-source-successor",
+  "TABLE-id-successor-2",
+  "TABLE-producer-version",
+  "TABLEBYTES-id-edit",
+  "TABLEBYTES-profile-edit",
+  "TABLEBYTES-trailing-space",
+  "TRANSPORT-forged-case-E",
+  "TRANSPORT-forged-region-E",
+  "TRANSPORT-member-extra-key",
+  "TRANSPORT-receipt",
+  "TRANSPORT-record-profile",
+  "TRANSPORT-record-swap",
+  "UNKNOWN-case-material",
+  "UNKNOWN-case-section-inherited",
+  "UNKNOWN-evidence",
+  "UNKNOWN-exact-case",
+  "UNKNOWN-excluded-source",
+  "UNKNOWN-fit-input",
+  "UNKNOWN-history",
+  "UNKNOWN-law-segment",
+  "UNKNOWN-material-point",
+  "UNKNOWN-maximum-coverage-inherited",
+  "UNKNOWN-member",
+  "UNKNOWN-member-state-contribution",
+  "UNKNOWN-override",
+  "UNKNOWN-pressure-region-contribution",
+  "UNKNOWN-record",
+  "UNKNOWN-reference-geometry",
+  "UNKNOWN-region",
+  "UNKNOWN-region-material",
+  "UNKNOWN-solve",
+  "UNKNOWN-source-recovery",
+  "UNKNOWN-stored-contribution",
+  "UNKNOWN-support-component",
+  "UNKNOWN-support-state-contribution"
+ ],
+ "accept_reject_split": [],
+ "rows": [
+  {
+   "id": "ACCEPT-connected-sparse",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-connected-sparse",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-connected-dense",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-connected-dense",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-pressure-sparse",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-pressure-sparse",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-pressure-dense",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-pressure-dense",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-member-order",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-member-order",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-contribution-order",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-contribution-order",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-support-component-order",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-support-component-order",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-record-order",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-record-order",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-record-provenance-text",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-record-provenance-text",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-not-joined-message-text",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-not-joined-message-text",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-source-block-unavailable-info",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-source-block-unavailable-info",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-unsolved-empty-namespace",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "ACCEPT-unsolved-empty-namespace",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-evidence",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-evidence",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-record",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-record",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-reference-geometry",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-reference-geometry",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-history",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-history",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-solve",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-solve",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-source-recovery",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-source-recovery",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-member",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-member",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-material-point",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-material-point",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-fit-input",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-fit-input",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-support-component",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-support-component",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-member-state-contribution",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-member-state-contribution",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-support-state-contribution",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-support-state-contribution",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-stored-contribution",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-stored-contribution",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-pressure-region-contribution",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-pressure-region-contribution",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-excluded-source",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-excluded-source",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-exact-case",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-exact-case",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-case-material",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-case-material",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-region",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-region",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-region-material",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-region-material",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-override",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_OVERRIDE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_OVERRIDE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-override",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_OVERRIDE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_OVERRIDE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-law-segment",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-law-segment",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "UNKNOWN-case-section-inherited",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_GEOMETRY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: geometry shape",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "UNKNOWN-case-section-inherited",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_GEOMETRY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: geometry shape",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "UNKNOWN-maximum-coverage-inherited",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_STRESS_COVERAGE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: maximum coverage",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "UNKNOWN-maximum-coverage-inherited",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_STRESS_COVERAGE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: maximum coverage",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "MISSING-load-reference-states",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-load-reference-states",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-contract-evidence",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-contract-evidence",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-record-source-recovery",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-record-source-recovery",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-projection-sha256",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-projection-sha256",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-history-kind",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-history-kind",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-solve-eigenload",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-solve-eigenload",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-source-recovery-code",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-source-recovery-code",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-member-null-optional",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-member-null-optional",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-member-datum",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-member-datum",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-material-point-flag",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-material-point-flag",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-fit-length-change",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-fit-length-change",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-support-state-source",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-support-state-source",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-member-state-refs",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-member-state-refs",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-support-state-value",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-support-state-value",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-stored-applied-magnitude",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-stored-applied-magnitude",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-pressure-region-factor",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-pressure-region-factor",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-excluded-reason",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-excluded-reason",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-case-material-basis",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-case-material-basis",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-case-resolved-eigenstrain",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-case-resolved-eigenstrain",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-region-temperature-basis",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "MISSING-region-temperature-basis",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-E",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-E",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-nu",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-nu",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-G-one-ulp",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-G-one-ulp",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-consistent-E-G",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-consistent-E-G",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-member-E-only",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-member-E-only",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-member-consistent-pair",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-member-consistent-pair",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-member-G",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-member-G",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-member-nu-range",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_RANGE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_RANGE",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-member-nu-range",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_RANGE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_RANGE",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-region-E",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-region-E",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-region-nu",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-region-nu",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-region-G",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-region-G",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-selection-kind",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-selection-kind",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-resolved-eigenstrain",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-resolved-eigenstrain",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-thermal-consumed",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-thermal-consumed",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-material-id",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-material-id",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-null-provenance",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_STRING_INVALID",
+   "python": "SOURCE_LOAD_REFERENCE_STRING_INVALID",
+   "parity": "exact"
+  },
+  {
+   "id": "FORGE-case-null-provenance",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_STRING_INVALID",
+   "python": "SOURCE_LOAD_REFERENCE_STRING_INVALID",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-record-case-ids",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-record-case-ids",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-record-members",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-record-members",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-case-materials",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-case-materials",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-region-materials",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-region-materials",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-record-contributions",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-record-contributions",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-pressure-record-case-ids",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-pressure-record-case-ids",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-not-joined-affected-case",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-not-joined-affected-case",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "SWAP-numerical-evidence-inherited",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_NUMERICAL_EVIDENCE_CASE_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: numerical diagnostic case scope",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "SWAP-numerical-evidence-inherited",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_NUMERICAL_EVIDENCE_CASE_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: numerical diagnostic case scope",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "NOTJOINED-missing-one",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "NOTJOINED-missing-one",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "NOTJOINED-missing-all",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "NOTJOINED-missing-all",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "NOTJOINED-severity",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "NOTJOINED-severity",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "NOTJOINED-extra-copy",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "NOTJOINED-extra-copy",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "NOTJOINED-wrong-id",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "NOTJOINED-wrong-id",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "parity": "exact"
+  },
+  {
+   "id": "RECOVERY-status-joined",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "parity": "exact"
+  },
+  {
+   "id": "RECOVERY-status-joined",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "parity": "exact"
+  },
+  {
+   "id": "RECOVERY-code",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "parity": "exact"
+  },
+  {
+   "id": "RECOVERY-code",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "parity": "exact"
+  },
+  {
+   "id": "RECOVERY-status-recovered-second-case",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "parity": "exact"
+  },
+  {
+   "id": "RECOVERY-status-recovered-second-case",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "parity": "exact"
+  },
+  {
+   "id": "RECEIPT-present",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "python": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "parity": "exact"
+  },
+  {
+   "id": "RECEIPT-present",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "parity": "exact"
+  },
+  {
+   "id": "RECEIPT-present-pressure",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "python": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "parity": "exact"
+  },
+  {
+   "id": "RECEIPT-present-pressure",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "parity": "exact"
+  },
+  {
+   "id": "RECEIPT-inside-evidence",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "RECEIPT-inside-evidence",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "CARRIER-present",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "python": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "CARRIER-present",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "parity": "exact"
+  },
+  {
+   "id": "PROFILE-exact",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "PROFILE-exact",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "PROFILE-source-successor",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "PROFILE-source-successor",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "PROFILE-preview",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "PROFILE-preview",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "PROFILE-record",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE",
+   "parity": "exact"
+  },
+  {
+   "id": "PROFILE-record",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE",
+   "parity": "exact"
+  },
+  {
+   "id": "PROFILE-exact-case-mode-inherited",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_CASE_PROFILE",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: case profile/material basis",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "PROFILE-exact-case-mode-inherited",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_CASE_PROFILE",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: case profile/material basis",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "PROFILE-physics-envelope-claims-load-profile",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "PROFILE-physics-envelope-claims-load-profile",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "CONTRACT-physics-envelope-relabelled",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "CONTRACT-physics-envelope-relabelled",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "CONTRACT-physics-envelope-relabelled-keeps-profile",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "CONTRACT-physics-envelope-relabelled-keeps-profile",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "CONTRACT-record-contract",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_CONTRACT",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_CONTRACT",
+   "parity": "exact"
+  },
+  {
+   "id": "CONTRACT-record-contract",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_CONTRACT",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_CONTRACT",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-id-successor-2",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "python": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-id-successor-2",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-id-reserved-source-successor",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "python": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-id-reserved-source-successor",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-id-physics-1",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-id-physics-1",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-id-physics-1-exact-profile",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-id-physics-1-exact-profile",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-id-physics-source-1-exact-profile",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-id-physics-source-1-exact-profile",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-id-precision-1",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_PHYSICS_CONTRACT_MISMATCH",
+   "parity": "declared_language_specific"
+  },
+  {
+   "id": "TABLE-id-precision-1",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-producer-version",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "python": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLE-producer-version",
+   "group": "cases",
+   "field": "validator",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "PHYSICS1-with-load-reference-states",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "parity": "exact"
+  },
+  {
+   "id": "PHYSICS1-with-load-reference-states",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "PHYSICS1-with-empty-load-reference-states",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "parity": "exact"
+  },
+  {
+   "id": "PHYSICS1-with-empty-load-reference-states",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-stored-contribution",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-stored-contribution",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-source-id-across-kinds",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-source-id-across-kinds",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-excluded-included",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP",
+   "python": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-excluded-included",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP",
+   "python": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-excluded",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP",
+   "python": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-excluded",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP",
+   "python": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-member",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-member",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-support-component",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-support-component",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-record",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-record",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-exact-case",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "DUPLICATE-exact-case",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_DUPLICATE",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-zero",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-zero",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-negative-zero",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-negative-zero",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-null",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-null",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-string",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-string",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-changed-without-magnitude",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-changed-without-magnitude",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-pressure-region-nonnull",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "parity": "exact"
+  },
+  {
+   "id": "FACTOR-pressure-region-nonnull",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+   "parity": "exact"
+  },
+  {
+   "id": "NONFINITE-member-E",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "parity": "declared_language_specific"
+  },
+  {
+   "id": "NONFINITE-member-E",
+   "group": "cases",
+   "field": "validator",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "parity": "declared_language_specific"
+  },
+  {
+   "id": "NONFINITE-factor",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "parity": "declared_language_specific"
+  },
+  {
+   "id": "NONFINITE-factor",
+   "group": "cases",
+   "field": "validator",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "parity": "declared_language_specific"
+  },
+  {
+   "id": "NONFINITE-row-value",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "parity": "declared_language_specific"
+  },
+  {
+   "id": "NONFINITE-row-value",
+   "group": "cases",
+   "field": "validator",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "parity": "declared_language_specific"
+  },
+  {
+   "id": "NONFINITE-region-pressure",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "parity": "declared_language_specific"
+  },
+  {
+   "id": "NONFINITE-region-pressure",
+   "group": "cases",
+   "field": "validator",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "parity": "declared_language_specific"
+  },
+  {
+   "id": "CLOSED-history-kind",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_HISTORY",
+   "python": "SOURCE_LOAD_REFERENCE_HISTORY",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-history-kind",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_HISTORY",
+   "python": "SOURCE_LOAD_REFERENCE_HISTORY",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-solve-mode-method",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-solve-mode-method",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-solve-mode-consistency",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-solve-mode-consistency",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-solve-boundary-text",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-solve-boundary-text",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-geometry-hash",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-geometry-hash",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-geometry-kind",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-geometry-kind",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-geometry-consistency",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_CONSISTENCY",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_CONSISTENCY",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-geometry-consistency",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_CONSISTENCY",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_CONSISTENCY",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-material-basis",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-material-basis",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-selection-kind",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION_KIND",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION_KIND",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-selection-kind",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION_KIND",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION_KIND",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-thermal-definition",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_THERMAL_DEFINITION",
+   "python": "SOURCE_LOAD_REFERENCE_THERMAL_DEFINITION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-thermal-definition",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_THERMAL_DEFINITION",
+   "python": "SOURCE_LOAD_REFERENCE_THERMAL_DEFINITION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-fit-kind",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_FIT_KIND",
+   "python": "SOURCE_LOAD_REFERENCE_FIT_KIND",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-fit-kind",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_FIT_KIND",
+   "python": "SOURCE_LOAD_REFERENCE_FIT_KIND",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-fit-strain-stretch",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-fit-strain-stretch",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-thermal-stretch",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-thermal-stretch",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-fit-length-change",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-fit-length-change",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-fit-none-input",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-fit-none-input",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-reference-basis",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-reference-basis",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-reference-basis-unknown",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-reference-basis-unknown",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-id-null",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-id-null",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-datum-stretch-null",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-datum-stretch-null",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-exact-point-without-point",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-exact-point-without-point",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-exact-point-fraction",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-exact-point-fraction",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-exact-point-temperature",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-exact-point-temperature",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-indices-order",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_INDICES",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_INDICES",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-indices-order",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_INDICES",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_INDICES",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-indices-integer",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_INTEGER_INVALID",
+   "python": "SOURCE_LOAD_REFERENCE_INTEGER_INVALID",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-indices-integer",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_INTEGER_INVALID",
+   "python": "SOURCE_LOAD_REFERENCE_INTEGER_INVALID",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-segment-use",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-segment-use",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-segment-sample",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-law-segment-sample",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-temperature-range",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+   "python": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-temperature-range",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+   "python": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-retained-flag-type",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_BOOLEAN_INVALID",
+   "python": "SOURCE_LOAD_REFERENCE_BOOLEAN_INVALID",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-retained-flag-type",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_BOOLEAN_INVALID",
+   "python": "SOURCE_LOAD_REFERENCE_BOOLEAN_INVALID",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-g-basis-text",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-g-basis-text",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-dof",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DOF",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DOF",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-dof",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DOF",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DOF",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-unit",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_UNIT",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_UNIT",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-unit",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_UNIT",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_UNIT",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-law",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_LAW",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_LAW",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-law",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_LAW",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_LAW",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-node",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_NODE",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_NODE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-node",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_NODE",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_NODE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-contribution-value",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-contribution-value",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-contribution-missing",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-support-contribution-missing",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-member-contribution-value",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-member-contribution-value",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-member-contribution-refs",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-member-contribution-refs",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-member-contribution-missing",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-member-contribution-missing",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-pressure-contribution-missing",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-pressure-contribution-missing",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-pressure-contribution-unowned",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-pressure-contribution-unowned",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-contribution-kind",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_KIND",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_KIND",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-contribution-kind",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_KIND",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_KIND",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-contribution-classification",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_CLASSIFICATION",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_CLASSIFICATION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-contribution-classification",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_CLASSIFICATION",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_CLASSIFICATION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-applied-magnitude",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-applied-magnitude",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE",
+   "python": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-excluded-classification",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EXCLUDED_CLASSIFICATION",
+   "python": "SOURCE_LOAD_REFERENCE_EXCLUDED_CLASSIFICATION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-excluded-classification",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_EXCLUDED_CLASSIFICATION",
+   "python": "SOURCE_LOAD_REFERENCE_EXCLUDED_CLASSIFICATION",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-member-removed",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-member-removed",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-record-removed",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-record-removed",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-exact-case-removed",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-exact-case-removed",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-connector",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED",
+   "python": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-connector",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED",
+   "python": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-region-temperature-basis",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-region-temperature-basis",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-region-case-moved",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-region-case-moved",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-unsolved-with-evidence",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_UNSOLVED_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_UNSOLVED_EVIDENCE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-unsolved-with-evidence",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_UNSOLVED_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_UNSOLVED_EVIDENCE",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-numerical-basis-type",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_NUMERICAL_CASE_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_NUMERICAL_CASE_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-numerical-basis-type",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_NUMERICAL_CASE_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_NUMERICAL_CASE_BASIS",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-record-provenance-empty",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_STRING_INVALID",
+   "python": "SOURCE_LOAD_REFERENCE_STRING_INVALID",
+   "parity": "exact"
+  },
+  {
+   "id": "CLOSED-record-provenance-empty",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_STRING_INVALID",
+   "python": "SOURCE_LOAD_REFERENCE_STRING_INVALID",
+   "parity": "exact"
+  },
+  {
+   "id": "INHERITED-maximum-unit",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_UNIT_CONTRADICTION: pipe_elastic_normal_stress_maximum_v2",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: physical signature",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "INHERITED-maximum-unit",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_UNIT_CONTRADICTION: pipe_elastic_normal_stress_maximum_v2",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: physical signature",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "INHERITED-extrema-gap",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EXTREMA_BOUNDS",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: extrema bounds",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "INHERITED-extrema-gap",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EXTREMA_BOUNDS",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: extrema bounds",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "INHERITED-rhs-method",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_RHS_METHOD",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: pressure RHS basis",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "INHERITED-rhs-method",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_RHS_METHOD",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: pressure RHS basis",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "INHERITED-headline",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_HEADLINE_RESULT_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: stress maximum headline binding",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "INHERITED-headline",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_HEADLINE_RESULT_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: stress maximum headline binding",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "INHERITED-section-diameter",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_GEOMETRY_SOURCE_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: source annulus",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "INHERITED-section-diameter",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_GEOMETRY_SOURCE_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: source annulus",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "INHERITED-region-pressure-rhs",
+   "group": "cases",
+   "field": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_RHS_PRESSURE_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: RHS source pressure bits",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "INHERITED-region-pressure-rhs",
+   "group": "cases",
+   "field": "validator",
+   "rust": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_RHS_PRESSURE_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: RHS source pressure bits",
+   "parity": "inherited_leading_code"
+  },
+  {
+   "id": "TABLEBYTES-pinned",
+   "group": "table_cases",
+   "field": "table",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLEBYTES-id-edit",
+   "group": "table_cases",
+   "field": "table",
+   "rust": "SOURCE_LOAD_REFERENCE_TABLE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_TABLE_HASH",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLEBYTES-profile-edit",
+   "group": "table_cases",
+   "field": "table",
+   "rust": "SOURCE_LOAD_REFERENCE_TABLE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_TABLE_HASH",
+   "parity": "exact"
+  },
+  {
+   "id": "TABLEBYTES-trailing-space",
+   "group": "table_cases",
+   "field": "table",
+   "rust": "SOURCE_LOAD_REFERENCE_TABLE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_TABLE_HASH",
+   "parity": "exact"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-connected-sparse",
+   "group": "transport_cases",
+   "field": "transport",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-connected-dense",
+   "group": "transport_cases",
+   "field": "transport",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-pressure-sparse",
+   "group": "transport_cases",
+   "field": "transport",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-pressure-dense",
+   "group": "transport_cases",
+   "field": "transport",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TRANSPORT-member-extra-key",
+   "group": "transport_cases",
+   "field": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_TRANSPORT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_TRANSPORT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "TRANSPORT-record-profile",
+   "group": "transport_cases",
+   "field": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_TRANSPORT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_TRANSPORT_SHAPE",
+   "parity": "exact"
+  },
+  {
+   "id": "TRANSPORT-forged-case-E",
+   "group": "transport_cases",
+   "field": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "TRANSPORT-forged-region-E",
+   "group": "transport_cases",
+   "field": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "TRANSPORT-record-swap",
+   "group": "transport_cases",
+   "field": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "parity": "exact"
+  },
+  {
+   "id": "TRANSPORT-no-diagnostic-binding",
+   "group": "transport_cases",
+   "field": "transport",
+   "rust": "accept",
+   "python": "accept",
+   "parity": "exact"
+  },
+  {
+   "id": "TRANSPORT-receipt",
+   "group": "transport_cases",
+   "field": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "parity": "exact"
+  }
+ ]
+}

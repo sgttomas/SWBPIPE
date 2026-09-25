@@ -1,59 +1,118 @@
 {
-  "session": "2",
-  "host_capability_observed": "No in-process Agent/subagent spawning tool in this host. SendMessage exists without an agent listing; mcp create_session spawns a separate cloud container that cannot read or write this checkout.",
-  "delegation_performed": "none",
-  "consequence": "All checkpoint-1 work executed sequentially by this manager. Independent review of manager-authored bytes (thermal.rs tests, case_state/mod.rs, lib.rs module declaration) requires a separate non-author reviewer arranged by ROOT.",
-  "non_author_checks_by_manager": [
-    "Recomputed reference_cases.json (authored by session-1 TASK membrane_backcheck) from its own inputs with an independent standard-library script; generator not read or imported.",
-    "Read-review of material.rs (authored by session-1 TASK exact_authoring) and the thermal.rs kernel body (authored by session-1 TASK composite_receipt, interrupted)."
+ "session": "2",
+ "host_capability_observed": "No in-process Agent/subagent spawning tool in this host. SendMessage exists without an agent listing; mcp create_session spawns a separate cloud container that cannot read or write this checkout.",
+ "delegation_performed": "none",
+ "consequence": "All checkpoint-1 work executed sequentially by this manager. Independent review of manager-authored bytes (thermal.rs tests, case_state/mod.rs, lib.rs module declaration) requires a separate non-author reviewer arranged by ROOT.",
+ "non_author_checks_by_manager": [
+  "Recomputed reference_cases.json (authored by session-1 TASK membrane_backcheck) from its own inputs with an independent standard-library script; generator not read or imported.",
+  "Read-review of material.rs (authored by session-1 TASK exact_authoring) and the thermal.rs kernel body (authored by session-1 TASK composite_receipt, interrupted)."
+ ],
+ "authorship_in_checkpoint_1": {
+  "core/product_physics/src/case_state/material.rs": "session-1 TASK exact_authoring; unchanged bytes (sha256 1ae8ac99...); compiled and tested here",
+  "core/product_physics/src/case_state/thermal.rs lines 1-689 (kernel)": "session-1 TASK composite_receipt; unchanged bytes",
+  "core/product_physics/src/case_state/thermal.rs tests module": "this manager",
+  "core/product_physics/src/case_state/mod.rs": "this manager",
+  "core/product_physics/src/lib.rs (+4 lines module declaration)": "this manager",
+  "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json": "session-1 TASK membrane_backcheck; unchanged bytes"
+ },
+ "delegation_channel_correction": {
+  "received_from": "ROOT via SendMessage during checkpoint 2",
+  "mechanism": "Children in this host cannot spawn subagents (ROOT probe). TASK children are spawned by ROOT on this manager's request, with the full TASK role; parent-of-record for integration and direction is this manager (id a3675abb28ada0834); each TASK reports to this manager via SendMessage and sends its final report to ROOT. This manager continues a worker by SendMessage to the id ROOT supplies.",
+  "checkpoint_1_reviewer": "Independent non-author TASK reviewer spawned by ROOT on a frozen snapshot of be1b9294a in a separate worktree; reports to ROOT, findings forwarded to this manager.",
+  "requests_made": [
+   {
+    "task": "CP2 public-API runtime-test author",
+    "requested_via": "SendMessage to main (ROOT)",
+    "spawned_by": "ROOT, full TASK role, 'do not delegate further'",
+    "task_sendmessage_id": "acfae78c40c4525d2",
+    "parent_of_record": "this manager (a3675abb28ada0834)",
+    "brief": "LOAD_STATE_IMPLEMENTATION/CP2_RUNTIME_TESTS/BRIEF.md sha256 4cf1ae3d8f2dceffefaefde5ee489cda9bf53423d0bb4b47c49ae514669c9b77 (ROOT verified)",
+    "wire": "LOAD_STATE_IMPLEMENTATION/CP2_WIRE.md sha256 81a7adbaa212517c518a61c5ab54cd7d9444adaee6b7f0dbec8b7b6efd168996",
+    "exclusive_writes": [
+     "core/product_physics/tests/load_reference_state_runtime.rs",
+     "core/product_physics/tests/fixtures/load_reference_states/models/ (new files)",
+     "LOAD_STATE_IMPLEMENTATION/CP2_RUNTIME_TESTS/"
+    ],
+    "resources": "syntax checks until manager signals facade compiles; then own test binary only, -j 1, CARGO_TARGET_DIR=/home/user/cargo-targets/loadstate/product_physics_tests",
+    "status": "complete: RETURN.md; test file d5be0bd8; 20/20 both modes on pinned run and manager gate runs"
+   },
+   {
+    "task": "Additive analytical-reference extension and fixture README (review SF1/SF2/N6)",
+    "requested_via": "SendMessage to main (ROOT)",
+    "brief": "LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/CP2_EXTENSION/BRIEF.md sha256 fe864ffa5afc6695068920fdb84329aca82d142a411c81a321c91e6aeeb5c3d8",
+    "exclusive_writes": [
+     "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (additive only)",
+     "core/product_physics/tests/fixtures/load_reference_states/README.md",
+     "LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/CP2_EXTENSION/"
+    ],
+    "status": "complete: RETURN.md sha256 42676c024fae64ca28225c89f11f41ef62b4d6e90b9de92e36fcc2bcc7834158; fixture 4d7b7777 (additive, 2656 paths preserved); README fe8149c0",
+    "task_sendmessage_id": "a3bb458a695b524aa",
+    "parent_of_record": "this manager (a3675abb28ada0834)"
+   },
+   {
+    "task": "CP2 independent non-author review",
+    "spawned_by": "ROOT",
+    "task_sendmessage_id": "a4dab75b42f89fabc",
+    "candidate": "404cd9c6b (frozen snapshot worktree)",
+    "brief": "LOAD_STATE_IMPLEMENTATION/REVIEW_CHECKPOINT_2/BRIEF.md sha256 3480b70df9f25ae244ea50778c175d869ad7c825732a094e42cc05c3c16e9388 (ROOT verified)",
+    "reports": "findings to this manager by SendMessage; final report to ROOT",
+    "status": "complete: REVIEW_CHECKPOINT_2/RETURN.md sha256 9b91c1ff665b0211853b10b7b276b68f531500193b9b9608f8dc126773ca7a7a, verdict FINDINGS (SF-A + N-1..N-6); ROOT committed d92ca3b7c; ROOT dispositions received and repaired in CP3"
+   },
+   {
+    "task": "CP3 load-reference-1 readers (result_export + analysis_runs)",
+    "spawned_by": "ROOT, full TASK role, do not delegate further",
+    "task_sendmessage_id": "a04de5953be29226b",
+    "parent_of_record": "this manager (a3675abb28ada0834)",
+    "brief": "LOAD_STATE_IMPLEMENTATION/CP3_READERS/BRIEF.md sha256 d9ab20b4b87e6c6e09887dac4260a321c5fede42ebbeff896e64f7b425174883 (ROOT verified)",
+    "resources": "Rust -j 1 in result_export only; own target deleted after; python /home/user/dec025-venv/bin/python",
+    "status": "partial: CP3_READERS/RETURN.md sha256 75f6f0a0b1643c6510b5862d6e57bc77503e22f4bcb42079f64d9d46131520bd; readers done with Rust/Python parity; stress-neutral outputs blocked by host permission denial of package_v0_3.py; released to hand back to ROOT"
+   },
+   {
+    "task": "CP3 0.4.0 load/reference-state schemas",
+    "spawned_by": "ROOT, full TASK role, do not delegate further",
+    "task_sendmessage_id": "a95af25cf935fa27b",
+    "parent_of_record": "this manager (a3675abb28ada0834)",
+    "brief": "LOAD_STATE_IMPLEMENTATION/CP3_SCHEMAS/BRIEF.md sha256 c1eede81b5b40dc62115ff47f367d9ba3aed7ffdd1744538ffd2c742523fa274 (ROOT verified)",
+    "resources": "Python only; /home/user/dec025-venv/bin/python",
+    "status": "complete: CP3_SCHEMAS/RETURN.md; load_reference_state.schema.json 640fd447...; carriers results c303219b / analysis_run 2045d365 / stress_neutral 80acc90b; 527/527 new tests; released to hand back to ROOT by the manager"
+   }
+  ]
+ },
+ "checkpoint_1_review": {
+  "record": "LOAD_STATE_IMPLEMENTATION/REVIEW_CHECKPOINT_1/RETURN.md (committed by ROOT as 5511596af)",
+  "verdict": "FINDINGS, none blocking",
+  "repairs": "SF1 SF2 SF3 N1 N2 N3 N4 N5 applied by this manager in CP2; N6 delegated; N7 CP2 scope"
+ },
+ "cp2_return": "CP2 returned to ROOT via handback; ROOT resumed this manager into checkpoint 3 (least-coupled work first)",
+ "cp3": {
+  "boundary_rule_from_root": "Only ROOT widens a TASK's write boundary; the manager asks ROOT, and ROOT messages the TASK. A manager grant to READERS for core/handoff/stress_neutral/package_v0_3.py was correctly declined by the TASK; ROOT confirmed the grant directly; the host permission system then denied the write ('Modify Shared Resources'). Neither the TASK nor the manager nor ROOT routed around that denial; ROOT put it to the user.",
+  "relays": [
+   {
+    "from": "a95af25cf935fa27b",
+    "to": "a04de5953be29226b",
+    "what": "frozen schemas/load_reference_state.schema.json sha256 640fd4477ac2c84f3c02268cfccc3958f51ee6508b3a67e5538b52d84899af65"
+   },
+   {
+    "from": "manager",
+    "to": "a04de5953be29226b",
+    "what": "regenerated load-reference-1 raw envelope hashes (915965a4, 3824035c, 71be3e4f, b46eeb8a) with the byte-exact message-only proof"
+   }
   ],
-  "authorship_in_checkpoint_1": {
-    "core/product_physics/src/case_state/material.rs": "session-1 TASK exact_authoring; unchanged bytes (sha256 1ae8ac99...); compiled and tested here",
-    "core/product_physics/src/case_state/thermal.rs lines 1-689 (kernel)": "session-1 TASK composite_receipt; unchanged bytes",
-    "core/product_physics/src/case_state/thermal.rs tests module": "this manager",
-    "core/product_physics/src/case_state/mod.rs": "this manager",
-    "core/product_physics/src/lib.rs (+4 lines module declaration)": "this manager",
-    "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json": "session-1 TASK membrane_backcheck; unchanged bytes"
-  },
-  "delegation_channel_correction": {
-    "received_from": "ROOT via SendMessage during checkpoint 2",
-    "mechanism": "Children in this host cannot spawn subagents (ROOT probe). TASK children are spawned by ROOT on this manager's request, with the full TASK role; parent-of-record for integration and direction is this manager (id a3675abb28ada0834); each TASK reports to this manager via SendMessage and sends its final report to ROOT. This manager continues a worker by SendMessage to the id ROOT supplies.",
-    "checkpoint_1_reviewer": "Independent non-author TASK reviewer spawned by ROOT on a frozen snapshot of be1b9294a in a separate worktree; reports to ROOT, findings forwarded to this manager.",
-    "requests_made": [
-      {
-        "task": "CP2 public-API runtime-test author",
-        "requested_via": "SendMessage to main (ROOT)",
-        "spawned_by": "ROOT, full TASK role, 'do not delegate further'",
-        "task_sendmessage_id": "acfae78c40c4525d2",
-        "parent_of_record": "this manager (a3675abb28ada0834)",
-        "brief": "LOAD_STATE_IMPLEMENTATION/CP2_RUNTIME_TESTS/BRIEF.md sha256 4cf1ae3d8f2dceffefaefde5ee489cda9bf53423d0bb4b47c49ae514669c9b77 (ROOT verified)",
-        "wire": "LOAD_STATE_IMPLEMENTATION/CP2_WIRE.md sha256 81a7adbaa212517c518a61c5ab54cd7d9444adaee6b7f0dbec8b7b6efd168996",
-        "exclusive_writes": [
-          "core/product_physics/tests/load_reference_state_runtime.rs",
-          "core/product_physics/tests/fixtures/load_reference_states/models/ (new files)",
-          "LOAD_STATE_IMPLEMENTATION/CP2_RUNTIME_TESTS/"
-        ],
-        "resources": "syntax checks until manager signals facade compiles; then own test binary only, -j 1, CARGO_TARGET_DIR=/home/user/cargo-targets/loadstate/product_physics_tests",
-        "status": "complete: RETURN.md; test file d5be0bd8; 20/20 both modes on pinned run and manager gate runs"
-      },
-      {
-        "task": "Additive analytical-reference extension and fixture README (review SF1/SF2/N6)",
-        "requested_via": "SendMessage to main (ROOT)",
-        "brief": "LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/CP2_EXTENSION/BRIEF.md sha256 fe864ffa5afc6695068920fdb84329aca82d142a411c81a321c91e6aeeb5c3d8",
-        "exclusive_writes": [
-          "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (additive only)",
-          "core/product_physics/tests/fixtures/load_reference_states/README.md",
-          "LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/CP2_EXTENSION/"
-        ],
-        "status": "complete: RETURN.md sha256 42676c024fae64ca28225c89f11f41ef62b4d6e90b9de92e36fcc2bcc7834158; fixture 4d7b7777 (additive, 2656 paths preserved); README fe8149c0",
-        "task_sendmessage_id": "a3bb458a695b524aa",
-        "parent_of_record": "this manager (a3675abb28ada0834)"
-      }
-    ]
-  },
-  "checkpoint_1_review": {
-    "record": "LOAD_STATE_IMPLEMENTATION/REVIEW_CHECKPOINT_1/RETURN.md (committed by ROOT as 5511596af)",
-    "verdict": "FINDINGS, none blocking",
-    "repairs": "SF1 SF2 SF3 N1 N2 N3 N4 N5 applied by this manager in CP2; N6 delegated; N7 CP2 scope"
-  }
+  "requests_made": [
+   {
+    "task": "CP2 runtime-test TASK extension 1 (review N-4 public-route coverage)",
+    "requested_via": "SendMessage to main (ROOT)",
+    "task_sendmessage_id": "acfae78c40c4525d2 (resumed by ROOT)",
+    "brief": "LOAD_STATE_IMPLEMENTATION/CP2_RUNTIME_TESTS/EXTENSION_1/BRIEF.md sha256 f453bcec39a5535acccabfc52833741da6f7868939b976da6dcd18a4af6c6a1d",
+    "exclusive_writes": [
+     "core/product_physics/tests/load_reference_state_runtime_extension.rs (new)",
+     "core/product_physics/tests/fixtures/load_reference_states/models/ (new files)",
+     "LOAD_STATE_IMPLEMENTATION/CP2_RUNTIME_TESTS/EXTENSION_1/"
+    ],
+    "status": "complete: EXTENSION_1/RETURN.md sha256 4fe967100c264a24f6195ce35775baa946fba9c041530a41b870a3bd57c2915b; extension 5febacba... 9/9 after ROOT-resumed test-7 revision to CP3_WIRE_ADDENDUM; CP2 file unchanged 20/20"
+   }
+  ],
+  "wider_consultation": "none beyond the role, briefs, wire records and the review record",
+  "stress_neutral": "host classifier refused the READERS write; owner explicitly approved; ROOT applied the three additive edits itself; manager generated the outputs as integration work at ROOT's direction"
+ }
 }

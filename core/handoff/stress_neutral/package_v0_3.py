@@ -21,7 +21,7 @@ from core.analysis_runs.compatibility import (
     _source_contract, _semantic, validate_analysis_run_v0_3, PRECISION_CONTRACT_ID,
     PRECISION_CONTRACT_SHA256, _source_basis_reference, _source_reference_text,
     _validate_source_reference_fields, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID,
-    PHYSICS_SOURCE_CONTRACT_ID,
+    PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID,
 )
 
 VERSION = "0.3.0"
@@ -29,8 +29,8 @@ PROFILE = "openpipestress_jcs_ijson_v1"
 EXPORT_PROFILE = "ops.stress_neutral.v3"
 MEMBERS = ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"]
 SEMANTIC_CONTRACT_REF = {"object_type": "ExternalReference", "ref": "fixtures/results/semantic_contract_v0_3_precision_1.json"}
-SUPPORTED_METHODS = {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID}
-PHYSICAL_METHODS = {PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID}
+SUPPORTED_METHODS = {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID}
+PHYSICAL_METHODS = {PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID}
 RECEIPT_METHODS = {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID}
 
 

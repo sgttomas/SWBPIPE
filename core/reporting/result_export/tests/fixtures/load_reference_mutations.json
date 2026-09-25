@@ -1,0 +1,2550 @@
+{
+ "description": "Shared adversarial cases for the load-reference-1 readers (Rust result_export tests/load_reference_contract.rs and Python tests/test_load_reference_readers.py). 'dispatch' is the raw-dispatch error (Rust semantic_contract::for_source, Python compatibility._source_contract); 'validator' is validate_load_reference_evidence called directly and defaults to 'dispatch'. A value ending in PHYSICS_EVIDENCE is compared by leading code, the inherited physics-1 detail being language-specific. Language-specific keys (dispatch_rust, dispatch_python, validator_rust, validator_python) replace a shared value where the languages cannot agree, with a note. Transport cases run validate_load_reference_transport_metadata on {schema_version, producer, numerical_quality, formulation_basis, contract_evidence}.",
+ "sources": {
+  "connected-sparse": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "connected-dense": "fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json",
+  "pressure-sparse": "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json",
+  "pressure-dense": "fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json",
+  "physics-sparse": "fixtures/results/physics_connected_mechanics_sparse.json"
+ },
+ "cases": [
+  {
+   "id": "ACCEPT-connected-sparse",
+   "source": "connected-sparse",
+   "ops": [],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-connected-dense",
+   "source": "connected-dense",
+   "ops": [],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-pressure-sparse",
+   "source": "pressure-sparse",
+   "ops": [],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-pressure-dense",
+   "source": "pressure-dense",
+   "ops": [],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-member-order",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/contract_evidence/load_reference_states/0/members/0",
+     "with": "/contract_evidence/load_reference_states/0/members/1"
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-contribution-order",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/contract_evidence/load_reference_states/0/contributions/0",
+     "with": "/contract_evidence/load_reference_states/0/contributions/4"
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-support-component-order",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/contract_evidence/load_reference_states/0/support_components/0",
+     "with": "/contract_evidence/load_reference_states/0/support_components/1"
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-record-order",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/contract_evidence/load_reference_states/0",
+     "with": "/contract_evidence/load_reference_states/1"
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-record-provenance-text",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/provenance",
+     "value": "another invented provenance"
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-not-joined-message-text",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
+      "id": "diagnostic:load-state:case-cold:source-recovery-not-joined"
+     },
+     "key": "message",
+     "value": "regenerated message text"
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-source-block-unavailable-info",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:source-blocks:case-cold:unavailable",
+      "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
+      "severity": "info",
+      "message": "retained-source recovery unavailable; ordinary route published",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:cold"
+      ]
+     }
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-unsolved-empty-namespace",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/status/mechanics",
+     "value": "MODEL_INCOMPLETE"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states",
+     "value": []
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases",
+     "value": []
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure",
+     "value": []
+    },
+    {
+     "op": "set",
+     "path": "/results",
+     "value": []
+    },
+    {
+     "op": "set",
+     "path": "/summary/max_open_formula_stress",
+     "value": null
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "UNKNOWN-evidence",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-record",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-reference-geometry",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/reference_geometry/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-history",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/history/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-solve",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-source-recovery",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-member",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-material-point",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-fit-input",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/1/fit_input/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_FIT_BINDING"
+  },
+  {
+   "id": "UNKNOWN-support-component",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/support_components/0/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-member-state-contribution",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/0/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-support-state-contribution",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/2/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-stored-contribution",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-pressure-region-contribution",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/1/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-excluded-source",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/excluded_sources/0/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-exact-case",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CASE_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-case-material",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-region",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REGION_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-region-material",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/materials/0/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-override",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/analysis_basis_override",
+     "value": {
+      "reason": "r",
+      "provenance": "p",
+      "extra": 1
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_OVERRIDE_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-law-segment",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 293.15,
+       "end_k": 293.15,
+       "extra": 1
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_SHAPE"
+  },
+  {
+   "id": "UNKNOWN-case-section-inherited",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_sections/0/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
+  },
+  {
+   "id": "UNKNOWN-maximum-coverage-inherited",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/stress_maximum_coverage/unreviewed_extra",
+     "value": "x"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
+  },
+  {
+   "id": "MISSING-load-reference-states",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+   "id": "MISSING-contract-evidence",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+   "id": "MISSING-record-source-recovery",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE"
+  },
+  {
+   "id": "MISSING-projection-sha256",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/reference_geometry/projection_sha256"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE"
+  },
+  {
+   "id": "MISSING-history-kind",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/history/kind"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE"
+  },
+  {
+   "id": "MISSING-solve-eigenload",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/solve/eigenload"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE"
+  },
+  {
+   "id": "MISSING-source-recovery-code",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery/code"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE"
+  },
+  {
+   "id": "MISSING-member-null-optional",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/members/0/analysis_basis_override"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE"
+  },
+  {
+   "id": "MISSING-member-datum",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/members/0/coefficient_datum_k"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE"
+  },
+  {
+   "id": "MISSING-material-point-flag",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/retained_G_ignored"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE"
+  },
+  {
+   "id": "MISSING-fit-length-change",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/members/1/fit_input/length_change_m"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_FIT_BINDING"
+  },
+  {
+   "id": "MISSING-support-state-source",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/support_components/0/physical_state_source"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE"
+  },
+  {
+   "id": "MISSING-member-state-refs",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/contributions/0/consumed_input_refs"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+   "id": "MISSING-support-state-value",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/contributions/2/value"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+   "id": "MISSING-stored-applied-magnitude",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/applied_magnitude"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+   "id": "MISSING-pressure-region-factor",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/contributions/1/factor"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+   "id": "MISSING-excluded-reason",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/excluded_sources/0/reason"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE"
+  },
+  {
+   "id": "MISSING-case-material-basis",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/exact_cases/0/material_basis"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CASE_SHAPE"
+  },
+  {
+   "id": "MISSING-case-resolved-eigenstrain",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/resolved_eigenstrain"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE"
+  },
+  {
+   "id": "MISSING-region-temperature-basis",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/pressure/0/materials/0/temperature_basis"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE"
+  },
+  {
+   "id": "FORGE-case-E",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/E_pa",
+     "value": 199000000000.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-case-nu",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/nu",
+     "value": 0.29
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-case-G-one-ulp",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/G_pa",
+     "value": 76923076923.07693
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-case-consistent-E-G",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/E_pa",
+     "value": 199000000000.0
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/G_pa",
+     "value": 76538461538.46153
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-member-E-only",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/selected_E_pa",
+     "value": 199000000000.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING"
+  },
+  {
+   "id": "FORGE-member-consistent-pair",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/selected_E_pa",
+     "value": 199000000000.0
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/derived_G_pa",
+     "value": 76538461538.46153
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/E_pa",
+     "value": 199000000000.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-member-G",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/derived_G_pa",
+     "value": 1.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING"
+  },
+  {
+   "id": "FORGE-member-nu-range",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/selected_nu",
+     "value": 0.5
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_RANGE"
+  },
+  {
+   "id": "FORGE-region-E",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/materials/0/E_pa",
+     "value": 199000000000.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-region-nu",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/materials/0/nu",
+     "value": 0.29
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-region-G",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/materials/0/G_pa",
+     "value": 76923076923.07693
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-case-selection-kind",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/material_selection_kind",
+     "value": "temperature_interpolation"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-case-resolved-eigenstrain",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/resolved_eigenstrain",
+     "value": 0.5
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-case-thermal-consumed",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/thermal_consumed",
+     "value": true
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/alpha_per_kelvin",
+     "value": 1e-05
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-case-material-id",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/material_id",
+     "value": "material:other"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "FORGE-case-null-provenance",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/provenance",
+     "value": null
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_STRING_INVALID"
+  },
+  {
+   "id": "SWAP-record-case-ids",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/load_case_id",
+     "value": "case:hot"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/load_case_id",
+     "value": "case:cold"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "SWAP-record-members",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/contract_evidence/load_reference_states/0/members",
+     "with": "/contract_evidence/load_reference_states/1/members"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "SWAP-case-materials",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials",
+     "with": "/contract_evidence/exact_cases/1/pipe_materials"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "SWAP-region-materials",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/contract_evidence/pressure/0/materials",
+     "with": "/contract_evidence/pressure/1/materials"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING"
+  },
+  {
+   "id": "SWAP-record-contributions",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "with": "/contract_evidence/load_reference_states/1/contributions"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING"
+  },
+  {
+   "id": "SWAP-pressure-record-case-ids",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/load_case_id",
+     "value": "case:hot-pressure"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/load_case_id",
+     "value": "case:cold-pressure"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "SWAP-not-joined-affected-case",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
+      "id": "diagnostic:load-state:case-cold:source-recovery-not-joined"
+     },
+     "key": "affected_refs",
+     "value": [
+      "case:hot"
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+   "id": "SWAP-numerical-evidence-inherited",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/numerical_quality/cases/0/evidence_refs",
+     "with": "/numerical_quality/cases/1/evidence_refs"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
+  },
+  {
+   "id": "NOTJOINED-missing-one",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
+      "id": "diagnostic:load-state:case-cold:source-recovery-not-joined"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+   "id": "NOTJOINED-missing-all",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "remove_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+   "id": "NOTJOINED-severity",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
+      "id": "diagnostic:load-state:case-cold:source-recovery-not-joined"
+     },
+     "key": "severity",
+     "value": "warning"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+   "id": "NOTJOINED-extra-copy",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "append_copy_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
+      "id": "diagnostic:load-state:case-cold:source-recovery-not-joined"
+     },
+     "set": {
+      "id": "diagnostic:load-state:case-cold:source-recovery-not-joined-2"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+   "id": "NOTJOINED-wrong-id",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
+      "id": "diagnostic:load-state:case-cold:source-recovery-not-joined"
+     },
+     "key": "id",
+     "value": "diagnostic:load-state:case:cold:source-recovery-not-joined"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+   "id": "RECOVERY-status-joined",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery/status",
+     "value": "joined"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY"
+  },
+  {
+   "id": "RECOVERY-code",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery/code",
+     "value": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY"
+  },
+  {
+   "id": "RECOVERY-status-recovered-second-case",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/source_recovery/status",
+     "value": "recovered"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY"
+  },
+  {
+   "id": "RECEIPT-present",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery",
+     "value": {}
+    }
+   ],
+   "dispatch": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "validator": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+   "id": "RECEIPT-present-pressure",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery",
+     "value": {
+      "receipt_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "body": {}
+     }
+    }
+   ],
+   "dispatch": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "validator": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+   "id": "RECEIPT-inside-evidence",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/source_block_recovery",
+     "value": {}
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+   "id": "CARRIER-present",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/carrier_evidence",
+     "value": {}
+    }
+   ],
+   "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "validator": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+   "id": "PROFILE-exact",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "exact_straight_pressure_v2"
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "validator": "accept"
+  },
+  {
+   "id": "PROFILE-source-successor",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "resolved_straight_load_state_source_v1"
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "validator": "accept"
+  },
+  {
+   "id": "PROFILE-preview",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "product_preview_mechanics_v1"
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "validator": "accept"
+  },
+  {
+   "id": "PROFILE-record",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/profile",
+     "value": "exact_straight_pressure_v2"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE"
+  },
+  {
+   "id": "PROFILE-exact-case-mode-inherited",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/profile_mode",
+     "value": "resolved_straight_load_state_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
+  },
+  {
+   "id": "PROFILE-physics-envelope-claims-load-profile",
+   "source": "physics-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "resolved_straight_load_state_v1"
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "validator": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+   "id": "CONTRACT-physics-envelope-relabelled",
+   "source": "physics-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "resolved_straight_load_state_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+   "id": "CONTRACT-physics-envelope-relabelled-keeps-profile",
+   "source": "physics-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-1"
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "validator": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+   "id": "CONTRACT-record-contract",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contract",
+     "value": "openpipestress.load_reference_state/2.0.0"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_CONTRACT"
+  },
+  {
+   "id": "TABLE-id-successor-2",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-2"
+    }
+   ],
+   "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "validator": "accept"
+  },
+  {
+   "id": "TABLE-id-reserved-source-successor",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+    }
+   ],
+   "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "validator": "accept"
+  },
+  {
+   "id": "TABLE-id-physics-1",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/physics-1"
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "validator": "accept"
+  },
+  {
+   "id": "TABLE-id-physics-1-exact-profile",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/physics-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "exact_straight_pressure_v2"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "validator": "accept"
+  },
+  {
+   "id": "TABLE-id-physics-source-1-exact-profile",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/physics-source-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "exact_straight_pressure_v2"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "validator": "accept"
+  },
+  {
+   "id": "TABLE-id-precision-1",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/precision-1"
+    }
+   ],
+   "dispatch": null,
+   "validator": "accept",
+   "dispatch_rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "dispatch_python": "SOURCE_PHYSICS_CONTRACT_MISMATCH",
+   "note": "inherited header order for precision-1 (unchanged by this TASK); both readers reject"
+  },
+  {
+   "id": "TABLE-producer-version",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/component_version",
+     "value": "0.3.0"
+    }
+   ],
+   "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "validator": "accept"
+  },
+  {
+   "id": "PHYSICS1-with-load-reference-states",
+   "source": "physics-sparse",
+   "ops": [
+    {
+     "op": "graft",
+     "source": "connected-sparse",
+     "from": "/contract_evidence/load_reference_states",
+     "path": "/contract_evidence/load_reference_states"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS"
+  },
+  {
+   "id": "PHYSICS1-with-empty-load-reference-states",
+   "source": "physics-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states",
+     "value": []
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS"
+  },
+  {
+   "id": "DUPLICATE-stored-contribution",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "copy_append",
+     "from": "/contract_evidence/load_reference_states/0/contributions/4",
+     "path": "/contract_evidence/load_reference_states/0/contributions"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE"
+  },
+  {
+   "id": "DUPLICATE-source-id-across-kinds",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/source_id",
+     "value": "member_state:pipe:first"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE"
+  },
+  {
+   "id": "DUPLICATE-excluded-included",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/excluded_sources/0/source_id",
+     "value": "load:transverse:case:cold"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP"
+  },
+  {
+   "id": "DUPLICATE-excluded",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "copy_append",
+     "from": "/contract_evidence/load_reference_states/0/excluded_sources/0",
+     "path": "/contract_evidence/load_reference_states/0/excluded_sources"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP"
+  },
+  {
+   "id": "DUPLICATE-member",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "copy_append",
+     "from": "/contract_evidence/load_reference_states/0/members/0",
+     "path": "/contract_evidence/load_reference_states/0/members"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_DUPLICATE"
+  },
+  {
+   "id": "DUPLICATE-support-component",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "copy_append",
+     "from": "/contract_evidence/load_reference_states/0/support_components/0",
+     "path": "/contract_evidence/load_reference_states/0/support_components"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DUPLICATE"
+  },
+  {
+   "id": "DUPLICATE-record",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "copy_append",
+     "from": "/contract_evidence/load_reference_states/0",
+     "path": "/contract_evidence/load_reference_states"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE"
+  },
+  {
+   "id": "DUPLICATE-exact-case",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "copy_append",
+     "from": "/contract_evidence/exact_cases/0",
+     "path": "/contract_evidence/exact_cases"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CASE_DUPLICATE"
+  },
+  {
+   "id": "FACTOR-zero",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/factor",
+     "value": 0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+   "id": "FACTOR-negative-zero",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/factor",
+     "value": -0.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+   "id": "FACTOR-null",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/factor",
+     "value": null
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+   "id": "FACTOR-string",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/factor",
+     "value": "1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+   "id": "FACTOR-changed-without-magnitude",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/factor",
+     "value": 2.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE"
+  },
+  {
+   "id": "FACTOR-pressure-region-nonnull",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/1/factor",
+     "value": 1.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+   "id": "NONFINITE-member-E",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "nonfinite",
+     "path": "/contract_evidence/load_reference_states/0/members/0/selected_E_pa",
+     "value": "Infinity"
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "JSON_PARSE_REJECTED",
+   "dispatch_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "validator_rust": "JSON_PARSE_REJECTED",
+   "validator_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "note": "non-finite numbers are unrepresentable in serde_json Value; Rust rejects at the JSON text boundary"
+  },
+  {
+   "id": "NONFINITE-factor",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "nonfinite",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/factor",
+     "value": "NaN"
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "JSON_PARSE_REJECTED",
+   "dispatch_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "validator_rust": "JSON_PARSE_REJECTED",
+   "validator_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "note": "non-finite numbers are unrepresentable in serde_json Value; Rust rejects at the JSON text boundary"
+  },
+  {
+   "id": "NONFINITE-row-value",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "nonfinite",
+     "path": "/results/0/value",
+     "value": "-Infinity"
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "JSON_PARSE_REJECTED",
+   "dispatch_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "validator_rust": "JSON_PARSE_REJECTED",
+   "validator_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "note": "non-finite numbers are unrepresentable in serde_json Value; Rust rejects at the JSON text boundary"
+  },
+  {
+   "id": "NONFINITE-region-pressure",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "nonfinite",
+     "path": "/contract_evidence/pressure/0/p_pa",
+     "value": "Infinity"
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "JSON_PARSE_REJECTED",
+   "dispatch_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "validator_rust": "JSON_PARSE_REJECTED",
+   "validator_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "note": "non-finite numbers are unrepresentable in serde_json Value; Rust rejects at the JSON text boundary"
+  },
+  {
+   "id": "CLOSED-history-kind",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/history/kind",
+     "value": "continuation"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_HISTORY"
+  },
+  {
+   "id": "CLOSED-solve-mode-method",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/requested_mode",
+     "value": "dense_scrutiny"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE"
+  },
+  {
+   "id": "CLOSED-solve-mode-consistency",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/requested_mode",
+     "value": "dense_scrutiny"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/recovery_method",
+     "value": "ordinary_dense_structural_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY"
+  },
+  {
+   "id": "CLOSED-solve-boundary-text",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/boundary",
+     "value": "prescribed"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE"
+  },
+  {
+   "id": "CLOSED-geometry-hash",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/reference_geometry/projection_sha256",
+     "value": "ABC"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY"
+  },
+  {
+   "id": "CLOSED-geometry-kind",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/reference_geometry/kind",
+     "value": "deformed_geometry"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY"
+  },
+  {
+   "id": "CLOSED-geometry-consistency",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/reference_geometry/projection_sha256",
+     "value": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_CONSISTENCY"
+  },
+  {
+   "id": "CLOSED-material-basis",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/material_basis",
+     "value": "base_material_common_E_nu"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS"
+  },
+  {
+   "id": "CLOSED-selection-kind",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/material_selection_kind",
+     "value": "library_lookup"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION_KIND"
+  },
+  {
+   "id": "CLOSED-thermal-definition",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/thermal_definition",
+     "value": "secant"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_THERMAL_DEFINITION"
+  },
+  {
+   "id": "CLOSED-fit-kind",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/fit_kind",
+     "value": "fit_up"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_FIT_KIND"
+  },
+  {
+   "id": "CLOSED-fit-strain-stretch",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/1/fit_strain",
+     "value": -0.002
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING"
+  },
+  {
+   "id": "CLOSED-thermal-stretch",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/thermal_stretch",
+     "value": 1.1
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING"
+  },
+  {
+   "id": "CLOSED-fit-length-change",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/1/fit_input/length_change_m",
+     "value": -0.002
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_FIT_BINDING"
+  },
+  {
+   "id": "CLOSED-fit-none-input",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/fit_input",
+     "value": {
+      "strain": 0.0
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_FIT_BINDING"
+  },
+  {
+   "id": "CLOSED-reference-basis",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/reference_basis",
+     "value": "direct_strain_reference"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS"
+  },
+  {
+   "id": "CLOSED-reference-basis-unknown",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/reference_basis",
+     "value": "installed"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS"
+  },
+  {
+   "id": "CLOSED-law-id-null",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/expansion_law_id",
+     "value": null
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING"
+  },
+  {
+   "id": "CLOSED-law-datum-stretch-null",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/installation_datum_stretch",
+     "value": null
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING"
+  },
+  {
+   "id": "CLOSED-exact-point-without-point",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points",
+     "value": []
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION"
+  },
+  {
+   "id": "CLOSED-exact-point-fraction",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/interpolation_fraction",
+     "value": 0.5
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION"
+  },
+  {
+   "id": "CLOSED-exact-point-temperature",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/material_selection_temperature_k",
+     "value": 300.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION"
+  },
+  {
+   "id": "CLOSED-law-indices-order",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_point_indices",
+     "value": [
+      2,
+      1
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_INDICES"
+  },
+  {
+   "id": "CLOSED-law-indices-integer",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_point_indices",
+     "value": [
+      1.5
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_INTEGER_INVALID"
+  },
+  {
+   "id": "CLOSED-law-segment-use",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "extrapolation",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 293.15,
+       "end_k": 373.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+   "id": "CLOSED-law-segment-sample",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "interpolation_sample",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 293.15,
+       "end_k": 373.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+   "id": "CLOSED-temperature-range",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": -1.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE"
+  },
+  {
+   "id": "CLOSED-retained-flag-type",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/retained_G_ignored",
+     "value": "false"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_BOOLEAN_INVALID"
+  },
+  {
+   "id": "CLOSED-g-basis-text",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/G_basis",
+     "value": "retained G"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_BASIS"
+  },
+  {
+   "id": "CLOSED-support-dof",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/support_components/0/dof",
+     "value": "RX"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DOF"
+  },
+  {
+   "id": "CLOSED-support-unit",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/support_components/0/unit",
+     "value": "rad"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_UNIT"
+  },
+  {
+   "id": "CLOSED-support-law",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/support_components/0/law_kind",
+     "value": "spring"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_LAW"
+  },
+  {
+   "id": "CLOSED-support-node",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/support_components/1/node_id",
+     "value": "node:other"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_NODE"
+  },
+  {
+   "id": "CLOSED-support-contribution-value",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/2/value",
+     "value": 1.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING"
+  },
+  {
+   "id": "CLOSED-support-contribution-missing",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/contributions/2"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_COVERAGE"
+  },
+  {
+   "id": "CLOSED-member-contribution-value",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/0/value",
+     "value": 0.5
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING"
+  },
+  {
+   "id": "CLOSED-member-contribution-refs",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/0/consumed_input_refs",
+     "value": [
+      "reference:installed:pipe:first",
+      "case:hot:element_state:pipe:first"
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING"
+  },
+  {
+   "id": "CLOSED-member-contribution-missing",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/contributions/0"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_COVERAGE"
+  },
+  {
+   "id": "CLOSED-pressure-contribution-missing",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/contributions/1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE"
+  },
+  {
+   "id": "CLOSED-pressure-contribution-unowned",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": "pressure_region:region:none",
+      "owner_kind": "pressure_region",
+      "classification": "pressure_eigen_and_closure",
+      "factor": null
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE"
+  },
+  {
+   "id": "CLOSED-contribution-kind",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/owner_kind",
+     "value": "base_motion"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_KIND"
+  },
+  {
+   "id": "CLOSED-contribution-classification",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/classification",
+     "value": "excluded"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_CLASSIFICATION"
+  },
+  {
+   "id": "CLOSED-applied-magnitude",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/contributions/4/applied_magnitude",
+     "value": -999.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE"
+  },
+  {
+   "id": "CLOSED-excluded-classification",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/excluded_sources/0/classification",
+     "value": "ordinary_applied"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EXCLUDED_CLASSIFICATION"
+  },
+  {
+   "id": "CLOSED-member-removed",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0/members/1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_COVERAGE"
+  },
+  {
+   "id": "CLOSED-record-removed",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE"
+  },
+  {
+   "id": "CLOSED-exact-case-removed",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/exact_cases/1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE"
+  },
+  {
+   "id": "CLOSED-connector",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/connector",
+     "value": [
+      {}
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED"
+  },
+  {
+   "id": "CLOSED-region-temperature-basis",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/materials/0/temperature_basis",
+     "value": {
+      "selection": "base_material"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS"
+  },
+  {
+   "id": "CLOSED-region-case-moved",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/load_case_id",
+     "value": "case:missing"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE"
+  },
+  {
+   "id": "CLOSED-unsolved-with-evidence",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/status/mechanics",
+     "value": "MODEL_INCOMPLETE"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_UNSOLVED_EVIDENCE"
+  },
+  {
+   "id": "CLOSED-numerical-basis-type",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/numerical_quality/cases/0/basis_ref/ref_type",
+     "value": "combination"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_NUMERICAL_CASE_BASIS"
+  },
+  {
+   "id": "CLOSED-record-provenance-empty",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/provenance",
+     "value": ""
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_STRING_INVALID"
+  },
+  {
+   "id": "INHERITED-maximum-unit",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/results",
+     "match": {
+      "kind": "pipe_elastic_normal_stress_maximum_v2"
+     },
+     "key": "unit",
+     "value": "MPa"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
+  },
+  {
+   "id": "INHERITED-extrema-gap",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/certified_gap_pa",
+     "value": 1000000000.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
+  },
+  {
+   "id": "INHERITED-rhs-method",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pressure_rhs_assembly/method",
+     "value": "source_block_recovery_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
+  },
+  {
+   "id": "INHERITED-headline",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/summary/max_open_formula_stress/value",
+     "value": 1.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
+  },
+  {
+   "id": "INHERITED-section-diameter",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_sections/0/outside_diameter_m",
+     "value": 0.3
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
+  },
+  {
+   "id": "INHERITED-region-pressure-rhs",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/p_pa",
+     "value": 1.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
+  }
+ ],
+ "table_cases": [
+  {
+   "id": "TABLEBYTES-pinned",
+   "find": null,
+   "replace": null,
+   "expect": "accept"
+  },
+  {
+   "id": "TABLEBYTES-id-edit",
+   "find": "0.3.0/load-reference-1",
+   "replace": "0.3.0/load-reference-2",
+   "expect": "SOURCE_LOAD_REFERENCE_TABLE_HASH"
+  },
+  {
+   "id": "TABLEBYTES-profile-edit",
+   "find": "\"resolved_straight_load_state_v1\"",
+   "replace": "\"exact_straight_pressure_v2\"",
+   "expect": "SOURCE_LOAD_REFERENCE_TABLE_HASH"
+  },
+  {
+   "id": "TABLEBYTES-trailing-space",
+   "find": "\n}",
+   "replace": "\n} ",
+   "expect": "SOURCE_LOAD_REFERENCE_TABLE_HASH"
+  }
+ ],
+ "transport_cases": [
+  {
+   "id": "TRANSPORT-ACCEPT-connected-sparse",
+   "source": "connected-sparse",
+   "ops": [],
+   "expect": "accept"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-connected-dense",
+   "source": "connected-dense",
+   "ops": [],
+   "expect": "accept"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-pressure-sparse",
+   "source": "pressure-sparse",
+   "ops": [],
+   "expect": "accept"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-pressure-dense",
+   "source": "pressure-dense",
+   "ops": [],
+   "expect": "accept"
+  },
+  {
+   "id": "TRANSPORT-member-extra-key",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/extra",
+     "value": 1
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_TRANSPORT_SHAPE"
+  },
+  {
+   "id": "TRANSPORT-record-profile",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/profile",
+     "value": "exact_straight_pressure_v2"
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_TRANSPORT_SHAPE"
+  },
+  {
+   "id": "TRANSPORT-forged-case-E",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/E_pa",
+     "value": 199000000000.0
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "TRANSPORT-forged-region-E",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/materials/0/E_pa",
+     "value": 199000000000.0
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING"
+  },
+  {
+   "id": "TRANSPORT-record-swap",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/load_case_id",
+     "value": "case:hot-pressure"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/load_case_id",
+     "value": "case:cold-pressure"
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "TRANSPORT-no-diagnostic-binding",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+     }
+    }
+   ],
+   "expect": "accept"
+  },
+  {
+   "id": "TRANSPORT-receipt",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery",
+     "value": {}
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  }
+ ]
+}

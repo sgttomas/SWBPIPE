@@ -1,0 +1,20 @@
+J7_eigen_closure_skipped True 1 False
+J8_member_pair_formation_unchecked True 1 False
+{
+ "J7_eigen_closure_skipped": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test source_receipt::load_state_tests::source_closure_refuses_live_resolved_operands_that_did_not_reach_formation ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "J8_member_pair_formation_unchecked": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test source_receipt::load_state_tests::source_closure_refuses_live_resolved_operands_that_did_not_reach_formation ... FAILED"
+  ],
+  "compile_error": false
+ }
+}

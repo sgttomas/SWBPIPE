@@ -229,7 +229,8 @@
             "openpipestress.result_semantics/0.3.0/precision-1",
             "openpipestress.result_semantics/0.3.0/physics-1",
             "openpipestress.result_semantics/0.3.0/source-blocks-1",
-            "openpipestress.result_semantics/0.3.0/physics-source-1"
+            "openpipestress.result_semantics/0.3.0/physics-source-1",
+            "openpipestress.result_semantics/0.3.0/load-reference-1"
           ]
         }
       }
@@ -350,7 +351,8 @@
         "profile_id": {
           "enum": [
             "product_preview_mechanics_v1",
-            "exact_straight_pressure_v2"
+            "exact_straight_pressure_v2",
+            "resolved_straight_load_state_v1"
           ]
         },
         "limitations": {
@@ -379,7 +381,8 @@
             "openpipestress.result_semantics/0.3.0/precision-1",
             "openpipestress.result_semantics/0.3.0/physics-1",
             "openpipestress.result_semantics/0.3.0/source-blocks-1",
-            "openpipestress.result_semantics/0.3.0/physics-source-1"
+            "openpipestress.result_semantics/0.3.0/physics-source-1",
+            "openpipestress.result_semantics/0.3.0/load-reference-1"
           ]
         }
       }
@@ -397,7 +400,8 @@
             "openpipestress.result_semantics/0.3.0/precision-1",
             "openpipestress.result_semantics/0.3.0/physics-1",
             "openpipestress.result_semantics/0.3.0/source-blocks-1",
-            "openpipestress.result_semantics/0.3.0/physics-source-1"
+            "openpipestress.result_semantics/0.3.0/physics-source-1",
+            "openpipestress.result_semantics/0.3.0/load-reference-1"
           ]
         },
         "sha256": {
@@ -3125,6 +3129,102 @@
         "source_block_recovery",
         "source_annotations"
       ]
+    },
+    {
+      "properties": {
+        "producer": {
+          "properties": {
+            "semantic_contract_id": {
+              "const": "openpipestress.result_semantics/0.3.0/load-reference-1"
+            }
+          }
+        },
+        "semantic_contract_ref": {
+          "properties": {
+            "ref_id": {
+              "const": "openpipestress.result_semantics/0.3.0/load-reference-1"
+            }
+          }
+        },
+        "semantic_contract": {
+          "properties": {
+            "id": {
+              "const": "openpipestress.result_semantics/0.3.0/load-reference-1"
+            },
+            "sha256": {
+              "const": "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"
+            }
+          }
+        },
+        "formulation_basis": {
+          "properties": {
+            "profile_id": {
+              "const": "resolved_straight_load_state_v1"
+            }
+          }
+        },
+        "contract_evidence": {
+          "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence"
+        },
+        "export_profile": {
+          "required": [
+            "csv_encoding",
+            "csv_row_order"
+          ],
+          "properties": {
+            "csv_encoding": {
+              "const": "utf-8"
+            },
+            "csv_row_order": {
+              "const": "unicode_scalar_value_result_id"
+            }
+          }
+        },
+        "manifest": {
+          "properties": {
+            "package_members": {
+              "prefixItems": [
+                {},
+                {
+                  "properties": {
+                    "checksum": {
+                      "properties": {
+                        "canonicalization": {
+                          "const": "utf8_csv_record_lf_v1"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "checksums": {
+              "prefixItems": [
+                {
+                  "properties": {
+                    "canonicalization": {
+                      "const": "utf8_csv_record_lf_v1"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "contract_evidence",
+        "source_annotations"
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "source_block_recovery"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

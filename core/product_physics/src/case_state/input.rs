@@ -2,10 +2,67 @@
 //!
 //! Every object denies unknown fields and every union is tagged, so an
 //! unrecognized field or discriminant is rejected at the typed boundary rather
-//! than disappearing. Reviewed branches that this first capability does not
+//! than disappearing. Field-free branches are empty struct variants: serde's
+//! internally tagged unit variants would otherwise ignore sibling keys. Reviewed branches that this first capability does not
 //! implement still parse and then block with a targeted diagnostic.
 use crate::Quantity;
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
+
+/// The shared `Quantity` stays open for pre-0.4 documents; every quantity in
+/// this namespace is closed, so an extra key is refused rather than dropped.
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ClosedQuantity {
+    value: f64,
+    unit: String,
+}
+
+fn closed_quantity<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Quantity, D::Error> {
+    let ClosedQuantity { value, unit } = ClosedQuantity::deserialize(deserializer)?;
+    Ok(Quantity { value, unit })
+}
+
+fn closed_optional_quantity<'de, D: Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<Quantity>, D::Error> {
+    Ok(Option::<ClosedQuantity>::deserialize(deserializer)?
+        .map(|ClosedQuantity { value, unit }| Quantity { value, unit }))
+}
+
+/// A new-namespace key as authored: absent, explicit `null`, or a value. An
+/// explicit null is authored presence; it is never silently equal to absence.
+#[derive(Debug, Clone, Default)]
+pub enum Authored<T> {
+    #[default]
+    Absent,
+    Null,
+    Value(T),
+}
+
+impl<T> Authored<T> {
+    pub fn value(&self) -> Option<&T> {
+        match self {
+            Self::Value(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn is_authored(&self) -> bool {
+        !matches!(self, Self::Absent)
+    }
+    pub fn is_null(&self) -> bool {
+        matches!(self, Self::Null)
+    }
+}
+
+impl<'de, T: Deserialize<'de>> Deserialize<'de> for Authored<T> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        // Reached only when the key is present; `#[serde(default)]` is Absent.
+        Ok(match Option::<T>::deserialize(deserializer)? {
+            None => Self::Null,
+            Some(value) => Self::Value(value),
+        })
+    }
+}
 
 /// Model-level reference configuration: the stress-free installed state.
 #[derive(Debug, Clone, Deserialize)]
@@ -23,7 +80,7 @@ pub struct ReferenceConfigurationInput {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum GeometryRefInput {
     /// The model's own normalized nodes, connectivity and pipe frames.
-    AuthoredModelGeometry,
+    AuthoredModelGeometry {},
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -39,10 +96,11 @@ pub struct MemberReferenceInput {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum ReferenceBasisInput {
     TemperatureReference {
+        #[serde(deserialize_with = "closed_quantity")]
         installation_temperature: Quantity,
     },
     /// Interval-only thermal routes; supplies no absolute temperature.
-    DirectStrainReference,
+    DirectStrainReference {},
 }
 
 /// Absence of fit is an explicit selection, never an inferred default.
@@ -50,11 +108,13 @@ pub enum ReferenceBasisInput {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum FitReferenceInput {
     #[serde(rename = "none")]
-    NoFit,
+    NoFit {},
     NaturalLengthChange {
+        #[serde(deserialize_with = "closed_quantity")]
         length_change: Quantity,
     },
     FitStrain {
+        #[serde(deserialize_with = "closed_quantity")]
         strain: Quantity,
     },
 }
@@ -65,24 +125,28 @@ pub enum FitReferenceInput {
 pub enum ExpansionLawInput {
     EngineeringSecant {
         id: String,
+        #[serde(deserialize_with = "closed_quantity")]
         datum_temperature: Quantity,
         data: SecantDataInput,
         provenance: String,
     },
     EngineeringDilation {
         id: String,
+        #[serde(deserialize_with = "closed_quantity")]
         datum_temperature: Quantity,
         data: DilationDataInput,
         provenance: String,
     },
     DifferentialPerDatumLength {
         id: String,
+        #[serde(deserialize_with = "closed_quantity")]
         datum_temperature: Quantity,
         data: CoefficientTableInput,
         provenance: String,
     },
     LogarithmicPerCurrentLength {
         id: String,
+        #[serde(deserialize_with = "closed_quantity")]
         datum_temperature: Quantity,
         data: CoefficientTableInput,
         provenance: String,
@@ -124,6 +188,7 @@ pub enum DilationInterpolation {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum SecantDataInput {
     Constant {
+        #[serde(deserialize_with = "closed_quantity")]
         coefficient: Quantity,
     },
     Table {
@@ -153,14 +218,18 @@ pub enum CoefficientTableInput {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CoefficientPointInput {
+    #[serde(deserialize_with = "closed_quantity")]
     pub temperature: Quantity,
+    #[serde(deserialize_with = "closed_quantity")]
     pub coefficient: Quantity,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DilationPointInput {
+    #[serde(deserialize_with = "closed_quantity")]
     pub temperature: Quantity,
+    #[serde(deserialize_with = "closed_quantity")]
     pub dilation: Quantity,
 }
 
@@ -182,7 +251,7 @@ pub struct AnalysisStateInput {
 pub struct ElementStateInput {
     pub pipe_ref: String,
     /// Actual physical temperature; never inferred from a property point.
-    #[serde(default)]
+    #[serde(default, deserialize_with = "closed_optional_quantity")]
     pub operating_temperature: Option<Quantity>,
     pub material_selection: MaterialSelectionInput,
     pub thermal_state: ThermalStateInput,
@@ -218,6 +287,7 @@ pub enum MaterialSelectionInput {
     },
     TemperatureInterpolation {
         material_ref: String,
+        #[serde(deserialize_with = "closed_quantity")]
         temperature: Quantity,
         interpolation: InterpolationPolicy,
         extrapolation: ExtrapolationPolicy,
@@ -237,12 +307,15 @@ pub enum ThermalStateInput {
         provenance: String,
     },
     ExplicitIntervalStrain {
+        #[serde(deserialize_with = "closed_quantity")]
         strain: Quantity,
         interval_reference: String,
         provenance: String,
     },
     ConstantAlphaInterval {
+        #[serde(deserialize_with = "closed_quantity")]
         coefficient: Quantity,
+        #[serde(deserialize_with = "closed_quantity")]
         temperature_change: Quantity,
         coefficient_meaning: CoefficientMeaning,
         provenance: String,
@@ -275,8 +348,8 @@ pub struct SupportStateInput {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum ParticipationInput {
-    ActiveModelDevice,
-    Inactive,
+    ActiveModelDevice {},
+    Inactive {},
     LockedEquivalentSupport {
         components: Vec<LockedComponentInput>,
     },
@@ -293,6 +366,7 @@ pub struct LockedComponentInput {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum PositionSourceInput {
     Entered {
+        #[serde(deserialize_with = "closed_quantity")]
         value: Quantity,
     },
     PredecessorValue {
@@ -313,6 +387,7 @@ pub enum MotionMeaning {
 #[serde(deny_unknown_fields)]
 pub struct MotionInput {
     pub dof: String,
+    #[serde(deserialize_with = "closed_quantity")]
     pub value: Quantity,
     pub meaning: MotionMeaning,
 }
@@ -321,10 +396,13 @@ pub struct MotionInput {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum DeviceReferenceInput {
     ForceAtReference {
+        #[serde(deserialize_with = "closed_quantity")]
         reference_position: Quantity,
+        #[serde(deserialize_with = "closed_quantity")]
         force: Quantity,
     },
     UnloadedReference {
+        #[serde(deserialize_with = "closed_quantity")]
         reference_position: Quantity,
     },
 }
@@ -340,5 +418,5 @@ pub struct LoadSourceInput {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum HistoryInput {
-    IndependentEquilibrium,
+    IndependentEquilibrium {},
 }

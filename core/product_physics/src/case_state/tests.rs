@@ -709,3 +709,298 @@ fn product_route_reproduces_single_and_multi_segment_free_length_references() {
         close(tip, expected_strain, 1.0);
     }
 }
+
+#[test]
+fn closed_namespace_refuses_sibling_keys_on_field_free_branches_and_quantities() {
+    use super::input::{
+        AnalysisStateInput, FitReferenceInput, MemberReferenceInput, ReferenceConfigurationInput,
+        SupportStateInput,
+    };
+    let q = json!({"value": 1.0e-3, "unit": "m"});
+    // Field-free branches parse only with exactly their discriminant.
+    assert!(serde_json::from_value::<FitReferenceInput>(json!({"kind": "none"})).is_ok());
+    for fit in [
+        json!({"kind": "none", "strain": {"value": 1.0e-4, "unit": "1"}}),
+        json!({"kind": "none", "length_change": q}),
+        json!({"kind": "natural_length_change", "length_change": q, "strain": {"value": 0, "unit": "1"}}),
+        json!({"kind": "natural_length_change", "length_change": {"value": 1.0e-3, "unit": "m", "note": "x"}}),
+    ] {
+        assert!(
+            serde_json::from_value::<FitReferenceInput>(fit.clone()).is_err(),
+            "{fit}"
+        );
+    }
+    let member = |basis: Value| json!({"pipe_ref": "pipe:a", "basis": basis, "fit": {"kind": "none"}, "provenance": "invented"});
+    assert!(serde_json::from_value::<MemberReferenceInput>(member(
+        json!({"kind": "direct_strain_reference"})
+    ))
+    .is_ok());
+    assert!(serde_json::from_value::<MemberReferenceInput>(member(
+        json!({"kind": "direct_strain_reference", "installation_temperature": {"value": 20, "unit": "degC"}})
+    ))
+    .is_err());
+    let configuration = |geometry: Value| json!({"id": "ref:a", "geometry_ref": geometry, "member_references": [], "provenance": "invented"});
+    assert!(
+        serde_json::from_value::<ReferenceConfigurationInput>(configuration(
+            json!({"kind": "authored_model_geometry"})
+        ))
+        .is_ok()
+    );
+    assert!(
+        serde_json::from_value::<ReferenceConfigurationInput>(configuration(
+            json!({"kind": "authored_model_geometry", "projection_sha256": "0"})
+        ))
+        .is_err()
+    );
+    let support =
+        |participation: Value| json!({"support_ref": "support:a", "participation": participation});
+    for (participation, ok) in [
+        (json!({"kind": "active_model_device"}), true),
+        (json!({"kind": "inactive"}), true),
+        (
+            json!({"kind": "active_model_device", "components": []}),
+            false,
+        ),
+        (json!({"kind": "inactive", "reason": "x"}), false),
+    ] {
+        assert_eq!(
+            serde_json::from_value::<SupportStateInput>(support(participation.clone())).is_ok(),
+            ok,
+            "{participation}"
+        );
+    }
+    let state = |history: Value, motion_value: Value| {
+        json!({"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "ref:a",
+            "element_states": [], "support_states": [{"support_ref": "support:a", "participation": {"kind": "active_model_device"},
+                "boundary_motion": [{"dof": "UX", "value": motion_value, "meaning": "absolute_reference_displacement"}]}],
+            "load_sources": [], "history": history, "provenance": "invented"})
+    };
+    assert!(serde_json::from_value::<AnalysisStateInput>(state(
+        json!({"kind": "independent_equilibrium"}),
+        q.clone()
+    ))
+    .is_ok());
+    assert!(serde_json::from_value::<AnalysisStateInput>(state(
+        json!({"kind": "independent_equilibrium", "predecessor": "case:a"}),
+        q.clone()
+    ))
+    .is_err());
+    assert!(serde_json::from_value::<AnalysisStateInput>(state(
+        json!({"kind": "independent_equilibrium"}),
+        json!({"value": 1.0e-3, "unit": "m", "tolerance": 0})
+    ))
+    .is_err());
+    // The shared pre-0.4 quantity keeps its open historical wire.
+    assert!(serde_json::from_value::<crate::Quantity>(
+        json!({"value": 1, "unit": "m", "note": "x"})
+    )
+    .is_ok());
+}
+
+fn refused(request: Value) -> String {
+    match run_linear_static_preview_value_with_mode(request, PreviewSolverMode::DenseScrutiny) {
+        Err(message) => message,
+        Ok(envelope) => panic!(
+            "accepted with status {} and blocking {:?}",
+            envelope.status.mechanics,
+            blocking_codes(&envelope)
+        ),
+    }
+}
+
+#[test]
+fn public_route_refuses_sibling_fields_on_every_field_free_branch_and_quantity() {
+    let base = two_bar();
+    assert_eq!(
+        run(&base, PreviewSolverMode::DenseScrutiny)
+            .status
+            .mechanics,
+        "MECHANICS_SOLVED"
+    );
+    let published = run(&base, PreviewSolverMode::DenseScrutiny);
+    let actual_hash = published.contract_evidence.as_ref().unwrap()["load_reference_states"][0]
+        ["reference_geometry"]["projection_sha256"]
+        .clone();
+    let member = "/model/reference_configurations/0/member_references/0";
+    let state = "/model/load_cases/0/analysis_state";
+    let probes: Vec<(&str, String, Value)> = vec![
+        (
+            "fit none + length_change",
+            format!("{member}/fit"),
+            json!({"kind": "none", "length_change": {"value": -2, "unit": "mm"}}),
+        ),
+        (
+            "fit none + strain",
+            format!("{member}/fit"),
+            json!({"kind": "none", "strain": {"value": 1.0e-4, "unit": "1"}}),
+        ),
+        (
+            "direct_strain_reference + installation_temperature",
+            format!("{member}/basis"),
+            json!({"kind": "direct_strain_reference", "installation_temperature": {"value": 20, "unit": "degC"}}),
+        ),
+        (
+            "independent_equilibrium + predecessor",
+            format!("{state}/history"),
+            json!({"kind": "independent_equilibrium", "predecessor_case_ref": "case:before", "predecessor_state_hash": "0"}),
+        ),
+        (
+            "active_model_device + components",
+            format!("{state}/support_states/1/participation"),
+            json!({"kind": "active_model_device", "components": [{"dof": "UX",
+                "position_source": {"kind": "entered", "value": {"value": 0, "unit": "m"}}}]}),
+        ),
+        (
+            "geometry_ref + forged hash",
+            "/model/reference_configurations/0/geometry_ref".into(),
+            json!({"kind": "authored_model_geometry", "projection_sha256": "0".repeat(64)}),
+        ),
+        // No authored geometry hash exists in 1.0.0: even the actual one is refused.
+        (
+            "geometry_ref + actual hash",
+            "/model/reference_configurations/0/geometry_ref".into(),
+            json!({"kind": "authored_model_geometry", "projection_sha256": actual_hash}),
+        ),
+        (
+            "motion quantity + unknown key",
+            format!("{state}/support_states/0/boundary_motion/0/value"),
+            json!({"value": 0.1, "unit": "mm", "basis": "guessed"}),
+        ),
+        (
+            "operating temperature quantity + unknown key",
+            format!("{state}/element_states/0/operating_temperature"),
+            json!({"value": 20, "unit": "degC", "basis": "guessed"}),
+        ),
+    ];
+    for (name, pointer, value) in probes {
+        let mut request = base.clone();
+        let (parent, key) = pointer.rsplit_once('/').unwrap();
+        request
+            .pointer_mut(parent)
+            .unwrap_or_else(|| panic!("{name}"))[key] = value;
+        let message = refused(request);
+        assert!(message.contains("unknown field"), "{name}: {message}");
+    }
+}
+
+#[test]
+fn an_explicit_null_new_key_is_authored_presence_in_every_version() {
+    let mut legacy = two_bar();
+    legacy["model"]["schema_version"] = json!("0.3.0");
+    legacy["model"]
+        .as_object_mut()
+        .unwrap()
+        .remove("reference_configurations");
+    legacy["model"]["load_cases"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("analysis_state");
+    assert!(
+        !blocking_codes(&run(&legacy, PreviewSolverMode::DenseScrutiny))
+            .contains(&"LOAD_STATE_CONTRACT_VERSION_MISMATCH".to_string())
+    );
+    let mut request_laws = material();
+    request_laws["expansion_laws"] = json!([]);
+    let mut request_null = material();
+    request_null["expansion_laws"] = Value::Null;
+    for (name, pointer, value) in [
+        (
+            "model reference_configurations null",
+            "/model/reference_configurations",
+            Value::Null,
+        ),
+        (
+            "case analysis_state null",
+            "/model/load_cases/0/analysis_state",
+            Value::Null,
+        ),
+        (
+            "material expansion_laws null",
+            "/model/materials/0/expansion_laws",
+            Value::Null,
+        ),
+        (
+            "request material expansion_laws",
+            "/materials",
+            json!([request_laws]),
+        ),
+        (
+            "request material expansion_laws null",
+            "/materials",
+            json!([request_null]),
+        ),
+    ] {
+        let mut request = legacy.clone();
+        let (parent, key) = pointer.rsplit_once('/').unwrap();
+        let parent = if parent.is_empty() {
+            &mut request
+        } else {
+            request.pointer_mut(parent).unwrap()
+        };
+        parent[key] = value;
+        let envelope = run(&request, PreviewSolverMode::DenseScrutiny);
+        assert!(
+            blocking_codes(&envelope).contains(&"LOAD_STATE_CONTRACT_VERSION_MISMATCH".to_string()),
+            "{name}: {:?}",
+            blocking_codes(&envelope)
+        );
+    }
+    // A malformed legacy key is a typed whole-document refusal, not ignored.
+    let mut malformed = legacy.clone();
+    malformed["model"]["reference_configurations"] = json!({"id": "reference:installed"});
+    assert!(refused(malformed).contains("invalid type"));
+    // In 0.4.0 an explicit null must be omitted or given its value.
+    let mut current = two_bar();
+    current["model"]["materials"][0]["expansion_laws"] = Value::Null;
+    assert!(
+        blocking_codes(&run(&current, PreviewSolverMode::DenseScrutiny))
+            .contains(&"LOAD_STATE_EXPLICIT_NULL_UNSUPPORTED".to_string())
+    );
+}
+
+#[test]
+fn material_records_keep_typed_duplicate_key_refusal_with_positions() {
+    let text = serde_json::to_string(&two_bar()).unwrap();
+    let key = r#""elastic_modulus":{"unit":"GPa","value":200}"#;
+    assert!(text.contains(key), "{text}");
+    let duplicated = text.replacen(key, &format!("{key},{}", key.replace("200", "1")), 1);
+    let error = serde_json::from_str::<crate::LinearStaticPreviewRequest>(&duplicated)
+        .unwrap_err()
+        .to_string();
+    assert!(
+        error.contains("duplicate field `elastic_modulus`"),
+        "{error}"
+    );
+    assert!(error.contains("line 1 column"), "{error}");
+    // Request-level records: the request materials precede the model text.
+    let model = serde_json::to_string(&two_bar()["model"]).unwrap();
+    let record = serde_json::to_string(&material()).unwrap();
+    let doubled = record.replacen(key, &format!("{key},{}", key.replace("200", "1")), 1);
+    assert_ne!(doubled, record);
+    let text = format!(r#"{{"materials":[{doubled}],"model":{model}}}"#);
+    let error = serde_json::from_str::<crate::LinearStaticPreviewRequest>(&text)
+        .unwrap_err()
+        .to_string();
+    assert!(
+        error.contains("duplicate field `elastic_modulus`"),
+        "{error}"
+    );
+}
+
+#[test]
+fn dense_observation_lanes_observe_the_prescribed_boundary_system() {
+    // DEC050/053 observation parity at round-off under prescribed root motion:
+    // an uncoupled f_f or a zero-boundary reduced system differs by O(1).
+    let envelope = run(&two_bar(), PreviewSolverMode::DenseScrutiny);
+    let parity = envelope
+        .results
+        .iter()
+        .find(|r| r.kind == "sparse_live_path_dense_parity_relative_delta")
+        .expect("dense scrutiny publishes the parity observation")
+        .value;
+    assert!(parity <= 1.0e-12, "{parity:e}");
+    assert!(!envelope
+        .diagnostics
+        .iter()
+        .any(|d| d.code == "SPARSE_LIVE_PATH_EVIDENCE_UNAVAILABLE"));
+}

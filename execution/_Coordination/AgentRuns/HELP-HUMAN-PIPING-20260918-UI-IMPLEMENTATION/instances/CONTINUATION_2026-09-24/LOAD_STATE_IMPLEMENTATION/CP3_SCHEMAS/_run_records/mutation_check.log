@@ -1,0 +1,15 @@
+CAUGHT  results LR branch drops source_block_recovery prohibition  [-k results_load_reference_branch_rejects and source_block_recovery]  -> 1 failed, 526 deselected in 0.56s
+CAUGHT  results LR branch drops required contract_evidence  [-k results_load_reference_branch_rejects and missing_evidence]  -> 1 failed, 526 deselected in 0.39s
+CAUGHT  results LR profile const becomes physics profile  [-k results_load_reference_branch_accepts]  -> 4 failed, 523 deselected in 1.29s
+CAUGHT  analysis_run LR SemanticContract pair uses physics hash  [-k analysis_run_load_reference_branch_mirrors_physics]  -> 1 failed, 526 deselected in 5.04s
+CAUGHT  analysis_run LR branch permits source_block_recovery  [-k analysis_run_load_reference_branch_rejects and source_block_recovery]  -> 1 failed, 526 deselected in 4.79s
+CAUGHT  stress-neutral LR branch drops source_block_recovery prohibition  [-k stress_neutral_load_reference_branch_rejects and source_block_recovery]  -> 1 failed, 526 deselected in 4.76s
+CAUGHT  Quantity opened  [-k authored_unknown_key]  -> 27 failed, 44 passed, 456 deselected in 15.05s
+CAUGHT  fit none opened  [-k fit_with_both and none]  -> 1 failed, 526 deselected in 0.37s
+CAUGHT  history accepts any kind  [-k unknown_discriminant and history]  -> 1 failed, 526 deselected in 0.37s
+CAUGHT  member record opened  [-k raw_unknown_key and members]  -> 1 failed, 5 passed, 521 deselected in 1.37s
+CAUGHT  record drops required source_recovery  [-k raw_missing_key and source_recovery]  -> 1 failed, 2 passed, 524 deselected in 0.82s
+CAUGHT  pressure copy drifts from physics  [-k physics_shape_copies_differ_only]  -> 1 failed, 526 deselected in 0.24s
+CAUGHT  operating_temperature made required  [-k missing_key_is_rejected_unless and operating_temperature]  -> 1 failed, 2 passed, 524 deselected in 0.71s
+MUTATION CHECK PASS
+exit=0

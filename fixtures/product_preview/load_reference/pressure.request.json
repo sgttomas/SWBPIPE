@@ -1,0 +1,342 @@
+{
+  "model": {
+    "schema_version": "0.4.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "pressure_contract": {
+      "version": "2.0.0",
+      "mode": "exact_straight_pressure_v2"
+    },
+    "project": {
+      "id": "project:load-reference-pressure",
+      "units": {
+        "length": "m",
+        "force": "N",
+        "angle": "rad",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "rule_check": "not_performed_user_rule_inputs_missing",
+      "professional_acceptance": "not_provided"
+    },
+    "nodes": [
+      {
+        "id": "node:root",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "provenance": "invented_load_reference_fixture_not_library_data"
+      },
+      {
+        "id": "node:middle",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        "provenance": "invented_load_reference_fixture_not_library_data"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "id": "pipe:first",
+        "from": "node:root",
+        "to": "node:middle",
+        "material": "material:shared",
+        "section": {
+          "outside_diameter": {
+            "value": 200,
+            "unit": "mm"
+          },
+          "wall_thickness": {
+            "value": 10,
+            "unit": "mm"
+          }
+        },
+        "y_reference": {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        "provenance": "invented_load_reference_fixture_not_library_data"
+      }
+    ],
+    "supports": [
+      {
+        "id": "support:root",
+        "node": "node:root",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented_load_reference_fixture_not_library_data"
+      },
+      {
+        "id": "support:far",
+        "node": "node:middle",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented_load_reference_fixture_not_library_data"
+      }
+    ],
+    "components": [],
+    "materials": [
+      {
+        "id": "material:shared",
+        "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus": {
+          "value": 200,
+          "unit": "GPa"
+        },
+        "poisson_ratio": {
+          "value": 0.3,
+          "unit": "1"
+        },
+        "provenance": "invented_load_reference_fixture_not_library_data",
+        "temperature_points": [
+          {
+            "id": "point:cold",
+            "temperature": {
+              "value": 20,
+              "unit": "degC"
+            },
+            "elastic_modulus": {
+              "value": 200,
+              "unit": "GPa"
+            },
+            "poisson_ratio": {
+              "value": 0.3,
+              "unit": "1"
+            },
+            "provenance": "invented_load_reference_fixture_not_library_data"
+          },
+          {
+            "id": "point:hot",
+            "temperature": {
+              "value": 150,
+              "unit": "degC"
+            },
+            "elastic_modulus": {
+              "value": 150,
+              "unit": "GPa"
+            },
+            "poisson_ratio": {
+              "value": 0.3,
+              "unit": "1"
+            },
+            "provenance": "invented_load_reference_fixture_not_library_data"
+          }
+        ],
+        "expansion_laws": [
+          {
+            "id": "law:secant",
+            "definition": "engineering_secant",
+            "datum_temperature": {
+              "value": 20,
+              "unit": "degC"
+            },
+            "data": {
+              "kind": "constant",
+              "coefficient": {
+                "value": 1.2e-05,
+                "unit": "1/K"
+              }
+            },
+            "provenance": "invented_load_reference_fixture_not_library_data"
+          }
+        ]
+      }
+    ],
+    "reference_configurations": [
+      {
+        "id": "reference:installed",
+        "label": "Invented installed reference",
+        "geometry_ref": {
+          "kind": "authored_model_geometry"
+        },
+        "member_references": [
+          {
+            "pipe_ref": "pipe:first",
+            "basis": {
+              "kind": "temperature_reference",
+              "installation_temperature": {
+                "value": 20,
+                "unit": "degC"
+              }
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "invented_load_reference_fixture_not_library_data"
+          }
+        ],
+        "provenance": "invented_load_reference_fixture_not_library_data"
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "case:cold-pressure",
+        "provenance": "invented_load_reference_fixture_not_library_data",
+        "pressure_regions": [
+          {
+            "id": "region:closed",
+            "member_pipe_ids": [
+              "pipe:first"
+            ],
+            "pressure_basis": "internal_differential_zero_external_v1",
+            "pressure": {
+              "value": 2,
+              "unit": "MPa"
+            },
+            "terminals": [
+              {
+                "node_ref": "node:root",
+                "closure_transfer": "transfers_to_wall",
+                "provenance": "invented_load_reference_fixture_not_library_data"
+              },
+              {
+                "node_ref": "node:middle",
+                "closure_transfer": "transfers_to_wall",
+                "provenance": "invented_load_reference_fixture_not_library_data"
+              }
+            ],
+            "provenance": "invented_load_reference_fixture_not_library_data"
+          }
+        ],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:first",
+              "operating_temperature": {
+                "value": 20,
+                "unit": "degC"
+              },
+              "material_selection": {
+                "kind": "exact_point",
+                "material_ref": "material:shared",
+                "point_ref": "point:cold"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:secant"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:root",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:far",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented_load_reference_fixture_not_library_data"
+        }
+      },
+      {
+        "id": "case:hot-pressure",
+        "provenance": "invented_load_reference_fixture_not_library_data",
+        "pressure_regions": [
+          {
+            "id": "region:closed",
+            "member_pipe_ids": [
+              "pipe:first"
+            ],
+            "pressure_basis": "internal_differential_zero_external_v1",
+            "pressure": {
+              "value": 2,
+              "unit": "MPa"
+            },
+            "terminals": [
+              {
+                "node_ref": "node:root",
+                "closure_transfer": "transfers_to_wall",
+                "provenance": "invented_load_reference_fixture_not_library_data"
+              },
+              {
+                "node_ref": "node:middle",
+                "closure_transfer": "transfers_to_wall",
+                "provenance": "invented_load_reference_fixture_not_library_data"
+              }
+            ],
+            "provenance": "invented_load_reference_fixture_not_library_data"
+          }
+        ],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:first",
+              "operating_temperature": {
+                "value": 150,
+                "unit": "degC"
+              },
+              "material_selection": {
+                "kind": "exact_point",
+                "material_ref": "material:shared",
+                "point_ref": "point:hot"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:secant"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:root",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:far",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented_load_reference_fixture_not_library_data"
+        }
+      }
+    ],
+    "combinations": []
+  },
+  "materials": []
+}

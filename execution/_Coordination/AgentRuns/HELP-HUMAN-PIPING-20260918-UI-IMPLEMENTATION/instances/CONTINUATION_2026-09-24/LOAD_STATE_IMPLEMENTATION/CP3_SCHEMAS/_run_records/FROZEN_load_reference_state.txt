@@ -1,0 +1,5 @@
+frozen_at_utc: 2026-09-25T18:36:31Z
+640fd4477ac2c84f3c02268cfccc3958f51ee6508b3a67e5538b52d84899af65  schemas/load_reference_state.schema.json
+e745005d0f7adb405b1a19a5102b96a2adf255893ab8ebf7fe2b257cb2239f94  execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/CP3_SCHEMAS/_run_records/gen_load_reference_state_schema.py
+interpreter: /home/user/dec025-venv/bin/python
+python 3.11.15 jsonschema 4.26.0 pytest 9.1.1

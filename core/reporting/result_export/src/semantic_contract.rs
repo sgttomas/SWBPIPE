@@ -92,6 +92,11 @@ pub fn canonical_metadata_in(table: &Value, row: &Value) -> Option<Value> {
 pub const PHYSICS_SOURCE_ID: &str = "openpipestress.result_semantics/0.3.0/physics-source-1";
 pub const PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
 pub const PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
+/// Resolved load/reference-state method; bound to exactly one formulation profile.
+pub const LOAD_REFERENCE_ID: &str = "openpipestress.result_semantics/0.3.0/load-reference-1";
+pub const LOAD_REFERENCE_PROFILE: &str = "resolved_straight_load_state_v1";
+pub const LOAD_REFERENCE_TABLE_SHA256: &str =
+    "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d";
 pub fn precision_contract() -> &'static Value {
     static CONTRACT: OnceLock<Value> = OnceLock::new();
     CONTRACT.get_or_init(|| {
@@ -108,6 +113,30 @@ pub fn physics_contract() -> &'static Value {
             "../../../../fixtures/results/semantic_contract_v0_3_physics_1.json"
         ))
         .expect("pinned physics semantic contract")
+    })
+}
+/// Pinned table bytes: identity, profile and sha256 are checked, never inferred.
+pub fn verify_load_reference_table(bytes: &[u8]) -> Result<Value, String> {
+    use sha2::{Digest, Sha256};
+    if format!("{:x}", Sha256::digest(bytes)) != LOAD_REFERENCE_TABLE_SHA256 {
+        return Err("SOURCE_LOAD_REFERENCE_TABLE_HASH".into());
+    }
+    let table: Value =
+        serde_json::from_slice(bytes).map_err(|_| "SOURCE_LOAD_REFERENCE_TABLE_HASH".to_string())?;
+    if table["semantic_contract_id"] != LOAD_REFERENCE_ID
+        || table["formulation_profile_id"] != LOAD_REFERENCE_PROFILE
+    {
+        return Err("SOURCE_LOAD_REFERENCE_TABLE_IDENTITY".into());
+    }
+    Ok(table)
+}
+pub fn load_reference_contract() -> &'static Value {
+    static CONTRACT: OnceLock<Value> = OnceLock::new();
+    CONTRACT.get_or_init(|| {
+        verify_load_reference_table(include_bytes!(
+            "../../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json"
+        ))
+        .expect("pinned load-reference semantic contract")
     })
 }
 pub fn physics_source_contract() -> &'static Value {
@@ -155,9 +184,16 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                         PRECISION_ID
                             | PHYSICS_ID
                             | PHYSICS_SOURCE_ID
+                            | LOAD_REFERENCE_ID
                             | crate::source_blocks::CONTRACT_ID
                     )
                 )
+            {
+                return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
+            }
+            // The load-reference method owns no carrier namespace (same code
+            // and position as the Python reader's first dispatch check).
+            if p["semantic_contract_id"] == LOAD_REFERENCE_ID && source.get("carrier_evidence").is_some()
             {
                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
             }
@@ -230,13 +266,11 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 }
             }
             let f = &source["formulation_basis"];
-            let profile = if matches!(
-                p["semantic_contract_id"].as_str(),
-                Some(PHYSICS_ID | PHYSICS_SOURCE_ID)
-            ) {
-                "exact_straight_pressure_v2"
-            } else {
-                "product_preview_mechanics_v1"
+            let profile = match p["semantic_contract_id"].as_str() {
+                Some(PHYSICS_ID | PHYSICS_SOURCE_ID) => "exact_straight_pressure_v2",
+                // The only profile for load-reference-1; no other contract accepts it.
+                Some(LOAD_REFERENCE_ID) => LOAD_REFERENCE_PROFILE,
+                _ => "product_preview_mechanics_v1",
             };
             if !exact_keys(f, &["profile_id", "limitations"])
                 || f["profile_id"] != profile
@@ -251,6 +285,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
             let table = match p["semantic_contract_id"].as_str() {
                 Some(PHYSICS_ID) => physics_contract(),
                 Some(PHYSICS_SOURCE_ID) => physics_source_contract(),
+                Some(LOAD_REFERENCE_ID) => load_reference_contract(),
                 Some(crate::source_blocks::CONTRACT_ID) => source_blocks_contract(),
                 Some(PRECISION_ID) => precision_contract(),
                 _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
@@ -265,10 +300,15 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
 pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), String> {
     let selected = for_source_metadata(source)?;
     match source["producer"]["semantic_contract_id"].as_str() {
-        Some(PHYSICS_ID) => validate_physics_evidence(source)?,
+        Some(PHYSICS_ID) => {
+            forbid_load_reference_evidence(source)?;
+            validate_physics_evidence(source)?
+        }
         Some(PHYSICS_SOURCE_ID) => {
+            forbid_load_reference_evidence(source)?;
             crate::physics_source::validate(source, None)?;
         }
+        Some(LOAD_REFERENCE_ID) => validate_load_reference_evidence(source)?,
         Some(crate::source_blocks::CONTRACT_ID) => {
             // Shape/publication validation does not supply an actual invocation
             // or recreate the producer's private arithmetic receipt.
@@ -288,6 +328,17 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
     Ok(selected)
 }
 pub use crate::physics_evidence::{validate_physics_evidence, validate_transport_metadata as validate_physics_transport_metadata};
+pub use crate::load_reference::{
+    validate_load_reference_evidence, validate_load_reference_transport_metadata,
+};
+/// These inputs were already refused by the closed physics namespaces; the
+/// shared code only names the load-reference downgrade in both readers.
+fn forbid_load_reference_evidence(source: &Value) -> Result<(), String> {
+    if source["contract_evidence"].get("load_reference_states").is_some() {
+        return Err("SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN".into());
+    }
+    Ok(())
+}
 
 fn quality_status(value: &Value) -> bool {
     matches!(

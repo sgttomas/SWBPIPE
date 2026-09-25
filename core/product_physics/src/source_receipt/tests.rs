@@ -63,6 +63,7 @@ impl Fixture {
             load_application: &self.loads,
             thermal_loads: &[],
             pressure_thrust_loads: &[],
+            load_state: None,
         }
     }
 }

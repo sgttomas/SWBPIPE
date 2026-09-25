@@ -91,7 +91,7 @@ def _build_analysis_run(
         contract_id, contract_hash, contract_path = SEMANTIC_CONTRACT_ID, SEMANTIC_CONTRACT_SHA256, _CONTRACT_PATH
     else:
         contract_id, contract_hash, contract_path = _source_contract(received)
-        if contract_id not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID}:
+        if contract_id not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID}:
             raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
     run_id = str(received.get("run_id", "run:unknown"))
     rows = [deepcopy(dict(row)) for row in received.get("results", []) if isinstance(row, Mapping)]
@@ -196,6 +196,12 @@ _PHYSICS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physic
 PHYSICS_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
 PHYSICS_SOURCE_CONTRACT_SHA256 = "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1"
 _PHYSICS_SOURCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_source_1.json")
+# Resolved load/reference-state method: one table, one profile; the AnalysisRun
+# record mirrors physics-1 and carries no contract_evidence.
+LOAD_REFERENCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
+LOAD_REFERENCE_CONTRACT_SHA256 = "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"
+_LOAD_REFERENCE_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_load_reference_1.json")
+LOAD_REFERENCE_PROFILE = "resolved_straight_load_state_v1"
 
 
 
@@ -213,11 +219,12 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -
     if version != "0.2.0":
         raise ValueError("SOURCE_SCHEMA_VERSION_UNSUPPORTED")
     producer = source.get("producer")
-    if not isinstance(producer, Mapping) or not isinstance(producer.get("semantic_contract_id"), str) or producer.get("semantic_contract_id") not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID} or producer != {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": producer.get("semantic_contract_id")}:
+    if not isinstance(producer, Mapping) or not isinstance(producer.get("semantic_contract_id"), str) or producer.get("semantic_contract_id") not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID} or producer != {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": producer.get("semantic_contract_id")}:
         raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     composite = producer["semantic_contract_id"] == PHYSICS_SOURCE_CONTRACT_ID
     physics = producer["semantic_contract_id"] == PHYSICS_CONTRACT_ID or composite
-    if not physics and source.get("contract_evidence") is not None:
+    load_reference = producer["semantic_contract_id"] == LOAD_REFERENCE_CONTRACT_ID
+    if not physics and not load_reference and source.get("contract_evidence") is not None:
         raise ValueError("SOURCE_PHYSICS_CONTRACT_MISMATCH")
     if producer["semantic_contract_id"] not in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID} and "source_block_recovery" in source:
         raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
@@ -232,8 +239,20 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -
         if not isinstance(basis, Mapping) or set(basis) != {"ref_type", "ref_id"} or not all(isinstance(value, str) and value for value in basis.values()) or case.get("solve_quality") not in statuses or case.get("structural_status") not in {"passive_model_basis", "physical_mechanism_witnessed", "negative_energy_witnessed", "numerically_unresolved"} or case.get("model_matrix_fidelity") not in {"represented_equations_retained", "assembly_loss_detected", "assembly_uncertainty", "not_assessed"} or case.get("accuracy_evidence") not in {"not_claimed", "reference_verified", "unresolved"} or not isinstance(case.get("evidence_refs"), list) or not all(isinstance(item, str) and item for item in case["evidence_refs"]):
             raise ValueError("SOURCE_NUMERICAL_CASE_INVALID")
     formulation = source.get("formulation_basis")
-    if not isinstance(formulation, Mapping) or set(formulation) != {"profile_id", "limitations"} or formulation.get("profile_id") != ("exact_straight_pressure_v2" if physics else "product_preview_mechanics_v1") or not isinstance(formulation.get("limitations"), list) or not formulation["limitations"] or not all(isinstance(item, str) and item for item in formulation["limitations"]):
+    if not isinstance(formulation, Mapping) or set(formulation) != {"profile_id", "limitations"} or formulation.get("profile_id") != (LOAD_REFERENCE_PROFILE if load_reference else "exact_straight_pressure_v2" if physics else "product_preview_mechanics_v1") or not isinstance(formulation.get("limitations"), list) or not formulation["limitations"] or not all(isinstance(item, str) and item for item in formulation["limitations"]):
         raise ValueError("SOURCE_FORMULATION_BASIS_UNSUPPORTED")
+    if physics and isinstance(source.get("contract_evidence"), Mapping) and "load_reference_states" in source["contract_evidence"]:
+        # Already refused by the closed physics namespaces; the shared code names
+        # the load-reference downgrade identically in the Rust reader.
+        raise ValueError("SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN")
+    if load_reference:
+        from .load_reference_evidence import load_reference_table, validate_load_reference_evidence, validate_load_reference_transport_metadata
+        load_reference_table()
+        if check_receipt:
+            validate_load_reference_evidence(source)
+        else:
+            validate_load_reference_transport_metadata(source)
+        return LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_SHA256, _LOAD_REFERENCE_CONTRACT_PATH
     if composite:
         from .physics_source import validate_physics_source, validate_transport_metadata as validate_composite_transport_metadata
         if check_receipt:
@@ -287,7 +306,7 @@ def numerical_use_standing(source: Mapping[str, Any], requested_basis_refs: list
             return "numerically_eligible" if qualified else "needs_recompute"
         except ValueError:
             return "unsupported"
-    if contract not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID}:
+    if contract not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID}:
         return "needs_recompute"
     quality = source["numerical_quality"]
     # Sensitive evidence remains inspectable but does not qualify source-answer accuracy.
@@ -401,7 +420,7 @@ def build_analysis_run_v0_3(mechanics_result: Mapping[str, Any], *, expected_bas
 
 def build_analysis_run(mechanics_result: Mapping[str, Any], **kwargs: Any) -> dict[str, Any]:
     contract, _, _ = _source_contract(mechanics_result)
-    return build_analysis_run_v0_3(mechanics_result, **kwargs) if contract in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID} else build_analysis_run_v0_2(mechanics_result, **kwargs)
+    return build_analysis_run_v0_3(mechanics_result, **kwargs) if contract in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID} else build_analysis_run_v0_2(mechanics_result, **kwargs)
 
 
 def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str, Any], *, hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1, expected_basis_refs: list[Mapping[str, str]] | None = None) -> None:
@@ -411,7 +430,7 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
     """
     contract_id, contract_hash, path = _source_contract(source)
     _validate_source_reference_fields(source)
-    if contract_id not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID} or envelope.get("schema_version") != "0.3.0" or envelope.get("run_contract_status", {}).get("record_contract") != "strict_analysis_run_v0_3":
+    if contract_id not in {PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID} or envelope.get("schema_version") != "0.3.0" or envelope.get("run_contract_status", {}).get("record_contract") != "strict_analysis_run_v0_3":
         raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
     run = envelope.get("analysis_run", {})
     if contract_id in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID}:

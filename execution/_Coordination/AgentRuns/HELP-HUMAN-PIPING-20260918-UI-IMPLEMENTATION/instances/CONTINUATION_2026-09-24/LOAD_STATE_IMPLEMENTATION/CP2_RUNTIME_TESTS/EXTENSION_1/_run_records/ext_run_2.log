@@ -1,0 +1,236 @@
+# ext run 2 2026-09-25T19:24:08Z
+# cwd=/home/user/wt/loadstate/projects/chirality-piping/core/product_physics
+# HEAD=d92ca3b7cbbd20a9adcfda50f10202f42b0d997e
+# src_tree_sha256_before=8d197045b3a950f056c5ea539b821c8809193040e6783269878c8f477a94b221 (sha256 of HEAD + sorted sha256sum of src/**/*.rs)
+# src: 98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9  src/annulus_geometry.rs
+# src: 75574d2e3cf0ffc603ceea4718b64c7e005d955dcb58759708a1b08cc3d59e41  src/case_state/input.rs
+# src: dc84e62e6cf205b8f24abaa550657fc87717813048d397f8e6379d753b9ae263  src/case_state/material.rs
+# src: 17f17f20c6c3556af1c3465418f0fa964fbdf2db4a5ba1b49c5914e90d7c75b5  src/case_state/mod.rs
+# src: 47d5dcbf479f27e3d6094da9927d9dd5eece79d87aeacda3a76d97d82251e89a  src/case_state/resolve.rs
+# src: 6f030d5aba0c2e0add8deec47f09098f91768af5236996741f79c85cbe3fa545  src/case_state/temperature.rs
+# src: 13372a373c73a3826c904c846139f02cda14613f494dd52e73b37e043dd9b2f3  src/case_state/tests.rs
+# src: b78074dd96280dc489737208ca355ed23c0a596223a9c57ca01282b52da21600  src/case_state/thermal.rs
+# src: 086bbc7b789e839bf6eecfb9114c74cc1d654b0853cf76077d42b0ba1d281336  src/historical_pressure_reference.rs
+# src: 7a60982327a58094c3331969a97d3953c678a0c3fc607c263314ce05a8354ee9  src/lib.rs
+# src: 0d0e68418c240a7ca7f4adcda81e928d2c3941e827a68838cf584b14ddd61d43  src/membrane_publication_range.rs
+# src: b85630992db2e3a8be9c87f395dee09b0d27c68cf80ea9765cddb57b69768fa0  src/pressure_exact.rs
+# src: a023170798a856506f90887df4b421c8979818ad8a8c029e6b334ac53d210143  src/pressure_exact/source_geometry.rs
+# src: a7d63cedda6040e03c0583f9c3a7114cf9aff40144ea6a5748252898789de7b2  src/pressure_material.rs
+# src: 00da089218ff901b6d0c9a80cb62aeecdd442bc6453cfc4fc5e8cb7ae9aff658  src/pressure_runtime.rs
+# src: 7231339e48cabe0f54122ac6253cb2ce936d025d1bb3a391e709030d8b617ef3  src/pressure_sum.rs
+# src: 6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261  src/self_weight.rs
+# src: 60153bd048a99807336fb53d932841224bd116eccd1d7d655baa66f29d467f18  src/source_budget_tests.rs
+# src: c47990f85ddf46f15e1cb8d01fd15855a4040e1d316522ad9b43d383dee98884  src/source_receipt.rs
+# src: fa98cd4ec2403528ee68094ae5a9727aeaa3dccaad30e36591031dc6b7792757  src/source_receipt/composite.rs
+# src: abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6  src/source_receipt/endpoint_maximum.rs
+# src: 9fa4a47f78a9c7e06178c49251f6cb21c14a23a85b7f9d89a00f95be0ab51d3c  src/source_receipt/load_state_tests.rs
+# src: 936cc8714273463e5c1a1e7381fdbb981af4e557311920860b78d8338d053271  src/source_receipt/rows.rs
+# src: 7e3bdaa84b3a163a973a6ee93879c734a781d5ed7cfe2084e7c71d533db53104  src/source_receipt/source.rs
+# src: a05f79cae872a20e4aa96b7b38bb7239bf122f4a534e19c3dab099430151b411  src/source_receipt/tests.rs
+# src: 8600cdc11cb85cbfd76b21f17a8a2bd59ea322dc999f6a1396c852ad5f92abb8  src/source_recovery.rs
+# src: a379d5262cccf2263e201dc1f18ec3ca1d207fc0b63231cf00112d2a6c19559c  src/validation.rs
+# ext_test_sha256=6fc7b27a26ccb91908c74c640d9c46ae2de4f62c229c1c8d61d3c7872ac853d9
+# cp2_test_sha256=d5be0bd812a2af51c1a32fc5c237a42b76b460ae75d0a610837f01b676f6960b
+# fixture_sha256=4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab
+# eigen_motion_sha256=58ce5b95d185d56964a30962b355c14595cdf831505603c6e5d455425c4ea8e9
+# cmd: CARGO_TARGET_DIR=/home/user/cargo-targets/loadstate/product_physics_tests cargo +1.97.1 test --locked --offline -j 1 --test load_reference_state_runtime_extension -- --nocapture
+warning: unused import: `ELEMENT_DOF`
+  --> src/source_recovery.rs:12:39
+   |
+12 |     ThermalElementLoad, DOF_PER_NODE, ELEMENT_DOF,
+   |                                       ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:8050:4
+     |
+8050 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:61:9
+   |
+60 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+61 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:69:9
+   |
+68 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+69 |     pub support_id: String,
+   |         ^^^^^^^^^^
+70 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+71 |     pub value: f64,
+   |         ^^^^^
+72 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:94:9
+    |
+ 93 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+ 94 |     pub dofs: usize,
+    |         ^^^^
+ 95 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+ 96 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 97 |     pub blocks: usize,
+    |         ^^^^^^
+ 98 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+ 99 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+100 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+101 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+102 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+103 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+104 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+105 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+106 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+107 |     pub max_relative_projection_error: f64,
+108 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:121:5
+    |
+115 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+121 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:147:12
+    |
+130 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+147 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:512:19
+    |
+447 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+512 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `expected_primary` is never used
+  --> src/source_receipt/rows.rs:55:15
+   |
+55 | pub(super) fn expected_primary(
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `derived` is never used
+   --> src/source_receipt/rows.rs:329:15
+    |
+329 | pub(super) fn derived(
+    |               ^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib) generated 11 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 1 suggestion)
+   Compiling open_pipe_stress_product_physics v0.2.0 (/home/user/wt/loadstate/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.90s
+     Running tests/load_reference_state_runtime_extension.rs (/home/user/cargo-targets/loadstate/product_physics_tests/debug/deps/load_reference_state_runtime_extension-ab486c55162a1dab)
+
+running 9 tests
+OBSERVED_BLOCK control=duplicate_class_points/degC/at_duplicate_class mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS: Duplicate normalized material temperatures prevent a unique table selection; point_refs=[]"]
+OBSERVED_BLOCK control=duplicate_class_points/degC/at_duplicate_class mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS: Duplicate normalized material temperatures prevent a unique table selection; point_refs=[]"]
+OBSERVED_LAW_DATA test=dilation variant=exact_samples mode=sparse_interactive consumed_points=[1,2] consumed_segments=[{"end_k":423.15,"lower_index":1,"start_k":323.15,"upper_index":2,"use":"integration_interval"}] consulted_points=[0,1,2] consulted_segments=[]
+OBSERVED_BLOCK control=duplicate_class_points/degC/interior mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS: Duplicate normalized material temperatures prevent a unique table selection; point_refs=[]"]
+OBSERVED_BLOCK control=duplicate_class_points/degC/interior mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS: Duplicate normalized material temperatures prevent a unique table selection; point_refs=[]"]
+OBSERVED_LAW_DATA test=dilation variant=interior_operating mode=sparse_interactive consumed_points=[1,2] consumed_segments=[{"end_k":373.15,"lower_index":1,"start_k":373.15,"upper_index":2,"use":"interpolation_sample"},{"end_k":373.15,"lower_index":1,"start_k":323.15,"upper_index":2,"use":"integration_interval"}] consulted_points=[0,1,2] consulted_segments=[{"end_k":373.15,"lower_index":1,"start_k":373.15,"upper_index":2,"use":"interpolation_sample"}]
+OBSERVED_BLOCK control=duplicate_class_points/degF/at_duplicate_class mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS: Duplicate normalized material temperatures prevent a unique table selection; point_refs=[]"]
+OBSERVED_BLOCK control=duplicate_class_points/degF/at_duplicate_class mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS: Duplicate normalized material temperatures prevent a unique table selection; point_refs=[]"]
+OBSERVED_LAW_DATA test=dilation variant=exact_samples mode=dense_scrutiny consumed_points=[1,2] consumed_segments=[{"end_k":423.15,"lower_index":1,"start_k":323.15,"upper_index":2,"use":"integration_interval"}] consulted_points=[0,1,2] consulted_segments=[]
+test joined_eigen_motion_with_pressure_stays_ordinary_not_joined ... ok
+OBSERVED_BLOCK control=duplicate_class_points/degF/interior mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS: Duplicate normalized material temperatures prevent a unique table selection; point_refs=[]"]
+OBSERVED_BLOCK control=duplicate_class_points/degF/interior mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_AMBIGUOUS: Duplicate normalized material temperatures prevent a unique table selection; point_refs=[]"]
+test duplicate_class_material_points_are_refused ... ok
+OBSERVED_LAW_DATA test=dilation variant=interior_operating mode=dense_scrutiny consumed_points=[1,2] consumed_segments=[{"end_k":373.15,"lower_index":1,"start_k":373.15,"upper_index":2,"use":"interpolation_sample"},{"end_k":373.15,"lower_index":1,"start_k":323.15,"upper_index":2,"use":"integration_interval"}] consulted_points=[0,1,2] consulted_segments=[{"end_k":373.15,"lower_index":1,"start_k":373.15,"upper_index":2,"use":"interpolation_sample"}]
+OBSERVED_BLOCK control=binary64_order_inversion mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED"] details=["LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED: distinct exact temperatures do not keep a strictly increasing binary64 representation; no tolerance snapping is applied"]
+OBSERVED_BLOCK control=binary64_order_inversion mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED"] details=["LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED: distinct exact temperatures do not keep a strictly increasing binary64 representation; no tolerance snapping is applied"]
+test temperature_identity_binary64_order_inversion_blocks ... ok
+
+thread 'dilation_datum_zero_is_consulted_not_consumed' (22370) panicked at tests/load_reference_state_runtime_extension.rs:1659:17:
+assertion `left == right` failed: sparse_interactive exact_samples: consumed_law_segments use label {"end_k":423.15,"lower_index":1,"start_k":323.15,"upper_index":2,"use":"integration_interval"}
+  left: String("integration_interval")
+ right: "interpolation_sample"
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed::<serde_json::value::Value, &str>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: load_reference_state_runtime_extension::dilation_datum_zero_is_consulted_not_consumed
+             at ./tests/load_reference_state_runtime_extension.rs:1659:17
+   5: load_reference_state_runtime_extension::dilation_datum_zero_is_consulted_not_consumed::{closure#0}
+             at ./tests/load_reference_state_runtime_extension.rs:1560:51
+   6: <load_reference_state_runtime_extension::dilation_datum_zero_is_consulted_not_consumed::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+test pressure_two_case_per_member_pairs_drive_wall_action_and_evidence ... ok
+OBSERVED_BLOCK control=non_equal_control_exact_point_without_override mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED: Selected property temperature differs from known operating temperature; enter an explicit analysis-basis reason and provenance; point_refs=[]"]
+OBSERVED_BLOCK control=non_equal_control_exact_point_without_override mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED: Selected property temperature differs from known operating temperature; enter an explicit analysis-basis reason and provenance; point_refs=[]"]
+test temperature_identity_non_equal_control_is_not_snapped ... ok
+OBSERVED_LAW_DATA test=verification_two_point_secant mode=sparse_interactive consumed_points=[0,1] consumed_segments=[] consulted_points=[0,1] consulted_segments=[]
+OBSERVED_LAW_DATA test=verification_two_point_secant mode=dense_scrutiny consumed_points=[0,1] consumed_segments=[] consulted_points=[0,1] consulted_segments=[]
+OBSERVED_BLOCK control=verification_two_point_operating_above_table mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: OutsideTableCoverage; no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=verification_two_point_operating_above_table mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: OutsideTableCoverage; no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=verification_two_point_installation_below_table mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: OutsideTableCoverage; no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=verification_two_point_installation_below_table mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: OutsideTableCoverage; no extrapolation, fallback or default is applied"]
+test verification_two_point_secant_table_needs_only_install_to_operating_coverage ... ok
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+test dilation_datum_zero_is_consulted_not_consumed ... FAILED
+test joined_eigen_motion_closed_form_and_source_publication ... ok
+test temperature_identity_groups_select_same_point_across_units ... ok
+
+failures:
+
+failures:
+    dilation_datum_zero_is_consulted_not_consumed
+
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s
+
+error: test failed, to rerun pass `--test load_reference_state_runtime_extension`
+# exit=101
+# src_tree_sha256_after=8d197045b3a950f056c5ea539b821c8809193040e6783269878c8f477a94b221

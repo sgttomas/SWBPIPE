@@ -957,7 +957,8 @@
                 "openpipestress.result_semantics/0.3.0/precision-1",
                 "openpipestress.result_semantics/0.3.0/physics-1",
                 "openpipestress.result_semantics/0.3.0/source-blocks-1",
-                "openpipestress.result_semantics/0.3.0/physics-source-1"
+                "openpipestress.result_semantics/0.3.0/physics-source-1",
+                "openpipestress.result_semantics/0.3.0/load-reference-1"
               ]
             }
           }
@@ -978,7 +979,8 @@
                 "openpipestress.result_semantics/0.3.0/precision-1",
                 "openpipestress.result_semantics/0.3.0/physics-1",
                 "openpipestress.result_semantics/0.3.0/source-blocks-1",
-                "openpipestress.result_semantics/0.3.0/physics-source-1"
+                "openpipestress.result_semantics/0.3.0/physics-source-1",
+                "openpipestress.result_semantics/0.3.0/load-reference-1"
               ]
             }
           }
@@ -994,7 +996,8 @@
             "profile_id": {
               "enum": [
                 "product_preview_mechanics_v1",
-                "exact_straight_pressure_v2"
+                "exact_straight_pressure_v2",
+                "resolved_straight_load_state_v1"
               ]
             },
             "limitations": {
@@ -1104,6 +1107,9 @@
             },
             {
               "$ref": "physics_source_recovery.schema.json#/$defs/physical_evidence"
+            },
+            {
+              "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence"
             }
           ]
         },
@@ -1287,6 +1293,51 @@
                 "$ref": "#/$defs/PhysicsSourceResultSet"
               }
             }
+          }
+        },
+        {
+          "required": [
+            "contract_evidence"
+          ],
+          "properties": {
+            "producer": {
+              "properties": {
+                "semantic_contract_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/load-reference-1"
+                }
+              }
+            },
+            "semantic_contract_ref": {
+              "properties": {
+                "ref_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/load-reference-1"
+                }
+              }
+            },
+            "formulation_basis": {
+              "properties": {
+                "profile_id": {
+                  "const": "resolved_straight_load_state_v1"
+                }
+              }
+            },
+            "contract_evidence": {
+              "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence"
+            },
+            "result_sets": {
+              "items": {
+                "$ref": "#/$defs/ResultSet"
+              }
+            }
+          },
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "source_block_recovery"
+                ]
+              }
+            ]
           }
         }
       ]

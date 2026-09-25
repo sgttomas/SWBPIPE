@@ -18,6 +18,8 @@ pub(super) const COMPOSITE_SEMANTIC_ID: &str =
     "openpipestress.result_semantics/0.3.0/physics-source-1";
 
 pub(super) const SEMANTIC_ID: &str = "openpipestress.result_semantics/0.3.0/source-blocks-1";
+pub(super) const LOAD_REFERENCE_SOURCE_SEMANTIC_ID: &str =
+    case_state::LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID;
 const CRITERION: f64 = 1e-9;
 const MAX_ITEMS: usize = 16_384;
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -51,6 +53,48 @@ pub(super) fn scaled_norm(values: [f64; 3]) -> f64 {
 }
 fn serialized<T: Serialize>(v: &T) -> Result<Value, ReceiptError> {
     serde_json::to_value(v).map_err(|e| bad(e.to_string()))
+}
+
+/// One captured 0.4.0 case re-derived through the product resolver pipeline.
+struct LoadStateReplay {
+    model: PreviewModel,
+    materials: Vec<MaterialInput>,
+    resolved: case_state::resolve::ResolvedCase,
+    built: BuiltModel,
+}
+
+/// Closed receipt policies. Each names one semantic identity; none is chosen
+/// from a caller label.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ReceiptPolicy {
+    SourceBlocks,
+    PhysicsSource,
+    LoadReferenceSource,
+}
+impl ReceiptPolicy {
+    fn composite(self) -> bool {
+        self != Self::SourceBlocks
+    }
+    fn semantic_id(self) -> &'static str {
+        match self {
+            Self::SourceBlocks => SEMANTIC_ID,
+            Self::PhysicsSource => COMPOSITE_SEMANTIC_ID,
+            Self::LoadReferenceSource => LOAD_REFERENCE_SOURCE_SEMANTIC_ID,
+        }
+    }
+    fn name(self) -> &'static str {
+        match self {
+            Self::SourceBlocks => "SOURCE-BLOCKS-1",
+            Self::PhysicsSource => "PHYSICS-SOURCE-1",
+            Self::LoadReferenceSource => "LOAD-REFERENCE-SOURCE-1",
+        }
+    }
+    fn case_evidence_domain(self) -> &'static str {
+        match self {
+            Self::LoadReferenceSource => "load_reference_source_case_evidence_v1",
+            _ => "physics_source_case_evidence_v1",
+        }
+    }
 }
 
 /// Captures the actual raw request before parsing. No parsed/hash constructor.
@@ -98,12 +142,134 @@ impl CapturedInvocation {
     ) -> Result<Option<String>, ReceiptError> {
         self.check_input_with_physical(input, selected, None)
     }
+    /// Captured 0.4.0 re-derivation: validation, normalization and per-case
+    /// resolution exactly as the product route performs them, then one
+    /// member-pair build. The case-wide base/modulus methods are never used.
+    fn captured_load_state_case(&self, case_id: &str) -> Result<LoadStateReplay, ReceiptError> {
+        let request = self.requested()?;
+        let supplied = !request.materials.is_empty();
+        let mut model = request.model;
+        let mut materials = if request.materials.is_empty() {
+            model.materials.clone()
+        } else {
+            request.materials
+        };
+        let mut diagnostics = Vec::new();
+        pressure_runtime::validate_profile(&model, &mut diagnostics);
+        case_state::resolve::validate_document(&model, supplied, &mut diagnostics);
+        resolve_shared_sections(&mut model, &mut diagnostics);
+        normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+        if has_blocking(&diagnostics)
+            || !case_state::is_load_state(&model)
+            || !pressure_runtime::is_exact(&model)
+        {
+            return Err(bad("captured load/reference-state normalization"));
+        }
+        let case = model
+            .load_cases
+            .iter()
+            .find(|c| c.id == case_id)
+            .ok_or_else(|| bad("invocation case missing"))?;
+        let resolved =
+            case_state::resolve::resolve_case(&model, &materials, case, &mut diagnostics)
+                .ok_or_else(|| bad("captured resolved case unavailable"))?;
+        let built =
+            build_model_for_members(&model, &materials, Some(&resolved.pairs), &mut diagnostics)
+                .ok_or_else(|| bad("captured member-pair build unavailable"))?;
+        if has_blocking(&diagnostics) {
+            return Err(bad("captured resolved case/build blocked"));
+        }
+        Ok(LoadStateReplay {
+            model,
+            materials,
+            resolved,
+            built,
+        })
+    }
+    /// Replays the selected response against the captured 0.4.0 invocation's
+    /// own resolved case: stiffness from its member pairs, force from its
+    /// declared source ledger plus eigen loads, prescribed values from its
+    /// support motions.
+    fn check_load_state_input(
+        &self,
+        input: &source_recovery::Input<'_>,
+        selected: &mut SelectedSourceRecovery,
+        physical: Option<(&Value, &[ResultItem], Option<&Value>)>,
+    ) -> Result<Option<String>, ReceiptError> {
+        let replay = self.captured_load_state_case(&input.load_case.id)?;
+        let LoadStateReplay {
+            model,
+            materials,
+            resolved,
+            built,
+        } = &replay;
+        if model.project.id != input.model.project.id {
+            return Err(bad("invocation normalized model mismatch"));
+        }
+        let mut diagnostics = Vec::new();
+        let boundary = prepare_boundary(built.nodes.len(), &built.supports);
+        let stiffness =
+            assemble_case_stiffness(built, &boundary.springs).map_err(|e| bad(e.to_string()))?;
+        let case = &resolved.effective_case;
+        let loads = build_load_case_primitive_loads(model, case, &mut diagnostics);
+        let application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
+        let eigen = load_state_eigen_loads(resolved, built)
+            .map_err(|pipe| bad(format!("captured eigen member section missing: {pipe}")))?;
+        let mut force = application.global_load_vector(built.nodes.len());
+        add_thermal_equivalent_loads(&mut force, &eigen, &built.pipes, &HashMap::new());
+        let prescribed: Vec<_> = boundary
+            .restrained_dofs
+            .iter()
+            .map(|&d| (d, resolved.prescribed.get(&d).copied().unwrap_or(0.0)))
+            .collect();
+        let free: Vec<_> = (0..force.len())
+            .filter(|d| !boundary.restrained_dofs.contains(d))
+            .collect();
+        if has_blocking(&diagnostics) || !boundary.findings.is_empty() {
+            return Err(bad("captured load preparation"));
+        }
+        selected
+            .replay_against(source_recovery::Input {
+                model,
+                built,
+                stiffness: &stiffness,
+                force: &force,
+                free: &free,
+                prescribed: &prescribed,
+                spring_entries: &boundary.springs,
+                load_case: case,
+                load_application: &application,
+                thermal_loads: &eigen,
+                pressure_thrust_loads: &[],
+                load_state: Some(resolved),
+            })
+            .map_err(|e| bad(format!("captured source replay: {e:?}")))?;
+        if let Some((evidence, rows, record)) = physical {
+            composite::physical_source_built(
+                self,
+                model,
+                materials,
+                built,
+                None,
+                &case.id,
+                evidence,
+                &[],
+                rows,
+                true,
+                Some((resolved, record)),
+            )?;
+        }
+        Ok(None)
+    }
     fn check_input_with_physical(
         &self,
         input: &source_recovery::Input<'_>,
         selected: &mut SelectedSourceRecovery,
-        physical: Option<(&Value, &[ResultItem])>,
+        physical: Option<(&Value, &[ResultItem], Option<&Value>)>,
     ) -> Result<Option<String>, ReceiptError> {
+        if case_state::is_load_state(input.model) || input.load_state.is_some() {
+            return self.check_load_state_input(input, selected, physical);
+        }
         let request = self.requested()?;
         let mut model = request.model;
         let mut materials = if request.materials.is_empty() {
@@ -188,9 +354,13 @@ impl CapturedInvocation {
                 load_application: &application,
                 thermal_loads: &[],
                 pressure_thrust_loads: &[],
+                load_state: None,
             })
             .map_err(|e| bad(format!("captured source replay: {e:?}")))?;
-        if let Some((evidence, rows)) = physical {
+        if let Some((evidence, rows, record)) = physical {
+            if record.is_some() {
+                return Err(bad("load/reference-state record on a pre-0.4 case"));
+            }
             composite::physical_source_built(
                 self,
                 &model,
@@ -202,6 +372,7 @@ impl CapturedInvocation {
                 &[],
                 rows,
                 true,
+                None,
             )?;
         }
         Ok(material_basis_record)
@@ -483,6 +654,7 @@ impl FinalizedSourceBlockCase {
                     load_application: input.load_application,
                     thermal_loads: input.thermal_loads,
                     pressure_thrust_loads: input.pressure_thrust_loads,
+                    load_state: input.load_state,
                 })
                 .map_err(|e| bad(format!("current source binding: {e:?}")))?;
             let case_id = input.load_case.id.clone();
@@ -654,7 +826,13 @@ impl FinalizedSourceBlockReceipt {
         cases: Vec<FinalizedSourceBlockCase>,
         invocation_budget: &mut SourceRecoveryBudget,
     ) -> Result<Self, ReceiptError> {
-        Self::finalize_for(capture, envelope, cases, invocation_budget, false)
+        Self::finalize_for(
+            capture,
+            envelope,
+            cases,
+            invocation_budget,
+            ReceiptPolicy::SourceBlocks,
+        )
     }
     pub(super) fn finalize_composite(
         capture: &CapturedInvocation,
@@ -662,15 +840,27 @@ impl FinalizedSourceBlockReceipt {
         cases: Vec<FinalizedSourceBlockCase>,
         invocation_budget: &mut SourceRecoveryBudget,
     ) -> Result<Self, ReceiptError> {
-        Self::finalize_for(capture, envelope, cases, invocation_budget, true)
+        // The captured invocation, not the envelope label, selects the policy.
+        let policy = if case_state::is_load_state(&capture.requested()?.model) {
+            ReceiptPolicy::LoadReferenceSource
+        } else {
+            ReceiptPolicy::PhysicsSource
+        };
+        Self::finalize_for(capture, envelope, cases, invocation_budget, policy)
     }
     fn finalize_for(
         capture: &CapturedInvocation,
         envelope: &MechanicsEnvelope,
         cases: Vec<FinalizedSourceBlockCase>,
         invocation_budget: &mut SourceRecoveryBudget,
-        composite: bool,
+        policy: ReceiptPolicy,
     ) -> Result<Self, ReceiptError> {
+        let composite = policy.composite();
+        if !composite && case_state::is_load_state(&capture.requested()?.model) {
+            return Err(bad(
+                "load/reference-state invocation requires its joined receipt policy",
+            ));
+        }
         if envelope.results.len() > MAX_ITEMS || envelope.diagnostics.len() > MAX_ITEMS {
             return Err(bad("publication inventory budget"));
         }
@@ -750,12 +940,7 @@ impl FinalizedSourceBlockReceipt {
         }
         let publication = serialized(envelope)?;
         if publication.get("source_block_recovery").is_some()
-            || envelope.producer.semantic_contract_id
-                != if composite {
-                    COMPOSITE_SEMANTIC_ID
-                } else {
-                    SEMANTIC_ID
-                }
+            || envelope.producer.semantic_contract_id != policy.semantic_id()
         {
             return Err(bad(
                 "publication must have source identity and omit receipt",
@@ -860,7 +1045,7 @@ impl FinalizedSourceBlockReceipt {
             if composite {
                 let row = wire.last_mut().expect("just appended case");
                 row["physical_evidence_sha256"] = json!(hash(
-                    "physics_source_case_evidence_v1",
+                    policy.case_evidence_domain(),
                     case.physical_evidence
                         .as_ref()
                         .ok_or_else(|| bad("composite physical case proof"))?
@@ -901,7 +1086,7 @@ impl FinalizedSourceBlockReceipt {
         {
             return Err(bad("invocation work ledger mismatch"));
         }
-        let body = json!({"receipt_version":"1.0.0","policy":if composite {"PHYSICS-SOURCE-1"}else{"SOURCE-BLOCKS-1"},"status":if qualified==cases.len(){"qualified"}else if qualified>0{"partial"}else{"unavailable"},"invocation":{"algorithm":"sha256","canonicalization":"openpipestress_jcs_ijson_v1","payload_scope":"source_blocks_invocation_v1","value":capture.digest},"publication_sha256":hash("source_blocks_publication_v1",&publication)?,"cases":wire,"envelope_observation_result_ids":observations,"invocation_work":{"limit":invocation_budget.invocation_limit,"charged":invocation_budget.charged,"publication_charged":invocation_budget.publication_charged}});
+        let body = json!({"receipt_version":"1.0.0","policy":policy.name(),"status":if qualified==cases.len(){"qualified"}else if qualified>0{"partial"}else{"unavailable"},"invocation":{"algorithm":"sha256","canonicalization":"openpipestress_jcs_ijson_v1","payload_scope":"source_blocks_invocation_v1","value":capture.digest},"publication_sha256":hash("source_blocks_publication_v1",&publication)?,"cases":wire,"envelope_observation_result_ids":observations,"invocation_work":{"limit":invocation_budget.invocation_limit,"charged":invocation_budget.charged,"publication_charged":invocation_budget.publication_charged}});
         let receipt_sha256 = hash("source_blocks_receipt_v1", &body)?;
         Ok(Self {
             body,
@@ -913,5 +1098,7 @@ impl FinalizedSourceBlockReceipt {
     }
 }
 
+#[cfg(test)]
+mod load_state_tests;
 #[cfg(test)]
 mod tests;

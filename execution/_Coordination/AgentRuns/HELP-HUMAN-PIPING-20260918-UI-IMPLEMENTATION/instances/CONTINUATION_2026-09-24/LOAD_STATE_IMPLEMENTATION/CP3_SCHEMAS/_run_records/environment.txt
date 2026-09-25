@@ -1,0 +1,9 @@
+python 3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]
+jsonschema 4.26.0
+referencing 0.37.0
+pytest 9.1.1
+jsonschema-specifications 2025.9.1
+interpreter: /home/user/dec025-venv/bin/python (manager-supplied venv; system python3 lacks jsonschema)
+checkout HEAD: d92ca3b7cbbd20a9adcfda50f10202f42b0d997e branch codex/piping-load-states-20260925
+serde (core/product_physics/Cargo.lock): version = "1.0.228"
+note: isolated base/cand/mut trees were git-archived at 404cd9c6b; HEAD later advanced to d92ca3b7c, which changes only execution/ review records (git diff 404cd9c6b d92ca3b7c outside execution/ is empty); carrier schema bytes at both commits equal the recorded pre-edit sha256
