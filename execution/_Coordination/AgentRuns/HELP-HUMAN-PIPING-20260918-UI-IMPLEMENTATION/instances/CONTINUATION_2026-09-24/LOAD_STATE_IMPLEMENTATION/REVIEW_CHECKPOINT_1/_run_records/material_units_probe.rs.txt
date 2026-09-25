@@ -1,0 +1,46 @@
+// Appended to a scratch copy of the reviewed material.rs (sha256 1ae8ac99...) only.
+#[cfg(test)]
+mod reviewer_probes {
+    //! Reviewer probe appended to a SCRATCH copy only; reviewed bytes unchanged.
+    use super::*;
+    use serde_json::json;
+    fn q(value: f64, unit: &str) -> Quantity {
+        Quantity { value, unit: unit.into() }
+    }
+    fn material(points: serde_json::Value) -> MaterialInput {
+        serde_json::from_value(json!({
+            "id":"material:user", "constitutive_basis":"homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus":{"value":200,"unit":"GPa"}, "poisson_ratio":{"value":0.3,"unit":"1"},
+            "temperature_points": points
+        })).unwrap()
+    }
+    #[test]
+    fn probe_equivalent_temperatures_in_other_units_are_not_equal_after_normalization() {
+        // Endpoint 223.15 K authored in K; request -50 degC (physically identical).
+        let m = material(json!([
+            {"id":"p:low","temperature":{"value":223.15,"unit":"K"},"elastic_modulus":{"value":210,"unit":"GPa"},"poisson_ratio":{"value":0.3,"unit":"1"}},
+            {"id":"p:high","temperature":{"value":393.15,"unit":"K"},"elastic_modulus":{"value":190,"unit":"GPa"},"poisson_ratio":{"value":0.3,"unit":"1"}}
+        ]));
+        let sel = MaterialSelection::TemperatureInterpolation { material_ref: "material:user".into(), temperature: q(-50.0, "degC") };
+        let r = select_for_member(&m, &sel, None, None);
+        println!("-50 degC against 223.15 K endpoint: {:?}", r.as_ref().map(|v| (v.consumed_points.len(), v.interpolation_fraction)).map_err(|e| e.code));
+        // Exact point authored at 242 degC; actual operating temperature authored as 467.6 degF.
+        let m2 = material(json!([
+            {"id":"p:hot","temperature":{"value":242,"unit":"degC"},"elastic_modulus":{"value":180,"unit":"GPa"},"poisson_ratio":{"value":0.3,"unit":"1"}}
+        ]));
+        let sel2 = MaterialSelection::ExactPoint { material_ref: "material:user".into(), point_ref: "p:hot".into() };
+        let r2 = select_for_member(&m2, &sel2, Some(&q(467.6, "degF")), None);
+        println!("242 degC point vs 467.6 degF actual: {:?}", r2.as_ref().map(|v| v.selection_kind).map_err(|e| e.code));
+        // Interior table point 293.15 K, request 20 degC (these happen to agree) and 68 degF.
+        let m3 = material(json!([
+            {"id":"p:a","temperature":{"value":223.15,"unit":"K"},"elastic_modulus":{"value":210,"unit":"GPa"},"poisson_ratio":{"value":0.3,"unit":"1"}},
+            {"id":"p:b","temperature":{"value":515.15,"unit":"K"},"elastic_modulus":{"value":200,"unit":"GPa"},"poisson_ratio":{"value":0.3,"unit":"1"}},
+            {"id":"p:c","temperature":{"value":700,"unit":"K"},"elastic_modulus":{"value":150,"unit":"GPa"},"poisson_ratio":{"value":0.3,"unit":"1"}}
+        ]));
+        for (v, u) in [(515.15, "K"), (242.0, "degC"), (467.6, "degF")] {
+            let s = MaterialSelection::TemperatureInterpolation { material_ref: "material:user".into(), temperature: q(v, u) };
+            let r = select_for_member(&m3, &s, None, None).unwrap();
+            println!("interior point 515.15 K requested as {v} {u}: points {:?} fraction {:?} E {:.17e}", r.consumed_points.iter().map(|p| p.point_id.as_str()).collect::<Vec<_>>(), r.interpolation_fraction, r.pair.elastic_modulus_pa());
+        }
+    }
+}

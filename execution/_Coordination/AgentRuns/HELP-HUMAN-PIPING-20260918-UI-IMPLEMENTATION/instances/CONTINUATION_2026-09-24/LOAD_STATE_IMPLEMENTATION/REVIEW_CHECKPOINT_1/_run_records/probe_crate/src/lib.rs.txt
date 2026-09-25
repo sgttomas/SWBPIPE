@@ -1,0 +1,15 @@
+//! Reviewer probe crate: includes the reviewed thermal.rs bytes (or a mutant
+//! copy) plus the existing exact-sum helper by path, and adds probe tests.
+#[path = "/home/user/wt/ls-review/projects/chirality-piping/core/product_physics/src/pressure_sum.rs"]
+#[allow(dead_code)]
+mod pressure_sum;
+#[cfg(not(feature = "mutant"))]
+#[path = "/home/user/wt/ls-review/projects/chirality-piping/core/product_physics/src/case_state/thermal.rs"]
+#[allow(dead_code)]
+mod thermal;
+#[cfg(feature = "mutant")]
+#[path = "mutant_thermal.rs"]
+#[allow(dead_code)]
+mod thermal;
+#[cfg(test)]
+mod probes;
