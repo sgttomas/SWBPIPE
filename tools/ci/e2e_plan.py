@@ -526,6 +526,21 @@ def aggregate(mode, selection, barrier, remainder, numerical_required, numerical
     return mode in {'changed-specs', 'lean', 'lean-affected'} and barrier == 'success' and remainder == 'skipped'
 
 
+SUMMARY_PATHS = 200
+
+
+def plan_summary(plan):
+    """Readable step summary. GitHub rejects summaries over 1 MiB, so a large
+    diff (for example a run-record archive) lists its first paths and a count;
+    the uploaded piping-e2e-selection artifact keeps the complete plan."""
+    paths = plan['changed_paths']
+    shown = plan if len(paths) <= SUMMARY_PATHS else {
+        **plan, 'changed_paths': paths[:SUMMARY_PATHS] + [
+            f'... {len(paths) - SUMMARY_PATHS} more; complete list in the piping-e2e-selection artifact']}
+    return ('## Piping source selection\n\n' + plan['coverage_note'] + '\n\n```json\n'
+            + json.dumps(shown, indent=2) + '\n```\n')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='action', required=True)
@@ -552,7 +567,7 @@ def main():
     if args.action == 'plan':
         plan = make_plan(root, args.event, args.base, args.head, args.pr)
         Path(args.output).write_text(json.dumps(plan, indent=2) + '\n')
-        summary = '## Piping source selection\n\n' + plan['coverage_note'] + '\n\n```json\n' + json.dumps(plan, indent=2) + '\n```\n'
+        summary = plan_summary(plan)
         if os.getenv('GITHUB_STEP_SUMMARY'):
             with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
                 out.write(summary)

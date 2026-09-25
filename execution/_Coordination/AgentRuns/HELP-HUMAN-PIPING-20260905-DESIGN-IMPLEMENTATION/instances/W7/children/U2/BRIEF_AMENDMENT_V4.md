@@ -1,2 +1,0 @@
-# Root visual direction v4
-Root Agent0 requests clear property-specific labels, rationale/internalunitstatus/technicalreceipts in reachableDetails, no redundant Propertiesheading or allclearrequiredcard. Keep actualmissingflags visible and genericfieldinventory available; no changeddefaults/operations/validation. Current/new Name edit should read as engineeringobjectediting. Neverlabelqueuedchangeasapplied. Samewrites and tests.
