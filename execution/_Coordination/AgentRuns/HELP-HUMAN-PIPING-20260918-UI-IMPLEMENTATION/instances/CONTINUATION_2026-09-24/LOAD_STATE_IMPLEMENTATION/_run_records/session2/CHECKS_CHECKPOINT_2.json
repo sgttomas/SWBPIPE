@@ -1,0 +1,123 @@
+{
+  "checkpoint": 2,
+  "status": "in progress",
+  "environment": {
+    "cargo": "1.97.1",
+    "jobs": 2,
+    "disk_event": "root filesystem reached 100% during dependent compiles; manager deleted only its own finished targets; ROOT freed more space"
+  },
+  "runs": [
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 (whole product_physics crate) at be1b9294a before CP2 edits",
+      "log": "baseline_all_tests_be1b929.log",
+      "exit": 0,
+      "result": "lib 286 passed/1 ignored; integration 62 passed; total 348 passed, 1 pre-existing ignored"
+    },
+    {
+      "command": "cargo +1.97.1 build --locked --offline -j 2",
+      "attempt": 1,
+      "exit": 101,
+      "log": "cp2_build_1.log (overwritten by attempt 2)",
+      "original_failure": "error[E0425]: cannot find function `reduce_system_with_prescribed_displacements` in this scope --> src/lib.rs:2110:9",
+      "repair": "import from open_pipe_stress_frame_kernel"
+    },
+    {
+      "command": "cargo +1.97.1 build --locked --offline -j 2",
+      "attempt": 2,
+      "exit": 0,
+      "log": "cp2_build_1.log",
+      "note": "one new warning (unused ResolvedCase.case_id) then removed"
+    },
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 (whole crate, after facade integration, before review repairs)",
+      "exit": 0,
+      "log": "cp2_existing_tests_1.log",
+      "result": "all 348 pre-existing tests pass; no test file changed"
+    },
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 --lib case_state::tests",
+      "attempt": 1,
+      "exit": 101,
+      "log": "cp2_smoke_1.log",
+      "original_failure": "PROVENANCE_INPUT_MISSING: load-case record requires a nonempty source reference (3 smoke tests)",
+      "diagnosis": "implementer smoke-test input omitted required load-case provenance (existing rule); test input repaired"
+    },
+    {
+      "command": "same",
+      "attempt": 2,
+      "exit": 101,
+      "log": "cp2_smoke_2.log",
+      "original_failure": "panicked at src/lib.rs:3158:56: validated exact G (3 smoke tests)",
+      "diagnosis": "real defect: legacy exact_cases.pipe_materials evidence dereferenced the base material G, which a 0.4.0 document never resolves; repaired by building that legacy array only on the legacy branch"
+    },
+    {
+      "command": "same",
+      "attempt": 3,
+      "exit": 0,
+      "log": "cp2_smoke_3.log",
+      "result": "4 passed"
+    },
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 --lib case_state (after SF1 tests)",
+      "attempt": 1,
+      "exit": 101,
+      "log": "cp2_case_state_tests_1.log",
+      "original_failure": "multi_segment_integrals_use_every_interior_segment_in_both_directions: left [(1,400,500),(2,500,550),(0,350,400)] right [(0,350,400),(1,400,500),(2,500,550)]",
+      "diagnosis": "test compared insertion-ordered segment records; repaired by sorting before comparison (kernel unchanged)"
+    },
+    {
+      "command": "same",
+      "attempt": 2,
+      "exit": 0,
+      "log": "cp2_case_state_tests_2.log",
+      "result": "25 passed"
+    },
+    {
+      "command": "same (after SF3 identity)",
+      "exit": 0,
+      "log": "cp2_case_state_tests_3.log / cp2_case_state_tests_4.log",
+      "result": "27 then 29 passed"
+    },
+    {
+      "command": "python3 _run_records/session2/cp2_repair_mutations.py <core/product_physics> <target>",
+      "exit": 0,
+      "log": "cp2_repair_mutations.log",
+      "result": "4/4 mutants killed (SF1 integral last-segment-only; SF1 dilation last-segment-only; SF2 restored secant datum coverage; SF3 disabled identity canonicalization); all case_state bytes restored and verified (cp2_mutation_prehash.txt)"
+    },
+    {
+      "command": "dependent crates: cargo +1.97.1 fetch --locked; cargo +1.97.1 test --locked --offline -j 2 --no-run, each with its own CARGO_TARGET_DIR",
+      "logs": [
+        "cp2_dependent_headless.log",
+        "cp2_dependent_operation_applier.log",
+        "cp2_dependent_self_weight_wasm.log",
+        "cp2_dependent_numerical_integrity.log",
+        "cp2_dependent_physics_audit_regression.log"
+      ],
+      "results": {
+        "core/runner/headless": "exit 0",
+        "core/model_operations/operation_applier": "exit 0",
+        "core/loads/self_weight_wasm": "exit 101 ENVIRONMENTAL: 'failed to build archive ... No space left on device (os error 28)'",
+        "validation/benchmarks/physics_audit_regression": "exit 101 ENVIRONMENTAL: 'ld terminated with signal 7 [Bus error]' and 'No space left on device (os error 28)'",
+        "validation/benchmarks/numerical_integrity": "exit 101 INHERITED: 'cannot update the lock file ... because --locked was passed'; known stale leaf lock after product_physics gained canonical_json/sha2 edges (1792774a2/22452ecd1); fixed upstream in PR905 5b1ccd356 (independently reviewed CLEAR) per ROOT; not repaired in this branch to avoid conflict; this branch changes no Cargo.toml/Cargo.lock"
+      }
+    },
+    {
+      "command": "rerun after disk cleanup, one at a time, target deleted after each",
+      "logs": [
+        "cp2_dependent_self_weight_wasm_rerun.log",
+        "cp2_dependent_physics_audit_regression_rerun.log"
+      ],
+      "results": {
+        "core/loads/self_weight_wasm": "exit 0",
+        "validation/benchmarks/physics_audit_regression": "exit 0"
+      }
+    },
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 (whole crate) freeze gate",
+      "exit": 0,
+      "log": "cp2_freeze_gate_all_tests.log",
+      "prehash": "cp2_freeze_gate_prehash.txt (verified stable after run)",
+      "result": "lib 297 passed/1 pre-existing ignored (268 pre-existing non-case_state + 29 case_state); load_reference_state_runtime 20 passed; other integration 62 passed unchanged"
+    }
+  ]
+}

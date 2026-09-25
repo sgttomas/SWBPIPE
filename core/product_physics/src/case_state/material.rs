@@ -710,6 +710,31 @@ mod tests {
         }
     }
     #[test]
+    fn bracket_selection_sorts_by_temperature_not_authored_order() {
+        // N3 control: authored order [120, 20, 70] degC has no adjacent pair
+        // bracketing 95 degC; only the temperature-sorted table finds 70..120.
+        let mut material = sample();
+        let mut middle = material.temperature_points[0].clone();
+        middle.id = "point:middle".into();
+        middle.temperature = Some(q(70.0, "degC"));
+        middle.elastic_modulus = Some(q(180.0, "GPa"));
+        middle.poisson_ratio = Some(q(-0.2, "1"));
+        let cold = material.temperature_points[0].clone();
+        let hot = material.temperature_points[1].clone();
+        material.temperature_points = vec![hot, cold, middle];
+        let selected =
+            select_for_member(&material, &temperature(95.0, "degC"), None, None).unwrap();
+        assert_eq!(
+            selected
+                .consumed_points
+                .iter()
+                .map(|p| p.point_id.as_str())
+                .collect::<Vec<_>>(),
+            vec!["point:middle", "point:hot"]
+        );
+        close(selected.pair.elastic_modulus_pa(), 140e9);
+    }
+    #[test]
     fn exact_selection_consumes_only_its_point_and_does_not_require_unrelated_property_pairs() {
         let mut material = sample();
         material.elastic_modulus = q(-1.0, "Pa");

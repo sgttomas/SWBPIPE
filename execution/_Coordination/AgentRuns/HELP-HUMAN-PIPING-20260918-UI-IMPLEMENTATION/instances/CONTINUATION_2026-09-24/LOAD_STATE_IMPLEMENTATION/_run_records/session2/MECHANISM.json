@@ -14,5 +14,45 @@
     "core/product_physics/src/case_state/mod.rs": "this manager",
     "core/product_physics/src/lib.rs (+4 lines module declaration)": "this manager",
     "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json": "session-1 TASK membrane_backcheck; unchanged bytes"
+  },
+  "delegation_channel_correction": {
+    "received_from": "ROOT via SendMessage during checkpoint 2",
+    "mechanism": "Children in this host cannot spawn subagents (ROOT probe). TASK children are spawned by ROOT on this manager's request, with the full TASK role; parent-of-record for integration and direction is this manager (id a3675abb28ada0834); each TASK reports to this manager via SendMessage and sends its final report to ROOT. This manager continues a worker by SendMessage to the id ROOT supplies.",
+    "checkpoint_1_reviewer": "Independent non-author TASK reviewer spawned by ROOT on a frozen snapshot of be1b9294a in a separate worktree; reports to ROOT, findings forwarded to this manager.",
+    "requests_made": [
+      {
+        "task": "CP2 public-API runtime-test author",
+        "requested_via": "SendMessage to main (ROOT)",
+        "spawned_by": "ROOT, full TASK role, 'do not delegate further'",
+        "task_sendmessage_id": "acfae78c40c4525d2",
+        "parent_of_record": "this manager (a3675abb28ada0834)",
+        "brief": "LOAD_STATE_IMPLEMENTATION/CP2_RUNTIME_TESTS/BRIEF.md sha256 4cf1ae3d8f2dceffefaefde5ee489cda9bf53423d0bb4b47c49ae514669c9b77 (ROOT verified)",
+        "wire": "LOAD_STATE_IMPLEMENTATION/CP2_WIRE.md sha256 81a7adbaa212517c518a61c5ab54cd7d9444adaee6b7f0dbec8b7b6efd168996",
+        "exclusive_writes": [
+          "core/product_physics/tests/load_reference_state_runtime.rs",
+          "core/product_physics/tests/fixtures/load_reference_states/models/ (new files)",
+          "LOAD_STATE_IMPLEMENTATION/CP2_RUNTIME_TESTS/"
+        ],
+        "resources": "syntax checks until manager signals facade compiles; then own test binary only, -j 1, CARGO_TARGET_DIR=/home/user/cargo-targets/loadstate/product_physics_tests"
+      },
+      {
+        "task": "Additive analytical-reference extension and fixture README (review SF1/SF2/N6)",
+        "requested_via": "SendMessage to main (ROOT)",
+        "brief": "LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/CP2_EXTENSION/BRIEF.md sha256 fe864ffa5afc6695068920fdb84329aca82d142a411c81a321c91e6aeeb5c3d8",
+        "exclusive_writes": [
+          "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (additive only)",
+          "core/product_physics/tests/fixtures/load_reference_states/README.md",
+          "LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/CP2_EXTENSION/"
+        ],
+        "status": "spawned by ROOT with full TASK role and 'do not delegate further'; brief and fixture pre-edit hash verified by ROOT",
+        "task_sendmessage_id": "a3bb458a695b524aa",
+        "parent_of_record": "this manager (a3675abb28ada0834)"
+      }
+    ]
+  },
+  "checkpoint_1_review": {
+    "record": "LOAD_STATE_IMPLEMENTATION/REVIEW_CHECKPOINT_1/RETURN.md (committed by ROOT as 5511596af)",
+    "verdict": "FINDINGS, none blocking",
+    "repairs": "SF1 SF2 SF3 N1 N2 N3 N4 N5 applied by this manager in CP2; N6 delegated; N7 CP2 scope"
   }
 }

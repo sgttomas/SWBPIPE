@@ -71,8 +71,24 @@ pub(crate) enum FitInput {
         reference_length_m: f64,
     },
 }
+/// How a table segment was used: a point interpolation (`start == end`) or an
+/// integrated/differenced interval.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SegmentUse {
+    InterpolationSample,
+    IntegrationInterval,
+}
+impl SegmentUse {
+    pub(crate) fn as_str(self) -> &'static str {
+        match self {
+            Self::InterpolationSample => "interpolation_sample",
+            Self::IntegrationInterval => "integration_interval",
+        }
+    }
+}
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct ConsumedSegment {
+    pub use_kind: SegmentUse,
     pub lower_index: usize,
     pub upper_index: usize,
     /// Actual covered subinterval in increasing temperature order. Direction of
@@ -93,8 +109,13 @@ pub(crate) struct ResolvedStrain {
     pub operating_kelvin: Option<f64>,
     pub installation_datum_stretch: Option<f64>,
     pub operating_datum_stretch: Option<f64>,
+    /// Table data that entered the published strain value.
     pub consumed_point_indices: Vec<usize>,
     pub consumed_segments: Vec<ConsumedSegment>,
+    /// Table data consulted only for coverage/positivity admissibility (the
+    /// dilation datum-zero check and the free-length path check).
+    pub consulted_point_indices: Vec<usize>,
+    pub consulted_segments: Vec<ConsumedSegment>,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum StateMathError {
@@ -197,6 +218,11 @@ impl Consumption {
     fn segment(&mut self, index: usize, start: f64, end: f64) {
         self.points.extend([index, index + 1]);
         let segment = ConsumedSegment {
+            use_kind: if start == end {
+                SegmentUse::InterpolationSample
+            } else {
+                SegmentUse::IntegrationInterval
+            },
             lower_index: index,
             upper_index: index + 1,
             start_kelvin: start,
@@ -365,11 +391,27 @@ fn check_path(
     kind: PathKind,
     used: &mut Consumption,
 ) -> Result<(), StateMathError> {
-    let lo = datum.min(install).min(operate);
-    let hi = datum.max(install).max(operate);
+    // A secant free length is evaluated only at T_install and T; lambda(T_m)=1
+    // by definition, so the datum needs no coverage or invented coefficient.
+    // Integral/dilation laws evaluate from the datum and must cover it.
+    let secant = matches!(kind, PathKind::Secant);
+    let lo = if secant {
+        install.min(operate)
+    } else {
+        datum.min(install).min(operate)
+    };
+    let hi = if secant {
+        install.max(operate)
+    } else {
+        datum.max(install).max(operate)
+    };
     covered(points, lo)?;
     covered(points, hi)?;
-    let mut candidates = vec![lo, hi, datum, install, operate];
+    let mut candidates = if secant {
+        vec![lo, hi, install, operate]
+    } else {
+        vec![lo, hi, datum, install, operate]
+    };
     for (i, w) in points.windows(2).enumerate() {
         let a = lo.max(w[0].temperature_kelvin);
         let b = hi.min(w[1].temperature_kelvin);
@@ -463,6 +505,7 @@ struct ThermalResolution {
     operating: Option<f64>,
     datum_stretches: Option<[f64; 2]>,
     used: Consumption,
+    consulted: Consumption,
 }
 fn direct(strain: f64, definition: &'static str) -> Result<ThermalResolution, StateMathError> {
     let strain = published(strain, "thermal strain")?;
@@ -475,6 +518,7 @@ fn direct(strain: f64, definition: &'static str) -> Result<ThermalResolution, St
         operating: None,
         datum_stretches: None,
         used: Consumption::default(),
+        consulted: Consumption::default(),
     })
 }
 fn thermal(input: &ThermalInput) -> Result<ThermalResolution, StateMathError> {
@@ -509,6 +553,7 @@ fn free_length(
     temperature(install)?;
     temperature(operate)?;
     let mut used = Consumption::default();
+    let mut consulted = Consumption::default();
     let (datum, definition, li, lo, strain) = match law {
         NormalizedExpansionLaw::EngineeringSecant { datum_kelvin, data } => {
             let datum = *datum_kelvin;
@@ -520,8 +565,14 @@ fn free_length(
                 }
                 CoefficientData::Table(points) => {
                     validate_table(points)?;
-                    covered(points, datum)?;
-                    check_path(points, datum, install, operate, PathKind::Secant, &mut used)?;
+                    check_path(
+                        points,
+                        datum,
+                        install,
+                        operate,
+                        PathKind::Secant,
+                        &mut consulted,
+                    )?;
                     [
                         sample(points, install, &mut used)?,
                         sample(points, operate, &mut used)?,
@@ -549,7 +600,7 @@ fn free_length(
             let datum = *datum_kelvin;
             temperature(datum)?;
             validate_table(points)?;
-            if sample(points, datum, &mut used)? != 0.0 {
+            if sample(points, datum, &mut consulted)? != 0.0 {
                 return Err(StateMathError::NonzeroDilationAtDatum);
             }
             check_path(
@@ -558,7 +609,7 @@ fn free_length(
                 install,
                 operate,
                 PathKind::Dilation,
-                &mut used,
+                &mut consulted,
             )?;
             let di = sample(points, install, &mut used)?;
             let d_o = sample(points, operate, &mut used)?;
@@ -580,7 +631,7 @@ fn free_length(
                 install,
                 operate,
                 PathKind::DatumIntegral,
-                &mut used,
+                &mut consulted,
             )?;
             let di = integral(points, datum, install, &mut used)?;
             let d_o = integral(points, datum, operate, &mut used)?;
@@ -608,7 +659,7 @@ fn free_length(
                 install,
                 operate,
                 PathKind::LogIntegral,
-                &mut used,
+                &mut consulted,
             )?;
             let di = integral(points, datum, install, &mut used)?;
             let d_o = integral(points, datum, operate, &mut used)?;
@@ -639,6 +690,7 @@ fn free_length(
         operating: Some(operate),
         datum_stretches: Some([li, lo]),
         used,
+        consulted,
     })
 }
 pub(crate) fn resolve_strain(
@@ -685,6 +737,8 @@ pub(crate) fn resolve_strain(
         operating_datum_stretch: thermal.datum_stretches.map(|v| v[1]),
         consumed_point_indices: thermal.used.points.into_iter().collect(),
         consumed_segments: thermal.used.segments,
+        consulted_point_indices: thermal.consulted.points.into_iter().collect(),
+        consulted_segments: thermal.consulted.segments,
     })
 }
 
@@ -729,14 +783,12 @@ mod tests {
     }
 
     #[test]
-    fn secant_datum_conversion_matches_43_over_25009_and_rejects_wrong_controls() {
+    fn secant_datum_conversion_matches_43_over_25009_from_verification_two_point_table() {
+        // VERIFICATION control 4 exactly: alpha only at 50 and 150 degC, datum
+        // 20 degC outside the table. lambda(T_m)=1, so no datum alpha is needed.
         let law = NormalizedExpansionLaw::EngineeringSecant {
             datum_kelvin: k(20.0),
-            data: CoefficientData::Table(table(&[
-                (k(20.0), 11e-6),
-                (k(50.0), 12e-6),
-                (k(150.0), 16e-6),
-            ])),
+            data: CoefficientData::Table(table(&[(k(50.0), 12e-6), (k(150.0), 16e-6)])),
         };
         let resolved = resolve(free(k(50.0), k(150.0), law)).unwrap();
         let expected = 43.0 / 25009.0;
@@ -750,17 +802,139 @@ mod tests {
         assert_eq!(resolved.datum_kelvin, Some(k(20.0)));
         assert_eq!(resolved.installation_kelvin, Some(k(50.0)));
         assert_eq!(resolved.operating_kelvin, Some(k(150.0)));
-        assert_eq!(resolved.consumed_point_indices, vec![0, 1, 2]);
-        // alpha_hot*(T-T_install) and a difference of datum dilations are wrong.
-        for wrong in [16e-6 * 100.0, 0.00208 - 0.00036] {
-            assert!((resolved.thermal_strain - wrong).abs() > expected * 1e-6);
-        }
+        // Both exact endpoints are consumed for the value; the path check only
+        // consults the evaluated interval [T_install, T].
+        assert_eq!(resolved.consumed_point_indices, vec![0, 1]);
+        assert!(resolved.consumed_segments.is_empty());
+        assert_eq!(resolved.consulted_point_indices, vec![0, 1]);
     }
 
     #[test]
-    fn celsius_and_kelvin_normalized_inputs_and_constant_interval_need_no_absolute_temperature() {
-        // Normalized inputs arrive in kelvin; an equivalent Kelvin authoring
-        // reaches the same normalized numbers before this kernel.
+    fn secant_table_covers_only_the_evaluated_interval_and_refuses_uncovered_evaluation() {
+        // SF2 policy pin. The table need not contain the datum, but T_install
+        // and T must be covered, and positivity is required on [T_install, T].
+        let two_point = || NormalizedExpansionLaw::EngineeringSecant {
+            datum_kelvin: k(20.0),
+            data: CoefficientData::Table(table(&[(k(50.0), 12e-6), (k(150.0), 16e-6)])),
+        };
+        assert_eq!(
+            resolve(free(k(50.0), k(151.0), two_point())),
+            Err(StateMathError::OutsideTableCoverage)
+        );
+        assert_eq!(
+            resolve(free(k(49.0), k(150.0), two_point())),
+            Err(StateMathError::OutsideTableCoverage)
+        );
+        assert_eq!(
+            resolve(free(k(20.0), k(150.0), two_point())),
+            Err(StateMathError::OutsideTableCoverage)
+        );
+        // lambda(t)=1+(0.001t-0.3)(t-200) is -3/2 at 250 K but positive on
+        // [300, 400] K: admissible there (strain 21/1-1 = 20), refused when
+        // the evaluated interval itself crosses the nonpositive region.
+        let quadratic = || NormalizedExpansionLaw::EngineeringSecant {
+            datum_kelvin: 200.0,
+            data: CoefficientData::Table(table(&[(100.0, -0.2), (400.0, 0.1)])),
+        };
+        close(
+            resolve(free(300.0, 400.0, quadratic()))
+                .unwrap()
+                .thermal_strain,
+            20.0,
+        );
+        assert_eq!(
+            resolve(free(240.0, 400.0, quadratic())),
+            Err(StateMathError::NonPositiveStretch("secant path stretch"))
+        );
+    }
+
+    fn three_segment_coefficient() -> Vec<ThermalPoint> {
+        // Invented 4-point, 3-segment coefficient table (per kelvin).
+        table(&[(300.0, 1e-5), (400.0, 2e-5), (500.0, 1e-5), (600.0, 3e-5)])
+    }
+
+    #[test]
+    fn multi_segment_integrals_use_every_interior_segment_in_both_directions() {
+        // SF1. Exact targets derived independently by exact rational/Decimal
+        // arithmetic (session-2 run record sf1_multisegment_derivation.py),
+        // matching the independent reviewer's probes: 350->550 K integral is
+        // 1/320 over three segments with lambda(350)=1.000625.
+        let datum = |i: f64, o: f64| {
+            resolve(free(
+                i,
+                o,
+                NormalizedExpansionLaw::DifferentialPerDatumLength {
+                    datum_kelvin: 300.0,
+                    points: three_segment_coefficient(),
+                },
+            ))
+            .unwrap()
+        };
+        let forward = datum(350.0, 550.0);
+        close(forward.thermal_strain, 5.0 / 1601.0);
+        close(datum(550.0, 350.0).thermal_strain, -5.0 / 1606.0);
+        let (a, b) = (
+            datum(350.0, 450.0).thermal_strain,
+            datum(450.0, 550.0).thermal_strain,
+        );
+        close((1.0 + a) * (1.0 + b) - 1.0, 5.0 / 1601.0);
+        let mut integrated = forward
+            .consumed_segments
+            .iter()
+            .filter(|segment| segment.use_kind == SegmentUse::IntegrationInterval)
+            .filter(|segment| segment.start_kelvin >= 350.0 && segment.end_kelvin <= 550.0)
+            .map(|segment| {
+                (
+                    segment.lower_index,
+                    segment.start_kelvin,
+                    segment.end_kelvin,
+                )
+            })
+            .collect::<Vec<_>>();
+        integrated.sort_by(|a, b| a.0.cmp(&b.0));
+        assert_eq!(
+            integrated,
+            vec![(0, 350.0, 400.0), (1, 400.0, 500.0), (2, 500.0, 550.0)]
+        );
+        let log = |i: f64, o: f64| {
+            resolve(free(
+                i,
+                o,
+                NormalizedExpansionLaw::LogarithmicPerCurrentLength {
+                    datum_kelvin: 300.0,
+                    points: three_segment_coefficient(),
+                },
+            ))
+            .unwrap()
+            .thermal_strain
+        };
+        close(log(350.0, 550.0), 0.0031298879027391486);
+        close(log(550.0, 350.0), -0.0031201222697918601);
+        let dilation = |i: f64, o: f64| {
+            resolve(free(
+                i,
+                o,
+                NormalizedExpansionLaw::EngineeringDilation {
+                    datum_kelvin: 300.0,
+                    points: table(&[
+                        (300.0, 0.0),
+                        (400.0, 1e-3),
+                        (500.0, 1.5e-3),
+                        (600.0, 3.5e-3),
+                    ]),
+                },
+            ))
+            .unwrap()
+            .thermal_strain
+        };
+        close(dilation(350.0, 550.0), 4.0 / 2001.0);
+        close(dilation(550.0, 350.0), -4.0 / 2005.0);
+    }
+
+    #[test]
+    fn constant_secant_and_interval_routes_need_no_absolute_temperature() {
+        // Unit equivalence is an adapter property (exact temperature identity in
+        // case_state::resolve); this kernel receives normalized kelvin only.
         let a = resolve(free(
             k(20.0),
             k(100.0),
@@ -770,16 +944,6 @@ mod tests {
             },
         ))
         .unwrap();
-        let b = resolve(free(
-            293.15,
-            373.15,
-            NormalizedExpansionLaw::EngineeringSecant {
-                datum_kelvin: 293.15,
-                data: CoefficientData::Constant(1e-5),
-            },
-        ))
-        .unwrap();
-        assert_eq!(a, b);
         close(a.thermal_strain, 0.0008);
         let interval = resolve(ThermalInput::ConstantAlphaInterval {
             coefficient_per_kelvin: 1e-5,
@@ -836,6 +1000,7 @@ mod tests {
         assert_eq!(
             datum.consumed_segments,
             vec![ConsumedSegment {
+                use_kind: SegmentUse::IntegrationInterval,
                 lower_index: 0,
                 upper_index: 1,
                 start_kelvin: k(20.0),
@@ -911,7 +1076,7 @@ mod tests {
     }
 
     #[test]
-    fn signed_fit_composes_with_thermal_state_without_accumulating_on_return() {
+    fn signed_fit_composes_multiplicatively_with_thermal_state() {
         let law = NormalizedExpansionLaw::EngineeringSecant {
             datum_kelvin: k(20.0),
             data: CoefficientData::Constant(1e-5),
@@ -924,7 +1089,6 @@ mod tests {
         let axial_force = |e: f64, strain: f64| -e * 0.001 * strain;
         let cold = state(k(20.0));
         let hot = state(k(100.0));
-        let back = state(k(20.0));
         close(cold.fit_strain, -0.0002);
         close(cold.fit_stretch, 0.9998);
         assert_eq!(cold.thermal_strain, 0.0);
@@ -933,17 +1097,8 @@ mod tests {
         close(hot.thermal_strain, 0.0008);
         close(hot.total_eigenstrain, 0.00059984);
         close(axial_force(150e9, hot.total_eigenstrain), -89976.0);
-        assert_eq!(back, cold);
-        // Additive strains, cold E, doubled fit and flipped sign are wrong.
-        for wrong in [-90000.0, -119968.0] {
-            assert!((axial_force(150e9, hot.total_eigenstrain) - wrong).abs() > 1.0);
-        }
-        let doubled = resolve_strain(
-            &ThermalInput::UnchangedReference,
-            &FitInput::EngineeringStrain { strain: -0.0004 },
-        )
-        .unwrap();
-        assert!((axial_force(200e9, doubled.total_eigenstrain) - 40000.0).abs() > 1.0);
+        // No-accumulation across cold/hot/return is a solver-level property of
+        // independent resolved cases; this pure kernel holds no state.
         let cut_long = resolve_strain(
             &ThermalInput::UnchangedReference,
             &FitInput::NaturalLengthChange {
