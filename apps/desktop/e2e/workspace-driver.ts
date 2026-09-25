@@ -266,15 +266,30 @@ export async function projectCommand(page: Page, command: ProjectCommand, keyboa
 /**
  * A status chip of the status bar (specification §5.4): its face is "Domain · Label", the
  * recorded token is its tooltip and, on a click, the monospace line of its popover.
+ *
+ * A chip that names where its token comes from (such as "Solve job state": a recorded job
+ * state is not a solver token) is checked with that `source`. Its tooltip is then
+ * "source: token", it still carries the bare token, and its popover names the source beside
+ * the unchanged monospace token.
  */
-export async function expectStatusChip(page: Page, testId: string, token: string, face: string): Promise<void> {
+export async function expectStatusChip(page: Page, testId: string, token: string, face: string, source?: string): Promise<void> {
   const chip = page.getByTestId(testId);
   await expect(chip).toHaveText(face);
-  await expect(chip).toHaveAttribute("title", token);
+  if (source === undefined) {
+    await expect(chip).toHaveAttribute("title", token);
+  } else {
+    await expect(chip).toHaveAttribute("title", `${source}: ${token}`);
+    await expect(chip).toHaveAttribute("data-status-token", token);
+  }
   await chip.click();
   const recorded = page.getByTestId(`${testId}-popover`).locator("code");
   await expect(recorded).toBeVisible();
   await expect(recorded).toHaveText(token);
+  if (source !== undefined) {
+    const popover = page.getByTestId(`${testId}-popover`);
+    await expect(popover).toHaveAccessibleName(`${face}: ${source}`);
+    await expect(popover.locator(":scope > span").first()).toHaveText(source);
+  }
   await chip.click();
   await expect(page.getByTestId(`${testId}-popover`)).toHaveCount(0);
 }

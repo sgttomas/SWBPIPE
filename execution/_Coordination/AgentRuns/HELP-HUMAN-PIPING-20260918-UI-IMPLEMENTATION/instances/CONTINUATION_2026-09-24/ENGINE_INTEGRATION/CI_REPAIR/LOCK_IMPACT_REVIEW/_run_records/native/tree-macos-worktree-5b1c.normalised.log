@@ -1,0 +1,890 @@
+0openpipestress-desktop v0.1.0 (<ROOT>/projects/chirality-piping/apps/desktop/src-tauri)
+1getrandom v0.3.4
+2cfg-if v1.0.4
+2libc v0.2.186
+1open_pipe_stress_audit_manifest v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/audit_manifest)
+1open_pipe_stress_library_import_document v0.1.0 (<ROOT>/projects/chirality-piping/core/library_import/library_import_document)
+2serde v1.0.228
+3serde_core v1.0.228
+3serde_derive v1.0.228 (proc-macro)
+4proc-macro2 v1.0.106
+5unicode-ident v1.0.24
+4quote v1.0.45
+5proc-macro2 v1.0.106 (*)
+4syn v2.0.117
+5proc-macro2 v1.0.106 (*)
+5quote v1.0.45 (*)
+5unicode-ident v1.0.24
+2serde_json v1.0.149
+3itoa v1.0.18
+3memchr v2.8.0
+3serde_core v1.0.228
+3zmij v1.0.21
+1open_pipe_stress_operation_applier v0.1.0 (<ROOT>/projects/chirality-piping/core/model_operations/operation_applier)
+2open_pipe_stress_canonical_json v0.1.0 (<ROOT>/projects/chirality-piping/core/serialization/canonical_json)
+3ryu v1.0.23
+3serde v1.0.228 (*)
+3serde_json v1.0.149 (*)
+2open_pipe_stress_product_physics v0.2.0 (<ROOT>/projects/chirality-piping/core/product_physics)
+3open_pipe_stress_canonical_json v0.1.0 (<ROOT>/projects/chirality-piping/core/serialization/canonical_json) (*)
+3open_pipe_stress_curved_bend v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/curved_bend)
+4open_pipe_stress_frame_kernel v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+3open_pipe_stress_frame_kernel v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+3open_pipe_stress_linear_supports v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/linear_supports)
+4open_pipe_stress_frame_kernel v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+3open_pipe_stress_load_case_algebra v0.1.0 (<ROOT>/projects/chirality-piping/core/loads/load_case_algebra)
+4open_pipe_stress_primitive_loads v0.1.0 (<ROOT>/projects/chirality-piping/core/loads/primitive_loads)
+5open_pipe_stress_frame_kernel v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+5open_pipe_stress_linear_supports v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/linear_supports) (*)
+3open_pipe_stress_nonlinear_integration v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/nonlinear_integration)
+4open_pipe_stress_curved_bend v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/curved_bend) (*)
+4open_pipe_stress_frame_kernel v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+4open_pipe_stress_nonlinear_supports v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/nonlinear_supports)
+5open_pipe_stress_linear_supports v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/linear_supports) (*)
+5open_pipe_stress_solver_diagnostics v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/diagnostics)
+6open_pipe_stress_frame_kernel v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+6open_pipe_stress_linear_supports v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/linear_supports) (*)
+6open_pipe_stress_primitive_loads v0.1.0 (<ROOT>/projects/chirality-piping/core/loads/primitive_loads) (*)
+6open_pipe_stress_sparse_direct v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/sparse_direct)
+7open_pipe_stress_frame_kernel v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+4open_pipe_stress_solver_diagnostics v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/diagnostics) (*)
+4open_pipe_stress_sparse_direct v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/sparse_direct) (*)
+3open_pipe_stress_nonlinear_supports v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/nonlinear_supports) (*)
+3open_pipe_stress_primitive_loads v0.1.0 (<ROOT>/projects/chirality-piping/core/loads/primitive_loads) (*)
+3open_pipe_stress_solver_diagnostics v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/diagnostics) (*)
+3open_pipe_stress_sparse_direct v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/sparse_direct) (*)
+3open_pipe_stress_straight_pipe v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/straight_pipe)
+4open_pipe_stress_frame_kernel v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+3open_pipe_stress_stress_recovery v0.1.0 (<ROOT>/projects/chirality-piping/core/loads/stress_recovery)
+4open_pipe_stress_primitive_loads v0.1.0 (<ROOT>/projects/chirality-piping/core/loads/primitive_loads) (*)
+4open_pipe_stress_straight_pipe v0.1.0 (<ROOT>/projects/chirality-piping/core/solver/straight_pipe) (*)
+3open_pipe_stress_units v0.1.0 (<ROOT>/projects/chirality-piping/core/units)
+3serde v1.0.228 (*)
+3serde_json v1.0.149 (*)
+3sha2 v0.10.9
+4cfg-if v1.0.4
+4cpufeatures v0.2.17
+5libc v0.2.186
+4digest v0.10.7
+5block-buffer v0.10.4
+6generic-array v0.14.7
+7typenum v1.20.0
+7version_check v0.9.5
+5crypto-common v0.1.7
+6generic-array v0.14.7 (*)
+6typenum v1.20.0
+2open_pipe_stress_units v0.1.0 (<ROOT>/projects/chirality-piping/core/units)
+2serde v1.0.228 (*)
+2serde_json v1.0.149 (*)
+2sha2 v0.10.9 (*)
+1open_pipe_stress_product_physics v0.2.0 (<ROOT>/projects/chirality-piping/core/product_physics) (*)
+1open_pipe_stress_report_package v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/report_package)
+2open_pipe_stress_audit_manifest v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/audit_manifest)
+2open_pipe_stress_canonical_json v0.1.0 (<ROOT>/projects/chirality-piping/core/serialization/canonical_json) (*)
+2open_pipe_stress_pdf_emitter v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/pdf_emitter)
+3open_pipe_stress_protected_content_linter v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/protected_content_linter)
+3open_pipe_stress_report_generator v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/report_generator)
+4serde v1.0.228 (*)
+3open_pipe_stress_report_renderer v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/report_renderer)
+4open_pipe_stress_protected_content_linter v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/protected_content_linter)
+4open_pipe_stress_report_generator v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/report_generator) (*)
+4open_pipe_stress_report_sections v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/report_sections)
+5serde v1.0.228 (*)
+4serde v1.0.228 (*)
+4sha2 v0.10.9 (*)
+3open_pipe_stress_report_sections v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/report_sections) (*)
+3serde v1.0.228 (*)
+3sha2 v0.10.9 (*)
+2open_pipe_stress_report_renderer v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/report_renderer) (*)
+2open_pipe_stress_result_export v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/result_export)
+3open_pipe_stress_canonical_json v0.1.0 (<ROOT>/projects/chirality-piping/core/serialization/canonical_json) (*)
+3open_pipe_stress_units v0.1.0 (<ROOT>/projects/chirality-piping/core/units)
+3serde_json v1.0.149 (*)
+3sha2 v0.10.9 (*)
+2serde v1.0.228 (*)
+2serde_json v1.0.149 (*)
+2sha2 v0.10.9 (*)
+1open_pipe_stress_report_renderer v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/report_renderer) (*)
+1open_pipe_stress_result_export v0.1.0 (<ROOT>/projects/chirality-piping/core/reporting/result_export) (*)
+1open_pipe_stress_rule_check_runner v0.1.0 (<ROOT>/projects/chirality-piping/core/rules/rule_check_runner)
+2open_pipe_stress_completeness_checker v0.1.0 (<ROOT>/projects/chirality-piping/core/rules/completeness_checker)
+2open_pipe_stress_expression_evaluator v0.1.0 (<ROOT>/projects/chirality-piping/core/rules/expression_evaluator)
+2open_pipe_stress_rule_pack_document v0.1.0 (<ROOT>/projects/chirality-piping/core/rules/rule_pack_document)
+3open_pipe_stress_canonical_json v0.1.0 (<ROOT>/projects/chirality-piping/core/serialization/canonical_json) (*)
+3open_pipe_stress_expression_evaluator v0.1.0 (<ROOT>/projects/chirality-piping/core/rules/expression_evaluator)
+3open_pipe_stress_rule_pack_lifecycle v0.1.0 (<ROOT>/projects/chirality-piping/core/rules/rule_pack_lifecycle)
+3serde v1.0.228 (*)
+3serde_json v1.0.149 (*)
+2open_pipe_stress_units v0.1.0 (<ROOT>/projects/chirality-piping/core/units)
+2serde v1.0.228 (*)
+2serde_json v1.0.149 (*)
+1open_pipe_stress_rule_pack_document v0.1.0 (<ROOT>/projects/chirality-piping/core/rules/rule_pack_document) (*)
+1open_pipe_stress_self_weight_wasm v0.1.0 (<ROOT>/projects/chirality-piping/core/loads/self_weight_wasm)
+2open_pipe_stress_canonical_json v0.1.0 (<ROOT>/projects/chirality-piping/core/serialization/canonical_json) (*)
+2open_pipe_stress_product_physics v0.2.0 (<ROOT>/projects/chirality-piping/core/product_physics) (*)
+2serde_json v1.0.149 (*)
+2sha2 v0.10.9 (*)
+1open_pipe_stress_units v0.1.0 (<ROOT>/projects/chirality-piping/core/units)
+1rusqlite v0.32.1
+2bitflags v2.11.1
+3serde_core v1.0.228
+2fallible-iterator v0.3.0
+2fallible-streaming-iterator v0.1.9
+2hashlink v0.9.1
+3hashbrown v0.14.5
+4ahash v0.8.12
+5cfg-if v1.0.4
+5once_cell v1.21.4
+5zerocopy v0.8.48
+5version_check v0.9.5
+2libsqlite3-sys v0.30.1
+3cc v1.2.62
+4find-msvc-tools v0.1.9
+4shlex v1.3.0
+3pkg-config v0.3.33
+3vcpkg v0.2.15
+2smallvec v1.15.1
+1serde v1.0.228 (*)
+1serde_json v1.0.149 (*)
+1tauri v2.11.1
+2anyhow v1.0.102
+2cookie v0.18.1
+3time v0.3.47
+4deranged v0.5.8
+5powerfmt v0.2.0
+4itoa v1.0.18
+4num-conv v0.2.1
+4powerfmt v0.2.0
+4time-core v0.1.8
+4time-macros v0.2.27 (proc-macro)
+5num-conv v0.2.1
+5time-core v0.1.8
+3version_check v0.9.5
+2dirs v6.0.0
+3dirs-sys v0.5.0
+4libc v0.2.186
+4option-ext v0.2.0
+2dunce v1.0.5
+2embed_plist v1.2.2
+2getrandom v0.3.4 (*)
+2glob v0.3.3
+2heck v0.5.0
+2http v1.4.0
+3bytes v1.11.1
+3itoa v1.0.18
+2log v0.4.29
+2mime v0.3.17
+2muda v0.19.1
+3crossbeam-channel v0.5.15
+4crossbeam-utils v0.8.21
+3dpi v0.1.2
+4serde v1.0.228 (*)
+3keyboard-types v0.7.0
+4bitflags v2.11.1 (*)
+4serde v1.0.228 (*)
+4unicode-segmentation v1.13.2
+3objc2 v0.6.4
+4objc2-encode v4.1.0
+4objc2-exception-helper v0.1.1
+5cc v1.2.62 (*)
+3objc2-app-kit v0.3.2
+4bitflags v2.11.1 (*)
+4block2 v0.6.2
+5objc2 v0.6.4 (*)
+4objc2 v0.6.4 (*)
+4objc2-core-foundation v0.3.2
+5bitflags v2.11.1 (*)
+5objc2 v0.6.4 (*)
+4objc2-foundation v0.3.2
+5bitflags v2.11.1 (*)
+5objc2 v0.6.4 (*)
+5objc2-core-foundation v0.3.2 (*)
+3objc2-core-foundation v0.3.2 (*)
+3objc2-foundation v0.3.2 (*)
+3once_cell v1.21.4
+3png v0.18.1
+4bitflags v2.11.1 (*)
+4crc32fast v1.5.0
+5cfg-if v1.0.4
+4fdeflate v0.3.7
+5simd-adler32 v0.3.9
+4flate2 v1.1.9
+5crc32fast v1.5.0 (*)
+5miniz_oxide v0.8.9
+6adler2 v2.0.1
+6simd-adler32 v0.3.9
+4miniz_oxide v0.8.9 (*)
+3serde v1.0.228 (*)
+3thiserror v2.0.18
+4thiserror-impl v2.0.18 (proc-macro)
+5proc-macro2 v1.0.106 (*)
+5quote v1.0.45 (*)
+5syn v2.0.117 (*)
+2objc2 v0.6.4 (*)
+2objc2-app-kit v0.3.2 (*)
+2objc2-foundation v0.3.2 (*)
+2objc2-web-kit v0.3.2
+3bitflags v2.11.1 (*)
+3block2 v0.6.2 (*)
+3objc2 v0.6.4 (*)
+3objc2-app-kit v0.3.2 (*)
+3objc2-core-foundation v0.3.2 (*)
+3objc2-foundation v0.3.2 (*)
+2percent-encoding v2.3.2
+2plist v1.9.0
+3base64 v0.22.1
+3indexmap v2.14.0
+4equivalent v1.0.2
+4hashbrown v0.17.1
+3quick-xml v0.39.4
+4memchr v2.8.0
+3serde v1.0.228 (*)
+3time v0.3.47 (*)
+2raw-window-handle v0.6.2
+2serde v1.0.228 (*)
+2serde_json v1.0.149 (*)
+2serde_repr v0.1.20 (proc-macro)
+3proc-macro2 v1.0.106 (*)
+3quote v1.0.45 (*)
+3syn v2.0.117 (*)
+2serialize-to-javascript v0.1.2
+3serde v1.0.228 (*)
+3serde_json v1.0.149 (*)
+3serialize-to-javascript-impl v0.1.2 (proc-macro)
+4proc-macro2 v1.0.106 (*)
+4quote v1.0.45 (*)
+4syn v2.0.117 (*)
+2tauri-macros v2.6.1 (proc-macro)
+3heck v0.5.0
+3proc-macro2 v1.0.106 (*)
+3quote v1.0.45 (*)
+3syn v2.0.117 (*)
+3tauri-codegen v2.6.1
+4base64 v0.22.1
+4brotli v8.0.2
+5alloc-no-stdlib v2.0.4
+5alloc-stdlib v0.2.2
+6alloc-no-stdlib v2.0.4
+5brotli-decompressor v5.0.0
+6alloc-no-stdlib v2.0.4
+6alloc-stdlib v0.2.2 (*)
+4ico v0.5.0
+5byteorder v1.5.0
+5png v0.17.16
+6bitflags v1.3.2
+6crc32fast v1.5.0
+7cfg-if v1.0.4
+6fdeflate v0.3.7
+7simd-adler32 v0.3.9
+6flate2 v1.1.9
+7crc32fast v1.5.0 (*)
+7miniz_oxide v0.8.9
+8adler2 v2.0.1
+8simd-adler32 v0.3.9
+6miniz_oxide v0.8.9 (*)
+4json-patch v3.0.1
+5jsonptr v0.6.3
+6serde v1.0.228
+7serde_core v1.0.228
+7serde_derive v1.0.228 (proc-macro) (*)
+6serde_json v1.0.149
+7itoa v1.0.18
+7memchr v2.8.0
+7serde_core v1.0.228
+7zmij v1.0.21
+5serde v1.0.228 (*)
+5serde_json v1.0.149 (*)
+5thiserror v1.0.69
+6thiserror-impl v1.0.69 (proc-macro)
+7proc-macro2 v1.0.106 (*)
+7quote v1.0.45 (*)
+7syn v2.0.117 (*)
+4png v0.17.16 (*)
+4proc-macro2 v1.0.106 (*)
+4quote v1.0.45 (*)
+4semver v1.0.28
+5serde_core v1.0.228
+4serde v1.0.228 (*)
+4serde_json v1.0.149 (*)
+4sha2 v0.10.9
+5cfg-if v1.0.4
+5cpufeatures v0.2.17
+5digest v0.10.7
+6block-buffer v0.10.4
+7generic-array v0.14.7
+8typenum v1.20.0
+8version_check v0.9.5
+6crypto-common v0.1.7
+7generic-array v0.14.7 (*)
+7typenum v1.20.0
+4syn v2.0.117 (*)
+4tauri-utils v2.9.1
+5anyhow v1.0.102
+5brotli v8.0.2 (*)
+5cargo_metadata v0.19.2
+6camino v1.2.2
+7serde_core v1.0.228
+6cargo-platform v0.1.9
+7serde v1.0.228 (*)
+6semver v1.0.28 (*)
+6serde v1.0.228 (*)
+6serde_json v1.0.149 (*)
+6thiserror v2.0.18
+7thiserror-impl v2.0.18 (proc-macro) (*)
+5ctor v0.8.0
+6ctor-proc-macro v0.0.7 (proc-macro)
+5dom_query v0.27.0
+6bit-set v0.8.0
+7bit-vec v0.8.0
+6cssparser v0.36.0
+7cssparser-macros v0.6.1 (proc-macro)
+8quote v1.0.45 (*)
+8syn v2.0.117 (*)
+7dtoa-short v0.3.5
+8dtoa v1.0.11
+7itoa v1.0.18
+7phf v0.13.1
+8phf_macros v0.13.1 (proc-macro)
+9phf_generator v0.13.1
+10fastrand v2.4.1
+10phf_shared v0.13.1
+11siphasher v1.0.3
+9phf_shared v0.13.1 (*)
+9proc-macro2 v1.0.106 (*)
+9quote v1.0.45 (*)
+9syn v2.0.117 (*)
+8phf_shared v0.13.1 (*)
+7smallvec v1.15.1
+6foldhash v0.2.0
+6html5ever v0.38.0
+7log v0.4.29
+7markup5ever v0.38.0
+8log v0.4.29
+8tendril v0.5.0
+9new_debug_unreachable v1.0.6
+9utf-8 v0.7.6
+8web_atoms v0.2.4
+9phf v0.13.1 (*)
+9string_cache v0.9.0
+10new_debug_unreachable v1.0.6
+10parking_lot v0.12.5
+11lock_api v0.4.14
+12scopeguard v1.2.0
+11parking_lot_core v0.9.12
+12cfg-if v1.0.4
+12libc v0.2.186
+12smallvec v1.15.1
+10phf_shared v0.13.1 (*)
+10precomputed-hash v0.1.1
+9phf_codegen v0.13.1
+10phf_generator v0.13.1 (*)
+10phf_shared v0.13.1 (*)
+9string_cache_codegen v0.6.1
+10phf_generator v0.13.1 (*)
+10phf_shared v0.13.1 (*)
+10proc-macro2 v1.0.106 (*)
+10quote v1.0.45 (*)
+6precomputed-hash v0.1.1
+6selectors v0.36.1
+7bitflags v2.11.1
+7cssparser v0.36.0 (*)
+7derive_more v2.1.1
+8derive_more-impl v2.1.1 (proc-macro)
+9proc-macro2 v1.0.106 (*)
+9quote v1.0.45 (*)
+9syn v2.0.117 (*)
+9rustc_version v0.4.1
+10semver v1.0.28 (*)
+7log v0.4.29
+7new_debug_unreachable v1.0.6
+7phf v0.13.1 (*)
+7precomputed-hash v0.1.1
+7rustc-hash v2.1.2
+7servo_arc v0.4.3
+8stable_deref_trait v1.2.1
+7smallvec v1.15.1
+7phf_codegen v0.13.1 (*)
+6tendril v0.5.0 (*)
+5dunce v1.0.5
+5glob v0.3.3
+5http v1.4.0
+6bytes v1.11.1
+6itoa v1.0.18
+5infer v0.19.0
+6cfb v0.7.3
+7byteorder v1.5.0
+7fnv v1.0.7
+7uuid v1.23.1
+8getrandom v0.4.2
+9cfg-if v1.0.4
+9libc v0.2.186
+8serde_core v1.0.228
+5json-patch v3.0.1 (*)
+5log v0.4.29
+5memchr v2.8.0
+5phf v0.13.1 (*)
+5plist v1.9.0
+6base64 v0.22.1
+6indexmap v2.14.0
+7equivalent v1.0.2
+7hashbrown v0.17.1
+6quick-xml v0.39.4
+7memchr v2.8.0
+6serde v1.0.228 (*)
+6time v0.3.47
+7deranged v0.5.8
+8powerfmt v0.2.0
+7itoa v1.0.18
+7num-conv v0.2.1
+7powerfmt v0.2.0
+7time-core v0.1.8
+5proc-macro2 v1.0.106 (*)
+5quote v1.0.45 (*)
+5regex v1.12.3
+6aho-corasick v1.1.4
+7memchr v2.8.0
+6memchr v2.8.0
+6regex-automata v0.4.14
+7aho-corasick v1.1.4 (*)
+7memchr v2.8.0
+7regex-syntax v0.8.10
+6regex-syntax v0.8.10
+5schemars v0.8.22
+6dyn-clone v1.0.20
+6indexmap v1.9.3
+7hashbrown v0.12.3
+7serde v1.0.228 (*)
+7autocfg v1.5.0
+6schemars_derive v0.8.22 (proc-macro)
+7proc-macro2 v1.0.106 (*)
+7quote v1.0.45 (*)
+7serde_derive_internals v0.29.1
+8proc-macro2 v1.0.106 (*)
+8quote v1.0.45 (*)
+8syn v2.0.117 (*)
+7syn v2.0.117 (*)
+6serde v1.0.228 (*)
+6serde_json v1.0.149 (*)
+6url v2.5.8
+7form_urlencoded v1.2.2
+8percent-encoding v2.3.2
+7idna v1.1.0
+8idna_adapter v1.2.2
+9icu_normalizer v2.2.0
+10icu_collections v2.2.0
+11displaydoc v0.2.5 (proc-macro)
+12proc-macro2 v1.0.106 (*)
+12quote v1.0.45 (*)
+12syn v2.0.117 (*)
+11potential_utf v0.1.5
+12zerovec v0.11.6
+13yoke v0.8.2
+14stable_deref_trait v1.2.1
+14yoke-derive v0.8.2 (proc-macro)
+15proc-macro2 v1.0.106 (*)
+15quote v1.0.45 (*)
+15syn v2.0.117 (*)
+15synstructure v0.13.2
+16proc-macro2 v1.0.106 (*)
+16quote v1.0.45 (*)
+16syn v2.0.117 (*)
+14zerofrom v0.1.7
+15zerofrom-derive v0.1.7 (proc-macro)
+16proc-macro2 v1.0.106 (*)
+16quote v1.0.45 (*)
+16syn v2.0.117 (*)
+16synstructure v0.13.2 (*)
+13zerofrom v0.1.7 (*)
+13zerovec-derive v0.11.3 (proc-macro)
+14proc-macro2 v1.0.106 (*)
+14quote v1.0.45 (*)
+14syn v2.0.117 (*)
+11utf8_iter v1.0.4
+11yoke v0.8.2 (*)
+11zerofrom v0.1.7 (*)
+11zerovec v0.11.6 (*)
+10icu_normalizer_data v2.2.0
+10icu_provider v2.2.0
+11displaydoc v0.2.5 (proc-macro) (*)
+11icu_locale_core v2.2.0
+12displaydoc v0.2.5 (proc-macro) (*)
+12litemap v0.8.2
+12tinystr v0.8.3
+13displaydoc v0.2.5 (proc-macro) (*)
+13zerovec v0.11.6 (*)
+12writeable v0.6.3
+12zerovec v0.11.6 (*)
+11writeable v0.6.3
+11yoke v0.8.2 (*)
+11zerofrom v0.1.7 (*)
+11zerotrie v0.2.4
+12displaydoc v0.2.5 (proc-macro) (*)
+12yoke v0.8.2 (*)
+12zerofrom v0.1.7 (*)
+11zerovec v0.11.6 (*)
+10smallvec v1.15.1
+10zerovec v0.11.6 (*)
+9icu_properties v2.2.0
+10icu_collections v2.2.0 (*)
+10icu_locale_core v2.2.0 (*)
+10icu_properties_data v2.2.0
+10icu_provider v2.2.0 (*)
+10zerotrie v0.2.4 (*)
+10zerovec v0.11.6 (*)
+8smallvec v1.15.1
+8utf8_iter v1.0.4
+7percent-encoding v2.3.2
+7serde v1.0.228 (*)
+7serde_derive v1.0.228 (proc-macro) (*)
+6uuid v1.23.1 (*)
+5semver v1.0.28 (*)
+5serde v1.0.228 (*)
+5serde-untagged v0.1.9
+6erased-serde v0.4.10
+7serde_core v1.0.228
+7typeid v1.0.3
+6serde_core v1.0.228
+6typeid v1.0.3
+5serde_json v1.0.149 (*)
+5serde_with v3.19.0
+6serde_core v1.0.228
+6serde_with_macros v3.19.0 (proc-macro)
+7darling v0.23.0
+8darling_core v0.23.0
+9ident_case v1.0.1
+9proc-macro2 v1.0.106 (*)
+9quote v1.0.45 (*)
+9strsim v0.11.1
+9syn v2.0.117 (*)
+8darling_macro v0.23.0 (proc-macro)
+9darling_core v0.23.0 (*)
+9quote v1.0.45 (*)
+9syn v2.0.117 (*)
+7proc-macro2 v1.0.106 (*)
+7quote v1.0.45 (*)
+7syn v2.0.117 (*)
+5thiserror v2.0.18 (*)
+5toml v1.1.2+spec-1.1.0
+6serde_core v1.0.228
+6serde_spanned v1.1.1
+7serde_core v1.0.228
+6toml_datetime v1.1.1+spec-1.1.0
+7serde_core v1.0.228
+6toml_parser v1.1.2+spec-1.1.0
+7winnow v1.0.2
+6toml_writer v1.1.1+spec-1.1.0
+6winnow v1.0.2
+5url v2.5.8 (*)
+5urlpattern v0.3.0
+6regex v1.12.3 (*)
+6serde v1.0.228 (*)
+6unic-ucd-ident v0.9.0
+7unic-char-property v0.9.0
+8unic-char-range v0.9.0
+7unic-char-range v0.9.0
+7unic-ucd-version v0.9.0
+8unic-common v0.9.0
+6url v2.5.8 (*)
+5uuid v1.23.1 (*)
+5walkdir v2.5.0
+6same-file v1.0.6
+4thiserror v2.0.18 (*)
+4url v2.5.8 (*)
+4uuid v1.23.1 (*)
+4walkdir v2.5.0 (*)
+3tauri-utils v2.9.1 (*)
+2tauri-runtime v2.11.1
+3cookie v0.18.1 (*)
+3dpi v0.1.2 (*)
+3http v1.4.0 (*)
+3objc2 v0.6.4 (*)
+3objc2-web-kit v0.3.2 (*)
+3raw-window-handle v0.6.2
+3serde v1.0.228 (*)
+3serde_json v1.0.149 (*)
+3tauri-utils v2.9.1
+4anyhow v1.0.102
+4brotli v8.0.2
+5alloc-no-stdlib v2.0.4
+5alloc-stdlib v0.2.2
+6alloc-no-stdlib v2.0.4
+5brotli-decompressor v5.0.0
+6alloc-no-stdlib v2.0.4
+6alloc-stdlib v0.2.2 (*)
+4ctor v0.8.0
+5ctor-proc-macro v0.0.7 (proc-macro)
+4dunce v1.0.5
+4glob v0.3.3
+4http v1.4.0 (*)
+4infer v0.19.0
+5cfb v0.7.3
+6byteorder v1.5.0
+6fnv v1.0.7
+6uuid v1.23.1
+7serde_core v1.0.228
+4json-patch v3.0.1
+5jsonptr v0.6.3
+6serde v1.0.228 (*)
+6serde_json v1.0.149 (*)
+5serde v1.0.228 (*)
+5serde_json v1.0.149 (*)
+5thiserror v1.0.69
+6thiserror-impl v1.0.69 (proc-macro) (*)
+4log v0.4.29
+4memchr v2.8.0
+4phf v0.13.1
+5phf_macros v0.13.1 (proc-macro) (*)
+5phf_shared v0.13.1
+6siphasher v1.0.3
+4plist v1.9.0 (*)
+4regex v1.12.3
+5aho-corasick v1.1.4
+6memchr v2.8.0
+5memchr v2.8.0
+5regex-automata v0.4.14
+6aho-corasick v1.1.4 (*)
+6memchr v2.8.0
+6regex-syntax v0.8.10
+5regex-syntax v0.8.10
+4semver v1.0.28
+4serde v1.0.228 (*)
+4serde-untagged v0.1.9
+5erased-serde v0.4.10
+6serde_core v1.0.228
+6typeid v1.0.3
+5serde_core v1.0.228
+5typeid v1.0.3
+4serde_json v1.0.149 (*)
+4serde_with v3.19.0
+5serde_core v1.0.228
+5serde_with_macros v3.19.0 (proc-macro) (*)
+4thiserror v2.0.18 (*)
+4toml v1.1.2+spec-1.1.0
+5serde_core v1.0.228
+5serde_spanned v1.1.1
+6serde_core v1.0.228
+5toml_datetime v1.1.1+spec-1.1.0
+6serde_core v1.0.228
+5toml_parser v1.1.2+spec-1.1.0
+6winnow v1.0.2
+5toml_writer v1.1.1+spec-1.1.0
+5winnow v1.0.2
+4url v2.5.8
+5form_urlencoded v1.2.2
+6percent-encoding v2.3.2
+5idna v1.1.0
+6idna_adapter v1.2.2
+7icu_normalizer v2.2.0
+8icu_collections v2.2.0
+9displaydoc v0.2.5 (proc-macro) (*)
+9potential_utf v0.1.5
+10zerovec v0.11.6
+11yoke v0.8.2
+12stable_deref_trait v1.2.1
+12yoke-derive v0.8.2 (proc-macro) (*)
+12zerofrom v0.1.7
+13zerofrom-derive v0.1.7 (proc-macro) (*)
+11zerofrom v0.1.7 (*)
+11zerovec-derive v0.11.3 (proc-macro) (*)
+9utf8_iter v1.0.4
+9yoke v0.8.2 (*)
+9zerofrom v0.1.7 (*)
+9zerovec v0.11.6 (*)
+8icu_normalizer_data v2.2.0
+8icu_provider v2.2.0
+9displaydoc v0.2.5 (proc-macro) (*)
+9icu_locale_core v2.2.0
+10displaydoc v0.2.5 (proc-macro) (*)
+10litemap v0.8.2
+10tinystr v0.8.3
+11displaydoc v0.2.5 (proc-macro) (*)
+11zerovec v0.11.6 (*)
+10writeable v0.6.3
+10zerovec v0.11.6 (*)
+9writeable v0.6.3
+9yoke v0.8.2 (*)
+9zerofrom v0.1.7 (*)
+9zerotrie v0.2.4
+10displaydoc v0.2.5 (proc-macro) (*)
+10yoke v0.8.2 (*)
+10zerofrom v0.1.7 (*)
+9zerovec v0.11.6 (*)
+8smallvec v1.15.1
+8zerovec v0.11.6 (*)
+7icu_properties v2.2.0
+8icu_collections v2.2.0 (*)
+8icu_locale_core v2.2.0 (*)
+8icu_properties_data v2.2.0
+8icu_provider v2.2.0 (*)
+8zerotrie v0.2.4 (*)
+8zerovec v0.11.6 (*)
+6smallvec v1.15.1
+6utf8_iter v1.0.4
+5percent-encoding v2.3.2
+5serde v1.0.228 (*)
+5serde_derive v1.0.228 (proc-macro) (*)
+4urlpattern v0.3.0
+5regex v1.12.3 (*)
+5serde v1.0.228 (*)
+5unic-ucd-ident v0.9.0
+6unic-char-property v0.9.0
+7unic-char-range v0.9.0
+6unic-char-range v0.9.0
+6unic-ucd-version v0.9.0
+7unic-common v0.9.0
+5url v2.5.8 (*)
+4uuid v1.23.1 (*)
+4walkdir v2.5.0
+5same-file v1.0.6
+3thiserror v2.0.18 (*)
+3url v2.5.8 (*)
+2tauri-runtime-wry v2.11.1
+3http v1.4.0 (*)
+3log v0.4.29
+3objc2 v0.6.4 (*)
+3objc2-app-kit v0.3.2 (*)
+3raw-window-handle v0.6.2
+3tao v0.35.2
+4bitflags v2.11.1 (*)
+4block2 v0.6.2 (*)
+4core-foundation v0.10.1
+5core-foundation-sys v0.8.7
+5libc v0.2.186
+4core-graphics v0.25.0
+5bitflags v2.11.1 (*)
+5core-foundation v0.10.1 (*)
+5core-graphics-types v0.2.0
+6bitflags v2.11.1 (*)
+6core-foundation v0.10.1 (*)
+6libc v0.2.186
+5foreign-types v0.5.0
+6foreign-types-macros v0.2.3 (proc-macro)
+7proc-macro2 v1.0.106 (*)
+7quote v1.0.45 (*)
+7syn v2.0.117 (*)
+6foreign-types-shared v0.3.1
+5libc v0.2.186
+4crossbeam-channel v0.5.15 (*)
+4dispatch2 v0.3.1
+5bitflags v2.11.1 (*)
+5block2 v0.6.2 (*)
+5libc v0.2.186
+5objc2 v0.6.4 (*)
+4dpi v0.1.2 (*)
+4libc v0.2.186
+4log v0.4.29
+4objc2 v0.6.4 (*)
+4objc2-app-kit v0.3.2 (*)
+4objc2-foundation v0.3.2 (*)
+4once_cell v1.21.4
+4raw-window-handle v0.6.2
+4url v2.5.8 (*)
+3tauri-runtime v2.11.1 (*)
+3tauri-utils v2.9.1 (*)
+3url v2.5.8 (*)
+3wry v0.55.1
+4block2 v0.6.2 (*)
+4cookie v0.18.1 (*)
+4dirs v6.0.0 (*)
+4dpi v0.1.2 (*)
+4http v1.4.0 (*)
+4objc2 v0.6.4 (*)
+4objc2-app-kit v0.3.2 (*)
+4objc2-core-foundation v0.3.2 (*)
+4objc2-foundation v0.3.2 (*)
+4objc2-web-kit v0.3.2 (*)
+4once_cell v1.21.4
+4raw-window-handle v0.6.2
+4thiserror v2.0.18 (*)
+4url v2.5.8 (*)
+2tauri-utils v2.9.1 (*)
+2thiserror v2.0.18 (*)
+2tokio v1.52.3
+3bytes v1.11.1
+3pin-project-lite v0.2.17
+2url v2.5.8 (*)
+2window-vibrancy v0.6.0
+3objc2 v0.6.4 (*)
+3objc2-app-kit v0.3.2 (*)
+3objc2-core-foundation v0.3.2 (*)
+3objc2-foundation v0.3.2 (*)
+3raw-window-handle v0.6.2
+2glob v0.3.3
+2heck v0.5.0
+2tauri-build v2.6.1
+3anyhow v1.0.102
+3cargo_toml v0.22.3
+4serde v1.0.228 (*)
+4toml v0.9.12+spec-1.1.0
+5serde_core v1.0.228
+5serde_spanned v1.1.1 (*)
+5toml_datetime v0.7.5+spec-1.1.0
+6serde_core v1.0.228
+5toml_parser v1.1.2+spec-1.1.0 (*)
+5toml_writer v1.1.1+spec-1.1.0
+5winnow v0.7.15
+3dirs v6.0.0
+4dirs-sys v0.5.0
+5libc v0.2.186
+5option-ext v0.2.0
+3glob v0.3.3
+3heck v0.5.0
+3json-patch v3.0.1 (*)
+3schemars v0.8.22 (*)
+3semver v1.0.28 (*)
+3serde v1.0.228 (*)
+3serde_json v1.0.149 (*)
+3tauri-utils v2.9.1 (*)
+3tauri-winres v0.3.6
+4dunce v1.0.5
+4embed-resource v3.0.9
+5cc v1.2.62 (*)
+5memchr v2.8.0
+5rustc_version v0.4.1 (*)
+5toml v1.1.2+spec-1.1.0 (*)
+4toml v1.1.2+spec-1.1.0 (*)
+3walkdir v2.5.0 (*)
+2tauri-utils v2.9.1 (*)
+1tauri-plugin-dialog v2.7.2
+2log v0.4.29
+2raw-window-handle v0.6.2
+2rfd v0.16.0
+3block2 v0.6.2 (*)
+3dispatch2 v0.3.1 (*)
+3log v0.4.29
+3objc2 v0.6.4 (*)
+3objc2-app-kit v0.3.2 (*)
+3objc2-core-foundation v0.3.2 (*)
+3objc2-foundation v0.3.2 (*)
+3raw-window-handle v0.6.2
+2serde v1.0.228 (*)
+2serde_json v1.0.149 (*)
+2tauri v2.11.1 (*)
+2tauri-plugin-fs v2.5.1
+3anyhow v1.0.102
+3dunce v1.0.5
+3glob v0.3.3
+3log v0.4.29
+3percent-encoding v2.3.2
+3serde v1.0.228 (*)
+3serde_json v1.0.149 (*)
+3serde_repr v0.1.20 (proc-macro) (*)
+3tauri v2.11.1 (*)
+3thiserror v2.0.18 (*)
+3url v2.5.8 (*)
+3schemars v0.8.22 (*)
+3serde v1.0.228 (*)
+3tauri-plugin v2.6.1
+4anyhow v1.0.102
+4glob v0.3.3
+4schemars v0.8.22 (*)
+4serde v1.0.228 (*)
+4serde_json v1.0.149 (*)
+4tauri-utils v2.9.1 (*)
+4walkdir v2.5.0 (*)
+3tauri-utils v2.9.1 (*)
+3toml v1.1.2+spec-1.1.0 (*)
+2thiserror v2.0.18 (*)
+2url v2.5.8 (*)
+2tauri-plugin v2.6.1 (*)
+1tauri-build v2.6.1 (*)

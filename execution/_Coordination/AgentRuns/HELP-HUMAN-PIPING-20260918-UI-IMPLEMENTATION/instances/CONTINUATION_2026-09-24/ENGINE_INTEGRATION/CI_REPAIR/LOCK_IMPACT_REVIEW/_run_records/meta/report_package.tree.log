@@ -1,0 +1,58 @@
+0open_pipe_stress_report_package v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/report_package)
+1open_pipe_stress_audit_manifest v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/audit_manifest)
+1open_pipe_stress_canonical_json v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/serialization/canonical_json)
+2ryu v1.0.23
+2serde v1.0.228
+3serde_core v1.0.228
+4serde_derive v1.0.228 (proc-macro)
+5proc-macro2 v1.0.106
+6unicode-ident v1.0.24
+5quote v1.0.46
+6proc-macro2 v1.0.106 (*)
+5syn v2.0.118
+6proc-macro2 v1.0.106 (*)
+6quote v1.0.46 (*)
+6unicode-ident v1.0.24
+3serde_derive v1.0.228 (proc-macro) (*)
+2serde_json v1.0.150
+3itoa v1.0.18
+3memchr v2.8.3
+3serde v1.0.228 (*)
+3serde_core v1.0.228 (*)
+3zmij v1.0.21
+1open_pipe_stress_pdf_emitter v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/pdf_emitter)
+2open_pipe_stress_protected_content_linter v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/protected_content_linter)
+2open_pipe_stress_report_generator v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/report_generator)
+3serde v1.0.228 (*)
+2open_pipe_stress_report_renderer v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/report_renderer)
+3open_pipe_stress_protected_content_linter v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/protected_content_linter)
+3open_pipe_stress_report_generator v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/report_generator) (*)
+3open_pipe_stress_report_sections v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/report_sections)
+4serde v1.0.228 (*)
+3serde v1.0.228 (*)
+3sha2 v0.10.9
+4cfg-if v1.0.4
+4cpufeatures v0.2.17
+5libc v0.2.186
+4digest v0.10.7
+5block-buffer v0.10.4
+6generic-array v0.14.7
+7typenum v1.20.1
+7version_check v0.9.5
+5crypto-common v0.1.7
+6generic-array v0.14.7 (*)
+6typenum v1.20.1
+2open_pipe_stress_report_sections v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/report_sections) (*)
+2serde v1.0.228 (*)
+2sha2 v0.10.9 (*)
+1open_pipe_stress_report_renderer v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/report_renderer) (*)
+1open_pipe_stress_result_export v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/result_export)
+2open_pipe_stress_canonical_json v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/serialization/canonical_json) (*)
+2open_pipe_stress_units v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/units)
+2serde_json v1.0.150 (*)
+2sha2 v0.10.9 (*)
+1serde v1.0.228 (*)
+1serde_json v1.0.150 (*)
+1sha2 v0.10.9 (*)
+1open_pipe_stress_report_generator v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/report_generator) (*)
+1open_pipe_stress_report_sections v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/report_sections) (*)

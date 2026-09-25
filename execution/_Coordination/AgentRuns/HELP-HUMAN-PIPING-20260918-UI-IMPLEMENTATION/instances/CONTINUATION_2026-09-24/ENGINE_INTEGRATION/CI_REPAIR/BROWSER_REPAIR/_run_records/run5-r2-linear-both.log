@@ -1,0 +1,13 @@
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --project=chromium-compact --workers=1 --timeout=180000 --reporter=list -g 'R2 browser smoke covers authoring|compact blank-to-straight authoring' e2e/r2-smoke.spec.ts e2e/linear-authoring.spec.ts
+2026-09-25T17:32:31Z
+
+Running 4 tests using 1 worker
+
+  ✓  1 [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.1m)
+  ✓  2 [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (49.1s)
+  ✓  3 [chromium-compact] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.0m)
+  ✓  4 [chromium-compact] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (45.8s)
+
+  4 passed (3.7m)
+exit=0
+2026-09-25T17:36:16Z

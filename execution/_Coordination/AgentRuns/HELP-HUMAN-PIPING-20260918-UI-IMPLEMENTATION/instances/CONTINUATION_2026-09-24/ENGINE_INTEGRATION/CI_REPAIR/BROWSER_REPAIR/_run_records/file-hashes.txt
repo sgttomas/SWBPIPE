@@ -1,0 +1,18 @@
+base=5b1ccd356c0d9656f7b9f42c6558f7a4c73f9295
+4927514880caee095e22945940baba2627e3dbde0ed5ee766f39c5d76beab462  base  projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts
+67648908d7871431478294c3bc44e7d3e010b714719a4aa6b90212639c05917e  after projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts
+9915292ddde4afc2c1549e0fd77519e1c53f8a8486e3570a76a63e543be83bd1  base  projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts
+0ddae8fa66a3ee685ecb06048aeeafda6ed78dce5e0ade5c40f504584605e73b  after projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts
+408a839a1c4003d84bfa13577b3a7734eb3804535d727af7015888e464ec1128  base  projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts
+bf654b42c77cc80bfa9033ffbe47a6f1d2d4d3f80e5e7e0afe63da786ff4a7e0  after projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts
+77ebb93ddcd5959b7e31cde04a8072d8792325296bf4772636dcea4a51fa19cd  base  projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
+768bcd279c65b9c787e6086dd85bfc1785593da48dc6470d35327542355cf8b6  after projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
+9565a3909c6f1f65facb04da2ea05604ca206554d414437927dda65886683c7c  base  projects/chirality-piping/apps/desktop/src/styles.css
+ba1dc91c2b252c9522f11599e56e3f713e149f17b5a581ad83d81ee81cc0a60d  after projects/chirality-piping/apps/desktop/src/styles.css
+repair.patch 6f43d5e22d82c431d9d663b6b71ae2c00c577cc5f943cf1f4b91e18d9e3f64b4
+ .../desktop/e2e/gui-workflow-validation.spec.ts    |  3 +-
+ .../apps/desktop/e2e/linear-authoring.spec.ts      | 11 +++---
+ .../apps/desktop/e2e/r2-smoke.spec.ts              | 41 +++++++++++++++++++---
+ .../apps/desktop/e2e/workspace-driver.ts           | 19 ++++++++--
+ .../chirality-piping/apps/desktop/src/styles.css   | 22 ++++++++----
+ 5 files changed, 77 insertions(+), 19 deletions(-)

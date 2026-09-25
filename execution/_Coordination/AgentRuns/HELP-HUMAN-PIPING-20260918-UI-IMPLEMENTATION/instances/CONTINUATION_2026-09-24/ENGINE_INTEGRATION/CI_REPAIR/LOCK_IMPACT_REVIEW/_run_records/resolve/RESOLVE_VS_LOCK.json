@@ -1,0 +1,162 @@
+{
+  "report_package": {
+    "lock_packages": 32,
+    "resolve_nodes": 32,
+    "lock_equals_resolve_packages": true,
+    "in_lock_not_resolve": [],
+    "in_resolve_not_lock": [],
+    "lock_edges_equal_resolve_edges": true,
+    "added_entry_chains": {
+      "open_pipe_stress_units 0.1.0": "open_pipe_stress_units[normal] <- open_pipe_stress_result_export[normal] <- open_pipe_stress_report_package"
+    }
+  },
+  "mechanics": {
+    "lock_packages": 34,
+    "resolve_nodes": 34,
+    "lock_equals_resolve_packages": true,
+    "in_lock_not_resolve": [],
+    "in_resolve_not_lock": [],
+    "lock_edges_equal_resolve_edges": true,
+    "added_entry_chains": {
+      "open_pipe_stress_units 0.1.0": "open_pipe_stress_units[normal] <- open_pipe_stress_result_export[normal] <- open_pipe_stress_mechanics_benchmarks"
+    }
+  },
+  "numerical_integrity": {
+    "lock_packages": 37,
+    "resolve_nodes": 37,
+    "lock_equals_resolve_packages": true,
+    "in_lock_not_resolve": [],
+    "in_resolve_not_lock": [],
+    "lock_edges_equal_resolve_edges": true,
+    "added_entry_chains": {
+      "block-buffer 0.10.4": "block-buffer[normal] <- digest[normal] <- sha2[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer",
+      "cfg-if 1.0.5": "cfg-if[normal] <- sha2[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer",
+      "cpufeatures 0.2.17": "cpufeatures[normal] <- sha2[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer",
+      "crypto-common 0.1.7": "crypto-common[normal] <- digest[normal] <- sha2[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer",
+      "digest 0.10.7": "digest[normal] <- sha2[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer",
+      "generic-array 0.14.7": "generic-array[normal] <- block-buffer[normal] <- digest[normal] <- sha2[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer",
+      "libc 0.2.189": "libc[normal/normal/normal/normal] <- cpufeatures[normal] <- sha2[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer",
+      "open_pipe_stress_canonical_json 0.1.0": "open_pipe_stress_canonical_json[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer",
+      "ryu 1.0.23": "ryu[normal] <- open_pipe_stress_canonical_json[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer",
+      "sha2 0.10.9": "sha2[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer",
+      "typenum 1.20.1": "typenum[normal] <- crypto-common[normal] <- digest[normal] <- sha2[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer",
+      "version_check 0.9.5": "version_check[build] <- generic-array[normal] <- block-buffer[normal] <- digest[normal] <- sha2[normal] <- open_pipe_stress_product_physics[normal] <- piping_numerical_integrity_observer"
+    }
+  },
+  "stress": {
+    "lock_packages": 31,
+    "resolve_nodes": 31,
+    "lock_equals_resolve_packages": true,
+    "in_lock_not_resolve": [],
+    "in_resolve_not_lock": [],
+    "lock_edges_equal_resolve_edges": true,
+    "added_entry_chains": {
+      "open_pipe_stress_units 0.1.0": "open_pipe_stress_units[normal] <- open_pipe_stress_result_export[normal] <- open_pipe_stress_stress_benchmarks"
+    }
+  },
+  "reproduction_from_e650": {
+    "offline/report_package": {
+      "exit_code": 0,
+      "regenerated_sha256": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c",
+      "committed_5b1c_sha256": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c",
+      "byte_identical_to_5b1c": true,
+      "cargo_messages": [
+        "Locking 1 package to latest compatible version",
+        "Adding open_pipe_stress_units v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/units)"
+      ]
+    },
+    "offline/mechanics": {
+      "exit_code": 0,
+      "regenerated_sha256": "b4e0f5f33660f3e7b27a75785f2b2171e64f3d45150ff16c3e271c2587b4f323",
+      "committed_5b1c_sha256": "b4e0f5f33660f3e7b27a75785f2b2171e64f3d45150ff16c3e271c2587b4f323",
+      "byte_identical_to_5b1c": true,
+      "cargo_messages": [
+        "Locking 1 package to latest compatible version",
+        "Adding open_pipe_stress_units v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/units)"
+      ]
+    },
+    "offline/numerical_integrity": {
+      "exit_code": 0,
+      "regenerated_sha256": "3a166fecf8e3cf13f9504d87ec384cb6d61ac19e7e5e69e0c8af24c4b3eb5aa2",
+      "committed_5b1c_sha256": "3a166fecf8e3cf13f9504d87ec384cb6d61ac19e7e5e69e0c8af24c4b3eb5aa2",
+      "byte_identical_to_5b1c": true,
+      "cargo_messages": [
+        "Locking 12 packages to latest compatible versions",
+        "Adding block-buffer v0.10.4",
+        "Adding cfg-if v1.0.5",
+        "Adding cpufeatures v0.2.17",
+        "Adding crypto-common v0.1.7",
+        "Adding digest v0.10.7",
+        "Adding generic-array v0.14.7",
+        "Adding libc v0.2.189",
+        "Adding open_pipe_stress_canonical_json v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/serialization/canonical_json)",
+        "Adding ryu v1.0.23",
+        "Adding sha2 v0.10.9",
+        "Adding typenum v1.20.1",
+        "Adding version_check v0.9.5"
+      ]
+    },
+    "offline/stress": {
+      "exit_code": 0,
+      "regenerated_sha256": "d414c23b8ae79eadc594f84b93d20bdfe941366ed330ea2e65668ebb1e9b3fad",
+      "committed_5b1c_sha256": "d414c23b8ae79eadc594f84b93d20bdfe941366ed330ea2e65668ebb1e9b3fad",
+      "byte_identical_to_5b1c": true,
+      "cargo_messages": [
+        "Locking 1 package to latest compatible version",
+        "Adding open_pipe_stress_units v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/units)"
+      ]
+    },
+    "online/report_package": {
+      "exit_code": 0,
+      "regenerated_sha256": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c",
+      "committed_5b1c_sha256": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c",
+      "byte_identical_to_5b1c": true,
+      "cargo_messages": [
+        "Locking 1 package to latest compatible version",
+        "Adding open_pipe_stress_units v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/units)"
+      ]
+    },
+    "online/mechanics": {
+      "exit_code": 0,
+      "regenerated_sha256": "b4e0f5f33660f3e7b27a75785f2b2171e64f3d45150ff16c3e271c2587b4f323",
+      "committed_5b1c_sha256": "b4e0f5f33660f3e7b27a75785f2b2171e64f3d45150ff16c3e271c2587b4f323",
+      "byte_identical_to_5b1c": true,
+      "cargo_messages": [
+        "Locking 1 package to latest compatible version",
+        "Adding open_pipe_stress_units v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/units)"
+      ]
+    },
+    "online/numerical_integrity": {
+      "exit_code": 0,
+      "regenerated_sha256": "3a166fecf8e3cf13f9504d87ec384cb6d61ac19e7e5e69e0c8af24c4b3eb5aa2",
+      "committed_5b1c_sha256": "3a166fecf8e3cf13f9504d87ec384cb6d61ac19e7e5e69e0c8af24c4b3eb5aa2",
+      "byte_identical_to_5b1c": true,
+      "cargo_messages": [
+        "Updating crates.io index",
+        "Locking 12 packages to latest compatible versions",
+        "Adding block-buffer v0.10.4",
+        "Adding cfg-if v1.0.5",
+        "Adding cpufeatures v0.2.17",
+        "Adding crypto-common v0.1.7",
+        "Adding digest v0.10.7",
+        "Adding generic-array v0.14.7 (available: v0.14.9)",
+        "Adding libc v0.2.189",
+        "Adding open_pipe_stress_canonical_json v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/serialization/canonical_json)",
+        "Adding ryu v1.0.23",
+        "Adding sha2 v0.10.9",
+        "Adding typenum v1.20.1",
+        "Adding version_check v0.9.5"
+      ]
+    },
+    "online/stress": {
+      "exit_code": 0,
+      "regenerated_sha256": "d414c23b8ae79eadc594f84b93d20bdfe941366ed330ea2e65668ebb1e9b3fad",
+      "committed_5b1c_sha256": "d414c23b8ae79eadc594f84b93d20bdfe941366ed330ea2e65668ebb1e9b3fad",
+      "byte_identical_to_5b1c": true,
+      "cargo_messages": [
+        "Locking 1 package to latest compatible version",
+        "Adding open_pipe_stress_units v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/units)"
+      ]
+    }
+  }
+}

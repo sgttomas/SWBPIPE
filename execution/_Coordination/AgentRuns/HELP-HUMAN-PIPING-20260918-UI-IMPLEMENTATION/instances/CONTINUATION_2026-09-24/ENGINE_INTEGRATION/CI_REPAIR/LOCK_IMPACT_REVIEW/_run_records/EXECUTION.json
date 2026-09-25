@@ -1,0 +1,41 @@
+{
+  "assignment": "Independent lock-impact review of the four leaf Cargo.lock repairs after PR905 head, and their native-input impact",
+  "requester": "HELP_HUMAN (ROOT)",
+  "role": "TASK Type 2, independent reviewer; did not implement the repair; no delegation",
+  "role_basis_sha256": {
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+  },
+  "revisions": {
+    "native_build_candidate": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+    "pr905_published_head": "e65001ad50072d3399bf204da02055b0f360353a",
+    "reviewed_head": "5b1ccd356c0d9656f7b9f42c6558f7a4c73f9295"
+  },
+  "worktree": "/home/user/wt/engine (HEAD 5b1ccd356; concurrently modified by another TASK in apps/desktop/e2e/*, apps/desktop/src/styles.css and CI_REPAIR/BROWSER_REPAIR/, none of which the cargo checks read)",
+  "environment": {
+    "host": "Linux 6.18.44-fc-v37 x86_64, 4 CPUs shared",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30) via `cargo +1.97.1`",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "python": "3.11.15",
+    "git": "2.43.0",
+    "CARGO_HOME": "/root/.cargo (default) except stage fetchcold, which used an empty /home/user/cargo-targets/lockreview/_cold_cargo_home",
+    "network": "crates.io through the session proxy; fetch stages online as CI does; metadata/tree/test/build stages --offline",
+    "jobs": "CARGO_BUILD_JOBS=2 and -j 2; RUST_TEST_THREADS=2 for tests"
+  },
+  "scripts_and_outputs": [
+    {"check": "1 and 3", "script": "check_additive_and_pins.py", "output": "check1_3.json", "raw": "lock-diff-e650-5b1c.patch"},
+    {"check": "2 (resolve vs lock, reproduction)", "script": "check_resolve_vs_lock.py", "output": "resolve/RESOLVE_VS_LOCK.json", "inputs": "meta/*.metadata.json"},
+    {"check": "2 and 4 (cargo metadata/tree/fetch/test)", "script": "run_cargo_checks.py", "stages": ["fetch", "fetchcold", "meta", "test"], "outputs": ["fetch/RESULTS.json", "fetchcold/RESULTS.json", "meta/RESULTS.json", "test/RESULTS.json"]},
+    {"check": "4 (CI plan equivalence)", "output": "ci-plan-equivalence.json", "method": "import projects/chirality-piping/tools/ci/numerical_ci.py and call cargo_plan(); compare with the review's fetch argv minus +1.97.1"},
+    {"check": "5 (recorded inputs)", "script": "check_native_inputs.py", "output": "check5_inputs.json"},
+    {"check": "5 (include!/env! closure scan)", "script": "check_include_targets.py", "output": "check5_include_targets.json"},
+    {"check": "5 (changed-path classification)", "script": "classify_changed_paths.py", "output": "check5_changed_path_classification.json"},
+    {"check": "5 (src-tauri resolve variants, freshness)", "script": "check_src_tauri_resolve.py", "output": "native/SRC_TAURI_RESOLVE.json", "fetch_log": "native/src-tauri-fetch.log"},
+    {"check": "5 (clean-build byte identity)", "script": "check_src_tauri_clean_builds.py", "output": "native/SRC_TAURI_CLEAN_BUILDS.json"}
+  ],
+  "known_superseded_output": "native/SRC_TAURI_RESOLVE.json C_compile.report_package_outputs_identical=false compared two different target-dir paths with incremental compilation on; it is not attributable to the leaf lock. The controlled same-path CARGO_INCREMENTAL=0 comparison with a same-lock control is native/SRC_TAURI_CLEAN_BUILDS.json.",
+  "pruned_outputs": "native/PRUNED_RAW_OUTPUTS.json lists hashes of identical raw metadata/resolve outputs removed after hashing; one raw metadata per distinct content and the normalised resolve are retained gzip-compressed.",
+  "build_dirs": "Per-crate CARGO_TARGET_DIRs under /home/user/cargo-targets/lockreview/<crate> (outside the repository), plus the scratch git-archive export and cold CARGO_HOME, were removed after the run to free shared disk; sizes in removed-target-dirs-MiB.txt. All are reproducible from the scripts.",
+  "writes": "Only this LOCK_IMPACT_REVIEW directory in the repository. No repository source or lockfile modified (every stage hashes all 39 discovered locks before/after; src-tauri lock hashed before/after). No git mutation. No npm, browser, Playwright or native GUI execution."
+}

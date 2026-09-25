@@ -1,0 +1,47 @@
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --workers=1 --timeout=180000 --reporter=list -g 'R2 browser smoke covers authoring|compact blank-to-straight authoring' e2e/r2-smoke.spec.ts e2e/linear-authoring.spec.ts
+2026-09-25T17:29:32Z
+
+Running 2 tests using 1 worker
+
+  ✘  1 [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (55.6s)
+  ✓  2 [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (51.9s)
+
+
+  1) [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('historical-run-context')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('historical-run-context')[22m
+
+
+      245 |   await projectCommand(page, "open-local");
+      246 |   await openWorkspaceSection(page, "results");
+    > 247 |   await expect(page.getByTestId("historical-run-context")).toBeVisible();
+          |                                                            ^
+      248 |   await expect(page.getByTestId("historical-run-context")).toContainText("HISTORICAL_INPUT_MANIFEST_MISSING");
+      249 |   await expect(page.getByTestId("historical-run-context")).toContainText("MODEL_INCOMPLETE");
+      250 |   expect(await currentModelHash(page)).toBe(baseline350Hash);
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts:247:60
+
+    Error Context: test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review 
+  1 passed (1.9m)
+exit=1
+2026-09-25T17:31:25Z

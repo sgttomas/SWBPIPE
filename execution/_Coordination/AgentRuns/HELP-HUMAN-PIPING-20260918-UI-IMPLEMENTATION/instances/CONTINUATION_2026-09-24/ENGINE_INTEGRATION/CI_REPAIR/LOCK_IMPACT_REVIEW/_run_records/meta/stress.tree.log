@@ -1,0 +1,46 @@
+0open_pipe_stress_stress_benchmarks v0.1.0 (/home/user/wt/engine/projects/chirality-piping/validation/benchmarks/stress)
+1open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+1open_pipe_stress_result_export v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/reporting/result_export)
+2open_pipe_stress_canonical_json v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/serialization/canonical_json)
+3ryu v1.0.23
+3serde v1.0.228
+4serde_core v1.0.228
+5serde_derive v1.0.228 (proc-macro)
+6proc-macro2 v1.0.106
+7unicode-ident v1.0.24
+6quote v1.0.46
+7proc-macro2 v1.0.106 (*)
+6syn v2.0.118
+7proc-macro2 v1.0.106 (*)
+7quote v1.0.46 (*)
+7unicode-ident v1.0.24
+4serde_derive v1.0.228 (proc-macro) (*)
+3serde_json v1.0.150
+4itoa v1.0.18
+4memchr v2.8.3
+4serde v1.0.228 (*)
+4serde_core v1.0.228 (*)
+4zmij v1.0.22
+2open_pipe_stress_units v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/units)
+2serde_json v1.0.150 (*)
+2sha2 v0.10.9
+3cfg-if v1.0.4
+3cpufeatures v0.2.17
+4libc v0.2.186
+3digest v0.10.7
+4block-buffer v0.10.4
+5generic-array v0.14.7
+6typenum v1.20.1
+6version_check v0.9.5
+4crypto-common v0.1.7
+5generic-array v0.14.7 (*)
+5typenum v1.20.1
+1open_pipe_stress_straight_pipe v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/straight_pipe)
+2open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+1open_pipe_stress_stress_recovery v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/loads/stress_recovery)
+2open_pipe_stress_primitive_loads v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/loads/primitive_loads)
+3open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+3open_pipe_stress_linear_supports v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/linear_supports)
+4open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+2open_pipe_stress_straight_pipe v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/straight_pipe) (*)
+1sha2 v0.10.9 (*)

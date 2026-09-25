@@ -1,0 +1,428 @@
+{
+  "old": "e65001ad50072d3399bf204da02055b0f360353a",
+  "new": "5b1ccd356c0d9656f7b9f42c6558f7a4c73f9295",
+  "check1": [
+    {
+      "path": "projects/chirality-piping/core/reporting/report_package/Cargo.lock",
+      "lock_format_version": [
+        4,
+        4
+      ],
+      "packages_before": 31,
+      "packages_after": 32,
+      "duplicate_keys": [
+        false,
+        false
+      ],
+      "removed_keys": [],
+      "checksum_changed": [],
+      "added_keys": [
+        [
+          "open_pipe_stress_units",
+          "0.1.0",
+          null
+        ]
+      ],
+      "existing_dependency_additions": {
+        "open_pipe_stress_result_export/0.1.0": [
+          "open_pipe_stress_units"
+        ]
+      },
+      "existing_dependency_removals_or_field_changes": {},
+      "additive_only": true,
+      "added_path_packages": [
+        [
+          "open_pipe_stress_units",
+          "0.1.0",
+          null
+        ]
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock",
+      "lock_format_version": [
+        4,
+        4
+      ],
+      "packages_before": 33,
+      "packages_after": 34,
+      "duplicate_keys": [
+        false,
+        false
+      ],
+      "removed_keys": [],
+      "checksum_changed": [],
+      "added_keys": [
+        [
+          "open_pipe_stress_units",
+          "0.1.0",
+          null
+        ]
+      ],
+      "existing_dependency_additions": {
+        "open_pipe_stress_result_export/0.1.0": [
+          "open_pipe_stress_units"
+        ]
+      },
+      "existing_dependency_removals_or_field_changes": {},
+      "additive_only": true,
+      "added_path_packages": [
+        [
+          "open_pipe_stress_units",
+          "0.1.0",
+          null
+        ]
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+      "lock_format_version": [
+        4,
+        4
+      ],
+      "packages_before": 25,
+      "packages_after": 37,
+      "duplicate_keys": [
+        false,
+        false
+      ],
+      "removed_keys": [],
+      "checksum_changed": [],
+      "added_keys": [
+        [
+          "block-buffer",
+          "0.10.4",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "cfg-if",
+          "1.0.5",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "cpufeatures",
+          "0.2.17",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "crypto-common",
+          "0.1.7",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "digest",
+          "0.10.7",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "generic-array",
+          "0.14.7",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "libc",
+          "0.2.189",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "open_pipe_stress_canonical_json",
+          "0.1.0",
+          null
+        ],
+        [
+          "ryu",
+          "1.0.23",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "sha2",
+          "0.10.9",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "typenum",
+          "1.20.1",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "version_check",
+          "0.9.5",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "existing_dependency_additions": {
+        "open_pipe_stress_product_physics/0.2.0": [
+          "open_pipe_stress_canonical_json",
+          "sha2"
+        ]
+      },
+      "existing_dependency_removals_or_field_changes": {},
+      "additive_only": true,
+      "added_path_packages": [
+        [
+          "open_pipe_stress_canonical_json",
+          "0.1.0",
+          null
+        ]
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/stress/Cargo.lock",
+      "lock_format_version": [
+        4,
+        4
+      ],
+      "packages_before": 30,
+      "packages_after": 31,
+      "duplicate_keys": [
+        false,
+        false
+      ],
+      "removed_keys": [],
+      "checksum_changed": [],
+      "added_keys": [
+        [
+          "open_pipe_stress_units",
+          "0.1.0",
+          null
+        ]
+      ],
+      "existing_dependency_additions": {
+        "open_pipe_stress_result_export/0.1.0": [
+          "open_pipe_stress_units"
+        ]
+      },
+      "existing_dependency_removals_or_field_changes": {},
+      "additive_only": true,
+      "added_path_packages": [
+        [
+          "open_pipe_stress_units",
+          "0.1.0",
+          null
+        ]
+      ]
+    }
+  ],
+  "check3": {
+    "maintained_lock_count_e650": 40,
+    "all_lock_count_e650": 106,
+    "added_registry_packages": [
+      {
+        "lock": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+        "name": "crypto-common",
+        "version": "0.1.7",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "78c8292055d1c1df0cce5d180393dc8cce0abec0a7102adb6c7b1eef6016d60a",
+        "maintained_e650_occurrences": 12,
+        "maintained_e650_checksum_match": true,
+        "example_pins": [
+          "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+          "projects/chirality-piping/core/product_physics/Cargo.lock",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.lock"
+        ],
+        "new_to_repository": false,
+        "checksums_seen_anywhere": [
+          "78c8292055d1c1df0cce5d180393dc8cce0abec0a7102adb6c7b1eef6016d60a"
+        ],
+        "other_versions_in_maintained_locks": []
+      },
+      {
+        "lock": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+        "name": "typenum",
+        "version": "1.20.1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20",
+        "maintained_e650_occurrences": 10,
+        "maintained_e650_checksum_match": true,
+        "example_pins": [
+          "projects/chirality-piping/core/product_physics/Cargo.lock",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.lock"
+        ],
+        "new_to_repository": false,
+        "checksums_seen_anywhere": [
+          "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20"
+        ],
+        "other_versions_in_maintained_locks": [
+          "1.20.0"
+        ]
+      },
+      {
+        "lock": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+        "name": "libc",
+        "version": "0.2.189",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2",
+        "maintained_e650_occurrences": 5,
+        "maintained_e650_checksum_match": true,
+        "example_pins": [
+          "projects/chirality-piping/core/product_physics/Cargo.lock",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.lock"
+        ],
+        "new_to_repository": false,
+        "checksums_seen_anywhere": [
+          "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2"
+        ],
+        "other_versions_in_maintained_locks": [
+          "0.2.186"
+        ]
+      },
+      {
+        "lock": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+        "name": "generic-array",
+        "version": "0.14.7",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a",
+        "maintained_e650_occurrences": 12,
+        "maintained_e650_checksum_match": true,
+        "example_pins": [
+          "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+          "projects/chirality-piping/core/product_physics/Cargo.lock",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.lock"
+        ],
+        "new_to_repository": false,
+        "checksums_seen_anywhere": [
+          "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
+        ],
+        "other_versions_in_maintained_locks": []
+      },
+      {
+        "lock": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+        "name": "ryu",
+        "version": "1.0.23",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f",
+        "maintained_e650_occurrences": 13,
+        "maintained_e650_checksum_match": true,
+        "example_pins": [
+          "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+          "projects/chirality-piping/core/product_physics/Cargo.lock",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.lock"
+        ],
+        "new_to_repository": false,
+        "checksums_seen_anywhere": [
+          "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
+        ],
+        "other_versions_in_maintained_locks": []
+      },
+      {
+        "lock": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+        "name": "block-buffer",
+        "version": "0.10.4",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71",
+        "maintained_e650_occurrences": 12,
+        "maintained_e650_checksum_match": true,
+        "example_pins": [
+          "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+          "projects/chirality-piping/core/product_physics/Cargo.lock",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.lock"
+        ],
+        "new_to_repository": false,
+        "checksums_seen_anywhere": [
+          "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71"
+        ],
+        "other_versions_in_maintained_locks": []
+      },
+      {
+        "lock": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+        "name": "sha2",
+        "version": "0.10.9",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "a7507d819769d01a365ab707794a4084392c824f54a7a6a7862f8c3d0892b283",
+        "maintained_e650_occurrences": 12,
+        "maintained_e650_checksum_match": true,
+        "example_pins": [
+          "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+          "projects/chirality-piping/core/product_physics/Cargo.lock",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.lock"
+        ],
+        "new_to_repository": false,
+        "checksums_seen_anywhere": [
+          "a7507d819769d01a365ab707794a4084392c824f54a7a6a7862f8c3d0892b283"
+        ],
+        "other_versions_in_maintained_locks": []
+      },
+      {
+        "lock": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+        "name": "cfg-if",
+        "version": "1.0.5",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "4e7648175b45a9a48536d676f68d918270699102aa8dab5496df06904c914600",
+        "maintained_e650_occurrences": 4,
+        "maintained_e650_checksum_match": true,
+        "example_pins": [
+          "projects/chirality-piping/core/product_physics/Cargo.lock",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.lock"
+        ],
+        "new_to_repository": false,
+        "checksums_seen_anywhere": [
+          "4e7648175b45a9a48536d676f68d918270699102aa8dab5496df06904c914600"
+        ],
+        "other_versions_in_maintained_locks": [
+          "1.0.4"
+        ]
+      },
+      {
+        "lock": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+        "name": "cpufeatures",
+        "version": "0.2.17",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "59ed5838eebb26a2bb2e58f6d5b5316989ae9d08bab10e0e6d103e656d1b0280",
+        "maintained_e650_occurrences": 12,
+        "maintained_e650_checksum_match": true,
+        "example_pins": [
+          "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+          "projects/chirality-piping/core/product_physics/Cargo.lock",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.lock"
+        ],
+        "new_to_repository": false,
+        "checksums_seen_anywhere": [
+          "59ed5838eebb26a2bb2e58f6d5b5316989ae9d08bab10e0e6d103e656d1b0280"
+        ],
+        "other_versions_in_maintained_locks": []
+      },
+      {
+        "lock": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+        "name": "digest",
+        "version": "0.10.7",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292",
+        "maintained_e650_occurrences": 12,
+        "maintained_e650_checksum_match": true,
+        "example_pins": [
+          "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+          "projects/chirality-piping/core/product_physics/Cargo.lock",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.lock"
+        ],
+        "new_to_repository": false,
+        "checksums_seen_anywhere": [
+          "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
+        ],
+        "other_versions_in_maintained_locks": []
+      },
+      {
+        "lock": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+        "name": "version_check",
+        "version": "0.9.5",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a",
+        "maintained_e650_occurrences": 12,
+        "maintained_e650_checksum_match": true,
+        "example_pins": [
+          "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+          "projects/chirality-piping/core/product_physics/Cargo.lock",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.lock"
+        ],
+        "new_to_repository": false,
+        "checksums_seen_anywhere": [
+          "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+        ],
+        "other_versions_in_maintained_locks": []
+      }
+    ],
+    "all_match": true,
+    "new_third_party_versions": [],
+    "repo_wide_checksum_conflicts": []
+  },
+  "check1_all_additive": true
+}

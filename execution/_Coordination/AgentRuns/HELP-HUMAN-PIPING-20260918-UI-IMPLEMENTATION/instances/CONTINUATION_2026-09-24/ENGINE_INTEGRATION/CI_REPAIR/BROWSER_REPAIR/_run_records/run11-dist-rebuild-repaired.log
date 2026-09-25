@@ -1,0 +1,5 @@
+rebuild dist with repaired styles.css sha256 ba1dc91c2b252c9522f11599e56e3f713e149f17b5a581ad83d81ee81cc0a60d
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 6.26s
+build_exit=0

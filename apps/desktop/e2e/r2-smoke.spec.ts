@@ -85,6 +85,19 @@ test("recorded reference sources retain the original row, quantity, unit and dia
     const knowledgeRefs = [source.summary.max_displacement, source.results.find((row: any) => row.id === "result:force:pipe-P-120:axial")];
     expect(knowledgeRefs).toHaveLength(2);
     expect(knowledgeRefs.map((item: any) => item.unit).sort()).toEqual(["N", "mm"]);
+    // Spring and expansion-joint stiffness rows keep the N*m/rad and N/m units they were
+    // entered in: each carries its user-entered model value and unit, unconverted.
+    const springRows = source.results.filter((row: any) => ["N*m/rad", "N/m"].includes(row.unit));
+    expect([...new Set(springRows.map((row: any) => row.unit))].sort()).toEqual(["N*m/rad", "N/m"]);
+    const joint = referenceModel.components.find((item: any) => item.id === "component:C-150").modifiers;
+    const hanger = referenceModel.supports.find((item: any) => item.id === "support:SH-140").hanger;
+    expect(Object.fromEntries(springRows.map((row: any) => [row.id, { value: row.value, unit: row.unit }]))).toEqual({
+      "result:component-stiffness:component-C-150:axial": joint.axial_stiffness_user_value,
+      "result:component-stiffness:component-C-150:lateral": joint.lateral_stiffness_user_value,
+      "result:component-stiffness:component-C-150:angular": joint.angular_stiffness_user_value,
+      "result:component-stiffness:component-C-150:torsional": joint.torsional_stiffness_user_value,
+      "result:spring-hanger:support-SH-140:stiffness": hanger.stiffness.value,
+    });
   }
   // The 828 accepted witnesses / two withheld diagnostic-work rows are retained
   // by the independent pure packet assertions in StressNeutralExportPanel.test.tsx.
@@ -665,7 +678,10 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await page.getByTestId("run-mechanics-preview").click();
   await expectBackendRefusal(page);
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("model=angle=rad,force=N,length=m");
-  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("N*m/rad,N/m");
+  // A refused Run records no result units. The bundled rows' N*m/rad and N/m spring units stay
+  // checked, unconverted, by the recorded-source oracle test above, and in the inspected
+  // reference's source units below.
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=none");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=0");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   await inspectBundledReference(page);
@@ -701,6 +717,8 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toBeVisible();
   await expect(page.getByTestId("result-unit-policy")).toContainText("MPa, N, N*m, mm, rad");
+  // The reference's retained source units include its spring rows' N*m/rad and N/m, as entered.
+  await expect(page.getByTestId("result-unit-policy")).toContainText("N*m/rad, N/m");
   await expect(page.getByTestId("result-unit-policy")).toContainText("830 rows");
   await expect(page.getByTestId("result-unit-policy")).toContainText("entered units preserved");
   await expect(page.getByTestId("result-filter-summary")).toContainText("830 of 830 results match filter");
@@ -726,16 +744,21 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("result-detail-panel")).toContainText("recovered_from_local_element_stiffness");
   await expect(page.getByTestId("comparison-empty")).toBeVisible();
   await expect(page.getByTestId("comparison-unit-policy")).toHaveCount(0);
-  await expect(page.getByTestId("design-workspace-units")).toContainText("N*m/rad,N/m");
+  // The design workspace composes Current units only; an inspected reference supplies none.
+  await expect(page.getByTestId("design-workspace-units")).toContainText("model=angle=rad,force=N,length=m");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("results=none");
   await expect(page.getByTestId("design-workspace-units")).toContainText("comparison=none");
   await expect(page.getByTestId("design-workspace-units")).toContainText("conversion=false");
 
   await openWorkspaceSection(page, "report");
   const report = page.getByLabel("Report packet");
+  // No Current result, so no report packet is assembled: neither raw report DOM nor a JSON export
+  // is offered from an inspected reference. Redaction suppression of an assembled packet stays
+  // checked by the pure ReportPanel renders in App.test.tsx.
   await expect(report.getByTestId("report-redaction-blocked")).toContainText(
-    "Raw report DOM suppressed by redaction controls"
+    "Run the bounded preview mechanics path to assemble a report packet"
   );
-  await expect(report.getByTestId("report-export-link")).toHaveAttribute("href", /data:application\/json/);
+  await expect(report.getByTestId("report-export-link")).toHaveCount(0);
   await expect(report.getByTestId("report-packet-body")).toHaveCount(0);
   await expect(page.getByTestId("rendered-report-render")).toBeDisabled();
   await expect(page.getByTestId("rendered-report-precondition")).toBeVisible();
@@ -1725,7 +1748,15 @@ test("R3 guided flow routes private library, rule-pack, solve, binding, and bloc
   await page.getByTestId("rule-check-run").click();
   await expect(page.getByTestId("rule-check-run-status")).toContainText("RULE-CHECK-BACKEND-DESKTOP-ONLY");
   await page.getByTestId("issues-drawer-toggle").click();
-  await expect(page.getByTestId("issues-home")).toContainText("RULE_INPUTS_INCOMPLETE");
+  // With no Current result, Issues reports the current model's own rule standing: rule inputs
+  // missing and the rule check blocked. A bundled reference never lends its recorded status.
+  const issues = page.getByTestId("issues-home");
+  await expect(issues.getByTestId("missing-data-status-separation")).toContainText(
+    `rule_check=${referenceModel.analysis_status.rule_check}`
+  );
+  await expect(issues.getByTestId("missing-data-summary")).toContainText("rule_blocked=true");
+  await expect(issues.getByTestId("missing-data-warning-rule-check-required-inputs")).toContainText("RULE_CHECK_BLOCKING");
+  await expect(issues.getByTestId("diagnostic-RULE_INPUTS_MISSING")).toBeVisible();
 
   const horizontalOverflow = await page.evaluate(
     () =>

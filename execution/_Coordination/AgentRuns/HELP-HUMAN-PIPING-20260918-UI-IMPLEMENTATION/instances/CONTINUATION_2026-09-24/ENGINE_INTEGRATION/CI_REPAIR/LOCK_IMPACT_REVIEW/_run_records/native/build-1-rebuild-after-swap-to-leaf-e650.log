@@ -1,0 +1,43 @@
+
+--- stderr ---
+       Fresh unicode-ident v1.0.24
+       Fresh proc-macro2 v1.0.106
+       Fresh version_check v0.9.5
+       Fresh quote v1.0.45
+       Fresh syn v2.0.117
+       Fresh serde_core v1.0.228
+       Fresh typenum v1.20.0
+       Fresh generic-array v0.14.7
+       Fresh serde_derive v1.0.228
+       Fresh serde v1.0.228
+       Fresh crypto-common v0.1.7
+       Fresh block-buffer v0.10.4
+       Fresh digest v0.10.7
+       Fresh cpufeatures v0.2.17
+       Fresh cfg-if v1.0.4
+       Fresh sha2 v0.10.9
+       Fresh zmij v1.0.21
+       Fresh memchr v2.8.0
+       Fresh itoa v1.0.18
+       Fresh serde_json v1.0.149
+       Fresh open_pipe_stress_report_generator v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/reporting/report_generator)
+       Fresh open_pipe_stress_report_sections v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/reporting/report_sections)
+       Fresh open_pipe_stress_protected_content_linter v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/reporting/protected_content_linter)
+       Fresh ryu v1.0.23
+       Fresh open_pipe_stress_report_renderer v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/reporting/report_renderer)
+       Fresh open_pipe_stress_canonical_json v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/serialization/canonical_json)
+       Fresh open_pipe_stress_units v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/units)
+       Fresh open_pipe_stress_result_export v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/reporting/result_export)
+warning: function `derived` is never used
+   --> /home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+       Fresh open_pipe_stress_pdf_emitter v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/reporting/pdf_emitter)
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+       Fresh open_pipe_stress_audit_manifest v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/reporting/audit_manifest)
+       Fresh open_pipe_stress_report_package v0.1.0 (/home/user/cargo-targets/lockreview/_scratch_tree/projects/chirality-piping/core/reporting/report_package)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.24s

@@ -1,0 +1,219 @@
+diff --git a/projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts b/projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts
+index 18c552a8b..f61f00036 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts
+@@ -100,7 +100,8 @@ async function expectBackendRefusal(page: Page, edited = false): Promise<void> {
+   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
+   await expect(page.getByTestId("solve-job-error")).toHaveAttribute("role", "status");
+   await expect(page.getByTestId("solve-job-error")).toContainText(edited ? "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL" : "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
+-  await expectStatusChip(page, "status-pill-mechanics", "Solve job state: failed", "Solver · Not solved");
++  // The recorded job state is shown under its own source, never as a solver token.
++  await expectStatusChip(page, "status-pill-mechanics", "failed", "Solver · Not solved", "Solve job state");
+   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+ }
+ 
+diff --git a/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts b/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
+index ea6d6e500..c6daf8323 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
+@@ -229,7 +229,8 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
+   await page.getByTestId("run-mechanics-preview").click();
+   await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
+   await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+-  await expectStatusChip(page, "status-pill-mechanics", "failed", "Solver · Not solved");
++  // The recorded job state is shown under its own source, never as a solver token.
++  await expectStatusChip(page, "status-pill-mechanics", "failed", "Solver · Not solved", "Solve job state");
+   // Slice B3: the Analyze page lies over the stage's surfaces; close it to reach the canvas.
+   await showCanvas(page);
+   await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
+@@ -243,9 +244,11 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
+   await projectCommand(page, "save-local");
+   await projectCommand(page, "open-local");
+   await openWorkspaceSection(page, "results");
+-  await expect(page.getByTestId("historical-run-context")).toBeVisible();
+-  await expect(page.getByTestId("historical-run-context")).toContainText("HISTORICAL_INPUT_MANIFEST_MISSING");
+-  await expect(page.getByTestId("historical-run-context")).toContainText("MODEL_INCOMPLETE");
++  // A refused browser Run produced no result, so the reopened project carries no saved run to
++  // show as Historical. The saved-run reopen path (HISTORICAL_INPUT_MANIFEST_MISSING and the
++  // recorded status) stays covered by the unit tests of App.test.tsx and HistoricalRunContext.test.tsx.
++  await expect(page.getByTestId("results-panel")).toContainText("Run the bounded preview mechanics path to populate result summaries.");
++  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
+   expect(await currentModelHash(page)).toBe(baseline350Hash);
+   await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
+   await expect(page.getByTestId("viewport-deformation-summary")).toBeVisible();
+diff --git a/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts b/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts
+index 32bd98a7b..ca8aeea1c 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts
+@@ -85,6 +85,19 @@ test("recorded reference sources retain the original row, quantity, unit and dia
+     const knowledgeRefs = [source.summary.max_displacement, source.results.find((row: any) => row.id === "result:force:pipe-P-120:axial")];
+     expect(knowledgeRefs).toHaveLength(2);
+     expect(knowledgeRefs.map((item: any) => item.unit).sort()).toEqual(["N", "mm"]);
++    // Spring and expansion-joint stiffness rows keep the N*m/rad and N/m units they were
++    // entered in: each carries its user-entered model value and unit, unconverted.
++    const springRows = source.results.filter((row: any) => ["N*m/rad", "N/m"].includes(row.unit));
++    expect([...new Set(springRows.map((row: any) => row.unit))].sort()).toEqual(["N*m/rad", "N/m"]);
++    const joint = referenceModel.components.find((item: any) => item.id === "component:C-150").modifiers;
++    const hanger = referenceModel.supports.find((item: any) => item.id === "support:SH-140").hanger;
++    expect(Object.fromEntries(springRows.map((row: any) => [row.id, { value: row.value, unit: row.unit }]))).toEqual({
++      "result:component-stiffness:component-C-150:axial": joint.axial_stiffness_user_value,
++      "result:component-stiffness:component-C-150:lateral": joint.lateral_stiffness_user_value,
++      "result:component-stiffness:component-C-150:angular": joint.angular_stiffness_user_value,
++      "result:component-stiffness:component-C-150:torsional": joint.torsional_stiffness_user_value,
++      "result:spring-hanger:support-SH-140:stiffness": hanger.stiffness.value,
++    });
+   }
+   // The 828 accepted witnesses / two withheld diagnostic-work rows are retained
+   // by the independent pure packet assertions in StressNeutralExportPanel.test.tsx.
+@@ -665,7 +678,10 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
+   await page.getByTestId("run-mechanics-preview").click();
+   await expectBackendRefusal(page);
+   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("model=angle=rad,force=N,length=m");
+-  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("N*m/rad,N/m");
++  // A refused Run records no result units. The bundled rows' N*m/rad and N/m spring units stay
++  // checked, unconverted, by the recorded-source oracle test above, and in the inspected
++  // reference's source units below.
++  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=none");
+   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=0");
+   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
+   await inspectBundledReference(page);
+@@ -701,6 +717,8 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
+   await openWorkspaceSection(page, "results");
+   await expect(page.getByTestId("results-panel")).toBeVisible();
+   await expect(page.getByTestId("result-unit-policy")).toContainText("MPa, N, N*m, mm, rad");
++  // The reference's retained source units include its spring rows' N*m/rad and N/m, as entered.
++  await expect(page.getByTestId("result-unit-policy")).toContainText("N*m/rad, N/m");
+   await expect(page.getByTestId("result-unit-policy")).toContainText("830 rows");
+   await expect(page.getByTestId("result-unit-policy")).toContainText("entered units preserved");
+   await expect(page.getByTestId("result-filter-summary")).toContainText("830 of 830 results match filter");
+@@ -726,16 +744,21 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
+   await expect(page.getByTestId("result-detail-panel")).toContainText("recovered_from_local_element_stiffness");
+   await expect(page.getByTestId("comparison-empty")).toBeVisible();
+   await expect(page.getByTestId("comparison-unit-policy")).toHaveCount(0);
+-  await expect(page.getByTestId("design-workspace-units")).toContainText("N*m/rad,N/m");
++  // The design workspace composes Current units only; an inspected reference supplies none.
++  await expect(page.getByTestId("design-workspace-units")).toContainText("model=angle=rad,force=N,length=m");
++  await expect(page.getByTestId("design-workspace-units")).toContainText("results=none");
+   await expect(page.getByTestId("design-workspace-units")).toContainText("comparison=none");
+   await expect(page.getByTestId("design-workspace-units")).toContainText("conversion=false");
+ 
+   await openWorkspaceSection(page, "report");
+   const report = page.getByLabel("Report packet");
++  // No Current result, so no report packet is assembled: neither raw report DOM nor a JSON export
++  // is offered from an inspected reference. Redaction suppression of an assembled packet stays
++  // checked by the pure ReportPanel renders in App.test.tsx.
+   await expect(report.getByTestId("report-redaction-blocked")).toContainText(
+-    "Raw report DOM suppressed by redaction controls"
++    "Run the bounded preview mechanics path to assemble a report packet"
+   );
+-  await expect(report.getByTestId("report-export-link")).toHaveAttribute("href", /data:application\/json/);
++  await expect(report.getByTestId("report-export-link")).toHaveCount(0);
+   await expect(report.getByTestId("report-packet-body")).toHaveCount(0);
+   await expect(page.getByTestId("rendered-report-render")).toBeDisabled();
+   await expect(page.getByTestId("rendered-report-precondition")).toBeVisible();
+@@ -1725,7 +1748,15 @@ test("R3 guided flow routes private library, rule-pack, solve, binding, and bloc
+   await page.getByTestId("rule-check-run").click();
+   await expect(page.getByTestId("rule-check-run-status")).toContainText("RULE-CHECK-BACKEND-DESKTOP-ONLY");
+   await page.getByTestId("issues-drawer-toggle").click();
+-  await expect(page.getByTestId("issues-home")).toContainText("RULE_INPUTS_INCOMPLETE");
++  // With no Current result, Issues reports the current model's own rule standing: rule inputs
++  // missing and the rule check blocked. A bundled reference never lends its recorded status.
++  const issues = page.getByTestId("issues-home");
++  await expect(issues.getByTestId("missing-data-status-separation")).toContainText(
++    `rule_check=${referenceModel.analysis_status.rule_check}`
++  );
++  await expect(issues.getByTestId("missing-data-summary")).toContainText("rule_blocked=true");
++  await expect(issues.getByTestId("missing-data-warning-rule-check-required-inputs")).toContainText("RULE_CHECK_BLOCKING");
++  await expect(issues.getByTestId("diagnostic-RULE_INPUTS_MISSING")).toBeVisible();
+ 
+   const horizontalOverflow = await page.evaluate(
+     () =>
+diff --git a/projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts b/projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts
+index b058441d4..0716fb91a 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts
+@@ -266,15 +266,30 @@ export async function projectCommand(page: Page, command: ProjectCommand, keyboa
+ /**
+  * A status chip of the status bar (specification §5.4): its face is "Domain · Label", the
+  * recorded token is its tooltip and, on a click, the monospace line of its popover.
++ *
++ * A chip that names where its token comes from (such as "Solve job state": a recorded job
++ * state is not a solver token) is checked with that `source`. Its tooltip is then
++ * "source: token", it still carries the bare token, and its popover names the source beside
++ * the unchanged monospace token.
+  */
+-export async function expectStatusChip(page: Page, testId: string, token: string, face: string): Promise<void> {
++export async function expectStatusChip(page: Page, testId: string, token: string, face: string, source?: string): Promise<void> {
+   const chip = page.getByTestId(testId);
+   await expect(chip).toHaveText(face);
+-  await expect(chip).toHaveAttribute("title", token);
++  if (source === undefined) {
++    await expect(chip).toHaveAttribute("title", token);
++  } else {
++    await expect(chip).toHaveAttribute("title", `${source}: ${token}`);
++    await expect(chip).toHaveAttribute("data-status-token", token);
++  }
+   await chip.click();
+   const recorded = page.getByTestId(`${testId}-popover`).locator("code");
+   await expect(recorded).toBeVisible();
+   await expect(recorded).toHaveText(token);
++  if (source !== undefined) {
++    const popover = page.getByTestId(`${testId}-popover`);
++    await expect(popover).toHaveAccessibleName(`${face}: ${source}`);
++    await expect(popover.locator(":scope > span").first()).toHaveText(source);
++  }
+   await chip.click();
+   await expect(page.getByTestId(`${testId}-popover`)).toHaveCount(0);
+ }
+diff --git a/projects/chirality-piping/apps/desktop/src/styles.css b/projects/chirality-piping/apps/desktop/src/styles.css
+index 9f4df4ce6..9ca23130e 100644
+--- a/projects/chirality-piping/apps/desktop/src/styles.css
++++ b/projects/chirality-piping/apps/desktop/src/styles.css
+@@ -2592,23 +2592,28 @@ fieldset.viewport-intent-controls {
+   background: #2d5b50;
+ }
+ 
+-.result-filter-row,
+-.result-page-row {
+-  display: grid;
++/* The filter row wraps rather than squeezing its search field. In a narrow Results column (both
++   rails open at 1280x800, or a bundled reference nested in its own panel) the match summary and
++   the clear button move to a second line and the field keeps a usable width, instead of collapsing
++   to a sliver under the summary. In a wide column it stays one line, as before: the field takes the
++   free width, then the summary and the clear button. DOM and focus order are unchanged. */
++.result-filter-row {
++  display: flex;
++  flex-wrap: wrap;
+   align-items: center;
+   gap: 8px;
+ }
+ 
+-.result-filter-row {
+-  grid-template-columns: minmax(0, 1fr) auto 32px;
+-}
+-
+ .result-page-row {
++  display: grid;
+   grid-template-columns: auto minmax(0, 1fr) auto;
++  align-items: center;
++  gap: 8px;
+ }
+ 
+ .result-filter-row label {
+   display: grid;
++  flex: 1 1 240px;
+   grid-template-columns: 16px auto minmax(0, 1fr);
+   align-items: center;
+   gap: 6px;
+@@ -2645,8 +2650,11 @@ fieldset.viewport-intent-controls {
+ 
+ .result-filter-row button {
+   display: inline-grid;
++  flex: 0 0 32px;
+   width: 32px;
+   height: 30px;
++  /* Keeps the clear control at the row's right edge when it wraps; no effect on one line. */
++  margin-left: auto;
+   place-items: center;
+   border: 1px solid #c8d0cb;
+   border-radius: 4px;

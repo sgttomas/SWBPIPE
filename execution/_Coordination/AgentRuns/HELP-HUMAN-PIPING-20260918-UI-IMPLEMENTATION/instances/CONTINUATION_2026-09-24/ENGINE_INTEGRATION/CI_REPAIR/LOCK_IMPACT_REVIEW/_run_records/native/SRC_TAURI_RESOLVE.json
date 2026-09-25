@@ -1,0 +1,147 @@
+{
+  "head": "5b1ccd356c0d9656f7b9f42c6558f7a4c73f9295",
+  "A_worktree_5b1c": {
+    "tag": "worktree-5b1c",
+    "metadata_exit": 0,
+    "tree_exit": 0,
+    "locks_before": {
+      "src_tauri": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+      "report_package": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c"
+    },
+    "locks_after": {
+      "src_tauri": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+      "report_package": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c"
+    },
+    "resolve_nodes": 487,
+    "packages": 487,
+    "resolve_sha256": "70f8f6051697bf6a1d6b478a5568d1b7745357e0cdde98daa2e3abbdc936e618",
+    "workspace_root": "<ROOT>/projects/chirality-piping/apps/desktop/src-tauri",
+    "report_package_in_resolve": true,
+    "tree_macos_sha256": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833",
+    "tree_macos_lines": 890
+  },
+  "leaf_lock_sha256": {
+    "e650": "946819d8c31b2227afa8e46ce552d3211483faea0c163becf41abc95b0e2836a",
+    "b5b1c": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c"
+  },
+  "B_scratch_variants": [
+    {
+      "tag": "leaf-5b1c",
+      "metadata_exit": 0,
+      "tree_exit": 0,
+      "locks_before": {
+        "src_tauri": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+        "report_package": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c"
+      },
+      "locks_after": {
+        "src_tauri": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+        "report_package": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c"
+      },
+      "resolve_nodes": 487,
+      "packages": 487,
+      "resolve_sha256": "70f8f6051697bf6a1d6b478a5568d1b7745357e0cdde98daa2e3abbdc936e618",
+      "workspace_root": "<ROOT>/projects/chirality-piping/apps/desktop/src-tauri",
+      "report_package_in_resolve": true,
+      "tree_macos_sha256": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833",
+      "tree_macos_lines": 890,
+      "leaf_bytes_after_equal_written": true
+    },
+    {
+      "tag": "leaf-e650",
+      "metadata_exit": 0,
+      "tree_exit": 0,
+      "locks_before": {
+        "src_tauri": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+        "report_package": "946819d8c31b2227afa8e46ce552d3211483faea0c163becf41abc95b0e2836a"
+      },
+      "locks_after": {
+        "src_tauri": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+        "report_package": "946819d8c31b2227afa8e46ce552d3211483faea0c163becf41abc95b0e2836a"
+      },
+      "resolve_nodes": 487,
+      "packages": 487,
+      "resolve_sha256": "70f8f6051697bf6a1d6b478a5568d1b7745357e0cdde98daa2e3abbdc936e618",
+      "workspace_root": "<ROOT>/projects/chirality-piping/apps/desktop/src-tauri",
+      "report_package_in_resolve": true,
+      "tree_macos_sha256": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833",
+      "tree_macos_lines": 890,
+      "leaf_bytes_after_equal_written": true
+    },
+    {
+      "tag": "leaf-absent",
+      "metadata_exit": 0,
+      "tree_exit": 0,
+      "locks_before": {
+        "src_tauri": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+        "report_package": null
+      },
+      "locks_after": {
+        "src_tauri": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+        "report_package": null
+      },
+      "resolve_nodes": 487,
+      "packages": 487,
+      "resolve_sha256": "70f8f6051697bf6a1d6b478a5568d1b7745357e0cdde98daa2e3abbdc936e618",
+      "workspace_root": "<ROOT>/projects/chirality-piping/apps/desktop/src-tauri",
+      "report_package_in_resolve": true,
+      "tree_macos_sha256": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833",
+      "tree_macos_lines": 890,
+      "leaf_bytes_after_equal_written": true
+    },
+    {
+      "tag": "leaf-invalid-toml",
+      "metadata_exit": 0,
+      "tree_exit": 0,
+      "locks_before": {
+        "src_tauri": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+        "report_package": "c13253458e5297968a72ec26ed9992b2e24edc43e8724b0760e4c7abc5ed75e5"
+      },
+      "locks_after": {
+        "src_tauri": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+        "report_package": "c13253458e5297968a72ec26ed9992b2e24edc43e8724b0760e4c7abc5ed75e5"
+      },
+      "resolve_nodes": 487,
+      "packages": 487,
+      "resolve_sha256": "70f8f6051697bf6a1d6b478a5568d1b7745357e0cdde98daa2e3abbdc936e618",
+      "workspace_root": "<ROOT>/projects/chirality-piping/apps/desktop/src-tauri",
+      "report_package_in_resolve": true,
+      "tree_macos_sha256": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833",
+      "tree_macos_lines": 890,
+      "leaf_bytes_after_equal_written": true
+    }
+  ],
+  "resolve_identical_all": true,
+  "tree_macos_identical_all": true,
+  "resolve_hashes": {
+    "leaf-5b1c": "70f8f6051697bf6a1d6b478a5568d1b7745357e0cdde98daa2e3abbdc936e618",
+    "leaf-e650": "70f8f6051697bf6a1d6b478a5568d1b7745357e0cdde98daa2e3abbdc936e618",
+    "leaf-absent": "70f8f6051697bf6a1d6b478a5568d1b7745357e0cdde98daa2e3abbdc936e618",
+    "leaf-invalid-toml": "70f8f6051697bf6a1d6b478a5568d1b7745357e0cdde98daa2e3abbdc936e618",
+    "worktree-5b1c": "70f8f6051697bf6a1d6b478a5568d1b7745357e0cdde98daa2e3abbdc936e618"
+  },
+  "tree_macos_hashes": {
+    "leaf-5b1c": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833",
+    "leaf-e650": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833",
+    "leaf-absent": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833",
+    "leaf-invalid-toml": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833",
+    "worktree-5b1c": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833"
+  },
+  "C_compile": {
+    "build1_leaf_5b1c_exit": 0,
+    "rebuild_after_swap_exit": 0,
+    "rebuild_units_fresh": 31,
+    "rebuild_units_compiled_or_dirty": [],
+    "build2_clean_leaf_e650_exit": 0,
+    "outputs_build1": {
+      "libopen_pipe_stress_report_package-896012e3b6d29513.rlib": "2bf5989a68d33c16a9e396a69e9d0f1b431f1a436d5a286f35acbf3b248d5a5a",
+      "libopen_pipe_stress_report_package-896012e3b6d29513.rmeta": "a2ef1d92354c822029befc323e55d8e7ef2d662adf8901cc5e4688c7a7c5c18e"
+    },
+    "outputs_build2": {
+      "libopen_pipe_stress_report_package-896012e3b6d29513.rlib": "4f0d2ab2eae99af3924cdee4d5d58244cafe1ae7bc87646c09d766d42168764e",
+      "libopen_pipe_stress_report_package-896012e3b6d29513.rmeta": "83f8d81d39156690b62cdebdf1a2ecbf8fa4555a628cdd81ed0d4d6893325142"
+    },
+    "report_package_outputs_identical": false,
+    "src_tauri_lock_sha256_after": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+    "src_tauri_lock_sha256_repo_5b1c": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c"
+  }
+}

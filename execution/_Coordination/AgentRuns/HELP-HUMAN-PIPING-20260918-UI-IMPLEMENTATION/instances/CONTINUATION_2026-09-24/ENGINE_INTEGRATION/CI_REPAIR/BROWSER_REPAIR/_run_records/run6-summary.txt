@@ -1,0 +1,63 @@
+{
+ "chromium-desktop gui-workflow-validation.spec.ts": {
+  "expected": 3,
+  "unexpected": 0,
+  "flaky": 0,
+  "skipped": 0
+ },
+ "chromium-compact gui-workflow-validation.spec.ts": {
+  "expected": 3,
+  "unexpected": 0,
+  "flaky": 0,
+  "skipped": 0
+ },
+ "chromium-desktop linear-authoring.spec.ts": {
+  "expected": 1,
+  "unexpected": 0,
+  "flaky": 0,
+  "skipped": 0
+ },
+ "chromium-compact linear-authoring.spec.ts": {
+  "expected": 1,
+  "unexpected": 0,
+  "flaky": 0,
+  "skipped": 0
+ },
+ "chromium-desktop r2-smoke.spec.ts": {
+  "expected": 12,
+  "unexpected": 0,
+  "flaky": 0,
+  "skipped": 0
+ },
+ "chromium-compact r2-smoke.spec.ts": {
+  "expected": 12,
+  "unexpected": 0,
+  "flaky": 0,
+  "skipped": 0
+ },
+ "chromium-desktop result-compatibility.spec.ts": {
+  "expected": 1,
+  "unexpected": 0,
+  "flaky": 0,
+  "skipped": 0
+ },
+ "chromium-compact result-compatibility.spec.ts": {
+  "expected": 1,
+  "unexpected": 0,
+  "flaky": 0,
+  "skipped": 0
+ },
+ "chromium-desktop ui-foundation.spec.ts": {
+  "expected": 49,
+  "unexpected": 0,
+  "flaky": 0,
+  "skipped": 0
+ },
+ "chromium-compact ui-foundation.spec.ts": {
+  "expected": 36,
+  "unexpected": 1,
+  "flaky": 0,
+  "skipped": 0
+ }
+}
+stats {"startTime":"2026-09-25T17:37:08.667Z","duration":1523851.379,"expected":119,"skipped":0,"unexpected":1,"flaky":0}
