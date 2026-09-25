@@ -1,0 +1,148 @@
+{
+  "before": [
+    {
+      "path": "tools/validation/qualification_gate.py",
+      "sha256": "dcdb7822854e3e57293c23222df4509d789ba56f884f1d7e3fc98402a23d53b9"
+    },
+    {
+      "path": "tools/validation/qualification_physics.py",
+      "sha256": "8ac700410ecff4224912dbdef12e26bcc2bf4a2b3638f5d5ca92b117237fde4c"
+    },
+    {
+      "path": "tools/validation/qualification_physics_helper.py",
+      "sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb"
+    },
+    {
+      "path": "tools/validation/qualification_physics_structure.py",
+      "sha256": "33bceba232e0bd62716b2ce38f4be82eb04169f7728c1a53b53cae12b43d6ae7"
+    },
+    {
+      "path": "tools/validation/qualification_process.py",
+      "sha256": "bf1ed365763440261f21a0f699ecf8729c745d259880d3851649d0292c1282c6"
+    },
+    {
+      "path": "tools/validation/build_first_static_selection.py",
+      "sha256": "6aee22f8b67df8b2191c1a1aa4cb0049898e5b8c0845929a4e7197e8d3f957e8"
+    },
+    {
+      "path": "tests/test_qualification_gate.py",
+      "sha256": "5447262a437532b043b210b0fc397739ec5ee3330238644c342018cc2f89b64a"
+    },
+    {
+      "path": "tests/test_qualification_physics.py",
+      "sha256": "12f0bf3e7e194c3105f74aabf4186146cd8277456b718cae54c2f7e46159b933"
+    },
+    {
+      "path": "tests/test_qualification_physics_integration.py",
+      "sha256": "d8412000b05a9fd403d2e7bb272a94d19232aa8b8e46ddb7217d600c3d936c6e"
+    },
+    {
+      "path": "tests/test_qualification_physics_structure.py",
+      "sha256": "186e80175a2d0b2c4f809a9a918bda7a41ee5cc601e3d51a9dc599aff7dc3192"
+    },
+    {
+      "path": "tests/test_first_static_selection.py",
+      "sha256": "7f11887ad39f4150e9928216ba739c3d28f6008d5831351084726d440d1c6ccb"
+    },
+    {
+      "path": "validation/qualification/GATE_USAGE.md",
+      "sha256": "f72f7e6c8f0a9e1fdff8e44eea4f51208ccd62f757721eee2b621113a69ce633"
+    },
+    {
+      "path": "validation/qualification/fixtures/ordinary_physics_1_semantics.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    }
+  ],
+  "after": [
+    {
+      "path": "tools/validation/qualification_gate.py",
+      "sha256": "dcdb7822854e3e57293c23222df4509d789ba56f884f1d7e3fc98402a23d53b9"
+    },
+    {
+      "path": "tools/validation/qualification_physics.py",
+      "sha256": "8ac700410ecff4224912dbdef12e26bcc2bf4a2b3638f5d5ca92b117237fde4c"
+    },
+    {
+      "path": "tools/validation/qualification_physics_helper.py",
+      "sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb"
+    },
+    {
+      "path": "tools/validation/qualification_physics_structure.py",
+      "sha256": "33bceba232e0bd62716b2ce38f4be82eb04169f7728c1a53b53cae12b43d6ae7"
+    },
+    {
+      "path": "tools/validation/qualification_process.py",
+      "sha256": "bf1ed365763440261f21a0f699ecf8729c745d259880d3851649d0292c1282c6"
+    },
+    {
+      "path": "tools/validation/build_first_static_selection.py",
+      "sha256": "6aee22f8b67df8b2191c1a1aa4cb0049898e5b8c0845929a4e7197e8d3f957e8"
+    },
+    {
+      "path": "tests/test_qualification_gate.py",
+      "sha256": "5447262a437532b043b210b0fc397739ec5ee3330238644c342018cc2f89b64a"
+    },
+    {
+      "path": "tests/test_qualification_physics.py",
+      "sha256": "12f0bf3e7e194c3105f74aabf4186146cd8277456b718cae54c2f7e46159b933"
+    },
+    {
+      "path": "tests/test_qualification_physics_integration.py",
+      "sha256": "d8412000b05a9fd403d2e7bb272a94d19232aa8b8e46ddb7217d600c3d936c6e"
+    },
+    {
+      "path": "tests/test_qualification_physics_structure.py",
+      "sha256": "186e80175a2d0b2c4f809a9a918bda7a41ee5cc601e3d51a9dc599aff7dc3192"
+    },
+    {
+      "path": "tests/test_first_static_selection.py",
+      "sha256": "7f11887ad39f4150e9928216ba739c3d28f6008d5831351084726d440d1c6ccb"
+    },
+    {
+      "path": "validation/qualification/GATE_USAGE.md",
+      "sha256": "f72f7e6c8f0a9e1fdff8e44eea4f51208ccd62f757721eee2b621113a69ce633"
+    },
+    {
+      "path": "validation/qualification/fixtures/ordinary_physics_1_semantics.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    }
+  ],
+  "source_unchanged": true,
+  "checks": [
+    {
+      "command": [
+        "/private/tmp/chirality-piping-dec025-venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_qualification*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 62.81697654211894,
+      "log": "_run_records/final_qualification_01.log",
+      "log_sha256": "76e30e639cf8993a65f0b2562c758ba11d86aa7b2f45fa53fbcd30a725f947a0"
+    },
+    {
+      "command": [
+        "/private/tmp/chirality-piping-dec025-venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_first_static_selection.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.08756583370268345,
+      "log": "_run_records/final_derivation_01.log",
+      "log_sha256": "69b11a264ee1b06f4c14f5583b6d493a1e838be10f3805fbbd0ee91ad5d002dc"
+    }
+  ],
+  "claim": "Synthetic harness/derivation evidence only. No actual solver, new reference execution, build, native or release qualification."
+}

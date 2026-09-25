@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/private/tmp/chirality-piping-dec025-venv/bin/python",
+    "-I",
+    "-S",
+    "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+    "--source-root",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+    "--binding",
+    "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/PREPARATION_BINDING.json",
+    "--binding-sha256",
+    "437c27c991e13b3b2741b22145dcff7fdba498f06f1826173997c1e39fb1ac5f"
+  ],
+  "exit_code": 0,
+  "source_input_sha256": "2e3007311d6b5f76172dbf7e9c4a9bbb98ad16382d75ffa63d327c9aab9ebdb6",
+  "helper_sha256": "90b5b0b80dd9250ba3b0428b537fb2da5a2e1edc8cd58248666b6d391c1ee01d",
+  "meaning": "Received ordinary fixture physical-consistency helper only; preparation binding unadmitted; no solve/scoring"
+}

@@ -1,0 +1,131 @@
+{
+  "artifact": "openpipestress.first_static_development_observation",
+  "version": "1.0.0",
+  "programme_denominator": {
+    "case_mode_executions": 4,
+    "scalar_obligations": 292,
+    "structural_obligations": 40,
+    "section_subchecks_nested": 36
+  },
+  "build_result_sha256": "04e171dadc7368398d8c548007b95b36c6ed8e52df0e7e85927061062b25bffb",
+  "adapter_freeze_sha256": "609ed22c4204465712d773d2f881a0971612c8c4c03d07a094b09c16a0e5d951",
+  "independent_review_sha256": "f4143102f33b9131726c8949062c00eabeb05ccb3e477d95d3d0072f497dd5a7",
+  "orchestrator_sha256": "d24a15100faa7511fc235fd3a13722b2a856dac4267f3a53eb56cc67d4c1b125",
+  "modes": [
+    {
+      "mode": "sparse_interactive",
+      "state": "all_required_assertions_matched",
+      "selection_sha256": "63e26f9224a3afa522324e8c061b2779aa5b4e176b94356854aeed70509705ba",
+      "summary": {
+        "required_cases": 2,
+        "required_assertions": 146,
+        "assertions": {
+          "not_run": 0,
+          "matched": 146,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        },
+        "required_structural_checks": 20,
+        "structural_checks": {
+          "not_run": 0,
+          "matched": 20,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        },
+        "required_section_subchecks": 18,
+        "section_subchecks": {
+          "not_run": 0,
+          "matched": 18,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 2,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        }
+      },
+      "cases": [
+        {
+          "id": "original_static_axial_v1",
+          "state": "matched",
+          "reason": "required assertion assessment"
+        },
+        {
+          "id": "original_static_bending_torsion_v1",
+          "state": "matched",
+          "reason": "required assertion assessment"
+        }
+      ],
+      "ledger_path": "COMPARISON_RUN_01/sparse_interactive/ledger.json",
+      "ledger_sha256": "502038dbe4c9dd22181f87cb26ba80ecab45fdc99b9d934292d87c23222b4b41",
+      "elapsed_seconds": 2.0776164582930505
+    },
+    {
+      "mode": "dense_scrutiny",
+      "state": "all_required_assertions_matched",
+      "selection_sha256": "73a2f815a313ba7b4b24e90c12ede467bb64e37e322f919f8384453b502cbb9e",
+      "summary": {
+        "required_cases": 2,
+        "required_assertions": 146,
+        "assertions": {
+          "not_run": 0,
+          "matched": 146,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        },
+        "required_structural_checks": 20,
+        "structural_checks": {
+          "not_run": 0,
+          "matched": 20,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        },
+        "required_section_subchecks": 18,
+        "section_subchecks": {
+          "not_run": 0,
+          "matched": 18,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 2,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        }
+      },
+      "cases": [
+        {
+          "id": "original_static_axial_v1",
+          "state": "matched",
+          "reason": "required assertion assessment"
+        },
+        {
+          "id": "original_static_bending_torsion_v1",
+          "state": "matched",
+          "reason": "required assertion assessment"
+        }
+      ],
+      "ledger_path": "COMPARISON_RUN_01/dense_scrutiny/ledger.json",
+      "ledger_sha256": "d06421a86d68fffec523b881ee8d779c670449e20d30192dbadcda8bedd73062",
+      "elapsed_seconds": 1.48710716702044
+    }
+  ],
+  "qualification": "bounded development comparison only; no full Q1, Current, native, professional acceptance or release",
+  "missing_outputs": "FIRST_STATIC_BINDINGS/OUTPUT_OBLIGATIONS.json remains applicable; direct transverse-shear/signed circumferential coverage is not invented",
+  "identity_after_matches": true,
+  "all_selected_obligations_matched": true,
+  "actual_case_mode_executions": 4,
+  "identity_before_sha256": "a7473373eed6ed2035f87f8cfeddb87747840f32eb7f9d6e76d6dde99a2dfbaf",
+  "identity_after_sha256": "a7473373eed6ed2035f87f8cfeddb87747840f32eb7f9d6e76d6dde99a2dfbaf"
+}

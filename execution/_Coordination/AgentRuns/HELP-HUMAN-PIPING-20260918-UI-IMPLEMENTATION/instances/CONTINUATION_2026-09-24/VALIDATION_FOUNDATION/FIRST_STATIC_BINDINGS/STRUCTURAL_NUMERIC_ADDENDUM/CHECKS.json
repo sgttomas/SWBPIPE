@@ -1,0 +1,142 @@
+{
+  "status": "PASS additive preparation only",
+  "original_25_files_unchanged": [
+    {
+      "path": "BASIS.json",
+      "sha256": "82d051431302c6c5965f1143e43407a319aec8ffae4184899a610a650d9d18fa",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "INPUT_REFERENCE_BINDINGS.json",
+      "sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "OUTPUT_OBLIGATIONS.json",
+      "sha256": "1e9559d53a3219396b19ac17aa5e0198580e9a572df92d4bfe4c378110a86737",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "REFERENCE_DOMAIN.md",
+      "sha256": "5a5f69295748a640c55cbd3d115705e1309ad5977d0cb75881f26beb0bcb8a5c",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "b7af8eee3e5972be9c286b84ed410c3dff98ae78b768dd6ffbfe150db172c81c",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "STRUCTURAL_EXPECTATIONS.json",
+      "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "WIRE_BASIS.json",
+      "sha256": "b622b78b0c97e69f71854ec1eafc3e720a45a1e67ef2dba88ad966ee9fa825c9",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "_run_records/DIRECTION_DRAFT_REPAIR.json",
+      "sha256": "784f681efc8f2c588916f4e86740a92a860b6aef4750a911cb5abe49b09e682f",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "_run_records/PREPARATION_CHECKS.json",
+      "sha256": "158df5013692966757752ecdf37d26e3d5e1b74f860d6a9b2cb7e0df343cf351",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "_run_records/REFERENCE_ARITHMETIC.json",
+      "sha256": "6324fd631084bc3f93e434ed11926a8c21fe23eaeeda80221dd698109c511aea",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "axial.criteria.candidate.json",
+      "sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "axial.expectations.json",
+      "sha256": "a3abc2d10edcabf279e7cbbf4bb124e742734acf3c934b8e297ebb02359a116a",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "axial.preview_request.json",
+      "sha256": "dfca10a0b76f08d903261a0fbb885b0f9f223b6a0d8ee6696b1cd62c18ebcd71",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "axial.reference.candidate.json",
+      "sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "axial.runner_input.candidate.json",
+      "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "axial.selectors.candidate.json",
+      "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "bending_torsion.criteria.candidate.json",
+      "sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "bending_torsion.expectations.json",
+      "sha256": "cfe8d16ceb0d7505a30f19d1f2ed03a2306f9c71101be1e7643fb1f6dbf6bde3",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "bending_torsion.preview_request.json",
+      "sha256": "d2cd8c15910fd6f98ccf1cb267f56dbeecec8226dab9129f989aa37716204dc3",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "bending_torsion.reference.candidate.json",
+      "sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "bending_torsion.runner_input.candidate.json",
+      "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "bending_torsion.selectors.candidate.json",
+      "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "build_bindings.py",
+      "sha256": "2a5c5b8894ae9b58525abec5c7539f1b6df57a86ddf2fc5ddf604d6c23c1276f",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "independent_reference.py",
+      "sha256": "18552e3a511d9582aec423183c14e3ea3a67f21755567dbdace600c50f7c3c17",
+      "matches_original_manifest_and_checkpoint": true
+    },
+    {
+      "path": "section.reference.json",
+      "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a",
+      "matches_original_manifest_and_checkpoint": true
+    }
+  ],
+  "original_checkpoint": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+  "quantities": 9,
+  "case_mode_numeric_subchecks_if_executed": 36,
+  "new_product_or_solver_runs": 0,
+  "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "arithmetic": "Original checked Decimal100/pi reused; positive Ai=0.0081*pi added; A/I/J/Z source-relation check only, not another independent proof",
+  "generator_sha256": "666b60d64bc743dc8a1f9c86103a47866f7d8139d4e8d135073bb97b9aff16d1",
+  "independent_review_pending": true,
+  "parent_packet_manifest_unchanged": {
+    "sha256": "0603a990838166c1da43b26f8b657dae3051289097700a76859d1afaa45db02b",
+    "matches_checkpoint": true
+  }
+}

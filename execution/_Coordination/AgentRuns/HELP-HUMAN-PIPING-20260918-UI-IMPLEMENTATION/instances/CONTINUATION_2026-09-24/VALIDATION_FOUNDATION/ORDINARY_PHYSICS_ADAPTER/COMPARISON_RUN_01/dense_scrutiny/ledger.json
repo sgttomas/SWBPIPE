@@ -1,0 +1,2835 @@
+{
+  "artifact": "openpipestress.qualification_development_ledger",
+  "version": "1.0.0",
+  "profile_id": "first_static_ordinary_physics_1/dense_scrutiny",
+  "selection_sha256": "73a2f815a313ba7b4b24e90c12ede467bb64e37e322f919f8384453b502cbb9e",
+  "qualification": "not_established_by_this_harness",
+  "outcome": "all_required_assertions_matched",
+  "publication_phase": "complete",
+  "submitted_inventory": {
+    "cases_type": "list",
+    "cases": [
+      {
+        "id": "original_static_axial_v1",
+        "assertion_count": 73,
+        "assertion_ids": [
+          "node.root.ux",
+          "node.root.uy",
+          "node.root.uz",
+          "node.root.rx",
+          "node.root.ry",
+          "node.root.rz",
+          "node.root.magnitude",
+          "node.tip.ux",
+          "node.tip.uy",
+          "node.tip.uz",
+          "node.tip.rx",
+          "node.tip.ry",
+          "node.tip.rz",
+          "node.tip.magnitude",
+          "support.Fx",
+          "support.Fy",
+          "support.Fz",
+          "support.Mx",
+          "support.My",
+          "support.Mz",
+          "support.force_magnitude",
+          "support.moment_magnitude",
+          "section.end_i.N",
+          "section.end_i.Vy",
+          "section.end_i.Vz",
+          "section.end_i.T",
+          "section.end_i.My",
+          "section.end_i.Mz",
+          "stress.end_i.axial",
+          "stress.end_i.bending_y",
+          "stress.end_i.bending_z",
+          "stress.end_i.torsional_shear",
+          "section.quarter_1.N",
+          "section.quarter_1.Vy",
+          "section.quarter_1.Vz",
+          "section.quarter_1.T",
+          "section.quarter_1.My",
+          "section.quarter_1.Mz",
+          "stress.quarter_1.axial",
+          "stress.quarter_1.bending_y",
+          "stress.quarter_1.bending_z",
+          "stress.quarter_1.torsional_shear",
+          "section.midspan.N",
+          "section.midspan.Vy",
+          "section.midspan.Vz",
+          "section.midspan.T",
+          "section.midspan.My",
+          "section.midspan.Mz",
+          "stress.midspan.axial",
+          "stress.midspan.bending_y",
+          "stress.midspan.bending_z",
+          "stress.midspan.torsional_shear",
+          "section.quarter_3.N",
+          "section.quarter_3.Vy",
+          "section.quarter_3.Vz",
+          "section.quarter_3.T",
+          "section.quarter_3.My",
+          "section.quarter_3.Mz",
+          "stress.quarter_3.axial",
+          "stress.quarter_3.bending_y",
+          "stress.quarter_3.bending_z",
+          "stress.quarter_3.torsional_shear",
+          "section.end_j.N",
+          "section.end_j.Vy",
+          "section.end_j.Vz",
+          "section.end_j.T",
+          "section.end_j.My",
+          "section.end_j.Mz",
+          "stress.end_j.axial",
+          "stress.end_j.bending_y",
+          "stress.end_j.bending_z",
+          "stress.end_j.torsional_shear",
+          "stress.maximum_absolute_normal"
+        ]
+      },
+      {
+        "id": "original_static_bending_torsion_v1",
+        "assertion_count": 73,
+        "assertion_ids": [
+          "node.root.ux",
+          "node.root.uy",
+          "node.root.uz",
+          "node.root.rx",
+          "node.root.ry",
+          "node.root.rz",
+          "node.root.magnitude",
+          "node.tip.ux",
+          "node.tip.uy",
+          "node.tip.uz",
+          "node.tip.rx",
+          "node.tip.ry",
+          "node.tip.rz",
+          "node.tip.magnitude",
+          "support.Fx",
+          "support.Fy",
+          "support.Fz",
+          "support.Mx",
+          "support.My",
+          "support.Mz",
+          "support.force_magnitude",
+          "support.moment_magnitude",
+          "section.end_i.N",
+          "section.end_i.Vy",
+          "section.end_i.Vz",
+          "section.end_i.T",
+          "section.end_i.My",
+          "section.end_i.Mz",
+          "stress.end_i.axial",
+          "stress.end_i.bending_y",
+          "stress.end_i.bending_z",
+          "stress.end_i.torsional_shear",
+          "section.quarter_1.N",
+          "section.quarter_1.Vy",
+          "section.quarter_1.Vz",
+          "section.quarter_1.T",
+          "section.quarter_1.My",
+          "section.quarter_1.Mz",
+          "stress.quarter_1.axial",
+          "stress.quarter_1.bending_y",
+          "stress.quarter_1.bending_z",
+          "stress.quarter_1.torsional_shear",
+          "section.midspan.N",
+          "section.midspan.Vy",
+          "section.midspan.Vz",
+          "section.midspan.T",
+          "section.midspan.My",
+          "section.midspan.Mz",
+          "stress.midspan.axial",
+          "stress.midspan.bending_y",
+          "stress.midspan.bending_z",
+          "stress.midspan.torsional_shear",
+          "section.quarter_3.N",
+          "section.quarter_3.Vy",
+          "section.quarter_3.Vz",
+          "section.quarter_3.T",
+          "section.quarter_3.My",
+          "section.quarter_3.Mz",
+          "stress.quarter_3.axial",
+          "stress.quarter_3.bending_y",
+          "stress.quarter_3.bending_z",
+          "stress.quarter_3.torsional_shear",
+          "section.end_j.N",
+          "section.end_j.Vy",
+          "section.end_j.Vz",
+          "section.end_j.T",
+          "section.end_j.My",
+          "section.end_j.Mz",
+          "stress.end_j.axial",
+          "stress.end_j.bending_y",
+          "stress.end_j.bending_z",
+          "stress.end_j.torsional_shear",
+          "stress.maximum_absolute_normal"
+        ]
+      }
+    ],
+    "case_count": 2
+  },
+  "cases": [
+    {
+      "id": "original_static_axial_v1",
+      "state": "matched",
+      "reason": "required assertion assessment",
+      "assertions": [
+        {
+          "id": "node.root.ux",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.uy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.uz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.rx",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.ry",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.rz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.magnitude",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.ux",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0016753151904410032,
+          "expected": 0.0016753151904410036,
+          "absolute_delta": 4.336808689942018e-19,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.uy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.uz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.rx",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.ry",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.rz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.magnitude",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0016753151904410032,
+          "expected": 0.0016753151904410036,
+          "absolute_delta": 4.336808689942018e-19,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.Fx",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -999.9999999999998,
+          "expected": -1000.0,
+          "absolute_delta": 2.2737367544323206e-13,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.Fy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.Fz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.Mx",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.force_magnitude",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 999.9999999999998,
+          "expected": 1000.0,
+          "absolute_delta": 2.2737367544323206e-13,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.moment_magnitude",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.N",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -999.9999999999998,
+          "expected": -1000.0,
+          "absolute_delta": 2.2737367544323206e-13,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.Vy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.Vz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.T",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_i.axial",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.1675315190441003,
+          "expected": 0.16753151904410035,
+          "absolute_delta": 5.551115123125783e-17,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_i.bending_y",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_i.bending_z",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_i.torsional_shear",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.N",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 999.9999999999998,
+          "expected": 1000.0,
+          "absolute_delta": 2.2737367544323206e-13,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.Vy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.Vz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.T",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_1.axial",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.1675315190441003,
+          "expected": 0.16753151904410035,
+          "absolute_delta": 5.551115123125783e-17,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_1.bending_y",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_1.bending_z",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_1.torsional_shear",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.N",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 999.9999999999998,
+          "expected": 1000.0,
+          "absolute_delta": 2.2737367544323206e-13,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.Vy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.Vz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.T",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.midspan.axial",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.1675315190441003,
+          "expected": 0.16753151904410035,
+          "absolute_delta": 5.551115123125783e-17,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.midspan.bending_y",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.midspan.bending_z",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.midspan.torsional_shear",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.N",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 999.9999999999998,
+          "expected": 1000.0,
+          "absolute_delta": 2.2737367544323206e-13,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.Vy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.Vz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.T",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_3.axial",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.1675315190441003,
+          "expected": 0.16753151904410035,
+          "absolute_delta": 5.551115123125783e-17,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_3.bending_y",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_3.bending_z",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_3.torsional_shear",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.N",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 999.9999999999998,
+          "expected": 1000.0,
+          "absolute_delta": 2.2737367544323206e-13,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.Vy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.Vz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.T",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_j.axial",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.1675315190441003,
+          "expected": 0.16753151904410035,
+          "absolute_delta": 5.551115123125783e-17,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_j.bending_y",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_j.bending_z",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_j.torsional_shear",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.maximum_absolute_normal",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 167531.5190441003,
+          "expected": 167531.51904410037,
+          "absolute_delta": 5.820766091346741e-11,
+          "unit": "Pa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        }
+      ],
+      "structural_checks": [
+        {
+          "id": "transport_identity_and_mode",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "mode": "dense_scrutiny"
+          }
+        },
+        {
+          "id": "actual_input_binding",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "model_ref": "project:original-static-axial"
+          }
+        },
+        {
+          "id": "ordinary_physics_contract",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/physics-1"
+          }
+        },
+        {
+          "id": "complete_case_material_section",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "section_quantities": [
+              {
+                "id": "section.outside_diameter_m",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m",
+                "criterion_ref": "section.source_length_identity",
+                "observed": 0.2,
+                "expected": 0.2,
+                "absolute_delta": 0.0,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.effective_wall_thickness_m",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m",
+                "criterion_ref": "section.source_length_identity",
+                "observed": 0.01,
+                "expected": 0.01,
+                "absolute_delta": 0.0,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.ro_m",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m",
+                "criterion_ref": "section.derived_length_relative",
+                "observed": 0.1,
+                "expected": 0.1,
+                "absolute_delta": 0.0,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.ri_m",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m",
+                "criterion_ref": "section.derived_length_relative",
+                "observed": 0.09000000000000001,
+                "expected": 0.09,
+                "absolute_delta": 1.3877787807814457e-17,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.As_m2",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m^2",
+                "criterion_ref": "section.area_relative",
+                "observed": 0.005969026041820607,
+                "expected": 0.005969026041820607,
+                "absolute_delta": 0.0,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.Ai_m2",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m^2",
+                "criterion_ref": "section.area_relative",
+                "observed": 0.02544690049407733,
+                "expected": 0.025446900494077326,
+                "absolute_delta": 3.469446951953614e-18,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.I_m4",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m^4",
+                "criterion_ref": "section.second_moment_relative",
+                "observed": 2.7009842839238257e-05,
+                "expected": 2.7009842839238247e-05,
+                "absolute_delta": 1.0164395367051604e-20,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.J_m4",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m^4",
+                "criterion_ref": "section.second_moment_relative",
+                "observed": 5.4019685678476514e-05,
+                "expected": 5.4019685678476494e-05,
+                "absolute_delta": 2.0328790734103208e-20,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.Z_m3",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m^3",
+                "criterion_ref": "section.modulus_relative",
+                "observed": 0.0002700984283923826,
+                "expected": 0.00027009842839238247,
+                "absolute_delta": 1.0842021724855044e-19,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              }
+            ]
+          }
+        },
+        {
+          "id": "finite_numerical_standing",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "accuracy_evidence": "not_claimed"
+          }
+        },
+        {
+          "id": "complete_unique_scalar_rows",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "required_scalar_rows": 73,
+            "observed_total_rows": 75
+          }
+        },
+        {
+          "id": "normal_maximum_evidence",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "coefficient_basis": "j_side_section_equilibrium_binary64",
+            "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+            "physical_consistency": true
+          }
+        },
+        {
+          "id": "governing_location",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "location_interpretation": "witness of constant axial all-stations tie; no unique station/fiber claim",
+            "station_fraction": 0.0
+          }
+        },
+        {
+          "id": "stress_summary_binding",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "result_ref": "result:elastic-maximum:4:case:4:pipe",
+            "unit": "Pa",
+            "observed": 167531.5190441003
+          }
+        },
+        {
+          "id": "displacement_summary_binding",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "result_ref": "result:disp:tip",
+            "unit": "mm",
+            "observed": 0.0016753151904410032
+          }
+        }
+      ],
+      "process": {
+        "outcome": "completed",
+        "detail": null,
+        "command": [
+          "/private/tmp/piping-validation-headless-20260925/debug/openpipestress-runner",
+          "solve",
+          "--input",
+          "-",
+          "--solver-mode",
+          "dense_scrutiny",
+          "--explicit-local-private-intent"
+        ],
+        "return_code": 0,
+        "elapsed_seconds": 0.2527092923410237,
+        "executable_sha256_before": "506866a9beefcb4ec1374d1fd7b8f2f999f17670cb7c65b2b17ef91a92162614",
+        "executable_sha256_after": "506866a9beefcb4ec1374d1fd7b8f2f999f17670cb7c65b2b17ef91a92162614",
+        "stdin_sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+        "stdin_bytes_delivered": 6939,
+        "stdin_delivered_sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+        "stdin_delivery_complete": true,
+        "retained_stdin_sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+        "stdout_sha256": "461dc0eb73c1337c3b3242ed8e91fe374b73afaa7647af47826362b86e8aac2e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "retained_stdout_sha256": "461dc0eb73c1337c3b3242ed8e91fe374b73afaa7647af47826362b86e8aac2e",
+        "retained_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 1248900,
+        "stderr_bytes": 0,
+        "timeout_seconds": 30,
+        "output_limit_bytes_per_stream": 8388608,
+        "raw_capture_complete": true,
+        "environment": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "RAYON_NUM_THREADS": null
+        },
+        "scope": "actual local process byte delivery/capture; no internal-use, build-source or solver attestation"
+      },
+      "bindings": [
+        {
+          "role": "input",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.runner_input.candidate.json",
+          "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74"
+        },
+        {
+          "role": "reference",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/EXECUTION_SELECTIONS/dense_scrutiny/axial.reference.json",
+          "sha256": "52ccc73a2a715620558974bc725cc3b8d2f111337b3100d7bdafb2e451885236"
+        },
+        {
+          "role": "criterion",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/EXECUTION_SELECTIONS/dense_scrutiny/axial.criteria.json",
+          "sha256": "c246204f657ad41f9abaa62ffafb1419553a2ccf6f4f814460b8cc7e670e456a"
+        },
+        {
+          "role": "input",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.runner_input.candidate.json",
+          "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74"
+        },
+        {
+          "role": "reference",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.reference.candidate.json",
+          "sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6"
+        },
+        {
+          "role": "criterion",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.criteria.candidate.json",
+          "sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76"
+        },
+        {
+          "role": "selectors",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.selectors.candidate.json",
+          "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482"
+        },
+        {
+          "role": "obligations",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/STRUCTURAL_EXPECTATIONS.json",
+          "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa"
+        },
+        {
+          "role": "section_reference",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/section.reference.json",
+          "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a"
+        },
+        {
+          "role": "section_criteria",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+          "sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2"
+        }
+      ],
+      "reference_kind": "analytical",
+      "retained_artifacts": [
+        {
+          "role": "reference",
+          "path": "case-0000.reference.json",
+          "sha256": "52ccc73a2a715620558974bc725cc3b8d2f111337b3100d7bdafb2e451885236",
+          "byte_length": 8063,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "criterion",
+          "path": "case-0000.criterion.json",
+          "sha256": "c246204f657ad41f9abaa62ffafb1419553a2ccf6f4f814460b8cc7e670e456a",
+          "byte_length": 15525,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "selected_original",
+          "path": "case-0000.original-input.json",
+          "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+          "byte_length": 6939,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "selected_original",
+          "path": "case-0000.original-reference.json",
+          "sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6",
+          "byte_length": 7601,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "selected_original",
+          "path": "case-0000.original-criterion.json",
+          "sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76",
+          "byte_length": 9865,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "selected_original",
+          "path": "case-0000.original-selectors.json",
+          "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482",
+          "byte_length": 81504,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "obligations",
+          "path": "case-0000.structural-obligations.json",
+          "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa",
+          "byte_length": 4343,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "section_reference",
+          "path": "case-0000.structural-section_reference.json",
+          "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a",
+          "byte_length": 818,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "section_criteria",
+          "path": "case-0000.structural-section_criteria.json",
+          "sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2",
+          "byte_length": 10565,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "input",
+          "path": "case-0000/stdin.bin",
+          "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+          "byte_length": 6939,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "stdout",
+          "path": "case-0000/stdout.bin",
+          "sha256": "461dc0eb73c1337c3b3242ed8e91fe374b73afaa7647af47826362b86e8aac2e",
+          "byte_length": 1248900,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "stderr",
+          "path": "case-0000/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "byte_length": 0,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "physics_reader_stdout",
+          "path": "case-0000-physics-reader/stdout.bin",
+          "sha256": "55048a99d3b1d337d61033f657d7bfc58178f58dd23df8c051cc83f54cbc07c2",
+          "byte_length": 2173,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "physics_reader_stderr",
+          "path": "case-0000-physics-reader/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "byte_length": 0,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "physics_reader_input",
+          "path": "case-0000-physics-reader/stdin.bin",
+          "sha256": "42659a28b7dc5a42c67e0a8121773c8fb63bfb33c8c330da0b74c1ee5adde3b2",
+          "byte_length": 52258,
+          "byte_limit": 8388608
+        }
+      ],
+      "observed_result_identity": {
+        "document_kind": "openpipestress.product_preview.mechanics_result",
+        "schema_version": "0.2.0",
+        "run_id": "run:preview-linear-static-001",
+        "model_ref": "project:original-static-axial"
+      },
+      "physical_consistency": {
+        "process": {
+          "outcome": "completed",
+          "detail": null,
+          "command": [
+            "/Users/ryan/.local/share/mise/installs/python/3.13.14/bin/python3.13",
+            "-I",
+            "-S",
+            "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+            "--source-root",
+            "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/dense_scrutiny/physics-reader-basis",
+            "--binding",
+            "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/dense_scrutiny/physics-reader-basis/binding.json",
+            "--binding-sha256",
+            "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae"
+          ],
+          "return_code": 0,
+          "elapsed_seconds": 0.05739012500271201,
+          "executable_sha256_before": "1a2e543a5426f665b9f321d391995b46e985fbea8df2a5bea86d7210c603460a",
+          "executable_sha256_after": "1a2e543a5426f665b9f321d391995b46e985fbea8df2a5bea86d7210c603460a",
+          "stdin_sha256": "42659a28b7dc5a42c67e0a8121773c8fb63bfb33c8c330da0b74c1ee5adde3b2",
+          "stdin_bytes_delivered": 52258,
+          "stdin_delivered_sha256": "42659a28b7dc5a42c67e0a8121773c8fb63bfb33c8c330da0b74c1ee5adde3b2",
+          "stdin_delivery_complete": true,
+          "retained_stdin_sha256": "42659a28b7dc5a42c67e0a8121773c8fb63bfb33c8c330da0b74c1ee5adde3b2",
+          "stdout_sha256": "55048a99d3b1d337d61033f657d7bfc58178f58dd23df8c051cc83f54cbc07c2",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "retained_stdout_sha256": "55048a99d3b1d337d61033f657d7bfc58178f58dd23df8c051cc83f54cbc07c2",
+          "retained_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_bytes": 2173,
+          "stderr_bytes": 0,
+          "timeout_seconds": 30,
+          "output_limit_bytes_per_stream": 8388608,
+          "raw_capture_complete": true,
+          "environment": {
+            "OMP_NUM_THREADS": null,
+            "OPENBLAS_NUM_THREADS": null,
+            "MKL_NUM_THREADS": null,
+            "RAYON_NUM_THREADS": null
+          },
+          "scope": "actual local process byte delivery/capture; no internal-use, build-source or solver attestation"
+        },
+        "response": {
+          "artifact": "openpipestress.ordinary_physics_consistency_observation",
+          "binding_sha256": "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae",
+          "binding_status": "reviewed_candidate",
+          "claim": "internal physical consistency only; no input freshness, producer origin, numerical accuracy or Current qualification",
+          "contract_id": "openpipestress.result_semantics/0.3.0/physics-1",
+          "dependencies": [
+            {
+              "path": "core/analysis_runs/physics_evidence.py",
+              "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+            },
+            {
+              "path": "fixtures/results/semantic_contract_v0_3_physics_1.json",
+              "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+            },
+            {
+              "path": "core/units/src/lib.rs",
+              "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+            }
+          ],
+          "entrypoint": "validate_physics_evidence",
+          "isolation": {
+            "isolated": true,
+            "no_site": true,
+            "source_and_table_snapshot": true,
+            "unit_authority_execution": false
+          },
+          "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+          "source_bytes_sha256": "42659a28b7dc5a42c67e0a8121773c8fb63bfb33c8c330da0b74c1ee5adde3b2",
+          "stdlib_origins": {
+            "collections.abc": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/_collections_abc.py",
+              "sha256": "87601195497fde3b7cea03bce396e1b713c17af3d273298d99d3bc0147f745b9"
+            },
+            "json": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/json/__init__.py",
+              "sha256": "43e38afede6d52ae0d602a42209b9959fc66d6020a25bcf15921446f5d1c262f"
+            },
+            "math": {
+              "origin": null,
+              "sha256": null
+            },
+            "pathlib": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/pathlib/__init__.py",
+              "sha256": "07921047886282e3d324acf95f7d9f840faa806664ee7007e7333a7df4cdcaf6"
+            },
+            "struct": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/struct.py",
+              "sha256": "9c231f9497caf513a22dee8f790b07f969b0e45854a0bdd6dd84b492e08c2856"
+            },
+            "typing": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/typing.py",
+              "sha256": "2f586ad9432d75a1dea44efd76857c839df35b130d4d5bcac93d7282e28bc011"
+            }
+          },
+          "verdict": "consistent",
+          "version": "1.0.0"
+        },
+        "helper_sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb",
+        "binding_sha256": "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae",
+        "binding_admitted": true,
+        "scope": "physical consistency of parsed snapshot only; runner provenance and numerical comparison are separate"
+      },
+      "custody_at_publication": "checked"
+    },
+    {
+      "id": "original_static_bending_torsion_v1",
+      "state": "matched",
+      "reason": "required assertion assessment",
+      "assertions": [
+        {
+          "id": "node.root.ux",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.uy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.uz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.rx",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.ry",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.rz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.root.magnitude",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.ux",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.uy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.01480941604809725,
+          "expected": 0.014809416048097268,
+          "absolute_delta": 1.734723475976807e-17,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.uz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.019745888064129663,
+          "expected": -0.01974588806412969,
+          "absolute_delta": 2.7755575615628914e-17,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.rx",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 9.255885030060789e-06,
+          "expected": 9.255885030060792e-06,
+          "absolute_delta": 3.3881317890172014e-21,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.ry",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 1.4809416048097248e-05,
+          "expected": 1.4809416048097268e-05,
+          "absolute_delta": 2.0328790734103208e-20,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.rz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 1.1107062036072936e-05,
+          "expected": 1.1107062036072951e-05,
+          "absolute_delta": 1.5246593050577406e-20,
+          "unit": "rad",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "node.tip.magnitude",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.024682360080162082,
+          "expected": 0.024682360080162113,
+          "absolute_delta": 3.122502256758253e-17,
+          "unit": "mm",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.Fx",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.Fy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -29.999999999999986,
+          "expected": -30.0,
+          "absolute_delta": 1.4210854715202004e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.Fz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 39.99999999999996,
+          "expected": 40.0,
+          "absolute_delta": 4.263256414560601e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.Mx",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -20.0,
+          "expected": -20.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -79.99999999999991,
+          "expected": -80.0,
+          "absolute_delta": 8.526512829121202e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -59.99999999999995,
+          "expected": -60.0,
+          "absolute_delta": 4.973799150320701e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.force_magnitude",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 49.99999999999996,
+          "expected": 50.0,
+          "absolute_delta": 4.263256414560601e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "support.moment_magnitude",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 101.9803902718556,
+          "expected": 101.9803902718557,
+          "absolute_delta": 9.947598300641403e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.N",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.Vy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -29.999999999999986,
+          "expected": -30.0,
+          "absolute_delta": 1.4210854715202004e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.Vz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 39.99999999999996,
+          "expected": 40.0,
+          "absolute_delta": 4.263256414560601e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.T",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -20.0,
+          "expected": -20.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -79.99999999999991,
+          "expected": -80.0,
+          "absolute_delta": 8.526512829121202e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_i.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -59.99999999999995,
+          "expected": -60.0,
+          "absolute_delta": 4.973799150320701e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_i.axial",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_i.bending_y",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.2961883209619449,
+          "expected": 0.29618832096194536,
+          "absolute_delta": 4.440892098500626e-16,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_i.bending_z",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.22214124072145877,
+          "expected": 0.22214124072145902,
+          "absolute_delta": 2.498001805406602e-16,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_i.torsional_shear",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.03702354012024316,
+          "expected": 0.03702354012024317,
+          "absolute_delta": 6.938893903907228e-18,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.N",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.Vy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 29.999999999999986,
+          "expected": 30.0,
+          "absolute_delta": 1.4210854715202004e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.Vz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -39.99999999999996,
+          "expected": -40.0,
+          "absolute_delta": 4.263256414560601e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.T",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 20.0,
+          "expected": 20.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 59.999999999999936,
+          "expected": 60.0,
+          "absolute_delta": 6.394884621840902e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_1.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 44.99999999999996,
+          "expected": 45.0,
+          "absolute_delta": 4.263256414560601e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_1.axial",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_1.bending_y",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.22214124072145872,
+          "expected": 0.22214124072145902,
+          "absolute_delta": 3.0531133177191805e-16,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_1.bending_z",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.16660593054109404,
+          "expected": 0.16660593054109427,
+          "absolute_delta": 2.220446049250313e-16,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_1.torsional_shear",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.03702354012024316,
+          "expected": 0.03702354012024317,
+          "absolute_delta": 6.938893903907228e-18,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.N",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.Vy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 29.999999999999986,
+          "expected": 30.0,
+          "absolute_delta": 1.4210854715202004e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.Vz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -39.99999999999996,
+          "expected": -40.0,
+          "absolute_delta": 4.263256414560601e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.T",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 20.0,
+          "expected": 20.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 39.99999999999996,
+          "expected": 40.0,
+          "absolute_delta": 4.263256414560601e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.midspan.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 29.999999999999964,
+          "expected": 30.0,
+          "absolute_delta": 3.552713678800501e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.midspan.axial",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.midspan.bending_y",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.14809416048097246,
+          "expected": 0.14809416048097268,
+          "absolute_delta": 2.220446049250313e-16,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.midspan.bending_z",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.11107062036072934,
+          "expected": 0.11107062036072951,
+          "absolute_delta": 1.6653345369377348e-16,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.midspan.torsional_shear",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.03702354012024316,
+          "expected": 0.03702354012024317,
+          "absolute_delta": 6.938893903907228e-18,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.N",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.Vy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 29.999999999999986,
+          "expected": 30.0,
+          "absolute_delta": 1.4210854715202004e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.Vz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -39.99999999999996,
+          "expected": -40.0,
+          "absolute_delta": 4.263256414560601e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.T",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 20.0,
+          "expected": 20.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 19.99999999999998,
+          "expected": 20.0,
+          "absolute_delta": 2.1316282072803006e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.quarter_3.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 14.999999999999972,
+          "expected": 15.0,
+          "absolute_delta": 2.842170943040401e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_3.axial",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_3.bending_y",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.07404708024048623,
+          "expected": 0.07404708024048634,
+          "absolute_delta": 1.1102230246251565e-16,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_3.bending_z",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.05553531018036464,
+          "expected": 0.055535310180364755,
+          "absolute_delta": 1.1796119636642288e-16,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.quarter_3.torsional_shear",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.03702354012024316,
+          "expected": 0.03702354012024317,
+          "absolute_delta": 6.938893903907228e-18,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.N",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.Vy",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 29.999999999999986,
+          "expected": 30.0,
+          "absolute_delta": 1.4210854715202004e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.Vz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -39.99999999999996,
+          "expected": -40.0,
+          "absolute_delta": 4.263256414560601e-14,
+          "unit": "N",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.T",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 20.0,
+          "expected": 20.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.My",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "section.end_j.Mz",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -1.4210854715202004e-14,
+          "expected": 0.0,
+          "absolute_delta": 1.4210854715202004e-14,
+          "unit": "N*m",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_j.axial",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_j.bending_y",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -0.0,
+          "expected": 0.0,
+          "absolute_delta": 0.0,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_j.bending_z",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": -7.892042245368421e-17,
+          "expected": 0.0,
+          "absolute_delta": 7.892042245368421e-17,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.end_j.torsional_shear",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 0.03702354012024316,
+          "expected": 0.03702354012024317,
+          "absolute_delta": 6.938893903907228e-18,
+          "unit": "MPa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        },
+        {
+          "id": "stress.maximum_absolute_normal",
+          "state": "matched",
+          "reason": "within_tolerance_profile",
+          "observed": 370235.40120243124,
+          "expected": 370235.4012024317,
+          "absolute_delta": 4.656612873077393e-10,
+          "unit": "Pa",
+          "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+        }
+      ],
+      "structural_checks": [
+        {
+          "id": "transport_identity_and_mode",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "mode": "dense_scrutiny"
+          }
+        },
+        {
+          "id": "actual_input_binding",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "model_ref": "project:original-static-bending_torsion"
+          }
+        },
+        {
+          "id": "ordinary_physics_contract",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/physics-1"
+          }
+        },
+        {
+          "id": "complete_case_material_section",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "section_quantities": [
+              {
+                "id": "section.outside_diameter_m",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m",
+                "criterion_ref": "section.source_length_identity",
+                "observed": 0.2,
+                "expected": 0.2,
+                "absolute_delta": 0.0,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.effective_wall_thickness_m",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m",
+                "criterion_ref": "section.source_length_identity",
+                "observed": 0.01,
+                "expected": 0.01,
+                "absolute_delta": 0.0,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.ro_m",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m",
+                "criterion_ref": "section.derived_length_relative",
+                "observed": 0.1,
+                "expected": 0.1,
+                "absolute_delta": 0.0,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.ri_m",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m",
+                "criterion_ref": "section.derived_length_relative",
+                "observed": 0.09000000000000001,
+                "expected": 0.09,
+                "absolute_delta": 1.3877787807814457e-17,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.As_m2",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m^2",
+                "criterion_ref": "section.area_relative",
+                "observed": 0.005969026041820607,
+                "expected": 0.005969026041820607,
+                "absolute_delta": 0.0,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.Ai_m2",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m^2",
+                "criterion_ref": "section.area_relative",
+                "observed": 0.02544690049407733,
+                "expected": 0.025446900494077326,
+                "absolute_delta": 3.469446951953614e-18,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.I_m4",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m^4",
+                "criterion_ref": "section.second_moment_relative",
+                "observed": 2.7009842839238257e-05,
+                "expected": 2.7009842839238247e-05,
+                "absolute_delta": 1.0164395367051604e-20,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.J_m4",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m^4",
+                "criterion_ref": "section.second_moment_relative",
+                "observed": 5.4019685678476514e-05,
+                "expected": 5.4019685678476494e-05,
+                "absolute_delta": 2.0328790734103208e-20,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              },
+              {
+                "id": "section.Z_m3",
+                "state": "matched",
+                "reason": "within_tolerance_profile",
+                "unit": "m^3",
+                "criterion_ref": "section.modulus_relative",
+                "observed": 0.0002700984283923826,
+                "expected": 0.00027009842839238247,
+                "absolute_delta": 1.0842021724855044e-19,
+                "predicate_basis": "caller_supplied_relative_absolute_tolerance_rule"
+              }
+            ]
+          }
+        },
+        {
+          "id": "finite_numerical_standing",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "accuracy_evidence": "not_claimed"
+          }
+        },
+        {
+          "id": "complete_unique_scalar_rows",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "required_scalar_rows": 73,
+            "observed_total_rows": 75
+          }
+        },
+        {
+          "id": "normal_maximum_evidence",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "coefficient_basis": "j_side_section_equilibrium_binary64",
+            "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+            "physical_consistency": true
+          }
+        },
+        {
+          "id": "governing_location",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "location_interpretation": "strict root station; opposite absolute-normal fibers tied",
+            "station_fraction": 0.0
+          }
+        },
+        {
+          "id": "stress_summary_binding",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "result_ref": "result:elastic-maximum:4:case:4:pipe",
+            "unit": "Pa",
+            "observed": 370235.40120243124
+          }
+        },
+        {
+          "id": "displacement_summary_binding",
+          "state": "matched",
+          "reason": "required structural predicate satisfied",
+          "details": {
+            "result_ref": "result:disp:tip",
+            "unit": "mm",
+            "observed": 0.024682360080162082
+          }
+        }
+      ],
+      "process": {
+        "outcome": "completed",
+        "detail": null,
+        "command": [
+          "/private/tmp/piping-validation-headless-20260925/debug/openpipestress-runner",
+          "solve",
+          "--input",
+          "-",
+          "--solver-mode",
+          "dense_scrutiny",
+          "--explicit-local-private-intent"
+        ],
+        "return_code": 0,
+        "elapsed_seconds": 0.25586012518033385,
+        "executable_sha256_before": "506866a9beefcb4ec1374d1fd7b8f2f999f17670cb7c65b2b17ef91a92162614",
+        "executable_sha256_after": "506866a9beefcb4ec1374d1fd7b8f2f999f17670cb7c65b2b17ef91a92162614",
+        "stdin_sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+        "stdin_bytes_delivered": 8112,
+        "stdin_delivered_sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+        "stdin_delivery_complete": true,
+        "retained_stdin_sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+        "stdout_sha256": "a6bebf40d5f068df47ae3161ddb9c34a135617bd0938c98a8231d88c7a6c4705",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "retained_stdout_sha256": "a6bebf40d5f068df47ae3161ddb9c34a135617bd0938c98a8231d88c7a6c4705",
+        "retained_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 1264340,
+        "stderr_bytes": 0,
+        "timeout_seconds": 30,
+        "output_limit_bytes_per_stream": 8388608,
+        "raw_capture_complete": true,
+        "environment": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "RAYON_NUM_THREADS": null
+        },
+        "scope": "actual local process byte delivery/capture; no internal-use, build-source or solver attestation"
+      },
+      "bindings": [
+        {
+          "role": "input",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.runner_input.candidate.json",
+          "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2"
+        },
+        {
+          "role": "reference",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/EXECUTION_SELECTIONS/dense_scrutiny/bending_torsion.reference.json",
+          "sha256": "75252a921acdee065dcbb676c5bea708db73a91a68a934f37693b96da31f214d"
+        },
+        {
+          "role": "criterion",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/EXECUTION_SELECTIONS/dense_scrutiny/bending_torsion.criteria.json",
+          "sha256": "d07484216ea9ebbe9015ecc3a3b1d12943a2b48178b00b38b4f6bd31522e71a6"
+        },
+        {
+          "role": "input",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.runner_input.candidate.json",
+          "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2"
+        },
+        {
+          "role": "reference",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.reference.candidate.json",
+          "sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339"
+        },
+        {
+          "role": "criterion",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.criteria.candidate.json",
+          "sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d"
+        },
+        {
+          "role": "selectors",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.selectors.candidate.json",
+          "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e"
+        },
+        {
+          "role": "obligations",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/STRUCTURAL_EXPECTATIONS.json",
+          "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa"
+        },
+        {
+          "role": "section_reference",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/section.reference.json",
+          "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a"
+        },
+        {
+          "role": "section_criteria",
+          "path": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+          "sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2"
+        }
+      ],
+      "reference_kind": "analytical",
+      "retained_artifacts": [
+        {
+          "role": "reference",
+          "path": "case-0001.reference.json",
+          "sha256": "75252a921acdee065dcbb676c5bea708db73a91a68a934f37693b96da31f214d",
+          "byte_length": 8304,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "criterion",
+          "path": "case-0001.criterion.json",
+          "sha256": "d07484216ea9ebbe9015ecc3a3b1d12943a2b48178b00b38b4f6bd31522e71a6",
+          "byte_length": 16627,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "selected_original",
+          "path": "case-0001.original-input.json",
+          "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+          "byte_length": 8112,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "selected_original",
+          "path": "case-0001.original-reference.json",
+          "sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339",
+          "byte_length": 7842,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "selected_original",
+          "path": "case-0001.original-criterion.json",
+          "sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d",
+          "byte_length": 10561,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "selected_original",
+          "path": "case-0001.original-selectors.json",
+          "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e",
+          "byte_length": 81619,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "obligations",
+          "path": "case-0001.structural-obligations.json",
+          "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa",
+          "byte_length": 4343,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "section_reference",
+          "path": "case-0001.structural-section_reference.json",
+          "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a",
+          "byte_length": 818,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "section_criteria",
+          "path": "case-0001.structural-section_criteria.json",
+          "sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2",
+          "byte_length": 10565,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "input",
+          "path": "case-0001/stdin.bin",
+          "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+          "byte_length": 8112,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "stdout",
+          "path": "case-0001/stdout.bin",
+          "sha256": "a6bebf40d5f068df47ae3161ddb9c34a135617bd0938c98a8231d88c7a6c4705",
+          "byte_length": 1264340,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "stderr",
+          "path": "case-0001/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "byte_length": 0,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "physics_reader_stdout",
+          "path": "case-0001-physics-reader/stdout.bin",
+          "sha256": "0ea049d1a8b33a074408a8e54cfdee14ff7d7992764a20fdbbd770c32f4c3e84",
+          "byte_length": 2173,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "physics_reader_stderr",
+          "path": "case-0001-physics-reader/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "byte_length": 0,
+          "byte_limit": 8388608
+        },
+        {
+          "role": "physics_reader_input",
+          "path": "case-0001-physics-reader/stdin.bin",
+          "sha256": "5c81f0a30421e8b3477dd233fe06071f42d718a11a3a859381e3f98d0fa819de",
+          "byte_length": 54515,
+          "byte_limit": 8388608
+        }
+      ],
+      "observed_result_identity": {
+        "document_kind": "openpipestress.product_preview.mechanics_result",
+        "schema_version": "0.2.0",
+        "run_id": "run:preview-linear-static-001",
+        "model_ref": "project:original-static-bending_torsion"
+      },
+      "physical_consistency": {
+        "process": {
+          "outcome": "completed",
+          "detail": null,
+          "command": [
+            "/Users/ryan/.local/share/mise/installs/python/3.13.14/bin/python3.13",
+            "-I",
+            "-S",
+            "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+            "--source-root",
+            "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/dense_scrutiny/physics-reader-basis",
+            "--binding",
+            "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/dense_scrutiny/physics-reader-basis/binding.json",
+            "--binding-sha256",
+            "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae"
+          ],
+          "return_code": 0,
+          "elapsed_seconds": 0.05701341712847352,
+          "executable_sha256_before": "1a2e543a5426f665b9f321d391995b46e985fbea8df2a5bea86d7210c603460a",
+          "executable_sha256_after": "1a2e543a5426f665b9f321d391995b46e985fbea8df2a5bea86d7210c603460a",
+          "stdin_sha256": "5c81f0a30421e8b3477dd233fe06071f42d718a11a3a859381e3f98d0fa819de",
+          "stdin_bytes_delivered": 54515,
+          "stdin_delivered_sha256": "5c81f0a30421e8b3477dd233fe06071f42d718a11a3a859381e3f98d0fa819de",
+          "stdin_delivery_complete": true,
+          "retained_stdin_sha256": "5c81f0a30421e8b3477dd233fe06071f42d718a11a3a859381e3f98d0fa819de",
+          "stdout_sha256": "0ea049d1a8b33a074408a8e54cfdee14ff7d7992764a20fdbbd770c32f4c3e84",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "retained_stdout_sha256": "0ea049d1a8b33a074408a8e54cfdee14ff7d7992764a20fdbbd770c32f4c3e84",
+          "retained_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_bytes": 2173,
+          "stderr_bytes": 0,
+          "timeout_seconds": 30,
+          "output_limit_bytes_per_stream": 8388608,
+          "raw_capture_complete": true,
+          "environment": {
+            "OMP_NUM_THREADS": null,
+            "OPENBLAS_NUM_THREADS": null,
+            "MKL_NUM_THREADS": null,
+            "RAYON_NUM_THREADS": null
+          },
+          "scope": "actual local process byte delivery/capture; no internal-use, build-source or solver attestation"
+        },
+        "response": {
+          "artifact": "openpipestress.ordinary_physics_consistency_observation",
+          "binding_sha256": "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae",
+          "binding_status": "reviewed_candidate",
+          "claim": "internal physical consistency only; no input freshness, producer origin, numerical accuracy or Current qualification",
+          "contract_id": "openpipestress.result_semantics/0.3.0/physics-1",
+          "dependencies": [
+            {
+              "path": "core/analysis_runs/physics_evidence.py",
+              "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+            },
+            {
+              "path": "fixtures/results/semantic_contract_v0_3_physics_1.json",
+              "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+            },
+            {
+              "path": "core/units/src/lib.rs",
+              "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+            }
+          ],
+          "entrypoint": "validate_physics_evidence",
+          "isolation": {
+            "isolated": true,
+            "no_site": true,
+            "source_and_table_snapshot": true,
+            "unit_authority_execution": false
+          },
+          "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+          "source_bytes_sha256": "5c81f0a30421e8b3477dd233fe06071f42d718a11a3a859381e3f98d0fa819de",
+          "stdlib_origins": {
+            "collections.abc": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/_collections_abc.py",
+              "sha256": "87601195497fde3b7cea03bce396e1b713c17af3d273298d99d3bc0147f745b9"
+            },
+            "json": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/json/__init__.py",
+              "sha256": "43e38afede6d52ae0d602a42209b9959fc66d6020a25bcf15921446f5d1c262f"
+            },
+            "math": {
+              "origin": null,
+              "sha256": null
+            },
+            "pathlib": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/pathlib/__init__.py",
+              "sha256": "07921047886282e3d324acf95f7d9f840faa806664ee7007e7333a7df4cdcaf6"
+            },
+            "struct": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/struct.py",
+              "sha256": "9c231f9497caf513a22dee8f790b07f969b0e45854a0bdd6dd84b492e08c2856"
+            },
+            "typing": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/typing.py",
+              "sha256": "2f586ad9432d75a1dea44efd76857c839df35b130d4d5bcac93d7282e28bc011"
+            }
+          },
+          "verdict": "consistent",
+          "version": "1.0.0"
+        },
+        "helper_sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb",
+        "binding_sha256": "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae",
+        "binding_admitted": true,
+        "scope": "physical consistency of parsed snapshot only; runner provenance and numerical comparison are separate"
+      },
+      "custody_at_publication": "checked"
+    }
+  ],
+  "summary": {
+    "required_cases": 2,
+    "required_assertions": 146,
+    "assertions": {
+      "not_run": 0,
+      "matched": 146,
+      "failed": 0,
+      "blocked": 0,
+      "error": 0
+    },
+    "required_structural_checks": 20,
+    "structural_checks": {
+      "not_run": 0,
+      "matched": 20,
+      "failed": 0,
+      "blocked": 0,
+      "error": 0
+    },
+    "required_section_subchecks": 18,
+    "section_subchecks": {
+      "not_run": 0,
+      "matched": 18,
+      "failed": 0,
+      "blocked": 0,
+      "error": 0
+    },
+    "cases": {
+      "not_run": 0,
+      "matched": 2,
+      "failed": 0,
+      "blocked": 0,
+      "error": 0
+    }
+  },
+  "diagnostics": [],
+  "created_at_utc": "2026-09-25T11:33:51.416078+00:00",
+  "global_artifacts": [
+    {
+      "role": "selection",
+      "path": "selection.json",
+      "sha256": "73a2f815a313ba7b4b24e90c12ede467bb64e37e322f919f8384453b502cbb9e",
+      "byte_length": 137741,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "physics_dependency",
+      "path": "physics-reader-basis/core/analysis_runs/physics_evidence.py",
+      "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad",
+      "byte_length": 31690,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "physics_dependency",
+      "path": "physics-reader-basis/fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+      "byte_length": 49093,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "physics_dependency",
+      "path": "physics-reader-basis/core/units/src/lib.rs",
+      "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c",
+      "byte_length": 65476,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "physics_binding",
+      "path": "physics-reader-basis/binding.json",
+      "sha256": "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae",
+      "byte_length": 2916,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "physics_binding",
+      "path": "physics-reader-basis/finite-reference-basis.json",
+      "sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9",
+      "byte_length": 2317,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "physics_review",
+      "path": "physics-reader-basis/review-00.bin",
+      "sha256": "aa9c5693e40ce24fca8cb70871dfc3b4b3fbde2f4d78b0ef0f7335e959cc3abd",
+      "byte_length": 10265,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "physics_review",
+      "path": "physics-reader-basis/review-01.bin",
+      "sha256": "ee216136c77f0c92db2e10496c51638bda88c2db2c7b5969ffa06aa608e4b4c4",
+      "byte_length": 3060,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "physics_review",
+      "path": "physics-reader-basis/review-02.bin",
+      "sha256": "f48386c1201f182fc2b59bce6deec7860d2c2756579e8a312824d2d2b7c8bd1e",
+      "byte_length": 15616,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "physics_review",
+      "path": "physics-reader-basis/review-03.bin",
+      "sha256": "c295c40d76d2c2726076afbceec116604b65cfb970f1b1a3642347fb798eebe9",
+      "byte_length": 4229,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "physics_review",
+      "path": "physics-reader-basis/review-04.bin",
+      "sha256": "960b0aedab0776dc744b43896d77c4d9fdc3d5290594ce60c6db839d715e3706",
+      "byte_length": 3594,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "finite_admission",
+      "path": "physics-reader-basis/finite-admission-00.bin",
+      "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11",
+      "byte_length": 3046,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "finite_admission",
+      "path": "physics-reader-basis/finite-admission-01.bin",
+      "sha256": "2a83319cd16c95eb736f4cc846ca5a5a71dea3d39550848d9f7f55dbaa05abc5",
+      "byte_length": 933,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "finite_admission",
+      "path": "physics-reader-basis/finite-admission-02.bin",
+      "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96",
+      "byte_length": 7213,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "finite_admission",
+      "path": "physics-reader-basis/finite-admission-03.bin",
+      "sha256": "ae487d4b9568be0b50c3dcfa95a24e54aa30a209907d0904bfdca3f92ec564a2",
+      "byte_length": 1756,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "finite_admission",
+      "path": "physics-reader-basis/finite-admission-04.bin",
+      "sha256": "e4c69717ab52683d3cbfad6555cf05a057463a4defe2ce72933c1de10adb4ff3",
+      "byte_length": 2306,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "finite_admission",
+      "path": "physics-reader-basis/finite-admission-05.bin",
+      "sha256": "c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2",
+      "byte_length": 2540,
+      "byte_limit": 8388608
+    },
+    {
+      "role": "finite_admission",
+      "path": "physics-reader-basis/finite-admission-06.bin",
+      "sha256": "eb09fb43421ecabfeb8ba3ddc4227bde3cedd88f75e320ca61e4685b4736acbb",
+      "byte_length": 3939,
+      "byte_limit": 8388608
+    }
+  ],
+  "execution_basis": {
+    "source_commit": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+    "dirty_tree": true,
+    "source_status": "?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_REVIEW_COVERAGE_ADDENDUM.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_OBSERVATION_DIAGNOSIS/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/RETURN.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/INDEPENDENT_BACKCHECK/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_MAIN_UNION/INDEPENDENT_REVIEW/\n?? projects/chirality-piping/node_modules\n",
+    "executable_sha256": "506866a9beefcb4ec1374d1fd7b8f2f999f17670cb7c65b2b17ef91a92162614",
+    "solver_mode_dispatch": "dense_scrutiny explicit reviewed CLI flag",
+    "semantic_contract_sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+    "existing_predicate_sha256": "14aada4049fde08c6f68a99a844f84e73b16fd8b6e4bb2a91cb7e4c8f63b7f2c",
+    "harness_sha256": "e38be5ef21e996151afd3f8a923d179dd991858c6743dfb2badb5457531cdcbe",
+    "process_supervisor_sha256": "bf1ed365763440261f21a0f699ecf8729c745d259880d3851649d0292c1282c6",
+    "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "source_artifact_association": "selected checkout and executable identities; not independent build-source attestation",
+    "producer_precision": "ordinary physics-1 raw0.2 finite binary64 without publication quantization",
+    "physics_binding_sha256": "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae",
+    "physics_validator_source_root": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping"
+  },
+  "custody_observation": {
+    "checked_at_utc": "2026-09-25T11:33:52.901261+00:00",
+    "scope": "bounded retained-selection/input/reference/criterion/stream snapshots and original bindings immediately before final publication",
+    "limits": "observation-time byte integrity; no filesystem lock, post-publication tamper prevention, internal solver-use or build-source attestation"
+  }
+}

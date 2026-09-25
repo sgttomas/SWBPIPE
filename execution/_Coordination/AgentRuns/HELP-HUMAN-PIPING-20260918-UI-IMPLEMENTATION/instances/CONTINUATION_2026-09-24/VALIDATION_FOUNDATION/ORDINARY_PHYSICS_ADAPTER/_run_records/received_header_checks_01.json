@@ -1,0 +1,19 @@
+{
+  "scope": "Existing real CLI packet inspection only; no new solve, reference comparison or scoring admission",
+  "input_sha256": "a1ee3552101211170eaa179f1bce37e76e0ee40d40db94e984e63437233db9ad",
+  "module_sha256": "ba176af7bbdaf33aa542e36faf54a61017699da9b352e642fa629920d2ca3456",
+  "results": [
+    {
+      "mode": "sparse_interactive",
+      "stdout_sha256": "2f7510468bacfe32653146c68c80dd198f6a7c6c16b95ea6d7bd526cdcc85c3c",
+      "rows": 175,
+      "header_standing_check": "pass"
+    },
+    {
+      "mode": "dense_scrutiny",
+      "stdout_sha256": "c3c2ff48a14897166e3c3371305a97470d9f715bc82db48ac8ec7360a930dfb9",
+      "rows": 177,
+      "header_standing_check": "pass"
+    }
+  ]
+}

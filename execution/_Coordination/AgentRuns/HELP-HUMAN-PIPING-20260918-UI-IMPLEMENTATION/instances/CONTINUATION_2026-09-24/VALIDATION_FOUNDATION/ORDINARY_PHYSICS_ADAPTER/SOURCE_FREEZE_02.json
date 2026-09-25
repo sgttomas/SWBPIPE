@@ -1,0 +1,128 @@
+{
+  "format": "openpipestress.ordinary_physics_adapter_source_freeze/1",
+  "base_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+  "files": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "e38be5ef21e996151afd3f8a923d179dd991858c6743dfb2badb5457531cdcbe",
+      "byte_length": 48737,
+      "base_sha256": "b6980255a17c5ee3c27619f417abc5e5073d17b21d9e6ad118875601000afbbd"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics.py",
+      "sha256": "34862634d41bf7d0db434739b49462719bcae526e422093e179e93c9483050c1",
+      "byte_length": 18562,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+      "sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb",
+      "byte_length": 7124,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_structure.py",
+      "sha256": "33bceba232e0bd62716b2ce38f4be82eb04169f7728c1a53b53cae12b43d6ae7",
+      "byte_length": 28740,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/build_first_static_selection.py",
+      "sha256": "6aee22f8b67df8b2191c1a1aa4cb0049898e5b8c0845929a4e7197e8d3f957e8",
+      "byte_length": 8747,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics.py",
+      "sha256": "12f0bf3e7e194c3105f74aabf4186146cd8277456b718cae54c2f7e46159b933",
+      "byte_length": 6444,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_integration.py",
+      "sha256": "84616072ddd0fa80d1ad66b88b4fde3b4b5ae8f2f3adfe89d078f3846ea39c39",
+      "byte_length": 18452,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_structure.py",
+      "sha256": "186e80175a2d0b2c4f809a9a918bda7a41ee5cc601e3d51a9dc599aff7dc3192",
+      "byte_length": 20540,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_first_static_selection.py",
+      "sha256": "7f11887ad39f4150e9928216ba739c3d28f6008d5831351084726d440d1c6ccb",
+      "byte_length": 4419,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "sha256": "607d95eccf65570852d0b28854b26539ff763e4a1d484385949aeaf8de4a9f12",
+      "byte_length": 12869,
+      "base_sha256": "624ba3dd6a58d52f4278bc6912053da66df6b8fdf1d106572405ee289c7b4a55"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/ordinary_physics_1_semantics.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+      "byte_length": 49093,
+      "base_sha256": null
+    }
+  ],
+  "patch": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/SOURCE_FREEZE_02.patch",
+    "sha256": "a9a1965de3eedd52adeb7d8fbc2ec4f871fed18c8b8bbbde91fcd1ba8ccb262a",
+    "byte_length": 210708
+  },
+  "predecessor": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/SOURCE_FREEZE_01.json",
+    "sha256": "aa3a8e43eeb5a2ccdce909811c71219eabdb850382d6d12ac25c04b35c0dbeb0",
+    "byte_length": 7014
+  },
+  "repair_patch": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/SOURCE_REPAIR_01_TO_02.patch",
+    "sha256": "664a27851dd4bb0eed3b978a6f845a79423104e70efbf95b777987aa689d3c16",
+    "byte_length": 21191
+  },
+  "changed_paths": [
+    "projects/chirality-piping/tools/validation/qualification_gate.py",
+    "projects/chirality-piping/tools/validation/qualification_physics.py",
+    "projects/chirality-piping/tests/test_qualification_physics_integration.py",
+    "projects/chirality-piping/validation/qualification/GATE_USAGE.md"
+  ],
+  "findings": [
+    "OPA-01",
+    "OPA-02"
+  ],
+  "evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/FOCUSED_CHECKS_02.json",
+      "sha256": "aeae4986879593cb2a3b89c96c706e31119ee99c40a2515a321df62a18035a7c",
+      "byte_length": 5249
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "8c76f83390bbf6ca680d3f9c1e7151fa1a976c8a1c6b5c805a5af96aa34048e8",
+      "byte_length": 5678
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/_run_records/REPAIR_BOUNDARIES_01.json",
+      "sha256": "5c4babcd4652bce442cb8f1e6a45cf08696ad50a2e1f2b0f8394936389530a1f",
+      "byte_length": 3988
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/_run_records/integration_repair_01.log",
+      "sha256": "7118d2f2bb6cfcc2338d1800c100527d0b9cbd1f65b2f08e062eb501ac7c3ef1",
+      "byte_length": 2721
+    }
+  ],
+  "programme_denominator": {
+    "case_mode_executions": 4,
+    "scalar_obligations": 292,
+    "structural_obligations": 40,
+    "section_subchecks_nested": 36
+  },
+  "mode_partition": "One two-case selection per mode, 146 scalar + 20 structured + 18 nested section subchecks each.",
+  "actual_first_static_runs": 0,
+  "review_status": "original full review returned two findings; coherent repair pending independent backcheck"
+}

@@ -1,0 +1,231 @@
+{
+  "source_root": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+  "binding_sha256": "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae",
+  "observations": [
+    {
+      "mode": "sparse_interactive",
+      "original_stdout_path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CLI_CAPTURE/ORDINARY_PHYSICS/sparse_interactive.stdout.json",
+      "original_stdout_sha256": "2f7510468bacfe32653146c68c80dd198f6a7c6c16b95ea6d7bd526cdcc85c3c",
+      "input_sha256": "a1ee3552101211170eaa179f1bce37e76e0ee40d40db94e984e63437233db9ad",
+      "rows": 175,
+      "observation": {
+        "process": {
+          "outcome": "completed",
+          "detail": null,
+          "command": [
+            "/Users/ryan/.local/share/mise/installs/python/3.13.14/bin/python3.13",
+            "-I",
+            "-S",
+            "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+            "--source-root",
+            "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+            "--binding",
+            "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/REVIEWED_READER_BINDING.json",
+            "--binding-sha256",
+            "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae"
+          ],
+          "return_code": 0,
+          "elapsed_seconds": 0.08066333271563053,
+          "executable_sha256_before": "1a2e543a5426f665b9f321d391995b46e985fbea8df2a5bea86d7210c603460a",
+          "executable_sha256_after": "1a2e543a5426f665b9f321d391995b46e985fbea8df2a5bea86d7210c603460a",
+          "stdin_sha256": "2dd18fb51ad4fb74cfd0dfbb67118cefad261fedbc858134c0b0a55d560bc5f8",
+          "stdin_bytes_delivered": 134252,
+          "stdin_delivered_sha256": "2dd18fb51ad4fb74cfd0dfbb67118cefad261fedbc858134c0b0a55d560bc5f8",
+          "stdin_delivery_complete": true,
+          "retained_stdin_sha256": "2dd18fb51ad4fb74cfd0dfbb67118cefad261fedbc858134c0b0a55d560bc5f8",
+          "stdout_sha256": "6e99d83ba0f981d2a486ebe67c546992ec15884135458f02bc4ee6df9fb9ee8b",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "retained_stdout_sha256": "6e99d83ba0f981d2a486ebe67c546992ec15884135458f02bc4ee6df9fb9ee8b",
+          "retained_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_bytes": 2173,
+          "stderr_bytes": 0,
+          "timeout_seconds": 30,
+          "output_limit_bytes_per_stream": 8388608,
+          "raw_capture_complete": true,
+          "environment": {
+            "OMP_NUM_THREADS": null,
+            "OPENBLAS_NUM_THREADS": null,
+            "MKL_NUM_THREADS": null,
+            "RAYON_NUM_THREADS": null
+          },
+          "scope": "actual local process byte delivery/capture; no internal-use, build-source or solver attestation"
+        },
+        "response": {
+          "artifact": "openpipestress.ordinary_physics_consistency_observation",
+          "binding_sha256": "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae",
+          "binding_status": "reviewed_candidate",
+          "claim": "internal physical consistency only; no input freshness, producer origin, numerical accuracy or Current qualification",
+          "contract_id": "openpipestress.result_semantics/0.3.0/physics-1",
+          "dependencies": [
+            {
+              "path": "core/analysis_runs/physics_evidence.py",
+              "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+            },
+            {
+              "path": "fixtures/results/semantic_contract_v0_3_physics_1.json",
+              "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+            },
+            {
+              "path": "core/units/src/lib.rs",
+              "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+            }
+          ],
+          "entrypoint": "validate_physics_evidence",
+          "isolation": {
+            "isolated": true,
+            "no_site": true,
+            "source_and_table_snapshot": true,
+            "unit_authority_execution": false
+          },
+          "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+          "source_bytes_sha256": "2dd18fb51ad4fb74cfd0dfbb67118cefad261fedbc858134c0b0a55d560bc5f8",
+          "stdlib_origins": {
+            "collections.abc": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/_collections_abc.py",
+              "sha256": "87601195497fde3b7cea03bce396e1b713c17af3d273298d99d3bc0147f745b9"
+            },
+            "json": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/json/__init__.py",
+              "sha256": "43e38afede6d52ae0d602a42209b9959fc66d6020a25bcf15921446f5d1c262f"
+            },
+            "math": {
+              "origin": null,
+              "sha256": null
+            },
+            "pathlib": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/pathlib/__init__.py",
+              "sha256": "07921047886282e3d324acf95f7d9f840faa806664ee7007e7333a7df4cdcaf6"
+            },
+            "struct": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/struct.py",
+              "sha256": "9c231f9497caf513a22dee8f790b07f969b0e45854a0bdd6dd84b492e08c2856"
+            },
+            "typing": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/typing.py",
+              "sha256": "2f586ad9432d75a1dea44efd76857c839df35b130d4d5bcac93d7282e28bc011"
+            }
+          },
+          "verdict": "consistent",
+          "version": "1.0.0"
+        },
+        "helper_sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb",
+        "binding_sha256": "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae",
+        "binding_admitted": true,
+        "scope": "physical consistency of parsed snapshot only; runner provenance and numerical comparison are separate"
+      }
+    },
+    {
+      "mode": "dense_scrutiny",
+      "original_stdout_path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CLI_CAPTURE/ORDINARY_PHYSICS/dense_scrutiny.stdout.json",
+      "original_stdout_sha256": "c3c2ff48a14897166e3c3371305a97470d9f715bc82db48ac8ec7360a930dfb9",
+      "input_sha256": "a1ee3552101211170eaa179f1bce37e76e0ee40d40db94e984e63437233db9ad",
+      "rows": 177,
+      "observation": {
+        "process": {
+          "outcome": "completed",
+          "detail": null,
+          "command": [
+            "/Users/ryan/.local/share/mise/installs/python/3.13.14/bin/python3.13",
+            "-I",
+            "-S",
+            "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+            "--source-root",
+            "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping",
+            "--binding",
+            "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/REVIEWED_READER_BINDING.json",
+            "--binding-sha256",
+            "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae"
+          ],
+          "return_code": 0,
+          "elapsed_seconds": 0.057832791935652494,
+          "executable_sha256_before": "1a2e543a5426f665b9f321d391995b46e985fbea8df2a5bea86d7210c603460a",
+          "executable_sha256_after": "1a2e543a5426f665b9f321d391995b46e985fbea8df2a5bea86d7210c603460a",
+          "stdin_sha256": "748f4da82b13edc3072f9d1b3d5c02eed4d113c959527e263d42fb8f07657bc0",
+          "stdin_bytes_delivered": 136445,
+          "stdin_delivered_sha256": "748f4da82b13edc3072f9d1b3d5c02eed4d113c959527e263d42fb8f07657bc0",
+          "stdin_delivery_complete": true,
+          "retained_stdin_sha256": "748f4da82b13edc3072f9d1b3d5c02eed4d113c959527e263d42fb8f07657bc0",
+          "stdout_sha256": "318648c268ef66a779e05482a7712a99aa298d93c7ba0e91fd1a07baf77be067",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "retained_stdout_sha256": "318648c268ef66a779e05482a7712a99aa298d93c7ba0e91fd1a07baf77be067",
+          "retained_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_bytes": 2173,
+          "stderr_bytes": 0,
+          "timeout_seconds": 30,
+          "output_limit_bytes_per_stream": 8388608,
+          "raw_capture_complete": true,
+          "environment": {
+            "OMP_NUM_THREADS": null,
+            "OPENBLAS_NUM_THREADS": null,
+            "MKL_NUM_THREADS": null,
+            "RAYON_NUM_THREADS": null
+          },
+          "scope": "actual local process byte delivery/capture; no internal-use, build-source or solver attestation"
+        },
+        "response": {
+          "artifact": "openpipestress.ordinary_physics_consistency_observation",
+          "binding_sha256": "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae",
+          "binding_status": "reviewed_candidate",
+          "claim": "internal physical consistency only; no input freshness, producer origin, numerical accuracy or Current qualification",
+          "contract_id": "openpipestress.result_semantics/0.3.0/physics-1",
+          "dependencies": [
+            {
+              "path": "core/analysis_runs/physics_evidence.py",
+              "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+            },
+            {
+              "path": "fixtures/results/semantic_contract_v0_3_physics_1.json",
+              "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+            },
+            {
+              "path": "core/units/src/lib.rs",
+              "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+            }
+          ],
+          "entrypoint": "validate_physics_evidence",
+          "isolation": {
+            "isolated": true,
+            "no_site": true,
+            "source_and_table_snapshot": true,
+            "unit_authority_execution": false
+          },
+          "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+          "source_bytes_sha256": "748f4da82b13edc3072f9d1b3d5c02eed4d113c959527e263d42fb8f07657bc0",
+          "stdlib_origins": {
+            "collections.abc": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/_collections_abc.py",
+              "sha256": "87601195497fde3b7cea03bce396e1b713c17af3d273298d99d3bc0147f745b9"
+            },
+            "json": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/json/__init__.py",
+              "sha256": "43e38afede6d52ae0d602a42209b9959fc66d6020a25bcf15921446f5d1c262f"
+            },
+            "math": {
+              "origin": null,
+              "sha256": null
+            },
+            "pathlib": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/pathlib/__init__.py",
+              "sha256": "07921047886282e3d324acf95f7d9f840faa806664ee7007e7333a7df4cdcaf6"
+            },
+            "struct": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/struct.py",
+              "sha256": "9c231f9497caf513a22dee8f790b07f969b0e45854a0bdd6dd84b492e08c2856"
+            },
+            "typing": {
+              "origin": "/Users/ryan/.local/share/mise/installs/python/3.13.14/lib/python3.13/typing.py",
+              "sha256": "2f586ad9432d75a1dea44efd76857c839df35b130d4d5bcac93d7282e28bc011"
+            }
+          },
+          "verdict": "consistent",
+          "version": "1.0.0"
+        },
+        "helper_sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb",
+        "binding_sha256": "30811788eec9eb40aa44d61e14ab370f5d454895da61f11927dc9688d0463bae",
+        "binding_admitted": true,
+        "scope": "physical consistency of parsed snapshot only; runner provenance and numerical comparison are separate"
+      }
+    }
+  ],
+  "claim": "Current hash-selected owned physical reader applied to genuine historical ordinary CLI captures. No new solver execution, first-static comparison, freshness/Current or numerical accuracy claim."
+}

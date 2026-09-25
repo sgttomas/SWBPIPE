@@ -1,0 +1,91 @@
+{
+  "format": "openpipestress.first_static_test_fixtures/1",
+  "purpose": "Maintained numeric/input fixtures for synthetic adapter tests. Historical sources remain unchanged; no new oracle, target change, admission or observed-solver result is created.",
+  "files": [
+    {
+      "path": "INPUT_REFERENCE_BINDINGS.json",
+      "sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INPUT_REFERENCE_BINDINGS.json",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    },
+    {
+      "path": "STRUCTURAL_EXPECTATIONS.json",
+      "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/STRUCTURAL_EXPECTATIONS.json",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    },
+    {
+      "path": "section.reference.json",
+      "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/section.reference.json",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    },
+    {
+      "path": "STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+      "sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+      "origin_commit": null,
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    },
+    {
+      "path": "axial.runner_input.candidate.json",
+      "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.runner_input.candidate.json",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    },
+    {
+      "path": "axial.reference.candidate.json",
+      "sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.reference.candidate.json",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    },
+    {
+      "path": "axial.criteria.candidate.json",
+      "sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.criteria.candidate.json",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    },
+    {
+      "path": "axial.selectors.candidate.json",
+      "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.selectors.candidate.json",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    },
+    {
+      "path": "bending_torsion.runner_input.candidate.json",
+      "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.runner_input.candidate.json",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    },
+    {
+      "path": "bending_torsion.reference.candidate.json",
+      "sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.reference.candidate.json",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    },
+    {
+      "path": "bending_torsion.criteria.candidate.json",
+      "sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.criteria.candidate.json",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    },
+    {
+      "path": "bending_torsion.selectors.candidate.json",
+      "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.selectors.candidate.json",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_note": "Byte-identical original selected fixture; section addendum has independent Root review at hash c8eb9b52e5235fb34e0c83c7c6b22a93ff2cf1da0ff2e1702df4f9884e97c9d2."
+    }
+  ],
+  "minimality": "Only twelve JSON files consumed by structural, derivation and integration tests. No generator, source bibliography, review archive or build/run output is promoted."
+}

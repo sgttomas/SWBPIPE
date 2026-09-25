@@ -1,0 +1,46 @@
+{
+  "source_package_binding_sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9",
+  "structural_addendum_sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2",
+  "selection_sha256": "63e26f9224a3afa522324e8c061b2779aa5b4e176b94356854aeed70509705ba",
+  "derivations": [
+    {
+      "case_id": "original_static_axial_v1",
+      "input_unchanged": {
+        "path": "axial.runner_input.candidate.json",
+        "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74"
+      },
+      "original_reference_sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6",
+      "original_criterion_sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76",
+      "original_selectors_sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482",
+      "reference_numeric_values_unchanged": true,
+      "criterion_nonreview_fields_unchanged": true,
+      "assertion_id_selector_rule_fields_unchanged": true,
+      "selector_origin_metadata_retained_in_original": {
+        "path": "axial.selectors.candidate.json",
+        "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482"
+      }
+    },
+    {
+      "case_id": "original_static_bending_torsion_v1",
+      "input_unchanged": {
+        "path": "bending_torsion.runner_input.candidate.json",
+        "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2"
+      },
+      "original_reference_sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339",
+      "original_criterion_sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d",
+      "original_selectors_sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e",
+      "reference_numeric_values_unchanged": true,
+      "criterion_nonreview_fields_unchanged": true,
+      "assertion_id_selector_rule_fields_unchanged": true,
+      "selector_origin_metadata_retained_in_original": {
+        "path": "bending_torsion.selectors.candidate.json",
+        "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e"
+      }
+    }
+  ],
+  "scalar_obligations": 146,
+  "structural_obligations": 20,
+  "section_subchecks": 18,
+  "actual_runs_performed": 0,
+  "claim": "execution metadata derivation only; no observed target values or profile qualification"
+}

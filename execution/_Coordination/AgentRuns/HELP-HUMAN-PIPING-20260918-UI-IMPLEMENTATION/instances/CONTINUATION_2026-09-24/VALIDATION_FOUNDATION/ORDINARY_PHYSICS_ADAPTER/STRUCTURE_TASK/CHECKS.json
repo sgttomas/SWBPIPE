@@ -1,0 +1,33 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 /Users/ryan/.local/share/mise/installs/python/3.13/bin/python3.13 -m unittest discover -s projects/chirality-piping/tests -p test_qualification_physics_structure.py -v",
+  "working_directory": "/private/tmp/piping-validation-foundation-20260925",
+  "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "exit_code": 0,
+  "tests_run": 21,
+  "result": "OK",
+  "reported_elapsed_seconds": 0.165,
+  "test_kind": "synthetic unit tests; no solver or admitted case execution",
+  "source_and_test_sha256": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_structure.py",
+      "origin": "selected validation checkout",
+      "sha256": "33bceba232e0bd62716b2ce38f4be82eb04169f7728c1a53b53cae12b43d6ae7"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_structure.py",
+      "origin": "selected validation checkout",
+      "sha256": "186e80175a2d0b2c4f809a9a918bda7a41ee5cc601e3d51a9dc599aff7dc3192"
+    }
+  ],
+  "static_checks": {
+    "ast_parse_and_compile": "passed without execution or bytecode writes",
+    "owned_file_trailing_whitespace": "none",
+    "owned_file_final_newline": true
+  },
+  "earlier_compile_attempt": {
+    "command": "python3 -m py_compile projects/chirality-piping/tools/validation/qualification_physics_structure.py",
+    "result": "failed before compilation cache write: sandbox PermissionError in /Users/ryan/Library/Caches/com.apple.python",
+    "disposition": "replaced by explicit Python3.13 source compile without filesystem bytecode and actual unittest execution"
+  },
+  "actual_solver_runs": 0
+}

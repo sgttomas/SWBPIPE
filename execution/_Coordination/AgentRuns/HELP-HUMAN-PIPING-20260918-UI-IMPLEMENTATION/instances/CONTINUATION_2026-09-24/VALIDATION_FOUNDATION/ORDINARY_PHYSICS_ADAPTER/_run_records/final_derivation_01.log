@@ -1,0 +1,8 @@
+test_existing_output_never_overwritten (test_first_static_selection.SelectionDerivationTests.test_existing_output_never_overwritten) ... ok
+test_two_modes_preserve_inputs_values_selectors_and_criteria (test_first_static_selection.SelectionDerivationTests.test_two_modes_preserve_inputs_values_selectors_and_criteria) ... ok
+test_unreviewed_binding_unknown_mode_and_bad_identity_refuse (test_first_static_selection.SelectionDerivationTests.test_unreviewed_binding_unknown_mode_and_bad_identity_refuse) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.038s
+
+OK

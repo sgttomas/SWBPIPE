@@ -1,0 +1,90 @@
+{
+  "status": "PASS frozen four-file repair and seven unchanged source paths",
+  "freeze02_sha256": "609ed22c4204465712d773d2f881a0971612c8c4c03d07a094b09c16a0e5d951",
+  "repair_patch_sha256": "664a27851dd4bb0eed3b978a6f845a79423104e70efbf95b777987aa689d3c16",
+  "full_patch_sha256": "a9a1965de3eedd52adeb7d8fbc2ec4f871fed18c8b8bbbde91fcd1ba8ccb262a",
+  "files": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "e38be5ef21e996151afd3f8a923d179dd991858c6743dfb2badb5457531cdcbe",
+      "byte_length": 48737,
+      "base_sha256": "b6980255a17c5ee3c27619f417abc5e5073d17b21d9e6ad118875601000afbbd"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics.py",
+      "sha256": "34862634d41bf7d0db434739b49462719bcae526e422093e179e93c9483050c1",
+      "byte_length": 18562,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+      "sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb",
+      "byte_length": 7124,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_structure.py",
+      "sha256": "33bceba232e0bd62716b2ce38f4be82eb04169f7728c1a53b53cae12b43d6ae7",
+      "byte_length": 28740,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/build_first_static_selection.py",
+      "sha256": "6aee22f8b67df8b2191c1a1aa4cb0049898e5b8c0845929a4e7197e8d3f957e8",
+      "byte_length": 8747,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics.py",
+      "sha256": "12f0bf3e7e194c3105f74aabf4186146cd8277456b718cae54c2f7e46159b933",
+      "byte_length": 6444,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_integration.py",
+      "sha256": "84616072ddd0fa80d1ad66b88b4fde3b4b5ae8f2f3adfe89d078f3846ea39c39",
+      "byte_length": 18452,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_structure.py",
+      "sha256": "186e80175a2d0b2c4f809a9a918bda7a41ee5cc601e3d51a9dc599aff7dc3192",
+      "byte_length": 20540,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_first_static_selection.py",
+      "sha256": "7f11887ad39f4150e9928216ba739c3d28f6008d5831351084726d440d1c6ccb",
+      "byte_length": 4419,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "sha256": "607d95eccf65570852d0b28854b26539ff763e4a1d484385949aeaf8de4a9f12",
+      "byte_length": 12869,
+      "base_sha256": "624ba3dd6a58d52f4278bc6912053da66df6b8fdf1d106572405ee289c7b4a55"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/ordinary_physics_1_semantics.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+      "byte_length": 49093,
+      "base_sha256": null
+    }
+  ],
+  "changed_paths": [
+    "projects/chirality-piping/tools/validation/qualification_gate.py",
+    "projects/chirality-piping/tools/validation/qualification_physics.py",
+    "projects/chirality-piping/tests/test_qualification_physics_integration.py",
+    "projects/chirality-piping/validation/qualification/GATE_USAGE.md"
+  ],
+  "old_and_new_full_patch_reconstruction": true,
+  "repair_postimages_equal_full_freeze02": true,
+  "unchanged_paths": 7,
+  "owner_focused_methods": [
+    73,
+    3
+  ],
+  "original_negative_and_full_review_hashes_unchanged": true,
+  "original25_packet_unchanged": true,
+  "no_actual_case_execution": true
+}

@@ -1,0 +1,22 @@
+{
+  "format": "openpipestress.ordinary_physics_consistency_binding/1",
+  "status": "prepared_not_admitted_pending_consumer_repair_review",
+  "contract_id": "openpipestress.result_semantics/0.3.0/physics-1",
+  "files": [
+    {
+      "path": "core/analysis_runs/physics_evidence.py",
+      "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    },
+    {
+      "path": "core/units/src/lib.rs",
+      "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+    }
+  ],
+  "entrypoint": "validate_physics_evidence",
+  "scope": "internal physical consistency only; no producer provenance, input freshness, numerical accuracy or Current proof",
+  "isolation": "Selected verified module/table copied to private helper snapshot; isolated Python -I -S avoids same-named imports; no runtime build/network"
+}
