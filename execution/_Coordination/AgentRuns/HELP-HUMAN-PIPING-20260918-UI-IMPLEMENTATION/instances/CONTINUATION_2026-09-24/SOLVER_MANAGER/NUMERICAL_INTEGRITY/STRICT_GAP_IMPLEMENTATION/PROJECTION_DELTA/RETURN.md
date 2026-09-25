@@ -1,0 +1,29 @@
+# Bounded projection and per-call work delta
+
+**Frozen for fresh independent review; no build/test execution or product activation.** TASK Type2 `/root/solver_manager/exact_gap_kernel` returns this newly assigned delta to actual parent `/root/solver_manager`, through delegated-harness-native execution. Root, full TASK, Piping instructions and LOOP_INIT were reread. Exact origins, before/frozen source, delta and hashes are under `_run_records`. No OS isolation, descendant, Git mutation, nonlinear/product edit or old evidence replacement occurred.
+
+## Source and API
+
+The only production edit is `core/solver/frame_kernel/src/structural/exact_boundary.rs`. `structural.rs` remains `bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a`. The helper's reviewed/parent-executed predecessor was `9e12fe8c3f284116815bb7a7820fb761539f5dd8736c88a325cdad0cdcf6e4c7`; complete new identity is in OUTPUT_HASHES.json.
+
+`Response::project_displacement(dof, relative_limit, work_limit)` and `project_reaction` return `Attempt<QualifiedProjection>`. The privately constructed record borrows that precise immutable response and binds quantity/DOF. It exposes value, enclosing interval, outward absolute/relative error bounds, the actual caller criterion, basis and exact source sign. `is_for` rejects another response (including a new solve of the same context), quantity or DOF. Context's existing owned data/source matching remains necessary when comparing external current input; this is not a string-only source identity.
+
+Exact numerator zero yields positive zero and zero error. A finite same-sign nonzero proposal next receives checked N=qD identity verification, which admits exact dyadic values including minimum subnormal and maximum finite. Failure of that arithmetic shortcut does not certify equality: arithmetic range failure can proceed to bounded outward intervals, with its work reservation retained; budget failure cannot bypass the budget by changing routes. Every numerator/denominator sum addition is outward stepped; all four signed quotient endpoints are evaluated; nonfinite, zero-crossing, nonzero-underflow and failed relative-criterion outcomes are explicit unresolved errors. Final absolute-distance and relative-error operations are outward stepped too. Exact contact signs remain authoritative. No epsilon, floor, sentinel, correct-rounding claim or recovery from rounded K*u is introduced.
+
+The caller must supply its unchanged applicable comparison criterion, currently relative 1e-9 for these analytical quantities. Criteria must be finite and nonnegative. Zero criterion is valid: exact-zero/identity results can satisfy it, while a nonzero interval error remains unresolved. No universal engineering qualification follows from this numerical enclosure. The qualified result's actual error bound and criterion remain visible.
+
+## Work accounting
+
+Metered `gap_sign_with_work`, `signed_reaction_with_work`, `verify_candidate_with_work` and `exact_representable_candidate_with_work` return an Attempt with result and per-call WorkReport, as do both projection calls. WorkReport distinguishes accepted conservative charged work units from a rejected unexecuted budget reservation, and includes the effective limit. Limits are capped at the Context's admitted per-call operations limit. Arithmetic range failures retain accepted reservations even if the arithmetic stopped early. Counts are algorithmic reservations, **not exact hardware arithmetic counts**. Exact product reservation includes a larger fixed allowance for checked radix work.
+
+Compatibility wrappers still return Result alone and therefore discard their per-call accounting. `Response::operations()` is explicitly preparation-plus-solve only; it cannot be treated as a lifetime total. Integration requiring total attempted work must retain and accumulate metered attempts, including failures, and apply its own undertaking-wide cap. This delta does not invent a hidden global counter or claim that a failed call performed its rejected reservation.
+
+## Checks, controls and limits
+
+Rustfmt exited 0. Source inspection and before/after hashes confirm scope. No Rust build/test or arithmetic/runtime probe was run for this delta. Parent reported the predecessor's 11 passing exact-boundary tests at KERNEL_CHECKS; that remains predecessor evidence only.
+
+Six new maintained tests cover exact zero, both-sense minsub/min-normal/maxfinite/tail identity shortcuts; nonzero underflow, unrepresentable subnormal and overflow rejection; 1/3 and negative 1/3 signed endpoint symmetry and reviewed tightness bounds; gradual-underflow 1e-310/1.1; invalid/zero criteria; source/response/quantity/DOF rebinding; accepted/rejected reservations on successful, invalid, negative-candidate and budget-failed calls; exact adjacent-load and adjacent-gap tiny reactions; and the manager's additional small-strain exact tie. The existing 27-case/two-sense/four-seed test additionally attempts all 2,604 scalar state projections with the reviewed <7e-16 conservative relative bound. These are authored assertions, not observed passing tests.
+
+The small-strain companion uses manager-authored E=200e9 Pa, A=1/256 m², L=1 m, k=781250000 N/m, g1=1/16384 m and g2=1/8192 m. It is explicitly additional and pending independent review; original numerical-boundary oracles remain immutable. It claims no manufacturer/allowable/code or engineering acceptance.
+
+Parent next owns fresh complete-delta independent review (including accounting and small-strain basis), compilation and tests in the serialized lane, then any authorized integration. The helper remains limited to supported represented-source exact blocks and a bounded scalar projection; source-energy solving, full product recovery/receipts, engineering acceptance and activation are outside this return.

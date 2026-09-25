@@ -1,0 +1,8 @@
+async function legacyDigest(value:unknown):Promise<string>{guardResultJson(value);const bytes=new TextEncoder().encode(legacyJson(value));const hash=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(hash)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+export async function buildCurrentResultExport({model,result,analysisRun,inputManifest}:{model:PreviewModel;result:MechanicsResult;analysisRun:AnalysisRunEnvelope;inputManifest:CurrentSessionInputManifestEvidence|null|undefined}):Promise<JsonObject>{
+  guardResultJson(model);guardResultJson(result);guardResultJson(analysisRun);
+  if(!numericalResultStanding(result,model).eligible)throw new Error('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');
+  if(!inputManifest)throw new Error('CURRENT_INPUT_MANIFEST_UNAVAILABLE');guardResultJson(inputManifest);await verifyCurrentSessionInputManifest(inputManifest);
+  if(await canonicalJsonString(model)!==await canonicalJsonString(inputManifest.manifest.model_basis.model_payload)||result.model_ref!==model.project.id)throw new Error('CURRENT_MODEL_PAYLOAD_MISMATCH');
+  if(analysisRun.schema_version!=='0.3.0')throw new Error('CURRENT_ANALYSIS_VERSION_UNSUPPORTED');
+  const isV2=true; // Current precision records use the checked record/row binding path.

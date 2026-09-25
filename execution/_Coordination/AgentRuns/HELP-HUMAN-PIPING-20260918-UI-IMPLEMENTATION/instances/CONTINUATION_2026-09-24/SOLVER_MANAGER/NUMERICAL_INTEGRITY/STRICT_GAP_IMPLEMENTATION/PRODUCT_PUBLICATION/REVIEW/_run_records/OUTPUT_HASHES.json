@@ -1,0 +1,23 @@
+{
+  "CHECKS.json": "f49e3158c2c79432ec935060e73078e3d28864e3635de857b7c7292a887077e7",
+  "RETURN.md": "ae2d631bbb0fac1d9c794d24d9d082c8d328381699eec8179faa878d63b29d70",
+  "_run_records/ORIGINS.json": "e1c959fef51194d4fa4a3e17d468e1d68b9d788c7be146ae31cafec9a9dc2950",
+  "_run_records/reviewed_context/.agents/skills/software-code-review/SKILL.md": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+  "_run_records/reviewed_context/AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+  "_run_records/reviewed_context/agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+  "_run_records/reviewed_context/projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+  "_run_records/reviewed_context/projects/chirality-piping/apps/desktop/src/App.tsx": "13a66b24612a876be99210c0d8703542b728c41e285179ec05e32a2b0fd62812",
+  "_run_records/reviewed_context/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574",
+  "_run_records/reviewed_context/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+  "_run_records/reviewed_context/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx": "c88a2399b08e7289627b9104557c5a7ce983ee127b18b9fd7bb0f529b0a6377c",
+  "_run_records/reviewed_context/projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts": "c92030018f057c8e826d0486db33a5c78246114d220fa0a062d87a3e21a94ac8",
+  "_run_records/reviewed_context/projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs": "9bc67065db2949641ddb4d97434ffb5c70e75f9ae7fd6de75e40674e5e81ebba",
+  "_run_records/reviewed_context/projects/chirality-piping/core/solver/linear_supports/src/lib.rs": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+  "_run_records/reviewed_context/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "a5a3f7104b8a77c9d9709a9d4abd5123e14aedd4fa31f2d3763cc0101677034f",
+  "_run_records/reviewed_context/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "f7600925cd44169ce6d04a03ae5c0e622a8f27aabee831377d297dce68ec51aa",
+  "_run_records/reviewed_context/projects/chirality-piping/fixtures/product_preview/invented_preview_model.json": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+  "_run_records/reviewed_context/projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+  "_run_records/reviewed_context/projects/chirality-piping/software-workflow.json": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+  "_run_records/reviewed_context/tools/software_workflow/validate_change_scope.py": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d",
+  "_run_records/scope-check.json": "44be3100333904883c1ebe2dadaa23a7f2a3822851652547046cc2f7371b2fbf"
+}

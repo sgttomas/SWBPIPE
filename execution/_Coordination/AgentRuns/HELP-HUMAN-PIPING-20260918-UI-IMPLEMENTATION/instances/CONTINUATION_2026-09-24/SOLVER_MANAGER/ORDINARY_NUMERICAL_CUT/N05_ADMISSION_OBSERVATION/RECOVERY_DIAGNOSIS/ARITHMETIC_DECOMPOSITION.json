@@ -1,0 +1,102 @@
+[
+  {
+    "mode": "dense_scrutiny",
+    "inference_basis": "Input has one x-aligned straight frame and one root-RX spring. frame_kernel local torsion block uses [[a,-a],[-a,a]]; product assembled root diagonal audit is two exact expansion terms, with difference from stored diagonal. Inferred a = audited intended diagonal minus exact represented input spring. This source-traced reconstruction is not a retained full product stiffness matrix.",
+    "inferred_product_a_binary64_hex": "0x1.07c49b6ac7e26p+21",
+    "inferred_product_a_exact": "2160787.427139061503112316131591796875",
+    "np_a_a_binary64_hex": "0x1.07c49b6ac7e22p+21",
+    "product_a_relative_difference_from_exact_analytical": "7.930894490077414278777579475759065773600240830785683367129618939514265860000603727037171119184301097E-16",
+    "stored_diagonal_exact": "2160787.427239061333239078521728515625",
+    "contribution_difference_exact": "1.69873237614655454852385929598312941379845142364501953125E-10",
+    "stored_increment_exact": "0.00009999983012676239013671875",
+    "stored_root_exact": "0.0001000001698735261816143040799907892417847318608613351463110250153668485853186059940022724309423137817",
+    "contribution_root_exact": "0.00009999999999999999730008248062691779860445667867350323229615931896417867188082767157281843336420682766",
+    "source_intended_root": "0.0001",
+    "assembly_root_bias_relative_to_contribution_solution": "0.000001698735261843142261858089656703001890588038072531525322703820291690725874047721049788589416432283421",
+    "published_root_solver_error_relative_to_stored_solution": "-0.000004656645378627179830741742031051011649250533171738359735603421128020310528930624945029644647316764383",
+    "published_root_total_error_relative_to_analytical": "-0.00000295791802721874323711670484726710128597915172576904296875",
+    "published_root_spring_action_relative_error": "-0.0000029579180271708216428414124318752412383190717698357042906681422112822668827442594563503774907076",
+    "published_member_torques": [
+      {
+        "id": "result:moment:pipe:torsion",
+        "value": -9.999979511121637e-09,
+        "reference": "-1e-8",
+        "relative_error": "-0.0000020488878362812101840972900390625"
+      },
+      {
+        "id": "result:moment:pipe:torsion:end-j",
+        "value": 9.999979511121637e-09,
+        "reference": "1e-8",
+        "relative_error": "-0.0000020488878362812101840972900390625"
+      },
+      {
+        "id": "result:moment:pipe:quarter-1:torsion",
+        "value": 9.999979511121637e-09,
+        "reference": "1e-8",
+        "relative_error": "-0.0000020488878362812101840972900390625"
+      },
+      {
+        "id": "result:moment:pipe:midspan:torsion",
+        "value": 9.999979511121637e-09,
+        "reference": "1e-8",
+        "relative_error": "-0.0000020488878362812101840972900390625"
+      },
+      {
+        "id": "result:moment:pipe:quarter-3:torsion",
+        "value": 9.999979511121637e-09,
+        "reference": "1e-8",
+        "relative_error": "-0.0000020488878362812101840972900390625"
+      }
+    ]
+  },
+  {
+    "mode": "sparse_interactive",
+    "inference_basis": "Input has one x-aligned straight frame and one root-RX spring. frame_kernel local torsion block uses [[a,-a],[-a,a]]; product assembled root diagonal audit is two exact expansion terms, with difference from stored diagonal. Inferred a = audited intended diagonal minus exact represented input spring. This source-traced reconstruction is not a retained full product stiffness matrix.",
+    "inferred_product_a_binary64_hex": "0x1.07c49b6ac7e26p+21",
+    "inferred_product_a_exact": "2160787.427139061503112316131591796875",
+    "np_a_a_binary64_hex": "0x1.07c49b6ac7e22p+21",
+    "product_a_relative_difference_from_exact_analytical": "7.930894490077414278777579475759065773600240830785683367129618939514265860000603727037171119184301097E-16",
+    "stored_diagonal_exact": "2160787.427239061333239078521728515625",
+    "contribution_difference_exact": "1.69873237614655454852385929598312941379845142364501953125E-10",
+    "stored_increment_exact": "0.00009999983012676239013671875",
+    "stored_root_exact": "0.0001000001698735261816143040799907892417847318608613351463110250153668485853186059940022724309423137817",
+    "contribution_root_exact": "0.00009999999999999999730008248062691779860445667867350323229615931896417867188082767157281843336420682766",
+    "source_intended_root": "0.0001",
+    "assembly_root_bias_relative_to_contribution_solution": "0.000001698735261843142261858089656703001890588038072531525322703820291690725874047721049788589416432283421",
+    "published_root_solver_error_relative_to_stored_solution": "-1.758465621046261798887788455413108926148433257349870021910463695977353617023209534291465357897252487E-17",
+    "published_root_total_error_relative_to_analytical": "0.0000016987352617985583547177697028018883429467678070068359375",
+    "published_root_spring_action_relative_error": "0.000001698735261846480172147971789117043820355169927823905721115637973007710763147064259026564059241",
+    "published_member_torques": [
+      {
+        "id": "result:moment:pipe:torsion",
+        "value": -1.0000007932831068e-08,
+        "reference": "-1e-8",
+        "relative_error": "7.9328310675919055938720703125E-7"
+      },
+      {
+        "id": "result:moment:pipe:torsion:end-j",
+        "value": 1.0000007932831068e-08,
+        "reference": "1e-8",
+        "relative_error": "7.9328310675919055938720703125E-7"
+      },
+      {
+        "id": "result:moment:pipe:quarter-1:torsion",
+        "value": 1.0000007932831068e-08,
+        "reference": "1e-8",
+        "relative_error": "7.9328310675919055938720703125E-7"
+      },
+      {
+        "id": "result:moment:pipe:midspan:torsion",
+        "value": 1.0000007932831068e-08,
+        "reference": "1e-8",
+        "relative_error": "7.9328310675919055938720703125E-7"
+      },
+      {
+        "id": "result:moment:pipe:quarter-3:torsion",
+        "value": 1.0000007932831068e-08,
+        "reference": "1e-8",
+        "relative_error": "7.9328310675919055938720703125E-7"
+      }
+    ]
+  }
+]

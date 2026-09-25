@@ -1,0 +1,1 @@
+Precision fixture generation failed: Installation failed: INJECTED_INSTALL_3; rollback incomplete: fixtures/product_preview/invented_mechanics_result_precision_1_dense.json: INJECTED_RESTORE_1; recovery material retained at /private/tmp/precision-transaction-fault-Cmf0D0/project/fixtures/product_preview/.precision-generation-z0lpv3

@@ -1,0 +1,30 @@
+[
+  {
+    "stage": "vitest",
+    "command": [
+      "npm",
+      "test",
+      "--workspace",
+      "apps/desktop",
+      "--",
+      "src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "--maxWorkers=2"
+    ],
+    "exit_code": 0,
+    "started_unix": 1790306192.439643,
+    "ended_unix": 1790306203.4086242,
+    "log_sha256": "9347ee070be23b855f61dee050292e6274c21edd7725d4ed3a317de87ddb4123"
+  },
+  {
+    "stage": "tsc",
+    "command": [
+      "./node_modules/.bin/tsc",
+      "-b",
+      "apps/desktop/tsconfig.json"
+    ],
+    "exit_code": 0,
+    "started_unix": 1790306203.409214,
+    "ended_unix": 1790306210.156081,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

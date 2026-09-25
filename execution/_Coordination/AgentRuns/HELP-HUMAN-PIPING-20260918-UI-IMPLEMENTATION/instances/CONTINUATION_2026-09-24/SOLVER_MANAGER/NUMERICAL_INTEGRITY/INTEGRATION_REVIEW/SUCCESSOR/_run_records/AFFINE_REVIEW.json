@@ -1,0 +1,80 @@
+{
+  "scope": "Read existing parent observations; exact Fraction rational comparisons, no new Rust execution",
+  "rows": [
+    {
+      "case": "sign=1 seed=Sticking mode=SparseInteractive",
+      "absolute_errors_from_exact_rational": [
+        "241/19455550390240542720",
+        "7/20266198323167232",
+        "7/7599824371187712"
+      ],
+      "max_abs_error": 9.210739167260557e-16
+    },
+    {
+      "case": "sign=1 seed=Sticking mode=DenseScrutiny",
+      "absolute_errors_from_exact_rational": [
+        "47/2431943798780067840",
+        "25/20266198323167232",
+        "7/7599824371187712"
+      ],
+      "max_abs_error": 1.2335811384723961e-15
+    },
+    {
+      "case": "sign=1 seed=Sliding mode=SparseInteractive",
+      "absolute_errors_from_exact_rational": [
+        "241/19455550390240542720",
+        "7/20266198323167232",
+        "7/7599824371187712"
+      ],
+      "max_abs_error": 9.210739167260557e-16
+    },
+    {
+      "case": "sign=1 seed=Sliding mode=DenseScrutiny",
+      "absolute_errors_from_exact_rational": [
+        "47/2431943798780067840",
+        "25/20266198323167232",
+        "7/7599824371187712"
+      ],
+      "max_abs_error": 1.2335811384723961e-15
+    },
+    {
+      "case": "sign=-1 seed=Sticking mode=SparseInteractive",
+      "absolute_errors_from_exact_rational": [
+        "113/11889503016258109440",
+        "7/12384898975268864",
+        "1/9288674231451648"
+      ],
+      "max_abs_error": 5.652044489000797e-16
+    },
+    {
+      "case": "sign=-1 seed=Sticking mode=DenseScrutiny",
+      "absolute_errors_from_exact_rational": [
+        "391/23779006032516218880",
+        "9/6192449487634432",
+        "1/9288674231451648"
+      ],
+      "max_abs_error": 1.453382868600205e-15
+    },
+    {
+      "case": "sign=-1 seed=Sliding mode=SparseInteractive",
+      "absolute_errors_from_exact_rational": [
+        "113/11889503016258109440",
+        "7/12384898975268864",
+        "1/9288674231451648"
+      ],
+      "max_abs_error": 5.652044489000797e-16
+    },
+    {
+      "case": "sign=-1 seed=Sliding mode=DenseScrutiny",
+      "absolute_errors_from_exact_rational": [
+        "391/23779006032516218880",
+        "9/6192449487634432",
+        "1/9288674231451648"
+      ],
+      "max_abs_error": 1.453382868600205e-15
+    }
+  ],
+  "same_mode_seed_tuples_exact": true,
+  "all_discrete_states_sliding": true,
+  "all_existing_1e12_absolute_oracles_pass": true
+}

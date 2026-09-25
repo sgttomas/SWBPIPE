@@ -1,0 +1,32 @@
+# Repair 01 independent source review
+
+Disposition: **repair required before fan-in or repaired runtime claim**. One confirmed P2 defect remains in the newly enabled current report path. This review covers the complete fourteen-file frozen diff `f3d828846982fd49621e5a084b4a82a2f02d27206e79207d91310a38f4dbbf02`; all fourteen actual source files and both frozen images match `SOURCE_FREEZE.json`. No runtime tests or builds were executed.
+
+## P2 — Current report packages falsely identify the solver as 0.1.0
+
+Location: `projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts:265–266` and `:321–324`; triggered by the newly admitted strict 0.3 analysis route at `:96–103`.
+
+For the genuine current fixture, the source producer is `open_pipe_stress_product_physics` component version `0.2.0`, and the bound input manifest/analysis record names version `0.2.0` and build `open_pipe_stress_product_physics@0.2.0`. The repaired reader now successfully selects that record's `received_result` hash and precision semantics, but it still unconditionally constructs both `result_envelopes[0]` and `audit_manifest.solver_version` using `0.1.0` and the old build reference. Consequently the newly supported report carries current numerical values and hashes while identifying the previous solver implementation. The duplicated incorrect producer metadata undermines report provenance and reproducibility.
+
+This is directly established by source inspection, without claiming a test execution: `reportPackageRequest.test.ts:17–20` supplies the current solver basis, `analysisRunCompatibility.ts:104` preserves it into the analysis record, the source fixture's `producer.component_version` is `0.2.0`, and the report constructor emits the two quoted constants. The new report assertions check schema, dimensions and hashes, but neither output's solver identity.
+
+Repair direction (including the parent-relayed ROOT clarification): for the precision route, use the actual validated source `producer.component_name` / `component_version`, and require consistency with the analysis record and the verified manifest solver identity. Take the build reference from its recorded manifest/run basis and reject disagreement between those records; do not invent a build reference or infer a producer version from an analysis/source wire-schema version. Keep report-renderer/app versions distinct. For the historical route, preserve the recorded historical solver identity without upgrading the received source. Populate both report locations consistently. Add current `0.2.0` and historical `0.1.0` version/build assertions plus a verified-manifest/record/source identity mismatch rejection, alongside existing source-immutability and privacy assertions. This is an ordinary bounded M34 consumer correction; no source-row, numerical producer or transport-schema change is needed.
+
+## Other reviewed behavior
+
+- The shared hash selector recognizes only exact analysis versions 0.1.0, 0.2.0 and 0.3.0; unknown versions cannot inherit a legacy hash. Rejecting report builders and review-only TBD disclosures in Local FEA/native review packages preserve their distinct contracts.
+- The precision comparison path requires both exact source-row IDs, values and units, resolves each dimension with `semanticDimension(row, result)`, and rejects unsupported/contradictory/mismatched semantics. Existing legacy raw-dimension behavior and temperature-interval handling are retained. The added fixture exercises absent raw dimensions, force versus moment, component contradiction, unsupported source and unknown kind.
+- Report 0.3 uses the precision semantic contract and checks source-dimension declarations while retaining disclosure of unrepresentable/unknown rows. Explicit legacy 0.2 analysis retains its legacy semantic route; the source-aware call was not blanket-applied to historical raw 0.2 carriers.
+- Original privacy tests and report lifecycle race tests are unchanged. The backend-required test now supplies the existing local-private intent before decoding its export, while keeping the edited-model failure and no-result assertions.
+- Changed App expectations derive display precision, diagnostics and received-dimension applicability from the genuine current fixture. Warning/error checks and explicit numerical-integrity diagnostic coverage remain. Headless absent-dimension warnings and retained handoff references are consistent with the source; no raw dimensions are manufactured.
+- The delayed Historical-save test uses the exact default browser model and the unchanged legacy fixture through the explicit historical builder. The new solve is the recognized current fixture route; edited-browser refusal is unchanged. Historical and current fixtures share the run ID and mechanics status, so the assertion establishes current-versus-historical visibility and solved status, not an independent byte-level result-identity witness.
+
+No other confirmed actionable source defect was found in this bounded pass. This is not a comprehensive authentication or cryptographic audit, engineering acceptance, release approval, or downstream adoption.
+
+## Remaining validation and return
+
+The original 251-test run (240 passed, 11 failed) belongs to the pre-repair cut and is not evidence for this candidate. After the producer-identity correction, freeze the new source and obtain review/backcheck coverage of that change and its consequences before the manager reruns the affected checks. Required focused checks include previewService/App, reportPackageRequest, renderedReport, rendererIntegration, LocalFeaHandoffPanel, NativePackagePanel and analysisResultHashScope, plus applicable TypeScript/build/check-profile obligations. Preserve failed/skipped results. A passing narrow rerun does not replace merge-time clean-candidate DEC-025 evidence sweep, required CI, or applicable native workflow witnesses.
+
+Parent `/root/solver_manager` remains sole source integrator. Reviewer wrote only this review directory. `_run_records/FROZEN_SOURCE_CHECK.json`, `SCOPE_CHECK.json`, `FIXTURE_SOURCE_OBSERVATIONS.json`, and `RUNTIME_ORIGINS.json` record the observed candidate, scope, supporting source facts, actual context origins/hashes and delegation limits.
+
+The manager reported separately reviewed generator-recipe and metadata/documentation updates outside these fourteen files. Those are outside this review and are not characterized as unauthorized App source mutation. The fourteen App file hashes were checked again at return.

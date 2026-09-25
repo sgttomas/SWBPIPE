@@ -1,0 +1,65 @@
+{
+  "role": "TASK Type 2",
+  "parent": "/root/authoring_manager",
+  "agent": "/root/authoring_manager/aggregate_status_fix",
+  "mechanism": "delegated-harness-native collaboration child",
+  "scope": "two named numericalResultQuality files and AGGREGATE_STATUS/implementation evidence",
+  "enforcement": "shared filesystem; scope instructional, no delegation; no test/build/Git/native/browser commands authorized",
+  "basis": [
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "preserved": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/basis/AGENTS.md"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "preserved": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/basis/agents/AGENT_TASK.md"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "preserved": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/basis/projects/chirality-piping/AGENTS.md"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "preserved": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/basis/projects/chirality-piping/loop/LOOP_INIT.md"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+      "preserved": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/basis/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "sha256": "ec2ef7ba52b10ef9950a47f786812c38085816c5f99876ee6c6de0fecb702d18",
+      "preserved": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/basis/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/DIAGNOSIS.md",
+      "sha256": "c74883f08e14694cde33593888a318b50a506aa0f0d8fd59577e7bc73cf386fb",
+      "preserved": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/basis/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/DIAGNOSIS.md"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/PRODUCER_AGGREGATE.txt",
+      "sha256": "f1f4713d4149495fb350eb23bf904ec5a2953e6b844ec2fc5f7f825fa459c56c",
+      "preserved": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/basis/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/PRODUCER_AGGREGATE.txt"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/ORIGINS.json",
+      "sha256": "3a3b51f277cc024b613aec8533b445409e3fbff6b6a38a9e31775f129ff8fda4",
+      "preserved": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/basis/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/ORIGINS.json"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/before/numericalResultQuality.ts",
+      "sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+      "preserved": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/basis/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/before/numericalResultQuality.ts"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/before/numericalResultQuality.test.ts",
+      "sha256": "ec2ef7ba52b10ef9950a47f786812c38085816c5f99876ee6c6de0fecb702d18",
+      "preserved": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/basis/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/before/numericalResultQuality.test.ts"
+    }
+  ]
+}

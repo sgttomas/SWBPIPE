@@ -1,0 +1,302 @@
+{
+  "kind": "Independent read-only backcheck of executed frame/nonlinear stages only",
+  "reviewed_identities": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "6801610d0bb515eab33603163423812b81bf94946d8c23b99c127b655d996a7f",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "f7600925cd44169ce6d04a03ae5c0e622a8f27aabee831377d297dce68ec51aa",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "a5a3f7104b8a77c9d9709a9d4abd5123e14aedd4fa31f2d3763cc0101677034f"
+  },
+  "stages": [
+    {
+      "stage": "frame_exact_boundary",
+      "exit_code": 0,
+      "passed_tests": 20,
+      "filtered_tests": 61,
+      "test_names": [
+        "structural::exact_boundary::tests::coupled_tie_candidate_checks_original_rows_and_nonzero_prescribed",
+        "structural::exact_boundary::tests::all_fixed_pulling_bearing_and_zero_reactions_are_distinct",
+        "structural::exact_boundary::tests::exact_zero_source_coupling_can_split_a_stored_connected_graph",
+        "structural::exact_boundary::tests::force_tail_is_not_a_declared_vector_claim",
+        "structural::exact_boundary::tests::incomplete_duplicate_changed_maps_and_sources_fail",
+        "structural::exact_boundary::tests::manager_small_strain_companion_exact_projection",
+        "structural::exact_boundary::tests::node_permutation_and_exact_radix_rescaling_preserve_gap_proof",
+        "structural::exact_boundary::tests::original_exact_graph_does_not_use_absorbed_stored_coupling",
+        "structural::exact_boundary::tests::outward_projection_all_signed_endpoints_and_gradual_underflow",
+        "structural::exact_boundary::tests::per_call_work_keeps_success_failure_and_rejected_reservations",
+        "structural::exact_boundary::tests::projected_adjacent_reactions_preserve_exact_tiny_values",
+        "structural::exact_boundary::tests::projection_exact_zero_and_range_edge_shortcuts",
+        "structural::exact_boundary::tests::projections_bind_the_same_response_quantity_and_source",
+        "structural::exact_boundary::tests::reactions_combine_independent_blocks_and_nonrepresentable_response",
+        "structural::exact_boundary::tests::retained_adjacent_witness_replays_after_context_drop",
+        "structural::exact_boundary::tests::retained_force_tail_and_projection_rebinding_are_checked",
+        "structural::exact_boundary::tests::retained_mutations_and_different_consistent_source_reject_original_binding",
+        "structural::exact_boundary::tests::source_permutation_preserves_proof_but_invalidates_old_binding",
+        "structural::exact_boundary::tests::unsupported_singular_negative_asymmetric_range_and_budget_are_explicit",
+        "structural::exact_boundary::tests::independent_27_neighbor_controls_both_senses_and_all_seeds"
+      ],
+      "sources_lock_includes_unchanged": true,
+      "local_manifests": 1,
+      "captured_files": 13,
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j2",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--lib",
+        "exact_boundary",
+        "--",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "raw_cwd": "/private/tmp/piping-numerical-integrity-20260924",
+      "raw_target": "/private/tmp/piping-frame-kernel-hybrid-target"
+    },
+    {
+      "stage": "nonlinear_compile",
+      "exit_code": 0,
+      "passed_tests": null,
+      "filtered_tests": null,
+      "test_names": [],
+      "sources_lock_includes_unchanged": true,
+      "local_manifests": 8,
+      "captured_files": 32,
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j2",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--lib",
+        "--no-run"
+      ],
+      "raw_cwd": "/private/tmp/piping-numerical-integrity-20260924",
+      "raw_target": "/private/tmp/piping-nonlinear-integration-exact-gap-target"
+    },
+    {
+      "stage": "nonlinear_ret01",
+      "exit_code": 0,
+      "passed_tests": 1,
+      "filtered_tests": 57,
+      "test_names": [
+        "structural_adapter::retention_tests::ret01_long_id_and_nested_error_are_reserved_before_summary_comparison"
+      ],
+      "sources_lock_includes_unchanged": true,
+      "local_manifests": 8,
+      "captured_files": 32,
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j2",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--lib",
+        "ret01_long_id",
+        "--",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "raw_cwd": "/private/tmp/piping-numerical-integrity-20260924",
+      "raw_target": "/private/tmp/piping-nonlinear-integration-exact-gap-target"
+    },
+    {
+      "stage": "nonlinear_retained",
+      "exit_code": 0,
+      "passed_tests": 1,
+      "filtered_tests": 57,
+      "test_names": [
+        "structural_adapter::retention_tests::actual_adapter_retains_adjacent_response_and_separate_ordinary_projected_states"
+      ],
+      "sources_lock_includes_unchanged": true,
+      "local_manifests": 8,
+      "captured_files": 32,
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j2",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--lib",
+        "actual_adapter_retains_adjacent_response",
+        "--",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "raw_cwd": "/private/tmp/piping-numerical-integrity-20260924",
+      "raw_target": "/private/tmp/piping-nonlinear-integration-exact-gap-target"
+    },
+    {
+      "stage": "nonlinear_strict",
+      "exit_code": 0,
+      "passed_tests": 6,
+      "filtered_tests": 52,
+      "test_names": [
+        "tests::strict_gap_budget_and_duplicate_dofs_remain_explicit_without_projection",
+        "tests::strict_gap_nonzero_prescribed_root_preserves_original_coupling",
+        "tests::strict_gap_small_strain_axial_companion_both_senses_seeds_modes",
+        "tests::strict_gap_source_springs_and_decision_mutations_remain_bound",
+        "tests::strict_gap_unsupported_blocks_and_mixed_families_do_not_gain_qualification",
+        "tests::strict_gap_27_independent_neighbors_all_senses_seeds_and_backends"
+      ],
+      "sources_lock_includes_unchanged": true,
+      "local_manifests": 8,
+      "captured_files": 32,
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j2",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--lib",
+        "strict_gap_",
+        "--",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "raw_cwd": "/private/tmp/piping-numerical-integrity-20260924",
+      "raw_target": "/private/tmp/piping-nonlinear-integration-exact-gap-target"
+    },
+    {
+      "stage": "nonlinear_coupled",
+      "exit_code": 0,
+      "passed_tests": 1,
+      "filtered_tests": 57,
+      "test_names": [
+        "tests::audit_coupled_exact_contacts_converge_from_all_seeds"
+      ],
+      "sources_lock_includes_unchanged": true,
+      "local_manifests": 8,
+      "captured_files": 32,
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j2",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--lib",
+        "audit_coupled_exact_contacts",
+        "--",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "raw_cwd": "/private/tmp/piping-numerical-integrity-20260924",
+      "raw_target": "/private/tmp/piping-nonlinear-integration-exact-gap-target"
+    },
+    {
+      "stage": "nonlinear_decimal",
+      "exit_code": 0,
+      "passed_tests": 1,
+      "filtered_tests": 57,
+      "test_names": [
+        "tests::audit_gap_equilibrium_both_signs_seeds_and_modes"
+      ],
+      "sources_lock_includes_unchanged": true,
+      "local_manifests": 8,
+      "captured_files": 32,
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j2",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--lib",
+        "audit_gap_equilibrium",
+        "--",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "raw_cwd": "/private/tmp/piping-numerical-integrity-20260924",
+      "raw_target": "/private/tmp/piping-nonlinear-integration-exact-gap-target"
+    },
+    {
+      "stage": "nonlinear_affine",
+      "exit_code": 0,
+      "passed_tests": 1,
+      "filtered_tests": 57,
+      "test_names": [
+        "tests::current_normal_affine_fixture_matches_both_signed_oracles_seeds_and_modes"
+      ],
+      "sources_lock_includes_unchanged": true,
+      "local_manifests": 8,
+      "captured_files": 32,
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j2",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--lib",
+        "current_normal_affine_fixture",
+        "--",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "raw_cwd": "/private/tmp/piping-numerical-integrity-20260924",
+      "raw_target": "/private/tmp/piping-nonlinear-integration-exact-gap-target"
+    }
+  ],
+  "all_before_after_snapshots_identical": true,
+  "all_log_hashes_verified": true,
+  "recursive_local_and_literal_include_coverage_verified": true,
+  "current_source_lock_include_bytes_match": true,
+  "union_file_count": 32,
+  "input_sha256": {
+    "frame_exact_boundary/BEFORE.json": "6ae021c9669bdc98ef50cf1fd9264e91b9ef73e9f54818422ad19a6b33c39382",
+    "frame_exact_boundary/AFTER.json": "33444f8c0829b0393cca309b66564fc80edd5d1b29c8da494ca9db144da83f82",
+    "frame_exact_boundary/cargo.log": "e0e8a56a84d8f54a44ac385283102c24dd2741e23b6d9b1216f007c4f1c3cd1b",
+    "nonlinear_compile/BEFORE.json": "26fd9d5277a09340263dfd91e4eec92761d3e792a0e997af45a4f881f5e2bef0",
+    "nonlinear_compile/AFTER.json": "e970953dc088ce92085f87eedf30f4df11812381b799f11ba6b25307905f7acd",
+    "nonlinear_compile/cargo.log": "8cefe2c2e89f37f5d1c329946fdb0b2a5a292ae78e4854ec7cc63eda99ba952a",
+    "nonlinear_ret01/BEFORE.json": "664c4b6e9343f29ecb1045adb86e4af8b64256d92b5385dbd0a2fc84f5bd7dcb",
+    "nonlinear_ret01/AFTER.json": "fb65fe67b653ef47e210e58d815740765b00096f4f7b3bfa3db01b6ae6ab155c",
+    "nonlinear_ret01/cargo.log": "7ed8090a677221d38f98e15fff739eaa18cb6b90d35b56a0484ba4159b1021dd",
+    "nonlinear_retained/BEFORE.json": "593d5886a1e2c51bd22f96b8445a75e77532efaeab82b186c04d7014576c850f",
+    "nonlinear_retained/AFTER.json": "f9bd28fb43d23871dd23b2e097f25bbf48d4f9c6256efd7ce51f042d3bf9298d",
+    "nonlinear_retained/cargo.log": "9b98173e7b2733b61e28f9a1759ef04e8d30cc4ad22dc53a8ac398757a27d697",
+    "nonlinear_strict/BEFORE.json": "db3b465e4da9bb9490eda623ceb0645aea4b6c308b032921dc1d87f108e50b05",
+    "nonlinear_strict/AFTER.json": "a88567e7ccac896dd0e0768a46fc691c71aa5bda3d4f02599e2a58e3ac8b8f14",
+    "nonlinear_strict/cargo.log": "d47047f7b898c9026e0f16017820b1d6759e370a3f17eaa29b8d33bbdea8714c",
+    "nonlinear_coupled/BEFORE.json": "74bddaa8a2a8b2b571dfd4ced87b12d36467bf603d715dc9f7ba9c7541a6d5c5",
+    "nonlinear_coupled/AFTER.json": "eaa279571bde15bf971b1434c576e4b3b8997d9196429f0121890c0ea4f95148",
+    "nonlinear_coupled/cargo.log": "4fa61ad30c60bb714b3dd85e089155f1cfbcd060d497263f649a49432a770b7d",
+    "nonlinear_decimal/BEFORE.json": "71ef5a2ba8499b438c432ef4e24e25fa74ed86ef20bf58d3721c79710b316844",
+    "nonlinear_decimal/AFTER.json": "f7b48f51b5f2921b415f4cd734de06d7c76c8c4f78f972dedd3724f4b5f0dce1",
+    "nonlinear_decimal/cargo.log": "bb8519630082bb049225dc73254eed31a3abc8dd47cfd834f589da5e7f78386e",
+    "nonlinear_affine/BEFORE.json": "faa73ba89d5ac61dc60c629fdfea32f75d9b3f5be4ce9b34002ca26d325256ce",
+    "nonlinear_affine/AFTER.json": "35072f38fd0d47005825e4bfe5233ef4100d82fd9f69169f7a4c0c08b432a17c",
+    "nonlinear_affine/cargo.log": "afa74f46070d1b92b36d0a6972daf14bb3d3a13223fa96455f76824a0cdd116a",
+    "run_checks.py": "fa1faeec2afaa61e774c31872c908293174f56ca9276bb1054251f1d4d43f2b7"
+  },
+  "limits": [
+    "No product stages included.",
+    "Compile-only stage is not a test pass.",
+    "Nested fixture-loop counts and actual numerical charge totals are not printed; no inferred runtime counts reported.",
+    "No persisted artifact/wire/currentness/native/performance qualification."
+  ],
+  "executor": "/root/solver_manager/kernel_review",
+  "parent": "/root/solver_manager",
+  "mechanism": "same delegated-harness-native TASK reviewer; no descendants",
+  "dispatch": "unchanged gpt-6-astra xhigh",
+  "runtime": {
+    "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "raw_root": "/private/tmp/piping-numerical-integrity-20260924"
+  },
+  "operations": "Read/hash/parse only; no Rust, build, Git or source edits.",
+  "discovery_note": "Initial lookup expected top-level BEFORE/AFTER; actual evidence is per-stage. The first read-only verifier stopped before inspection because this review Python lacks tomllib; it was replaced with observed literal-path traversal. No Rust/test process ran in either attempt."
+}

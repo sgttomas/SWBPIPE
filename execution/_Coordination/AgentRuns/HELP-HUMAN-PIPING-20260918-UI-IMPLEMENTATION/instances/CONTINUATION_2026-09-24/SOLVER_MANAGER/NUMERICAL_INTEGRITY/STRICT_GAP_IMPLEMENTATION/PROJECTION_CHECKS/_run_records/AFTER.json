@@ -1,0 +1,14 @@
+{
+  "exit_code": 0,
+  "ended_unix": 1790280269.284095,
+  "files": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "1ce52845b3351ee587352f626627723c896bede25809f690aa79afe863a045e9",
+    "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs": "091d4069852c6033da38074af297c5eaa5a9469510c00d577f222e077aec2c15",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+    "projects/chirality-piping/core/solver/frame_kernel/src/extended_arithmetic.rs": "7fe0e7b94ed8e75c55481a00d4625faeeda8b7c7ac7a90a8063faa7777357e93",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "700338b91a54f9623ab479e5d0202f625a04810ebdce50e98196001da3675d9e",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml": "19b6b34535bce9a2882f9abb139eaf1ee689fc6902e6ecb23d9b6417d5bd5df8",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock": "1d1a78ec6b60fa9f4e8e22cf0c6ea5258d7b62dfd4086e0ed56d634997ff4867"
+  },
+  "source_and_lock_unchanged": true
+}

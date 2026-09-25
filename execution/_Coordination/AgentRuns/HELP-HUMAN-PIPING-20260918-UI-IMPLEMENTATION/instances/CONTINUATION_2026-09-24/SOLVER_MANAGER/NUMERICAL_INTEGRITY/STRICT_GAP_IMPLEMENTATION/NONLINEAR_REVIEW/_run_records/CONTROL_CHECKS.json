@@ -1,0 +1,367 @@
+{
+  "kind": "Independent source-table/rational/accounting checks; not Rust/backend execution",
+  "neighbor_rows_checked": [
+    {
+      "input_bits": [
+        4623226492472524799,
+        4593671619917905919,
+        4598175219545276415
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524799,
+        4593671619917905919,
+        4598175219545276416
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524799,
+        4593671619917905919,
+        4598175219545276417
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524799,
+        4593671619917905920,
+        4598175219545276415
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524799,
+        4593671619917905920,
+        4598175219545276416
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524799,
+        4593671619917905920,
+        4598175219545276417
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524799,
+        4593671619917905921,
+        4598175219545276415
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524799,
+        4593671619917905921,
+        4598175219545276416
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524799,
+        4593671619917905921,
+        4598175219545276417
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524800,
+        4593671619917905919,
+        4598175219545276415
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524800,
+        4593671619917905919,
+        4598175219545276416
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524800,
+        4593671619917905919,
+        4598175219545276417
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524800,
+        4593671619917905920,
+        4598175219545276415
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524800,
+        4593671619917905920,
+        4598175219545276416
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524800,
+        4593671619917905920,
+        4598175219545276417
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524800,
+        4593671619917905921,
+        4598175219545276415
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524800,
+        4593671619917905921,
+        4598175219545276416
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524800,
+        4593671619917905921,
+        4598175219545276417
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    },
+    {
+      "input_bits": [
+        4623226492472524801,
+        4593671619917905919,
+        4598175219545276415
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524801,
+        4593671619917905919,
+        4598175219545276416
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 2
+    },
+    {
+      "input_bits": [
+        4623226492472524801,
+        4593671619917905919,
+        4598175219545276417
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524801,
+        4593671619917905920,
+        4598175219545276415
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524801,
+        4593671619917905920,
+        4598175219545276416
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524801,
+        4593671619917905920,
+        4598175219545276417
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524801,
+        4593671619917905921,
+        4598175219545276415
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524801,
+        4593671619917905921,
+        4598175219545276416
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 1
+    },
+    {
+      "input_bits": [
+        4623226492472524801,
+        4593671619917905921,
+        4598175219545276417
+      ],
+      "expected_states_match": true,
+      "expected_displacement_bits_match": true,
+      "expected_reaction_bits_match": true,
+      "nonzero_reaction_count": 0
+    }
+  ],
+  "case_count": 27,
+  "required_mode_sense_seed_solves": 432,
+  "expected_with_same_mode_repeats": 864,
+  "spring_source_control": true,
+  "prescribed_root_original_Kfc_control": true,
+  "recovery_method_distinction": {
+    "gap1": "9007199254740991/72057594037927936",
+    "exact_u": [
+      "9007199254740991/72057594037927936",
+      "18014398509481983/72057594037927936"
+    ],
+    "published_u": [
+      0.12499999999999999,
+      0.25
+    ],
+    "exact_ratio_reaction": "-25/18014398509481984",
+    "exact_action_of_published_u": "-25/9007199254740992",
+    "binary64_action_of_published_u": -3.552713678800501e-15,
+    "same_public_displacement_does_not_determine_correct_exact_reaction": true
+  },
+  "work_debits": [
+    {
+      "outcome": "success",
+      "before": 8000000,
+      "iteration_cap": 2000000,
+      "debit": 450000,
+      "after": 7550000
+    },
+    {
+      "outcome": "known_failed_attempt",
+      "before": 7550000,
+      "iteration_cap": 2000000,
+      "debit": 1900000,
+      "after": 5650000
+    },
+    {
+      "outcome": "unknown_setup_failure",
+      "before": 5650000,
+      "iteration_cap": 2000000,
+      "debit": 2000000,
+      "after": 3650000
+    },
+    {
+      "outcome": "success",
+      "before": 3650000,
+      "iteration_cap": 2000000,
+      "debit": 1999999,
+      "after": 1650001
+    },
+    {
+      "outcome": "unknown_setup_failure",
+      "before": 1650001,
+      "iteration_cap": 1650001,
+      "debit": 1650001,
+      "after": 0
+    },
+    {
+      "outcome": "exhausted",
+      "before": 0,
+      "iteration_cap": 0,
+      "debit": 0,
+      "after": 0
+    }
+  ],
+  "limits": "No nonlinear compile/solve; no Current, full physics, general extended method or method-receipt qualification."
+}

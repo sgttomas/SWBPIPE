@@ -1,3 +1,8 @@
+import { solverDisplayWithToken } from "./features/workspace/statusLabels";
+import { statusChipInputsFromCells, statusChips, statusChipText } from "./features/workspace/shellLayout";
+import historicalMechanicsFixture from "../../../fixtures/product_preview/invented_mechanics_result.json";
+import { PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "./features/results/numericalResultQuality";
+import { analysisRowSemantics, buildAnalysisRunV02 } from "./services/analysisRunCompatibility";
 import { changeFormControl, expectFormControlValue, compactOptionRecords } from "./test-support/workspaceTestControls";
 import type { ViewportViewCommand } from "./features/viewport/viewportSelection";
 import {
@@ -36,9 +41,10 @@ import {
   buildAnalysisRunPreview,
   buildPreviewComparison,
   loadPreviewModel,
+  loadDesignKnowledge,
   runPreviewMechanics,
 } from "./services/previewService";
-import { canonicalSha256Hex, computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
+import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
 import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
 import { applyModelOperation } from "./services/operationService";
 import { applyOperationBatch, type OperationBatchOutcome } from "./services/operationBatchService";
@@ -907,8 +913,8 @@ describe("SWBPIPE desktop preview", () => {
       model,
       solver: {
         solver_name: "open_pipe_stress_product_physics",
-        solver_version: "0.1.0",
-        solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
+        solver_version: result.producer!.component_version,
+        solver_build_ref: `${result.producer!.component_name}@${result.producer!.component_version}`,
         solver_mode: "sparse_interactive",
         settings: { sparse_evidence_lane: true }
       },
@@ -7183,6 +7189,13 @@ describe("SWBPIPE desktop preview", () => {
   });
 
   it("carries queued editor intents into the report packet as review-only operation context", async () => {
+    const fixtureModel = await loadPreviewModel();
+    const fixtureResult = await runPreviewMechanics(fixtureModel);
+    const displacements = fixtureResult.results.filter(row => row.kind === "displacement_magnitude" && fixtureModel.nodes.some(node => node.id === row.entity_ref));
+    expect(displacements.every(row => Number.isFinite(row.value))).toBe(true);
+    const maximum = Math.max(...displacements.map(row => Math.abs(row.value)));
+    const nodeCount = new Set(displacements.map(row => row.entity_ref)).size;
+    expect(new Set(displacements.map(row => row.unit))).toEqual(new Set(["mm"]));
     render(<App />);
 
     const tree = await screen.findByLabelText("Model tree");
@@ -7209,7 +7222,7 @@ describe("SWBPIPE desktop preview", () => {
     await waitFor(() =>
       expect(
         screen.getByTestId("viewport-deformation-status").textContent,
-      ).toContain("available; nodes=5; max=4.927112 mm"),
+      ).toContain(`available; nodes=${nodeCount}; max=${maximum} mm`),
     );
     const report = reportPanel();
     expect(
@@ -9984,6 +9997,17 @@ describe("SWBPIPE desktop preview", () => {
   it("shows computed mechanics diagnostics in results, knowledge, and review-only proposal context", async () => {
     const expectedModel = await loadPreviewModel();
     const expectedSource = await runPreviewMechanics(expectedModel);
+    const expectedKnowledge = await loadDesignKnowledge();
+    const solveDiagnostics = [...expectedModel.diagnostics, ...expectedSource.diagnostics];
+    const allDiagnostics = [...solveDiagnostics, ...expectedKnowledge.diagnostics];
+    const integrityDiagnostics = expectedSource.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED");
+    expect(integrityDiagnostics).toHaveLength(expectedModel.load_cases.length);
+    expect(integrityDiagnostics.every(item => item.severity === "info")).toBe(true);
+    const receivedDimensionRows = expectedSource.results.filter(row => Number.isFinite(row.value) && typeof row.dimension === "string" && Boolean(row.dimension));
+    const missingDimensionRows = expectedSource.results.filter(row => !receivedDimensionRows.includes(row));
+    expect(expectedSource.schema_version).toBe("0.2.0");
+    expect(expectedSource.producer?.semantic_contract_id).toBe(PRECISION_CONTRACT_ID);
+    expect(expectedSource.results.every(row => !Object.hasOwn(row, "dimension"))).toBe(true);
     const originalSource = JSON.stringify({ model: expectedModel, result: expectedSource });
     render(<App />);
 
@@ -10014,7 +10038,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("Rule pack · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)");
     expect(
       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
-    ).toContain("32 diagnostics");
+    ).toContain(`${solveDiagnostics.length} diagnostics`);
     expect(
       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
     ).toContain("12 warnings");
@@ -10108,7 +10132,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(solveJobPacket.summary.job_state).toBe("completed");
     expect(solveJobPacket.summary.event_count).toBe(3);
     expect(solveJobPacket.summary.result_row_count).toBe(830);
-    expect(solveJobPacket.summary.diagnostic_count).toBe(32);
+    expect(solveJobPacket.summary.diagnostic_count).toBe(solveDiagnostics.length);
     expect(solveJobPacket.summary.cancellation_requested).toBe(false);
     expect(solveJobPacket.summary.cancellation_status).toBe("not_requested");
     expect(solveJobPacket.progress_contract.progress_basis).toBe(
@@ -10221,8 +10245,12 @@ describe("SWBPIPE desktop preview", () => {
     const resultExportHref = within(resultExport).getByTestId("result-export-link").getAttribute("href") ?? "";
     const resultExportPacket = JSON.parse(decodeURIComponent(resultExportHref.split(",", 2)[1]));
     const e = resultExportPacket.result_envelope;
-    expect(resultExportPacket.schema_version).toBe("0.2.0");
-    expect(e.schema_version).toBe("0.2.0");
+    expect(resultExportPacket.schema_version).toBe("0.3.0");
+    expect(e.schema_version).toBe("0.3.0");
+    expect(e.producer).toEqual(expectedSource.producer);
+    expect(e.numerical_quality).toEqual(expectedSource.numerical_quality);
+    expect(e.formulation_basis).toEqual(expectedSource.formulation_basis);
+    expect(e.semantic_contract_ref).toEqual({ ref_type: "semantic_contract", ref_id: PRECISION_CONTRACT_ID });
     expect(resultExportPacket.deliverable_id).toBe("DEL-08-04");
     expect(resultExportPacket.package_id).toBe("PKG-08");
     expect(resultExportPacket.scope_item).toBe("SOW-046");
@@ -10246,7 +10274,7 @@ describe("SWBPIPE desktop preview", () => {
       expect(account.source_kind).toBe(row.kind);
       expect(account.source_field_path).toBe(`/results/${index}`);
       expect(account.original_producer_row_checksum).toBeNull();
-      expect(account.received_carrier_row_checksum).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_legacy_enriched_row", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256Hex(row) });
+      expect(account.received_carrier_row_checksum).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_row", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256HexCheckedV1(row) });
       expect(annotation).toMatchObject({ source_row_index: index, source_result_id: row.id, metadata: row.metadata ?? null, basis_ref: row.basis_ref ?? null, source_result_refs: row.source_result_refs ?? [], observed_carrier_dimension: { present: Object.hasOwn(row,"dimension"), value: row.dimension ?? null } });
       const target = account.target_field_path.split("/").slice(1).reduce((value: any, key: string) => value[key], resultExportPacket);
       expect(account.target_ref.ref_id).toBe(row.id);
@@ -10262,7 +10290,7 @@ describe("SWBPIPE desktop preview", () => {
         expect(witness.conversion_performed).toBe(false);
         expect(witness.original_producer_row_checksum).toBeNull();
         expect(witness.target_field_path).toBe(account.target_field_path);
-        expect(witness.target_row_checksum.value).toBe(await canonicalSha256Hex(target));
+        expect(witness.target_row_checksum.value).toBe(await canonicalSha256HexCheckedV1(target));
       }
     }
     expect(e.unit_preservation_witnesses).toHaveLength(e.result_sets[0].values.length + e.review_evidence.length);
@@ -10277,16 +10305,16 @@ describe("SWBPIPE desktop preview", () => {
     expect(e.reproducibility.run_hashes).toHaveLength(2);
     expect(e.reproducibility.run_hashes.map((h: {payload_ref: {ref_type: string}}) => h.payload_ref.ref_type)).toEqual(["AnalysisRun", "ResultEnvelope"]);
     expect(e.reproducibility.audit_manifest_ref.ref_type).toBe("audit_manifest");
-    expect(e.reproducibility.model_hash).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, value: await canonicalSha256Hex(expectedModel) });
+    expect(e.reproducibility.model_hash).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, value: await canonicalSha256HexCheckedV1(expectedModel) });
     expect(e.reproducibility.raw_source_hashes).toEqual([]);
     expect(e.reproducibility.request_hash).toBeNull();
     expect(e.reproducibility.source_origin_bindings).toHaveLength(1);
-    expect(e.reproducibility.source_origin_bindings[0]).toMatchObject({ origin_class: "received_current_qualified_legacy_enriched", authentic_producer_available: false, original_producer_checksum: null, actual_model_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, mechanics_run_ref: { ref_type: "mechanics_run", ref_id: expectedSource.run_id }, qualification_ref: {ref_type: "current_manifest", ref_id: e.reproducibility.audit_manifest_ref.ref_id}, received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_legacy_enriched_carrier", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256Hex(expectedSource) } });
+    expect(e.reproducibility.source_origin_bindings[0]).toMatchObject({ origin_class: "received_current_dimension_absent", authentic_producer_available: false, original_producer_checksum: null, actual_model_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, mechanics_run_ref: { ref_type: "mechanics_run", ref_id: expectedSource.run_id }, qualification_ref: {ref_type: "current_manifest", ref_id: e.reproducibility.audit_manifest_ref.ref_id}, received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_carrier", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256HexCheckedV1(expectedSource) } });
     const digestPayload = structuredClone(resultExportPacket);
     delete digestPayload.result_envelope.reproducibility.derivative_hash;
-    expect(e.reproducibility.derivative_hash).toEqual({algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "derivative_document_excludes_own_hash", payload_ref: {ref_type: "derivative_document", ref_id: e.envelope_id}, value: await canonicalSha256Hex(digestPayload)});
+    expect(e.reproducibility.derivative_hash).toEqual({algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "derivative_document_excludes_own_hash", payload_ref: {ref_type: "derivative_document", ref_id: e.envelope_id}, value: await canonicalSha256HexCheckedV1(digestPayload)});
     expect(e.analysis_status).toEqual(expect.arrayContaining(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]));
-    expect(e).not.toHaveProperty("rule_pack_refs"); // 0.2 carries rule completeness in analysis_status; no private pack payload is exported.
+    expect(e).not.toHaveProperty("rule_pack_refs"); // 0.3 carries rule completeness in analysis_status; no private pack payload is exported.
     expect(e.downstream_use.additional_export_formats).toBe("TBD");
     expect(e.professional_boundary).toMatchObject({human_review_required: true, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_makes_authentication_claim: false});
     expect(screen.getByTestId("governing-ratio-status")).toHaveTextContent("unavailable");
@@ -10295,10 +10323,11 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(ownIntent);
     expect(within(resultExport).getByTestId("result-export-link")).not.toHaveAttribute("href");
     expect(within(resultExport).getByTestId("result-export-link")).toHaveAttribute("aria-disabled", "true");
-    const incompatibleWorkDiagnostics = expectedSource.results.filter(row => row.kind === "nonlinear_support_free_dof_work_residual" && row.unit === "N*m");
-    expect(incompatibleWorkDiagnostics).toHaveLength(2);
-    expect(incompatibleWorkDiagnostics.every(row => row.dimension === "moment")).toBe(true); // immutable legacy moment declaration; work diagnostics have no physical semantic dimension
-    const expectedStressWitnessCount = expectedSource.results.length - incompatibleWorkDiagnostics.length;
+    const diagnosticWorkRows = expectedSource.results.filter(row => analysisRowSemantics(row, expectedSource).semantic?.category === "diagnostic_work");
+    expect(diagnosticWorkRows).toHaveLength(expectedModel.load_cases.length);
+    expect(diagnosticWorkRows.every(row => row.kind === "nonlinear_support_free_dof_work_residual" && row.unit === "N*m" && !Object.hasOwn(row, "dimension"))).toBe(true);
+    expect(diagnosticWorkRows.every(row => analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension === null)).toBe(true);
+    const expectedStressWitnessCount = expectedSource.results.length - diagnosticWorkRows.length;
     const stressNeutral = stressNeutralExport();
     expect(
       (await within(stressNeutral).findByTestId("stress-neutral-summary")).textContent,
@@ -10314,7 +10343,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("stress_neutral_csv_json");
     expect(
       within(stressNeutral).getByTestId("stress-neutral-format").textContent,
-    ).toContain("ops.stress_neutral.v2");
+    ).toContain("ops.stress_neutral.v3");
     expect(
       within(stressNeutral).getByTestId("stress-neutral-state-binding")
         .textContent,
@@ -10386,18 +10415,24 @@ describe("SWBPIPE desktop preview", () => {
       decodeURIComponent(stressNeutralHref.split(",", 2)[1]),
     );
     expect(stressNeutralPacket.document_kind).toBeUndefined();
-    expect(stressNeutralPacket.schema_version).toBe("0.2.0");
+    expect(stressNeutralPacket.schema_version).toBe("0.3.0");
+    expect(stressNeutralPacket.producer).toEqual(expectedSource.producer);
+    expect(stressNeutralPacket.numerical_quality).toEqual(expectedSource.numerical_quality);
+    expect(stressNeutralPacket.formulation_basis).toEqual(expectedSource.formulation_basis);
+    expect(stressNeutralPacket.semantic_contract).toEqual({ id: PRECISION_CONTRACT_ID, sha256: PRECISION_CONTRACT_SHA256 });
+    expect(stressNeutralPacket.source_carrier_checksum).toEqual({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_result", payload_ref: { object_type: "ResultEnvelope", ref: `result-envelope:${expectedSource.run_id}` }, value: await canonicalSha256HexCheckedV1(expectedSource) });
+    expect(stressNeutralPacket.received_source_checksums).toContainEqual(stressNeutralPacket.source_carrier_checksum);
     expect(stressNeutralPacket.deliverable_id).toBe("DEL-17-06");
     expect(stressNeutralPacket.package_id).toBe("PKG-17");
     expect(stressNeutralPacket.scope_items).toEqual(["SOW-046", "SOW-074"]);
     expect(stressNeutralPacket.objectives).toEqual(["OBJ-007", "OBJ-017", "OBJ-018"]);
     expect(stressNeutralPacket.package_status).toBe("stress_neutral_export_package");
     expect(stressNeutralPacket.export_profile.target_family).toBe("stress_neutral_csv_json");
-    expect(stressNeutralPacket.export_profile.profile_id).toBe("ops.stress_neutral.v2");
-    expect(stressNeutralPacket.export_profile.profile_version).toBe("0.2.0");
+    expect(stressNeutralPacket.export_profile.profile_id).toBe("ops.stress_neutral.v3");
+    expect(stressNeutralPacket.export_profile.profile_version).toBe("0.3.0");
     expect(stressNeutralPacket.manifest.export_profile_ref).toEqual({
       object_type: "StressNeutralExportProfile",
-      ref: "ops.stress_neutral.v2",
+      ref: "ops.stress_neutral.v3",
     });
     expect(stressNeutralPacket.export_profile.csv_columns).toHaveLength(11);
     expect(stressNeutralPacket.export_profile.csv_columns).toContain("result_id");
@@ -10410,6 +10445,16 @@ describe("SWBPIPE desktop preview", () => {
     expect(stressNeutralPacket.unit_system_disclosure.conversion_performed).toBe(false);
     expect(stressNeutralPacket.unit_system_disclosure.protected_content_included).toBe(false);
     expect(stressNeutralPacket.unit_preservation_witnesses).toHaveLength(expectedStressWitnessCount);
+    const workIds = new Set(diagnosticWorkRows.map(row => row.id));
+    expect(stressNeutralPacket.unit_preservation_witnesses.some((witness: { result_id: string }) => workIds.has(witness.result_id))).toBe(false);
+    const workWithholdings = stressNeutralPacket.diagnostics.filter((diagnostic: { code: string }) => diagnostic.code === "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK");
+    expect(new Set(workWithholdings.map((diagnostic: { source: { ref: string } }) => diagnostic.source.ref))).toEqual(workIds);
+    expect(workWithholdings.every((diagnostic: { severity: string }) => diagnostic.severity === "info")).toBe(true);
+    expect(stressNeutralPacket.diagnostics).toEqual(expect.arrayContaining([expect.objectContaining({ code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", severity: "blocking" })]));
+    for (const row of expectedSource.results) {
+      const retained = stressNeutralPacket.result_rows.find((candidate: { result_id: string }) => candidate.result_id === row.id);
+      expect(retained).toMatchObject({ value: row.value, unit: row.unit, dimension: analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension ?? "TBD" });
+    }
     expect(stressNeutralPacket.manifest.package_members.map((item: { filename: string }) => item.filename)).toEqual([
       "manifest.json",
       "stress_neutral_results.csv",
@@ -10439,6 +10484,9 @@ describe("SWBPIPE desktop preview", () => {
       (entry: { category: string }) => entry.category,
     )).toContain("exported");
     expect(stressNeutralPacket.package_checksum.value).toMatch(/^[0-9a-f]{64}$/);
+    const stressDigestPayload = structuredClone(stressNeutralPacket);
+    delete stressDigestPayload.package_checksum;
+    expect(stressNeutralPacket.package_checksum.value).toBe(await canonicalSha256HexCheckedV1(stressDigestPayload));
     expect(stressNeutralPacket.package_checksum.payload_scope).toBe(
       "complete_package_excluding_self_checksum",
     );
@@ -10493,7 +10541,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(headlessRunner).getByTestId("headless-runner-unit-witnesses")
         .textContent,
-    ).toContain("count=830");
+    ).toContain(`count=${receivedDimensionRows.length}`);
     expect(
       within(headlessRunner).getByTestId("headless-runner-unit-witnesses")
         .textContent,
@@ -10563,18 +10611,13 @@ describe("SWBPIPE desktop preview", () => {
     expect(headlessPacket.result.unit_witness_policy).toBe(
       "preserve_source_result_value_unit_and_dimension_per_headless_result_handoff_row",
     );
-    expect(headlessPacket.result.unit_preservation_witnesses).toHaveLength(830);
-    const headlessUnitWitness =
-      headlessPacket.result.unit_preservation_witnesses.find(
-        (item: { source_result_ref: { ref_id: string } }) =>
-          item.source_result_ref.ref_id === "result:force:pipe-P-120:axial",
-      );
-    expect(headlessUnitWitness.source_quantity.unit).toBe("N");
-    expect(headlessUnitWitness.source_quantity.dimension).toBe("force");
-    expect(headlessUnitWitness.target_quantity.unit).toBe("N");
-    expect(headlessUnitWitness.target_quantity.dimension).toBe("force");
-    expect(headlessUnitWitness.conversion_performed).toBe(false);
-    expect(headlessPacket.result.diagnostics).toHaveLength(32);
+    expect(headlessPacket.result.unit_preservation_witnesses).toHaveLength(receivedDimensionRows.length);
+    expect(headlessPacket.result.unit_preservation_witnesses.map((witness: { source_result_ref: { ref_id: string } }) => witness.source_result_ref.ref_id).sort())
+      .toEqual(receivedDimensionRows.map(row => row.id).sort());
+    expect(headlessPacket.result.diagnostics.filter((diagnostic: { code: string }) => diagnostic.code === "RUNNER_RECEIVED_DIMENSION_WITNESS_UNAVAILABLE"))
+      .toHaveLength(missingDimensionRows.length);
+    expect(expectedSource.results.find(row => row.id === "result:force:pipe-P-120:axial")?.dimension).toBeUndefined();
+    expect(headlessPacket.result.diagnostics).toHaveLength(solveDiagnostics.length + missingDimensionRows.length);
     expect(headlessPacket.result.privacy.telemetry_allowed).toBe(false);
     expect(
       headlessPacket.result.professional_boundary
@@ -10594,7 +10637,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(adapterFramework).getByTestId("adapter-framework-summary")
         .textContent,
-    ).toContain("diagnostics=32");
+    ).toContain(`diagnostics=${solveDiagnostics.length}`);
     expect(
       within(adapterFramework).getByTestId("adapter-framework-validation")
         .textContent,
@@ -10622,7 +10665,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(adapterPacket.operation_result.parse_status).toBe(
       "[REDACTED]",
     );
-    expect(adapterPacket.operation_result.diagnostics).toHaveLength(32);
+    expect(adapterPacket.operation_result.diagnostics).toHaveLength(solveDiagnostics.length);
     expect(adapterPacket.operation_result.checksums).toHaveLength(2);
     expect(adapterPacket.operation_result.audit_manifest_refs[0].ref_id).toBe(
       "[REDACTED]",
@@ -11149,7 +11192,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       nativePackagePacket.loss_report.entries[2].affected_refs,
     ).not.toContain("canonical_package_hash");
-    expect(nativePackagePacket.diagnostics).toHaveLength(32);
+    expect(nativePackagePacket.diagnostics).toHaveLength(solveDiagnostics.length);
     expect(nativePackagePacket.generation_context.network_required).toBe(false);
     expect(nativePackagePacket.generation_context.telemetry_enabled).toBe(
       false,
@@ -11527,7 +11570,9 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(results).getByText("result:disp:node-N-140"),
     ).toBeInTheDocument();
-    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent("3.977301 mm");
+    const displayedDisplacement = expectedSource.results.find(row => row.id === "result:disp:node-N-140")!;
+    expect(Number.isFinite(displayedDisplacement.value)).toBe(true);
+    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent(`${displayedDisplacement.value} ${displayedDisplacement.unit}`);
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
     ).toContain("830 of 830 results match filter");
@@ -11952,7 +11997,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(knowledge).getByText(/Computed displacement review/i),
     ).toBeInTheDocument();
-    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent("result:disp:node-N-140 is 3.977301 mm");
+    const summaryDisplacement = expectedSource.summary.max_displacement!;
+    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent(`${summaryDisplacement.result_ref} is ${summaryDisplacement.value} ${summaryDisplacement.unit}`);
     expect(
       within(knowledge).getByText(/result:force:pipe-P-120:axial is/i),
     ).toBeInTheDocument();
@@ -12135,7 +12181,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("no private payload");
     expect(
       within(report).getByTestId("report-export-summary").textContent,
-    ).toContain("34 diagnostics");
+    ).toContain(`${allDiagnostics.length} diagnostics`);
     }
     const exportHref =
       within(report).getByTestId("report-export-link").getAttribute("href") ??
@@ -12729,7 +12775,7 @@ describe("SWBPIPE desktop preview", () => {
       "handoff-export-summary",
     );
     expect(handoffExportSummary.textContent).toContain("26 entities");
-    expect(handoffExportSummary.textContent).toContain("34 diagnostics");
+    expect(handoffExportSummary.textContent).toContain(`${allDiagnostics.length} diagnostics`);
     expect(
       within(handoff).getByTestId("handoff-target-profile").textContent,
     ).toContain("native_open_json_preview");
@@ -12785,7 +12831,7 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(
       within(handoff).getByTestId("handoff-unit-witnesses").textContent,
-    ).toContain("count=830");
+    ).toContain(`count=${receivedDimensionRows.length}`);
     expect(
       within(handoff).getByTestId("handoff-unit-witnesses").textContent,
     ).toContain("conversion=false");
@@ -12804,17 +12850,10 @@ describe("SWBPIPE desktop preview", () => {
     expect(handoffPacket.unit_witness_policy).toBe(
       "preserve_source_result_value_unit_and_dimension_per_handoff_result_ref",
     );
-    expect(handoffPacket.unit_preservation_witnesses).toHaveLength(830);
-    const handoffStressWitness = handoffPacket.unit_preservation_witnesses.find(
-      (item: { source_ref: { ref: string } }) =>
-        item.source_ref.ref ===
-        "result:stress:pipe-P-120:end-j:torsional-shear",
-    );
-    expect(handoffStressWitness).toBeTruthy();
-    expect(handoffStressWitness.source_quantity.unit).toBe("MPa");
-    expect(handoffStressWitness.source_quantity.dimension).toBe("stress");
-    expect(handoffStressWitness.target_quantity.unit).toBe("MPa");
-    expect(handoffStressWitness.conversion_performed).toBe(false);
+    expect(handoffPacket.unit_preservation_witnesses).toHaveLength(receivedDimensionRows.length);
+    expect(handoffPacket.unit_preservation_witnesses.map((witness: { source_ref: { ref: string } }) => witness.source_ref.ref).sort())
+      .toEqual(receivedDimensionRows.map(row => row.id).sort());
+    expect(expectedSource.results.find(row => row.id === "result:stress:pipe-P-120:end-j:torsional-shear")?.dimension).toBeUndefined();
     expect(handoffPacket.stable_id_map.entity_ref_count).toBe(26);
     expect(handoffPacket.stable_id_map.entity_refs).toContain(
       "material:invented-carbon-steel",
@@ -13547,11 +13586,17 @@ describe("SWBPIPE desktop preview", () => {
           item.export_id === "operation_review_ledger",
       ).readiness,
     ).toBe("empty_operation_queue");
+    expect(JSON.stringify({ model: expectedModel, result: expectedSource })).toBe(originalSource);
     // Heavy full-<App/> Three.js render: inherit the 30s global testTimeout
     // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
   });
 
   it("links selected diagnostics to affected result and model context", async () => {
+    const model = await loadPreviewModel();
+    const source = await runPreviewMechanics(model);
+    const knowledge = await loadDesignKnowledge();
+    const expectedDiagnostics = [...model.diagnostics, ...knowledge.diagnostics, ...source.diagnostics];
+    expect(source.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED")).toHaveLength(model.load_cases.length);
     render(<App />);
 
     fireEvent.click(await runMechanicsButton());
@@ -13567,14 +13612,14 @@ describe("SWBPIPE desktop preview", () => {
     const diagnostics = await screen.findByLabelText("Diagnostics");
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain("34 of 34 diagnostics visible");
+    ).toContain(`${expectedDiagnostics.length} of ${expectedDiagnostics.length} diagnostics visible`);
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
     ).toContain("13 Warnings");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
-    ).toContain("21 Info");
+    ).toContain(`${expectedDiagnostics.filter(item => item.severity === "info").length} Info`);
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-error").textContent,
     ).toContain("0 Errors");
@@ -13591,7 +13636,7 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain("1 of 34 diagnostics visible");
+    ).toContain(`1 of ${expectedDiagnostics.length} diagnostics visible`);
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
@@ -13658,7 +13703,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(within(diagnostics).getByTestId("clear-diagnostic-filter"));
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain("34 of 34 diagnostics visible");
+    ).toContain(`${expectedDiagnostics.length} of ${expectedDiagnostics.length} diagnostics visible`);
     expect(
       within(diagnostics).getByTestId("diagnostic-RULE_CHECK_NOT_PERFORMED"),
     ).toBeInTheDocument();
@@ -13814,42 +13859,18 @@ describe("SWBPIPE desktop preview", () => {
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("1 pending operation");
 
-    // Browser fixture mode must not publish stale solved rows for the edited model.
+    // Browser editing fails before any producer result or analysis run is fabricated.
     fireEvent.click(await runMechanicsButton());
-    await waitFor(() =>
-      expect(solveJobSummary().textContent).toContain(
-        "state=completed",
-      ),
-    );
-    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
-    expect(
-      within(screen.getByTestId("solve-readiness-summary")).getByTestId(
-        "readiness-mechanics",
-      ).textContent,
-    ).toContain("0 computed result rows; Solver · Model incomplete (MODEL_INCOMPLETE)");
-    expect(
-      within(screen.getByTestId("solve-readiness-summary")).getByTestId(
-        "readiness-diagnostics",
-      ).textContent,
-    ).toContain("1 blocking/error");
-    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
-    expect(
-      screen.getByTestId(
-        "diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL",
-      ),
-    ).toBeInTheDocument();
-    const editedSolveHref =
-      screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
-    const editedSolvePacket = JSON.parse(
-      decodeURIComponent(editedSolveHref.split(",", 2)[1]),
-    );
+    await waitFor(() => expect(solveJobSummary()).toHaveTextContent("state=failed"));
+    expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent("Solve job state: failed");
+    const editedSolveHref = screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
+    const editedSolvePacket = JSON.parse(decodeURIComponent(editedSolveHref.split(",", 2)[1]));
     expect(editedSolvePacket.summary.result_row_count).toBe(0);
-    expect(
-      editedSolvePacket.diagnostics.map((item: { code: string }) => item.code),
-    ).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
-    expect(
-      screen.getByTestId("viewport-deformation-status").textContent,
-    ).toContain("blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0");
+    expect(editedSolvePacket.error_message).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+    expect(editedSolvePacket.error_message).not.toContain("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED");
+    expect(editedSolvePacket.analysis_run_ref).toBeNull();
+    expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("rows=0");
 
     fireEvent.click(screen.getByRole("button", { name: /Save local/i }));
     await waitFor(() =>
@@ -17007,7 +17028,7 @@ describe("persistent modeling workspace", () => {
 async function workflowStoredEnvelope() {
   const model = await loadPreviewModel();
   const envelope = inventedOpenEnvelope(model);
-  const result = structuredClone(await runPreviewMechanics());
+  const result = structuredClone(historicalMechanicsFixture) as MechanicsResult;
   result.model_ref = envelope.model.project.id;
   const inputManifest = await buildCurrentSessionInputManifest({
     model: envelope.model,
@@ -17015,7 +17036,7 @@ async function workflowStoredEnvelope() {
     active_rule_packs: [], external_assets: []
   });
   envelope.mechanics_result = result;
-  envelope.analysis_run = await buildAnalysisRunPreview(result, { inputManifest });
+  envelope.analysis_run = await buildAnalysisRunV02(result, inputManifest);
   // Deliberately inconsistent saved hash stays evidence, never fresh identity.
   envelope.model_hash = { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "model_payload", payload_ref: envelope.model.project.id, value: `sha256:${"f".repeat(64)}`, hash_status: "computed_local_preview" };
   return envelope;
@@ -17037,7 +17058,7 @@ async function withCurrentPersistenceHashes(envelope: LocalProjectEnvelope) {
 }
 
 describe("workflow current and historical result boundaries", () => {
-  it("discloses MODEL_INCOMPLETE as blocked after a real browser model edit", async () => {
+  it("preserves the specific backend-required failure after a real browser model edit", async () => {
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
@@ -17047,8 +17068,9 @@ describe("workflow current and historical result boundaries", () => {
     fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
     await waitFor(() => expect(reviewControl("session-history-chip")).toHaveTextContent("1 undo / 0 redo"));
     fireEvent.click(await runMechanicsButton());
-    await waitFor(() => expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete"));
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=0");
+    await waitFor(() => expect(solveJobSummary()).toHaveTextContent("state=failed"));
+    expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent("Solve job state: failed");
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("rows=0");
     expect(screen.getByTestId("viewport-deformation-boundary")).toHaveTextContent("scale=not_generated");
     expect(solveJobSummary()).toHaveTextContent("result_rows=0");
     expect(renderedReportButton()).toBeDisabled();
@@ -17058,8 +17080,14 @@ describe("workflow current and historical result boundaries", () => {
     expect(screen.getByTestId("rule-check-run")).toBeDisabled();
     expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
-    expect(screen.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toBeInTheDocument();
+    expect(screen.getByTestId("solve-job-export-link")).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(screen.getByTestId("solve-job-export-link-local-private-intent"));
+    const href = screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
+    expect(href).toMatch(/^data:/);
+    const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
+    expect(packet.error_message).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+    expect(packet.error_message).not.toContain("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED");
+    expect(packet.analysis_run_ref).toBeNull();
   });
 
   it("opens saved results as readable history and preserves their exact fields on unchanged save", async () => {
@@ -17370,13 +17398,39 @@ describe("workflow current and historical result boundaries", () => {
     },
   );
 
-  it.each(["MECHANICS_BLOCKED", "MECHANICS_NONCONVERGED"])("keeps %s diagnostics while barring solved-only consumers", async (mechanics) => {
+  it.each(["MECHANICS_BLOCKED", "MECHANICS_NONCONVERGED"])("retains recorded %s through display-only helpers without fresh admission", async (mechanics) => {
+    const model = await loadPreviewModel();
+    const recorded = structuredClone(historicalMechanicsFixture) as MechanicsResult;
+    recorded.status.mechanics = mechanics;
+    recorded.diagnostics.push({ id: "diagnostic:recorded-display", code: "RECORDED_DISPLAY_DIAGNOSTIC", severity: "blocking", message: "Recorded display-only outcome retained" });
+    // B3A preserves unregistered recorded tokens for presentation. No native job,
+    // fresh V03 builder or Current result is claimed in this display-only route.
+    expect(solverDisplayWithToken(mechanics)).toBe(`Solver · Not solved (${mechanics})`);
+    const chips = statusChips(statusChipInputsFromCells({
+      model, result: recorded, historicalRun: null, solveJob: { state: "completed" },
+      ruleCheckAggregate: null, hasQualifiedCurrentResult: false,
+    }), "results");
+    expect(chips).toEqual([{ token: mechanics, label: "Not solved", domain: "Solver" }]);
+    expect(statusChipText(chips[0])).toBe("Solver · Not solved");
+    const overlay = buildDeformationOverlay(model, recorded);
+    expect(overlay.state).toBe("blocked");
+    expect(overlay.summary).toBe(`blocked; mechanics=${mechanics.toLowerCase().replaceAll("_", " ")}; rows=${recorded.results.length}`);
+    expect(overlay.nodePositions.size).toBe(0);
+    render(<DiagnosticsPanel model={model} knowledge={null} result={recorded}
+      selectedDiagnosticId={null} onSelectDiagnostic={vi.fn()} />);
+    expect(screen.getByTestId("diagnostic-RECORDED_DISPLAY_DIAGNOSTIC")).toHaveTextContent("Recorded display-only outcome retained");
+    expect(recorded.status.mechanics).toBe(mechanics);
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps registered MODEL_INCOMPLETE diagnostics while barring fresh solved-only consumers", async () => {
+    const mechanics = "MODEL_INCOMPLETE";
     const model = await loadPreviewModel();
     const output = structuredClone(await runPreviewMechanics(model));
     output.status.mechanics = mechanics;
     expect(output.results.length).toBeGreaterThan(0);
     const overlay = buildDeformationOverlay(model, output);
-    const failedSummary = `blocked; mechanics=${mechanics.toLowerCase().replaceAll("_", " ")}; rows=${output.results.length}`;
+    const failedSummary = `blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=${output.results.length}`;
     expect(overlay.state).toBe("blocked");
     expect(overlay.summary).toBe(failedSummary);
     expect(overlay.nodePositions.size).toBe(0);
@@ -17390,12 +17444,11 @@ describe("workflow current and historical result boundaries", () => {
     await screen.findByTestId("desktop-preview-shell");
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     act(() => nativeMenuCommand("analyze.run"));
-    // B3A display-policy amendment (owner EIGHT_UX_ITEMS item 2): an unregistered
-    // recorded solver value uses the display-only fallback, retaining its exact token
-    // in Analyze and the chip. The solved-only and deformation boundaries below remain.
-    await waitFor(() => expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent(`Solver · Not solved (${mechanics})`));
+    // Fresh connected admission uses a registered mechanics status. Unknown
+    // recorded-token display is covered separately without weakening V03.
+    await waitFor(() => expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent("Solver · Model incomplete (MODEL_INCOMPLETE)"));
     const mechanicsChip = screen.getByTestId("status-pill-mechanics");
-    expect(mechanicsChip).toHaveTextContent("Solver · Not solved");
+    expect(mechanicsChip).toHaveTextContent("Solver · Model incomplete");
     expect(mechanicsChip).toHaveAttribute("data-status-token", mechanics);
     expect(mechanicsChip).toHaveAttribute("title", mechanics);
     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
@@ -17833,6 +17886,19 @@ describe("historical lifecycle history transitions", () => {
 
   it("lets a fresh same-model solve win against a delayed Historical refresh", async () => {
     const opened = await workflowStoredEnvelope();
+    opened.model = await loadPreviewModel();
+    opened.summary.project_id = opened.model.project.id;
+    opened.summary.project_name = opened.model.project.name;
+    // Rebind only the test's historical record to the exact default model;
+    // its received legacy bytes stay historical and never become fresh output.
+    const historical = structuredClone(historicalMechanicsFixture) as MechanicsResult;
+    const historicalManifest = await buildCurrentSessionInputManifest({
+      model: opened.model,
+      solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0", solver_mode: "sparse_interactive", settings: {} },
+      active_rule_packs: [], external_assets: []
+    });
+    opened.mechanics_result = historical;
+    opened.analysis_run = await buildAnalysisRunV02(historical, historicalManifest);
     const refreshed = await withCurrentPersistenceHashes(opened);
     const pendingSave = deferred<LocalProjectEnvelope>();
     invokeMock.mockImplementation((command: string) => {
@@ -17850,13 +17916,13 @@ describe("historical lifecycle history transitions", () => {
     delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
     openWorkspaceSection("solve");
     fireEvent.click(await runMechanicsButton());
-    await waitFor(() => expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete"), { timeout: 10000 });
+    await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"), { timeout: 10000 });
     openWorkspaceSection("results");
     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
     await act(async () => pendingSave.resolve(refreshed));
     await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
-    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+    expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
   });
 
   it("adopts a changed native persistence model and retains returned results as Historical", async () => {

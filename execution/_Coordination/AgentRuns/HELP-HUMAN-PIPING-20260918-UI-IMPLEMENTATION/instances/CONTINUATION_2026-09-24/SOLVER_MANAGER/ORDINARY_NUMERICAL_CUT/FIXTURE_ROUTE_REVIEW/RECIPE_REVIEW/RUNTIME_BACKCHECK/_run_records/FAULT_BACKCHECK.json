@@ -1,0 +1,327 @@
+{
+  "time_utc": "2026-09-25T02:12:28.533539+00:00",
+  "checks": {
+    "harness invocation completed successfully": true,
+    "invocation binds prepared freeze": true,
+    "executed source/input inventory matches current prepared bytes": true,
+    "exact four requested controls": true,
+    "install2 expected failure and assertion pass": true,
+    "install2 actual sandbox recipe/stub bytes": true,
+    "install2 independent before and actual after binding": true,
+    "install2 raw event trace agrees with record": true,
+    "install2 input and legacy retained": true,
+    "install2 all preimages restored no stage": true,
+    "install2 correct install/restore counts": true,
+    "install2 stub commands include exact two mode captures": true,
+    "install3 expected failure and assertion pass": true,
+    "install3 actual sandbox recipe/stub bytes": true,
+    "install3 independent before and actual after binding": true,
+    "install3 raw event trace agrees with record": true,
+    "install3 input and legacy retained": true,
+    "install3 all preimages restored no stage": true,
+    "install3 correct install/restore counts": true,
+    "install3 stub commands include exact two mode captures": true,
+    "install3-rollback1 expected failure and assertion pass": true,
+    "install3-rollback1 actual sandbox recipe/stub bytes": true,
+    "install3-rollback1 independent before and actual after binding": true,
+    "install3-rollback1 raw event trace agrees with record": true,
+    "install3-rollback1 input and legacy retained": true,
+    "install3-rollback1 exact retained backup bytes": true,
+    "install3-rollback1 continued sparse restore and intact record": true,
+    "install3-rollback1 unrecovered dense equals only stub raw": true,
+    "install3-rollback1 recovery map and both errors disclosed": true,
+    "install3-rollback1 stub commands include exact two mode captures": true,
+    "symlink-parent expected failure and assertion pass": true,
+    "symlink-parent actual sandbox recipe/stub bytes": true,
+    "symlink-parent independent before and actual after binding": true,
+    "symlink-parent raw event trace agrees with record": true,
+    "symlink-parent input and legacy retained": true,
+    "symlink-parent linked external parent remained untouched": true,
+    "symlink-parent refusal before Cargo": true,
+    "all nine recovery custody copies equal retained originals": true
+  },
+  "all_passed": true,
+  "sandbox_files_inspected": [
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/bin/cargo",
+      "sha256": "c3a21e56c1285ecb5743bdee6657862fc93f59fca0913dc91eb7d3fed85595aa"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/bin/rustc",
+      "sha256": "efd80e4b8c64e9438e563fee367997e5e6869086732b5809c65f8f856fb9e1f6"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/core/product_physics/Cargo.lock",
+      "sha256": "fba21ee26906fc473020335515a0f94ca90997a2d010781d54f18c6a97ff754d"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/core/product_physics/Cargo.toml",
+      "sha256": "9c095e8785a8bb5aef51b44b3ce5ab9e1ef6f01372fa3f49e9f29640c941ccf1"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/core/product_physics/examples/preview_result.rs",
+      "sha256": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/core/product_physics/src/lib.rs",
+      "sha256": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/fault-events.ndjson",
+      "sha256": "4aecfcf6bf62e7eb66709162e67dc864af6773c90ba1299f73f0c57e1d4647b7"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "c9984bd1f4c8621cf7bd3f48bdf33a061422752480fec8f8c50e69501cadb968"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "b9a8e1faf7695a3ef597224ea19730be5cff2c311c6edddb45364999c7896d36"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "920f8209fd1d59a9f37f653a1d046333c92f13da9ee65e9784241ae0cb8e430c"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/fixtures/product_preview/invented_preview_model.json",
+      "sha256": "2909b867f93b7f439b168c3883f75ea7c5b971480b30530e92e27e486f6a3c2b"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/fixtures/product_preview/precision_fixture_generation.json",
+      "sha256": "9518b4f7251f0557c18ab7d964e2dc470939f184e5975e91484fba2853fbf191"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/package.json",
+      "sha256": "5d25dcae86cf890bc2d36579d137e4a50f6a5c00bed55a22a7f89b0d3d343897"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/stub-commands.ndjson",
+      "sha256": "9660872e00cc531cccbe52cebe41e0fa156f558a830282a80f0534d6f9e5da6b"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/stub-payloads/dense.stdout.json",
+      "sha256": "d5597a00fd92ed23f101cd850f4be5795959bc993b27ead58fb7c15b16062b0e"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/stub-payloads/sparse.stdout.json",
+      "sha256": "d6007bf957f7c23511ad9e9ad0e8012bab7cf4d423cd5a80d0ecded29b667855"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-uOwU9Z/project/tools/serialization/generate_product_preview_mechanics.mjs",
+      "sha256": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/bin/cargo",
+      "sha256": "c3a21e56c1285ecb5743bdee6657862fc93f59fca0913dc91eb7d3fed85595aa"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/bin/rustc",
+      "sha256": "efd80e4b8c64e9438e563fee367997e5e6869086732b5809c65f8f856fb9e1f6"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/core/product_physics/Cargo.lock",
+      "sha256": "fba21ee26906fc473020335515a0f94ca90997a2d010781d54f18c6a97ff754d"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/core/product_physics/Cargo.toml",
+      "sha256": "9c095e8785a8bb5aef51b44b3ce5ab9e1ef6f01372fa3f49e9f29640c941ccf1"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/core/product_physics/examples/preview_result.rs",
+      "sha256": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/core/product_physics/src/lib.rs",
+      "sha256": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/fault-events.ndjson",
+      "sha256": "d8ddcdd04e80ebba60412a8461ac8394e613952ce936eb589fec3b267426179b"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "c9984bd1f4c8621cf7bd3f48bdf33a061422752480fec8f8c50e69501cadb968"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "b9a8e1faf7695a3ef597224ea19730be5cff2c311c6edddb45364999c7896d36"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "920f8209fd1d59a9f37f653a1d046333c92f13da9ee65e9784241ae0cb8e430c"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/fixtures/product_preview/invented_preview_model.json",
+      "sha256": "2909b867f93b7f439b168c3883f75ea7c5b971480b30530e92e27e486f6a3c2b"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/fixtures/product_preview/precision_fixture_generation.json",
+      "sha256": "9518b4f7251f0557c18ab7d964e2dc470939f184e5975e91484fba2853fbf191"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/package.json",
+      "sha256": "5d25dcae86cf890bc2d36579d137e4a50f6a5c00bed55a22a7f89b0d3d343897"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/stub-commands.ndjson",
+      "sha256": "9660872e00cc531cccbe52cebe41e0fa156f558a830282a80f0534d6f9e5da6b"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/stub-payloads/dense.stdout.json",
+      "sha256": "d5597a00fd92ed23f101cd850f4be5795959bc993b27ead58fb7c15b16062b0e"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/stub-payloads/sparse.stdout.json",
+      "sha256": "d6007bf957f7c23511ad9e9ad0e8012bab7cf4d423cd5a80d0ecded29b667855"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-7p8kJj/project/tools/serialization/generate_product_preview_mechanics.mjs",
+      "sha256": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/bin/cargo",
+      "sha256": "c3a21e56c1285ecb5743bdee6657862fc93f59fca0913dc91eb7d3fed85595aa"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/bin/rustc",
+      "sha256": "efd80e4b8c64e9438e563fee367997e5e6869086732b5809c65f8f856fb9e1f6"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/core/product_physics/Cargo.lock",
+      "sha256": "fba21ee26906fc473020335515a0f94ca90997a2d010781d54f18c6a97ff754d"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/core/product_physics/Cargo.toml",
+      "sha256": "9c095e8785a8bb5aef51b44b3ce5ab9e1ef6f01372fa3f49e9f29640c941ccf1"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/core/product_physics/examples/preview_result.rs",
+      "sha256": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/core/product_physics/src/lib.rs",
+      "sha256": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/fault-events.ndjson",
+      "sha256": "d8ddcdd04e80ebba60412a8461ac8394e613952ce936eb589fec3b267426179b"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/fixtures/product_preview/.precision-generation-z0lpv3/1.old",
+      "sha256": "b9a8e1faf7695a3ef597224ea19730be5cff2c311c6edddb45364999c7896d36"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/fixtures/product_preview/.precision-generation-z0lpv3/2.new",
+      "sha256": "1de2cda54dcf1d8cbb6b97f8cd69cc0c146034bc67bb6cc695c5cafff7ef473c"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/fixtures/product_preview/.precision-generation-z0lpv3/2.old",
+      "sha256": "9518b4f7251f0557c18ab7d964e2dc470939f184e5975e91484fba2853fbf191"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/fixtures/product_preview/.precision-generation-z0lpv3/recovery.json",
+      "sha256": "621dd8f0aed30420b64406a93f9176485011d2dba797b87c350784d21b4b72e2"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "c9984bd1f4c8621cf7bd3f48bdf33a061422752480fec8f8c50e69501cadb968"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "d5597a00fd92ed23f101cd850f4be5795959bc993b27ead58fb7c15b16062b0e"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "920f8209fd1d59a9f37f653a1d046333c92f13da9ee65e9784241ae0cb8e430c"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/fixtures/product_preview/invented_preview_model.json",
+      "sha256": "2909b867f93b7f439b168c3883f75ea7c5b971480b30530e92e27e486f6a3c2b"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/fixtures/product_preview/precision_fixture_generation.json",
+      "sha256": "9518b4f7251f0557c18ab7d964e2dc470939f184e5975e91484fba2853fbf191"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/package.json",
+      "sha256": "5d25dcae86cf890bc2d36579d137e4a50f6a5c00bed55a22a7f89b0d3d343897"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/stub-commands.ndjson",
+      "sha256": "9660872e00cc531cccbe52cebe41e0fa156f558a830282a80f0534d6f9e5da6b"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/stub-payloads/dense.stdout.json",
+      "sha256": "d5597a00fd92ed23f101cd850f4be5795959bc993b27ead58fb7c15b16062b0e"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/stub-payloads/sparse.stdout.json",
+      "sha256": "d6007bf957f7c23511ad9e9ad0e8012bab7cf4d423cd5a80d0ecded29b667855"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-Cmf0D0/project/tools/serialization/generate_product_preview_mechanics.mjs",
+      "sha256": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/outside-project-fixtures/invented_mechanics_result.json",
+      "sha256": "c9984bd1f4c8621cf7bd3f48bdf33a061422752480fec8f8c50e69501cadb968"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/outside-project-fixtures/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "b9a8e1faf7695a3ef597224ea19730be5cff2c311c6edddb45364999c7896d36"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/outside-project-fixtures/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "920f8209fd1d59a9f37f653a1d046333c92f13da9ee65e9784241ae0cb8e430c"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/outside-project-fixtures/invented_preview_model.json",
+      "sha256": "2909b867f93b7f439b168c3883f75ea7c5b971480b30530e92e27e486f6a3c2b"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/outside-project-fixtures/precision_fixture_generation.json",
+      "sha256": "9518b4f7251f0557c18ab7d964e2dc470939f184e5975e91484fba2853fbf191"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/project/bin/cargo",
+      "sha256": "c3a21e56c1285ecb5743bdee6657862fc93f59fca0913dc91eb7d3fed85595aa"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/project/bin/rustc",
+      "sha256": "efd80e4b8c64e9438e563fee367997e5e6869086732b5809c65f8f856fb9e1f6"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/project/core/product_physics/Cargo.lock",
+      "sha256": "fba21ee26906fc473020335515a0f94ca90997a2d010781d54f18c6a97ff754d"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/project/core/product_physics/Cargo.toml",
+      "sha256": "9c095e8785a8bb5aef51b44b3ce5ab9e1ef6f01372fa3f49e9f29640c941ccf1"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/project/core/product_physics/examples/preview_result.rs",
+      "sha256": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/project/core/product_physics/src/lib.rs",
+      "sha256": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/project/package.json",
+      "sha256": "5d25dcae86cf890bc2d36579d137e4a50f6a5c00bed55a22a7f89b0d3d343897"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/project/stub-payloads/dense.stdout.json",
+      "sha256": "d5597a00fd92ed23f101cd850f4be5795959bc993b27ead58fb7c15b16062b0e"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/project/stub-payloads/sparse.stdout.json",
+      "sha256": "d6007bf957f7c23511ad9e9ad0e8012bab7cf4d423cd5a80d0ecded29b667855"
+    },
+    {
+      "path": "/private/tmp/precision-transaction-fault-HFKpAy/project/tools/serialization/generate_product_preview_mechanics.mjs",
+      "sha256": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399"
+    }
+  ],
+  "boundary": "Observed parent-run four fault controls on the exact recipe, with stub Cargo/rustc and invented unresolved transaction inputs. Reviewer ran no Node, Cargo, harness or tests. No producer/physics/Current result claim."
+}

@@ -1,0 +1,59 @@
+{
+  "scenario": "install3",
+  "sandbox": "/private/tmp/precision-transaction-fault-7p8kJj",
+  "command": [
+    "/Users/ryan/.local/share/mise/installs/node/24.18.0/bin/node",
+    "--require",
+    "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/_run_records/fault_controls/preload.cjs",
+    "/private/tmp/precision-transaction-fault-7p8kJj/project/tools/serialization/generate_product_preview_mechanics.mjs"
+  ],
+  "status": 1,
+  "recipe_sha256": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399",
+  "before": {
+    "invented_mechanics_result_precision_1_sparse.json": "920f8209fd1d59a9f37f653a1d046333c92f13da9ee65e9784241ae0cb8e430c",
+    "invented_mechanics_result_precision_1_dense.json": "b9a8e1faf7695a3ef597224ea19730be5cff2c311c6edddb45364999c7896d36",
+    "precision_fixture_generation.json": "9518b4f7251f0557c18ab7d964e2dc470939f184e5975e91484fba2853fbf191",
+    "invented_mechanics_result.json": "c9984bd1f4c8621cf7bd3f48bdf33a061422752480fec8f8c50e69501cadb968",
+    "invented_preview_model.json": "2909b867f93b7f439b168c3883f75ea7c5b971480b30530e92e27e486f6a3c2b"
+  },
+  "mocked_boundary": "Cargo metadata/output and rustc version are stubs; no product/compiler invoked",
+  "after": {
+    "invented_mechanics_result_precision_1_sparse.json": "920f8209fd1d59a9f37f653a1d046333c92f13da9ee65e9784241ae0cb8e430c",
+    "invented_mechanics_result_precision_1_dense.json": "b9a8e1faf7695a3ef597224ea19730be5cff2c311c6edddb45364999c7896d36",
+    "precision_fixture_generation.json": "9518b4f7251f0557c18ab7d964e2dc470939f184e5975e91484fba2853fbf191",
+    "invented_mechanics_result.json": "c9984bd1f4c8621cf7bd3f48bdf33a061422752480fec8f8c50e69501cadb968",
+    "invented_preview_model.json": "2909b867f93b7f439b168c3883f75ea7c5b971480b30530e92e27e486f6a3c2b"
+  },
+  "events": [
+    {
+      "operation": "install",
+      "ordinal": 1,
+      "from": "0.new",
+      "to": "invented_mechanics_result_precision_1_sparse.json"
+    },
+    {
+      "operation": "install",
+      "ordinal": 2,
+      "from": "1.new",
+      "to": "invented_mechanics_result_precision_1_dense.json"
+    },
+    {
+      "operation": "install",
+      "ordinal": 3,
+      "from": "2.new",
+      "to": "precision_fixture_generation.json"
+    },
+    {
+      "operation": "restore",
+      "from": "1.old",
+      "to": "invented_mechanics_result_precision_1_dense.json"
+    },
+    {
+      "operation": "restore",
+      "from": "0.old",
+      "to": "invented_mechanics_result_precision_1_sparse.json"
+    }
+  ],
+  "recovery_directories": [],
+  "assertions": "passed"
+}

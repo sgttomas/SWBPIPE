@@ -1,0 +1,98 @@
+{
+  "actor": "/root/solver_manager/consumer_binding_repair",
+  "method": "source-only injected deterministic JSON hash; NOT production JCS/native or schema proof",
+  "observations": [
+    {
+      "case": "builder_canonical_ref_{'object_type': 'Material', 'ref': 'result:0'}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-STABLE-ID-MAP-BINDING-MISMATCH"
+    },
+    {
+      "case": "builder_export_ref_{'object_type': 'Row', 'ref': ''}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-STABLE-ID-MAP-BINDING-MISMATCH"
+    },
+    {
+      "case": "builder_export_ref_{'object_type': 'Row', 'ref': None}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-STABLE-ID-MAP-BINDING-MISMATCH"
+    },
+    {
+      "case": "builder_export_ref_None",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-STABLE-ID-MAP-BINDING-MISMATCH"
+    },
+    {
+      "case": "custom_namespaces_reordered",
+      "result": "ACCEPTED"
+    },
+    {
+      "case": "rule_override_''",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_RULE_STATUS_INVALID"
+    },
+    {
+      "case": "rule_override_0",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_RULE_STATUS_INVALID"
+    },
+    {
+      "case": "rule_override_False",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_RULE_STATUS_INVALID"
+    },
+    {
+      "case": "rule_override_[]",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_RULE_STATUS_INVALID"
+    },
+    {
+      "case": "rule_override_{}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_RULE_STATUS_INVALID"
+    },
+    {
+      "case": "rule_override_'UNKNOWN'",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_RULE_STATUS_INVALID"
+    },
+    {
+      "case": "rule_override_None",
+      "result": "ACCEPTED"
+    },
+    {
+      "case": "rehashed_canonical_ref_{'object_type': 'Material', 'ref': 'result:0'}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-STABLE-ID-MAP-BINDING-MISMATCH"
+    },
+    {
+      "case": "rehashed_export_ref_{'object_type': 'Row', 'ref': ''}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-STABLE-ID-MAP-BINDING-MISMATCH"
+    },
+    {
+      "case": "rehashed_export_ref_{'object_type': 'Row', 'ref': None}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-STABLE-ID-MAP-BINDING-MISMATCH"
+    },
+    {
+      "case": "rehashed_export_ref_None",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-STABLE-ID-MAP-BINDING-MISMATCH"
+    }
+  ]
+}

@@ -1,0 +1,543 @@
+{
+  "status": "source selection complete; extracted-candidate tests and whole-tranche review pending",
+  "base_head": "f702b439536c6e76af8e1c81ee536d5685e87907",
+  "path_base": "repository_root",
+  "source_patch": "_run_records/COMPLETE_SOURCE.patch",
+  "source_patch_sha256": "66462c11680f7feb79e64d03eb9e278d732d7e1702fa2e8dfc20d9230ba36415",
+  "source_files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "sha256": "be0edb2bfc9e3c97cc0a85df4bcf63ee276785be22f689657a2d3730bd551b49",
+      "bytes": 122896,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+      "sha256": "ae8eb2d1193fb96d742820614eebb6b69eaefa2256d23d79193c3b4b3dcb0b16",
+      "bytes": 1541,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "64e5dedd41eefe17bdd0bd092d88d95978af960821f0da60f9fa85fb2daca4ef",
+      "bytes": 325536,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "ceb1ec1cc525478f32f50aba79d5a3d31df497b69d06dfd9efb097c49c8d291d",
+      "bytes": 70439,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28",
+      "bytes": 22572,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574",
+      "bytes": 31359,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "sha256": "38d931905c62a5aff4baf2b194cf63337aca1c2f82de9e1879b5200960168108",
+      "bytes": 22152,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "fd692788d9f1318cad28a5248ea9d9b1c3722498a55084cf21ed3a31fd4f2e49",
+      "bytes": 32817,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.test.tsx",
+      "sha256": "63713009827ec373fb677eced87ff62e53dab876cc8daba8c1e6f3250a5df290",
+      "bytes": 2439,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "47b7e0f617d6d4e3b2f97d7b82d3caeed55c64de8689882c504222cc13d2fde9",
+      "bytes": 22146,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "sha256": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655",
+      "bytes": 10472,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c",
+      "bytes": 5308,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts",
+      "sha256": "95330590fbe7fb9f5370d8118e05b8a5f10320ee9c46d2bd9b2f9aaba0d65db0",
+      "bytes": 11520,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "744484fdcd9ee326493a2dae1e6dc9019a4f9b702214bb9908905d659b429351",
+      "bytes": 3059,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "sha256": "c59154974556ccbd388ab21bb0e35273e23e722ff05e785d480b8c9371be3898",
+      "bytes": 38956,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "c88a2399b08e7289627b9104557c5a7ce983ee127b18b9fd7bb0f529b0a6377c",
+      "bytes": 63082,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.test.ts",
+      "sha256": "2f0dd6c8b199e3a1d77178ee14a9d5ae4b0e5268e17f8d64fe951ff6de86312d",
+      "bytes": 3345,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "sha256": "c92030018f057c8e826d0486db33a5c78246114d220fa0a062d87a3e21a94ac8",
+      "bytes": 7333,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/ShellStatusBar.tsx",
+      "sha256": "35308b140d20c8e8065de3fa0be17c3a21d00f888979a200b53bcc0e4e588bd9",
+      "bytes": 4942,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/StageRail.tsx",
+      "sha256": "41fe4a4b6b16e782aacd85e6848c3779af5c442b564d3f20575f36c3cd3dee52",
+      "bytes": 4362,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.test.ts",
+      "sha256": "fa06cae042dac31b40562300fb9301c2c53602fbe0ec99ae0e3881f6a9562e06",
+      "bytes": 29579,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.ts",
+      "sha256": "9dce386b4b5f8c489890e77bdcf962d3c815ec687d50a0beeb6e2b48e865b336",
+      "bytes": 26756,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "6a113eeaef876c6d7f3d0968b63a7a97da7fd7e4c42cfae00c871f3f058bf674",
+      "bytes": 119230,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+      "sha256": "c5680b9afb831c4d427f3bdff7feb54e9b06329377c9e6664dcced50c36fb018",
+      "bytes": 14566,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "742d66ed8c969a7ef9290c7a0a24005ffc19342d20cfea4f7886147508a0b9f4",
+      "bytes": 17408,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/displayQuantityPrecision.test.ts",
+      "sha256": "3f617a1f540573ebe0d3e6958ef26bb64d9a92d93d5cadf3c24857f1e1329723",
+      "bytes": 1994,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347",
+      "bytes": 19549,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498",
+      "bytes": 24468,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.test.ts",
+      "sha256": "c8390d5be9a2e02f2bae7fb6a83f6a6eb70cfafbfdb0448babeb80eb1d004f07",
+      "bytes": 8378,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+      "sha256": "98155f7143932269f877688198733d6bdb85dbb5672b07d862a93c2f9e499531",
+      "bytes": 10595,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "sha256": "25a3b2aa687bd8984cc053f6306e57c546c3adb6efbe8576140cae3f06e8bce1",
+      "bytes": 29437,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/__init__.py",
+      "sha256": "ffca538dac8e6549eaad02723a97a537682f9b06e5b6329a80394ee04e614a9c",
+      "bytes": 730,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "ea2ae439ce6ac827e41e7cc3ea3c86e23d0267de80b67478b9005cc936390bb1",
+      "bytes": 27227,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/__init__.py",
+      "sha256": "de3def096a57678d092f3b87b0b4b0369c603cacba9797086aac30a5c7b04478",
+      "bytes": 1371,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "d2248bc6c9a82a9c76ad2df1783c1412970c3b242340844964235ea154831683",
+      "bytes": 40418,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "sha256": "a5be934e8ca1db4655e5139f6b5b0bb66e8673911ec2a0a1d4d1b1474b7e3ece",
+      "bytes": 9593,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs",
+      "sha256": "947b86b13e097cf498438b6b1ca39cde60d35d4130ba35056c2c6e5e68a2c020",
+      "bytes": 5794,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.lock",
+      "sha256": "39843130aa97195bf011fc6abf728c56f1f57c8af2164549d7e03352a9a0b6c7",
+      "bytes": 4905,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "sha256": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542",
+      "bytes": 1182,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "3671265eca3f9b0ca1793bf020cb2e768834a25e8c2827d73251a674271140c6",
+      "bytes": 777761,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "sha256": "d146409ae7dcc8ae0f1e6bb05446b9dd91efd318465d12ce9883109b47214616",
+      "bytes": 81634,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/represented_gap_publication.rs",
+      "sha256": "1c33c4f0604b3eb0e31e689f3f965e65fd5d832377737f366b1b25e038fc1b78",
+      "bytes": 11252,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/Cargo.toml",
+      "sha256": "196fb7e2adbe364eb725bd291a40fb47f37a3da02f5d05177b6cc77dabeeb36a",
+      "bytes": 369,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "sha256": "fbdf506e05a5e881798346e164e2c8a5705958e2b45d2dbb8b8fb3dcd5a9209b",
+      "bytes": 22967,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "9bc67065db2949641ddb4d97434ffb5c70e75f9ae7fd6de75e40674e5e81ebba",
+      "bytes": 8303,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/derivative_contract.rs",
+      "sha256": "f62194e8a126245aacc04fe24794684fce2448a47ba4746892d7b95ba35eeae9",
+      "bytes": 8095,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/precision_contract.rs",
+      "sha256": "f968875494cd806226d0ad12435d9becbc82393ebac9abe0f07857207c6088c9",
+      "bytes": 6891,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/Cargo.lock",
+      "sha256": "9ded0fc4d057dc01549cbf924b17fc5485e2b482ed5cf82f4dc303d82dff7da4",
+      "bytes": 10222,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/Cargo.toml",
+      "sha256": "a053e40fb1159c704bf42c4634d567581d48975a5d8be36a8a555564c634a21a",
+      "bytes": 1601,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "67b11bce2afa984c46eb442f2bc56d53fbb755e6985c0af120847daabe521e90",
+      "bytes": 57655,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "fef9429e9538959fab498692af4e627aad508dd661fdf1cb6dc447b739af482f",
+      "bytes": 25226,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4",
+      "bytes": 752,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/tests/precision_transport.rs",
+      "sha256": "07eded16d1ffd37c2c9f4c10b57e79e187ef7647704f5dd640a6b0c35f3f5d9a",
+      "bytes": 1160,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/diagnostics/Cargo.lock",
+      "sha256": "7dbfc5100df8ce1cd1488d00a5fa1dded65cd86776b7519cec1b2b45c7662c75",
+      "bytes": 824,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "03f82e343c7aee8f9f38d4b983091d0b71faebb904fb4dc7b59692a0c9cc4ad9",
+      "bytes": 63684,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "sha256": "091d4069852c6033da38074af297c5eaa5a9469510c00d577f222e077aec2c15",
+      "bytes": 14458,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "sha256": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+      "bytes": 61837,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "sha256": "6801610d0bb515eab33603163423812b81bf94946d8c23b99c127b655d996a7f",
+      "bytes": 97145,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.lock",
+      "sha256": "c6cad1e1f8ebbc88cb6d29b4eb8ad0ad06fe8c5837e3a1735688fe30cb428426",
+      "bytes": 1398,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "ba45af590ab1bdb0ad4d58037c4ce2e52270ac08730386fbd081e755f85b2041",
+      "bytes": 231833,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs",
+      "sha256": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e",
+      "bytes": 6317,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+      "sha256": "f7600925cd44169ce6d04a03ae5c0e622a8f27aabee831377d297dce68ec51aa",
+      "bytes": 60579,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock",
+      "sha256": "7f4a6815308c5d05053935109d03be8141a348ce612988aefaa3563dab97751a",
+      "bytes": 996,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/Cargo.lock",
+      "sha256": "e29c2fdc87556d11cb9c9d970f645f713d02123436f03f2ff603fcda2981a9bb",
+      "bytes": 1036,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+      "sha256": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88",
+      "bytes": 290,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "sha256": "51e010af1ef62c95faf854c6308aec7a0f0be7123546083be993f6090b257b12",
+      "bytes": 45604,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/structural.rs",
+      "sha256": "89af5f9e72867072b0f9e2a54245592aa51745f1992ec20f118d20d1e13ae08f",
+      "bytes": 4865,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/units/src/lib.rs",
+      "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c",
+      "bytes": 65476,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/precision_transport_v0_3.json",
+      "sha256": "fc06b4a54073bbbdf933128360fc29454a0844ee0129d6b41728f60176b62897",
+      "bytes": 3516,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
+      "bytes": 38455,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.schema.json",
+      "sha256": "0c399a2a62ad247bc38f9d3e40c176bac0e56b5ab6604c0189f552834a8b8a83",
+      "bytes": 1400,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+      "sha256": "d95083745fffd97daffb08cbfae3f7f12e969440d474e4668eba717aceb240c5",
+      "bytes": 15978,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.schema.yaml",
+      "sha256": "9f2adf6a1017bb6cee72dd7a13906af94f15224b8886c979212ee4c144a77c5d",
+      "bytes": 155281,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "6c7ea9eb8b695475d9efa62f1c5cf517ec961db11b1959466191f852eae84fda",
+      "bytes": 45254,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.schema.json",
+      "sha256": "d7f372334df0d641db22cbce4cf442ef110324beaeb28091a6bfb5ad4f3021a1",
+      "bytes": 436,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "88647b3499e56530f8628e071686b86f2beacf005f8a351a5981593f1aa7e50f",
+      "bytes": 53739,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_precision_consumer_contract.py",
+      "sha256": "20569a31f5364e69d66d44946badaffc14145579a6a3072c19dbe68e492f71af",
+      "bytes": 12123,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_stress_neutral_precision.py",
+      "sha256": "da5095b9a7e182925a6185955a692a02317c469209e953dffe15efe4e9662782",
+      "bytes": 19426,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock",
+      "sha256": "861988783df65a036d4e20bf706477cd0ff9eefeade8718188fe6edc3e444eef",
+      "bytes": 6811,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/nonlinear/Cargo.lock",
+      "sha256": "1c91681b34610827ce4cdf2b1f5c8118ee074557b55a7d2f6fa8198c3fd61415",
+      "bytes": 1652,
+      "git_state": "tracked_delta"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/COVERAGE.md",
+      "sha256": "114b34619dc33515199deeacfa81a757f0feecbac7238b3264f688ca071ea1a2",
+      "bytes": 3310,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+      "sha256": "4e1e251620fde4e2168b7323389f8516f527c45c48391a07fc624955684cc29c",
+      "bytes": 5119,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.toml",
+      "sha256": "0bfd8671bfd12b8929712aec5b7e3143dd5775f366c6aba4346e6c59efd0902e",
+      "bytes": 423,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/README.md",
+      "sha256": "0cb44d1f5fbc1ee0d3138c645b646b74d80346a1099e557a132dba79e5251505",
+      "bytes": 5039,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/fixtures.json",
+      "sha256": "c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e",
+      "bytes": 354315,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/generate.py",
+      "sha256": "b491529a4bff8ed0e25de1f85c2488192a8e55677413571da6c260932b1a71a2",
+      "bytes": 7698,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/src/main.rs",
+      "sha256": "f61f115b7c1e22490c204660ad505e2219bf67684add9c24511b4419b3a38037",
+      "bytes": 5993,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/test_reference.py",
+      "sha256": "35b1b81895af8ec42e24fbb03dbec5c0233e5a2a57d1cccbc394cacee1a0c496",
+      "bytes": 2701,
+      "git_state": "new"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock",
+      "sha256": "2eadf853203e982b77048683e102366ba9b58cda1eb659f276e4c6de2caacc71",
+      "bytes": 7809,
+      "git_state": "tracked_delta"
+    }
+  ]
+}

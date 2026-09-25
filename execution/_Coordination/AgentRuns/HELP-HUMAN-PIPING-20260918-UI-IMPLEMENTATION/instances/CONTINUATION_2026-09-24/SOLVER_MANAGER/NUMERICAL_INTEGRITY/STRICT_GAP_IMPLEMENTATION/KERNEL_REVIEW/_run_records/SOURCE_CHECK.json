@@ -1,0 +1,10 @@
+{
+  "source_hashes": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "9e12fe8c3f284116815bb7a7820fb761539f5dd8736c88a325cdad0cdcf6e4c7",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a"
+  },
+  "frozen_copies_equal": true,
+  "module_declaration_plus_blank_line_only_parent_delta": true,
+  "parent_without_declaration_sha256": "3a016181fc49092d2775cc365dd2956b4c137c1f6bb64046a77b925ef5f9cce0",
+  "earlier_probe_failure": "First check removed declaration only and left its newly inserted blank line; hash assertion failed. Removing declaration plus inserted blank line exactly recovers the parent. No source change was made."
+}

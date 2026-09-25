@@ -1,0 +1,46 @@
+
+ RUN  v4.1.10 /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/stress-neutral/StressNeutralExportPanel.test.tsx (10 tests | 1 failed) 6239ms
+   × binds precision v3 metadata and preserves shared f64 bits in CSV and JSON 65ms
+ ❯ src/services/analysisRunCompatibility.test.ts (10 tests | 1 failed) 36ms
+   × distinguishes independent explicit basis from source available scope, including empty and malformed bases 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/services/analysisRunCompatibility.test.ts > distinguishes independent explicit basis from source available scope, including empty and malformed bases
+Error: CHECKED-JSON-UNSUPPORTED-TYPE: undefined
+ ❯ freeze src/services/hashService.ts:55:41
+     53|       return item;
+     54|     }
+     55|     if (typeof item !== "object") throw new Error(`CHECKED-JSON-UNSUPP…
+       |                                         ^
+     56|     if (seen.has(item)) throw new Error("CHECKED-JSON-CYCLIC-VALUE");
+     57|     seen.add(item);
+ ❯ freeze src/services/hashService.ts:85:23
+ ❯ checkedJsonText src/services/hashService.ts:92:25
+ ❯ canonicalSha256HexCheckedV1 src/services/hashService.ts:112:20
+ ❯ src/services/analysisRunCompatibility.ts:89:193
+ ❯ buildAnalysisRecord src/services/analysisRunCompatibility.ts:80:58
+ ❯ buildAnalysisRunV03 src/services/analysisRunCompatibility.ts:73:10
+ ❯ src/services/analysisRunCompatibility.test.ts:153:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/features/stress-neutral/StressNeutralExportPanel.test.tsx > binds precision v3 metadata and preserves shared f64 bits in CSV and JSON
+AssertionError: promise rejected "Error: SN-PRECISION-WITNESS-BINDING-MISMA…" instead of resolving
+ ❯ src/features/stress-neutral/StressNeutralExportPanel.test.tsx:139:65
+
+
+Caused by: Error: SN-PRECISION-WITNESS-BINDING-MISMATCH
+ ❯ Module.validateStressNeutralExportPacket src/features/stress-neutral/StressNeutralExportPanel.tsx:587:179
+ ❯ src/features/stress-neutral/StressNeutralExportPanel.test.tsx:139:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 3 passed (5)
+      Tests  2 failed | 64 passed (66)
+   Start at  11:52:50
+   Duration  7.34s (transform 327ms, setup 299ms, import 407ms, tests 12.14s, environment 1.27s)
+

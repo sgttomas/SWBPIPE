@@ -1,0 +1,12 @@
+{
+  "status": "tests-only pre-fix freeze; no Rust run",
+  "path_basis": "REPO_ROOT active numerical checkout",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/represented_gap_publication.rs",
+      "before": "absent; new integration test only",
+      "sha256": "1c33c4f0604b3eb0e31e689f3f965e65fd5d832377737f366b1b25e038fc1b78",
+      "bytes": 11252
+    }
+  ]
+}

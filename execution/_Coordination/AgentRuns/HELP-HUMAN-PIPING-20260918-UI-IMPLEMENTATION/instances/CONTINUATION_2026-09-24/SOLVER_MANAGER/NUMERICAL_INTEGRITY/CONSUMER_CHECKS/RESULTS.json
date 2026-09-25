@@ -1,0 +1,116 @@
+{
+  "stage": "Coreconsumer checks complete; CPUhandedtoauthoring",
+  "canonical_before_feature": "0/1fail; bit3e9fffffffffffff changed bydefaultparse",
+  "canonical_after_feature": "11tests pass; JCS/IJSONguard unchanged",
+  "result_export": "23pass",
+  "headless": "49pass",
+  "python": "117pass; actualheadlesssource/derivative artifacts present, no synthetic substitute/skips",
+  "zero_policy_limit": "Product189/190 remains protectedfreeDOFzero witness failure. No assertion/limit repair is claimed.",
+  "kernel_limit": "51frame/24sparse tests pass but five independent code-review blockers remain; no operationalqualification.",
+  "resource_note": "ROOT explicitly allowed brief separate dependency-free CI failure-control compile atjobs1/othertarget duringmainconsumerlane; no performancecalibrationclaim",
+  "logs": [
+    {
+      "log": "_run_records/canonical_baseline.log",
+      "sha256": "9ace62b1674430824ee43fb124e6f6570eaa718693c61b9b5511a4bb83c6c34c",
+      "rust_results": [
+        "FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "python_result": [
+        "0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "schema_documents_zero_errors": 0
+    },
+    {
+      "log": "_run_records/canonical_repaired.log",
+      "sha256": "5210688a2ba59291ad2f674da641d0c1de253e69cac1e5d8c3a2c3dbb4fbb0a3",
+      "rust_results": [
+        "ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "python_result": [
+        "1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "schema_documents_zero_errors": 0
+    },
+    {
+      "log": "_run_records/canonical_full.log",
+      "sha256": "022dbe11440aa0c0cf50978dc34fe8a32b2fb1c91f52b315cd278d04433f01f0",
+      "rust_results": [
+        "ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "python_result": [
+        "8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "schema_documents_zero_errors": 0
+    },
+    {
+      "log": "_run_records/canonical_cli.log",
+      "sha256": "f72cea90c2e81f124c2c6b24c161c68e1b1bda0a1875080427e68a8271ae287b",
+      "rust_results": [],
+      "python_result": [],
+      "schema_documents_zero_errors": 0
+    },
+    {
+      "log": "_run_records/result_export_initial.log",
+      "sha256": "c75708f9151a98ca37d632c4cb57ae8b2d36e9dcb8dd9505a16175732aa3c6f1",
+      "rust_results": [
+        "ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s",
+        "ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s",
+        "ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "python_result": [
+        "13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s",
+        "4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s",
+        "0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "schema_documents_zero_errors": 0
+    },
+    {
+      "log": "_run_records/headless_initial.log",
+      "sha256": "7c7e71fa68c80f6c6c1014ad53e78b31259ac27469c834716a90f835161c60ec",
+      "rust_results": [
+        "ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.05s",
+        "ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.84s",
+        "ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "python_result": [
+        "33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.05s",
+        "1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.84s",
+        "0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "schema_documents_zero_errors": 0
+    },
+    {
+      "log": "_run_records/python_initial.log",
+      "sha256": "7177bfe0806022b6740528eabce366c040851e52b2af44a2d9920d6459de04f5",
+      "rust_results": [],
+      "python_result": [
+        "117 passed, 128 warnings in 34.79s"
+      ],
+      "schema_documents_zero_errors": 0
+    },
+    {
+      "log": "_run_records/result_documents.log",
+      "sha256": "5f21cc9e826636bb08557f47835fe15dda4fc2d53f1c17081e9a974981e9cd59",
+      "rust_results": [],
+      "python_result": [],
+      "schema_documents_zero_errors": 114
+    },
+    {
+      "log": "_run_records/headless_documents.log",
+      "sha256": "35e05e11c0ceffaac913233467454af64f8585b10ae06fed92e0cd3364a880bd",
+      "rust_results": [],
+      "python_result": [],
+      "schema_documents_zero_errors": 5
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "status": "static only; no Cargo/build/tests/formatting",
+  "original_product_input_helpers_unchanged": [
+    "request",
+    "two_node_nonlinear_preview_request",
+    "friction_preview_request",
+    "mixed_nonlinear_preview_request",
+    "gap_closure_preview_request"
+  ],
+  "original_DEC046_constants_unchanged": true,
+  "all_existing_nonlinear_tests_unchanged": true,
+  "protected17_integration_tests_unchanged": true,
+  "new_nonlinear_tests": [
+    "unsupported_gap_inspection_preserves_mixed_computation_without_qualification",
+    "unsupported_gap_inspection_rejects_source_or_receipt_mutations",
+    "unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt"
+  ],
+  "new_product_delta_tests": [
+    "product_force_delta_limit_applies_to_actual_initially_active_one_way_loop",
+    "product_delta_limits_reject_excess_missing_and_nonfinite_observations"
+  ],
+  "baseline": "observed parent EXECUTION_01 only; no after-repair claims",
+  "delta_finding": "previous source emitted product delta constants but did not enforce them; above/below active-one-way test prepared, not executed",
+  "scope": "two owned lib.rs files and REPAIR_01 evidence only"
+}

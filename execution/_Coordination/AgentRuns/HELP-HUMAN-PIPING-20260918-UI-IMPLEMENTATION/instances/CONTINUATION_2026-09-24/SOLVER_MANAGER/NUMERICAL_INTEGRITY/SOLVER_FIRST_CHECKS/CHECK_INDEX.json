@@ -1,0 +1,115 @@
+{
+  "path_base": "this_directory/_run_records",
+  "runner_path": "run_checks.py",
+  "runner_sha256": "fa1faeec2afaa61e774c31872c908293174f56ca9276bb1054251f1d4d43f2b7",
+  "stages": [
+    {
+      "stage": "frame_exact_boundary",
+      "exit_code": 0,
+      "inputs_unchanged": true,
+      "summary": [
+        "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 61 filtered out; finished in 0.01s"
+      ],
+      "before_sha256": "6ae021c9669bdc98ef50cf1fd9264e91b9ef73e9f54818422ad19a6b33c39382",
+      "after_sha256": "33444f8c0829b0393cca309b66564fc80edd5d1b29c8da494ca9db144da83f82",
+      "log_sha256": "e0e8a56a84d8f54a44ac385283102c24dd2741e23b6d9b1216f007c4f1c3cd1b"
+    },
+    {
+      "stage": "nonlinear_affine",
+      "exit_code": 0,
+      "inputs_unchanged": true,
+      "summary": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 57 filtered out; finished in 0.01s"
+      ],
+      "before_sha256": "faa73ba89d5ac61dc60c629fdfea32f75d9b3f5be4ce9b34002ca26d325256ce",
+      "after_sha256": "35072f38fd0d47005825e4bfe5233ef4100d82fd9f69169f7a4c0c08b432a17c",
+      "log_sha256": "afa74f46070d1b92b36d0a6972daf14bb3d3a13223fa96455f76824a0cdd116a"
+    },
+    {
+      "stage": "nonlinear_compile",
+      "exit_code": 0,
+      "inputs_unchanged": true,
+      "summary": [],
+      "before_sha256": "26fd9d5277a09340263dfd91e4eec92761d3e792a0e997af45a4f881f5e2bef0",
+      "after_sha256": "e970953dc088ce92085f87eedf30f4df11812381b799f11ba6b25307905f7acd",
+      "log_sha256": "8cefe2c2e89f37f5d1c329946fdb0b2a5a292ae78e4854ec7cc63eda99ba952a"
+    },
+    {
+      "stage": "nonlinear_coupled",
+      "exit_code": 0,
+      "inputs_unchanged": true,
+      "summary": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 57 filtered out; finished in 0.02s"
+      ],
+      "before_sha256": "74bddaa8a2a8b2b571dfd4ced87b12d36467bf603d715dc9f7ba9c7541a6d5c5",
+      "after_sha256": "eaa279571bde15bf971b1434c576e4b3b8997d9196429f0121890c0ea4f95148",
+      "log_sha256": "4fa61ad30c60bb714b3dd85e089155f1cfbcd060d497263f649a49432a770b7d"
+    },
+    {
+      "stage": "nonlinear_decimal",
+      "exit_code": 0,
+      "inputs_unchanged": true,
+      "summary": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 57 filtered out; finished in 0.02s"
+      ],
+      "before_sha256": "71ef5a2ba8499b438c432ef4e24e25fa74ed86ef20bf58d3721c79710b316844",
+      "after_sha256": "f7b48f51b5f2921b415f4cd734de06d7c76c8c4f78f972dedd3724f4b5f0dce1",
+      "log_sha256": "bb8519630082bb049225dc73254eed31a3abc8dd47cfd834f589da5e7f78386e"
+    },
+    {
+      "stage": "nonlinear_ret01",
+      "exit_code": 0,
+      "inputs_unchanged": true,
+      "summary": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 57 filtered out; finished in 0.01s"
+      ],
+      "before_sha256": "664c4b6e9343f29ecb1045adb86e4af8b64256d92b5385dbd0a2fc84f5bd7dcb",
+      "after_sha256": "fb65fe67b653ef47e210e58d815740765b00096f4f7b3bfa3db01b6ae6ab155c",
+      "log_sha256": "7ed8090a677221d38f98e15fff739eaa18cb6b90d35b56a0484ba4159b1021dd"
+    },
+    {
+      "stage": "nonlinear_retained",
+      "exit_code": 0,
+      "inputs_unchanged": true,
+      "summary": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 57 filtered out; finished in 0.00s"
+      ],
+      "before_sha256": "593d5886a1e2c51bd22f96b8445a75e77532efaeab82b186c04d7014576c850f",
+      "after_sha256": "f9bd28fb43d23871dd23b2e097f25bbf48d4f9c6256efd7ce51f042d3bf9298d",
+      "log_sha256": "9b98173e7b2733b61e28f9a1759ef04e8d30cc4ad22dc53a8ac398757a27d697"
+    },
+    {
+      "stage": "nonlinear_strict",
+      "exit_code": 0,
+      "inputs_unchanged": true,
+      "summary": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 52 filtered out; finished in 1.21s"
+      ],
+      "before_sha256": "db3b465e4da9bb9490eda623ceb0645aea4b6c308b032921dc1d87f108e50b05",
+      "after_sha256": "a88567e7ccac896dd0e0768a46fc691c71aa5bda3d4f02599e2a58e3ac8b8f14",
+      "log_sha256": "d47047f7b898c9026e0f16017820b1d6759e370a3f17eaa29b8d33bbdea8714c"
+    },
+    {
+      "stage": "product_publication_baseline",
+      "exit_code": 101,
+      "inputs_unchanged": true,
+      "summary": [
+        "test result: FAILED. 1 passed; 16 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s"
+      ],
+      "before_sha256": "a51eb0d725d849b1c0a1db856042af8af8f418128b35251a5a0d7ff5d8b2f98f",
+      "after_sha256": "d9ab93ab5e714edf6ef74c23082d924c47cf01fee49bffe21dbe4a0b51b27adc",
+      "log_sha256": "381e894a53937b6336cb1c1f205de0da4198639f9ad2f52787bff6685e3d2684"
+    },
+    {
+      "stage": "product_serialization",
+      "exit_code": 0,
+      "inputs_unchanged": true,
+      "summary": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 197 filtered out; finished in 0.01s"
+      ],
+      "before_sha256": "8e62a35be95e1955087a0b08a803cfcfea6a4b7a269a8054e2ddc2710ef00be9",
+      "after_sha256": "77a2613c0ed50e2ceb67a0faa7ba8a58b12b3cc4d23eca5e4eb08b0949d84ffb",
+      "log_sha256": "e48f502788916b1e4112d0a85542953b0acad9703183cb50a508863837adc236"
+    }
+  ]
+}

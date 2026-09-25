@@ -1,0 +1,72 @@
+{
+  "kind": "Source review probes and separate PROPOSED publication bridge; not Rust execution",
+  "frozen_neighbor_expectations_verified": 27,
+  "discrete_traces_both_senses_all_seeds": 216,
+  "full_source_state_rows_checked": 434,
+  "all_ratios_match_independent_gaussian_oracle": true,
+  "expansion_arithmetic_operations_checked": 103682,
+  "proposed_bridge": {
+    "projection_count": 2604,
+    "status_counts": {
+      "exact_zero": 966,
+      "qualified": 500,
+      "exact_representable": 1138
+    },
+    "maximum_relative_error_upper_bound": 6.661338147750946e-16,
+    "edge_controls": {
+      "zero": {
+        "status": "exact_zero",
+        "value": 0.0,
+        "absolute_bound": 0.0,
+        "relative_bound": 0.0
+      },
+      "minimum_subnormal_exact": {
+        "status": "exact_representable",
+        "value": 5e-324,
+        "absolute_bound": 0.0,
+        "relative_bound": 0.0
+      },
+      "half_minimum_subnormal": {
+        "status": "unresolved"
+      },
+      "three_halves_minimum_subnormal": {
+        "status": "unresolved"
+      },
+      "normal_minimum": {
+        "status": "exact_representable",
+        "value": 2.2250738585072014e-308,
+        "absolute_bound": 0.0,
+        "relative_bound": 0.0
+      },
+      "small_subnormal_nonexact": {
+        "status": "qualified",
+        "value": 9.090909090909e-311,
+        "absolute_bound": 1.5e-323,
+        "relative_bound": 1.6304166312763041e-13
+      },
+      "maximum_finite_exact": {
+        "status": "exact_representable",
+        "value": 1.7976931348623157e+308,
+        "absolute_bound": 0.0,
+        "relative_bound": 0.0
+      },
+      "overflow": {
+        "status": "unresolved"
+      },
+      "one_third": {
+        "status": "qualified",
+        "value": 0.3333333333333333,
+        "absolute_bound": 2.2204460492503136e-16,
+        "relative_bound": 6.661338147750944e-16
+      },
+      "tiny_reaction_tail": {
+        "status": "exact_representable",
+        "value": -8.673617379884035e-19,
+        "absolute_bound": 0.0,
+        "relative_bound": 0.0
+      }
+    }
+  },
+  "original_Kfc_and_force_tail_controls": true,
+  "limits": "No implementation/pass claim for proposed projection; no native/backend execution or whole-product qualification."
+}

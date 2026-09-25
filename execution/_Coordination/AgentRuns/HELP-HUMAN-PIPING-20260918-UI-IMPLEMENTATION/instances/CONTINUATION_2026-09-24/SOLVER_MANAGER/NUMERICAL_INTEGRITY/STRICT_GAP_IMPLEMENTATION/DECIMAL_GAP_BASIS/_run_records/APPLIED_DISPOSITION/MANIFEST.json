@@ -1,0 +1,10 @@
+{
+  "author": "/root/solver_manager",
+  "mechanism": "bounded manager integration of ROOT-adopted independently verified oracle correction",
+  "source_before_sha256": "9f79789baa32a90db52e76922eb3d88ec380a9a9dff8472f0d94cfc16385e083",
+  "source_after_sha256": "4162ebe82febd23cda8bafc06b4f4f79b99a0094b6f688d67f732a5784ff012f",
+  "owning_disposition_sha256": "36f16baddd1c4bb0b3096d66d28b8474ac57bcd2e93c4bd68902fb9c8010d64c",
+  "test_only": true,
+  "input_force_sense_seed_mode_and_quantity_tolerances_unchanged": true,
+  "runtime_pending": true
+}

@@ -1,3 +1,5 @@
+import { loadPreviewModel, runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
+import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 // Rider coverage for TP-SEAM-CORPUS-001 (operation-seam unification plan §3
 // T1 rider; assessment §5.3): when the mechanics result summary does not
 // carry location references, the Local FEA handoff package must emit an
@@ -8,7 +10,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
-import { LocalFeaHandoffPanel } from "./LocalFeaHandoffPanel";
+import { LocalFeaHandoffPanel, buildLocalFeaHandoffPacket } from "./LocalFeaHandoffPanel";
 
 function inventedModel(): PreviewModel {
   return {
@@ -68,6 +70,7 @@ function inventedResult(
 
 function inventedAnalysisRun(): AnalysisRunEnvelope {
   return {
+    schema_version: "0.1.0",
     analysis_run: {
       run_id: "run:rider-test-001",
       run_name: "Invented rider run",
@@ -216,5 +219,33 @@ describe("LocalFeaHandoffPanel result-summary boundary hygiene", () => {
       expect(witness.target_quantity_policy).toBe("[REDACTED]");
       expect(witness.conversion_performed).toBe("[REDACTED]");
     }
+  });
+});
+
+async function currentPrecisionSession() {
+  const model = await loadPreviewModel();
+  const result = await runPreviewMechanics(model);
+  const inputManifest = await buildCurrentSessionInputManifest({
+    model,
+    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
+    active_rule_packs: [], external_assets: []
+  });
+  const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
+  const receivedHash = analysisRun.analysis_run.hashes.find(hash => hash.payload_scope === "received_result")!.value;
+  expect(analysisRun.schema_version).toBe("0.3.0");
+  return { model, result, analysisRun, receivedHash };
+}
+
+describe("Local FEA received-result hash binding", () => {
+  it("retains the current received hash and discloses unsupported future versions", async () => {
+    const session = await currentPrecisionSession();
+    const before = JSON.stringify(session);
+    const packet = buildLocalFeaHandoffPacket(session);
+    expect(packet.handoff_package.source_refs.result_hash.value).toBe(session.receivedHash);
+    expect(JSON.stringify(session)).toBe(before);
+    const future = structuredClone(session.analysisRun);
+    future.schema_version = "0.4.0";
+    const unsupported = buildLocalFeaHandoffPacket({ ...session, analysisRun: future });
+    expect(unsupported.handoff_package.source_refs.result_hash.value).toBe("TBD_analysis_record_version_unsupported");
   });
 });

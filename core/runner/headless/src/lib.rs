@@ -607,8 +607,17 @@ fn validate_result_envelope_payload(
     };
 
     let version=root.get("schema_version").and_then(Value::as_str);
-    if !matches!(version,Some("0.1.0"|"0.2.0")) || envelope.get("schema_version").and_then(Value::as_str)!=version {
-        diagnostics.push(Diagnostic::runner_blocking("HEADLESS_RUNNER_RESULT_ENVELOPE_VERSION_UNSUPPORTED",Reference::new("result_envelope",&result.result_envelope_ref.envelope_ref.ref_id),"only matching0.1.0 or0.2.0 result contract versions are supported"));
+    if !matches!(version,Some("0.1.0"|"0.2.0"|"0.3.0")) || envelope.get("schema_version").and_then(Value::as_str)!=version {
+        diagnostics.push(Diagnostic::runner_blocking("HEADLESS_RUNNER_RESULT_ENVELOPE_VERSION_UNSUPPORTED",Reference::new("result_envelope",&result.result_envelope_ref.envelope_ref.ref_id),"only matching 0.1.0, 0.2.0 or precision-1 0.3.0 result contract versions are supported"));
+    }
+
+    if version == Some("0.3.0") {
+        let mut metadata_source = Value::Object(envelope.clone());
+        metadata_source["schema_version"] = serde_json::json!("0.2.0");
+        if open_pipe_stress_result_export::semantic_contract::for_source(&metadata_source).is_err()
+            || metadata_source["semantic_contract_ref"] != serde_json::json!({"ref_type":"semantic_contract", "ref_id":open_pipe_stress_result_export::semantic_contract::PRECISION_ID}) {
+            diagnostics.push(Diagnostic::runner_blocking("HEADLESS_RUNNER_RESULT_CONTRACT_UNSUPPORTED",Reference::new("result_envelope",&result.result_envelope_ref.envelope_ref.ref_id),"precision derivative metadata must bind the recognized source producer and semantic contract"));
+        }
     }
 
     let expected_envelope_id = result.result_envelope_ref.envelope_ref.ref_id.as_str();

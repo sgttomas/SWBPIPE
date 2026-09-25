@@ -1,3 +1,5 @@
+import { sourceContract } from "../results/numericalResultQuality";
+import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import type {
   AnalysisRunEnvelope,
   LocalProjectSummary,
@@ -74,6 +76,36 @@ function requireSha256(label: string, value: string): void {
   }
 }
 
+// Called only after the manifest bytes and the run's manifest binding are checked.
+// Source producer identity and recorded build identity are different evidence.
+function reportSolverIdentity(result: MechanicsResult, analysisRun: AnalysisRunEnvelope, inputManifest: CurrentSessionInputManifestEvidence) {
+  const manifestSolver = inputManifest.manifest.solver_basis;
+  const recordedSolver = analysisRun.analysis_run.solver_version;
+  const precision = analysisRun.schema_version === "0.3.0";
+  if (!precision && (!(result.schema_version === "0.1.0" || result.schema_version === "0.2.0") ||
+    ["producer", "numerical_quality", "formulation_basis"].some(key => Object.hasOwn(result, key)))) {
+    throw new Error("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
+  }
+  // Legacy 0.1 records may lack a solver-version field; the verified manifest
+  // still supplies recorded identity. Strict records must carry both records.
+  if ((!recordedSolver && analysisRun.schema_version !== "0.1.0") ||
+    (recordedSolver && (recordedSolver.solver_name !== manifestSolver.solver_name ||
+      recordedSolver.solver_version !== manifestSolver.solver_version ||
+      recordedSolver.build_ref?.ref !== manifestSolver.solver_build_ref))) {
+    throw new Error("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: analysis record and verified manifest differ.");
+  }
+  if (precision && (sourceContract(result) !== "precision" ||
+    result.producer!.component_name !== manifestSolver.solver_name ||
+    result.producer!.component_version !== manifestSolver.solver_version)) {
+    throw new Error("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: recorded identity differs from the received producer.");
+  }
+  return {
+    solver_name: precision ? result.producer!.component_name : manifestSolver.solver_name,
+    solver_version: precision ? result.producer!.component_version : manifestSolver.solver_version,
+    solver_build_ref: manifestSolver.solver_build_ref
+  };
+}
+
 export async function buildReportPackageRequest({
   model,
   result,
@@ -91,6 +123,14 @@ export async function buildReportPackageRequest({
   comparison: PreviewComparison | null;
   ruleCheckAggregate: string | null;
 }) {
+  const resultHashScope = analysisResultHashScope(analysisRun.schema_version);
+  const strictAnalysis = resultHashScope === "received_result";
+  if (resultHashScope === null) {
+    throw new Error("REPORT-PACKAGE-ANALYSIS-VERSION-UNSUPPORTED");
+  }
+  if (analysisRun.schema_version === "0.3.0" && sourceContract(result) !== "precision") {
+    throw new Error("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
+  }
   await verifyCurrentSessionInputManifest(inputManifest);
   if (
     inputManifest.manifest.model_basis.model_ref !== model.project.id ||
@@ -123,7 +163,6 @@ export async function buildReportPackageRequest({
   const report = await buildRenderableReportInput({ model, result, analysisRun, projectSummary });
   const run = analysisRun.analysis_run;
   const runHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
-  const resultHashScope = analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope";
   const resultEnvelopeHash = run.hashes.find(
     (item) => item.payload_scope === resultHashScope
   );
@@ -173,6 +212,7 @@ export async function buildReportPackageRequest({
     );
   }
 
+  const solverIdentity = reportSolverIdentity(result, analysisRun, inputManifest);
   const provenance = privateProvenance(model);
   const resultDimensions = new Map(
     run.result_refs.map((item) => [
@@ -183,9 +223,9 @@ export async function buildReportPackageRequest({
   const semanticDisclosures: Array<{id:string;reason:string}> = [];
   const groupedResults = new Map<string, MechanicsResult["results"]>();
   for (const item of result.results) {
-    const semantics = resultSemantics(item); // known unit/component contradictions fail closed
+    const semantics = resultSemantics(item, analysisRun.schema_version === "0.3.0" ? result : undefined); // known unit/component contradictions fail closed
     const declared = resultDimensions.get(item.id);
-    const expectedSourceDimension = analysisRun.schema_version === "0.2.0"
+    const expectedSourceDimension = strictAnalysis
       ? semantics?.source_physical_semantic_dimension
       : item.dimension;
     if (!resultDimensions.has(item.id) || (expectedSourceDimension ?? null) !== (declared ?? null)) throw new Error(`REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH: ${item.id}`);
@@ -206,14 +246,14 @@ export async function buildReportPackageRequest({
       set_type: "mechanics",
       basis_ref: reference(basis.ref_type, basis.ref_id),
       values: values.map((item) => {
-        const semantics = resultSemantics(item)!;
+        const semantics = resultSemantics(item, analysisRun.schema_version === "0.3.0" ? result : undefined)!;
         const sourceDimension = resultDimensions.get(item.id);
         if (!sourceDimension) {
           throw new Error(
             `REPORT-PACKAGE-SOURCE-DIMENSION-MISSING: ${item.id} has no DEL-14-02 source declaration.`
           );
         }
-        const expectedSourceDimension = analysisRun.schema_version === "0.2.0"
+        const expectedSourceDimension = strictAnalysis
           ? semantics?.source_physical_semantic_dimension
           : item.dimension;
         if (expectedSourceDimension && expectedSourceDimension !== sourceDimension) {
@@ -252,9 +292,7 @@ export async function buildReportPackageRequest({
     schema_version: "1.0.0",
     model_ref: reference("model", result.model_ref),
     run_ref: reference("analysis_run", result.run_id),
-    solver_name: "open_pipe_stress_product_physics",
-    solver_version: "0.1.0",
-    solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
+    ...solverIdentity,
     unit_system_ref: reference("unit_system", UNIT_SYSTEM_REF),
     load_basis_refs: run.load_basis_refs.map((item) => reference(item.object_type, item.ref)),
     result_sets: resultSets,
@@ -309,11 +347,7 @@ export async function buildReportPackageRequest({
         payload_ref: inputManifestRef.ref,
         value: inputHash.value
       },
-      solver_version: {
-        solver_name: "open_pipe_stress_product_physics",
-        solver_version: "0.1.0",
-        solver_build_ref: "open_pipe_stress_product_physics@0.1.0"
-      },
+      solver_version: { ...solverIdentity },
       unit_system_ref: UNIT_SYSTEM_REF,
       rule_pack_refs: [],
       assets: [],

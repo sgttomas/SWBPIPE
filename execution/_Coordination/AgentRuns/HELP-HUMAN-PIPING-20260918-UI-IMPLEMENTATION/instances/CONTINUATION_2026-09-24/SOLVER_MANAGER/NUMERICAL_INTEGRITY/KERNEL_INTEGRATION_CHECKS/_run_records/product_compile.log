@@ -1,0 +1,45 @@
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/loads/stress_recovery)
+warning: function `solve_iteration_with_sliding_friction` is never used
+   --> /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs:876:4
+    |
+876 | fn solve_iteration_with_sliding_friction(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `solve_linearized_system` is never used
+    --> /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs:1539:4
+     |
+1539 | fn solve_linearized_system(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `dense_from_entries` is never used
+    --> /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs:1769:4
+     |
+1769 | fn dense_from_entries(
+     |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `sparse_evidence_dense_fallback` is never used
+    --> /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs:1816:4
+     |
+1816 | fn sparse_evidence_dense_fallback(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_product_physics v0.2.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics)
+warning: `open_pipe_stress_nonlinear_integration` (lib) generated 4 warnings
+warning: function `sparse_interactive_fallback_diag` is never used
+    --> src/lib.rs:2711:4
+     |
+2711 | fn sparse_interactive_fallback_diag(load_case_id: &str, message: &str) -> Diagnostic {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_product_physics` (lib) generated 1 warning
+warning: `open_pipe_stress_product_physics` (lib test) generated 1 warning (1 duplicate)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.02s
+  Executable unittests src/lib.rs (/private/tmp/piping-numerical-integrity-target/debug/deps/open_pipe_stress_product_physics-1cdcd32cde0104b5)

@@ -1,0 +1,42 @@
+    fn audit_gap_equilibrium_both_signs_seeds_and_modes() {
+        for (sign, direction) in [
+            (1.0, GapDirection::PositiveDisplacement),
+            (-1.0, GapDirection::NegativeDisplacement),
+        ] {
+            for seed in [ActiveSetState::Active, ActiveSetState::Inactive] {
+                for mode in [
+                    LinearSolveMode::DenseScrutiny,
+                    LinearSolveMode::SparseInteractive,
+                ] {
+                    for magnitude in [4.0, 5.0, 6.0] {
+                        let support =
+                            NonlinearSupport::gap("gap", 1, FrameDof::Ux, 0.05, direction).unwrap();
+                        let mut input = two_node_axial_problem(
+                            vec![support],
+                            vec![SupportStateRecord::new("gap", seed)],
+                            8,
+                        );
+                        input.force[6] = sign * magnitude;
+                        let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+                        assert!(
+                            result.converged,
+                            "sign={sign} seed={seed:?} mode={mode:?} F={magnitude}"
+                        );
+                        let expected_u = sign * if magnitude < 5.0 { 0.04 } else { 0.05 };
+                        let expected_r = if magnitude > 5.0 { -sign } else { 0.0 };
+                        assert!((result.displacements[6] - expected_u).abs() < 1e-14);
+                        assert!((result.reactions[6] - expected_r).abs() < 1e-14);
+                        assert_eq!(
+                            result.final_states[0].state,
+                            if magnitude < 5.0 {
+                                ActiveSetState::Inactive
+                            } else {
+                                ActiveSetState::Active
+                            }
+                        );
+                    }
+                }
+            }
+        }
+    }
+

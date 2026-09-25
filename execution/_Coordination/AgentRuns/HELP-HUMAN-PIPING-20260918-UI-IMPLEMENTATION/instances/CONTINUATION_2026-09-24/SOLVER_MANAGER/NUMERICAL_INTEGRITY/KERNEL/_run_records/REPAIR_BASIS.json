@@ -1,0 +1,13 @@
+{
+  "executor": "/root/solver_manager/structural_kernel",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native",
+  "authorization": "explicit source edit handoff after dependent WASM/native checks; no Cargo/build authorized",
+  "scope": "same six owned kernel source/manifests and KERNEL evidence; no descendants, commits, legacy metric changes",
+  "inputs": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_REVIEW/RETURN.md": "c2c7145757af74281c281e2ae14cca75c2b1a45fa054211518179dccffcd9f8f",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_REVIEW/_run_records/independent_probes.py": "56e5e64640b85f98214602de0a916561ef548b3a92f9464dddd17b64bcb98416",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_REVIEW/_run_records/independent_probes.json": "6a7059f763f5daac1ba8c408313edfaf2556c6cf4e2be962a133a87428a89554"
+  }
+}

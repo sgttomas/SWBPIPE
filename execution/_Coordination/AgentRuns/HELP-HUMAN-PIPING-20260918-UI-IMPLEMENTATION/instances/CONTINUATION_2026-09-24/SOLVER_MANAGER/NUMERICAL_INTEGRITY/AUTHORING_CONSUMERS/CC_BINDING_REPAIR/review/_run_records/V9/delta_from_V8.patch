@@ -1,0 +1,21 @@
+--- V8/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
++++ V9/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
+@@ -475,7 +475,7 @@
+     policy: "preserve_received_value_and_unit"
+   }));
+   const withheld = dispositions.filter((item): item is typeof item & { disposition: Exclude<StrictWitnessDisposition, "eligible"> } => item.disposition !== "eligible");
+-  const withheldDiagnostics = withheld.map(({ disposition, row, rowIndex }) => strictWithholdingDiagnostic(disposition, row, rowIndex, legacy.provenance, precision));
++  const withheldDiagnostics = withheld.map(({ disposition, row, rowIndex }) => strictWithholdingDiagnostic(disposition, row, rowIndex, previewProvenance(), precision));
+   const aggregateWithholdingDiagnostic = withheld.length ? [{
+     code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", class: "export_blocking", severity: "blocking",
+     source: reference("ExportConsumer", "DEL-17-06"), affected_object: reference("StressNeutralResultRows", "stress-neutral:result-rows"),
+--- V8/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
++++ V9/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
+@@ -279,5 +279,5 @@
+  row.metadata={...row.metadata,location:'summary'} as never;
+  delete (row.metadata as any).component;
+  expect(precisionStressRow(row,source)).toMatchObject({result_family:'other',dimension:'TBD',correlation_status:'unit_or_dimension_blocking_review_required'});
+- row.metadata!.component='invalid';expect(()=>precisionStressRow(row,source)).toThrow('SOURCE_COMPONENT_CONTRADICTION');
+-});
++ (row.metadata as unknown as {component:string}).component='invalid';expect(()=>precisionStressRow(row,source)).toThrow('SOURCE_COMPONENT_CONTRADICTION');
++});

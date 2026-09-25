@@ -1,0 +1,1 @@
+rustfmt --edition 2021 on exact_boundary.rs and structural_adapter.rs: exit 0, no stdout/stderr. No compile/test/runtime execution.

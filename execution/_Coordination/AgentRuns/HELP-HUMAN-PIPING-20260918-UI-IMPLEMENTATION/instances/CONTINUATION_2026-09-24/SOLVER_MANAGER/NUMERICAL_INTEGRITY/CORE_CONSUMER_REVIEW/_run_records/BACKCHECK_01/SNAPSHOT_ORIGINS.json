@@ -1,0 +1,34 @@
+[
+  {
+    "name": "compatibility.py",
+    "preimage_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/before/compatibility.py",
+    "preimage_sha256": "f17bbe9dd97aa6aff468543330f413691e5eef02d4ae11a6c1217ca80905efbf",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/CC05/before/repair.patch",
+    "patch_sha256": "de4f439fc0e344325f7c266806133ed81c417a2910bec65e99abd84960be20e0",
+    "reconstructed_sha256": "246289f7e6489ff9025f801734e8283b356e9fde6b1e740ad8ad3cb87537ca6d"
+  },
+  {
+    "name": "package_v0_3.py",
+    "preimage_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/before/package_v0_3.py",
+    "preimage_sha256": "513c9d4cf6233ba4888e5fa6c95e802cd7c3abb1f7d0658ab20018544174f3c1",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/CC05/before/repair.patch",
+    "patch_sha256": "de4f439fc0e344325f7c266806133ed81c417a2910bec65e99abd84960be20e0",
+    "reconstructed_sha256": "6b3261f32ee75ed2c3ba33b548b2a4de59c1790638ca76062817bd46c3f16aa4"
+  },
+  {
+    "name": "test_precision_consumer_contract.py",
+    "preimage_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/before/test_precision_consumer_contract.py",
+    "preimage_sha256": "3bfde3a37f3e8447a41e5cc68d31939c2bb5a03a03cb1b4719fde8a30c11afda",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/CC05/before/repair.patch",
+    "patch_sha256": "de4f439fc0e344325f7c266806133ed81c417a2910bec65e99abd84960be20e0",
+    "reconstructed_sha256": "271ebd9e34cbd42e1897eced84190b50e65ba6442b3acf371a6dc95b17465d4b"
+  },
+  {
+    "name": "test_stress_neutral_precision.py",
+    "preimage_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/before/test_stress_neutral_precision.py",
+    "preimage_sha256": "94dedd4d71f11c78f7facd213f0149eafbd0d2bee30ac6d508ee1661960612cc",
+    "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/CC05/before/repair.patch",
+    "patch_sha256": "de4f439fc0e344325f7c266806133ed81c417a2910bec65e99abd84960be20e0",
+    "reconstructed_sha256": "9cfb2cc4a1a8ef452c789d614c9b8abaf6876423cfd9de28f4b7bf7dea0b2c50"
+  }
+]

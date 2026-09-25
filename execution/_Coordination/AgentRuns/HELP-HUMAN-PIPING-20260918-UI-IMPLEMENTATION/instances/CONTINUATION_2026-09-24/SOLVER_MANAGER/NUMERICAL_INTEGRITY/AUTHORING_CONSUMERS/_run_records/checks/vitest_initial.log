@@ -1,0 +1,108 @@
+
+ RUN  v4.1.10 /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts (15 tests | 9 failed) 2146ms
+     × binds current payload/carrier and preserves old hashes and observed declarations 195ms
+     × dimension-absent received carrier remains distinct from authentic producer 303ms
+     × dispatches raw 0.2 basis, discrete and diagnostic semantics without legacy enrichment 153ms
+     × admits the four accepted explicit legacy dimensions without replacing them with interpreted target dimensions 145ms
+     × rejects missing proof, same-id changed model, stale run, changed value and mixed/null/empty/wrong dimensions 156ms
+     × rejects a rehashed 0.2 known explicit carrier dimension contradiction without mutating evidence 242ms
+     × rejects unknown analysis versions and strict known semantic contradictions 155ms
+   × rejects ghost references, orphan witnesses and semantic tampering despite recomputed derivative digest 158ms
+   × preserves every shared nonzero f64 vector through canonical hash and derivative JSON 149ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > binds current payload/carrier and preserves old hashes and observed declarations
+Error: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE
+ ❯ buildCurrentResultExport src/features/result-export/resultExportAdapter.ts:144:60
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts:57:74
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > dimension-absent received carrier remains distinct from authentic producer
+Error: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE
+ ❯ buildCurrentResultExport src/features/result-export/resultExportAdapter.ts:144:60
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts:63:316
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > dispatches raw 0.2 basis, discrete and diagnostic semantics without legacy enrichment
+Error: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE
+ ❯ buildCurrentResultExport src/features/result-export/resultExportAdapter.ts:144:60
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts:68:172
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > admits the four accepted explicit legacy dimensions without replacing them with interpreted target dimensions
+Error: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE
+ ❯ buildCurrentResultExport src/features/result-export/resultExportAdapter.ts:144:60
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts:77:487
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > rejects missing proof, same-id changed model, stale run, changed value and mixed/null/empty/wrong dimensions
+AssertionError: expected [Function] to throw error including 'UNAVAILABLE' but got 'CURRENT_NUMERICAL_INTEGRITY_NEEDS_REC…'
+
+Expected: "UNAVAILABLE"
+Received: "CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE"
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts:83:97
+     81|  });
+     82|  it('rejects missing proof, same-id changed model, stale run, changed …
+     83|   const args=await current();await expect(buildCurrentResultExport({..…
+       |                                                                                                 ^
+     84|   const changed=structuredClone(args);(changed.model as any).unknown_a…
+     85|   const stale=structuredClone(args);stale.result.run_id+='stale';await…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > rejects a rehashed 0.2 known explicit carrier dimension contradiction without mutating evidence
+AssertionError: expected [Function] to throw error including 'CURRENT_CARRIER_DIMENSION_CONTRADICTI…' but got 'CURRENT_NUMERICAL_INTEGRITY_NEEDS_REC…'
+
+Expected: "CURRENT_CARRIER_DIMENSION_CONTRADICTION"
+Received: "CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE"
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts:91:324
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > rejects unknown analysis versions and strict known semantic contradictions
+AssertionError: expected [Function] to throw error including 'CURRENT_ANALYSIS_VERSION_UNSUPPORTED' but got 'CURRENT_NUMERICAL_INTEGRITY_NEEDS_REC…'
+
+Expected: "CURRENT_ANALYSIS_VERSION_UNSUPPORTED"
+Received: "CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE"
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts:98:122
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  src/features/result-export/resultExportAdapter.test.ts > rejects ghost references, orphan witnesses and semantic tampering despite recomputed derivative digest
+Error: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE
+ ❯ buildCurrentResultExport src/features/result-export/resultExportAdapter.ts:144:60
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts:116:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  src/features/result-export/resultExportAdapter.test.ts > preserves every shared nonzero f64 vector through canonical hash and derivative JSON
+Error: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE
+ ❯ buildCurrentResultExport src/features/result-export/resultExportAdapter.ts:144:60
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts:126:57
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed | 11 passed (12)
+      Tests  9 failed | 133 passed (142)
+   Start at  10:13:05
+   Duration  15.80s (transform 312ms, setup 376ms, import 601ms, tests 11.82s, environment 2.12s)
+

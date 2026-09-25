@@ -1,0 +1,51 @@
+{
+  "from": "FINAL_SOURCE_FREEZE_02.json",
+  "to": "FINAL_SOURCE_FREEZE_03.json",
+  "changed_files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "sha256": "29957b6d7cf4829da4390d96a36cc62fa1ffb8124ce0b98b343996ea22bd317b",
+      "previous_sha256": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "2bb4b372826b90b188da0b91673e22250896986b6bd5b50c918f8c4ae376c16e",
+      "previous_sha256": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.test.ts",
+      "sha256": "61c05a41824f23ffb097aabf6f7b1adecd1c97656f87e7fc998358b6d783101f",
+      "previous_sha256": "2f0dd6c8b199e3a1d77178ee14a9d5ae4b0e5268e17f8d64fe951ff6de86312d"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "dfda14ed91a310b50308a7ebe1fe56f791cf14c097d98ab2882bf2162e0459e7",
+      "previous_sha256": "46d06f416a260a2cb7dbc5ee11be49f2da118a2ea528fc6b64ca147ad32f1abc"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "de0eb846405aad395c2eb2676473a81b68274ee2427f7d3336a52356cb64f08a",
+      "previous_sha256": "9bc67065db2949641ddb4d97434ffb5c70e75f9ae7fd6de75e40674e5e81ebba"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/precision_contract.rs",
+      "sha256": "66977985f36ba5b2579135b00870efce122ba3bb06d079f1fbd80735e14fab8a",
+      "previous_sha256": "f968875494cd806226d0ad12435d9becbc82393ebac9abe0f07857207c6088c9"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "6c0e1dfea4997f27605a757001e8488cd29773fbafeceafd4d8c392459bef2df",
+      "previous_sha256": "fef9429e9538959fab498692af4e627aad508dd661fdf1cb6dc447b739af482f"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/numerical_sensitive_torsion_model.json",
+      "sha256": "a815f45d06da80ccf0d7677d9c69b9635c23ec4687426900fd000e3222e7d19c",
+      "previous_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_precision_consumer_contract.py",
+      "sha256": "61bab42bfdd1d65fd028e6fb24d98c0e661a2c171dd7948aefa56f52611822e8",
+      "previous_sha256": "20569a31f5364e69d66d44946badaffc14145579a6a3072c19dbe68e492f71af"
+    }
+  ]
+}

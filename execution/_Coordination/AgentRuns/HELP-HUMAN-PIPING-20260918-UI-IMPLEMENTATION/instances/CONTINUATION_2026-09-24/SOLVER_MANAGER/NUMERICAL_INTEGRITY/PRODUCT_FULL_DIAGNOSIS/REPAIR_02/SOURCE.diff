@@ -1,0 +1,347 @@
+--- before/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
++++ after/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+@@ -777,6 +777,33 @@
+     springs: &[(usize, f64)],
+     solve: &NonlinearFrameSolveResult,
+ ) -> Result<bool, NonlinearIntegrationError> {
++    if !product_completion_matches_source(input, springs, solve)? {
++        return Ok(false);
++    }
++    product_selected_state_conditions(input, solve)
++}
++
++/// Source-bound computational inspection only. Exact gap/recovery qualification
++/// remains unavailable; this function cannot be used as a Current predicate.
++/// Every iteration must be an actual ordinary Unsupported gap response, with
++/// unchanged producer receipt, final original-system equations and contact state.
++pub fn product_unsupported_gap_state_is_inspectable(
++    input: &NonlinearFrameSolveInput,
++    springs: &[(usize, f64)],
++    solve: &NonlinearFrameSolveResult,
++) -> Result<bool, NonlinearIntegrationError> {
++    if !product_completion_matches_source(input, springs, solve)? {
++        return Ok(false);
++    }
++    product_unsupported_gap_inspection_conditions(input, solve)
++}
++
++// One source/receipt binding implementation for qualification and inspection.
++fn product_completion_matches_source(
++    input: &NonlinearFrameSolveInput,
++    springs: &[(usize, f64)],
++    solve: &NonlinearFrameSolveResult,
++) -> Result<bool, NonlinearIntegrationError> {
+     validate_input(input)?;
+     let Some(receipt) = &solve.completion else {
+         return Ok(false);
+@@ -845,7 +872,7 @@
+     {
+         return Ok(false);
+     }
+-    product_selected_state_conditions(input, solve)
++    Ok(true)
+ }
+ 
+ // Independent contact/selected-state conditions remain testable separately:
+@@ -853,6 +880,34 @@
+ fn product_selected_state_conditions(
+     input: &NonlinearFrameSolveInput,
+     solve: &NonlinearFrameSolveResult,
++) -> Result<bool, NonlinearIntegrationError> {
++    product_final_state_conditions(input, solve, false)
++}
++
++fn product_unsupported_gap_inspection_conditions(
++    input: &NonlinearFrameSolveInput,
++    solve: &NonlinearFrameSolveResult,
++) -> Result<bool, NonlinearIntegrationError> {
++    if solve.iterations.is_empty()
++        || solve.iterations.len() > input.convergence.max_iterations
++        || solve.is_blocked()
++        || !solve.iterations.iter().enumerate().all(|(index, iteration)| {
++            iteration.iteration == index + 1
++                && matches!(&iteration.strict_gap, StrictGapEvidence::Unsupported { reason, .. } if !reason.is_empty())
++        })
++    {
++        return Ok(false);
++    }
++    product_final_state_conditions(input, solve, true)
++}
++
++// Strict qualification uses exact decisions whenever applicable. The narrowly
++// selected inspection branch uses the ordinary returned-state classifier only;
++// it does not claim exact contact signs from projected/binary64 coordinates.
++fn product_final_state_conditions(
++    input: &NonlinearFrameSolveInput,
++    solve: &NonlinearFrameSolveResult,
++    ordinary_gap_inspection: bool,
+ ) -> Result<bool, NonlinearIntegrationError> {
+     validate_input(input)?;
+     let Some(last) = solve.iterations.last() else {
+@@ -873,7 +928,10 @@
+         .nonlinear_supports
+         .iter()
+         .any(|s| matches!(s.behavior, NonlinearSupportBehavior::Gap { .. }));
+-    if has_gap
++    if ordinary_gap_inspection && !has_gap {
++        return Ok(false);
++    }
++    if !ordinary_gap_inspection && has_gap
+         && solve
+             .iterations
+             .iter()
+@@ -883,6 +941,7 @@
+     }
+     let exact_gap = match &last.strict_gap {
+         StrictGapEvidence::Qualified(report) => Some(report),
++        StrictGapEvidence::Unsupported { .. } if ordinary_gap_inspection => None,
+         StrictGapEvidence::Unsupported { .. } => return Ok(false),
+         StrictGapEvidence::NotApplicable if has_gap => return Ok(false),
+         StrictGapEvidence::NotApplicable => None,
+@@ -903,7 +962,7 @@
+         &derived,
+     )?;
+     for support in &input.nonlinear_supports {
+-        if matches!(support.behavior, NonlinearSupportBehavior::Gap { .. }) {
++        if !ordinary_gap_inspection && matches!(support.behavior, NonlinearSupportBehavior::Gap { .. }) {
+             let Some(report) = exact_gap else {
+                 return Ok(false);
+             };
+@@ -4599,6 +4658,132 @@
+         }
+     }
+ 
++    // Same represented mechanics as the product's original mixed fixture:
++    // 1 m straight pipe OD .168 m / wall .007 m, E200 GPa/G77 GPa;
++    // root fixed; tip one-way UX, gap UY(.05 mm), friction UZ(mu=.3,N=10).
++    fn mixed_product_inspection_input(max_iterations: usize) -> NonlinearFrameSolveInput {
++        let outer = 0.168_f64;
++        let inner = outer - 2.0 * 0.007;
++        let area = std::f64::consts::PI / 4.0 * (outer.powi(2) - inner.powi(2));
++        let inertia = std::f64::consts::PI / 64.0 * (outer.powi(4) - inner.powi(4));
++        let section = FrameSection::new(200e9, 77e9, area, inertia, inertia, 2.0 * inertia).unwrap();
++        let mut input = two_node_axial_problem(
++            vec![
++                NonlinearSupport::one_way("one-way", 1, FrameDof::Ux, ActivationSense::PositiveReaction),
++                NonlinearSupport::gap("gap", 1, FrameDof::Uy, 0.05 / 1000.0, GapDirection::PositiveDisplacement).unwrap(),
++                NonlinearSupport::friction("friction", 1, FrameDof::Uz, 0.3).unwrap(),
++            ],
++            vec![
++                SupportStateRecord::new("one-way", ActiveSetState::Active),
++                SupportStateRecord::new("gap", ActiveSetState::Inactive),
++                SupportStateRecord::new("friction", ActiveSetState::Sticking),
++            ],
++            max_iterations,
++        );
++        input.elements = vec![FrameElement::new(
++            FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
++            FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap(),
++            section, [0.0, 1.0, 0.0],
++        ).unwrap()];
++        input.base_restrained_dofs = (0..6).collect();
++        input.force[6] = 100.0;
++        input.force[7] = 100000.0;
++        input.force[8] = 100.0;
++        input.friction_normal_reactions = vec![FrictionNormalReaction::new("friction", 10.0).unwrap()];
++        input
++    }
++
++    #[test]
++    fn unsupported_gap_inspection_preserves_mixed_computation_without_qualification() {
++        for mode in [LinearSolveMode::DenseScrutiny, LinearSolveMode::SparseInteractive] {
++            let input = mixed_product_inspection_input(4);
++            let solved = solve_active_set_frame_with_mode(&input, mode).unwrap();
++            assert!(solved.converged);
++            assert_eq!(solved.iterations.len(), 2);
++            assert!(solved.strict_gap_unqualified_reason().unwrap().contains("mixed/curved/user/affine"));
++            assert!(product_unsupported_gap_state_is_inspectable(&input, &[], &solved).unwrap());
++            assert!(!product_selected_state_is_qualified(&input, &[], &solved).unwrap());
++            assert_eq!(solved.final_states[1].state, ActiveSetState::Active);
++            assert_eq!(solved.final_states[2].state, ActiveSetState::Sliding);
++            assert!(solved.iterations.last().unwrap().product_equilibrium.passed);
++            assert!(solved.iterations.last().unwrap().contact_branches_admissible);
++        }
++    }
++
++    #[test]
++    fn unsupported_gap_inspection_rejects_source_or_receipt_mutations() {
++        for mode in [LinearSolveMode::DenseScrutiny, LinearSolveMode::SparseInteractive] {
++            let input = mixed_product_inspection_input(4);
++            let solved = solve_active_set_frame_with_mode(&input, mode).unwrap();
++            let mut wrong_force = input.clone();
++            wrong_force.force[6] += 1.0;
++            assert!(!product_unsupported_gap_state_is_inspectable(&wrong_force, &[], &solved).unwrap());
++            let mut wrong_input = input.clone();
++            wrong_input.base_restrained_dofs.pop();
++            assert!(!product_unsupported_gap_state_is_inspectable(&wrong_input, &[], &solved).unwrap());
++            assert!(!product_unsupported_gap_state_is_inspectable(&input, &[(6, 1.0)], &solved).unwrap());
++            let mut wrong_state = solved.clone();
++            wrong_state.displacements[6] += 0.01;
++            assert!(!product_unsupported_gap_state_is_inspectable(&input, &[], &wrong_state).unwrap());
++            let mut wrong_rows = solved.clone();
++            wrong_rows.iterations.last_mut().unwrap().product_equilibrium.rows.clear();
++            assert!(!product_unsupported_gap_state_is_inspectable(&input, &[], &wrong_rows).unwrap());
++            let mut no_receipt = solved.clone();
++            no_receipt.completion = None;
++            assert!(!product_unsupported_gap_state_is_inspectable(&input, &[], &no_receipt).unwrap());
++        }
++    }
++
++    #[test]
++    fn unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt() {
++        for mode in [LinearSolveMode::DenseScrutiny, LinearSolveMode::SparseInteractive] {
++            let input = mixed_product_inspection_input(4);
++            let solved = solve_active_set_frame_with_mode(&input, mode).unwrap();
++            assert!(product_unsupported_gap_inspection_conditions(&input, &solved).unwrap());
++            // Direct private-condition checks prevent a receipt mismatch alone
++            // from explaining rejection of a real final-state violation.
++            let mut bad = solved.clone();
++            bad.iterations.last_mut().unwrap().product_equilibrium.passed = false;
++            assert!(!product_unsupported_gap_inspection_conditions(&input, &bad).unwrap());
++            let mut bad = solved.clone();
++            bad.iterations.last_mut().unwrap().structural_report.residual_rows[0].passed = false;
++            assert!(!product_unsupported_gap_inspection_conditions(&input, &bad).unwrap());
++            let mut bad = solved.clone();
++            bad.iterations.last_mut().unwrap().contact_branches_admissible = false;
++            assert!(!product_unsupported_gap_inspection_conditions(&input, &bad).unwrap());
++            let mut bad = solved.clone();
++            // Active positive gap cannot pull: isolate returned-state classifier
++            // rejection while keeping final/iteration reaction copies identical.
++            bad.reactions[7] = 1.0;
++            bad.iterations.last_mut().unwrap().reactions[7] = 1.0;
++            assert!(!product_unsupported_gap_inspection_conditions(&input, &bad).unwrap());
++            let mut bad = solved.clone();
++            bad.iterations.last_mut().unwrap().active_set.residual_norm = 1.0;
++            assert!(!product_unsupported_gap_inspection_conditions(&input, &bad).unwrap());
++            let mut bad = solved.clone();
++            bad.converged = false;
++            assert!(!product_unsupported_gap_inspection_conditions(&input, &bad).unwrap());
++            let mut bad = solved.clone();
++            bad.iterations.last_mut().unwrap().iteration = input.convergence.max_iterations + 1;
++            assert!(!product_unsupported_gap_inspection_conditions(&input, &bad).unwrap());
++            let mut bad = solved.clone();
++            bad.iterations.last_mut().unwrap().displacements[6] += 0.01;
++            assert!(!product_unsupported_gap_inspection_conditions(&input, &bad).unwrap());
++            let capped_input = mixed_product_inspection_input(1);
++            let capped = solve_active_set_frame_with_mode(&capped_input, mode).unwrap();
++            assert!(!capped.converged);
++            assert!(!product_unsupported_gap_state_is_inspectable(&capped_input, &[], &capped).unwrap());
++            let ordinary_input = two_node_axial_problem(vec![], vec![], 4);
++            let ordinary = solve_active_set_frame_with_mode(&ordinary_input, mode).unwrap();
++            assert!(product_selected_state_is_qualified(&ordinary_input, &[], &ordinary).unwrap());
++            assert!(!product_unsupported_gap_state_is_inspectable(&ordinary_input, &[], &ordinary).unwrap());
++            let strict_input = strict_gap_chain_input(1.0, [0.125, 0.25], 1.0, [ActiveSetState::Inactive; 2], 100.0, 1.0);
++            let strict = solve_active_set_frame_with_mode(&strict_input, mode).unwrap();
++            assert!(product_selected_state_is_qualified(&strict_input, &[], &strict).unwrap());
++            assert!(!product_unsupported_gap_state_is_inspectable(&strict_input, &[], &strict).unwrap());
++        }
++    }
++
+     #[test]
+     fn strict_gap_unsupported_blocks_and_mixed_families_do_not_gain_qualification() {
+         for mode in [
+--- before/projects/chirality-piping/core/product_physics/src/lib.rs
++++ after/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -1727,6 +1727,17 @@
+                 "warning",
+                 format!(
+                     "Load case {} selected represented-exact-ratio global displacement and support reactions, while member fields are recovered from projected binary64 displacement. The ordinary structural report is a preprojection precondition, and selected-public-displacement equilibrium does not prove exact-ratio equilibrium or complete field recovery. Mixed recovery remains numerically unresolved and unavailable for Current reliance; computed loop and quantity rows remain inspection evidence only. Ordinary structural precondition: {:?}; selected-public-displacement equilibrium: {:?}",
++                    load_case.id, iteration.structural_report, iteration.product_equilibrium
++                ),
++                vec![load_case.id.clone()],
++            ));
++        } else if let StrictGapEvidence::Unsupported { reason, .. } = &iteration.strict_gap {
++            diagnostics.push(diag(
++                &integrity_diagnostic_id(&load_case.id),
++                "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
++                "warning",
++                format!(
++                    "Load case {} retains source-bound ordinary binary64 mechanics for inspection only: strict-gap proof is unavailable ({reason}). Ordinary original-system equilibrium, returned-state classifier, separate zero count/cap/contact/sliding checks passed. Delta rows retain their scoped observation/policy metadata; no universal delta acceptance is asserted. Exact-gap and recovery qualification remain unresolved; these rows do not grant Current or downstream qualified use. Ordinary structural report: {:?}; ordinary selected-state equilibrium: {:?}",
+                     load_case.id, iteration.structural_report, iteration.product_equilibrium
+                 ),
+                 vec![load_case.id.clone()],
+@@ -2374,6 +2385,13 @@
+                     &input, &springs, &solve,
+                 ) {
+                     Ok(true) => {}
++                    Ok(false)
++                        if matches!(
++                            open_pipe_stress_nonlinear_integration::product_unsupported_gap_state_is_inspectable(
++                                &input, &springs, &solve,
++                            ),
++                            Ok(true)
++                        ) => {}
+                     outcome => {
+                         let error=StructuralError::NumericallyUnresolved{reason:"M03 product final same-state equilibrium/contact qualification failed",global_dof:None};
+                         append_integrity_failure(diagnostics, &load_case.id, &error, model);
+@@ -11964,15 +11982,15 @@
+                 "{:?}",
+                 output.diagnostics
+             );
+-            assert!(matches!(
+-                output.numerical_quality.status,
+-                NumericalQualityStatus::ChecksPassed | NumericalQualityStatus::Sensitive
+-            ));
++            assert_eq!(output.numerical_quality.status, NumericalQualityStatus::Unresolved);
++            assert_eq!(output.numerical_quality.cases[0].solve_quality, NumericalQualityStatus::Unresolved);
+             let evidence = output
+                 .diagnostics
+                 .iter()
+                 .find(|d| d.id == output.numerical_quality.cases[0].evidence_refs[0])
+                 .unwrap();
++            assert_eq!(evidence.code, "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED");
++            assert_eq!(evidence.id, integrity_diagnostic_id("load:L-MIXED-NONLINEAR"));
+             assert!(evidence
+                 .message
+                 .contains(open_pipe_stress_nonlinear_integration::product_equilibrium::POLICY));
+@@ -12011,6 +12029,9 @@
+             .collect::<HashSet<_>>();
+ 
+         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
++        assert_eq!(result.numerical_quality.status, NumericalQualityStatus::Unresolved);
++        assert!(result.diagnostics.iter().any(|d| d.code == "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"
++            && d.id == integrity_diagnostic_id("load:L-MIXED-NONLINEAR")));
+         assert!(
+             result_ids.contains("result:nonlinear-support:support-NL-MIX-ONEWAY-110:state-code")
+         );
+@@ -12518,7 +12539,9 @@
+         assert!(result
+             .diagnostics
+             .iter()
+-            .any(|d| d.severity == "blocking" && d.message.contains("singular")));
++            .any(|d| d.severity == "blocking" && d.code == "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM"
++                && d.id == integrity_diagnostic_id("load:L-GAP")
++                && d.affected_refs.iter().any(|r| r == "load:L-GAP")));
+         assert!(
+             !result
+                 .diagnostics
+@@ -12564,10 +12587,13 @@
+                 let reversed = run_linear_static_preview_with_mode(input, mode);
+                 assert_ne!(reversed.status.mechanics, "MECHANICS_SOLVED");
+                 assert!(reversed.results.is_empty());
++                assert!(!reversed.diagnostics.iter().any(|d| d.code == "SPARSE_INTERACTIVE_DENSE_FALLBACK"));
+                 assert!(reversed
+                     .diagnostics
+                     .iter()
+-                    .any(|d| d.severity == "blocking" && d.message.contains("singular")));
++                    .any(|d| d.severity == "blocking" && d.code == "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM"
++                && d.id == integrity_diagnostic_id("load:L-GAP")
++                && d.affected_refs.iter().any(|r| r == "load:L-GAP")));
+             }
+         }
+     }
+@@ -17887,10 +17913,13 @@
+             let output = run_linear_static_preview_with_mode(input, mode);
+             assert_ne!(output.status.mechanics, "MECHANICS_SOLVED");
+             assert!(output.results.is_empty());
++            assert!(!output.diagnostics.iter().any(|d| d.code == "SPARSE_INTERACTIVE_DENSE_FALLBACK"));
+             assert!(output
+                 .diagnostics
+                 .iter()
+-                .any(|d| d.code == "SOLVER_SYSTEM_BLOCKED"));
++                .any(|d| d.code == "NUMERICAL_INTEGRITY_UNRESOLVED" && d.severity == "blocking"
++                    && d.id == integrity_diagnostic_id("load:L-FRICTION")
++                    && d.affected_refs.iter().any(|r| r == "load:L-FRICTION")));
+         }
+     }
+ 

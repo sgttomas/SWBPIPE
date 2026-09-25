@@ -1,0 +1,13 @@
+{
+  "author": "/root/solver_manager",
+  "role": "WORKING_ITEMS integration",
+  "model_allocation": "Parent manager inherited model; bounded manifest integration after independently authored failing probe. No TASK execution is falsely claimed.",
+  "source_path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+  "before_ref": "_run_records/canonical_Cargo.toml.before",
+  "before_sha256": "f9697f4eb3b4e1542cffa7cf2ce05cef1f4936f7ec7d71cf544b61177e6a4b6b",
+  "after_sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4",
+  "diagnosis": "Standalone serde_json1.0.150 default parse changes bitpattern3e9fffffffffffff: canonical checked text becomes4.76837158203125e-7 instead of4.7683715820312495e-7. Product feature unification did not establish standalonehash/WASM parser fidelity.",
+  "baseline_ref": "_run_records/canonical_baseline.log",
+  "repair": "Enable existing serde_json float_roundtrip feature only. Canonicalization algorithm andIJSONguard untouched; no dependencyinstall/network.",
+  "verification": "Correctedstandalone andallhistoricalcanonical tests must run next; legacyhashconflicts are not silentlyrebased."
+}

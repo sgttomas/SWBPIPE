@@ -1,0 +1,12 @@
+{
+  "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+  "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+  "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+  "projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/STRICT_GAP_DESIGN/RETURN.md": "8978228d17efad3abe0e91e70ef17577f33b5e1c32208fd7c9e1cb5d38687e29",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/STRICT_GAP_DESIGN/_run_records/reference_proof.py": "47af3075bbaeeaedefa039a1ed23049a23d050c82fa22c29a4d61487060b911a",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/STRICT_GAP_DESIGN/_run_records/REFERENCE_PROOF.json": "09242ce161b685de0a12a9a199c459030d955b800772e6786b8ec9022555a5db",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTEGRATION_REVIEW/SUCCESSOR/RETURN.md": "958da7ed5cbf56f7098f83e3b9f8ef2e0ee465006d49d1ff533b7d3c041b14de",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS/_run_records/CASES.json": "ee309a08192616222072977a59871cf10c638e16e9286105af36e0d520757446",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a"
+}

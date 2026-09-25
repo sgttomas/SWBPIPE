@@ -1,0 +1,136 @@
+--- before/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs
++++ after/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs
+@@ -593,10 +593,11 @@
+     }
+     /// Reserve the complete metadata comparison before inspecting string bytes.
+     /// Both public and private sides count, so mutated larger summaries are also
+-    /// bounded. The O(1) container-length prefix bounds the sizing walk itself;
+-    /// only admitted container counts are then visited for O(1) string lengths.
+-    /// Overflow rejects explicitly (usize::MAX is the saturated rejected size).
+-    fn summary_comparison_charge(&self, limit: usize) -> Result<usize, usize> {
++    /// bounded. First accept/debit the O(1) container-length sizing prefix;
++    /// then visit admitted entries to reserve dynamic comparison bytes. A late
++    /// byte/overflow rejection retains the prefix charge and rejects only the
++    /// unexecuted byte reservation (usize::MAX marks its saturated size).
++    fn summary_comparison_charge(&self, limit: usize) -> Result<usize, exact::WorkReport> {
+         fn add(total: &mut usize, count: usize, width: usize, limit: usize) -> Result<(), usize> {
+             let amount = count.checked_mul(width).ok_or(usize::MAX)?;
+             *total = total.checked_add(amount).ok_or(usize::MAX)?;
+@@ -608,7 +609,11 @@
+         let source = self.retained.source_system();
+         let mut total = 256;
+         if total > limit {
+-            return Err(total);
++            return Err(exact::WorkReport {
++                charged: 0,
++                rejected: total,
++                limit,
++            });
+         }
+         // Fixed scalar fields, length checks, repeated numeric summary loops,
+         // and construction of the expected-contact triples are covered here.
+@@ -629,28 +634,50 @@
+             self.work.attempts.len(),
+             self.work_snapshot.attempts.len(),
+         ] {
+-            add(&mut total, count, 64, limit)?;
+-        }
++            add(&mut total, count, 64, limit).map_err(|rejected| exact::WorkReport {
++                charged: 0,
++                rejected,
++                limit,
++            })?;
++        }
++        // The complete sizing traversal is now conservatively charged, even if
++        // it stops early. Dynamic comparison bytes have not yet been accepted.
++        let prefix = total;
++        let remaining = limit - prefix;
++        let late_rejection = |rejected| exact::WorkReport {
++            charged: prefix,
++            rejected,
++            limit,
++        };
++        let mut dynamic = 0;
+         for bytes in [
+             self.source_identity.len(),
+             self.retained.source_identity().len(),
+             self.source_level.len(),
+             GAP_SOURCE_LEVEL.len(),
+         ] {
+-            add(&mut total, bytes, 1, limit)?;
++            add(&mut dynamic, bytes, 1, remaining).map_err(late_rejection)?;
+         }
+         for work in [&self.work, &self.work_snapshot] {
+             for (label, _, error) in &work.attempts {
+-                add(&mut total, label.len(), 1, limit)?;
+-                add(&mut total, error.as_ref().map_or(0, String::len), 1, limit)?;
++                add(&mut dynamic, label.len(), 1, remaining).map_err(late_rejection)?;
++                add(
++                    &mut dynamic,
++                    error.as_ref().map_or(0, String::len),
++                    1,
++                    remaining,
++                )
++                .map_err(late_rejection)?;
+             }
+         }
+         for decisions in [&self.decisions, &self.decision_sources] {
+             for decision in decisions {
+-                add(&mut total, decision.support_id.len(), 1, limit)?;
+-            }
+-        }
+-        Ok(total)
++                add(&mut dynamic, decision.support_id.len(), 1, remaining)
++                    .map_err(late_rejection)?;
++            }
++        }
++        // Bounds above establish prefix + dynamic <= limit without overflow.
++        Ok(prefix + dynamic)
+     }
+     /// Private-owned retained evidence survives dropping Context. This verifies
+     /// summaries and exact replay against independently supplied source; it does
+@@ -665,14 +692,10 @@
+         let limit = work_limit.min(self.retained.limits().operations);
+         let charge = match self.summary_comparison_charge(limit) {
+             Ok(charge) => charge,
+-            Err(rejected) => {
++            Err(work) => {
+                 return exact::Attempt {
+                     result: Err(exact::Error::Budget),
+-                    work: exact::WorkReport {
+-                        charged: 0,
+-                        rejected,
+-                        limit,
+-                    },
++                    work,
+                 }
+             }
+         };
+@@ -1319,8 +1342,14 @@
+                 before_comparison.result,
+                 Err(exact::Error::Budget)
+             ));
+-            assert_eq!(before_comparison.work.charged, 0);
+-            assert_eq!(before_comparison.work.rejected, charge);
++            assert!(before_comparison.work.charged > 0);
++            assert!(before_comparison.work.charged < charge);
++            assert_eq!(
++                before_comparison.work.charged + before_comparison.work.rejected,
++                charge
++            );
++            // Prefix accepted; only unexecuted dynamic bytes were rejected.
++            let sizing_prefix = before_comparison.work.charged;
+             let sufficient = replay(report, usize::MAX);
+             assert!(sufficient.result.is_ok(), "{:?}", sufficient.result);
+             assert!(sufficient.work.charged > charge);
+@@ -1339,8 +1368,8 @@
+             );
+             let denied = replay(&changed, charge);
+             assert!(matches!(denied.result, Err(exact::Error::Budget)));
+-            assert_eq!(denied.work.charged, 0);
+-            assert!(denied.work.rejected > charge);
++            assert_eq!(denied.work.charged, sizing_prefix);
++            assert!(denied.work.rejected > charge - sizing_prefix);
+             assert!(matches!(
+                 replay(&changed, usize::MAX).result,
+                 Err(exact::Error::Invalid("retained adapter summary mismatch"))

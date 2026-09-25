@@ -1,0 +1,9 @@
+{
+  "patch_manifest_exact_scope": true,
+  "vector_count": 26,
+  "all_decimal_bits_exact_in_python": true,
+  "precision_rows_equal_historical": true,
+  "historical_row_count": 60,
+  "historical_map_sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+  "embedded_precision_schema_equals_standalone_after_ref_relocation": true
+}

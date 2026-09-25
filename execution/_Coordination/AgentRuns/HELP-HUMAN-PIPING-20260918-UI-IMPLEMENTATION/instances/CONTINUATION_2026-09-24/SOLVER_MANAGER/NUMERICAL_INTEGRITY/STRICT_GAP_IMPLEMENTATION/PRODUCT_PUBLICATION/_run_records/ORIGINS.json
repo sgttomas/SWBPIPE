@@ -1,0 +1,60 @@
+{
+  "mechanism": "delegated-harness-native followup TASK",
+  "agent": "/root/solver_manager/evidence_primitives",
+  "parent": "/root/solver_manager",
+  "model_allocation": "same low implementation role; prior explicit Astra/low parent allocation; runtime model not separately exposed",
+  "checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "created_at": "2026-09-24T23:42:42.184185+00:00",
+  "python": "3.13.14",
+  "origins": [
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/SOLVER_FIRST_TRANCHE.md",
+      "sha256": "37de316089fc1d36df91f98d6a9a1cedec0f58825b55f939394d095d07d0f125"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/EXTENDED_PRECISION/METHOD_INTEGRATION/EXACT_BOUNDARY_RECOVERY.md",
+      "sha256": "66407ede5982490b915b0b368371fb5a6128f9f20a6be401bbe3fd4749ba87c7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/EXTENDED_METHOD_CONTRACT/REVISION_02/ROOT_SELECTION.md",
+      "sha256": "4bff35027661bf33021027e24e4e6936e1c610e7e2d3269683d17f064f512c8e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/EXTENDED_METHOD_CONTRACT/REVISION_02/EXACT_BOUNDARY.md",
+      "sha256": "dc929d0643b3e56deb76dcd31be4bcd3bcc72d27fae661fadc881a69b990bf2b"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "e215487709e06275bb92796455560e1bea16253c1c4fbf614f182b7da96d2df2"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics/src/validation.rs",
+      "sha256": "d146409ae7dcc8ae0f1e6bb05446b9dd91efd318465d12ce9883109b47214616"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "sha256": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+      "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"
+    }
+  ],
+  "limits": "TEST-PREP only; no production edits, Rust/build/Cargo/npm/native/browser/Git/formatting execution, dependency/schema change or delegation."
+}

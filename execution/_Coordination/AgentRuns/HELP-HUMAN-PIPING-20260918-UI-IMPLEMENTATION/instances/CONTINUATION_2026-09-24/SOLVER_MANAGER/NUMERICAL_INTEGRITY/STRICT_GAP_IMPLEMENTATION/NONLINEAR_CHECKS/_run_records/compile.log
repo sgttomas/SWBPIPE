@@ -1,0 +1,20 @@
+   Compiling num-modular v0.6.5
+   Compiling dashu-int v0.6.0
+   Compiling dashu-base v0.6.0
+   Compiling either v1.18.0
+   Compiling cfg-if v1.0.5
+   Compiling static_assertions v1.1.0
+   Compiling itertools v0.10.5
+   Compiling lazy_static v1.5.0
+   Compiling astro-float-num v0.3.7
+   Compiling dashu-float v0.6.0
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.02s
+  Executable unittests src/lib.rs (/private/tmp/piping-nonlinear-integration-exact-gap-target/debug/deps/open_pipe_stress_nonlinear_integration-dd17f20a628b76ea)

@@ -1,0 +1,13 @@
+{
+  "status": "test-applicability F1 repair frozen; no tests/build",
+  "path_basis": "REPO_ROOT clean numerical-corrections checkout",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "before_sha256": "97e6b7af0f7a88dfe77928d953ba21b0643d1ee9633c6ab38c805ee4e7a00131",
+      "sha256": "475aa1b3e82adcfb3ed5a9ff017bc6dc17a44bc21e11a3913f6babf700d59a2d",
+      "bytes": 803405
+    }
+  ],
+  "scope": "App.test.tsx only; production validator/service and generated/historical fixtures untouched"
+}

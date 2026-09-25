@@ -1,0 +1,82 @@
+{
+  "actor": "/root/solver_manager/structural_integration",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native",
+  "dispatch_reported_by_parent": "gpt-6-astra low",
+  "descendants": [],
+  "base": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "origins": [
+    {
+      "origin": "selected_checkout",
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTERFACE_PLAN.md",
+      "sha256": "e0ade6a709467644a580d100fae922e6897bb7ff671810d631947d54dab0d965"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_CONSUMER_CONTRACT.md",
+      "sha256": "84e1c73239c0df953fcad85c2e2ced1221255d1741c4ad689b8b744ab867c21a"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/BASIS.json",
+      "sha256": "076e4586b529cee98008f2eaa1b9918eb3a10340e9465eaef39da8645cfad40b"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/REFERENCE_REVIEW/RETURN.md",
+      "sha256": "b08827847a3d675effa6b36dadd6e65c75049e21f71a103cebe3bb1171c6144c"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL/RETURN.md",
+      "sha256": "c0111b4600d8a9bb9a2d2582db3ff1d081ee49ab0ec51693e9667821e14bc4e1"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_REVIEW/RETURN.md",
+      "sha256": "c2c7145757af74281c281e2ae14cca75c2b1a45fa054211518179dccffcd9f8f"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/BASELINE/RETURN.md",
+      "sha256": "6974933ccb9279662725e4abd294936238747f6ce71652ca0781becbffe30e78"
+    },
+    {
+      "origin": "primary_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_IMPLEMENTATION.md",
+      "sha256": "aacb0b01c17d0c0ef1eaadba35203aeaafeea24c76f1c9d4be0cd8830101837e"
+    },
+    {
+      "origin": "primary_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/RETURN.md",
+      "sha256": "c83877d55ddb23c634112551fb3319f3f39080b2839c285a81f32296177a9216"
+    }
+  ],
+  "scope": [
+    "core/product_physics source and tests",
+    "core/solver/nonlinear_integration source and tests",
+    "NUMERICAL_INTEGRITY/INTEGRATION evidence"
+  ],
+  "execution_limits": "assignment-enforced disjoint ownership; no OS isolation claim; no Cargo/npm/build/native/browser executed by child; no commits/push/PR"
+}

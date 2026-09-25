@@ -1,0 +1,195 @@
+--- a/projects/chirality-piping/apps/desktop/src/App.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+@@ -1,7 +1,8 @@
+ import { solverDisplayWithToken } from "./features/workspace/statusLabels";
+ import { statusChipInputsFromCells, statusChips, statusChipText } from "./features/workspace/shellLayout";
+ import historicalMechanicsFixture from "../../../fixtures/product_preview/invented_mechanics_result.json";
+-import { buildAnalysisRunV02 } from "./services/analysisRunCompatibility";
++import { PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "./features/results/numericalResultQuality";
++import { analysisRowSemantics, buildAnalysisRunV02 } from "./services/analysisRunCompatibility";
+ import { changeFormControl, expectFormControlValue, compactOptionRecords } from "./test-support/workspaceTestControls";
+ import type { ViewportViewCommand } from "./features/viewport/viewportSelection";
+ import {
+@@ -43,7 +44,7 @@
+   loadDesignKnowledge,
+   runPreviewMechanics,
+ } from "./services/previewService";
+-import { canonicalSha256Hex, computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
++import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
+ import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
+ import { applyModelOperation } from "./services/operationService";
+ import { applyOperationBatch, type OperationBatchOutcome } from "./services/operationBatchService";
+@@ -10004,6 +10005,9 @@
+     expect(integrityDiagnostics.every(item => item.severity === "info")).toBe(true);
+     const receivedDimensionRows = expectedSource.results.filter(row => Number.isFinite(row.value) && typeof row.dimension === "string" && Boolean(row.dimension));
+     const missingDimensionRows = expectedSource.results.filter(row => !receivedDimensionRows.includes(row));
++    expect(expectedSource.schema_version).toBe("0.2.0");
++    expect(expectedSource.producer?.semantic_contract_id).toBe(PRECISION_CONTRACT_ID);
++    expect(expectedSource.results.every(row => !Object.hasOwn(row, "dimension"))).toBe(true);
+     const originalSource = JSON.stringify({ model: expectedModel, result: expectedSource });
+     render(<App />);
+ 
+@@ -10241,8 +10245,12 @@
+     const resultExportHref = within(resultExport).getByTestId("result-export-link").getAttribute("href") ?? "";
+     const resultExportPacket = JSON.parse(decodeURIComponent(resultExportHref.split(",", 2)[1]));
+     const e = resultExportPacket.result_envelope;
+-    expect(resultExportPacket.schema_version).toBe("0.2.0");
+-    expect(e.schema_version).toBe("0.2.0");
++    expect(resultExportPacket.schema_version).toBe("0.3.0");
++    expect(e.schema_version).toBe("0.3.0");
++    expect(e.producer).toEqual(expectedSource.producer);
++    expect(e.numerical_quality).toEqual(expectedSource.numerical_quality);
++    expect(e.formulation_basis).toEqual(expectedSource.formulation_basis);
++    expect(e.semantic_contract_ref).toEqual({ ref_type: "semantic_contract", ref_id: PRECISION_CONTRACT_ID });
+     expect(resultExportPacket.deliverable_id).toBe("DEL-08-04");
+     expect(resultExportPacket.package_id).toBe("PKG-08");
+     expect(resultExportPacket.scope_item).toBe("SOW-046");
+@@ -10266,7 +10274,7 @@
+       expect(account.source_kind).toBe(row.kind);
+       expect(account.source_field_path).toBe(`/results/${index}`);
+       expect(account.original_producer_row_checksum).toBeNull();
+-      expect(account.received_carrier_row_checksum).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_legacy_enriched_row", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256Hex(row) });
++      expect(account.received_carrier_row_checksum).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_row", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256HexCheckedV1(row) });
+       expect(annotation).toMatchObject({ source_row_index: index, source_result_id: row.id, metadata: row.metadata ?? null, basis_ref: row.basis_ref ?? null, source_result_refs: row.source_result_refs ?? [], observed_carrier_dimension: { present: Object.hasOwn(row,"dimension"), value: row.dimension ?? null } });
+       const target = account.target_field_path.split("/").slice(1).reduce((value: any, key: string) => value[key], resultExportPacket);
+       expect(account.target_ref.ref_id).toBe(row.id);
+@@ -10282,7 +10290,7 @@
+         expect(witness.conversion_performed).toBe(false);
+         expect(witness.original_producer_row_checksum).toBeNull();
+         expect(witness.target_field_path).toBe(account.target_field_path);
+-        expect(witness.target_row_checksum.value).toBe(await canonicalSha256Hex(target));
++        expect(witness.target_row_checksum.value).toBe(await canonicalSha256HexCheckedV1(target));
+       }
+     }
+     expect(e.unit_preservation_witnesses).toHaveLength(e.result_sets[0].values.length + e.review_evidence.length);
+@@ -10297,16 +10305,16 @@
+     expect(e.reproducibility.run_hashes).toHaveLength(2);
+     expect(e.reproducibility.run_hashes.map((h: {payload_ref: {ref_type: string}}) => h.payload_ref.ref_type)).toEqual(["AnalysisRun", "ResultEnvelope"]);
+     expect(e.reproducibility.audit_manifest_ref.ref_type).toBe("audit_manifest");
+-    expect(e.reproducibility.model_hash).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, value: await canonicalSha256Hex(expectedModel) });
++    expect(e.reproducibility.model_hash).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, value: await canonicalSha256HexCheckedV1(expectedModel) });
+     expect(e.reproducibility.raw_source_hashes).toEqual([]);
+     expect(e.reproducibility.request_hash).toBeNull();
+     expect(e.reproducibility.source_origin_bindings).toHaveLength(1);
+-    expect(e.reproducibility.source_origin_bindings[0]).toMatchObject({ origin_class: "received_current_qualified_legacy_enriched", authentic_producer_available: false, original_producer_checksum: null, actual_model_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, mechanics_run_ref: { ref_type: "mechanics_run", ref_id: expectedSource.run_id }, qualification_ref: {ref_type: "current_manifest", ref_id: e.reproducibility.audit_manifest_ref.ref_id}, received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_legacy_enriched_carrier", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256Hex(expectedSource) } });
++    expect(e.reproducibility.source_origin_bindings[0]).toMatchObject({ origin_class: "received_current_dimension_absent", authentic_producer_available: false, original_producer_checksum: null, actual_model_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, mechanics_run_ref: { ref_type: "mechanics_run", ref_id: expectedSource.run_id }, qualification_ref: {ref_type: "current_manifest", ref_id: e.reproducibility.audit_manifest_ref.ref_id}, received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_carrier", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256HexCheckedV1(expectedSource) } });
+     const digestPayload = structuredClone(resultExportPacket);
+     delete digestPayload.result_envelope.reproducibility.derivative_hash;
+-    expect(e.reproducibility.derivative_hash).toEqual({algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "derivative_document_excludes_own_hash", payload_ref: {ref_type: "derivative_document", ref_id: e.envelope_id}, value: await canonicalSha256Hex(digestPayload)});
++    expect(e.reproducibility.derivative_hash).toEqual({algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "derivative_document_excludes_own_hash", payload_ref: {ref_type: "derivative_document", ref_id: e.envelope_id}, value: await canonicalSha256HexCheckedV1(digestPayload)});
+     expect(e.analysis_status).toEqual(expect.arrayContaining(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]));
+-    expect(e).not.toHaveProperty("rule_pack_refs"); // 0.2 carries rule completeness in analysis_status; no private pack payload is exported.
++    expect(e).not.toHaveProperty("rule_pack_refs"); // 0.3 carries rule completeness in analysis_status; no private pack payload is exported.
+     expect(e.downstream_use.additional_export_formats).toBe("TBD");
+     expect(e.professional_boundary).toMatchObject({human_review_required: true, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_makes_authentication_claim: false});
+     expect(screen.getByTestId("governing-ratio-status")).toHaveTextContent("unavailable");
+@@ -10315,10 +10323,11 @@
+     fireEvent.click(ownIntent);
+     expect(within(resultExport).getByTestId("result-export-link")).not.toHaveAttribute("href");
+     expect(within(resultExport).getByTestId("result-export-link")).toHaveAttribute("aria-disabled", "true");
+-    const incompatibleWorkDiagnostics = expectedSource.results.filter(row => row.kind === "nonlinear_support_free_dof_work_residual" && row.unit === "N*m");
+-    expect(incompatibleWorkDiagnostics).toHaveLength(2);
+-    expect(incompatibleWorkDiagnostics.every(row => row.dimension === "moment")).toBe(true); // immutable legacy moment declaration; work diagnostics have no physical semantic dimension
+-    const expectedStressWitnessCount = expectedSource.results.length - incompatibleWorkDiagnostics.length;
++    const diagnosticWorkRows = expectedSource.results.filter(row => analysisRowSemantics(row, expectedSource).semantic?.category === "diagnostic_work");
++    expect(diagnosticWorkRows).toHaveLength(expectedModel.load_cases.length);
++    expect(diagnosticWorkRows.every(row => row.kind === "nonlinear_support_free_dof_work_residual" && row.unit === "N*m" && !Object.hasOwn(row, "dimension"))).toBe(true);
++    expect(diagnosticWorkRows.every(row => analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension === null)).toBe(true);
++    const expectedStressWitnessCount = expectedSource.results.length - diagnosticWorkRows.length;
+     const stressNeutral = stressNeutralExport();
+     expect(
+       (await within(stressNeutral).findByTestId("stress-neutral-summary")).textContent,
+@@ -10334,7 +10343,7 @@
+     ).toContain("stress_neutral_csv_json");
+     expect(
+       within(stressNeutral).getByTestId("stress-neutral-format").textContent,
+-    ).toContain("ops.stress_neutral.v2");
++    ).toContain("ops.stress_neutral.v3");
+     expect(
+       within(stressNeutral).getByTestId("stress-neutral-state-binding")
+         .textContent,
+@@ -10406,18 +10415,24 @@
+       decodeURIComponent(stressNeutralHref.split(",", 2)[1]),
+     );
+     expect(stressNeutralPacket.document_kind).toBeUndefined();
+-    expect(stressNeutralPacket.schema_version).toBe("0.2.0");
++    expect(stressNeutralPacket.schema_version).toBe("0.3.0");
++    expect(stressNeutralPacket.producer).toEqual(expectedSource.producer);
++    expect(stressNeutralPacket.numerical_quality).toEqual(expectedSource.numerical_quality);
++    expect(stressNeutralPacket.formulation_basis).toEqual(expectedSource.formulation_basis);
++    expect(stressNeutralPacket.semantic_contract).toEqual({ id: PRECISION_CONTRACT_ID, sha256: PRECISION_CONTRACT_SHA256 });
++    expect(stressNeutralPacket.source_carrier_checksum).toEqual({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_result", payload_ref: { object_type: "ResultEnvelope", ref: `result-envelope:${expectedSource.run_id}` }, value: await canonicalSha256HexCheckedV1(expectedSource) });
++    expect(stressNeutralPacket.received_source_checksums).toContainEqual(stressNeutralPacket.source_carrier_checksum);
+     expect(stressNeutralPacket.deliverable_id).toBe("DEL-17-06");
+     expect(stressNeutralPacket.package_id).toBe("PKG-17");
+     expect(stressNeutralPacket.scope_items).toEqual(["SOW-046", "SOW-074"]);
+     expect(stressNeutralPacket.objectives).toEqual(["OBJ-007", "OBJ-017", "OBJ-018"]);
+     expect(stressNeutralPacket.package_status).toBe("stress_neutral_export_package");
+     expect(stressNeutralPacket.export_profile.target_family).toBe("stress_neutral_csv_json");
+-    expect(stressNeutralPacket.export_profile.profile_id).toBe("ops.stress_neutral.v2");
+-    expect(stressNeutralPacket.export_profile.profile_version).toBe("0.2.0");
++    expect(stressNeutralPacket.export_profile.profile_id).toBe("ops.stress_neutral.v3");
++    expect(stressNeutralPacket.export_profile.profile_version).toBe("0.3.0");
+     expect(stressNeutralPacket.manifest.export_profile_ref).toEqual({
+       object_type: "StressNeutralExportProfile",
+-      ref: "ops.stress_neutral.v2",
++      ref: "ops.stress_neutral.v3",
+     });
+     expect(stressNeutralPacket.export_profile.csv_columns).toHaveLength(11);
+     expect(stressNeutralPacket.export_profile.csv_columns).toContain("result_id");
+@@ -10430,6 +10445,16 @@
+     expect(stressNeutralPacket.unit_system_disclosure.conversion_performed).toBe(false);
+     expect(stressNeutralPacket.unit_system_disclosure.protected_content_included).toBe(false);
+     expect(stressNeutralPacket.unit_preservation_witnesses).toHaveLength(expectedStressWitnessCount);
++    const workIds = new Set(diagnosticWorkRows.map(row => row.id));
++    expect(stressNeutralPacket.unit_preservation_witnesses.some((witness: { result_id: string }) => workIds.has(witness.result_id))).toBe(false);
++    const workWithholdings = stressNeutralPacket.diagnostics.filter((diagnostic: { code: string }) => diagnostic.code === "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK");
++    expect(new Set(workWithholdings.map((diagnostic: { source: { ref: string } }) => diagnostic.source.ref))).toEqual(workIds);
++    expect(workWithholdings.every((diagnostic: { severity: string }) => diagnostic.severity === "info")).toBe(true);
++    expect(stressNeutralPacket.diagnostics).toEqual(expect.arrayContaining([expect.objectContaining({ code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", severity: "blocking" })]));
++    for (const row of expectedSource.results) {
++      const retained = stressNeutralPacket.result_rows.find((candidate: { result_id: string }) => candidate.result_id === row.id);
++      expect(retained).toMatchObject({ value: row.value, unit: row.unit, dimension: analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension ?? "TBD" });
++    }
+     expect(stressNeutralPacket.manifest.package_members.map((item: { filename: string }) => item.filename)).toEqual([
+       "manifest.json",
+       "stress_neutral_results.csv",
+@@ -10459,6 +10484,9 @@
+       (entry: { category: string }) => entry.category,
+     )).toContain("exported");
+     expect(stressNeutralPacket.package_checksum.value).toMatch(/^[0-9a-f]{64}$/);
++    const stressDigestPayload = structuredClone(stressNeutralPacket);
++    delete stressDigestPayload.package_checksum;
++    expect(stressNeutralPacket.package_checksum.value).toBe(await canonicalSha256HexCheckedV1(stressDigestPayload));
+     expect(stressNeutralPacket.package_checksum.payload_scope).toBe(
+       "complete_package_excluding_self_checksum",
+     );
+@@ -11542,7 +11570,9 @@
+     expect(
+       within(results).getByText("result:disp:node-N-140"),
+     ).toBeInTheDocument();
+-    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent("3.977301 mm");
++    const displayedDisplacement = expectedSource.results.find(row => row.id === "result:disp:node-N-140")!;
++    expect(Number.isFinite(displayedDisplacement.value)).toBe(true);
++    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent(`${displayedDisplacement.value} ${displayedDisplacement.unit}`);
+     expect(
+       within(results).getByTestId("result-filter-summary").textContent,
+     ).toContain("830 of 830 results match filter");
+@@ -11967,7 +11997,8 @@
+     expect(
+       within(knowledge).getByText(/Computed displacement review/i),
+     ).toBeInTheDocument();
+-    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent("result:disp:node-N-140 is 3.977301 mm");
++    const summaryDisplacement = expectedSource.summary.max_displacement!;
++    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent(`${summaryDisplacement.result_ref} is ${summaryDisplacement.value} ${summaryDisplacement.unit}`);
+     expect(
+       within(knowledge).getByText(/result:force:pipe-P-120:axial is/i),
+     ).toBeInTheDocument();
+@@ -13555,6 +13586,7 @@
+           item.export_id === "operation_review_ledger",
+       ).readiness,
+     ).toBe("empty_operation_queue");
++    expect(JSON.stringify({ model: expectedModel, result: expectedSource })).toBe(originalSource);
+     // Heavy full-<App/> Three.js render: inherit the 30s global testTimeout
+     // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
+   });

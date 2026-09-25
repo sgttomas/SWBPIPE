@@ -1,0 +1,42 @@
+{
+  "node": "v24.18.0",
+  "validator_sha256": "b6f07e602fdac816d0c473676ef206dc9adea92f30ec518da19cae0877829e40",
+  "scope": "Exact valid-control script rerun against freeze05; no old evidence overwritten. Actual TS historical packet builder and checked canonical hashing.",
+  "prior_attempt": "Identical observed correct refusal occurred but reviewer asserted guessed suffix CONTRADICTION instead of actual FORBIDDEN and stopped before writing evidence. Final assertion matches inspected implementation.",
+  "results": [
+    {
+      "key": "baseline",
+      "accepted": true
+    },
+    {
+      "key": "producer",
+      "accepted": false,
+      "error": "Error: SN-LEGACY-PRECISION-METADATA-FORBIDDEN"
+    },
+    {
+      "key": "numerical_quality",
+      "accepted": false,
+      "error": "Error: SN-LEGACY-PRECISION-METADATA-FORBIDDEN"
+    },
+    {
+      "key": "formulation_basis",
+      "accepted": false,
+      "error": "Error: SN-LEGACY-PRECISION-METADATA-FORBIDDEN"
+    },
+    {
+      "key": "semantic_contract_ref",
+      "accepted": false,
+      "error": "Error: SN-LEGACY-PRECISION-METADATA-FORBIDDEN"
+    },
+    {
+      "key": "semantic_contract",
+      "accepted": false,
+      "error": "Error: SN-LEGACY-PRECISION-METADATA-FORBIDDEN"
+    },
+    {
+      "key": "source_carrier_checksum",
+      "accepted": false,
+      "error": "Error: SN-LEGACY-PRECISION-METADATA-FORBIDDEN"
+    }
+  ]
+}

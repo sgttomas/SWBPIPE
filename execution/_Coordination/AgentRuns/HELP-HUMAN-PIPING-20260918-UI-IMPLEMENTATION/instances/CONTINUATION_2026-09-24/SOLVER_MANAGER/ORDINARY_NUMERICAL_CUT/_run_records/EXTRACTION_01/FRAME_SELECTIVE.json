@@ -1,0 +1,8 @@
+{
+  "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+  "source_sha256": "1ce52845b3351ee587352f626627723c896bede25809f690aa79afe863a045e9",
+  "base_sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+  "selected_sha256": "03f82e343c7aee8f9f38d4b983091d0b71faebb904fb4dc7b59692a0c9cc4ad9",
+  "change": "only public structural/rigid_body module declarations; private extended arithmetic and AP manifest edges excluded",
+  "source_untouched": true
+}

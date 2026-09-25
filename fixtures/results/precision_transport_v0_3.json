@@ -1,0 +1,137 @@
+{
+  "schema_version": "0.3.0",
+  "purpose": "Independent binary64 same-unit transport vectors; no solver or physics oracle",
+  "negative_zero_policy": "Hashing may normalize negative zero; every listed nonzero bit pattern must survive",
+  "vectors": [
+    {
+      "id": "bits-0000000000000001",
+      "bits_hex": "0000000000000001",
+      "decimal": "5e-324"
+    },
+    {
+      "id": "bits-8000000000000001",
+      "bits_hex": "8000000000000001",
+      "decimal": "-5e-324"
+    },
+    {
+      "id": "bits-0000000000000002",
+      "bits_hex": "0000000000000002",
+      "decimal": "1e-323"
+    },
+    {
+      "id": "bits-8000000000000002",
+      "bits_hex": "8000000000000002",
+      "decimal": "-1e-323"
+    },
+    {
+      "id": "bits-0010000000000000",
+      "bits_hex": "0010000000000000",
+      "decimal": "2.2250738585072014e-308"
+    },
+    {
+      "id": "bits-8010000000000000",
+      "bits_hex": "8010000000000000",
+      "decimal": "-2.2250738585072014e-308"
+    },
+    {
+      "id": "bits-3e9fffffffffffff",
+      "bits_hex": "3e9fffffffffffff",
+      "decimal": "4.7683715820312495e-07"
+    },
+    {
+      "id": "bits-be9fffffffffffff",
+      "bits_hex": "be9fffffffffffff",
+      "decimal": "-4.7683715820312495e-07"
+    },
+    {
+      "id": "bits-3ea0000000000000",
+      "bits_hex": "3ea0000000000000",
+      "decimal": "4.76837158203125e-07"
+    },
+    {
+      "id": "bits-bea0000000000000",
+      "bits_hex": "bea0000000000000",
+      "decimal": "-4.76837158203125e-07"
+    },
+    {
+      "id": "bits-3ea0000000000001",
+      "bits_hex": "3ea0000000000001",
+      "decimal": "4.768371582031251e-07"
+    },
+    {
+      "id": "bits-bea0000000000001",
+      "bits_hex": "bea0000000000001",
+      "decimal": "-4.768371582031251e-07"
+    },
+    {
+      "id": "bits-3fb9999999999999",
+      "bits_hex": "3fb9999999999999",
+      "decimal": "0.09999999999999999"
+    },
+    {
+      "id": "bits-bfb9999999999999",
+      "bits_hex": "bfb9999999999999",
+      "decimal": "-0.09999999999999999"
+    },
+    {
+      "id": "bits-3fb999999999999a",
+      "bits_hex": "3fb999999999999a",
+      "decimal": "0.1"
+    },
+    {
+      "id": "bits-bfb999999999999a",
+      "bits_hex": "bfb999999999999a",
+      "decimal": "-0.1"
+    },
+    {
+      "id": "bits-3ff0000000000001",
+      "bits_hex": "3ff0000000000001",
+      "decimal": "1.0000000000000002"
+    },
+    {
+      "id": "bits-bff0000000000001",
+      "bits_hex": "bff0000000000001",
+      "decimal": "-1.0000000000000002"
+    },
+    {
+      "id": "bits-400921fb54442d18",
+      "bits_hex": "400921fb54442d18",
+      "decimal": "3.141592653589793"
+    },
+    {
+      "id": "bits-c00921fb54442d18",
+      "bits_hex": "c00921fb54442d18",
+      "decimal": "-3.141592653589793"
+    },
+    {
+      "id": "bits-3ea0c6f7a0b5ed8c",
+      "bits_hex": "3ea0c6f7a0b5ed8c",
+      "decimal": "4.999999999999999e-07"
+    },
+    {
+      "id": "bits-3ea0c6f7a0b5ed8e",
+      "bits_hex": "3ea0c6f7a0b5ed8e",
+      "decimal": "5.000000000000001e-07"
+    },
+    {
+      "id": "bits-3e8091f1667f0595",
+      "bits_hex": "3e8091f1667f0595",
+      "decimal": "1.2345678901234566e-07"
+    },
+    {
+      "id": "bits-bea0c6f7a0b5ed8c",
+      "bits_hex": "bea0c6f7a0b5ed8c",
+      "decimal": "-4.999999999999999e-07"
+    },
+    {
+      "id": "bits-bea0c6f7a0b5ed8e",
+      "bits_hex": "bea0c6f7a0b5ed8e",
+      "decimal": "-5.000000000000001e-07"
+    },
+    {
+      "id": "bits-be8091f1667f0595",
+      "bits_hex": "be8091f1667f0595",
+      "decimal": "-1.2345678901234566e-07"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "before": "4162ebe82febd23cda8bafc06b4f4f79b99a0094b6f688d67f732a5784ff012f",
+  "after": "a5a3f7104b8a77c9d9709a9d4abd5123e14aedd4fa31f2d3763cc0101677034f",
+  "exact_manager_patch_verified": true,
+  "only_change": "Remove invalid unwrap on NonlinearSupport::one_way, which returns Self",
+  "source_disposition": "closed",
+  "runtime": "not executed"
+}

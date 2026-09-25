@@ -1,7 +1,7 @@
 //! Pure derivative assembly from separately qualified source evidence.
 //! This module does not authenticate supplied JSON. The headless solve API and
 //! desktop Current adapter own qualification; payload shape never proves origin.
-use crate::semantic_contract::{signature, canonical_metadata, complete_metadata};
+use crate::semantic_contract::{for_source, signature_in, canonical_metadata_in, complete_metadata};
 use open_pipe_stress_canonical_json::canonical_json;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -24,6 +24,7 @@ pub fn legacy_checksum(v:&Value,payload_ref:Value)->Result<Value,String>{Ok(json
 /// `base` carries qualified run/provenance/boundary facts, not numeric mappings.
 /// `origin` is supplied only after the caller's source binding has succeeded.
 pub fn derive_document(mut base:Value,model:&Value,source:&Value,origin:Value,request:Option<&Value>)->Result<Value,String>{
+    let (table, version) = for_source(source)?;
     guard_json(model)?;guard_json(source)?;guard_json(&base)?;guard_json(&origin)?;
     if source["status"]["mechanics"]!="MECHANICS_SOLVED" {return Err("SOURCE_NOT_SOLVED".into());}
     if model["project"]["id"]!=source["model_ref"] {return Err("SOURCE_MODEL_IDENTITY_MISMATCH".into());}
@@ -33,7 +34,12 @@ pub fn derive_document(mut base:Value,model:&Value,source:&Value,origin:Value,re
     let mut values=Vec::new();let mut reviews=Vec::new();let mut disclosures=Vec::new();let mut annotations=Vec::new();let mut accounting=Vec::new();let mut witnesses=Vec::new();
     let e=&mut base["result_envelope"];
     let mechanics_set=e["result_sets"][0].clone();e["result_sets"]=json!([mechanics_set]);
-    e["schema_version"]=json!("0.2.0");e["model_ref"]=reference("model_payload",source["model_ref"].as_str().ok_or("MODEL_REF_MISSING")?);
+    e["schema_version"]=json!(version);
+    if version == "0.3.0" {
+        for key in ["producer", "numerical_quality", "formulation_basis"] { e[key] = source[key].clone(); }
+        e["semantic_contract_ref"] = reference("semantic_contract", source["producer"]["semantic_contract_id"].as_str().unwrap());
+    }
+    e["model_ref"]=reference("model_payload",source["model_ref"].as_str().ok_or("MODEL_REF_MISSING")?);
     let origin_ref=reference("source_origin_binding",origin["origin_id"].as_str().ok_or("ORIGIN_ID_MISSING")?);
     let run_basis=e["run_ref"].clone();let provenance=e["provenance"].clone();let unit_system=e["unit_system_ref"].clone();
     let carrier_ref=origin["received_carrier_checksum"]["payload_ref"].clone();
@@ -47,12 +53,12 @@ pub fn derive_document(mut base:Value,model:&Value,source:&Value,origin:Value,re
         row["value"].as_f64().filter(|x|x.is_finite()).ok_or("SOURCE_VALUE_INVALID")?;
         let value=row["value"].clone();
         let unit=row["unit"].as_str().filter(|s|!s.is_empty()).ok_or("SOURCE_UNIT_MISSING")?;
-        let kind=row["kind"].as_str().ok_or("SOURCE_KIND_MISSING")?;let s=signature(row)?;
+        let kind=row["kind"].as_str().ok_or("SOURCE_KIND_MISSING")?;let s=signature_in(table, row)?;
         let category=s.map(|s|s["category"].clone()).unwrap_or(json!("unknown"));
         let dimension=s.map(|s|s["derivative_target_dimension"].clone()).unwrap_or(Value::Null);
         let math=s.map(|s|s["source_physical_semantic_dimension"].clone()).unwrap_or(Value::Null);
         let disposition=s.map(|s|s["canonical_disposition"].as_str().unwrap()).unwrap_or("disclosed");
-        let metadata=canonical_metadata(row);let family=s.map(|s|s["family"].clone()).unwrap_or(Value::Null);
+        let metadata=canonical_metadata_in(table, row);let family=s.map(|s|s["family"].clone()).unwrap_or(Value::Null);
         let mandatory=matches!(family.as_str(),Some("force"|"moment"|"section_property"));
         let review_missing=disposition=="exported_review" && !complete_metadata(row);
         let physical_missing=disposition=="exported_quantity" && mandatory && metadata.is_none();
@@ -85,7 +91,7 @@ pub fn derive_document(mut base:Value,model:&Value,source:&Value,origin:Value,re
     e["reproducibility"]["source_origin_bindings"]=json!([origin]);
     e["reproducibility"]["request_hash"]=match request{Some(v)=>checksum(v,"request_payload",reference("runner_request",v["request_id"].as_str().unwrap_or("request")))?,None=>Value::Null};
     e["reproducibility"]["derivative_hash_excludes"]=json!("result_envelope.reproducibility.derivative_hash");
-    e["reproducibility"].as_object_mut().unwrap().remove("derivative_hash");base["schema_version"]=json!("0.2.0");
+    e["reproducibility"].as_object_mut().unwrap().remove("derivative_hash");base["schema_version"]=json!(version);
     let hash=checksum(&base,"derivative_document_excludes_own_hash",reference("derivative_document",base["result_envelope"]["envelope_id"].as_str().unwrap()))?;base["result_envelope"]["reproducibility"]["derivative_hash"]=hash;validate_document(&base,source)?;Ok(base)
 }
 
@@ -93,7 +99,15 @@ pub fn derive_document(mut base:Value,model:&Value,source:&Value,origin:Value,re
 /// additionally exercised by the version-dispatched schema validation gate.
 pub fn validate_document(doc:&Value,source:&Value)->Result<(),String>{
     guard_json(doc)?;guard_json(source)?;
-    if doc["schema_version"]!="0.2.0"||doc["result_envelope"]["schema_version"]!="0.2.0"{return Err("DERIVATIVE_VERSION_MISMATCH".into());}
+    let (table, version) = for_source(source)?;
+    if version == "0.3.0" {
+        for key in ["producer", "numerical_quality", "formulation_basis"] {
+            if doc["result_envelope"][key] != source[key] { return Err("SOURCE_METADATA_BINDING_MISMATCH".into()); }
+        }
+        if doc["result_envelope"]["semantic_contract_ref"] != reference("semantic_contract", source["producer"]["semantic_contract_id"].as_str().unwrap()) { return Err("SEMANTIC_CONTRACT_BINDING_MISMATCH".into()); }
+    }
+    if version == "0.2.0" && ["producer", "numerical_quality", "formulation_basis", "semantic_contract_ref"].iter().any(|key| doc["result_envelope"].get(key).is_some()) { return Err("LEGACY_DERIVATIVE_METADATA_CONTRADICTION".into()); }
+    if doc["schema_version"]!=version||doc["result_envelope"]["schema_version"]!=version{return Err("DERIVATIVE_VERSION_MISMATCH".into());}
     let e=&doc["result_envelope"];let rows=source["results"].as_array().ok_or("SOURCE_ROWS_MISSING")?;
     let accounts=e["row_accounting"].as_array().ok_or("ACCOUNTING_MISSING")?;
     let annotations=e["source_annotations"].as_array().ok_or("ANNOTATIONS_MISSING")?;
@@ -121,7 +135,7 @@ pub fn validate_document(doc:&Value,source:&Value)->Result<(),String>{
         let id=row["id"].as_str().ok_or("SOURCE_ID_MISSING")?;
         if !source_ids.insert(id)||a["source_row_index"]!=i||a["source_result_id"]!=row["id"]||a["source_kind"]!=row["kind"]||a["source_field_path"]!=format!("/results/{i}"){return Err("SOURCE_ACCOUNTING_IDENTITY_MISMATCH".into());}
         let path=a["target_field_path"].as_str().ok_or("TARGET_POINTER_MISSING")?;if !pointers.insert(path){return Err("TARGET_DUPLICATE".into());}let target=doc.pointer(path).ok_or("TARGET_POINTER_UNRESOLVED")?;
-        let s=signature(row)?;let md=canonical_metadata(row);let family=s.map(|s|s["family"].clone()).unwrap_or(Value::Null);let category=s.map(|s|s["category"].clone()).unwrap_or(json!("unknown"));
+        let s=signature_in(table, row)?;let md=canonical_metadata_in(table, row);let family=s.map(|s|s["family"].clone()).unwrap_or(Value::Null);let category=s.map(|s|s["category"].clone()).unwrap_or(json!("unknown"));
         let mut disposition=s.map(|s|s["canonical_disposition"].as_str().unwrap()).unwrap_or("disclosed");
         if (disposition=="exported_review"&&!complete_metadata(row))||(disposition=="exported_quantity"&&matches!(family.as_str(),Some("force"|"moment"|"section_property"))&&md.is_none()){disposition="disclosed";}
         let (target_type,prefix,target_id,target_scope)=match disposition{"exported_quantity"=>("quantity_result","/result_envelope/result_sets/0/values/",&target["result_id"],"derived_quantity_row"),"exported_review"=>("review_evidence","/result_envelope/review_evidence/",&target["evidence_id"],"derived_review_row"),_=>("row_disclosure","/result_envelope/row_disclosures/",&target["source_result_id"],"derived_disclosure_row")};

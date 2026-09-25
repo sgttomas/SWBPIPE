@@ -1,0 +1,27 @@
+{
+  "basis": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CORE_CONSUMER_REVIEW/_run_records/BACKCHECK_01/backcheck_probe.json",
+    "sha256": "cda68964494aa004eaf72347c913043e704d504a10a26b5e6ce24702a9243c84"
+  },
+  "syntax": "4 source/test AST parses pass",
+  "runtime": "Not executed; parent resource hold",
+  "ts_ack": "Exact nonnull-location and optional source-basis policy acknowledged by /root/authoring_manager",
+  "candidate_files": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "3e90836ad17d8ca0ba9aa249b959189457b9f38d230ab95e7ffb42ccf22595b9"
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "b16e5d9033401c4a08135238e73a7e6a3df3bc487b717c98eb82c86627071d62"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_precision_consumer_contract.py",
+      "sha256": "5a3bd39653f7f8da27b5f33d3729fe190ea8478306ddca7f56bbbc9f8b60406c"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_stress_neutral_precision.py",
+      "sha256": "08c9683950e44e1c1b2219fde0e9d2277da68954fddc1ceea14cc064b78e7890"
+    }
+  ]
+}

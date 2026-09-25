@@ -1,0 +1,11 @@
+{
+  "agent": "/root/solver_manager/evidence_primitives",
+  "parent": "/root/solver_manager",
+  "mechanism": "native followup TASK",
+  "time": "2026-09-25T00:38:59.634891+00:00",
+  "source": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+  "source_before_sha256": "572d0ed16d6811d2cc0b93c26d2610ac480a56f56ac2225572510749ee96d739",
+  "actual_runtime_failure": "Parent reports focused unsupported_gap_inspection positive test failed positional assertion; other two negative suites passed. Parent source trace: nonlinear_supports sorts support_id and integration uses sorted active_set.states.",
+  "failure_record_base": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/SOLVER_FIRST_CHECKS/_run_records/five_nonlinear_inspection",
+  "limits": "No Cargo/build/Git/product edit; REPAIR02 unchanged; no descendants."
+}

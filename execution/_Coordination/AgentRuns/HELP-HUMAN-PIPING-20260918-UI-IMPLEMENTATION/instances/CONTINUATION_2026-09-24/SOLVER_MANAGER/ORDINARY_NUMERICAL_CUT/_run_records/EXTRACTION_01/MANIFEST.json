@@ -1,0 +1,688 @@
+{
+  "source_root": "/private/tmp/piping-numerical-integrity-20260924",
+  "destination_root": "/private/tmp/piping-numerical-corrections-20260924",
+  "destination_head": "f702b439536c6e76af8e1c81ee536d5685e87907",
+  "source_base": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "rows": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "390a7a611509fce1c723d1fa198654df14f0a7651d5b18c53d0d7b04dd1ae246",
+      "main_before_sha256": "390a7a611509fce1c723d1fa198654df14f0a7651d5b18c53d0d7b04dd1ae246",
+      "numerical_sha256": "ae8eb2d1193fb96d742820614eebb6b69eaefa2256d23d79193c3b4b3dcb0b16",
+      "merged_sha256": "ae8eb2d1193fb96d742820614eebb6b69eaefa2256d23d79193c3b4b3dcb0b16"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "main_before_sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "numerical_sha256": "64e5dedd41eefe17bdd0bd092d88d95978af960821f0da60f9fa85fb2daca4ef",
+      "merged_sha256": "64e5dedd41eefe17bdd0bd092d88d95978af960821f0da60f9fa85fb2daca4ef"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "status": "applied",
+      "mechanism": "git_merge_file_three_way_main_base63_numerical",
+      "base_sha256": "d44d00f1946679e50b7deedd292870ed18aaa74405931183df463c6400250a14",
+      "main_before_sha256": "686687e5b124c393254abd08699183203fbcd417b361368334d46dd478b33028",
+      "numerical_sha256": "686687e5b124c393254abd08699183203fbcd417b361368334d46dd478b33028",
+      "merged_sha256": "686687e5b124c393254abd08699183203fbcd417b361368334d46dd478b33028"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "status": "applied",
+      "mechanism": "git_merge_file_three_way_main_base63_numerical",
+      "base_sha256": "05ab59648af6d3c94a2001cd25c893d275a35aa4f463525c9b60345967109c2f",
+      "main_before_sha256": "5f900ec96cc7e1d58f13f53a653bf845b448594c0a3d9bcb7b20e10df387e86e",
+      "numerical_sha256": "13a66b24612a876be99210c0d8703542b728c41e285179ec05e32a2b0fd62812",
+      "merged_sha256": "ceb1ec1cc525478f32f50aba79d5a3d31df497b69d06dfd9efb097c49c8d291d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "1a778fb7b7c3f424cbf0394c0b3b3cc8dd174ecaae5863392236d92bb2cc6404",
+      "main_before_sha256": "1a778fb7b7c3f424cbf0394c0b3b3cc8dd174ecaae5863392236d92bb2cc6404",
+      "numerical_sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28",
+      "merged_sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "09e818165e8277730a7d52b310ed551f8005af0d3648cf4f25b417ddf2412d0e",
+      "main_before_sha256": "09e818165e8277730a7d52b310ed551f8005af0d3648cf4f25b417ddf2412d0e",
+      "numerical_sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574",
+      "merged_sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "6d5a762e6d7e1b6238eb3eb8873e83f88904af6986a84b52f13049f4061f94c9",
+      "main_before_sha256": "6d5a762e6d7e1b6238eb3eb8873e83f88904af6986a84b52f13049f4061f94c9",
+      "numerical_sha256": "38d931905c62a5aff4baf2b194cf63337aca1c2f82de9e1879b5200960168108",
+      "merged_sha256": "38d931905c62a5aff4baf2b194cf63337aca1c2f82de9e1879b5200960168108"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "a433e7df1e8e942bd90eae12c478ac2143d9dd630409a0a37142858fa83d1dcd",
+      "main_before_sha256": "a433e7df1e8e942bd90eae12c478ac2143d9dd630409a0a37142858fa83d1dcd",
+      "numerical_sha256": "fd692788d9f1318cad28a5248ea9d9b1c3722498a55084cf21ed3a31fd4f2e49",
+      "merged_sha256": "fd692788d9f1318cad28a5248ea9d9b1c3722498a55084cf21ed3a31fd4f2e49"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.test.tsx",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "b4461511113772805aa23db6bc5068aa1d238641b79552022b3174804d0b49c1",
+      "main_before_sha256": "b4461511113772805aa23db6bc5068aa1d238641b79552022b3174804d0b49c1",
+      "numerical_sha256": "63713009827ec373fb677eced87ff62e53dab876cc8daba8c1e6f3250a5df290",
+      "merged_sha256": "63713009827ec373fb677eced87ff62e53dab876cc8daba8c1e6f3250a5df290"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "f4ebca0acb87a635b1927b768e40e82081110172db691ce766d5e5e0f9f97176",
+      "main_before_sha256": "f4ebca0acb87a635b1927b768e40e82081110172db691ce766d5e5e0f9f97176",
+      "numerical_sha256": "47b7e0f617d6d4e3b2f97d7b82d3caeed55c64de8689882c504222cc13d2fde9",
+      "merged_sha256": "47b7e0f617d6d4e3b2f97d7b82d3caeed55c64de8689882c504222cc13d2fde9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655",
+      "merged_sha256": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c",
+      "merged_sha256": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "e61c35ebf61f2114cf7c2fb5a89a5edcdc34c49794b72422b1221f788f3c5951",
+      "main_before_sha256": "e61c35ebf61f2114cf7c2fb5a89a5edcdc34c49794b72422b1221f788f3c5951",
+      "numerical_sha256": "95330590fbe7fb9f5370d8118e05b8a5f10320ee9c46d2bd9b2f9aaba0d65db0",
+      "merged_sha256": "95330590fbe7fb9f5370d8118e05b8a5f10320ee9c46d2bd9b2f9aaba0d65db0"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "919db707aa002a9464258fcc63f5129d3d356fad85c7570bd67067f967021d1f",
+      "main_before_sha256": "919db707aa002a9464258fcc63f5129d3d356fad85c7570bd67067f967021d1f",
+      "numerical_sha256": "744484fdcd9ee326493a2dae1e6dc9019a4f9b702214bb9908905d659b429351",
+      "merged_sha256": "744484fdcd9ee326493a2dae1e6dc9019a4f9b702214bb9908905d659b429351"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "4da78ccfc166350863529b2a501c40114daddff9706db0792eda2cd06c2d8d7e",
+      "main_before_sha256": "4da78ccfc166350863529b2a501c40114daddff9706db0792eda2cd06c2d8d7e",
+      "numerical_sha256": "c59154974556ccbd388ab21bb0e35273e23e722ff05e785d480b8c9371be3898",
+      "merged_sha256": "c59154974556ccbd388ab21bb0e35273e23e722ff05e785d480b8c9371be3898"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "db1882e56dda3be622c696ac358bcc4e4d071f0baef2e461fb9e1361d1b16f74",
+      "main_before_sha256": "db1882e56dda3be622c696ac358bcc4e4d071f0baef2e461fb9e1361d1b16f74",
+      "numerical_sha256": "c88a2399b08e7289627b9104557c5a7ce983ee127b18b9fd7bb0f529b0a6377c",
+      "merged_sha256": "c88a2399b08e7289627b9104557c5a7ce983ee127b18b9fd7bb0f529b0a6377c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.test.ts",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "2f0dd6c8b199e3a1d77178ee14a9d5ae4b0e5268e17f8d64fe951ff6de86312d",
+      "merged_sha256": "2f0dd6c8b199e3a1d77178ee14a9d5ae4b0e5268e17f8d64fe951ff6de86312d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "cc6e1ce35ff4b5deeb415c0735fec148c06b1d60ae46edbf91d5374b047bcb41",
+      "main_before_sha256": "cc6e1ce35ff4b5deeb415c0735fec148c06b1d60ae46edbf91d5374b047bcb41",
+      "numerical_sha256": "c92030018f057c8e826d0486db33a5c78246114d220fa0a062d87a3e21a94ac8",
+      "merged_sha256": "c92030018f057c8e826d0486db33a5c78246114d220fa0a062d87a3e21a94ac8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/ShellStatusBar.tsx",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "a9fa97ad6679229d14a17c04c91639080c0294d7bf10c3357fd1a5bad5e312ab",
+      "main_before_sha256": "a9fa97ad6679229d14a17c04c91639080c0294d7bf10c3357fd1a5bad5e312ab",
+      "numerical_sha256": "35308b140d20c8e8065de3fa0be17c3a21d00f888979a200b53bcc0e4e588bd9",
+      "merged_sha256": "35308b140d20c8e8065de3fa0be17c3a21d00f888979a200b53bcc0e4e588bd9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shell/StageRail.tsx",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "1b2f2c6d937642cb7facc39573eded7829fa23b880983c89aa54aa48ccf222fd",
+      "main_before_sha256": "1b2f2c6d937642cb7facc39573eded7829fa23b880983c89aa54aa48ccf222fd",
+      "numerical_sha256": "41fe4a4b6b16e782aacd85e6848c3779af5c442b564d3f20575f36c3cd3dee52",
+      "merged_sha256": "41fe4a4b6b16e782aacd85e6848c3779af5c442b564d3f20575f36c3cd3dee52"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.test.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "7761cd20ced2573cb428ae578c9d326515bce70918a3c6636708a9b63385e928",
+      "main_before_sha256": "7761cd20ced2573cb428ae578c9d326515bce70918a3c6636708a9b63385e928",
+      "numerical_sha256": "fa06cae042dac31b40562300fb9301c2c53602fbe0ec99ae0e3881f6a9562e06",
+      "merged_sha256": "fa06cae042dac31b40562300fb9301c2c53602fbe0ec99ae0e3881f6a9562e06"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "52dc1849d3458cf54a30308d0d035f7187aad90ce2cf3fd71dab1f4cf2aa52f2",
+      "main_before_sha256": "52dc1849d3458cf54a30308d0d035f7187aad90ce2cf3fd71dab1f4cf2aa52f2",
+      "numerical_sha256": "9dce386b4b5f8c489890e77bdcf962d3c815ec687d50a0beeb6e2b48e865b336",
+      "merged_sha256": "9dce386b4b5f8c489890e77bdcf962d3c815ec687d50a0beeb6e2b48e865b336"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "fe0f9eea5a991d965dc097553e73e8c4c23c7968ed1743a8709af94f02dab20d",
+      "main_before_sha256": "fe0f9eea5a991d965dc097553e73e8c4c23c7968ed1743a8709af94f02dab20d",
+      "numerical_sha256": "6a113eeaef876c6d7f3d0968b63a7a97da7fd7e4c42cfae00c871f3f058bf674",
+      "merged_sha256": "6a113eeaef876c6d7f3d0968b63a7a97da7fd7e4c42cfae00c871f3f058bf674"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "3efe2bf11babd73416fd9142d23ea4372a67d920dff93d525a506c29ad638017",
+      "main_before_sha256": "3efe2bf11babd73416fd9142d23ea4372a67d920dff93d525a506c29ad638017",
+      "numerical_sha256": "c5680b9afb831c4d427f3bdff7feb54e9b06329377c9e6664dcced50c36fb018",
+      "merged_sha256": "c5680b9afb831c4d427f3bdff7feb54e9b06329377c9e6664dcced50c36fb018"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "8acfdd9844480a0f895a7c4d893b4ec8aeb56ecd8eacd8f11c829423047615f3",
+      "main_before_sha256": "8acfdd9844480a0f895a7c4d893b4ec8aeb56ecd8eacd8f11c829423047615f3",
+      "numerical_sha256": "742d66ed8c969a7ef9290c7a0a24005ffc19342d20cfea4f7886147508a0b9f4",
+      "merged_sha256": "742d66ed8c969a7ef9290c7a0a24005ffc19342d20cfea4f7886147508a0b9f4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/displayQuantityPrecision.test.ts",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "3f617a1f540573ebe0d3e6958ef26bb64d9a92d93d5cadf3c24857f1e1329723",
+      "merged_sha256": "3f617a1f540573ebe0d3e6958ef26bb64d9a92d93d5cadf3c24857f1e1329723"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "7db412acc01531233631ebdacf7a4affee569eec3684f9e5e0b44684d25b7238",
+      "main_before_sha256": "7db412acc01531233631ebdacf7a4affee569eec3684f9e5e0b44684d25b7238",
+      "numerical_sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347",
+      "merged_sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7",
+      "main_before_sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7",
+      "numerical_sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498",
+      "merged_sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.test.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "c8126ddd814b74025a43959875ec07e11637f335d3046b0ba3a8845a929c8126",
+      "main_before_sha256": "c8126ddd814b74025a43959875ec07e11637f335d3046b0ba3a8845a929c8126",
+      "numerical_sha256": "c8390d5be9a2e02f2bae7fb6a83f6a6eb70cfafbfdb0448babeb80eb1d004f07",
+      "merged_sha256": "c8390d5be9a2e02f2bae7fb6a83f6a6eb70cfafbfdb0448babeb80eb1d004f07"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "4783f6412ed006abbf24711a4f6c8d639d2f0188b14aa3e15cfd2198772b187a",
+      "main_before_sha256": "4783f6412ed006abbf24711a4f6c8d639d2f0188b14aa3e15cfd2198772b187a",
+      "numerical_sha256": "98155f7143932269f877688198733d6bdb85dbb5672b07d862a93c2f9e499531",
+      "merged_sha256": "98155f7143932269f877688198733d6bdb85dbb5672b07d862a93c2f9e499531"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "a2ccaf863646c48c3f1c3303ad31ae87132311c28f72b343824f47ac58a83314",
+      "main_before_sha256": "a2ccaf863646c48c3f1c3303ad31ae87132311c28f72b343824f47ac58a83314",
+      "numerical_sha256": "25a3b2aa687bd8984cc053f6306e57c546c3adb6efbe8576140cae3f06e8bce1",
+      "merged_sha256": "25a3b2aa687bd8984cc053f6306e57c546c3adb6efbe8576140cae3f06e8bce1"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/__init__.py",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "3cbf541cd2e84e719dab8411482424c9e04300d0f4ffdb8d01994e86d886aa8e",
+      "main_before_sha256": "3cbf541cd2e84e719dab8411482424c9e04300d0f4ffdb8d01994e86d886aa8e",
+      "numerical_sha256": "ffca538dac8e6549eaad02723a97a537682f9b06e5b6329a80394ee04e614a9c",
+      "merged_sha256": "ffca538dac8e6549eaad02723a97a537682f9b06e5b6329a80394ee04e614a9c"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "5b191695c32495c633d21ec74a2ec95aede27b56f6521069a328f0e386575dd7",
+      "main_before_sha256": "5b191695c32495c633d21ec74a2ec95aede27b56f6521069a328f0e386575dd7",
+      "numerical_sha256": "ea2ae439ce6ac827e41e7cc3ea3c86e23d0267de80b67478b9005cc936390bb1",
+      "merged_sha256": "ea2ae439ce6ac827e41e7cc3ea3c86e23d0267de80b67478b9005cc936390bb1"
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/__init__.py",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "0fc9c2b43b0b968b61901697d2a9a676cc65a1df938593a91cfbe2c4915c4370",
+      "main_before_sha256": "0fc9c2b43b0b968b61901697d2a9a676cc65a1df938593a91cfbe2c4915c4370",
+      "numerical_sha256": "de3def096a57678d092f3b87b0b4b0369c603cacba9797086aac30a5c7b04478",
+      "merged_sha256": "de3def096a57678d092f3b87b0b4b0369c603cacba9797086aac30a5c7b04478"
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "d2248bc6c9a82a9c76ad2df1783c1412970c3b242340844964235ea154831683",
+      "merged_sha256": "d2248bc6c9a82a9c76ad2df1783c1412970c3b242340844964235ea154831683"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "0c9a8902174b115da5a375f46debd84ee79b740816410096d9eb5a28e0e8d5c1",
+      "main_before_sha256": "0c9a8902174b115da5a375f46debd84ee79b740816410096d9eb5a28e0e8d5c1",
+      "numerical_sha256": "947b86b13e097cf498438b6b1ca39cde60d35d4130ba35056c2c6e5e68a2c020",
+      "merged_sha256": "947b86b13e097cf498438b6b1ca39cde60d35d4130ba35056c2c6e5e68a2c020"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "2d04ed98254a98a1f24235ed09ba9538e96e63924ca2a2802b9cd3218d7c5035",
+      "main_before_sha256": "2d04ed98254a98a1f24235ed09ba9538e96e63924ca2a2802b9cd3218d7c5035",
+      "numerical_sha256": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542",
+      "merged_sha256": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1",
+      "main_before_sha256": "4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1",
+      "numerical_sha256": "d146409ae7dcc8ae0f1e6bb05446b9dd91efd318465d12ce9883109b47214616",
+      "merged_sha256": "d146409ae7dcc8ae0f1e6bb05446b9dd91efd318465d12ce9883109b47214616"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/represented_gap_publication.rs",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "1c33c4f0604b3eb0e31e689f3f965e65fd5d832377737f366b1b25e038fc1b78",
+      "merged_sha256": "1c33c4f0604b3eb0e31e689f3f965e65fd5d832377737f366b1b25e038fc1b78"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/Cargo.toml",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "1fcbed32019b21118382bb935fc8ae61fc876b1ee28063f9fcf36a05d6da9bd4",
+      "main_before_sha256": "1fcbed32019b21118382bb935fc8ae61fc876b1ee28063f9fcf36a05d6da9bd4",
+      "numerical_sha256": "196fb7e2adbe364eb725bd291a40fb47f37a3da02f5d05177b6cc77dabeeb36a",
+      "merged_sha256": "196fb7e2adbe364eb725bd291a40fb47f37a3da02f5d05177b6cc77dabeeb36a"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "b261a0e68bf0a938287dad029b9daf2c63fd2e8d69276b0b52aef0e9c290ff57",
+      "main_before_sha256": "b261a0e68bf0a938287dad029b9daf2c63fd2e8d69276b0b52aef0e9c290ff57",
+      "numerical_sha256": "fbdf506e05a5e881798346e164e2c8a5705958e2b45d2dbb8b8fb3dcd5a9209b",
+      "merged_sha256": "fbdf506e05a5e881798346e164e2c8a5705958e2b45d2dbb8b8fb3dcd5a9209b"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7",
+      "main_before_sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7",
+      "numerical_sha256": "9bc67065db2949641ddb4d97434ffb5c70e75f9ae7fd6de75e40674e5e81ebba",
+      "merged_sha256": "9bc67065db2949641ddb4d97434ffb5c70e75f9ae7fd6de75e40674e5e81ebba"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/derivative_contract.rs",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "2ff8c8ac03b429a9209c08cf6dcc886526228c6a0752cb2256c501787d84af1c",
+      "main_before_sha256": "2ff8c8ac03b429a9209c08cf6dcc886526228c6a0752cb2256c501787d84af1c",
+      "numerical_sha256": "f62194e8a126245aacc04fe24794684fce2448a47ba4746892d7b95ba35eeae9",
+      "merged_sha256": "f62194e8a126245aacc04fe24794684fce2448a47ba4746892d7b95ba35eeae9"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/precision_contract.rs",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "f968875494cd806226d0ad12435d9becbc82393ebac9abe0f07857207c6088c9",
+      "merged_sha256": "f968875494cd806226d0ad12435d9becbc82393ebac9abe0f07857207c6088c9"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/Cargo.toml",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "8ca4a4c2955852edc4386212d1e3b2b0b7784af9b607417f03764c7011b98ef6",
+      "main_before_sha256": "8ca4a4c2955852edc4386212d1e3b2b0b7784af9b607417f03764c7011b98ef6",
+      "numerical_sha256": "a053e40fb1159c704bf42c4634d567581d48975a5d8be36a8a555564c634a21a",
+      "merged_sha256": "a053e40fb1159c704bf42c4634d567581d48975a5d8be36a8a555564c634a21a"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2",
+      "main_before_sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2",
+      "numerical_sha256": "67b11bce2afa984c46eb442f2bc56d53fbb755e6985c0af120847daabe521e90",
+      "merged_sha256": "67b11bce2afa984c46eb442f2bc56d53fbb755e6985c0af120847daabe521e90"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "6d741832aabe729a40cc9e28aaa9ce8627d5bba4f9ca903c3059438dc0dd7042",
+      "main_before_sha256": "6d741832aabe729a40cc9e28aaa9ce8627d5bba4f9ca903c3059438dc0dd7042",
+      "numerical_sha256": "fef9429e9538959fab498692af4e627aad508dd661fdf1cb6dc447b739af482f",
+      "merged_sha256": "fef9429e9538959fab498692af4e627aad508dd661fdf1cb6dc447b739af482f"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "f9697f4eb3b4e1542cffa7cf2ce05cef1f4936f7ec7d71cf544b61177e6a4b6b",
+      "main_before_sha256": "f9697f4eb3b4e1542cffa7cf2ce05cef1f4936f7ec7d71cf544b61177e6a4b6b",
+      "numerical_sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4",
+      "merged_sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/tests/precision_transport.rs",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "07eded16d1ffd37c2c9f4c10b57e79e187ef7647704f5dd640a6b0c35f3f5d9a",
+      "merged_sha256": "07eded16d1ffd37c2c9f4c10b57e79e187ef7647704f5dd640a6b0c35f3f5d9a"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "091d4069852c6033da38074af297c5eaa5a9469510c00d577f222e077aec2c15",
+      "merged_sha256": "091d4069852c6033da38074af297c5eaa5a9469510c00d577f222e077aec2c15"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+      "merged_sha256": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "6801610d0bb515eab33603163423812b81bf94946d8c23b99c127b655d996a7f",
+      "merged_sha256": "6801610d0bb515eab33603163423812b81bf94946d8c23b99c127b655d996a7f"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "status": "held_pending_five_repair_review"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e",
+      "merged_sha256": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "f7600925cd44169ce6d04a03ae5c0e622a8f27aabee831377d297dce68ec51aa",
+      "merged_sha256": "f7600925cd44169ce6d04a03ae5c0e622a8f27aabee831377d297dce68ec51aa"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "3c80029904a6af6443cd5af5c7b8de98e1eaf6ba573a50408fce6ea63fc2192e",
+      "main_before_sha256": "3c80029904a6af6443cd5af5c7b8de98e1eaf6ba573a50408fce6ea63fc2192e",
+      "numerical_sha256": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88",
+      "merged_sha256": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+      "main_before_sha256": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+      "numerical_sha256": "51e010af1ef62c95faf854c6308aec7a0f0be7123546083be993f6090b257b12",
+      "merged_sha256": "51e010af1ef62c95faf854c6308aec7a0f0be7123546083be993f6090b257b12"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/structural.rs",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "89af5f9e72867072b0f9e2a54245592aa51745f1992ec20f118d20d1e13ae08f",
+      "merged_sha256": "89af5f9e72867072b0f9e2a54245592aa51745f1992ec20f118d20d1e13ae08f"
+    },
+    {
+      "path": "projects/chirality-piping/core/units/src/lib.rs",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "b133ae071a28d0ba0e897ad3c50694cc108f956cd9ce32e1288d5a027bdc970c",
+      "main_before_sha256": "b133ae071a28d0ba0e897ad3c50694cc108f956cd9ce32e1288d5a027bdc970c",
+      "numerical_sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c",
+      "merged_sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/precision_transport_v0_3.json",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "fc06b4a54073bbbdf933128360fc29454a0844ee0129d6b41728f60176b62897",
+      "merged_sha256": "fc06b4a54073bbbdf933128360fc29454a0844ee0129d6b41728f60176b62897"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
+      "merged_sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.schema.json",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "b787444e0a421c995fac4d393c16c28e4e3e84496196d5c2914a7bb082e43e86",
+      "main_before_sha256": "b787444e0a421c995fac4d393c16c28e4e3e84496196d5c2914a7bb082e43e86",
+      "numerical_sha256": "0c399a2a62ad247bc38f9d3e40c176bac0e56b5ab6604c0189f552834a8b8a83",
+      "merged_sha256": "0c399a2a62ad247bc38f9d3e40c176bac0e56b5ab6604c0189f552834a8b8a83"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "d95083745fffd97daffb08cbfae3f7f12e969440d474e4668eba717aceb240c5",
+      "merged_sha256": "d95083745fffd97daffb08cbfae3f7f12e969440d474e4668eba717aceb240c5"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.schema.yaml",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "main_before_sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "numerical_sha256": "9f2adf6a1017bb6cee72dd7a13906af94f15224b8886c979212ee4c144a77c5d",
+      "merged_sha256": "9f2adf6a1017bb6cee72dd7a13906af94f15224b8886c979212ee4c144a77c5d"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "6c7ea9eb8b695475d9efa62f1c5cf517ec961db11b1959466191f852eae84fda",
+      "merged_sha256": "6c7ea9eb8b695475d9efa62f1c5cf517ec961db11b1959466191f852eae84fda"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.schema.json",
+      "status": "applied",
+      "mechanism": "forward_delta_main_equals_original_base",
+      "base_sha256": "68b971d61ca7864e3ab74d1fb92d2518ba0fead2a8753bc089d9964977fea1a8",
+      "main_before_sha256": "68b971d61ca7864e3ab74d1fb92d2518ba0fead2a8753bc089d9964977fea1a8",
+      "numerical_sha256": "d7f372334df0d641db22cbce4cf442ef110324beaeb28091a6bfb5ad4f3021a1",
+      "merged_sha256": "d7f372334df0d641db22cbce4cf442ef110324beaeb28091a6bfb5ad4f3021a1"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "88647b3499e56530f8628e071686b86f2beacf005f8a351a5981593f1aa7e50f",
+      "merged_sha256": "88647b3499e56530f8628e071686b86f2beacf005f8a351a5981593f1aa7e50f"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_precision_consumer_contract.py",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "20569a31f5364e69d66d44946badaffc14145579a6a3072c19dbe68e492f71af",
+      "merged_sha256": "20569a31f5364e69d66d44946badaffc14145579a6a3072c19dbe68e492f71af"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_stress_neutral_precision.py",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "da5095b9a7e182925a6185955a692a02317c469209e953dffe15efe4e9662782",
+      "merged_sha256": "da5095b9a7e182925a6185955a692a02317c469209e953dffe15efe4e9662782"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/COVERAGE.md",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "114b34619dc33515199deeacfa81a757f0feecbac7238b3264f688ca071ea1a2",
+      "merged_sha256": "114b34619dc33515199deeacfa81a757f0feecbac7238b3264f688ca071ea1a2"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.toml",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "0bfd8671bfd12b8929712aec5b7e3143dd5775f366c6aba4346e6c59efd0902e",
+      "merged_sha256": "0bfd8671bfd12b8929712aec5b7e3143dd5775f366c6aba4346e6c59efd0902e"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/README.md",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "0cb44d1f5fbc1ee0d3138c645b646b74d80346a1099e557a132dba79e5251505",
+      "merged_sha256": "0cb44d1f5fbc1ee0d3138c645b646b74d80346a1099e557a132dba79e5251505"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/fixtures.json",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e",
+      "merged_sha256": "c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/generate.py",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "b491529a4bff8ed0e25de1f85c2488192a8e55677413571da6c260932b1a71a2",
+      "merged_sha256": "b491529a4bff8ed0e25de1f85c2488192a8e55677413571da6c260932b1a71a2"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/src/main.rs",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "f61f115b7c1e22490c204660ad505e2219bf67684add9c24511b4419b3a38037",
+      "merged_sha256": "f61f115b7c1e22490c204660ad505e2219bf67684add9c24511b4419b3a38037"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/test_reference.py",
+      "status": "applied",
+      "mechanism": "new_reviewed_file",
+      "base_sha256": null,
+      "main_before_sha256": null,
+      "numerical_sha256": "35b1b81895af8ec42e24fbb03dbec5c0233e5a2a57d1cccbc394cacee1a0c496",
+      "merged_sha256": "35b1b81895af8ec42e24fbb03dbec5c0233e5a2a57d1cccbc394cacee1a0c496"
+    }
+  ],
+  "no_git_index_commit_or_build": true
+}

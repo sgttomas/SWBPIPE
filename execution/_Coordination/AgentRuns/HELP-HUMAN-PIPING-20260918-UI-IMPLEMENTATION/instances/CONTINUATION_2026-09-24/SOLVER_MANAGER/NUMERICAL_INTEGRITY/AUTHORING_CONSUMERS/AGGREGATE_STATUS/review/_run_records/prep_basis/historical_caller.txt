@@ -1,0 +1,17 @@
+
+export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): Promise<HistoricalRunContext | null> {
+  const rawMechanicsResult: unknown = opened.mechanics_result;
+  const rawAnalysisRun: unknown = opened.analysis_run;
+  const hasReceivedMechanics = rawMechanicsResult !== null && rawMechanicsResult !== undefined;
+  const hasReceivedAnalysis = rawAnalysisRun !== null && rawAnalysisRun !== undefined;
+  if (!hasReceivedMechanics && !hasReceivedAnalysis) return null;
+  const evidenceResult = isHistoricalMechanicsEvidence(rawMechanicsResult) ? rawMechanicsResult : null;
+  const mechanicsResult = isRenderableMechanicsResult(rawMechanicsResult) ? rawMechanicsResult : null;
+  const analysisRun = rawAnalysisRun as AnalysisRunEnvelope | null;
+  const findings = ["HISTORICAL_INPUT_MANIFEST_MISSING"];
+  if (mechanicsResult) findings.push(...numericalResultStanding(mechanicsResult, opened.model).findings);
+  if (hasReceivedMechanics && !mechanicsResult) findings.push("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
+  const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
+  if (analysisRun && (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string")) findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
+  if (evidenceResult && evidenceResult.model_ref !== opened.model.project.id) findings.push("HISTORICAL_MODEL_REF_MISMATCH");
+  const expectedStateRef = `state:${opened.model.project.id}:preview`;

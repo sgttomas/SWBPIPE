@@ -1,0 +1,11 @@
+{
+  "CANDIDATE_FILES.json": "702f89bc22ac9004be75b0022817883d23f61b6c18fea636c1acf93ea27fd6d9",
+  "BASELINE_PREPARATION.json": "f36b88052cbb429503f5114dea8a26b0b2667deb898a7ae46a834f058ff499cf",
+  "_run_records/BASELINE_TEST.patch": "de6f97043ed9512fced2bda7fa1db90946a929d0ed5693b5f5e3770dc7caf31c",
+  "_run_records/REPAIR/validation.patch": "edd5bd4eb2f3ed635532353442fb3725d4eba11db6084c3dbec29f192fe58cd4",
+  "_run_records/REPAIR/test_expectation.patch": "303c1366426508c61d486be7e78d3c1b0911704c0575ad134032f758bdea2f39",
+  "_run_records/REPAIR/AUTHORSHIP.json": "bc83f40393070d9287b82169e99ca66d2c14ae16676182f2b27816dbfadbb219",
+  "_run_records/BASELINE/BEFORE.json": "0a60cd2c04087c0a9ab4d1ad6f6615ec7a372622c30d023b47a593496d32680c",
+  "_run_records/BASELINE/AFTER.json": "c01f545b8707e19ab375c63488c07eef361eeb7c34702bd37d319c0b5e802690",
+  "_run_records/BASELINE/baseline.log": "f2ce6a8483e22d6d9caac7af61c2347807f409062237494b9a20ac799d41b252"
+}

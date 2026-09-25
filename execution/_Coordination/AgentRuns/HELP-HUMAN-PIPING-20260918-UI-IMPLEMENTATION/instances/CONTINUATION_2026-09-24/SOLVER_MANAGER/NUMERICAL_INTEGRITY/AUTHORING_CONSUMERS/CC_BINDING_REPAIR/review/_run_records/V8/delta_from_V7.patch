@@ -1,0 +1,90 @@
+--- V7/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
++++ V8/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
+@@ -633,7 +633,8 @@
+   if (!Array.isArray(rows) || new Set(rows.map((row: any) => row?.result_id)).size !== rows.length
+     || rows.some((row: any) => typeof row?.result_id !== "string" || row?.canonical_ref?.ref !== row.result_id || row?.source_result_ref?.ref !== row.result_id)) throw new Error("SN-RESULT-ROW-IDENTITY-MISMATCH");
+   if (precision && rows.some((row: any) => typeof row.value !== "number" || !Number.isFinite(row.value))) throw new Error("SN-PRECISION-ROW-VALUE-INVALID");
+-  if (packet.csv_text !== renderCsv(rows)) throw new Error("SN-CSV-ROW-BINDING-MISMATCH");
++  if (precision) validatePrecisionCsv(packet.csv_text, rows);
++  else if (packet.csv_text !== renderCsv(rows)) throw new Error("SN-CSV-ROW-BINDING-MISMATCH");
+   if (!Array.isArray(packet.stable_id_map) || packet.stable_id_map.length !== rows.length
+     || new Set(packet.stable_id_map.map((item: any) => item?.canonical_ref?.ref)).size !== rows.length
+     || new Set(packet.stable_id_map.map((item: any) => precision ? JSON.stringify([item?.export_ref?.object_type, item?.export_ref?.ref]) : item?.export_ref?.ref)).size !== rows.length
+@@ -695,6 +696,49 @@
+   ].some((key) => boundary[key] !== false)) throw new Error("SN-PROFESSIONAL-BOUNDARY-VIOLATION");
+   const projection = structuredClone(packet); delete projection.package_checksum;
+   if (packet.package_checksum.value !== await canonicalSha256HexCheckedV1(projection)) throw new Error("SN-PACKAGE-CHECKSUM-MISMATCH");
++}
++
++/** Validate received spelling without replacing independently hashed CSV bytes. */
++function validatePrecisionCsv(text: unknown, rows: StressNeutralRow[]): void {
++  const fail = (): never => { throw new Error("SN-CSV-ROW-BINDING-MISMATCH"); };
++  if (typeof text !== "string" || /[^\x00-\x7f]/.test(text)) fail();
++  const csv = text as string;
++  const lines = csv.replace(/\r\n?/g, "\n").split("\n").map(line => line.replace(/[\t\v\f\r\x1c-\x20]+$/g, ""));
++  while (lines.length && lines[lines.length - 1] === "") lines.pop();
++  if (csv !== lines.join("\n") + "\n") fail();
++  const records: string[][] = []; let record: string[] = [], field = "", mode: "start" | "plain" | "quoted" | "closed" = "start";
++  for (let i = 0; i < csv.length; i++) {
++    const char = csv[i];
++    if (mode === "quoted") {
++      if (char === '"') { if (csv[i + 1] === '"') { field += '"'; i++; } else mode = "closed"; }
++      else field += char;
++      continue;
++    }
++    if (char === "," || char === "\n") {
++      record.push(field); field = ""; mode = "start";
++      if (char === "\n") { records.push(record); record = []; }
++    } else if (mode === "closed") fail();
++    else if (mode === "start" && char === '"') mode = "quoted";
++    else { field += char; mode = "plain"; }
++  }
++  if (mode === "quoted" || field || record.length || records.length !== rows.length + 1 || JSON.stringify(records[0]) !== JSON.stringify(CSV_COLUMNS) || records.some(r => r.length !== CSV_COLUMNS.length)) fail();
++  const ids = new Set<string>();
++  for (const [index, row] of rows.entries()) {
++    const received = records[index + 1];
++    if (!received[0] || ids.has(received[0])) fail(); ids.add(received[0]);
++    for (const [columnIndex, column] of CSV_COLUMNS.entries()) {
++      const scalar = received[columnIndex];
++      if (column === "value") {
++        if (!/^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?(?![\s\S])/.test(scalar)) fail();
++        const parsed = Number(scalar), significand = scalar.split(/[eE]/)[0];
++        if (!Number.isFinite(parsed) || (parsed === 0 && /[1-9]/.test(significand)) || (Number.isInteger(parsed) && !Number.isSafeInteger(parsed)) || typeof row.value !== "number" || !Number.isFinite(row.value) || parsed !== row.value) fail();
++      } else {
++        const value = row[column as keyof StressNeutralRow];
++        const expected = ["canonical_ref", "load_case_ref", "station_ref", "component_ref"].includes(column) ? (value as StressNeutralRef)?.ref ?? "" : value ?? "";
++        if (typeof expected !== "string" || scalar !== expected) fail();
++      }
++    }
++  }
+ }
+ 
+ export function precisionStressRow(item: MechanicsResult["results"][number], source: MechanicsResult): StressNeutralRow {
+--- V7/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
++++ V8/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
+@@ -131,6 +131,25 @@
+    for(const [name,value] of Object.entries({'precision.source.json':result,'precision.analysis.json':analysisRun,'precision.model.json':model}))writeFileSync(path.join(dir,name),JSON.stringify(value,null,2));
+    writeFileSync(path.join(dir,'precision.packet.json'),await canonicalJsonCheckedV1(packet));
+  }
++ const csvSpellingPacket=async(value:number,spelling:string)=>{
++   const candidate=structuredClone(packet);candidate.result_rows[0].value=value;
++   for(const w of candidate.unit_preservation_witnesses)if(w.result_id===candidate.result_rows[0].result_id){w.source_quantity.value=value;w.target_quantity.value=value;}
++   const encode=(v:any)=>{const text=typeof v==='object'?v.ref:String(v);return /[",\n\r]/.test(text)?`"${text.replaceAll('"','""')}"`:text;};
++   candidate.csv_text=candidate.export_profile.csv_columns.join(',')+'\n'+candidate.result_rows.map((r:any,i:number)=>candidate.export_profile.csv_columns.map((c:string)=>i===0&&c==='value'?spelling:encode(r[c])).join(',')).join('\n')+'\n';
++   await rehash(candidate);return candidate;
++ };
++ for(const [value,spelling] of [[1e-7,'1e-07'],[1e-7,'1e-7'],[1e-7,'0.0000001'],[-3.308659368829149e-05,'-3.308659368829149e-05'],[-3.308659368829149e-05,'-0.00003308659368829149'],[0,'0e-999'],[0,'-0'],[Number.MIN_VALUE,'5e-324'],[1e-7,'"1e-07"']] as const){
++   const candidate=await csvSpellingPacket(value,spelling),before=candidate.csv_text;
++   await expect(validateStressNeutralExportPacket(candidate)).resolves.toBeUndefined();expect(candidate.csv_text).toBe(before);
++ }
++ for(const spelling of ['+0','00','0.',' .0','NaN','Infinity','-Inf','1e-999','1e999','9007199254740992','"0"junk','"0']) {
++   const candidate=await csvSpellingPacket(0,spelling);
++   await expect(validateStressNeutralExportPacket(candidate)).rejects.toThrow('SN-CSV-ROW-BINDING-MISMATCH');
++ }
++ for(const mutate of [(p:any)=>{p.csv_text+=p.csv_text.split('\n')[1]+'\n';},(p:any)=>{p.csv_text=p.csv_text.replace('result_id,','wrong_id,');},(p:any)=>{p.csv_text=p.csv_text.replace('\n',',extra\n');},(p:any)=>{p.csv_text=p.csv_text.replaceAll('\n','\r\n');},(p:any)=>{p.csv_text+='\n';},(p:any)=>{p.csv_text=p.csv_text.replace('node:transport','node:wrong');},(p:any)=>{p.csv_text=p.csv_text.replace('node:transport','node:é');}]) {
++   const candidate=await csvSpellingPacket(0,'0');mutate(candidate);await rehash(candidate);
++   await expect(validateStressNeutralExportPacket(candidate)).rejects.toThrow('SN-CSV-ROW-BINDING-MISMATCH');
++ }
+  const canonicalDecoded=JSON.parse(await canonicalJsonCheckedV1(packet));
+  await expect(validateStressNeutralExportPacket(canonicalDecoded)).resolves.toBeUndefined();
+  const wrongQuantity=structuredClone(canonicalDecoded);wrongQuantity.unit_preservation_witnesses[0].target_quantity.unit='wrong';await rehash(wrongQuantity);

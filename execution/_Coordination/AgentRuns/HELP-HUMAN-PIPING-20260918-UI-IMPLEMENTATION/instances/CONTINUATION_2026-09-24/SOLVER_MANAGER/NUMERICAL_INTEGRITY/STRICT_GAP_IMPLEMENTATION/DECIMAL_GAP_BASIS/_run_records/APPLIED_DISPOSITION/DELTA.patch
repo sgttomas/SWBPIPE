@@ -1,0 +1,13 @@
+--- before/lib.rs
++++ after/lib.rs
+@@ -4155,7 +4155,9 @@
+                         assert!((result.reactions[6] - expected_r).abs() < 1e-14);
+                         assert_eq!(
+                             result.final_states[0].state,
+-                            if magnitude < 5.0 {
++                            // Binary64 0.05 exceeds exact 5/100; the force-5
++                            // case is released, while true dyadic ties stay closed.
++                            if magnitude <= 5.0 {
+                                 ActiveSetState::Inactive
+                             } else {
+                                 ActiveSetState::Active

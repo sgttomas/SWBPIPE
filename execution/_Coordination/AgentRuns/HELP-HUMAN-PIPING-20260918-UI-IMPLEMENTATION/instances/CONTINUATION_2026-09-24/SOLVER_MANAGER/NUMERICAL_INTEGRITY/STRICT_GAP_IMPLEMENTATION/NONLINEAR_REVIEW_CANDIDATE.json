@@ -1,0 +1,7 @@
+{
+  "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "a5a3f7104b8a77c9d9709a9d4abd5123e14aedd4fa31f2d3763cc0101677034f",
+  "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "79272e2f731be9853a087c38d83260b6ba112d6b0a0ed48256a71b40f9bd942f",
+  "projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "700338b91a54f9623ab479e5d0202f625a04810ebdce50e98196001da3675d9e"
+}

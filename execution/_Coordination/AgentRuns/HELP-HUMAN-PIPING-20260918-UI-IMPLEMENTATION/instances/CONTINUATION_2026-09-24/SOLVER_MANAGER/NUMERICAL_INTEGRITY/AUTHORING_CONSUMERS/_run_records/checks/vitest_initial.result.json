@@ -1,0 +1,24 @@
+{
+  "command": [
+    "../../node_modules/.bin/vitest",
+    "run",
+    "--config",
+    "vitest.m34.config.ts",
+    "--maxWorkers=1",
+    "src/services/previewService.test.ts",
+    "src/services/analysisRunCompatibility.test.ts",
+    "src/services/ruleCheckService.test.ts",
+    "src/services/displayQuantityPrecision.test.ts",
+    "src/features/result-export/resultExportAdapter.test.ts",
+    "src/features/results/resultSemantics.test.ts",
+    "src/features/results/numericalResultQuality.test.ts",
+    "src/features/results/ResultsPanel.test.tsx",
+    "src/features/results/HistoricalRunContext.test.tsx",
+    "src/features/workspace/resultsSessionState.test.ts",
+    "src/features/workspace/shellLayout.test.ts",
+    "src/features/stress-neutral/StressNeutralExportPanel.test.tsx"
+  ],
+  "cwd": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop",
+  "cache_config": "import base from \"./vite.config\";\nexport default { ...base, cacheDir: \"/private/tmp/piping-numerical-authoring-vite-cache-20260924\", test: { ...(base as any).test, cache: false } };\n",
+  "exit_code": 1
+}

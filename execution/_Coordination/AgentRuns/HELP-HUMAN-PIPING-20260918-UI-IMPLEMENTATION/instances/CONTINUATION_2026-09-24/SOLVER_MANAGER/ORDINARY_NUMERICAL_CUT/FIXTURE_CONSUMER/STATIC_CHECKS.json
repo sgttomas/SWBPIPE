@@ -1,0 +1,32 @@
+{
+  "performed": "Pure Python actual fixture inventory and string/row shape inspection; no TS/test execution",
+  "fixture_inventory": [
+    {
+      "fixture": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6",
+      "row_count": 830,
+      "mode_rows": 2,
+      "model_ref": "project:invented-loop-01",
+      "mechanics": "MECHANICS_SOLVED",
+      "numerical_status": "checks_passed",
+      "mode_fields_match_consumer_checks": true
+    },
+    {
+      "fixture": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155",
+      "row_count": 832,
+      "mode_rows": 2,
+      "model_ref": "project:invented-loop-01",
+      "mechanics": "MECHANICS_SOLVED",
+      "numerical_status": "checks_passed",
+      "mode_fields_match_consumer_checks": true
+    }
+  ],
+  "requested_cases": [
+    "load:L-100",
+    "load:L-200"
+  ],
+  "workspace_trace": "V03 builder validates contract/rows/source/hashes but does not reject unresolved numerical_quality; currentSolvedResult separately requires numericalResultStanding eligible. No workspace fallback added.",
+  "edited_error_trace": "runBrowserPreviewMechanics throws before result/manifest builder; workspace catch calls failSolveJob which preserves String(error) in error_message and event, with no result/analysis refs.",
+  "history": "Old fixture direct imports and explicit V02 history builder; no old bytes/headers rewritten."
+}

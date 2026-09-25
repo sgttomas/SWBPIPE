@@ -1,0 +1,41 @@
+{
+  "node": "v24.18.0",
+  "scope": "Actual validator via esbuild; original legacy fixture with independently recomputed own checksum and one extra field; no Current/source authentication claim",
+  "results": [
+    {
+      "key": "baseline",
+      "accepted": false,
+      "error": "Error: SN-UNIT-WITNESS-BINDING-MISMATCH"
+    },
+    {
+      "key": "producer",
+      "accepted": false,
+      "error": "Error: SN-UNIT-WITNESS-BINDING-MISMATCH"
+    },
+    {
+      "key": "numerical_quality",
+      "accepted": false,
+      "error": "Error: SN-UNIT-WITNESS-BINDING-MISMATCH"
+    },
+    {
+      "key": "formulation_basis",
+      "accepted": false,
+      "error": "Error: SN-UNIT-WITNESS-BINDING-MISMATCH"
+    },
+    {
+      "key": "semantic_contract_ref",
+      "accepted": false,
+      "error": "Error: SN-UNIT-WITNESS-BINDING-MISMATCH"
+    },
+    {
+      "key": "semantic_contract",
+      "accepted": false,
+      "error": "Error: SN-UNIT-WITNESS-BINDING-MISMATCH"
+    },
+    {
+      "key": "source_carrier_checksum",
+      "accepted": false,
+      "error": "Error: SN-UNIT-WITNESS-BINDING-MISMATCH"
+    }
+  ]
+}

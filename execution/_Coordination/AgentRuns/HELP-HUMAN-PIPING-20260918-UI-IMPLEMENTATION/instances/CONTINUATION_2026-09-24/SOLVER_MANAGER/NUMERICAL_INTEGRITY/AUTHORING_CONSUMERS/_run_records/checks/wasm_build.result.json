@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs"
+  ],
+  "cwd": "/private/tmp/piping-numerical-integrity-20260924",
+  "environment": {
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/private/tmp/piping-numerical-authoring-target-20260924"
+  },
+  "exit_code": 0
+}

@@ -1,0 +1,256 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "project": {
+    "id": "project:invented-loop-01",
+    "units": {
+      "angle": "rad",
+      "force": "N",
+      "length": "m",
+      "pressure": "Pa",
+      "stress": "MPa",
+      "temperature": "degC"
+    }
+  },
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+    {
+      "id": "node:N-100",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example"
+    },
+    {
+      "id": "node:N-110",
+      "position": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:P-100",
+      "from": "node:N-100",
+      "to": "node:N-110",
+      "section": {
+        "outside_diameter": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.007,
+          "unit": "m"
+        },
+        "mill_tolerance": null,
+        "material_density": null,
+        "contents_density": null,
+        "insulation_thickness": null,
+        "insulation_density": null
+      },
+      "section_ref": null,
+      "material": "material:invented-carbon-steel",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example_no_standard_catalog"
+    }
+  ],
+  "sections": [],
+  "supports": [
+    {
+      "id": "support:S-100",
+      "node": "node:N-100",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "family": "anchor",
+      "stiffness": null,
+      "hanger": null,
+      "nonlinear": null,
+      "provenance": "invented_example"
+    },
+    {
+      "id": "support:NL-MIX-ONEWAY-110",
+      "node": "node:N-110",
+      "restraints": [],
+      "family": "nonlinear",
+      "stiffness": null,
+      "hanger": null,
+      "nonlinear": {
+        "behavior": "one_way",
+        "dof": "UX",
+        "initial_state": "active",
+        "active_when": "positive_reaction",
+        "contact_when": null,
+        "closes_when": null,
+        "gap": null,
+        "friction_coefficient": null,
+        "normal_reaction": null,
+        "normal_reaction_source": null
+      },
+      "provenance": "invented_example_user_entered_nonlinear_support_no_catalog"
+    },
+    {
+      "id": "support:NL-MIX-GAP-110",
+      "node": "node:N-110",
+      "restraints": [],
+      "family": "nonlinear",
+      "stiffness": null,
+      "hanger": null,
+      "nonlinear": {
+        "behavior": "gap",
+        "dof": "UY",
+        "initial_state": "inactive",
+        "active_when": null,
+        "contact_when": null,
+        "closes_when": "positive_displacement",
+        "gap": {
+          "value": 0.05,
+          "unit": "mm"
+        },
+        "friction_coefficient": null,
+        "normal_reaction": null,
+        "normal_reaction_source": null
+      },
+      "provenance": "invented_example_user_entered_nonlinear_gap_no_catalog"
+    },
+    {
+      "id": "support:NL-MIX-FRIC-110",
+      "node": "node:N-110",
+      "restraints": [],
+      "family": "nonlinear",
+      "stiffness": null,
+      "hanger": null,
+      "nonlinear": {
+        "behavior": "friction",
+        "dof": "UZ",
+        "initial_state": "sticking",
+        "active_when": null,
+        "contact_when": null,
+        "closes_when": null,
+        "gap": null,
+        "friction_coefficient": {
+          "value": 0.3,
+          "unit": "none"
+        },
+        "normal_reaction": {
+          "value": 10.0,
+          "unit": "N"
+        },
+        "normal_reaction_source": null
+      },
+      "provenance": "invented_example_user_entered_nonlinear_friction_no_catalog"
+    }
+  ],
+  "components": [],
+  "materials": [
+    {
+      "id": "material:invented-carbon-steel",
+      "elastic_modulus": {
+        "value": 200000000000.0,
+        "unit": "Pa"
+      },
+      "shear_modulus": {
+        "value": 77000000000.0,
+        "unit": "Pa"
+      },
+      "thermal_expansion_coefficient": {
+        "value": 0.000012,
+        "unit": "1/degC"
+      },
+      "temperature_points": [],
+      "provenance": "invented_example_no_material_standard"
+    }
+  ],
+  "load_cases": [
+    {
+      "id": "load:L-MIXED-NONLINEAR",
+      "primitive_loads": [
+        {
+          "id": "load:L-MIXED-NONLINEAR-X",
+          "category": "occasional",
+          "target": {
+            "type": "node",
+            "node": "node:N-110"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 100.0,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-MIXED-NONLINEAR-Y",
+          "category": "occasional",
+          "target": {
+            "type": "node",
+            "node": "node:N-110"
+          },
+          "direction": "global_y",
+          "magnitude": {
+            "value": 100000.0,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-MIXED-NONLINEAR-Z",
+          "category": "occasional",
+          "target": {
+            "type": "node",
+            "node": "node:N-110"
+          },
+          "direction": "global_z",
+          "magnitude": {
+            "value": 100.0,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "invented_example_user_input"
+        }
+      ],
+      "equivalent_static": null,
+      "modulus_basis_ref": null,
+      "modulus_basis_temperature": null,
+      "provenance": "invented_example_no_code_combination"
+    }
+  ],
+  "combinations": [
+    {
+      "id": "combination:C-MIXED-NONLINEAR",
+      "label": null,
+      "basis": "mechanics",
+      "terms": [
+        {
+          "load_case": "load:L-MIXED-NONLINEAR",
+          "factor": 1.0
+        }
+      ],
+      "minuend_id": null,
+      "subtrahend_id": null,
+      "operand_ids": null,
+      "mode": null,
+      "provenance": "invented_example_no_code_combination"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "sources_unchanged": true,
+  "stages": [
+    {
+      "stage": "lock",
+      "exit_code": 0,
+      "ended_unix": 1790287248.517358
+    },
+    {
+      "stage": "baseline",
+      "exit_code": 101,
+      "ended_unix": 1790287261.928213
+    }
+  ],
+  "lock_after": "56e2f21bf2f9de1038f104825b9a44267c5b826199af3148df8df1a9f6b0d161",
+  "ended_unix": 1790287261.9311218
+}

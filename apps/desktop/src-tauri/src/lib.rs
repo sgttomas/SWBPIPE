@@ -2722,6 +2722,15 @@ fn run_rule_checks(
     supplied_value_bindings: Option<Value>,
     project_id: Option<String>,
 ) -> Result<Value, String> {
+    let supplied_model = model.as_ref().ok_or(
+        "RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply the current model with explicit load cases and recompute mechanics",
+    )?;
+    let envelope = match solved_envelope {
+        Some(value) => value,
+        None => run_preview_mechanics(Some(supplied_model.clone()))?,
+    };
+    qualify_rule_mechanics(supplied_model, &envelope)?;
+    let solved_envelope = Some(envelope);
     // Resolve `private_library_value` inputs from the local private-library
     // store (C3 rule-pack <-> library reference wiring). Library values are read
     // at run time and never embedded in the rule pack (IP boundary). A reference
@@ -2748,6 +2757,37 @@ fn run_rule_checks(
         supplied_value_bindings,
         library_value_bindings,
     )
+}
+
+/// Numerical interpretation only: input/build/authentic-source authorization remains
+/// with the current-source caller. Never derive coverage from result rows.
+fn qualify_rule_mechanics(model: &Value, envelope: &Value) -> Result<(), String> {
+    if envelope.pointer("/status/mechanics").and_then(Value::as_str) != Some("MECHANICS_SOLVED") {
+        return Err("RULE_MECHANICS_NOT_SOLVED: solve the current model before binding solver results".into());
+    }
+    let project = model.pointer("/project/id").and_then(Value::as_str)
+        .filter(|id| !id.trim().is_empty())
+        .ok_or("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: current model project.id is required")?;
+    if envelope["model_ref"].as_str() != Some(project) {
+        return Err("RULE_NUMERICAL_PROJECT_MISMATCH: recompute for the supplied model".into());
+    }
+    let cases = model["load_cases"].as_array().filter(|cases| !cases.is_empty())
+        .ok_or("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply nonempty current model.load_cases")?;
+    let mut ids = std::collections::HashSet::new();
+    let mut refs = Vec::with_capacity(cases.len());
+    for case in cases {
+        let id = case["id"].as_str().filter(|id| !id.trim().is_empty())
+            .ok_or("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: every load case needs an explicit id")?;
+        if !ids.insert(id) {
+            return Err("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: duplicate load case id".into());
+        }
+        refs.push(json!({"ref_type":"load_case", "ref_id":id}));
+    }
+    match open_pipe_stress_result_export::semantic_contract::numerical_use_standing(envelope, &refs) {
+        "numerically_eligible" => Ok(()),
+        "unsupported" => Err("RULE_NUMERICAL_SOURCE_UNSUPPORTED: recompute with a supported producer and semantic contract".into()),
+        _ => Err("RULE_NUMERICAL_NEEDS_RECOMPUTE: complete passing or sensitive numerical evidence is required for every current load case".into()),
+    }
 }
 
 /// Store-free rule-check orchestration. The Tauri command resolves library
@@ -4830,6 +4870,149 @@ mod legacy_store_carry_forward_tests {
 mod tests {
     use super::*;
     use std::collections::BTreeSet;
+
+    fn precision_model() -> Value {
+        let rehearsal = read_fixture("r2_from_blank_rehearsal.json").unwrap();
+        let (mut model, _) = apply_rehearsal_steps(&rehearsal);
+        model["schema_version"] = json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION);
+        model
+    }
+
+    // Synthetic metadata is exclusively a consumer-policy fixture, never a claim
+    // that the product solve below has passed the structural integrity gate.
+    fn precision_policy_envelope(model: &Value) -> Value {
+        let mut envelope = demo_solved_envelope(0.125);
+        envelope["diagnostics"] = json!([]);
+        envelope["schema_version"] = json!("0.2.0");
+        envelope["model_ref"] = model["project"]["id"].clone();
+        envelope["producer"] = json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":"openpipestress.result_semantics/0.3.0/precision-1"});
+        envelope["formulation_basis"] = json!({"profile_id":"product_preview_mechanics_v1","limitations":["Invented policy fixture; no engineering approval"]});
+        envelope["numerical_quality"] = json!({"value_representation":"finite_binary64","publication_quantization":"none","integrity_policy":"M03-INTEGRITY-v1","status":"checks_passed","cases":model["load_cases"].as_array().unwrap().iter().map(|case| json!({"basis_ref":{"ref_type":"load_case","ref_id":case["id"]},"structural_status":"passive_model_basis","solve_quality":"checks_passed","model_matrix_fidelity":"represented_equations_retained","accuracy_evidence":"not_claimed","evidence_refs":["result:stress:demo"]})).collect::<Vec<_>>()});
+        envelope
+    }
+
+    #[test]
+    fn precision_native_rule_qualification_requires_actual_complete_case_coverage() {
+        let mut model = precision_model();
+        model["load_cases"].as_array_mut().unwrap().push(json!({"id":"load:second"}));
+        let envelope = precision_policy_envelope(&model);
+        qualify_rule_mechanics(&model, &envelope).unwrap();
+        for status in ["not_assessed", "unresolved", "failed"] {
+            let mut bad = envelope.clone(); bad["numerical_quality"]["status"] = json!(status);
+            assert!(qualify_rule_mechanics(&model, &bad).unwrap_err().contains("NEEDS_RECOMPUTE"));
+        }
+        for mutation in 0..10 {
+            let mut m = model.clone(); let mut e = envelope.clone();
+            match mutation {
+                0 => e["numerical_quality"]["cases"] = json!([]),
+                1 => { e["numerical_quality"]["cases"].as_array_mut().unwrap().pop(); },
+                2 => m["load_cases"] = json!([]),
+                3 => m["load_cases"][1]["id"] = m["load_cases"][0]["id"].clone(),
+                4 => e["model_ref"] = json!("project:other"),
+                5 => e["producer"]["semantic_contract_id"] = json!("unknown"),
+                6 => e["numerical_quality"]["cases"][0]["evidence_refs"] = json!([]),
+                7 => m["load_cases"][0]["id"] = Value::Null,
+                8 => e["status"]["mechanics"] = json!("MODEL_INCOMPLETE"),
+                _ => e = demo_solved_envelope(0.125),
+            }
+            assert!(qualify_rule_mechanics(&m, &e).is_err(), "mutation {mutation}");
+        }
+    }
+
+    fn precision_transport(model: &Value, source: &Value) -> Value {
+        let root = std::env::temp_dir().join(format!("ops-precision-{}-{}", std::process::id(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+        std::fs::create_dir(&root).unwrap();
+        let db = root.join("isolated.sqlite");
+        let project = model["project"]["id"].as_str().unwrap();
+        // This is the native command's JSON serialization boundary, in source units.
+        let mut bridge: Value = serde_json::from_str(&serde_json::to_string(source).unwrap()).unwrap();
+        let original_hash = model_payload_hash(source);
+        let mh = computed_model_hash(model, project);
+        let eh = computed_project_envelope_hash(project, model, &json!([]), &Value::Null, &Value::Null, &bridge, &Value::Null, &mh);
+        for _ in 0..2 {
+            let mut connection = Connection::open(&db).unwrap();
+            apply_store_migrations(&connection).unwrap();
+            let (persisted, _, ledger, saved_mh, saved_eh) = prepare_project_persistence_tuple(&connection, project, model.clone(), &Value::Null, &json!([]), &Value::Null, &Value::Null, &bridge, &Value::Null, mh.clone(), eh.clone()).unwrap();
+            assert_eq!(saved_mh, mh); assert_eq!(saved_eh, eh);
+            upsert_project(&mut connection, project, "Invented precision witness", &persisted, &json!([]), &Value::Null, &Value::Null, &bridge, &Value::Null, &saved_mh, &saved_eh, &ledger).unwrap();
+            connection.close().unwrap();
+            let reopened = Connection::open(&db).unwrap();
+            let loaded = load_project(&reopened, Some(project)).unwrap().unwrap();
+            assert_eq!(loaded.model_hash, mh); assert_eq!(loaded.project_envelope_hash, eh);
+            assert_eq!(model_payload_hash(&loaded.mechanics_result), original_hash);
+            assert_eq!(loaded.mechanics_result, bridge);
+            bridge = loaded.mechanics_result;
+            reopened.close().unwrap();
+        }
+        let text = serde_json::to_string(&bridge).unwrap();
+        let encoded: String = text.as_bytes().iter().map(|b| format!("%{b:02X}")).collect();
+        let request = serde_json::from_value(json!({"href":format!("data:application/json;charset=utf-8,{encoded}"),"file_name":"openpipestress-preview-results-precision.json","screening":{"route_id":"DOTH-JSON-001","export_context":"local_private","explicit_local_private_intent":true,"blocked":false,"materialization_withheld":false,"lossless_required":true,"exact_payload_match":true,"blocking_count":0},"local_first":{"route_id":"DOTH-JSON-001","export_context":"local_private","storage_context":"local_private","action":"include_metadata_only","reason_code":"PRIVATE_LOCAL_METADATA_ALLOWED","blocked":false,"metadata_only":true,"explicit_local_private_intent":true}})).unwrap();
+        let receipt = native_result_download::save_request(request, || Ok::<_, ()>(root.clone())).unwrap();
+        let bytes = std::fs::read(root.join(receipt.file_name)).unwrap();
+        assert_eq!(bytes, text.as_bytes());
+        let downloaded: Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(model_payload_hash(&downloaded), original_hash);
+        std::fs::remove_dir_all(root).unwrap();
+        downloaded
+    }
+
+    #[test]
+    fn precision_native_same_unit_edge_bits_store_download_and_rule_binding() {
+        let model = precision_model();
+        let vectors: Value = serde_json::from_str(include_str!("../../../../fixtures/results/precision_transport_v0_3.json")).unwrap();
+        for vector in vectors["vectors"].as_array().unwrap() {
+            let bits = u64::from_str_radix(vector["bits_hex"].as_str().unwrap(), 16).unwrap();
+            let value = f64::from_bits(bits);
+            assert!(value.is_finite());
+            // Preserve the existing I-JSON unsafe-integer exclusion.
+            assert!(value.fract() != 0.0 || value.abs() <= 9_007_199_254_740_991.0);
+            let decimal: f64 = serde_json::from_str(vector["decimal"].as_str().unwrap()).unwrap();
+            assert_eq!(decimal.to_bits(), bits, "{}", vector["id"]);
+            let mut source = precision_policy_envelope(&model);
+            source["results"][0]["value"] = json!(value);
+            let output = precision_transport(&model, &source);
+            qualify_rule_mechanics(&model, &output).unwrap();
+            let bindings = resolve_solver_result_bindings(Some(&demo_solver_selectors()), &output).unwrap();
+            assert_eq!(bindings[0].value.to_bits(), bits, "{}", vector["id"]);
+        }
+        // Canonical hashing may normalize -0 to +0; all shared nonzero vectors
+        // above retain their exact bits, with no unsafe-integer guard relaxation.
+        assert_eq!(model_payload_hash(&json!({"value": -0.0_f64})), model_payload_hash(&json!({"value": 0.0_f64})));
+        let historical = read_fixture("invented_mechanics_result.json").unwrap();
+        let mut historical_model = model.clone();
+        historical_model["project"]["id"] = historical["model_ref"].clone();
+        let output = precision_transport(&historical_model, &historical);
+        assert_eq!(output, historical);
+        assert!(qualify_rule_mechanics(&historical_model, &output).unwrap_err().contains("NEEDS_RECOMPUTE"));
+    }
+
+    #[test]
+    fn precision_native_actual_tiny_signed_cantilever_survives_store_and_download() {
+        for force in [-1.0e-6_f64, 1.0e-6] {
+            let mut model = precision_model();
+            model["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(force);
+            let solved = run_preview_mechanics(Some(model.clone())).unwrap();
+            assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED");
+            assert_eq!(solved["schema_version"], "0.2.0");
+            assert_eq!(solved["producer"]["component_version"], "0.2.0");
+            assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/precision-1");
+            let output = precision_transport(&model, &solved);
+            // Elementary Euler-Bernoulli tip-force oracle, independent of solver assembly.
+            let inertia = std::f64::consts::PI * (0.114_f64.powi(4) - 0.102_f64.powi(4)) / 64.0;
+            for (kind, expected, unit) in [("global_nodal_displacement_y", force * 3.0_f64.powi(3) / (3.0 * 200e9 * inertia) * 1000.0, "mm"), ("global_nodal_rotation_z", force * 3.0_f64.powi(2) / (2.0 * 200e9 * inertia), "rad")] {
+                let row = output["results"].as_array().unwrap().iter().find(|row| row["entity_ref"] == "node:R2-110" && row["kind"] == kind).unwrap();
+                let actual = row["value"].as_f64().unwrap();
+                assert_eq!(row["unit"], unit);
+                assert!(actual != 0.0 && actual.signum() == force.signum());
+                assert!((actual - expected).abs() <= expected.abs() * 1e-10, "{kind}: {actual} != {expected}");
+                let selectors = json!([{"input_id":"tiny", "result_id":row["id"]}]);
+                let bindings = resolve_solver_result_bindings(Some(&selectors), &output).unwrap();
+                assert_eq!(bindings[0].value.to_bits(), actual.to_bits());
+            }
+            // Preserve the actual gate output; no passing metadata is manufactured.
+            assert_eq!(output["numerical_quality"], solved["numerical_quality"]);
+        }
+    }
 
     fn allowed_report_package_local_first_evidence() -> ReportPackageLocalFirstEvidence {
         ReportPackageLocalFirstEvidence {

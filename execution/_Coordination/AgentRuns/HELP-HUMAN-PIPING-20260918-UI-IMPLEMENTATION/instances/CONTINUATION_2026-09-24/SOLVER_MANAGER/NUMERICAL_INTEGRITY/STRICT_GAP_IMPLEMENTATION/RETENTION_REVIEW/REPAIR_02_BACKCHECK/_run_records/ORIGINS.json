@@ -1,0 +1,23 @@
+{
+  "executor": "/root/solver_manager/kernel_review",
+  "parent": "/root/solver_manager",
+  "mechanism": "same delegated-harness-native TASK Type2 reviewer resumed",
+  "dispatch": "unchanged original gpt-6-astra xhigh",
+  "descendants": [],
+  "raw_root": "/private/tmp/piping-numerical-integrity-20260924",
+  "instruction_basis": "RETENTION_REVIEW/_run_records/ORIGINS.json, RET01_WITNESS and REPAIR_01_BACKCHECK/RETURN.md; unchanged full TASK/Root/Piping/software-code-review context",
+  "read_scope": "Full REPAIR_02 return and complete diff; before/frozen bytes verified; unchanged replay continuation traced",
+  "runtime": {
+    "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  },
+  "not_executed": [
+    "Cargo",
+    "build",
+    "Node",
+    "native",
+    "heavy tests",
+    "source/Git edits"
+  ],
+  "claim_boundary": "Focused retention execution clearance only; no retention runtime pass, full NGR02 or public/Current qualification"
+}

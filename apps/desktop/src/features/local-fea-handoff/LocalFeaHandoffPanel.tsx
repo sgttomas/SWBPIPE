@@ -1,3 +1,4 @@
+import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileJson } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 
@@ -135,7 +136,7 @@ function LocalFeaLine({ label, value, testId }: { label: string; value: string; 
   );
 }
 
-function buildLocalFeaHandoffPacket({
+export function buildLocalFeaHandoffPacket({
   model,
   result,
   analysisRun
@@ -149,13 +150,14 @@ function buildLocalFeaHandoffPacket({
   const selectedResults = selectedResultRefs(result);
   const diagnostics = localFeaDiagnostics(selected);
   const unitPreservationWitnesses = localFeaUnitPreservationWitnesses(model, result, selectedResults);
-  const resultHash = run.hashes.find((item) => item.payload_scope === (analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope"));
+  const resultHashScope = analysisResultHashScope(analysisRun.schema_version);
+  const resultHash = run.hashes.find((item) => item.payload_scope === resultHashScope);
   const modelRef = reference("model", run.model_state_ref.ref);
   const resultEnvelopeRef = reference("result_envelope", `result-envelope:${result.run_id}`);
   const modelHash = checksum("TBD", "TBD", modelRef, "TBD_browser_preview_does_not_emit_model_state_hash");
   const resultEnvelopeHash = resultHash
     ? checksum("sha256", "JCS-compatible-json", resultEnvelopeRef, resultHash.value)
-    : checksum("TBD", "TBD", resultEnvelopeRef, "TBD_browser_preview_does_not_emit_result_envelope_hash");
+    : checksum("TBD", "TBD", resultEnvelopeRef, resultHashScope === null ? "TBD_analysis_record_version_unsupported" : "TBD_browser_preview_does_not_emit_result_envelope_hash");
 
   return {
     schema_version: LOCAL_FEA_HANDOFF_VERSION,

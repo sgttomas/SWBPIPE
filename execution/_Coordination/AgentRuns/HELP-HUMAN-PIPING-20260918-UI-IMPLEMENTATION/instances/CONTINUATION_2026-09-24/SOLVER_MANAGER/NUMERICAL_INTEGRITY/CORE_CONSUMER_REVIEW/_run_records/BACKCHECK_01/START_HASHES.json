@@ -1,0 +1,29 @@
+{
+  "stage": "frozen repair candidate; TS policy acknowledged; pending production checks and independent review",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "246289f7e6489ff9025f801734e8283b356e9fde6b1e740ad8ad3cb87537ca6d",
+      "observed_sha256": "246289f7e6489ff9025f801734e8283b356e9fde6b1e740ad8ad3cb87537ca6d",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "6b3261f32ee75ed2c3ba33b548b2a4de59c1790638ca76062817bd46c3f16aa4",
+      "observed_sha256": "6b3261f32ee75ed2c3ba33b548b2a4de59c1790638ca76062817bd46c3f16aa4",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_precision_consumer_contract.py",
+      "sha256": "271ebd9e34cbd42e1897eced84190b50e65ba6442b3acf371a6dc95b17465d4b",
+      "observed_sha256": "271ebd9e34cbd42e1897eced84190b50e65ba6442b3acf371a6dc95b17465d4b",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_stress_neutral_precision.py",
+      "sha256": "9cfb2cc4a1a8ef452c789d614c9b8abaf6876423cfd9de28f4b7bf7dea0b2c50",
+      "observed_sha256": "9cfb2cc4a1a8ef452c789d614c9b8abaf6876423cfd9de28f4b7bf7dea0b2c50",
+      "match": true
+    }
+  ]
+}

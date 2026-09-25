@@ -1,0 +1,69 @@
+{
+  "kind": "source inspection/transcription and retained-log parsing, not postfix Rust execution",
+  "candidate": {
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "d146409ae7dcc8ae0f1e6bb05446b9dd91efd318465d12ce9883109b47214616",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "d50f289e61807599a2b6f271e949a8304e8b97c58200ca1fd05a5e0b03fb514b"
+  },
+  "all_three_patches_verified": true,
+  "accepted_support_dof_tokens": {
+    "UX": "Ux",
+    "Ux": "Ux",
+    "ux": "Ux",
+    "UY": "Uy",
+    "Uy": "Uy",
+    "uy": "Uy",
+    "UZ": "Uz",
+    "Uz": "Uz",
+    "uz": "Uz",
+    "RX": "Rx",
+    "Rx": "Rx",
+    "rx": "Rx",
+    "RY": "Ry",
+    "Ry": "Ry",
+    "ry": "Ry",
+    "RZ": "Rz",
+    "Rz": "Rz",
+    "rz": "Rz"
+  },
+  "parsed_rotational_aliases_caught": [
+    "RX",
+    "Rx",
+    "rx",
+    "RY",
+    "Ry",
+    "ry",
+    "RZ",
+    "Rz",
+    "rz"
+  ],
+  "translational_aliases_not_newly_blocked": [
+    "UX",
+    "Ux",
+    "ux",
+    "UY",
+    "Uy",
+    "uy",
+    "UZ",
+    "Uz",
+    "uz"
+  ],
+  "other_behaviors_not_newly_blocked": true,
+  "moment_rotation_aliases_unchanged": true,
+  "guard_before_normalization": true,
+  "diagnostic_exact_id_examples": {
+    "S-1": "diagnostic:support:S-1:rotational-gap",
+    "S:1": "diagnostic:support:S:1:rotational-gap",
+    "S_1": "diagnostic:support:S_1:rotational-gap",
+    "S 1": "diagnostic:support:S 1:rotational-gap",
+    "S:rotational-gap": "diagnostic:support:S:rotational-gap:rotational-gap",
+    "Unicode-\u0394": "diagnostic:support:Unicode-\u0394:rotational-gap"
+  },
+  "diagnostic_uniqueness_basis": "Fixed prefix + exact distinct support ID + fixed suffix is injective; duplicate input IDs remain separately invalid.",
+  "baseline_counts": {
+    "already_invalid_support_token": 18,
+    "unsafe_solved": 12,
+    "already_rejected_legacy_rad": 6
+  },
+  "baseline_cases": 36,
+  "postfix_execution": "pending"
+}

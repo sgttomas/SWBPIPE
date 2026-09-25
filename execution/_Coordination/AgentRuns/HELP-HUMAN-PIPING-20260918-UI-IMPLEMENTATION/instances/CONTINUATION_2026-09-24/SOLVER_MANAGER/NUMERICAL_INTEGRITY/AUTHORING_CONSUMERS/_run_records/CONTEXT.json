@@ -1,0 +1,83 @@
+{
+  "manager": "/root/authoring_manager",
+  "role": "WORKING_ITEMS",
+  "parent": "/root",
+  "cross_manager_assignment": "/root/solver_manager",
+  "runtime_checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "base": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "mechanism": "delegated-harness-native",
+  "host_limit": "Named write ownership in shared checkout; no separate OS sandbox claimed. Cargo/npm/native/browser held pending ROOT allocation.",
+  "context": [
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_CONSUMER_CONTRACT.md",
+      "sha256": "f57aac951ff65d304df8f1f2d4ac123bfd5279af48fe737926a68109b507e9ea",
+      "preserved_bytes_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/_run_records/PRECISION_CONSUMER_CONTRACT_V1.md"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTERFACE_PLAN.md",
+      "sha256": "e0ade6a709467644a580d100fae922e6897bb7ff671810d631947d54dab0d965"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_CONSUMER_CONTRACT.md",
+      "sha256": "84e1c73239c0df953fcad85c2e2ced1221255d1741c4ad689b8b744ab867c21a",
+      "consultation": "Current numerical/version selection and V2 contract"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_IMPLEMENTATION.md",
+      "sha256": "aacb0b01c17d0c0ef1eaadba35203aeaafeea24c76f1c9d4be0cd8830101837e",
+      "consultation": "Current numerical/version selection and V2 contract"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/VERSION_COMPATIBILITY_REVIEW.md",
+      "sha256": "9fcaf6b37c84145127002b2a362490b66b6a24336a9d5303bb7e43ec5f114f3d",
+      "consultation": "Current numerical/version selection and V2 contract"
+    }
+  ],
+  "children": [
+    {
+      "agent": "/root/authoring_manager/precision_desktop",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "low",
+      "scope": "Named frontend consumers",
+      "full_role_read_before_dispatch": true
+    },
+    {
+      "agent": "/root/authoring_manager/precision_native",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "low",
+      "scope": "Native src/lib.rs and Cargo.toml precision/store/rule seam",
+      "full_role_read_before_dispatch": true
+    },
+    {
+      "agent": "/root/authoring_manager/precision_review",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "xhigh",
+      "scope": "Fresh independent complete29file source review and repair backchecks",
+      "full_role_read_before_dispatch": true,
+      "fresh_context": true
+    }
+  ]
+}

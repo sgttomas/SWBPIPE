@@ -1,0 +1,19 @@
+{
+  "status": "revised proposal only; NOT APPLIED/EXECUTED",
+  "path_basis": "REPO_ROOT clean checkout",
+  "files": [
+    {
+      "path": "projects/chirality-piping/package.json",
+      "before_sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656",
+      "proposed_sha256": "ae2274d2078a378387a82d99af3fd49d58232d62aa4c383d2511cff02bff2a63"
+    },
+    {
+      "path": "projects/chirality-piping/tools/serialization/generate_product_preview_mechanics.mjs",
+      "before": "absent",
+      "original_proposal_sha256": "be74fec9edce8106edecee5529ad87c67b4e3fd396bfadd8fe6674b990fab706",
+      "proposed_sha256": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399"
+    }
+  ],
+  "patch_sha256": "02e5a5b27bb4cd2a66cba21c5948d344c4e185941f0fac73ae5629a76276ee2c",
+  "original_proposal_preserved": true
+}

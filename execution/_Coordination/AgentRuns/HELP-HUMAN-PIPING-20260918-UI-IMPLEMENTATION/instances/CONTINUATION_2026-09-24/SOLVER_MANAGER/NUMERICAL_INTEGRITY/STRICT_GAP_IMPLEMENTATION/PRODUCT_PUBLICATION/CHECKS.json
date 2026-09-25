@@ -1,0 +1,138 @@
+{
+  "performed": "Python static preparation/analytical precondition checks only",
+  "rust_execution": "none",
+  "matrix": [
+    {
+      "test": "sparse_positive_inactive_open",
+      "mode": "SparseInteractive",
+      "sense": "positive_displacement",
+      "seed": "inactive",
+      "force_magnitude_n": "25_000.0"
+    },
+    {
+      "test": "sparse_positive_active_open",
+      "mode": "SparseInteractive",
+      "sense": "positive_displacement",
+      "seed": "active",
+      "force_magnitude_n": "25_000.0"
+    },
+    {
+      "test": "sparse_positive_inactive_contact",
+      "mode": "SparseInteractive",
+      "sense": "positive_displacement",
+      "seed": "inactive",
+      "force_magnitude_n": "100_000.0"
+    },
+    {
+      "test": "sparse_positive_active_contact",
+      "mode": "SparseInteractive",
+      "sense": "positive_displacement",
+      "seed": "active",
+      "force_magnitude_n": "100_000.0"
+    },
+    {
+      "test": "sparse_negative_inactive_open",
+      "mode": "SparseInteractive",
+      "sense": "negative_displacement",
+      "seed": "inactive",
+      "force_magnitude_n": "25_000.0"
+    },
+    {
+      "test": "sparse_negative_active_open",
+      "mode": "SparseInteractive",
+      "sense": "negative_displacement",
+      "seed": "active",
+      "force_magnitude_n": "25_000.0"
+    },
+    {
+      "test": "sparse_negative_inactive_contact",
+      "mode": "SparseInteractive",
+      "sense": "negative_displacement",
+      "seed": "inactive",
+      "force_magnitude_n": "100_000.0"
+    },
+    {
+      "test": "sparse_negative_active_contact",
+      "mode": "SparseInteractive",
+      "sense": "negative_displacement",
+      "seed": "active",
+      "force_magnitude_n": "100_000.0"
+    },
+    {
+      "test": "dense_positive_inactive_open",
+      "mode": "DenseScrutiny",
+      "sense": "positive_displacement",
+      "seed": "inactive",
+      "force_magnitude_n": "25_000.0"
+    },
+    {
+      "test": "dense_positive_active_open",
+      "mode": "DenseScrutiny",
+      "sense": "positive_displacement",
+      "seed": "active",
+      "force_magnitude_n": "25_000.0"
+    },
+    {
+      "test": "dense_positive_inactive_contact",
+      "mode": "DenseScrutiny",
+      "sense": "positive_displacement",
+      "seed": "inactive",
+      "force_magnitude_n": "100_000.0"
+    },
+    {
+      "test": "dense_positive_active_contact",
+      "mode": "DenseScrutiny",
+      "sense": "positive_displacement",
+      "seed": "active",
+      "force_magnitude_n": "100_000.0"
+    },
+    {
+      "test": "dense_negative_inactive_open",
+      "mode": "DenseScrutiny",
+      "sense": "negative_displacement",
+      "seed": "inactive",
+      "force_magnitude_n": "25_000.0"
+    },
+    {
+      "test": "dense_negative_active_open",
+      "mode": "DenseScrutiny",
+      "sense": "negative_displacement",
+      "seed": "active",
+      "force_magnitude_n": "25_000.0"
+    },
+    {
+      "test": "dense_negative_inactive_contact",
+      "mode": "DenseScrutiny",
+      "sense": "negative_displacement",
+      "seed": "inactive",
+      "force_magnitude_n": "100_000.0"
+    },
+    {
+      "test": "dense_negative_active_contact",
+      "mode": "DenseScrutiny",
+      "sense": "negative_displacement",
+      "seed": "active",
+      "force_magnitude_n": "100_000.0"
+    }
+  ],
+  "ordinary_companion": "one test, two modes x signed100kN",
+  "analytical_preconditions": {
+    "basis": "Independent elementary uniform axial bar law, no solver outputs. SI inputs, A=pi*t*(OD-t), u=FL/(EA).",
+    "area_m2": 0.0014922565104551519,
+    "contact_load_magnitude_n": 29845.130209103037,
+    "free_displacement_mm": {
+      "25000": 0.08376575952205018,
+      "100000": 0.3350630380882007
+    },
+    "max_no_gap_axial_strain": 0.0003350630380882007,
+    "gap_mm": 0.1,
+    "expected_gap_states": {
+      "25000_toward_sense": "inactive",
+      "100000_toward_sense": "active"
+    },
+    "tolerance": "Existing1e-9 relative displacement comparison; no solver-output-derived expected values."
+  },
+  "boundary_source_check": "linear_supports Guide permits translations only; Anchor permits all explicitly listed DOFs; product mapping preserves list. Test uses explicit Anchor subset UY/UZ/RX/RY/RZ.",
+  "predicted_baseline": "16 gap tests expected to fail on missing NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED after convergence controls; ordinary companion expected pass. Prediction only, not observed.",
+  "observed_baseline": null
+}

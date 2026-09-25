@@ -1,0 +1,149 @@
+{
+  "created_utc": "2026-09-24T16:57:31.255187+00:00",
+  "executor": "/root/solver_manager/integration_review",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native child",
+  "base": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "runtime_root": "/private/tmp/piping-numerical-integrity-20260924",
+  "scope": "Read-only product precision + structural adapter and nonlinear integration review; evidence-only writes here. No source edits, descendants, Git mutations, Cargo/build/npm/native/browser commands.",
+  "isolation": "Shared filesystem and host permissions; no OS isolation claimed.",
+  "instruction_origins": [
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303
+    }
+  ],
+  "inputs": [
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTERFACE_PLAN.md",
+      "sha256": "e0ade6a709467644a580d100fae922e6897bb7ff671810d631947d54dab0d965",
+      "bytes": 6418
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_CONSUMER_CONTRACT.md",
+      "sha256": "84e1c73239c0df953fcad85c2e2ced1221255d1741c4ad689b8b744ab867c21a",
+      "bytes": 10282
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_PRODUCER/RETURN.md",
+      "sha256": "13eee838f0b19fde8fbed1188310cbd02f105f651e04f36d0e18c2e667d1c01d",
+      "bytes": 3363
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTEGRATION/RETURN.md",
+      "sha256": "e3968786a61061d9eca88cfe6b76762d3f8247473937552811dd19c99e3787ea",
+      "bytes": 8125
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTEGRATION/CANDIDATE.diff",
+      "sha256": "726c87e886bcf8faa10d3e35f6ffe5ce1a5943e51eeaf06c00c2971f4bf50330",
+      "bytes": 114855
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTEGRATION/_run_records/SOURCE_FREEZE.json",
+      "sha256": "1ebc52309793045e2c5a5c6809fe3c747b6db51cc908e040f233716e039b93c0",
+      "bytes": 533
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL/REVIEW_REPAIR.md",
+      "sha256": "531ff2537f025146461d267c636aad9206390798c3d16b6b83613428c92cbe41",
+      "bytes": 6106
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_REVIEW/RETURN.md",
+      "sha256": "c2c7145757af74281c281e2ae14cca75c2b1a45fa054211518179dccffcd9f8f",
+      "bytes": 15697
+    },
+    {
+      "root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_IMPLEMENTATION.md",
+      "sha256": "aacb0b01c17d0c0ef1eaadba35203aeaafeea24c76f1c9d4be0cd8830101837e",
+      "bytes": 5180
+    },
+    {
+      "root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/RETURN.md",
+      "sha256": "c83877d55ddb23c634112551fb3319f3f39080b2839c285a81f32296177a9216",
+      "bytes": 26014
+    },
+    {
+      "root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/PRODUCT_RESIDUAL_SCOPE.md",
+      "sha256": "e719b96953ef7fe566b0113b2c89d1cfff2e7aca12db0f17bc480ce49c39b853",
+      "bytes": 19324
+    }
+  ],
+  "sources": [
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "sha256": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542",
+      "bytes": 1182
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/core/product_physics/Cargo.lock",
+      "sha256": "39843130aa97195bf011fc6abf728c56f1f57c8af2164549d7e03352a9a0b6c7",
+      "bytes": 4905
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "9e889f2c32aafaf572c0a119a25421f5ca98bcf497aad594a61d7dfa67953aba",
+      "bytes": 762103
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.lock",
+      "sha256": "c6cad1e1f8ebbc88cb6d29b4eb8ad0ad06fe8c5837e3a1735688fe30cb428426",
+      "bytes": 1398
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "be012b56134b8813b13062d9081af7ec86983e26754f101fd9f43558ecf1e251",
+      "bytes": 178882
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+      "sha256": "594377d0e6f5057f2e98961ce45baac3f8e8720c300856f7fdc17a30aad6baac",
+      "bytes": 16685
+    }
+  ]
+}

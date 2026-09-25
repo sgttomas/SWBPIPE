@@ -1,0 +1,312 @@
+[
+  {
+    "manifest": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+    "evidence": "4f3572b10b451a3a",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "8b68e437515761bf5877a485cc99c52947bac386595f0182f5dcbc17732c71af",
+    "after_sha256": "be0edb2bfc9e3c97cc0a85df4bcf63ee276785be22f689657a2d3730bd551b49",
+    "changed": true,
+    "registry_version_changes": [
+      {
+        "name": "base64",
+        "before": "0.22.1",
+        "after": "0.21.7"
+      },
+      {
+        "name": "bitflags",
+        "before": "2.11.1",
+        "after": "1.3.2"
+      },
+      {
+        "name": "foldhash",
+        "before": "0.2.0",
+        "after": "0.1.5"
+      },
+      {
+        "name": "getrandom",
+        "before": "0.4.2",
+        "after": "0.2.17"
+      },
+      {
+        "name": "getrandom",
+        "before": "0.4.2",
+        "after": "0.3.4"
+      },
+      {
+        "name": "hashbrown",
+        "before": "0.17.1",
+        "after": "0.12.3"
+      },
+      {
+        "name": "hashbrown",
+        "before": "0.17.1",
+        "after": "0.14.5"
+      },
+      {
+        "name": "hashbrown",
+        "before": "0.17.1",
+        "after": "0.15.5"
+      },
+      {
+        "name": "heck",
+        "before": "0.5.0",
+        "after": "0.4.1"
+      },
+      {
+        "name": "indexmap",
+        "before": "2.14.0",
+        "after": "1.9.3"
+      },
+      {
+        "name": "jni-sys",
+        "before": "0.4.1",
+        "after": "0.3.1"
+      },
+      {
+        "name": "png",
+        "before": "0.18.1",
+        "after": "0.17.16"
+      },
+      {
+        "name": "proc-macro-crate",
+        "before": "3.5.0",
+        "after": "1.3.1"
+      },
+      {
+        "name": "proc-macro-crate",
+        "before": "3.5.0",
+        "after": "2.0.2"
+      },
+      {
+        "name": "r-efi",
+        "before": "6.0.0",
+        "after": "5.3.0"
+      },
+      {
+        "name": "schemars",
+        "before": "1.2.1",
+        "after": "0.8.22"
+      },
+      {
+        "name": "schemars",
+        "before": "1.2.1",
+        "after": "0.9.0"
+      },
+      {
+        "name": "serde_spanned",
+        "before": "1.1.1",
+        "after": "0.6.9"
+      },
+      {
+        "name": "syn",
+        "before": "2.0.117",
+        "after": "1.0.109"
+      },
+      {
+        "name": "thiserror",
+        "before": "2.0.18",
+        "after": "1.0.69"
+      },
+      {
+        "name": "thiserror-impl",
+        "before": "2.0.18",
+        "after": "1.0.69"
+      },
+      {
+        "name": "toml",
+        "before": "1.1.2+spec-1.1.0",
+        "after": "0.8.2"
+      },
+      {
+        "name": "toml",
+        "before": "1.1.2+spec-1.1.0",
+        "after": "0.9.12+spec-1.1.0"
+      },
+      {
+        "name": "toml_datetime",
+        "before": "1.1.1+spec-1.1.0",
+        "after": "0.6.3"
+      },
+      {
+        "name": "toml_datetime",
+        "before": "1.1.1+spec-1.1.0",
+        "after": "0.7.5+spec-1.1.0"
+      },
+      {
+        "name": "toml_edit",
+        "before": "0.25.11+spec-1.1.0",
+        "after": "0.19.15"
+      },
+      {
+        "name": "toml_edit",
+        "before": "0.25.11+spec-1.1.0",
+        "after": "0.20.2"
+      },
+      {
+        "name": "windows-core",
+        "before": "0.62.2",
+        "after": "0.61.2"
+      },
+      {
+        "name": "windows-link",
+        "before": "0.2.1",
+        "after": "0.1.3"
+      },
+      {
+        "name": "windows-result",
+        "before": "0.4.1",
+        "after": "0.3.4"
+      },
+      {
+        "name": "windows-strings",
+        "before": "0.5.1",
+        "after": "0.4.2"
+      },
+      {
+        "name": "windows-sys",
+        "before": "0.61.2",
+        "after": "0.45.0"
+      },
+      {
+        "name": "windows-sys",
+        "before": "0.61.2",
+        "after": "0.59.0"
+      },
+      {
+        "name": "windows-sys",
+        "before": "0.61.2",
+        "after": "0.60.2"
+      },
+      {
+        "name": "windows-targets",
+        "before": "0.53.5",
+        "after": "0.42.2"
+      },
+      {
+        "name": "windows-targets",
+        "before": "0.53.5",
+        "after": "0.52.6"
+      },
+      {
+        "name": "windows_aarch64_gnullvm",
+        "before": "0.53.1",
+        "after": "0.42.2"
+      },
+      {
+        "name": "windows_aarch64_gnullvm",
+        "before": "0.53.1",
+        "after": "0.52.6"
+      },
+      {
+        "name": "windows_aarch64_msvc",
+        "before": "0.53.1",
+        "after": "0.42.2"
+      },
+      {
+        "name": "windows_aarch64_msvc",
+        "before": "0.53.1",
+        "after": "0.52.6"
+      },
+      {
+        "name": "windows_i686_gnu",
+        "before": "0.53.1",
+        "after": "0.42.2"
+      },
+      {
+        "name": "windows_i686_gnu",
+        "before": "0.53.1",
+        "after": "0.52.6"
+      },
+      {
+        "name": "windows_i686_gnullvm",
+        "before": "0.53.1",
+        "after": "0.52.6"
+      },
+      {
+        "name": "windows_i686_msvc",
+        "before": "0.53.1",
+        "after": "0.42.2"
+      },
+      {
+        "name": "windows_i686_msvc",
+        "before": "0.53.1",
+        "after": "0.52.6"
+      },
+      {
+        "name": "windows_x86_64_gnu",
+        "before": "0.53.1",
+        "after": "0.42.2"
+      },
+      {
+        "name": "windows_x86_64_gnu",
+        "before": "0.53.1",
+        "after": "0.52.6"
+      },
+      {
+        "name": "windows_x86_64_gnullvm",
+        "before": "0.53.1",
+        "after": "0.42.2"
+      },
+      {
+        "name": "windows_x86_64_gnullvm",
+        "before": "0.53.1",
+        "after": "0.52.6"
+      },
+      {
+        "name": "windows_x86_64_msvc",
+        "before": "0.53.1",
+        "after": "0.42.2"
+      },
+      {
+        "name": "windows_x86_64_msvc",
+        "before": "0.53.1",
+        "after": "0.52.6"
+      },
+      {
+        "name": "winnow",
+        "before": "1.0.2",
+        "after": "0.5.40"
+      },
+      {
+        "name": "winnow",
+        "before": "1.0.2",
+        "after": "0.7.15"
+      },
+      {
+        "name": "wit-bindgen",
+        "before": "0.57.1",
+        "after": "0.51.0"
+      }
+    ]
+  }
+]

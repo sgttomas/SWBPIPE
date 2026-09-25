@@ -1,0 +1,18 @@
+{
+  "disposition_source": "Parent message relaying ROOT explicit affine-only ruling: exact repeats/seeds per algorithm; exact discrete crossmode; continuous crossalgorithm existing1e-12 physical reference; no gap law/fixture/tolerance change.",
+  "bounded_search": "No universal cross-algorithm byte criterion found in inspected rules; historical RF observed payload equality remains historical.",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/REVIEW.md",
+      "sha256": "3e223c16452e5efe799c2da7e0719919eaa0f2a0aecca3f4ae27a7986abfbb2f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "sha256": "9a23f605d0a2c4aef087a080849ba88d4bca9ab734a7304e2fbe43deb6c472cc"
+    },
+    {
+      "path": "projects/chirality-piping/docs/CONTRACT.md",
+      "sha256": "24d6d02bf3ccf93e59fc5cc91205d888a87a8eb6d489ffb2c167de8317ee2774"
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+--- before/projects/chirality-piping/tools/serialization/generate_product_preview_mechanics.mjs
++++ after/projects/chirality-piping/tools/serialization/generate_product_preview_mechanics.mjs
+@@ -3,11 +3,11 @@
+ import { spawnSync } from "node:child_process";
+ import { createHash } from "node:crypto";
+ import { readFileSync, writeFileSync, readdirSync, lstatSync, realpathSync,
+-  existsSync, mkdtempSync, renameSync, unlinkSync, rmSync } from "node:fs";
++  existsSync, mkdtempSync, renameSync, unlinkSync, rmSync, openSync, fsyncSync, closeSync } from "node:fs";
+ import path from "node:path";
+ import { fileURLToPath } from "node:url";
+ 
+-const root = realpathSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."));
++const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+ const manifest = "core/product_physics/Cargo.toml";
+ const generator = "core/product_physics/examples/preview_result.rs";
+ const input = "fixtures/product_preview/invented_preview_model.json";
+@@ -19,7 +19,7 @@
+   ["dense_scrutiny", "dense", 2],
+ ];
+ const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+-const bytes = relative => readFileSync(path.join(root, relative));
++const bytes = relative => readFileSync(checkedPath(relative, "file"));
+ const fail = message => { throw new Error(message); };
+ const exact = (actual, expected, message) => { if (actual !== expected) fail(message); };
+ const portable = absolute => {
+@@ -27,7 +27,39 @@
+   if (relative.startsWith(`..${path.sep}`) || relative === ".." || path.isAbsolute(relative)) fail("source outside project root");
+   return relative.split(path.sep).join("/");
+ };
++// Reject redirects in every root/relative component before reads or writes.
++// Rechecked around replacement; this is not claimed to defeat hostile concurrent
++// directory replacement (generation still requires the ordinary single-writer lease).
++function validateRoot() {
++  let cursor = path.parse(root).root;
++  for (const part of root.slice(cursor.length).split(path.sep).filter(Boolean)) {
++    cursor = path.join(cursor, part);
++    const stat = lstatSync(cursor);
++    if (stat.isSymbolicLink() || !stat.isDirectory() || realpathSync(cursor) !== cursor) fail(`redirected project root: ${cursor}`);
++  }
++}
++function checkedPath(relative, kind, allowMissingLeaf = false) {
++  validateRoot();
++  if (path.isAbsolute(relative) || relative.split(/[\\/]/).some(part => part === ".." || part === "." || !part)) fail(`invalid project path: ${relative}`);
++  const parts = relative.split("/");
++  let cursor = root;
++  for (let index = 0; index < parts.length; index++) {
++    cursor = path.join(cursor, parts[index]);
++    let stat;
++    try { stat = lstatSync(cursor); }
++    catch (error) {
++      if (allowMissingLeaf && index === parts.length - 1 && error.code === "ENOENT") return cursor;
++      throw error;
++    }
++    if (stat.isSymbolicLink() || realpathSync(cursor) !== cursor) fail(`redirected project path: ${relative}`);
++    if (index < parts.length - 1 || kind === "directory") {
++      if (!stat.isDirectory()) fail(`not a project directory: ${relative}`);
++    } else if (!stat.isFile()) fail(`not a regular project file: ${relative}`);
++  }
++  return cursor;
++}
+ function command(program, args) {
++  validateRoot();
+   const result = spawnSync(program, args, { cwd: root, maxBuffer: 128 * 1024 * 1024 });
+   if (result.stderr?.length) process.stderr.write(result.stderr);
+   if (result.error || result.status !== 0) fail(`${program} failed: ${result.error?.message ?? result.signal ?? result.status}`);
+@@ -46,7 +78,7 @@
+ function sourceInventory(meta) {
+   const names = new Set([manifest, generator, input, legacy, recipe, "package.json"]);
+   function walk(relative) {
+-    for (const entry of readdirSync(path.join(root, relative), { withFileTypes: true })) {
++    for (const entry of readdirSync(checkedPath(relative, "directory"), { withFileTypes: true })) {
+       if (["target", ".git", "node_modules", "__pycache__"].includes(entry.name)) continue;
+       const name = `${relative}/${entry.name}`;
+       if (entry.isSymbolicLink()) fail(`source inventory refuses symlink: ${name}`);
+@@ -57,17 +89,18 @@
+   // Cargo identifies the actual local dependency closure; hash all its package
+   // files (excluding build/cache directories), not an assumed list of crate names.
+   for (const pkg of meta.packages.filter(pkg => pkg.source === null)) {
+-    const directory = portable(realpathSync(path.dirname(pkg.manifest_path)));
++    const directory = portable(path.dirname(pkg.manifest_path));
++    checkedPath(directory, "directory");
+     if (!directory.startsWith("core/")) fail(`local dependency outside bounded core inventory: ${directory}`);
+     walk(directory);
+   }
+   // The current product/unit include_str! inputs outside package directories.
+   walk("schemas");
+   for (const config of [".cargo/config", ".cargo/config.toml", "rust-toolchain", "rust-toolchain.toml"]) {
+-    if (existsSync(path.join(root, config))) names.add(config);
++    if (existsSync(path.join(root, config))) { checkedPath(config, "file"); names.add(config); }
+   }
+   return Object.fromEntries([...names].sort().map(name => {
+-    if (!lstatSync(path.join(root, name)).isFile()) fail(`not a regular input: ${name}`);
++    checkedPath(name, "file");
+     return [name, sha(bytes(name))];
+   }));
+ }
+@@ -119,44 +152,83 @@
+   }
+ }
+ 
+-// All intended writes are allowlisted; stage on the same filesystem and commit
+-// the hash record last. Capture/validation failures do not mutate any fixture.
+-// Ordinary replacement errors restore preimages. A process/power interruption
+-// is detectable by record hashes, not claimed to be a multi-file atomic commit.
++// Capture/validation finish before staging. Durable rollback preimages are
++// written and synced before any replacement; the hash record commits last.
++// Process/power-loss multi-file atomicity is not claimed.
+ function replaceSet(items) {
+-  const directory = path.join(root, "fixtures/product_preview");
++  const directory = checkedPath("fixtures/product_preview", "directory");
+   const stage = mkdtempSync(path.join(directory, ".precision-generation-"));
++  const stageRelative = portable(stage);
++  checkedPath(stageRelative, "directory");
+   const allowed = new Set([recordPath, ...modes.map(([, suffix]) => `fixtures/product_preview/invented_mechanics_result_precision_1_${suffix}.json`)]);
+-  const old = new Map();
++  const staged = [];
+   const installed = [];
++  let retainRecovery = false;
++  function stageFile(name, existing = false) {
++    return checkedPath(`${stageRelative}/${name}`, "file", !existing);
++  }
++  function stageWrite(name, payload) {
++    const descriptor = openSync(stageFile(name), "wx");
++    try { writeFileSync(descriptor, payload); fsyncSync(descriptor); }
++    finally { closeSync(descriptor); }
++  }
+   try {
++    if (items.length !== allowed.size || new Set(items.map(([name]) => name)).size !== allowed.size) fail("generation requires exactly three distinct destinations");
+     items.forEach(([name, payload], index) => {
+       if (!allowed.has(name) || name === legacy) fail("forbidden generation destination");
+-      const target = path.join(root, name);
+-      if (existsSync(target) && !lstatSync(target).isFile()) fail(`destination is not a regular file: ${name}`);
+-      old.set(name, existsSync(target) ? readFileSync(target) : null);
+-      writeFileSync(path.join(stage, `${index}.new`), payload, { flag: "wx" });
++      const target = checkedPath(name, "file", true);
++      const existed = existsSync(target);
++      const previous = existed ? bytes(name) : null;
++      if (previous !== null) stageWrite(`${index}.old`, previous);
++      stageWrite(`${index}.new`, payload);
++      staged.push({ path: name, index, existed, previous_sha256: previous === null ? null : sha(previous), next_sha256: sha(payload) });
+     });
+-    items.forEach(([name], index) => {
+-      renameSync(path.join(stage, `${index}.new`), path.join(root, name));
+-      installed.push(name);
+-    });
++    stageWrite("recovery.json", Buffer.from(`${JSON.stringify({ destinations: staged, note: "Restore each existing destination from its index.old backup; absent preimages require removing the new destination. Inspect actual files/hashes after interruption." }, null, 2)}\n`));
++    // Every backup and new file now exists before the first destination changes.
++    for (const entry of staged) {
++      checkedPath("fixtures/product_preview", "directory");
++      const target = checkedPath(entry.path, "file", true);
++      // Do not overwrite a destination changed since preimage capture.
++      exact(existsSync(target) ? sha(bytes(entry.path)) : null, entry.previous_sha256, "destination changed during staging");
++      renameSync(stageFile(`${entry.index}.new`, true), target);
++      installed.push(entry);
++    }
+   } catch (error) {
+-    for (const name of installed.reverse()) {
+-      const previous = old.get(name), target = path.join(root, name);
+-      if (previous === null) unlinkSync(target);
+-      else {
+-        const restore = path.join(stage, "restore");
+-        writeFileSync(restore, previous);
+-        renameSync(restore, target);
++    const failures = [];
++    for (const entry of installed.reverse()) {
++      try {
++        checkedPath("fixtures/product_preview", "directory");
++        const target = checkedPath(entry.path, "file", true);
++        // Refuse to destroy a subsequent writer's contents during recovery.
++        exact(existsSync(target) ? sha(bytes(entry.path)) : null, entry.next_sha256, "destination changed before rollback");
++        if (entry.existed) renameSync(stageFile(`${entry.index}.old`, true), target);
++        else unlinkSync(target);
++      } catch (rollbackError) {
++        failures.push(`${entry.path}: ${rollbackError.message}`);
+       }
+     }
++    if (failures.length) {
++      retainRecovery = true;
++      throw new Error(`Installation failed: ${error.message}; rollback incomplete: ${failures.join("; ")}; recovery material retained at ${stage}`);
++    }
+     throw error;
+-  } finally { rmSync(stage, { recursive: true, force: true }); }
++  } finally {
++    if (!retainRecovery) {
++      try {
++        checkedPath(stageRelative, "directory");
++        rmSync(stage, { recursive: true, force: true });
++      } catch (cleanupError) {
++        process.stderr.write(`Staging cleanup incomplete; inspect retained material at ${stage}: ${cleanupError.message}\n`);
++      }
++    }
++  }
+ }
+ 
+ try {
+   if (process.argv.length !== 2) fail("usage: node tools/serialization/generate_product_preview_mechanics.mjs");
++  validateRoot();
++  checkedPath("fixtures/product_preview", "directory");
++  for (const fixed of [manifest, generator, input, legacy, recipe, "package.json"]) checkedPath(fixed, "file");
+   const meta = metadata();
+   const before = sourceInventory(meta);
+   const beforeText = JSON.stringify(before);

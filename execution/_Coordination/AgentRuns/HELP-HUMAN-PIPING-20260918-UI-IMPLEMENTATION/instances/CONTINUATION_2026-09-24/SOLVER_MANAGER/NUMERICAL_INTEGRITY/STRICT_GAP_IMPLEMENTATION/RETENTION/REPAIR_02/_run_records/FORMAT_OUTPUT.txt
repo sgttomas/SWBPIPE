@@ -1,0 +1,3 @@
+rustfmt --edition 2021 projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs
+exit0; stdout/stderr empty
+No build or runtime test executed.

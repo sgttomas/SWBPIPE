@@ -1,0 +1,5 @@
+
+> openpipestress-workspace@0.1.0 generate:product-preview-mechanics
+> node tools/serialization/generate_product_preview_mechanics.mjs
+
+{"generated":["fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json","fixtures/product_preview/invented_mechanics_result_precision_1_dense.json"],"record":"fixtures/product_preview/precision_fixture_generation.json"}

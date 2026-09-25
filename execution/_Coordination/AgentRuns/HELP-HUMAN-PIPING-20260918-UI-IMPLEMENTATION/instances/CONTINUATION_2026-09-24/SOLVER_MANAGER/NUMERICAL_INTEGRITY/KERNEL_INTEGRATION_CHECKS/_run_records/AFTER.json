@@ -1,0 +1,59 @@
+{
+  "end_utc": "2026-09-24T16:56:15.839239+00:00",
+  "sha256": {
+    "projects/chirality-piping/core/product_physics/Cargo.lock": "39843130aa97195bf011fc6abf728c56f1f57c8af2164549d7e03352a9a0b6c7",
+    "projects/chirality-piping/core/product_physics/Cargo.toml": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "9e889f2c32aafaf572c0a119a25421f5ca98bcf497aad594a61d7dfa67953aba",
+    "projects/chirality-piping/core/product_physics/src/pressure_exact.rs": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+    "projects/chirality-piping/core/product_physics/src/self_weight.rs": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml": "c124ff5534616207027d932d561b810fed824ee7a095b4a06f738ff9d226c317",
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "03f82e343c7aee8f9f38d4b983091d0b71faebb904fb4dc7b59692a0c9cc4ad9",
+    "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs": "091d4069852c6033da38074af297c5eaa5a9469510c00d577f222e077aec2c15",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "3a016181fc49092d2775cc365dd2956b4c137c1f6bb64046a77b925ef5f9cce0",
+    "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.lock": "c6cad1e1f8ebbc88cb6d29b4eb8ad0ad06fe8c5837e3a1735688fe30cb428426",
+    "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml": "6b6760eafdb97092345cb28aebac456cfccc9381542dcf0ec28bdcd3771587ea",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "be012b56134b8813b13062d9081af7ec86983e26754f101fd9f43558ecf1e251",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "594377d0e6f5057f2e98961ce45baac3f8e8720c300856f7fdc17a30aad6baac",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock": "86a316b6f076f21b01531b16c1336abeccfb484d8425ad44fc560831d1c34b36",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "51e010af1ef62c95faf854c6308aec7a0f0be7123546083be993f6090b257b12",
+    "projects/chirality-piping/core/solver/sparse_direct/src/structural.rs": "89af5f9e72867072b0f9e2a54245592aa51745f1992ec20f118d20d1e13ae08f"
+  },
+  "source_changes_between_completed_commands_only": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": {
+      "before": "6464e76112acbe9e674296e8665e38f3fc569a39e1cb4e889c7e295b5e3234ac",
+      "after": "3a016181fc49092d2775cc365dd2956b4c137c1f6bb64046a77b925ef5f9cce0"
+    },
+    "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.lock": {
+      "before": "c52dbeacafd93946cd1121643d01d0774d3ec3f2dddb3604b7e02aae400a0f57",
+      "after": "c6cad1e1f8ebbc88cb6d29b4eb8ad0ad06fe8c5837e3a1735688fe30cb428426"
+    },
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": {
+      "before": "a4c31c747fc6ca4d3e0213c3a8c0f631bd50d6ff1db0c79c18dd31cfce4de723",
+      "after": "be012b56134b8813b13062d9081af7ec86983e26754f101fd9f43558ecf1e251"
+    }
+  },
+  "chronology": [
+    "frame initial56/1 at original frozen repair",
+    "sparse25+docs PASS before test-only comparison correction",
+    "frame57+doc1 PASS AFTER sole test comparison correction at structural3a016181",
+    "nonlinear first compile failed misplaced report field",
+    "nonlinear compile passed AFTER same-state initializer repair be012b56",
+    "product compile passed; five focused checks executed after both source repairs"
+  ],
+  "log_sha256": {
+    "frame.log": "40ef5bffd93ce2e711692b38208828788298cc35e9c28f6235e2c03bd3b73cf3",
+    "nonlinear_seed.log": "3b19fffc526c8c83228a43c693117bcade7f4bcc724d190bed1f0cfc41a5e013",
+    "nonlinear_recovery.log": "5afa020bb8942fc65faf7037d88c7b57ad92e982c9a9061e9df5a18cc75e08a6",
+    "product_curved.log": "d870f6b62ce3b420d26372681aee90fed9e89a211e469d267929c7fbfb076b9a",
+    "product_compile.log": "1a8610768609f68e2a0bcd30b537655de9e365d47f840be7686f0870e09a129f",
+    "nonlinear_compile_repaired.log": "87021c45752eeeeed27e0cf18be2ea692c1a8e85da2325ad646e37b4c8df0f57",
+    "product_precision.log": "2579949833b0fd593d896028f0dcb0b85b58f8e32b7cf5fd54d7902c804e64c6",
+    "product_integrity.log": "4eac3eb58244739004869f99e55b3e2ac2b5879d921e4ba3b4d22435817b56cb",
+    "nonlinear_compile.log": "a129fca8ad4867a848b18bc5262b2c196fec03685c3db0e74ee76aad7858325f",
+    "sparse.log": "c95b489ef51a9cd6dc9f2e212a034699276c01447bc95faf11545bde17ea8b28",
+    "frame_repaired.log": "5a29413fe761d925926b08de0646cd18f3be2f6f78288ab1632d3b8447fda392"
+  }
+}

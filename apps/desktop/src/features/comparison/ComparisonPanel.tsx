@@ -1,3 +1,5 @@
+import { semanticDimension } from "../results/resultSemantics";
+import { sourceContract } from "../results/numericalResultQuality";
 import { QuantityReadout } from "../display-units";
 import type { MechanicsResult } from "../../types";
 import { GitCompare } from "lucide-react";
@@ -150,7 +152,15 @@ function comparisonDimension(delta: ComparisonDelta, result: MechanicsResult | n
   // Do not borrow metadata from a different result value or conflicting pair.
   if (!right || right.unit !== delta.unit || right.value !== delta.right_value) return "unknown";
   if (left && (left.unit !== delta.unit || left.value !== delta.left_value || (left.dimension && left.dimension !== right.dimension))) return "unknown";
-  return right.dimension ?? "unknown";
+  if (!result) return "unknown";
+  const contract = sourceContract(result);
+  if (contract === "legacy") return right.dimension ?? "unknown";
+  if (contract !== "precision") return "unknown";
+  const rightDimension = semanticDimension(right, result);
+  const leftDimension = left ? semanticDimension(left, result) : null;
+  if (!left || !rightDimension || leftDimension !== rightDimension) return "unknown";
+  if ((right.dimension && right.dimension !== rightDimension) || (left.dimension && left.dimension !== leftDimension)) return "unknown";
+  return rightDimension;
 }
 
 function safeTestId(value: string): string {

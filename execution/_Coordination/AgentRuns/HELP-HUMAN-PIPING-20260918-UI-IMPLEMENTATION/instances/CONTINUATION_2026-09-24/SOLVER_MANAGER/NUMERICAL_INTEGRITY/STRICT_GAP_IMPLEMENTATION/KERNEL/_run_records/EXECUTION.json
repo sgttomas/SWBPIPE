@@ -1,0 +1,37 @@
+{
+  "time_utc": "2026-09-24T18:54:52.920036+00:00",
+  "parent": "/root/solver_manager",
+  "child": "/root/solver_manager/exact_gap_kernel",
+  "mechanism": "delegated-harness-native descendant",
+  "role": "TASK Type2",
+  "checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "write_scope": [
+    "core/solver/frame_kernel/src/structural/exact_boundary.rs",
+    "core/solver/frame_kernel/src/structural.rs public child module declaration only",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/STRICT_GAP_IMPLEMENTATION/KERNEL"
+  ],
+  "os_isolation_claim": false,
+  "instructions_read_complete": [
+    "AGENTS.md",
+    "agents/AGENT_TASK.md",
+    "projects/chirality-piping/AGENTS.md",
+    "projects/chirality-piping/loop/LOOP_INIT.md"
+  ],
+  "frozen_fraction_trace_rows_checked": 217,
+  "frozen_fraction_cases": 27,
+  "contact_observations_read": 24,
+  "historical_failed_contact_observations_retained": 4,
+  "checks_run": [
+    "rustfmt --edition 2021 new module (exit 0)",
+    "pure Python Fraction frozen-reference trace assertions (pass)"
+  ],
+  "not_run": [
+    "Cargo",
+    "rustc/build",
+    "npm/Node",
+    "native/browser",
+    "DEC025",
+    "independent candidate review"
+  ],
+  "qualification": "Source-only implementation; parent owns compile/test/review/integration; no activation"
+}

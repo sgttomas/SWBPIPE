@@ -1,0 +1,21 @@
+{
+  "status": "ready_for_focused_and_full_affected_tests",
+  "actionable_findings": [],
+  "reviewer": "/root/solver_manager/mixed_inspection_review",
+  "parent": "/root/solver_manager",
+  "review_sha256": "8288d0a377ac65e559544a210869a0aa5d1f56009c546d50e8c7dfc1c7ea9684",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "sha256": "8288d0a377ac65e559544a210869a0aa5d1f56009c546d50e8c7dfc1c7ea9684"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "sha256": "957fbc0256fa3aba59b223cdbef06a5aae03dd384c364cefa2326ef59a63590a"
+    },
+    {
+      "path": "_run_records/STATIC_CHECKS.json",
+      "sha256": "a8b3439ab2b5b115b1da820d86b92b2e4d56a3fd1b7f802b36a7fa357fb237ca"
+    }
+  ]
+}

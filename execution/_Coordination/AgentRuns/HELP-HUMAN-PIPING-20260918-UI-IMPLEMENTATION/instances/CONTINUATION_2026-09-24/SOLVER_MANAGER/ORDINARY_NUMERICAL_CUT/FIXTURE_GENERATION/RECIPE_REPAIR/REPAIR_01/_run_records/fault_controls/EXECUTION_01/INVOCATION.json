@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "run.mjs",
+    "./EXECUTION_01"
+  ],
+  "cwd": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/_run_records/fault_controls",
+  "exit_code": 0,
+  "scope": "four mocked filesystem transaction controls, no actual Cargo/rustc/product invocation",
+  "source_freeze_sha256": "2aab7a3fdce914aa92036236484bf756cfff110c554b3f00c1aefb775be53af2"
+}

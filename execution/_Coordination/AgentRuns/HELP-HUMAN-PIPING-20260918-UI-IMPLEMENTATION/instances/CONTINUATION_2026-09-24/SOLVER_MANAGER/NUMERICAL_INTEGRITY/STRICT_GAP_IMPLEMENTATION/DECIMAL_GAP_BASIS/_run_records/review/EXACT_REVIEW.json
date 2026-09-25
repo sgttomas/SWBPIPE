@@ -1,0 +1,1544 @@
+{
+  "basis": "Exact decoded binary64 source numbers and captured unchanged Gap law; mode labels are expected references only.",
+  "gap_bits": "0x3fa999999999999a",
+  "gap_hex": "0x1.999999999999ap-5",
+  "gap_exact": "3602879701896397/72057594037927936",
+  "free_u_at_F5": "1/20",
+  "gap_minus_free_u": "1/360287970189639680",
+  "pulling_reaction_if_active": "5/18014398509481984",
+  "scalar_cases": [
+    {
+      "magnitude": 4,
+      "sense": -1,
+      "seed": "Active",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "-3602879701896397/72057594037927936",
+          "reaction": "-18014398509481989/18014398509481984",
+          "normalized_reaction": "18014398509481989/18014398509481984",
+          "penetration": "0",
+          "next": "Inactive",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Inactive",
+          "u": "-1/25",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-18014398509481989/1801439850948198400",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.04,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 4,
+      "sense": -1,
+      "seed": "Active",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "-3602879701896397/72057594037927936",
+          "reaction": "-18014398509481989/18014398509481984",
+          "normalized_reaction": "18014398509481989/18014398509481984",
+          "penetration": "0",
+          "next": "Inactive",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Inactive",
+          "u": "-1/25",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-18014398509481989/1801439850948198400",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.04,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 4,
+      "sense": -1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "-1/25",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-18014398509481989/1801439850948198400",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.04,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 4,
+      "sense": -1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "-1/25",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-18014398509481989/1801439850948198400",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.04,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 4,
+      "sense": 1,
+      "seed": "Active",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "3602879701896397/72057594037927936",
+          "reaction": "18014398509481989/18014398509481984",
+          "normalized_reaction": "18014398509481989/18014398509481984",
+          "penetration": "0",
+          "next": "Inactive",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Inactive",
+          "u": "1/25",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-18014398509481989/1801439850948198400",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.04,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 4,
+      "sense": 1,
+      "seed": "Active",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "3602879701896397/72057594037927936",
+          "reaction": "18014398509481989/18014398509481984",
+          "normalized_reaction": "18014398509481989/18014398509481984",
+          "penetration": "0",
+          "next": "Inactive",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Inactive",
+          "u": "1/25",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-18014398509481989/1801439850948198400",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.04,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 4,
+      "sense": 1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "1/25",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-18014398509481989/1801439850948198400",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.04,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 4,
+      "sense": 1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "1/25",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-18014398509481989/1801439850948198400",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.04,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 5,
+      "sense": -1,
+      "seed": "Active",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "-3602879701896397/72057594037927936",
+          "reaction": "-5/18014398509481984",
+          "normalized_reaction": "5/18014398509481984",
+          "penetration": "0",
+          "next": "Inactive",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Inactive",
+          "u": "-1/20",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-1/360287970189639680",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.05,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 5,
+      "sense": -1,
+      "seed": "Active",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "-3602879701896397/72057594037927936",
+          "reaction": "-5/18014398509481984",
+          "normalized_reaction": "5/18014398509481984",
+          "penetration": "0",
+          "next": "Inactive",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Inactive",
+          "u": "-1/20",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-1/360287970189639680",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.05,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 5,
+      "sense": -1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "-1/20",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-1/360287970189639680",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.05,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 5,
+      "sense": -1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "-1/20",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-1/360287970189639680",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.05,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 5,
+      "sense": 1,
+      "seed": "Active",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "3602879701896397/72057594037927936",
+          "reaction": "5/18014398509481984",
+          "normalized_reaction": "5/18014398509481984",
+          "penetration": "0",
+          "next": "Inactive",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Inactive",
+          "u": "1/20",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-1/360287970189639680",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.05,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 5,
+      "sense": 1,
+      "seed": "Active",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "3602879701896397/72057594037927936",
+          "reaction": "5/18014398509481984",
+          "normalized_reaction": "5/18014398509481984",
+          "penetration": "0",
+          "next": "Inactive",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Inactive",
+          "u": "1/20",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-1/360287970189639680",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.05,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 5,
+      "sense": 1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "1/20",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-1/360287970189639680",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.05,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 5,
+      "sense": 1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Inactive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "1/20",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "-1/360287970189639680",
+          "next": "Inactive",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.05,
+      "projected_r": 0.0,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 6,
+      "sense": -1,
+      "seed": "Active",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Active",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "-3602879701896397/72057594037927936",
+          "reaction": "18014398509481979/18014398509481984",
+          "normalized_reaction": "-18014398509481979/18014398509481984",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.05,
+      "projected_r": 0.9999999999999998,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 6,
+      "sense": -1,
+      "seed": "Active",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Active",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "-3602879701896397/72057594037927936",
+          "reaction": "18014398509481979/18014398509481984",
+          "normalized_reaction": "-18014398509481979/18014398509481984",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.05,
+      "projected_r": 0.9999999999999998,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 6,
+      "sense": -1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Active",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "-3/50",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "18014398509481979/1801439850948198400",
+          "next": "Active",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Active",
+          "u": "-3602879701896397/72057594037927936",
+          "reaction": "18014398509481979/18014398509481984",
+          "normalized_reaction": "-18014398509481979/18014398509481984",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.05,
+      "projected_r": 0.9999999999999998,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 6,
+      "sense": -1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Active",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "-3/50",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "18014398509481979/1801439850948198400",
+          "next": "Active",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Active",
+          "u": "-3602879701896397/72057594037927936",
+          "reaction": "18014398509481979/18014398509481984",
+          "normalized_reaction": "-18014398509481979/18014398509481984",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ],
+      "projected_u": -0.05,
+      "projected_r": 0.9999999999999998,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 6,
+      "sense": 1,
+      "seed": "Active",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Active",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "3602879701896397/72057594037927936",
+          "reaction": "-18014398509481979/18014398509481984",
+          "normalized_reaction": "-18014398509481979/18014398509481984",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.05,
+      "projected_r": -0.9999999999999998,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 6,
+      "sense": 1,
+      "seed": "Active",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Active",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "3602879701896397/72057594037927936",
+          "reaction": "-18014398509481979/18014398509481984",
+          "normalized_reaction": "-18014398509481979/18014398509481984",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.05,
+      "projected_r": -0.9999999999999998,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 6,
+      "sense": 1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "DenseScrutiny",
+      "expected": "Active",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "3/50",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "18014398509481979/1801439850948198400",
+          "next": "Active",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Active",
+          "u": "3602879701896397/72057594037927936",
+          "reaction": "-18014398509481979/18014398509481984",
+          "normalized_reaction": "-18014398509481979/18014398509481984",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.05,
+      "projected_r": -0.9999999999999998,
+      "unchanged_old_quantity_checks_pass": true
+    },
+    {
+      "magnitude": 6,
+      "sense": 1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "SparseInteractive",
+      "expected": "Active",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "3/50",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "18014398509481979/1801439850948198400",
+          "next": "Active",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Active",
+          "u": "3602879701896397/72057594037927936",
+          "reaction": "-18014398509481979/18014398509481984",
+          "normalized_reaction": "-18014398509481979/18014398509481984",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ],
+      "projected_u": 0.05,
+      "projected_r": -0.9999999999999998,
+      "unchanged_old_quantity_checks_pass": true
+    }
+  ],
+  "scalar_case_count": 24,
+  "F5_state_conflicts_with_captured_assertion": 8,
+  "max_scalar_reference_iterations": 2,
+  "dyadic_scalar_cases": [
+    {
+      "sense": -1,
+      "seed": "Active",
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "-1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ]
+    },
+    {
+      "sense": -1,
+      "seed": "Active",
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "-1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ]
+    },
+    {
+      "sense": -1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "-1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Active",
+          "u": "-1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ]
+    },
+    {
+      "sense": -1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "-1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Active",
+          "u": "-1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": "Active",
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": "Active",
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Active",
+          "u": "1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Active",
+          "u": "1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": "Inactive",
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": "Inactive",
+          "u": "1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 1
+        },
+        {
+          "iteration": 2,
+          "prior": "Active",
+          "u": "1/8",
+          "reaction": "0",
+          "normalized_reaction": "0",
+          "penetration": "0",
+          "next": "Active",
+          "changed": 0
+        }
+      ]
+    }
+  ],
+  "dyadic_coupled_cases": [
+    {
+      "sense": -1,
+      "seed": [
+        false,
+        false
+      ],
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            false,
+            false
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": -1,
+      "seed": [
+        false,
+        false
+      ],
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            false,
+            false
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": -1,
+      "seed": [
+        false,
+        true
+      ],
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            false,
+            true
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": -1,
+      "seed": [
+        false,
+        true
+      ],
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            false,
+            true
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": -1,
+      "seed": [
+        true,
+        false
+      ],
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            true,
+            false
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": -1,
+      "seed": [
+        true,
+        false
+      ],
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            true,
+            false
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": -1,
+      "seed": [
+        true,
+        true
+      ],
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": -1,
+      "seed": [
+        true,
+        true
+      ],
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "-1/8",
+            "-1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": [
+        false,
+        false
+      ],
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            false,
+            false
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": [
+        false,
+        false
+      ],
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            false,
+            false
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": [
+        false,
+        true
+      ],
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            false,
+            true
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": [
+        false,
+        true
+      ],
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            false,
+            true
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": [
+        true,
+        false
+      ],
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            true,
+            false
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": [
+        true,
+        false
+      ],
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            true,
+            false
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        },
+        {
+          "iteration": 2,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": [
+        true,
+        true
+      ],
+      "mode_reference_label_only": "DenseScrutiny",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "sense": 1,
+      "seed": [
+        true,
+        true
+      ],
+      "mode_reference_label_only": "SparseInteractive",
+      "trace": [
+        {
+          "iteration": 1,
+          "prior": [
+            true,
+            true
+          ],
+          "u": [
+            "1/8",
+            "1/4"
+          ],
+          "r": [
+            "0",
+            "0"
+          ],
+          "next": [
+            true,
+            true
+          ]
+        }
+      ]
+    }
+  ],
+  "dyadic_scalar_case_count": 8,
+  "dyadic_coupled_case_count": 16,
+  "max_dyadic_reference_iterations": 2,
+  "manager_packet_independently_confirmed": true,
+  "floating_explanation_not_exact_oracle": {
+    "free_quotient_equals_gap_bits": true,
+    "rounded_active_reaction": 0.0,
+    "decimal_text_as_exact_rational_gap_would_differ": true
+  },
+  "limits": "No production test/source edit, no Rust execution, no live half-diff qualification. Original 1e-14 quantity assertions and contact equality convention unchanged."
+}

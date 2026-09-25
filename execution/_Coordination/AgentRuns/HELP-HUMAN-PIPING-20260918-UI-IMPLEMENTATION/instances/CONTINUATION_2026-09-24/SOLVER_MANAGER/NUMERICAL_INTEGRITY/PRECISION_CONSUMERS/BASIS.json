@@ -1,0 +1,71 @@
+{
+  "actor": "/root/solver_manager/precision_consumers",
+  "parent": "/root/solver_manager",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "isolation": "Shared filesystem; disjoint writer scope, no OS isolation claim",
+  "origins": [
+    {
+      "origin": "selected_checkout",
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_CONSUMER_CONTRACT.md",
+      "sha256": "f57aac951ff65d304df8f1f2d4ac123bfd5279af48fe737926a68109b507e9ea"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTERFACE_PLAN.md",
+      "sha256": "e0ade6a709467644a580d100fae922e6897bb7ff671810d631947d54dab0d965"
+    },
+    {
+      "origin": "selected_checkout",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/BASIS.json",
+      "sha256": "076e4586b529cee98008f2eaa1b9918eb3a10340e9465eaef39da8645cfad40b"
+    },
+    {
+      "origin": "primary_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_IMPLEMENTATION.md",
+      "sha256": "aacb0b01c17d0c0ef1eaadba35203aeaafeea24c76f1c9d4be0cd8830101837e"
+    },
+    {
+      "origin": "primary_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_REFERENCE.md",
+      "sha256": "67c8aac5798e9663528bea94b58d6d8f2eb8308f94b7ebb78aa22dca4b8f94ca"
+    },
+    {
+      "origin": "primary_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/RETURN.md",
+      "sha256": "c83877d55ddb23c634112551fb3319f3f39080b2839c285a81f32296177a9216"
+    },
+    {
+      "origin": "primary_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/VERSION_COMPATIBILITY_REVIEW.md",
+      "sha256": "9fcaf6b37c84145127002b2a362490b66b6a24336a9d5303bb7e43ec5f114f3d"
+    },
+    {
+      "origin": "primary_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/VERSION_COMPATIBILITY_REVIEW.md",
+      "sha256": "9fcaf6b37c84145127002b2a362490b66b6a24336a9d5303bb7e43ec5f114f3d"
+    }
+  ]
+}

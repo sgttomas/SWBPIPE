@@ -1,0 +1,5 @@
+{
+  "cwd": "/private/tmp/piping-numerical-integrity-20260924",
+  "target": "/private/tmp/piping-numerical-integrity-target",
+  "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-numerical-integrity-target cargo run --offline --manifest-path projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.toml"
+}

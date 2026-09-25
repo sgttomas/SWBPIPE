@@ -1,0 +1,27 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "generate:product-preview-mechanics"
+  ],
+  "cwd": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping",
+  "started_unix": 1790301884.452192,
+  "ended_unix": 1790301886.178315,
+  "exit_code": 0,
+  "target": "/private/tmp/piping-numerical-corrections-product-target",
+  "before": {
+    "invented_mechanics_result_precision_1_sparse.json": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6",
+    "invented_mechanics_result_precision_1_dense.json": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155",
+    "precision_fixture_generation.json": "1db7cb2b2a88907f832a4012d1f0e0f0ee127d8e8d3db35394a6d081478ad238",
+    "invented_mechanics_result.json": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"
+  },
+  "after": {
+    "invented_mechanics_result_precision_1_sparse.json": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6",
+    "invented_mechanics_result_precision_1_dense.json": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155",
+    "precision_fixture_generation.json": "b68d5b799d39ce1c195e6630e89bdd65adad68d91bb4f134642888ac7ff43725",
+    "invented_mechanics_result.json": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"
+  },
+  "fixtures_unchanged": true,
+  "stdout_sha256": "62962d93bfe58c4e8d6b41d0501749bc55ce7e1ae29e7d532049c0a40b13e10a",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

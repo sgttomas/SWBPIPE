@@ -1,0 +1,269 @@
+{
+  "method": "100-digit Decimal comparison of exact decoded emitted binary64 values to unchanged frozen independent source-intended N05/N06 references; actual Python numerical standing invoked on unmodified saved product records. No solve rerun.",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "results": [
+    {
+      "case": "N05",
+      "mode": "dense_scrutiny",
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "professional_acceptance": "NOT_PROVIDED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE"
+      },
+      "numerical_quality": {
+        "cases": [
+          {
+            "accuracy_evidence": "not_claimed",
+            "basis_ref": {
+              "ref_id": "case",
+              "ref_type": "load_case"
+            },
+            "evidence_refs": [
+              "diagnostic:numerical-integrity:case"
+            ],
+            "model_matrix_fidelity": "represented_equations_retained",
+            "solve_quality": "sensitive",
+            "structural_status": "passive_model_basis"
+          }
+        ],
+        "integrity_policy": "M03-INTEGRITY-v1",
+        "publication_quantization": "none",
+        "status": "sensitive",
+        "value_representation": "finite_binary64"
+      },
+      "python_numerical_use_standing": "needs_recompute",
+      "comparisons": [
+        {
+          "quantity": "root_RX",
+          "observed_json": 9.999970420819728e-05,
+          "observed_binary64_exact": "0.000099999704208197278125676288329515273289871402084827423095703125",
+          "reference": "0.0001",
+          "absolute_error": "-2.95791802721874323711670484726710128597915172576904296875E-10",
+          "relative_error": "-0.00000295791802721874323711670484726710128597915172576904296875",
+          "protected_relative_tolerance": "1e-9",
+          "passes": false
+        },
+        {
+          "quantity": "tip_RX",
+          "observed_json": 9.999970421282521e-05,
+          "observed_binary64_exact": "0.00009999970421282520865145782007488151066354475915431976318359375",
+          "reference": "0.0001000000000046279425150303965038931015810559570233922548921330749853930603099417504400763749662725735",
+          "absolute_error": "-2.957918027338635725764290115909175111978690724917085393249853930603099417504400763749662725735E-10",
+          "relative_error": "-0.000002957918027201744979823672191497744082698012001978810207009174346077729402579405266111709775827992341",
+          "protected_relative_tolerance": "1e-9",
+          "passes": false
+        }
+      ],
+      "derived_physical_spring_action": {
+        "value": "-9.9999704208197278125676288329515273289871402084827423095703125E-9",
+        "reference": "-1E-8",
+        "relative_error": "-0.00000295791802721874323711670484726710128597915172576904296875",
+        "basis": "Independently evaluated physical spring action -k*actual published root RX; this is NOT an emitted product moment row."
+      },
+      "structural_diagnostic": {
+        "code": "NUMERICAL_INTEGRITY_SENSITIVE",
+        "severity": "warning",
+        "metrics": {
+          "reciprocal_condition_estimate": "1.0578185609230605e-11",
+          "assembly_relative_perturbation_estimate": "3.5938906446753106e-17",
+          "assembly_amplification_estimate": "3.397454702949487e-6",
+          "refinement_attempts": "0"
+        }
+      }
+    },
+    {
+      "case": "N05",
+      "mode": "sparse_interactive",
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "professional_acceptance": "NOT_PROVIDED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE"
+      },
+      "numerical_quality": {
+        "cases": [
+          {
+            "accuracy_evidence": "not_claimed",
+            "basis_ref": {
+              "ref_id": "case",
+              "ref_type": "load_case"
+            },
+            "evidence_refs": [
+              "diagnostic:numerical-integrity:case"
+            ],
+            "model_matrix_fidelity": "represented_equations_retained",
+            "solve_quality": "sensitive",
+            "structural_status": "passive_model_basis"
+          }
+        ],
+        "integrity_policy": "M03-INTEGRITY-v1",
+        "publication_quantization": "none",
+        "status": "sensitive",
+        "value_representation": "finite_binary64"
+      },
+      "python_numerical_use_standing": "needs_recompute",
+      "comparisons": [
+        {
+          "quantity": "root_RX",
+          "observed_json": 0.00010000016987352618,
+          "observed_binary64_exact": "0.00010000016987352617985583547177697028018883429467678070068359375",
+          "reference": "0.0001",
+          "absolute_error": "1.6987352617985583547177697028018883429467678070068359375E-10",
+          "relative_error": "0.0000016987352617985583547177697028018883429467678070068359375",
+          "protected_relative_tolerance": "1e-9",
+          "passes": false
+        },
+        {
+          "quantity": "tip_RX",
+          "observed_json": 0.00010000016987815412,
+          "observed_binary64_exact": "0.00010000016987815412393414415959114194265566766262054443359375",
+          "reference": "0.0001000000000046279425150303965038931015810559570233922548921330749853930603099417504400763749662725735",
+          "absolute_error": "1.698735261814191137630872488410746117055971521787016169250146069396900582495599236250337274265E-10",
+          "relative_error": "0.000001698735261735574646235198946348099554843170194066377109152655699817009659692536271046687176786484637",
+          "protected_relative_tolerance": "1e-9",
+          "passes": false
+        }
+      ],
+      "derived_physical_spring_action": {
+        "value": "-1.0000016987352617985583547177697028018883429467678070068359375E-8",
+        "reference": "-1E-8",
+        "relative_error": "0.0000016987352617985583547177697028018883429467678070068359375",
+        "basis": "Independently evaluated physical spring action -k*actual published root RX; this is NOT an emitted product moment row."
+      },
+      "structural_diagnostic": {
+        "code": "NUMERICAL_INTEGRITY_SENSITIVE",
+        "severity": "warning",
+        "metrics": {
+          "reciprocal_condition_estimate": "1.0578136350371473e-11",
+          "assembly_relative_perturbation_estimate": "3.5938906446753106e-17",
+          "assembly_amplification_estimate": "3.3974705237649012e-6",
+          "refinement_attempts": "0"
+        }
+      }
+    },
+    {
+      "case": "N06",
+      "mode": "dense_scrutiny",
+      "status": {
+        "mechanics": "MODEL_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE"
+      },
+      "numerical_quality": {
+        "cases": [
+          {
+            "accuracy_evidence": "unresolved",
+            "basis_ref": {
+              "ref_id": "case",
+              "ref_type": "load_case"
+            },
+            "evidence_refs": [
+              "diagnostic:numerical-integrity:case"
+            ],
+            "model_matrix_fidelity": "assembly_loss_detected",
+            "solve_quality": "unresolved",
+            "structural_status": "numerically_unresolved"
+          }
+        ],
+        "integrity_policy": "M03-INTEGRITY-v1",
+        "publication_quantization": "none",
+        "status": "unresolved",
+        "value_representation": "finite_binary64"
+      },
+      "python_numerical_use_standing": "needs_recompute",
+      "comparisons": [],
+      "structural_diagnostic": {
+        "code": "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED",
+        "severity": "blocking",
+        "metrics": {}
+      }
+    },
+    {
+      "case": "N06",
+      "mode": "sparse_interactive",
+      "status": {
+        "mechanics": "MODEL_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE"
+      },
+      "numerical_quality": {
+        "cases": [
+          {
+            "accuracy_evidence": "unresolved",
+            "basis_ref": {
+              "ref_id": "case",
+              "ref_type": "load_case"
+            },
+            "evidence_refs": [
+              "diagnostic:numerical-integrity:case"
+            ],
+            "model_matrix_fidelity": "assembly_loss_detected",
+            "solve_quality": "unresolved",
+            "structural_status": "numerically_unresolved"
+          }
+        ],
+        "integrity_policy": "M03-INTEGRITY-v1",
+        "publication_quantization": "none",
+        "status": "unresolved",
+        "value_representation": "finite_binary64"
+      },
+      "python_numerical_use_standing": "needs_recompute",
+      "comparisons": [],
+      "structural_diagnostic": {
+        "code": "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED",
+        "severity": "blocking",
+        "metrics": {}
+      }
+    }
+  ],
+  "np_a_n05_reference": {
+    "a_binary64_hex": "0x1.07c49b6ac7e22p+21",
+    "k_intended": "0.0001",
+    "k_stored_exact": "0.000099999830126762390136718750",
+    "k_relative_loss": "-0.00000169873237609863281250",
+    "stored_exact_root": "0.0001000001698735261816143040799907892417847318608613351463110250153668485853186059940022724309423137817",
+    "root_relative_physical_error": "0.000001698735261816143040799907892417847318608613351463110250153668485853186059940022724309423137817"
+  },
+  "np_a_observations": [
+    {
+      "case": "NP-A-N05",
+      "dense_generic_observation": "Ok([0.00010000016986889824, 0.00010000016987352618])",
+      "sparse_observation": "Ok(SparseSolveResult { solution: [0.00010000016987352618, 0.00010000016987815412], ordering: [1, 0], original_max_half_bandwidth: 1, ordered_max_half_bandwidth: 1, original_profile_entry_count: 3, ordered_profile_entry_count: 3, factorization: FactorizationReport { dimension: 2, profile_entry_count: 3, max_half_bandwidth: 1, min_abs_pivot: Some(9.999983012676239e-5), max_abs_pivot: Some(2160787.4271390596), pivot_condition_ratio_estimate: Some(21607910977.448555), nonpositive_pivot_count: 0, first_nonpositive_pivot: None } })"
+    },
+    {
+      "case": "NP-A-N06",
+      "dense_generic_observation": "Err(SingularSystem { pivot: 1 })",
+      "sparse_observation": "Err(SingularPivot { ordered_index: 1, original_index: 0 })"
+    },
+    {
+      "case": "NP-A-ulp-.25",
+      "dense_generic_observation": "Err(SingularSystem { pivot: 1 })",
+      "sparse_observation": "Err(SingularPivot { ordered_index: 1, original_index: 0 })"
+    },
+    {
+      "case": "NP-A-ulp-.5",
+      "dense_generic_observation": "Err(SingularSystem { pivot: 1 })",
+      "sparse_observation": "Err(SingularPivot { ordered_index: 1, original_index: 0 })"
+    },
+    {
+      "case": "NP-A-ulp-.75",
+      "dense_generic_observation": "Ok([2.1474836479999994e-7, 2.147483648e-7])",
+      "sparse_observation": "Ok(SparseSolveResult { solution: [2.147483648e-7, 2.1474836480000005e-7], ordering: [1, 0], original_max_half_bandwidth: 1, ordered_max_half_bandwidth: 1, original_profile_entry_count: 3, ordered_profile_entry_count: 3, factorization: FactorizationReport { dimension: 2, profile_entry_count: 3, max_half_bandwidth: 1, min_abs_pivot: Some(4.656612873077393e-10), max_abs_pivot: Some(2160787.4271390596), pivot_condition_ratio_estimate: Some(4640255666585122.0), nonpositive_pivot_count: 0, first_nonpositive_pivot: None } })"
+    },
+    {
+      "case": "NP-A-ulp-1",
+      "dense_generic_observation": "Ok([2.1474836479999994e-7, 2.147483648e-7])",
+      "sparse_observation": "Ok(SparseSolveResult { solution: [2.147483648e-7, 2.1474836480000005e-7], ordering: [1, 0], original_max_half_bandwidth: 1, ordered_max_half_bandwidth: 1, original_profile_entry_count: 3, ordered_profile_entry_count: 3, factorization: FactorizationReport { dimension: 2, profile_entry_count: 3, max_half_bandwidth: 1, min_abs_pivot: Some(4.656612873077393e-10), max_abs_pivot: Some(2160787.4271390596), pivot_condition_ratio_estimate: Some(4640255666585122.0), nonpositive_pivot_count: 0, first_nonpositive_pivot: None } })"
+    },
+    {
+      "case": "NP-A-ulp-1.5",
+      "dense_generic_observation": "Ok([1.0737418239999994e-7, 1.073741824e-7])",
+      "sparse_observation": "Ok(SparseSolveResult { solution: [1.073741824e-7, 1.0737418240000004e-7], ordering: [1, 0], original_max_half_bandwidth: 1, ordered_max_half_bandwidth: 1, original_profile_entry_count: 3, ordered_profile_entry_count: 3, factorization: FactorizationReport { dimension: 2, profile_entry_count: 3, max_half_bandwidth: 1, min_abs_pivot: Some(9.313225746154785e-10), max_abs_pivot: Some(2160787.4271390596), pivot_condition_ratio_estimate: Some(2320127833292561.0), nonpositive_pivot_count: 0, first_nonpositive_pivot: None } })"
+    },
+    {
+      "case": "NP-A-ulp-2",
+      "dense_generic_observation": "Ok([1.0737418239999994e-7, 1.073741824e-7])",
+      "sparse_observation": "Ok(SparseSolveResult { solution: [1.073741824e-7, 1.0737418240000004e-7], ordering: [1, 0], original_max_half_bandwidth: 1, ordered_max_half_bandwidth: 1, original_profile_entry_count: 3, ordered_profile_entry_count: 3, factorization: FactorizationReport { dimension: 2, profile_entry_count: 3, max_half_bandwidth: 1, min_abs_pivot: Some(9.313225746154785e-10), max_abs_pivot: Some(2160787.4271390596), pivot_condition_ratio_estimate: Some(2320127833292561.0), nonpositive_pivot_count: 0, first_nonpositive_pivot: None } })"
+    }
+  ],
+  "np_a_scope": "Generic dense/sparse matrix APIs only; records have no actual product carrier; no product admission evaluated or fabricated for NP-A."
+}

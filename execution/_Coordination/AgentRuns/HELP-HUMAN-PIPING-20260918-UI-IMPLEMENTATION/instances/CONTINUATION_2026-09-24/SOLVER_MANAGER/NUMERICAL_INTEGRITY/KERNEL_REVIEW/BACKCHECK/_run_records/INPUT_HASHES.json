@@ -1,0 +1,11 @@
+{
+  "KERNEL/REVIEW_REPAIR.md": "531ff2537f025146461d267c636aad9206390798c3d16b6b83613428c92cbe41",
+  "KERNEL/_run_records/SOURCE_FREEZE.json": "bcb241fb648433709525b55052df5e7a8bfa273a5485c6244b19b2a1193e35a4",
+  "KERNEL_INTEGRATION_CHECKS/_run_records/BEFORE.json": "6e61dc0344bdb2c6fc3d1ceb6dc90169763b3e02f535dce844fe1701c6e7896e",
+  "KERNEL_INTEGRATION_CHECKS/_run_records/frame.log": "40ef5bffd93ce2e711692b38208828788298cc35e9c28f6235e2c03bd3b73cf3",
+  "KERNEL_INTEGRATION_CHECKS/_run_records/frame_repaired.log": "5a29413fe761d925926b08de0646cd18f3be2f6f78288ab1632d3b8447fda392",
+  "KERNEL_INTEGRATION_CHECKS/_run_records/sparse.log": "c95b489ef51a9cd6dc9f2e212a034699276c01447bc95faf11545bde17ea8b28",
+  "parent_chronology_confirmation": "Parent /root/solver_manager confirmed: frame_repaired57+doc1 ran AFTER correction at final3a016181; sparse25 before correction, production bytes unchanged. Full unit/doc kernel success binds final source.",
+  "KERNEL_INTEGRATION_CHECKS/_run_records/AFTER.json": "38868845ff09913d85067fce0783ae53b1e9bb6d6ccda5c49190109da6a27f44",
+  "after_manifest_check": "All six reviewed candidate source hashes and three relevant raw log hashes match AFTER; chronology confirms final frame rerun."
+}

@@ -1,0 +1,12 @@
+{
+  "candidate": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "6801610d0bb515eab33603163423812b81bf94946d8c23b99c127b655d996a7f",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "2328cabde725a61334bbba0b9d37469388e402ea6dd7acdd9ad6347e5ca895a6"
+  },
+  "before": {
+    "exact_boundary.rs": "700338b91a54f9623ab479e5d0202f625a04810ebdce50e98196001da3675d9e",
+    "structural_adapter.rs": "79272e2f731be9853a087c38d83260b6ba112d6b0a0ed48256a71b40f9bd942f"
+  },
+  "complete_per_file_diffs_verified": true,
+  "actual_matches_frozen": true
+}

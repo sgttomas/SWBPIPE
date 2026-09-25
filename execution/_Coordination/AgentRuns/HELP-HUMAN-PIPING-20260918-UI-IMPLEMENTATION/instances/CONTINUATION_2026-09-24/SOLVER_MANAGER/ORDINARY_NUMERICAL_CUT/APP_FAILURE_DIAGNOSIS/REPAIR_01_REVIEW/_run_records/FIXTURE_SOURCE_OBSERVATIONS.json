@@ -1,0 +1,55 @@
+{
+  "method": "read-only JSON inspection, not producer execution or test runtime",
+  "fixtures": [
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c",
+      "schema_version": "0.1.0",
+      "run_id": "run:preview-linear-static-001",
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "producer": null,
+      "result_rows": 830,
+      "rows_with_received_dimension": 0
+    },
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6",
+      "schema_version": "0.2.0",
+      "run_id": "run:preview-linear-static-001",
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "producer": {
+        "component_name": "open_pipe_stress_product_physics",
+        "component_version": "0.2.0",
+        "semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1"
+      },
+      "result_rows": 830,
+      "rows_with_received_dimension": 0
+    },
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155",
+      "schema_version": "0.2.0",
+      "run_id": "run:preview-linear-static-001",
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "producer": {
+        "component_name": "open_pipe_stress_product_physics",
+        "component_version": "0.2.0",
+        "semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1"
+      },
+      "result_rows": 832,
+      "rows_with_received_dimension": 0
+    }
+  ]
+}

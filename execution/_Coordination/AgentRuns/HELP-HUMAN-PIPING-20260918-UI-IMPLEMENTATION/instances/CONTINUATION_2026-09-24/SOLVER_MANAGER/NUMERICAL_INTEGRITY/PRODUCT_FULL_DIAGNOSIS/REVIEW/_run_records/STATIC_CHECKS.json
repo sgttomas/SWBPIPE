@@ -1,0 +1,51 @@
+{
+  "time_utc": "2026-09-25T00:33:19.931147+00:00",
+  "agent": "/root/solver_manager/mixed_inspection_review",
+  "parent": "/root/solver_manager",
+  "mechanism": "delegated-harness-native fresh independent TASK Type 2",
+  "runtime_root": "/private/tmp/piping-numerical-integrity-20260924",
+  "no_git_or_source_tests": true,
+  "candidate_files": [
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "preimage_sha256": "a5a3f7104b8a77c9d9709a9d4abd5123e14aedd4fa31f2d3763cc0101677034f",
+      "candidate_sha256": "572d0ed16d6811d2cc0b93c26d2610ac480a56f56ac2225572510749ee96d739",
+      "live_matches_frozen": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "preimage_sha256": "37d19221af9900e40d500370c30c156e49f5469a905f20acb3b2e3db6ae54d80",
+      "candidate_sha256": "646b648b1931009f357f76b96d10f80d32e98369bd76920f61638136d8925e1a",
+      "live_matches_frozen": true
+    }
+  ],
+  "complete_diff_matches_preserved_preimages_and_candidates": true,
+  "protected_publication_tests_sha256": "1c33c4f0604b3eb0e31e689f3f965e65fd5d832377737f366b1b25e038fc1b78",
+  "shared_completion_check_exact_extraction": true,
+  "scope_validator_command": [
+    "python3",
+    "tools/software_workflow/validate_change_scope.py",
+    ".",
+    "--allowed",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "--path",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "--allowed",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "--path",
+    "projects/chirality-piping/core/product_physics/src/lib.rs"
+  ],
+  "scope_validator": {
+    "allowed": [
+      "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "projects/chirality-piping/core/product_physics/src/lib.rs"
+    ],
+    "paths": [
+      "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "projects/chirality-piping/core/product_physics/src/lib.rs"
+    ],
+    "schema": "chirality-change-scope/v1",
+    "status": "PASS",
+    "violations": []
+  }
+}

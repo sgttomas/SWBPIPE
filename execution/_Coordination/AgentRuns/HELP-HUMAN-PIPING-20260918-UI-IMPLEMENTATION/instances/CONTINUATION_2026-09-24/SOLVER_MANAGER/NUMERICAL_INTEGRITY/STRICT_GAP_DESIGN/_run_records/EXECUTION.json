@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/STRICT_GAP_DESIGN/_run_records/reference_proof.py"
+  ],
+  "exit_code": 0,
+  "utc": "2026-09-24T18:08:08.895501+00:00",
+  "classification": "independent exact rational proof execution, not Rust/candidate execution",
+  "purpose_of_repeat": "capture raw stdout/stderr and exit as durable evidence"
+}

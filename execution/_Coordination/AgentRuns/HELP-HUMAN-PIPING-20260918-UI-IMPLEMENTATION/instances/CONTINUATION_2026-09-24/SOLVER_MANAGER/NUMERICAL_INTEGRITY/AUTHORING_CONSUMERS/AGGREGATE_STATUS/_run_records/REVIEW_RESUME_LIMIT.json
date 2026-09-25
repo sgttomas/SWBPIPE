@@ -1,0 +1,9 @@
+{
+  "candidate_stage": "source preparation before baseline resource allocation",
+  "operation": "collaboration.followup_task",
+  "target": "/root/authoring_manager/aggregate_status_review",
+  "outcome": "agent thread limit reached",
+  "coverage": "phase1 review complete; final source review not yet executed; retry only after actual capacity change",
+  "later_capacity_change": "implementation TASK completed",
+  "subsequent_resume": "accepted; final review executing"
+}

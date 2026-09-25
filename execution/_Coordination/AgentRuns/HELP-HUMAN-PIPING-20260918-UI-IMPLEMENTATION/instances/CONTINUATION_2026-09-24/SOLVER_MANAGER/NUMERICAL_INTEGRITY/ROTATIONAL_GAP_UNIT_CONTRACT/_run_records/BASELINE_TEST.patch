@@ -1,0 +1,49 @@
+--- before/product_lib.rs
++++ after/product_lib.rs
+@@ -12663,6 +12663,46 @@
+     }
+ 
+     #[test]
++    fn unit_contract_rotational_gap_cannot_consume_a_length_as_an_angle() {
++        // The current product gap contract is length-based. Rotational gap
++        // capability needs an explicit angular contract; neither metre input
++        // nor a rejected angular input may silently become an angular stop.
++        let mut missing_blocks = Vec::new();
++        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
++            for (dof, component) in [
++                ("rotation_x", "rx"), ("RX", "rx"),
++                ("rotation_y", "ry"), ("RY", "ry"),
++                ("rotation_z", "rz"), ("RZ", "rz"),
++            ] {
++                for (value, unit) in [(0.05, "mm"), (0.00005, "m"), (0.00005, "rad")] {
++                    let mut input = gap_closure_preview_request();
++                    let nonlinear = input.model.supports[1].nonlinear.as_mut().unwrap();
++                    nonlinear.dof = dof.into();
++                    nonlinear.gap = Some(Quantity { value, unit: unit.into() });
++                    let load = &mut input.model.load_cases[0].primitive_loads[0];
++                    load.category = "concentrated_moment".into();
++                    load.direction = dof.into();
++                    load.dimension = "moment".into();
++                    load.magnitude = Quantity { value: 250.0, unit: "N*m".into() };
++                    let output = run_linear_static_preview_with_mode(input, mode);
++                    let rotation_id = format!("result:disp:node-N-110:{component}");
++                    let observed_rotation = output.results.iter().find(|row| row.id == rotation_id)
++                        .map(|row| (row.value, row.unit.as_str()));
++                    let codes = output.diagnostics.iter().map(|d| d.code.as_str()).collect::<Vec<_>>();
++                    println!("rotational-gap unit contract: mode={mode:?}, dof={dof}, gap={value} {unit}, mechanics={}, rotation={observed_rotation:?}, diagnostics={codes:?}", output.status.mechanics);
++                    let blocked = output.diagnostics.iter().any(|d|
++                        d.code == "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED" && d.severity == "blocking");
++                    if !blocked || output.status.mechanics == "MECHANICS_SOLVED" {
++                        missing_blocks.push(format!("{mode:?}/{dof}/{unit}"));
++                    }
++                    assert!(!output.accepted_model_state_mutated);
++                }
++            }
++        }
++        assert!(missing_blocks.is_empty(), "rotational gap contract was not explicitly blocked: {missing_blocks:?}");
++    }
++
++    #[test]
+     fn gap_preview_closes_to_explicit_clearance_through_dense_loop() {
+         let result = run_linear_static_preview(gap_closure_preview_request());
+         let diagnostic_codes = result

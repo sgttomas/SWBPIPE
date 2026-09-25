@@ -1,0 +1,14 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+    "diagnostic_boundary_probe",
+    "--",
+    "--nocapture",
+    "--test-threads=1"
+  ],
+  "exit": 0
+}

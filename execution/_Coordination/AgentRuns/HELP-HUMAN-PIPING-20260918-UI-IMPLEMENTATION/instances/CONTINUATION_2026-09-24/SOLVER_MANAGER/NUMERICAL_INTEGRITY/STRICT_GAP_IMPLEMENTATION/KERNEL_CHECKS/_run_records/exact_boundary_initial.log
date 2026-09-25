@@ -1,0 +1,32 @@
+     Locking 6 packages to latest compatible versions
+      Adding cfg-if v1.0.5
+      Adding dashu-base v0.6.0
+      Adding dashu-float v0.6.0
+      Adding dashu-int v0.6.0
+      Adding num-modular v0.6.5
+      Adding static_assertions v1.1.0
+   Compiling num-modular v0.6.5
+   Compiling dashu-int v0.6.0
+   Compiling dashu-base v0.6.0
+   Compiling static_assertions v1.1.0
+   Compiling cfg-if v1.0.5
+   Compiling dashu-float v0.6.0
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.45s
+     Running unittests src/lib.rs (/private/tmp/piping-numerical-integrity-target/debug/deps/open_pipe_stress_frame_kernel-cf7abe29ef88abbc)
+
+running 11 tests
+test structural::exact_boundary::tests::original_exact_graph_does_not_use_absorbed_stored_coupling ... ok
+test structural::exact_boundary::tests::incomplete_duplicate_changed_maps_and_sources_fail ... ok
+test structural::exact_boundary::tests::exact_zero_source_coupling_can_split_a_stored_connected_graph ... ok
+test structural::exact_boundary::tests::unsupported_singular_negative_asymmetric_range_and_budget_are_explicit ... ok
+test structural::exact_boundary::tests::node_permutation_and_exact_radix_rescaling_preserve_gap_proof ... ok
+test structural::exact_boundary::tests::force_tail_is_not_a_declared_vector_claim ... ok
+test structural::exact_boundary::tests::reactions_combine_independent_blocks_and_nonrepresentable_response ... ok
+test structural::exact_boundary::tests::source_permutation_preserves_proof_but_invalidates_old_binding ... ok
+test structural::exact_boundary::tests::all_fixed_pulling_bearing_and_zero_reactions_are_distinct ... ok
+test structural::exact_boundary::tests::coupled_tie_candidate_checks_original_rows_and_nonzero_prescribed ... ok
+test structural::exact_boundary::tests::independent_27_neighbor_controls_both_senses_and_all_seeds ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 65 filtered out; finished in 0.01s
+

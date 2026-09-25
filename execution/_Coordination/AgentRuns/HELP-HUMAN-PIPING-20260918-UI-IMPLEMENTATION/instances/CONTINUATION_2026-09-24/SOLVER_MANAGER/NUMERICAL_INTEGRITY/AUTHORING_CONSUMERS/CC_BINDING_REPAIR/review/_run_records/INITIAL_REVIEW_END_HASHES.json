@@ -1,0 +1,65 @@
+{
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "initial_sha256": "9d6a8297673952c53ac62e002357481a0397793fe656b34ace34cc11e9f67637",
+      "current_sha256": "9d6a8297673952c53ac62e002357481a0397793fe656b34ace34cc11e9f67637",
+      "unchanged_since_initial": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+      "initial_sha256": "48f660b825e35f185acf151d4fbd9d63ac1b402c55655effba64a8b66f314375",
+      "current_sha256": "48f660b825e35f185acf151d4fbd9d63ac1b402c55655effba64a8b66f314375",
+      "unchanged_since_initial": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "initial_sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498",
+      "current_sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498",
+      "unchanged_since_initial": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "initial_sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347",
+      "current_sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347",
+      "unchanged_since_initial": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "initial_sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574",
+      "current_sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574",
+      "unchanged_since_initial": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "initial_sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28",
+      "current_sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28",
+      "unchanged_since_initial": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "initial_sha256": "3051ed4def2ad6aaa3e5a1fb5c4719d8791182e49e951dfe355d8e9faf949836",
+      "current_sha256": "a7d64d55ba3342f3bf0a1e8bc4ba886ed1a684de1ea15e5b497c4238e3f94a4a",
+      "unchanged_since_initial": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "initial_sha256": "33e1cc5804bbc5a02278901b0362bd82792f1f2245f2b02e34c1ee45e95371f3",
+      "current_sha256": "d7fe5e556a552c3989408778e4e45b1f8b58e07c15f65ae4f52fbc75e44f5b0e",
+      "unchanged_since_initial": false
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "initial_sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+      "current_sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+      "unchanged_since_initial": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "initial_sha256": "ec2ef7ba52b10ef9950a47f786812c38085816c5f99876ee6c6de0fecb702d18",
+      "current_sha256": "ec2ef7ba52b10ef9950a47f786812c38085816c5f99876ee6c6de0fecb702d18",
+      "unchanged_since_initial": true
+    }
+  ],
+  "note": "The parent reported repair writers active. This is drift disclosure, not review of later bytes."
+}

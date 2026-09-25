@@ -1,0 +1,30 @@
+{
+  "time_utc": "2026-09-24T23:14:40.397648+00:00",
+  "parent": "/root/solver_manager",
+  "child": "/root/solver_manager/exact_gap_kernel",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native resumed bounded RET-01 repair",
+  "checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "scope": [
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/STRICT_GAP_IMPLEMENTATION/RETENTION/REPAIR_01"
+  ],
+  "path_correction": "Parent initial brief named nonlinear_supports; parent explicitly confirmed reviewed nonlinear_integration/src/structural_adapter.rs as sole intended production target",
+  "before_sha256": "2328cabde725a61334bbba0b9d37469388e402ea6dd7acdd9ad6347e5ca895a6",
+  "after_sha256": "fd78de18caf9f93b83495d1c7be3a5ca7340a03a16e6e2f5145aae4724c381f8",
+  "frozen_kernel_sha256": "6801610d0bb515eab33603163423812b81bf94946d8c23b99c127b655d996a7f",
+  "observed_checks": [
+    "rustfmt --edition2021 adapter exit0",
+    "source inspection, scope/hash comparison"
+  ],
+  "not_run": [
+    "Cargo/build",
+    "Rust tests",
+    "native",
+    "Node/npm",
+    "runtime measurements"
+  ],
+  "test_added": "ret01_long_id_and_nested_error_are_reserved_before_summary_comparison",
+  "source_frozen": true,
+  "os_isolation_claim": false
+}

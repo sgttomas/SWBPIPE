@@ -1,0 +1,100 @@
+{
+  "results": [
+    {
+      "case": "N05",
+      "mode": "dense_scrutiny",
+      "python_numerical_use_standing": "numerically_eligible",
+      "comparisons": [
+        {
+          "quantity": "root_RX",
+          "observed_json": 9.999970420819728e-05,
+          "observed_binary64_exact": "0.000099999704208197278125676288329515273289871402084827423095703125",
+          "reference": "0.0001",
+          "absolute_error": "-2.95791802721874323711670484726710128597915172576904296875E-10",
+          "relative_error": "-0.00000295791802721874323711670484726710128597915172576904296875",
+          "protected_relative_tolerance": "1e-9",
+          "passes": false
+        },
+        {
+          "quantity": "tip_RX",
+          "observed_json": 9.999970421282521e-05,
+          "observed_binary64_exact": "0.00009999970421282520865145782007488151066354475915431976318359375",
+          "reference": "0.0001000000000046279425150303965038931015810559570233922548921330749853930603099417504400763749662725735",
+          "absolute_error": "-2.957918027338635725764290115909175111978690724917085393249853930603099417504400763749662725735E-10",
+          "relative_error": "-0.000002957918027201744979823672191497744082698012001978810207009174346077729402579405266111709775827992341",
+          "protected_relative_tolerance": "1e-9",
+          "passes": false
+        }
+      ],
+      "structural_diagnostic": {
+        "code": "NUMERICAL_INTEGRITY_SENSITIVE",
+        "severity": "warning",
+        "metrics": {
+          "reciprocal_condition_estimate": "1.0578185609230605e-11",
+          "assembly_relative_perturbation_estimate": "3.5938906446753106e-17",
+          "assembly_amplification_estimate": "3.397454702949487e-6",
+          "refinement_attempts": "0"
+        }
+      }
+    },
+    {
+      "case": "N05",
+      "mode": "sparse_interactive",
+      "python_numerical_use_standing": "numerically_eligible",
+      "comparisons": [
+        {
+          "quantity": "root_RX",
+          "observed_json": 0.00010000016987352618,
+          "observed_binary64_exact": "0.00010000016987352617985583547177697028018883429467678070068359375",
+          "reference": "0.0001",
+          "absolute_error": "1.6987352617985583547177697028018883429467678070068359375E-10",
+          "relative_error": "0.0000016987352617985583547177697028018883429467678070068359375",
+          "protected_relative_tolerance": "1e-9",
+          "passes": false
+        },
+        {
+          "quantity": "tip_RX",
+          "observed_json": 0.00010000016987815412,
+          "observed_binary64_exact": "0.00010000016987815412393414415959114194265566766262054443359375",
+          "reference": "0.0001000000000046279425150303965038931015810559570233922548921330749853930603099417504400763749662725735",
+          "absolute_error": "1.698735261814191137630872488410746117055971521787016169250146069396900582495599236250337274265E-10",
+          "relative_error": "0.000001698735261735574646235198946348099554843170194066377109152655699817009659692536271046687176786484637",
+          "protected_relative_tolerance": "1e-9",
+          "passes": false
+        }
+      ],
+      "structural_diagnostic": {
+        "code": "NUMERICAL_INTEGRITY_SENSITIVE",
+        "severity": "warning",
+        "metrics": {
+          "reciprocal_condition_estimate": "1.0578136350371473e-11",
+          "assembly_relative_perturbation_estimate": "3.5938906446753106e-17",
+          "assembly_amplification_estimate": "3.3974705237649012e-6",
+          "refinement_attempts": "0"
+        }
+      }
+    },
+    {
+      "case": "N06",
+      "mode": "dense_scrutiny",
+      "python_numerical_use_standing": "needs_recompute",
+      "comparisons": [],
+      "structural_diagnostic": {
+        "code": "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED",
+        "severity": "blocking",
+        "metrics": {}
+      }
+    },
+    {
+      "case": "N06",
+      "mode": "sparse_interactive",
+      "python_numerical_use_standing": "needs_recompute",
+      "comparisons": [],
+      "structural_diagnostic": {
+        "code": "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED",
+        "severity": "blocking",
+        "metrics": {}
+      }
+    }
+  ]
+}

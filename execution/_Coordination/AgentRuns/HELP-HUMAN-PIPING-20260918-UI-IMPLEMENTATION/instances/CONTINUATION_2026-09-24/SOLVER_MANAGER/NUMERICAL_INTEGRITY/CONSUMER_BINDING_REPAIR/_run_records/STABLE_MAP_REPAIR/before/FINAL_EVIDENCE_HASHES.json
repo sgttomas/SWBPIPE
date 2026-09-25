@@ -1,0 +1,18 @@
+[
+  {
+    "path": "RETURN.md",
+    "sha256": "c7155475cd2c5488073924bc001aa1b8516cc3eff2c83905d6703fba60f48e62"
+  },
+  {
+    "path": "CANDIDATE_FILES.json",
+    "sha256": "ba47a629a8b73abd32d7d8e5596bc040d9c3fc006bf64cf8f6b772d74709b42b"
+  },
+  {
+    "path": "_run_records/repair.patch",
+    "sha256": "21c2094dabf3e91f47934f6470c8b7e981a30405b50a0dffdb3c7188be0eb7e4"
+  },
+  {
+    "path": "_run_records/CC05/RESULTS.json",
+    "sha256": "bead913709ff676b7ce0ac692991dc4b17cb1bcd8894c4760705c6c0a6520ad7"
+  }
+]

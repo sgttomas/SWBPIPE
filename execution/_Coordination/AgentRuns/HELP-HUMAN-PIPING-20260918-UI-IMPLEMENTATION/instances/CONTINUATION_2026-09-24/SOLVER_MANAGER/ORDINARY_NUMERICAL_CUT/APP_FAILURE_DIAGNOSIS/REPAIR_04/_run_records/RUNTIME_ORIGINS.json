@@ -1,0 +1,80 @@
+{
+  "agent": "/root/solver_manager/app_cut_diagnosis",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native followup_task",
+  "brief": "Inspect and repair the one remaining App case against existing current contracts; App.test.tsx only, no runtime operations.",
+  "instruction_basis": "../../_run_records/runtime_origins.json",
+  "selected_basis": [
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "6c7ea9eb8b695475d9efa62f1c5cf517ec961db11b1959466191f852eae84fda"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json",
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "88647b3499e56530f8628e071686b86f2beacf005f8a351a5981593f1aa7e50f"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "c88a2399b08e7289627b9104557c5a7ce983ee127b18b9fd7bb0f529b0a6377c"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "sha256": "c59154974556ccbd388ab21bb0e35273e23e722ff05e785d480b8c9371be3898"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "742d66ed8c969a7ef9290c7a0a24005ffc19342d20cfea4f7886147508a0b9f4"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/services/hashService.ts",
+      "path": "projects/chirality-piping/apps/desktop/src/services/hashService.ts",
+      "sha256": "0f1d342d60501b212c3a307b96ba1dfa625fcc1845cc33b47e54dd58341cf7e1"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/services/displayQuantityPrecision.test.ts",
+      "path": "projects/chirality-piping/apps/desktop/src/services/displayQuantityPrecision.test.ts",
+      "sha256": "3f617a1f540573ebe0d3e6958ef26bb64d9a92d93d5cadf3c24857f1e1329723"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "47b7e0f617d6d4e3b2f97d7b82d3caeed55c64de8689882c504222cc13d2fde9"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+      "path": "projects/chirality-piping/apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+      "sha256": "85f0635bf155aefe7cade9176a4efb6f088babbb9610a061fd6fb7c6fee4ce11"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/types.ts",
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "sha256": "25a3b2aa687bd8984cc053f6306e57c546c3adb6efbe8576140cae3f06e8bce1"
+    }
+  ]
+}

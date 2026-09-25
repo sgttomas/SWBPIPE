@@ -1,0 +1,51 @@
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.106
+   Compiling generic-array v0.14.7
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.228
+   Compiling libc v0.2.186
+   Compiling syn v2.0.117
+   Compiling serde_json v1.0.150
+   Compiling serde v1.0.228
+   Compiling serde_derive v1.0.228
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling memchr v2.8.1
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling ryu v1.0.23
+   Compiling cfg-if v1.0.4
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/model_operations/operation_applier)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.45s
+     Running unittests src/lib.rs (/private/tmp/piping-numerical-authoring-target-20260924/debug/deps/open_pipe_stress_operation_applier-5ae8ef1a11a7b07a)
+
+running 3 tests
+test display_units::tests::display_conversion_rejects_pressure_reference_payload_and_overflow ... ok
+test display_units::tests::display_conversion_is_pure_and_distinguishes_absolute_and_interval_temperature ... ok
+test display_units::tests::same_unit_display_preserves_small_values_and_still_validates_metadata ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 137 filtered out; finished in 0.00s
+
+     Running tests/canonical_hash_parity.rs (/private/tmp/piping-numerical-authoring-target-20260924/debug/deps/canonical_hash_parity-95bb213f80823e96)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/contract_corpus.rs (/private/tmp/piping-numerical-authoring-target-20260924/debug/deps/contract_corpus-94cdd795eed0a6fc)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/support_authoring_conflicts.rs (/private/tmp/piping-numerical-authoring-target-20260924/debug/deps/support_authoring_conflicts-83e2603d681a4b3c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+

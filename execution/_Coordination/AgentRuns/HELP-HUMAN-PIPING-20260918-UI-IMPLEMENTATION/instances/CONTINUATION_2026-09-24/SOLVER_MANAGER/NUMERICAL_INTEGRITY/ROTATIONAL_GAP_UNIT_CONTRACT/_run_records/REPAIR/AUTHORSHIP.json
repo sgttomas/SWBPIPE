@@ -1,0 +1,9 @@
+{
+  "author": "/root/solver_manager",
+  "allocation": "bounded manager integration under ROOT explicit pre-normalization containment direction",
+  "production_change": "one guard for parsed rotational gap DOFs; no unit conversion, alias expansion, persistence edit or tolerance change",
+  "test_refinement": "preserve existing rotation_* support-token/unit rejection; these aliases are supported moment-load tokens only",
+  "baseline_cases": 36,
+  "actual_unsafe_accepted_cases": 12,
+  "runtime_after_repair": "not run; independent review pending"
+}

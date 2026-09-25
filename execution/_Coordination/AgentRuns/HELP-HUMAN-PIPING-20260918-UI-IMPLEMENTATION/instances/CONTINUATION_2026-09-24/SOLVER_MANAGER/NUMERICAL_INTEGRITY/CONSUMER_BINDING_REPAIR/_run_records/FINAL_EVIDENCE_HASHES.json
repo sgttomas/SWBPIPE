@@ -1,0 +1,26 @@
+[
+  {
+    "path": "RETURN.md",
+    "sha256": "c24472a7a9339e8ae610063645ff776312f07e2f6ebcf769010b03ad713f3618"
+  },
+  {
+    "path": "CANDIDATE_FILES.json",
+    "sha256": "fe675ec0794307f805bca4e92145857e9a42950339a20e6855d662787adce50c"
+  },
+  {
+    "path": "_run_records/repair.patch",
+    "sha256": "69a573d89c401b8ee75adfa750667aa63f46a5809c3e0a55203062e1dc0cad2e"
+  },
+  {
+    "path": "_run_records/STABLE_MAP_REPAIR/RESULTS.json",
+    "sha256": "9d6ad8e19bdf29466b0fc2199fa7ea65b7c6c683717f943f8936a0e6a16d3f7e"
+  },
+  {
+    "path": "_run_records/STABLE_MAP_REPAIR/probe.py",
+    "sha256": "0cdcec1c60056574d30aa499a4c6b24f2dacf4bbea6832a20b567989653fa303"
+  },
+  {
+    "path": "_run_records/STABLE_MAP_REPAIR/probe.json",
+    "sha256": "3d836c756a6af60008916faf16e032375aa56e5e6893bd4518adb7d6db9a1786"
+  }
+]

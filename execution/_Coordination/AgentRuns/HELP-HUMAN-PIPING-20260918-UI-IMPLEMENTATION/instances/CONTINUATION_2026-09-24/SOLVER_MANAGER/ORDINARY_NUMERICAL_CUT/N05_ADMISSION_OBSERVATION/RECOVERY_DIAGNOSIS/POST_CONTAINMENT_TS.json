@@ -1,0 +1,64 @@
+{
+  "method": "Actual saved product carrier and authored observer input passed unchanged to actual TypeScript function; Node strips only TypeScript types. No kernel-derived product envelope, input manifest, analysis record or Current state constructed.",
+  "node": "v24.18.0",
+  "results": [
+    {
+      "case": "N05",
+      "mode": "dense_scrutiny",
+      "sourceContract": "precision",
+      "numericalResultStanding": {
+        "contract": "precision",
+        "status": "needs_recompute",
+        "eligible": false,
+        "findings": [
+          "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+          "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
+        ]
+      }
+    },
+    {
+      "case": "N05",
+      "mode": "sparse_interactive",
+      "sourceContract": "precision",
+      "numericalResultStanding": {
+        "contract": "precision",
+        "status": "needs_recompute",
+        "eligible": false,
+        "findings": [
+          "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+          "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"
+        ]
+      }
+    },
+    {
+      "case": "N06",
+      "mode": "dense_scrutiny",
+      "sourceContract": "precision",
+      "numericalResultStanding": {
+        "contract": "precision",
+        "status": "needs_recompute",
+        "eligible": false,
+        "findings": [
+          "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+          "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
+          "MECHANICS_NOT_SOLVED"
+        ]
+      }
+    },
+    {
+      "case": "N06",
+      "mode": "sparse_interactive",
+      "sourceContract": "precision",
+      "numericalResultStanding": {
+        "contract": "precision",
+        "status": "needs_recompute",
+        "eligible": false,
+        "findings": [
+          "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+          "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
+          "MECHANICS_NOT_SOLVED"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "agent": "/root/solver_manager/fixture_route_review",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type 2, independently assigned fresh review; no implementation participation",
+  "mechanism": "delegated-harness-native spawn; no descendants",
+  "checkout": "/private/tmp/piping-numerical-corrections-20260924",
+  "base_basis": "f702b439536c6e76af8e1c81ee536d5685e87907 as supplied by parent; Git forbidden and not independently queried",
+  "recorded_utc": "2026-09-25T01:26:27.129289+00:00",
+  "instructions_fully_read": [
+    {
+      "path": "AGENTS.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    }
+  ],
+  "inspection": "Complete supplied consumer diff, reconstructed against before/after; complete generator delta and current file; relevant caller/dependency/test slices. Core source bytes hashed as generation backcheck without claiming whole-source solver review.",
+  "source_state": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "74b79d41ec53ac8fc5ce267340c404b3ff90f744e3dd24d1236bbf02774f8fdb"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "b038e31b2797ed14f6dd34743408bde9a8bea4e9561b81d529a1e99041092fe0"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "97e6b7af0f7a88dfe77928d953ba21b0643d1ee9633c6ab38c805ee4e7a00131"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "742d66ed8c969a7ef9290c7a0a24005ffc19342d20cfea4f7886147508a0b9f4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "744484fdcd9ee326493a2dae1e6dc9019a4f9b702214bb9908905d659b429351"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "6a113eeaef876c6d7f3d0968b63a7a97da7fd7e4c42cfae00c871f3f058bf674"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "sha256": "c92030018f057c8e826d0486db33a5c78246114d220fa0a062d87a3e21a94ac8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/solveJobAudit.ts",
+      "sha256": "df1e5ae7c5110bedf98a49dfee36bf1f98e07479e7dc96b5c4ac778ec0f6c755"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/examples/preview_result.rs",
+      "sha256": "1e725db3e61abb0e94cbc9db8a8a0f504bc4203ea7b3aa41aaebb6a8a88cd864"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "3671265eca3f9b0ca1793bf020cb2e768834a25e8c2827d73251a674271140c6"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+      "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/precision_fixture_generation.json",
+      "sha256": "1db7cb2b2a88907f832a4012d1f0e0f0ee127d8e8d3db35394a6d081478ad238"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/PRECISION_FIXTURES.md",
+      "sha256": "fcf51f2870f15cff247f0eba2ec28434443bf63e60148e31a13c0dcd84a64138"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    },
+    {
+      "path": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7"
+    }
+  ],
+  "evidence_inputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER/RETURN.md",
+      "sha256": "e8789e962528f6e648bf96b0d1cf34d8b5eabf1fe254212f7628fd2f87ff754f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER/SOURCE.diff",
+      "sha256": "04ea24c31f2d6edba5a65f8b6d1fc1e219fc02666d2e5bb661beff4985cea49c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER/SOURCE_FREEZE.json",
+      "sha256": "633abf37ba819fa6519de391b9a639768fef4845693518ef80baf89d370eb1c6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER/STATIC_CHECKS.json",
+      "sha256": "d3a5db9d70211a7ecc52e33011395e9498b23d93c8421a6b29e081aaef429285"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER/_run_records/ORIGINS.json",
+      "sha256": "737e33742ec19af5ed4a858cadc33fccae6d57b1b6aaf8a2de41c43a6fed7be9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER/_run_records/after/apps/desktop/src/App.test.tsx",
+      "sha256": "97e6b7af0f7a88dfe77928d953ba21b0643d1ee9633c6ab38c805ee4e7a00131"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER/_run_records/after/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "b038e31b2797ed14f6dd34743408bde9a8bea4e9561b81d529a1e99041092fe0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER/_run_records/after/apps/desktop/src/services/previewService.ts",
+      "sha256": "74b79d41ec53ac8fc5ce267340c404b3ff90f744e3dd24d1236bbf02774f8fdb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER/_run_records/before/apps/desktop/src/App.test.tsx",
+      "sha256": "686687e5b124c393254abd08699183203fbcd417b361368334d46dd478b33028"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER/_run_records/before/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER/_run_records/before/apps/desktop/src/services/previewService.ts",
+      "sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/AFTER.json",
+      "sha256": "e5180f3e5551a1f794a86c5365dc589aefa98aef7cfd078d484abc894246c7a1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/BUILD_INPUTS.json",
+      "sha256": "b4eb272916b99c5a32a1f3679e874003480ce8156830d9ad862a19ce73c5b874"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/GENERATION.json",
+      "sha256": "0fbc59a50b3d090e16d51162360bcc98c594ef3d5cf34c7b632f9df0c3eaa4f6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/GENERATOR_BEFORE_ORIGIN.json",
+      "sha256": "3e5bcc22d83aabb222e47175d15f46f0c8236cb5ff12715b0bb105b1decb2ce9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/GENERATOR_SOURCE_FREEZE.json",
+      "sha256": "68e0a54db00c57e306e7feec3f31f72fbdee543494fa4b616b1dfccf2c0c7207"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/TOOLS_OBSERVED_AFTER.json",
+      "sha256": "8fc522313c366f78a56bb3b69841c3705e5c500d1518215b88dd2a31ae4ae414"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/dense.stderr.log",
+      "sha256": "97a2771b8cf9d59cce30e99f5b7a81abeefd4c8b1021634d1a28e4c6afb4865d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/dense.stdout.json",
+      "sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/generate_precision_fixtures.py",
+      "sha256": "12bb5fd0c29696af3f14b5feff6579093ffb08f82bc25274acf2f46d8da22dc3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/preview_result.before.rs",
+      "sha256": "6cb68ea97330ee541d80318a5bcd69469957bfd39edcbf71d4313faae85e8241"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/preview_result.diff",
+      "sha256": "651025d36d1a6f7d7be5c39a3da3d0bf88623066ac1f88f180f224ac257ea095"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/sparse.stderr.log",
+      "sha256": "171f2ffabcfc1f84139eab2dd2d21681a2d667cc36a3951bc0456c74447b19d0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/_run_records/sparse.stdout.json",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6"
+    }
+  ],
+  "tools": "exec_command for read-only rg/sed/cat/Python; apply_patch and Python write only review evidence; software scope helper supplied all paths explicitly, avoiding its Git discovery branch",
+  "restrictions": "No Git, npm, Cargo, build, native, browser, dependency/configuration writes or production/test edits. No runtime test/physics/full-cut acceptance claim."
+}

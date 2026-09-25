@@ -1,0 +1,23 @@
+{
+  "actor": "/root/solver_manager",
+  "source_origin": "/private/tmp/piping-precision-headless-documents/curved-tip-weight-full.raw.json",
+  "source_original_sha256": "8a358f165f6e3bc2706ca203a0da0c86cf4e2df72758cf599d1276312bb86ea9",
+  "rows": 69,
+  "actual_source_status": "not_assessed",
+  "source_changed": false,
+  "input_manifest_standing": "new reconstructed fixture input-custody document; not a captured original native audit manifest",
+  "purpose": "actual Python builder/canonical serializer to TypeScript reader/validator; no TSbuilder/Current/numerical/physics acceptance claim",
+  "features": [
+    "custom provenance",
+    "reversed source row order",
+    "custom typed export namespace",
+    "reversed stable-map order"
+  ],
+  "hashes": {
+    "source.json": "d7e2b295abdd6f64f83199c83b9a58e3e09ca7b3b181df5d50151b06e6d2a6d4",
+    "packet.json": "222be840bdf5707e762ac53804f2e880907f4f8f7d08098e932bfbeeb365d8b0",
+    "source.original.json": "8a358f165f6e3bc2706ca203a0da0c86cf4e2df72758cf599d1276312bb86ea9",
+    "analysis.json": "36fcd393f872db52e8ef29af23bbdd9ff76b288739f122f79d4b6d05e9ee2e35",
+    "input-custody-manifest.json": "4300ba8f9b95b53acd2be0ea17ce7a3db2614b5a4411e8a2afbf5ff7c02596e4"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "../../node_modules/.bin/tsc",
+    "--noEmit"
+  ],
+  "started_at": "2026-09-24T23:58:54.302907+00:00",
+  "exit_code": 0,
+  "source_sha256": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c",
+  "test_sha256": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655",
+  "config_sha256": null,
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

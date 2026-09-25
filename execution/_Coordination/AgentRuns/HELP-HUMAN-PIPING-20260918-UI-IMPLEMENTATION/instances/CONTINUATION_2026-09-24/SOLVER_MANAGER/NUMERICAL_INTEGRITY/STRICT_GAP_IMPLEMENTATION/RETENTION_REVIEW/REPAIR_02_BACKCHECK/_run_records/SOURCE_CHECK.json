@@ -1,0 +1,8 @@
+{
+  "before": "fd78de18caf9f93b83495d1c7be3a5ca7340a03a16e6e2f5145aae4724c381f8",
+  "after": "f7600925cd44169ce6d04a03ae5c0e622a8f27aabee831377d297dce68ec51aa",
+  "actual_matches_frozen": true,
+  "complete_delta_verified": true,
+  "kernel_unchanged_6801610d": true,
+  "scope": "Two-stage reservation implementation and its newly authored accounting assertions only"
+}

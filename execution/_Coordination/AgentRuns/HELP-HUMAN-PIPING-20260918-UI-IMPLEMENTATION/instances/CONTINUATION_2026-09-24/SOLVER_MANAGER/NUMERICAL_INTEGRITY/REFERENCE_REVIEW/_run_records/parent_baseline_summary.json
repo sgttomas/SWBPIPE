@@ -1,0 +1,955 @@
+{
+  "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/BASELINE/_run_records/observations_corrected.jsonl",
+  "sha256": "b226d7e4568b89194db89fb51fc28a44284a110a908c1a6c89881d728d3de94b",
+  "executed_by": "parent solver manager; reviewer only read/derived summary",
+  "observations": [
+    {
+      "case": "N08-positive",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N08-positive",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N08-negative",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N08-negative",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N08-small",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N08-small",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N08-small-negative",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N08-small-negative",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N09-torsion",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N09-torsion",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N05",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0001
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0001
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N05",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0001
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0001
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N06",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MODEL_INCOMPLETE",
+      "blocking_codes": [
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "rotations": []
+    },
+    {
+      "case": "N06",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MODEL_INCOMPLETE",
+      "blocking_codes": [
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "rotations": []
+    },
+    {
+      "case": "N02-loaded",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 2013265919.999999
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 2684354559.999999
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 2013265919.999998
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 2684354560.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N02-loaded",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 1789569706.666667
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 2386092942.222224
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 1789569706.666666
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 2386092942.222224
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N02-unloaded",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N02-unloaded",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N01",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.00037
+        }
+      ]
+    },
+    {
+      "case": "N01",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.00037
+        }
+      ]
+    },
+    {
+      "case": "N09-bending",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.000926
+        }
+      ]
+    },
+    {
+      "case": "N09-bending",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.000926
+        }
+      ]
+    },
+    {
+      "case": "N03-RX-stabilized",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N03-RX-stabilized",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N03-RZ-not-stabilized",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 2013265919.999999
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 2684354559.999999
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 2013265919.999998
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 2684354560.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N03-RZ-not-stabilized",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "blocking_codes": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 1789569706.666667
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 2386092942.222224
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 1789569706.666666
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 2386092942.222224
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "case": "N04",
+      "mode": "dense_scrutiny",
+      "mechanics_status": "MODEL_INCOMPLETE",
+      "blocking_codes": [
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "rotations": []
+    },
+    {
+      "case": "N04",
+      "mode": "sparse_interactive",
+      "mechanics_status": "MODEL_INCOMPLETE",
+      "blocking_codes": [
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "rotations": []
+    }
+  ]
+}

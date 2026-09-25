@@ -1,0 +1,68 @@
+{
+  "original_stdout_sha256": "36d717a2e3eff94f6d60092ddee19a5c12b52469aa951e3464e97a7839f2e61c",
+  "checks": [
+    {
+      "mode": "dense_scrutiny",
+      "input_matches_new_regression_fixture": true,
+      "root_rotation": 9.999970420819728e-05,
+      "root_rotation_bits": "0x1.a36ddd6344c9dp-14",
+      "independent_relative_error_to_T_over_k": "-0.00000295791802721874323711670484726710128597915172576904296875",
+      "protected_relative_criterion": "1e-9",
+      "passes": false,
+      "mechanics": "MECHANICS_SOLVED",
+      "numerical_quality": {
+        "cases": [
+          {
+            "accuracy_evidence": "not_claimed",
+            "basis_ref": {
+              "ref_id": "case",
+              "ref_type": "load_case"
+            },
+            "evidence_refs": [
+              "diagnostic:numerical-integrity:case"
+            ],
+            "model_matrix_fidelity": "represented_equations_retained",
+            "solve_quality": "sensitive",
+            "structural_status": "passive_model_basis"
+          }
+        ],
+        "integrity_policy": "M03-INTEGRITY-v1",
+        "publication_quantization": "none",
+        "status": "sensitive",
+        "value_representation": "finite_binary64"
+      }
+    },
+    {
+      "mode": "sparse_interactive",
+      "input_matches_new_regression_fixture": true,
+      "root_rotation": 0.00010000016987352618,
+      "root_rotation_bits": "0x1.a36e5d638d986p-14",
+      "independent_relative_error_to_T_over_k": "0.0000016987352617985583547177697028018883429467678070068359375",
+      "protected_relative_criterion": "1e-9",
+      "passes": false,
+      "mechanics": "MECHANICS_SOLVED",
+      "numerical_quality": {
+        "cases": [
+          {
+            "accuracy_evidence": "not_claimed",
+            "basis_ref": {
+              "ref_id": "case",
+              "ref_type": "load_case"
+            },
+            "evidence_refs": [
+              "diagnostic:numerical-integrity:case"
+            ],
+            "model_matrix_fidelity": "represented_equations_retained",
+            "solve_quality": "sensitive",
+            "structural_status": "passive_model_basis"
+          }
+        ],
+        "integrity_policy": "M03-INTEGRITY-v1",
+        "publication_quantization": "none",
+        "status": "sensitive",
+        "value_representation": "finite_binary64"
+      }
+    }
+  ],
+  "claim": "Independent arithmetic on actual retained product carrier; no product execution or fabricated carrier; current new N05 fixture equals actual authored observer input in both modes."
+}

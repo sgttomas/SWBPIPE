@@ -1,0 +1,10 @@
+{
+  "original_document": "SOURCE_CLEARANCE.md",
+  "path_base": "RUNTIME_BACKCHECK",
+  "original_raw": "_run_records/portability/SOURCE_CLEARANCE.md",
+  "original_sha256": "5832868f9c3c7328e224b9f0380d372c5fd36406498bd958fb9c6b092676ce07",
+  "portable_view_sha256": "cf6bc10d4f4315f094536765157491a6c0d946637b449c821f15f7c74de1d4a4",
+  "change": "replace literal machine temporary root with raw evidence pointer; preserve exact original review bytes",
+  "actor": "solver_manager",
+  "reviewer_notified": true
+}

@@ -1,0 +1,15 @@
+{
+  "KERNEL/RETURN.md": "455dcb6ace46ca94b591e394f05c75112215ad4c04e3f19a96c66446adc84a5b",
+  "KERNEL/_run_records/SOURCE_FREEZE.json": "757bba9d7391f79f8241b04b8349fb5982c80d85149893865671d6ea4e77bef2",
+  "INITIAL_CHECKS/REPAIR_INPUTS.json": "87a6abb323f8b7bf5b444bda145db03b3c6f75d6e100f2fc67ca3779985cbd30",
+  "INITIAL_CHECKS/_run_records/frame_repaired.log": "540752a7afa04e37aba4a9e804691dd32e9081c78002b62b28376db3e8983fd3",
+  "INITIAL_CHECKS/_run_records/sparse_repaired.log": "87a8c3241eb74b0c82451f7ab94d4f010bf7f3a4f5e7823870b249ea62857422",
+  "INITIAL_CHECKS/_run_records/frame_initial.log": "f9136a2a18514751d75df3c84f21d26b76dfc182eb34f5be9179c58f052df94e",
+  "REFERENCE_REVIEW/RETURN.md": "b08827847a3d675effa6b36dadd6e65c75049e21f71a103cebe3bb1171c6144c",
+  "REFERENCE_REVIEW/REVIEWED_FREEZE.json": "61ae62cf5c44cb7fa4132fe06fd1fa3ef3644509123df6973e93c59e6aa7b83c",
+  "P/validation/benchmarks/numerical_integrity/fixtures.json": "c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e",
+  "P/validation/benchmarks/numerical_integrity/COVERAGE.md": "114b34619dc33515199deeacfa81a757f0feecbac7238b3264f688ca071ea1a2",
+  "P/validation/benchmarks/numerical_integrity/src/main.rs": "f61f115b7c1e22490c204660ad505e2219bf67684add9c24511b4419b3a38037",
+  "P/validation/benchmarks/numerical_integrity/generate.py": "b491529a4bff8ed0e25de1f85c2488192a8e55677413571da6c260932b1a71a2",
+  "P/validation/benchmarks/numerical_integrity/test_reference.py": "35b1b81895af8ec42e24fbb03dbec5c0233e5a2a57d1cccbc394cacee1a0c496"
+}

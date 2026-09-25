@@ -1,0 +1,2 @@
+src/features/stress-neutral/StressNeutralExportPanel.test.tsx(282,16): error TS2339: Property 'component' does not exist on type 'never'.
+src/features/stress-neutral/StressNeutralExportPanel.tsx(478,143): error TS2339: Property 'provenance' does not exist on type '{ schema_version: string; document_kind: string; deliverable_id: string; package_id: string; scope_items: string[]; objectives: string[]; export_scope: string; export_id: string; package_status: string; ... 26 more ...; professional_reliance_claim: boolean; }'.

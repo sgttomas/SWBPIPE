@@ -1,0 +1,162 @@
+--- prior/compatibility.py
++++ latest/compatibility.py
+@@ -313,8 +313,11 @@
+     kwargs.setdefault("solver_name", producer["component_name"])
+     kwargs.setdefault("solver_version", producer["component_version"])
+     source_rule = mechanics_result.get("status", {}).get("rule_check")
+-    effective_rule = kwargs.get("rule_check_status") or source_rule or "RULE_INPUTS_INCOMPLETE"
+-    if effective_rule not in RULE_STATUSES:
++    if source_rule is not None and (not isinstance(source_rule, str) or source_rule not in RULE_STATUSES):
++        raise ValueError("ANALYSIS_RULE_STATUS_INVALID")
++    override = kwargs.get("rule_check_status")
++    effective_rule = override if override is not None else (source_rule if source_rule is not None else "RULE_INPUTS_INCOMPLETE")
++    if not isinstance(effective_rule, str) or effective_rule not in RULE_STATUSES:
+         raise ValueError("ANALYSIS_RULE_STATUS_INVALID")
+     kwargs["rule_check_status"] = effective_rule
+     record = _build_analysis_run(mechanics_result, record_version="0.3.0", **kwargs)
+@@ -343,6 +346,9 @@
+     if run.get("diagnostics") != [{"source_annotation": deepcopy(item)} for item in source.get("diagnostics", [])]:
+         raise ValueError("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH")
+     statuses = run.get("analysis_status")
++    source_rule = source.get("status", {}).get("rule_check")
++    if source_rule is not None and (not isinstance(source_rule, str) or source_rule not in RULE_STATUSES):
++        raise ValueError("ANALYSIS_RULE_STATUS_INVALID")
+     mechanics = source.get("status", {}).get("mechanics")
+     if mechanics not in {"MODEL_INCOMPLETE", "MECHANICS_SOLVED"}:
+         raise ValueError("ANALYSIS_SOURCE_MECHANICS_STATUS_INVALID")
+--- prior/package_v0_3.py
++++ latest/package_v0_3.py
+@@ -224,12 +224,38 @@
+             raise ValueError("SN-PRECISION-ROW-SOURCE-MISMATCH")
+ 
+ 
++def _validate_stable_id_map(entries: Any, rows: list[Mapping[str, Any]]) -> None:
++    """A bijection of exact source identities to caller-defined typed targets."""
++    def reference(value: Any) -> tuple[str, str]:
++        if not isinstance(value, Mapping) or set(value) != {"object_type", "ref"} or any(not isinstance(value[key], str) or not value[key] for key in ("object_type", "ref")):
++            raise ValueError("SN-STABLE-ID-MAP-BINDING-MISMATCH")
++        return value["object_type"], value["ref"]
++
++    if not isinstance(entries, list) or len(entries) != len(rows):
++        raise ValueError("SN-STABLE-ID-MAP-BINDING-MISMATCH")
++    expected = {row["result_id"]: reference(row.get("canonical_ref")) for row in rows}
++    seen_sources: set[str] = set()
++    seen_targets: set[tuple[str, str]] = set()
++    for entry in entries:
++        if not isinstance(entry, Mapping):
++            raise ValueError("SN-STABLE-ID-MAP-BINDING-MISMATCH")
++        source = reference(entry.get("canonical_ref"))
++        target = reference(entry.get("export_ref"))
++        if expected.get(source[1]) != source or source[1] in seen_sources or target in seen_targets or entry.get("mapping_status") != "mapped" or entry.get("loss_category") != "exported":
++            raise ValueError("SN-STABLE-ID-MAP-BINDING-MISMATCH")
++        seen_sources.add(source[1])
++        seen_targets.add(target)
++    if seen_sources != set(expected):
++        raise ValueError("SN-STABLE-ID-MAP-BINDING-MISMATCH")
++
++
+ def build_stress_neutral_export_package_v0_3(*, source_envelope: Mapping[str, Any], analysis_record: Mapping[str, Any], expected_basis_refs: list[Mapping[str, str]] | None = None, **source: Any) -> dict[str, Any]:
+     validate_analysis_run_v0_3(analysis_record, source_envelope, expected_basis_refs=expected_basis_refs)
+     received = [item for item in analysis_record["analysis_run"]["hashes"] if item.get("payload_scope") == "received_result"]
+     if len(received) != 1 or received[0] not in source.get("source_hashes", []) or source.get("source_result_ref") != received[0]["payload_ref"] or source.get("source_run_ref") != {"object_type":"AnalysisRun", "ref":source_envelope["run_id"]} or source.get("source_model_ref", {}).get("ref") != source_envelope["model_ref"]:
+         raise ValueError("SN-PRECISION-SOURCE-BINDING-MISMATCH")
+     _validate_source_rows(source_envelope, source.get("result_rows", []))
++    _validate_stable_id_map(source.get("stable_id_map"), source.get("result_rows", []))
+     supplied_profile = source.get("export_profile")
+     if isinstance(supplied_profile, Mapping):
+         if "profile_id" in supplied_profile and supplied_profile["profile_id"] != EXPORT_PROFILE:
+@@ -452,11 +478,7 @@
+     if len(set(row_ids)) != len(rows) or any(not isinstance(row_id, str) or row.get("canonical_ref", {}).get("ref") != row_id or row.get("source_result_ref", {}).get("ref") != row_id for row_id, row in zip(row_ids, rows)):
+         raise ValueError("SN-RESULT-ROW-IDENTITY-MISMATCH")
+     _validate_received_csv(package.get("csv_text"), rows)
+-    stable = package.get("stable_id_map", [])
+-    canonical_ids = [item.get("canonical_ref", {}).get("ref") for item in stable]
+-    export_ids = [item.get("export_ref", {}).get("ref") for item in stable]
+-    if len(stable) != len(rows) or len(set(canonical_ids)) != len(rows) or len(set(export_ids)) != len(rows) or set(canonical_ids) != set(row_ids) or any(item.get("mapping_status") != "mapped" or item.get("loss_category") != "exported" for item in stable):
+-        raise ValueError("SN-STABLE-ID-MAP-BINDING-MISMATCH")
++    _validate_stable_id_map(package.get("stable_id_map"), rows)
+     received = package.get("received_source_checksums", [])
+     if not any(item.get("payload_ref") == package.get("source_result_ref") for item in received):
+         raise ValueError("SN-SOURCE-RESULT-REF-UNBOUND")
+--- prior/test_precision_consumer_contract.py
++++ latest/test_precision_consumer_contract.py
+@@ -153,3 +153,26 @@
+     raw=source();raw['results'][0]['basis_ref']=basis;record=build(raw)
+     assert record['analysis_run']['load_basis_refs']==expected
+     validate_instance(json.loads((PROJECT/'schemas/analysis_run.schema.json').read_text()),record,instance_label='optional or generic basis')
++
++
++@pytest.mark.parametrize('invalid', ['',0,False,[],{},'UNKNOWN'])
++def test_present_invalid_rule_status_never_becomes_default(invalid):
++    from core.analysis_runs.compatibility import validate_analysis_run_v0_3
++    raw=source();record=build(raw)
++    kwargs=dict(input_manifest_ref={'object_type':'InputManifest','ref':'m'},input_manifest_hash='1'*64)
++    with pytest.raises(ValueError,match='RULE_STATUS_INVALID'):
++        build_analysis_run_v0_3(raw,rule_check_status=invalid,**kwargs)
++    raw['status']['rule_check']=invalid
++    with pytest.raises(ValueError,match='RULE_STATUS_INVALID'):build(raw)
++    with pytest.raises(ValueError,match='RULE_STATUS_INVALID'):
++        build_analysis_run_v0_3(raw,rule_check_status='USER_RULE_CHECKED',**kwargs)
++    with pytest.raises(ValueError,match='RULE_STATUS_INVALID'):validate_analysis_run_v0_3(record,raw)
++
++
++def test_null_or_absent_rule_status_and_override_have_explicit_default():
++    kwargs=dict(input_manifest_ref={'object_type':'InputManifest','ref':'m'},input_manifest_hash='1'*64)
++    for source_rule in [None,'USER_RULE_FAILED']:
++        raw=source();raw['status']['rule_check']=source_rule
++        record=build_analysis_run_v0_3(raw,rule_check_status=None,**kwargs)
++        assert (source_rule or 'RULE_INPUTS_INCOMPLETE') in record['analysis_run']['analysis_status']
++    assert 'RULE_INPUTS_INCOMPLETE' in build(source())['analysis_run']['analysis_status']
+--- prior/test_stress_neutral_precision.py
++++ latest/test_stress_neutral_precision.py
+@@ -237,3 +237,50 @@
+     assert packet['schema_conformant'] is True
+     assert packet['result_rows'][0]['station_ref']==args['result_rows'][0]['station_ref']
+     assert raw==before
++
++
++@pytest.mark.parametrize('field,value', [
++    ('canonical_ref',{'object_type':'Material','ref':'result:0'}),
++    ('canonical_ref',None),('canonical_ref',[]),
++    ('export_ref',{'object_type':'CustomRow','ref':''}),
++    ('export_ref',{'object_type':'CustomRow','ref':None}),
++    ('export_ref',{'object_type':'','ref':'row:a'}),
++    ('export_ref',{'object_type':'CustomRow','ref':'row:a','extra':True}),
++    ('export_ref',[]),('export_ref',None),
++])
++def test_stable_map_rejects_malformed_or_relabelled_references(field,value):
++    raw,analysis,args=prepare()
++    packet=build_stress_neutral_export_package_v0_3(source_envelope=raw,analysis_record=analysis,**args)
++    wrong=deepcopy(args);wrong['stable_id_map'][0][field]=value
++    with pytest.raises(ValueError,match='STABLE-ID-MAP'):
++        build_stress_neutral_export_package_v0_3(source_envelope=raw,analysis_record=analysis,**wrong)
++    packet['stable_id_map'][0][field]=value;rehash_packet(packet)
++    with pytest.raises(ValueError,match='STABLE-ID-MAP'):
++        validate_stress_neutral_export_package_v0_3(packet,source_envelope=raw,analysis_record=analysis)
++
++
++@pytest.mark.parametrize('shape', [None,{},[None],[[]],[None,None],[[],[]]])
++def test_stable_map_requires_list_of_mappings_before_normalization(shape):
++    raw,analysis,args=prepare();packet=build_stress_neutral_export_package_v0_3(source_envelope=raw,analysis_record=analysis,**args)
++    args['stable_id_map']=shape
++    with pytest.raises(ValueError,match='STABLE-ID-MAP'):
++        build_stress_neutral_export_package_v0_3(source_envelope=raw,analysis_record=analysis,**args)
++    packet['stable_id_map']=shape;rehash_packet(packet)
++    with pytest.raises(ValueError,match='STABLE-ID-MAP'):
++        validate_stress_neutral_export_package_v0_3(packet,source_envelope=raw)
++
++
++def test_stable_map_custom_typed_namespaces_and_order_preserve_bijection():
++    raw,analysis,args=prepare()
++    # Target identity is the full typed reference; caller namespaces are valid.
++    args['stable_id_map'][0]['export_ref']={'object_type':'CustomA','ref':'shared-label'}
++    args['stable_id_map'][1]['export_ref']={'object_type':'CustomB','ref':'shared-label'}
++    args['stable_id_map'].reverse();args['result_rows'].reverse()
++    packet=build_stress_neutral_export_package_v0_3(source_envelope=raw,analysis_record=analysis,**args)
++    validate_stress_neutral_export_package_v0_3(packet,source_envelope=raw,analysis_record=analysis)
++    validate_instance(json.loads((PROJECT/'schemas/stress_neutral_export.schema.json').read_text()),packet,instance_label='custom stable namespaces')
++    packet['stable_id_map'].reverse();rehash_packet(packet)
++    validate_stress_neutral_export_package_v0_3(packet,source_envelope=raw)
++    packet['stable_id_map'][1]['export_ref']=deepcopy(packet['stable_id_map'][0]['export_ref']);rehash_packet(packet)
++    with pytest.raises(ValueError,match='STABLE-ID-MAP'):
++        validate_stress_neutral_export_package_v0_3(packet,source_envelope=raw)

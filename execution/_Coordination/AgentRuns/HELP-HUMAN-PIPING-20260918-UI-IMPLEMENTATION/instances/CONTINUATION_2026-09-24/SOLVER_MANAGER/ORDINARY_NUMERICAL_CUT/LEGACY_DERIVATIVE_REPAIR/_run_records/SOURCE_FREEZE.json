@@ -1,0 +1,17 @@
+{
+  "root": "/private/tmp/piping-numerical-corrections-20260924",
+  "status": "two-file source-only repair frozen for independent review; runtime checks not run",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "before_sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574",
+      "after_sha256": "15c0211f6e87d62437324c90235ef3baf9f4be24264f64f6fc6ee41935964edf"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "before_sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28",
+      "after_sha256": "295d36eb807265b427205ddfaa8c5de73cfa42ba3781aa6c77c6c46f14c777af"
+    }
+  ],
+  "diff_sha256": "515bbcaac5f5bbea49eff4630dec4967aab3daf9684339e61c358a9961611148"
+}

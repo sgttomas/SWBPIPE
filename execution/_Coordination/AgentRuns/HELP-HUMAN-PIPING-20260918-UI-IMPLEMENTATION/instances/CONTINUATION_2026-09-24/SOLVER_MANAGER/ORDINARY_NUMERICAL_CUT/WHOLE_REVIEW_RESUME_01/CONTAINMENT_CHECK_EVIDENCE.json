@@ -1,0 +1,42 @@
+{
+  "logs": [
+    {
+      "stage": "rust-result-export",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/rust-result-export.log",
+      "sha256": "35886a8d9dc38ebdf37f195c9a15b75ee9856979b0a3e789061a1fa2bea14501",
+      "exit_code": 0,
+      "tail": "running 4 tests\ntest rule_eligibility_requires_actual_case_coverage_and_resolving_evidence ... ok\ntest historical_hash_vectors_and_rows_are_unchanged ... ok\ntest explicit_dispatch_metadata_binding_and_unchanged_ijson_limit ... ok\ntest same_unit_bits_survive_json_derive_read_and_hash ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s\n"
+    },
+    {
+      "stage": "rust-headless-binding",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/rust-headless-binding.log",
+      "sha256": "23702b15816ad962cbfd7f91ab8230f0326be0759f2dd3545056290532ca9bde",
+      "exit_code": 0,
+      "tail": "\nrunning 3 tests\ntest result_envelope_binding::tests::sensitive_actual_source_cannot_mint_qualified_canonical_export ... ok\ntest result_envelope_binding::tests::typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes ... ok\ntest result_envelope_binding::tests::qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 31 filtered out; finished in 6.44s\n"
+    },
+    {
+      "stage": "frontend",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/frontend.log",
+      "sha256": "f3e5489d800126983a72de54e70d58429681cf76ed0192fe91e450570f334ab8",
+      "exit_code": 0,
+      "tail": " RUN  v4.1.10 /private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop\n\n\n Test Files  5 passed (5)\n      Tests  91 passed (91)\n   Start at  21:07:39\n   Duration  9.33s (transform 399ms, setup 363ms, import 543ms, tests 14.87s, environment 2.05s)\n"
+    },
+    {
+      "stage": "tsc",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "tail": ""
+    },
+    {
+      "stage": "python",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/python.log",
+      "sha256": "76a2b842ab1fd213d75669eb56af6914c8be98a0312714f4927674ccd4b28be5",
+      "exit_code": 0,
+      "tail": "=============================== warnings summary ===============================\ntests/test_analysis_run_compatibility.py: 82 warnings\ntests/test_precision_consumer_contract.py: 6 warnings\n  /private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/tests/schema_validation.py:54: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.\n    from jsonschema import RefResolver\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n85 passed, 88 warnings in 22.97s"
+    }
+  ],
+  "historical_lock_registry_records_unchanged": 11,
+  "new_observer_lock": 1,
+  "new_observer_lock_note": "Distinct new observer manifest uses separately frozen registry versions; not a historical lock registry mutation. A probe incorrectly expected it to be a subset of product root and stopped; no such equivalence claim is made."
+}

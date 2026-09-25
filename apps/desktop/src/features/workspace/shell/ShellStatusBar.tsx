@@ -29,14 +29,14 @@ const DISPLAY_UNIT_FACES = { entered: "Entered", SI: "SI", US: "US" } as const;
  */
 export function ShellStatusBar({ issueCount }: { issueCount: number }) {
   const { model } = useSessionModel();
-  const { result, historicalRun, solveJob, ruleCheckAggregate } = useSessionResults();
+  const { result, currentSolvedResult, historicalRun, solveJob, ruleCheckAggregate } = useSessionResults();
   const { selection, orderedSelection } = useSessionSelection();
   const { activeSection, stageSurface, auditDrawerOpen, setAuditDrawerOpen, issuesDrawerOpen, setIssuesDrawerOpen } = useSessionChrome();
   const { preference } = useDisplayUnits();
   const [openChip, setOpenChip] = useState<string | null>(null);
   const location = shellLocation(activeSection, stageSurface);
   const chips = statusChips(
-    statusChipInputsFromCells({ model, result, historicalRun, solveJob, ruleCheckAggregate }),
+    statusChipInputsFromCells({ model, result, historicalRun, solveJob, ruleCheckAggregate, hasQualifiedCurrentResult: currentSolvedResult !== null }),
     location.stage,
     location.page !== null
   );

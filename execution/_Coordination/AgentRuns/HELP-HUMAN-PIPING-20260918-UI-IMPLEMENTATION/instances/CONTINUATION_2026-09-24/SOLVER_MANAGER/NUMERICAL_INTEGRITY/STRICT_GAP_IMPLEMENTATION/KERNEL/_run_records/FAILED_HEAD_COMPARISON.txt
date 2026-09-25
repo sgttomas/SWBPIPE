@@ -1,0 +1,6 @@
+Source-inspection attempt, no writes or Git mutation:
+Command: git show HEAD:projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+Exit: 128
+fatal: path 'projects/chirality-piping/core/solver/frame_kernel/src/structural.rs' exists on disk, but not in 'HEAD'
+Python wrapper exit: 1, subprocess.CalledProcessError.
+Resolution: compare full SHA-256 with module declaration removed against the parent's supplied 3a016181 basis; no claim of HEAD equality.

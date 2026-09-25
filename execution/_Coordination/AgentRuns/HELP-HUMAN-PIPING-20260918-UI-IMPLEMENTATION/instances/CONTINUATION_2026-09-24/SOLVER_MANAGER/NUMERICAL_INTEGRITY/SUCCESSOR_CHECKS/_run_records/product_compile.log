@@ -1,0 +1,4 @@
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_product_physics v0.2.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.96s
+  Executable unittests src/lib.rs (/private/tmp/piping-numerical-integrity-target/debug/deps/open_pipe_stress_product_physics-1cdcd32cde0104b5)

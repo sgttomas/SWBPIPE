@@ -1,0 +1,130 @@
+[
+  {
+    "requested_mode": "sparse_interactive",
+    "command": [
+      "cargo",
+      "run",
+      "--offline",
+      "--locked",
+      "-j2",
+      "--manifest-path",
+      "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "--example",
+      "preview_result",
+      "--",
+      "sparse_interactive"
+    ],
+    "cwd": "/private/tmp/piping-numerical-corrections-20260924",
+    "target": "/private/tmp/piping-numerical-corrections-product-target",
+    "exit_code": 0,
+    "stdout_sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6",
+    "ended_unix": 1790299039.444115,
+    "output_path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+    "mechanics_status": "MECHANICS_SOLVED",
+    "numerical_status": "checks_passed",
+    "result_count": 830,
+    "mode_rows": [
+      {
+        "id": "result:solver-mode:linear-solve-basis",
+        "kind": "linear_solver_mode_basis",
+        "value": 1.0,
+        "unit": "mode_code",
+        "entity_ref": "solver:linear_static_preview",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "linear_solver_mode",
+          "coordinate_system": "reduced_system",
+          "location": "load:L-100",
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=2749.9502558746576; max_abs_sparse_residual=0.0000000002219167072325945; dense_fallback=false; dense_fallback_message=none",
+          "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+        }
+      },
+      {
+        "id": "result:loadcase:load-L-200:solver-mode:linear-solve-basis",
+        "kind": "linear_solver_mode_basis",
+        "value": 1.0,
+        "unit": "mode_code",
+        "entity_ref": "solver:linear_static_preview",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-200"
+        },
+        "metadata": {
+          "component": "linear_solver_mode",
+          "coordinate_system": "reduced_system",
+          "location": "load:L-200",
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=2749.9502558746576; max_abs_sparse_residual=0.00000000008913048077374697; dense_fallback=false; dense_fallback_message=none",
+          "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+        }
+      }
+    ],
+    "all_source_inputs_unchanged": true
+  },
+  {
+    "requested_mode": "dense_scrutiny",
+    "command": [
+      "cargo",
+      "run",
+      "--offline",
+      "--locked",
+      "-j2",
+      "--manifest-path",
+      "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "--example",
+      "preview_result",
+      "--",
+      "dense_scrutiny"
+    ],
+    "cwd": "/private/tmp/piping-numerical-corrections-20260924",
+    "target": "/private/tmp/piping-numerical-corrections-product-target",
+    "exit_code": 0,
+    "stdout_sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155",
+    "ended_unix": 1790299039.969833,
+    "output_path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+    "mechanics_status": "MECHANICS_SOLVED",
+    "numerical_status": "checks_passed",
+    "result_count": 832,
+    "mode_rows": [
+      {
+        "id": "result:solver-mode:linear-solve-basis",
+        "kind": "linear_solver_mode_basis",
+        "value": 2.0,
+        "unit": "mode_code",
+        "entity_ref": "solver:linear_static_preview",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "linear_solver_mode",
+          "coordinate_system": "reduced_system",
+          "location": "load:L-100",
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=2749.9502558746576; max_abs_sparse_residual=0.0000000002219167072325945; dense_fallback=false; dense_fallback_message=none",
+          "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+        }
+      },
+      {
+        "id": "result:loadcase:load-L-200:solver-mode:linear-solve-basis",
+        "kind": "linear_solver_mode_basis",
+        "value": 2.0,
+        "unit": "mode_code",
+        "entity_ref": "solver:linear_static_preview",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-200"
+        },
+        "metadata": {
+          "component": "linear_solver_mode",
+          "coordinate_system": "reduced_system",
+          "location": "load:L-200",
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=2749.9502558746576; max_abs_sparse_residual=0.00000000008913048077374697; dense_fallback=false; dense_fallback_message=none",
+          "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+        }
+      }
+    ],
+    "all_source_inputs_unchanged": true
+  }
+]

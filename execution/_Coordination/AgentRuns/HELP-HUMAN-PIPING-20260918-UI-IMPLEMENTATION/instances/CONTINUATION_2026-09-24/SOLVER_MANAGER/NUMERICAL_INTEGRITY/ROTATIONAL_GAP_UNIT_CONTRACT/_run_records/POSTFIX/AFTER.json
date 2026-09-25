@@ -1,0 +1,21 @@
+{
+  "sources_and_lock_unchanged": true,
+  "stages": [
+    {
+      "stage": "rotational",
+      "exit_code": 0,
+      "ended_unix": 1790288023.703522
+    },
+    {
+      "stage": "translational",
+      "exit_code": 0,
+      "ended_unix": 1790288023.7572448
+    },
+    {
+      "stage": "moment_alias",
+      "exit_code": 0,
+      "ended_unix": 1790288023.82218
+    }
+  ],
+  "ended_unix": 1790288023.824907
+}

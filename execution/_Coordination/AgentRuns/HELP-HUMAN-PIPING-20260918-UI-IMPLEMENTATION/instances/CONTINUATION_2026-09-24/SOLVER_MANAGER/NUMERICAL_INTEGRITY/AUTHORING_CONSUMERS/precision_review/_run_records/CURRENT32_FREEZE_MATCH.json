@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "file_count": 32,
+  "manager_manifest": "../CURRENT_CONSUMER_FILES.json",
+  "reviewed_manifest": "SOURCE_HASHES_IDENTITY_BACKCHECK.json",
+  "manager_manifest_sha256": "e440af9ca8f65dcaf7dafed93663a5fa90e2df7abbece6c8f8540447d0215b28",
+  "mismatches": [],
+  "runtime_checks": "Unexecuted; source freeze comparison only"
+}

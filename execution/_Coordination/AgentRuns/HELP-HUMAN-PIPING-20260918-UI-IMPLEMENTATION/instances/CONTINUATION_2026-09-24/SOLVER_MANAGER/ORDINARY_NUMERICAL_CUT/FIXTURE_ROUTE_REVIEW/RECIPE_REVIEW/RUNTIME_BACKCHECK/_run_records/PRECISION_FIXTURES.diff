@@ -1,0 +1,13 @@
+--- before/projects/chirality-piping/fixtures/product_preview/PRECISION_FIXTURES.md
++++ after/projects/chirality-piping/fixtures/product_preview/PRECISION_FIXTURES.md
+@@ -2,7 +2,9 @@
+ 
+ The precision-1 sparse and dense JSON files are verbatim stdout from the selected Rust product on the unchanged invented_preview_model.json input. They preserve the actual producer header, numerical status, diagnostics, limitations and all rows. The historical invented_mechanics_result.json stays unchanged for legacy read/hash/rounding tests. These are reproducible example/transport data, not independently derived physical oracles or proof of general engineering correctness.
+ 
+-From the repository root, generate each output with the same product manifest in a per-manifest target, using an installed matching toolchain and locked dependencies:
++The maintained recipe runs both modes, checks unchanged source/input/lock identities, and replaces only the two precision fixtures plus their generation record after successful capture. From the Piping project root, run `npm run generate:product-preview-mechanics` with a product-manifest-specific `CARGO_TARGET_DIR` and `CARGO_BUILD_JOBS=2`. It rejects redirected input/output paths and retains recovery backups if rollback cannot finish. It does not claim multi-file power-loss atomicity.
++
++For direct observation from the repository root, run each mode using the same product manifest and installed matching toolchain with locked dependencies:
+ 
+ ```
+ cargo run --offline --locked -j2 --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --example preview_result -- sparse_interactive

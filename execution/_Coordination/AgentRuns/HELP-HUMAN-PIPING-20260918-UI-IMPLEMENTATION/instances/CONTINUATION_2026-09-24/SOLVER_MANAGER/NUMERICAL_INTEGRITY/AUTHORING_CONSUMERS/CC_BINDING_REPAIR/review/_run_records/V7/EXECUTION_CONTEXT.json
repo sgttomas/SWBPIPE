@@ -1,0 +1,43 @@
+{
+  "agent": "/root/authoring_manager/cc_ts_review",
+  "parent": "/root/authoring_manager",
+  "role": "TASK Type 2 independent reviewer continued",
+  "mechanism": "delegated-harness-native followup task",
+  "actual_model": "not independently exposed",
+  "requested_allocation": "Astra/xhigh per original brief",
+  "runtime_checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "method": "Read-only bounded production/test backcheck; no runtime tests; exact snapshots/hash/diff/scope checks only",
+  "origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/hashService.ts",
+      "sha256": "0f1d342d60501b212c3a307b96ba1dfa625fcc1845cc33b47e54dd58341cf7e1"
+    }
+  ],
+  "report_sha256": "41c80d1f444e81e6cc120ed02f3a9a4fcafecdca6fd0244f7302881953b7a6d4",
+  "manager_harness": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/interop/python_to_ts.test.ts",
+    "sha256": "372fcf86889edd256f71eaeaddc534feb2e82a86ebfb551a75950d8069b8dce7",
+    "inspection": "Read only; not executed; actual source artifact pending"
+  },
+  "steering": "V8 canceled without edits; actual not_assessed Python source -> TS validation and reserialization selected"
+}

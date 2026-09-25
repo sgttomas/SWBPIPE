@@ -1,0 +1,220 @@
+--- before/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs
++++ after/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs
+@@ -591,6 +591,67 @@
+                 .filter(|(a, b)| a.to_bits() != b.to_bits())
+                 .count()
+     }
++    /// Reserve the complete metadata comparison before inspecting string bytes.
++    /// Both public and private sides count, so mutated larger summaries are also
++    /// bounded. The O(1) container-length prefix bounds the sizing walk itself;
++    /// only admitted container counts are then visited for O(1) string lengths.
++    /// Overflow rejects explicitly (usize::MAX is the saturated rejected size).
++    fn summary_comparison_charge(&self, limit: usize) -> Result<usize, usize> {
++        fn add(total: &mut usize, count: usize, width: usize, limit: usize) -> Result<(), usize> {
++            let amount = count.checked_mul(width).ok_or(usize::MAX)?;
++            *total = total.checked_add(amount).ok_or(usize::MAX)?;
++            if *total > limit {
++                return Err(*total);
++            }
++            Ok(())
++        }
++        let source = self.retained.source_system();
++        let mut total = 256;
++        if total > limit {
++            return Err(total);
++        }
++        // Fixed scalar fields, length checks, repeated numeric summary loops,
++        // and construction of the expected-contact triples are covered here.
++        for count in [
++            self.free_dofs.len(),
++            source.free_dofs.len(),
++            self.prescribed.len(),
++            source.prescribed.len(),
++            self.ordinary_displacements.len(),
++            self.ordinary_state.displacements.len(),
++            self.selected_state.displacements.len(),
++            self.selected_state.reactions.len(),
++            self.decisions.len(),
++            self.decision_sources.len(),
++            self.retained.contacts().len(),
++            self.projections.len(),
++            self.retained.projections().len(),
++            self.work.attempts.len(),
++            self.work_snapshot.attempts.len(),
++        ] {
++            add(&mut total, count, 64, limit)?;
++        }
++        for bytes in [
++            self.source_identity.len(),
++            self.retained.source_identity().len(),
++            self.source_level.len(),
++            GAP_SOURCE_LEVEL.len(),
++        ] {
++            add(&mut total, bytes, 1, limit)?;
++        }
++        for work in [&self.work, &self.work_snapshot] {
++            for (label, _, error) in &work.attempts {
++                add(&mut total, label.len(), 1, limit)?;
++                add(&mut total, error.as_ref().map_or(0, String::len), 1, limit)?;
++            }
++        }
++        for decisions in [&self.decisions, &self.decision_sources] {
++            for decision in decisions {
++                add(&mut total, decision.support_id.len(), 1, limit)?;
++            }
++        }
++        Ok(total)
++    }
+     /// Private-owned retained evidence survives dropping Context. This verifies
+     /// summaries and exact replay against independently supplied source; it does
+     /// not emit a public method receipt or establish a passing case policy.
+@@ -602,20 +663,19 @@
+         work_limit: usize,
+     ) -> exact::Attempt<exact::ReplayCheck> {
+         let limit = work_limit.min(self.retained.limits().operations);
+-        let charge = 32usize
+-            .saturating_add(self.ordinary_displacements.len().saturating_mul(8))
+-            .saturating_add(self.decisions.len().saturating_mul(24))
+-            .saturating_add(self.projections.len().saturating_mul(24));
+-        if charge > limit {
+-            return exact::Attempt {
+-                result: Err(exact::Error::Budget),
+-                work: exact::WorkReport {
+-                    charged: 0,
+-                    rejected: charge,
+-                    limit,
+-                },
+-            };
+-        }
++        let charge = match self.summary_comparison_charge(limit) {
++            Ok(charge) => charge,
++            Err(rejected) => {
++                return exact::Attempt {
++                    result: Err(exact::Error::Budget),
++                    work: exact::WorkReport {
++                        charged: 0,
++                        rejected,
++                        limit,
++                    },
++                }
++            }
++        };
+         if !self.summaries_match() {
+             return exact::Attempt {
+                 result: Err(exact::Error::Invalid("retained adapter summary mismatch")),
+@@ -1179,6 +1239,115 @@
+             )
+             .unwrap(),
+         }
++    }
++    #[test]
++    fn ret01_long_id_and_nested_error_are_reserved_before_summary_comparison() {
++        let mut comparison_charges = Vec::new();
++        for id in ["g1".to_string(), "x".repeat(4096)] {
++            let mut input = adjacent_input();
++            input.nonlinear_supports[0].support_id = id.clone();
++            input.initial_states[0].support_id = id;
++            let mode = LinearSolveMode::DenseScrutiny;
++            let solved = crate::solve_active_set_frame_with_mode(&input, mode).unwrap();
++            let iteration = solved.iterations.last().unwrap();
++            let report = match &iteration.strict_gap {
++                StrictGapEvidence::Qualified(r) => r,
++                other => panic!("{other:?}"),
++            };
++            let stiffness = crate::assemble_global_stiffness_with_user_elements(
++                input.node_count,
++                &input.elements,
++                &[],
++            )
++            .unwrap();
++            let assembly =
++                AssemblyEvidence::new(input.node_count, &input.elements, &[], &[], &[]).unwrap();
++            let fixed = (0..18)
++                .filter(|&d| d != 12)
++                .map(|d| {
++                    (
++                        d,
++                        if d == 6 {
++                            f64::from_bits(0.125_f64.to_bits() - 1)
++                        } else {
++                            0.0
++                        },
++                    )
++                })
++                .collect::<Vec<_>>();
++            let terms = input
++                .force
++                .iter()
++                .enumerate()
++                .map(|(dof, &value)| exact::ForceContribution {
++                    source: format!("declared input.force[{dof}]"),
++                    dof,
++                    value,
++                })
++                .collect::<Vec<_>>();
++            let source = StructuralSystem {
++                stiffness: &stiffness,
++                force: &input.force,
++                free_dofs: &[12],
++                prescribed: &fixed,
++                contributions: Some(&assembly.contributions),
++                symmetry: Some(SymmetryEvidence {
++                    absolute_roundoff: &assembly.absolute_roundoff,
++                    operation_counts: &assembly.operation_counts,
++                    basis: "original represented assembly, no symmetry projection in exact proof",
++                }),
++            };
++            let identity=format!("nonlinear original partition iteration={}; mode={}; declared-force-plus-selected-affine-source",iteration.iteration,mode.as_str());
++            let replay = |r: &ExactGapReport, limit| {
++                r.replay_retained_against(
++                    &source,
++                    &identity,
++                    exact::ForceBasis::IdentifiedContributions(&terms),
++                    limit,
++                )
++            };
++            let charge = report.summary_comparison_charge(usize::MAX).unwrap();
++            comparison_charges.push(charge);
++            // RET-01's old fixed prefix admitted 1088 and compared long strings.
++            // The repaired reservation rejects before summaries_match instead.
++            let tight = replay(report, 1088);
++            assert!(matches!(tight.result, Err(exact::Error::Budget)));
++            assert_eq!(tight.work.charged, 0);
++            assert!(tight.work.rejected > 1088);
++            let before_comparison = replay(report, charge - 1);
++            assert!(matches!(
++                before_comparison.result,
++                Err(exact::Error::Budget)
++            ));
++            assert_eq!(before_comparison.work.charged, 0);
++            assert_eq!(before_comparison.work.rejected, charge);
++            let sufficient = replay(report, usize::MAX);
++            assert!(sufficient.result.is_ok(), "{:?}", sufficient.result);
++            assert!(sufficient.work.charged > charge);
++            let one_short = replay(report, sufficient.work.charged - 1);
++            assert!(matches!(one_short.result, Err(exact::Error::Budget)));
++            assert!(one_short.work.rejected > 0);
++            assert!(one_short.work.charged >= charge);
++            // Public failed-attempt strings are compared even though this honest
++            // successful report had no errors. Mutated metadata must be sized
++            // before rejecting its mismatch with the immutable work snapshot.
++            let mut changed = report.clone();
++            changed.work.attempts[0].2 = Some("e".repeat(4096));
++            assert_eq!(
++                changed.summary_comparison_charge(usize::MAX).unwrap(),
++                charge + 4096
++            );
++            let denied = replay(&changed, charge);
++            assert!(matches!(denied.result, Err(exact::Error::Budget)));
++            assert_eq!(denied.work.charged, 0);
++            assert!(denied.work.rejected > charge);
++            assert!(matches!(
++                replay(&changed, usize::MAX).result,
++                Err(exact::Error::Invalid("retained adapter summary mismatch"))
++            ));
++        }
++        // Both decision IDs and work labels have public/private copies.
++        assert!(comparison_charges[1] >= comparison_charges[0] + 4 * (4096 - 2));
+     }
+     #[test]
+     fn actual_adapter_retains_adjacent_response_and_separate_ordinary_projected_states() {

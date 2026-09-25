@@ -1,0 +1,11 @@
+{
+  "status": "REPAIR_OBSERVED_AWAITING_RESEAL",
+  "file_count": 32,
+  "manifest_hash": "87ec4d2a6a3cb04d78a947de03fac65163278cc82156680c7ec76bf3d5a498b6",
+  "file_hash_mismatches": [
+    "projects/chirality-piping/core/units/src/lib.rs"
+  ],
+  "prior29_changed": [],
+  "runtime_commands_executed": false,
+  "note": "Initial model-visible comparison matched all32. This recorded follow-on comparison observed the manager F3 repair in core/units after that original freeze; mismatch is expected and must be resealed."
+}

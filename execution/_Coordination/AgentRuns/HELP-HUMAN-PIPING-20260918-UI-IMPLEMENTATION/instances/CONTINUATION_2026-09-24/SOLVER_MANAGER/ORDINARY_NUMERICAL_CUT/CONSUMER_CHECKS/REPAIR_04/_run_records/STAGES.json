@@ -1,0 +1,36 @@
+[
+  {
+    "stage": "vitest",
+    "command": [
+      "npm",
+      "test",
+      "--workspace",
+      "apps/desktop",
+      "--",
+      "src/App.test.tsx",
+      "-t",
+      "shows computed mechanics diagnostics in results, knowledge, and review-only proposal context",
+      "--maxWorkers=2"
+    ],
+    "cwd": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping",
+    "exit_code": 0,
+    "source_and_locks_unchanged": true,
+    "wasm_assets_unchanged": true,
+    "log_sha256": "d7227af78a57c9cd1a0b7bcef4035ef990b253460c4134c1d278c0e0ad2b4c4b",
+    "ended_unix": 1790303466.5184178
+  },
+  {
+    "stage": "tsc",
+    "command": [
+      "./node_modules/.bin/tsc",
+      "-b",
+      "apps/desktop/tsconfig.json"
+    ],
+    "cwd": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping",
+    "exit_code": 0,
+    "source_and_locks_unchanged": true,
+    "wasm_assets_unchanged": true,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ended_unix": 1790303472.068553
+  }
+]

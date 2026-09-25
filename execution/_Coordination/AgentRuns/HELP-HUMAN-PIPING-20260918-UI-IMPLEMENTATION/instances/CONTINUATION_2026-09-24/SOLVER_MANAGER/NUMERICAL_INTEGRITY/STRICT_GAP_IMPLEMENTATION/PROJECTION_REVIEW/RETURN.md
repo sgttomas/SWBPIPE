@@ -1,0 +1,54 @@
+# Independent projection/accounting source review
+
+**Verdict: no blocking source finding in the complete frozen delta. Cleared for the parent's authorized focused compilation and tests only.** The six new tests, seventeen total exact-boundary tests and 2,604 projection assertions have not been executed for this candidate by this reviewer or established as passing by this review. No nonlinear, producer, native, general extended-method or engineering qualification follows.
+
+Reviewed candidate `core/solver/frame_kernel/src/structural/exact_boundary.rs` has SHA-256 `700338b91a54f9623ab479e5d0202f625a04810ebdce50e98196001da3675d9e`. The before snapshot is the independently reviewed/executed `9e12fe8c3f284116815bb7a7820fb761539f5dd8736c88a325cdad0cdcf6e4c7`. Actual source equals the supplied frozen file, and the entire supplied DELTA.patch exactly reproduces the difference between those snapshots. Parent structural.rs remains `bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a`. [Source/scope check](_run_records/SOURCE_CHECK.json), [scope validator](_run_records/scope_check.json) and [reviewed source](_run_records/REVIEWED_exact_boundary.rs) bind the review.
+
+Same independent TASK Type2 `/root/solver_manager/kernel_review`, actual parent `/root/solver_manager`, delegated-harness-native, gpt-6-astra xhigh as originally dispatched. Full TASK and software-code-review skill were reread; the same full Root/Piping/LOOP_INIT instruction basis and current hashes are recorded in [origins](_run_records/ORIGINS.json). No alternative role/workflow, descendants, source/test edit, Git mutation, Cargo, Node, native/browser or Rust test execution. Only PROJECTION_REVIEW evidence was written. I authored the earlier mathematical projection proposal but did not implement this Rust code; the verdict comes from reviewing the actual source, error/control flow, tests and independent arithmetic checks.
+
+## Source review
+
+The implementation fulfills the bounded projection contract without changing the contact classifier, exact ratio formulas or original equation/candidate proof.
+
+- **Outward error proof, lines 687–794:** every expansion-sum addition is stepped outward, the positive denominator interval is required to exclude zero, and all four signed quotient corners are evaluated before outward extrema. Nonfinite and zero-crossing intervals reject. The chosen q is finite, nonzero for a nonzero exact ratio, has the exact source sign and lies inside the interval. Both final endpoint distances are outward stepped; division by the smaller endpoint magnitude and its final outward step bound relative error. This correctly handles negative numerators and gradual underflow under the stated IEEE assumptions.
+- **Zero/identity and criteria, lines 713–748:** exact expansion zero returns positive zero and zero error. A finite same-sign proposal can qualify with zero error only after checked exact N−qD=0. Criterion validity is checked before these successes, so NaN/infinite/negative criteria fail even for zero. Criterion zero admits only exact-zero/identity success; an outward interval has a positive error reserve. The original 1e-9 requirement is unchanged.
+- **Range fallback:** only an Arithmetic error from the exact identity attempt may proceed to independent interval proof. No equality is inferred from that failure. Budget and other errors propagate without changing routes. Nonzero quotient underflow, unsafe exact/interval range, sign mismatch, failed criterion and nonfinite outputs do not become zero or a fake sentinel. The exact shortcut safely preserves admitted minimum-subnormal and maximum-finite answers.
+- **Finite stepping preconditions:** custom next_up/next_down are only reached with finite inputs on the implemented paths. Crossing from maximum finite to infinity is explicitly rejected. Signed zero is handled before bit stepping. All denominators and source expansions are private inherited exact-response invariants; no public constructor allows a caller to inject a zero/negative denominator into a qualified projection.
+- **Binding, lines 608–657 and 827–853:** QualifiedProjection fields are private and immutable and borrow the specific Response. Construction validates the quantity/DOF before indexing, and is_for checks live response identity plus quantity and DOF. Safe borrowing prevents moving/dropping or mutating that response while its projection is used. A new solve of the same Context cannot reuse the record. Exact sign comes from that response's exact ratio, not from the proposed float.
+- **Criterion integration:** is_for proves response/quantity/DOF identity; it does not select the owning accuracy policy. The consumer must pass its unchanged required criterion and retain/check the exposed criterion and error bound. A caller intentionally requesting a looser criterion does not thereby satisfy a stricter product requirement. Existing Context source matching remains required when comparing an external current input to the owned source.
+- **Work limits, lines 69–129, 559–595 and 811–992:** each metered call starts a fresh per-call reservation counter, capped by the Context's admitted operations limit. Accepted charges remain charged when subsequent arithmetic fails. A rejected charge is recorded separately and does not advance charged work. Budget exhaustion inside exact identity cannot be bypassed by interval fallback. Failed validation/candidate and projection calls return an Attempt as well as their work record. The counters are conservative algorithmic reservations, not hardware instruction counts.
+- **Compatibility/accounting scope:** Result-only compatibility methods explicitly discard the Attempt. Preparation/solve work remains separately exposed by operations(), and the documentation now forbids treating it as a lifetime total. An integration owner must retain metered failures and successes, accumulate charged and rejected work distinctly, count proposals/iterations truthfully, and apply any undertaking-wide cap. This is deliberate per-call accounting, not a hidden global budget.
+- **Unchanged mechanics:** candidate verification still visits all original free equations and actual prescribed values. The exact classifier's active/inactive signs, tie convention, state count, cap and first-iteration recovery rule were not altered. approximate_projection remains available only with its prior unqualified meaning.
+
+No actionable correctness, source-binding, new panic, finite/range or scope defect was found in those changed paths. Supported range remains bounded; an unresolved projection is not physical instability or evidence of a wrong exact sign.
+
+## Independent arithmetic/accounting probes
+
+[_run_records/check_projection.py](_run_records/check_projection.py) transcribes the **actual new control flow and reservations**, independently checks every successful enclosure/error claim using Fraction arithmetic, and reuses only definitions from the earlier review helper without executing that helper's top-level probes or modifying its evidence. It imports no production implementation. [Output](_run_records/check_projection.json) records:
+
+- 200 deterministic broad-range signed scalar ratios and 100 ratios containing multiple exact low tails: all successful enclosures contain the exact value and all absolute/relative bounds dominate exact error. Maximum observed relative upper bounds were approximately 6.59e-16 and 6.88e-16.
+- Both signs of exact zero, minimum subnormal, minimum normal, maximum finite and 2^-60 identities; half/one-and-half minimum subnormal and overflowing quotients reject.
+- Both signs of 1/3 and gradual-underflow 1e-310/1.1; zero criterion rejects nonexact 1/3, while exact identities satisfy zero criterion. Invalid criteria reject.
+- Budget boundaries, a zero budget, capped oversized request, invalid DOF and a one-unit-too-small limit reject without exceeding accepted charge. The transcribed public 1/3 path charges 3,363 units; 3,362 cannot succeed. The gradual-underflow fallback retains its failed-identity precharge and totals 3,343 units in this transcription.
+- Deliberately false zero-relative-error, shifted-interval and erased-force-tail certificates fail the independent exact checks.
+- The additional manager companion's four signed scalar displacements pass exact identity against independently derived values.
+
+These are Python/Fraction/source-transcription results, **not executed Rust results or calibrated runtime measurements**. The seventeen authored Rust tests must now be run on the reviewed candidate. The previous raw KERNEL_CHECKS log was inspected: its eleven passing tests and sixty-five filtered tests apply only to the predecessor. The earlier independently checked 2,604 reference projections support the new authored expected count/tightness assertion; they do not make the new Rust assertions observed passes.
+
+## Independent qualification of the small-strain companion
+
+The manager's additional reference is correct for the explicitly stated two equal one-metre axial members under small-strain linear elasticity:
+
+- E=200,000,000,000 Pa, A=1/256 m² and L=1 m give k=EA/L=781,250,000 N/m exactly.
+- g1=1/16,384 m and g2=1/8,192 m=2g1, with F=48,828,125/1,024 N=k*g1.
+- The free matrix [[2k,−k],[−k,k]] has first minor 1,562,500,000>0 and determinant k²=610,351,562,500,000,000>0. Hence the unique released response is [g1,g2]. Direct exact substitution gives both free residuals zero; reversing load/displacement sense preserves the proof.
+- Each span's axial strain is 1/16,384≈6.1035e-5. The model's linear stress is 48,828,125/4 Pa and strain energy is 48,828,125/16,777,216 J. These independently check units, equilibrium and positive energy; no material allowable or adequacy conclusion follows.
+
+The submitted dyadic/representable stiffness, force and displacement constants exactly encode these expressions. This is a valid additional axial model-verification companion, not a replacement for original gap-neighbor oracles, a full pipe/connector/bending reference, or validation of nonlinear material/geometry behavior. No expected value or existing analytical 1e-9 criterion was changed to fit production output.
+
+## Return boundary
+
+Proceed with focused compilation/tests on the frozen source. Repair and backcheck any failure; passing this source review does not make an unexecuted test pass. Later producer/final-receipt integration must use the same qualified reaction ratio rather than recovering reactions from rounded displacements, retain actual work attempts and source identity, and preserve the owning comparison and contact rules.
+
+NP-A/N05/N06 source-preserving physical recovery, broader nonlinear/general extended methods, full product/native execution, protected observations, DEC025/CI and engineering/release acceptance remain outside this review and are not closed here.
+

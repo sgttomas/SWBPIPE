@@ -1,0 +1,49 @@
+{
+  "exit_code": 0,
+  "started_unix": 1790279140.690563,
+  "ended_unix": 1790279145.5437691,
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "before_sha256": "1ce52845b3351ee587352f626627723c896bede25809f690aa79afe863a045e9",
+      "after_sha256": "1ce52845b3351ee587352f626627723c896bede25809f690aa79afe863a045e9",
+      "changed": false
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "before_sha256": "091d4069852c6033da38074af297c5eaa5a9469510c00d577f222e077aec2c15",
+      "after_sha256": "091d4069852c6033da38074af297c5eaa5a9469510c00d577f222e077aec2c15",
+      "changed": false
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "before_sha256": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+      "after_sha256": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+      "changed": false
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/extended_arithmetic.rs",
+      "before_sha256": "7fe0e7b94ed8e75c55481a00d4625faeeda8b7c7ac7a90a8063faa7777357e93",
+      "after_sha256": "7fe0e7b94ed8e75c55481a00d4625faeeda8b7c7ac7a90a8063faa7777357e93",
+      "changed": false
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "before_sha256": "9e12fe8c3f284116815bb7a7820fb761539f5dd8736c88a325cdad0cdcf6e4c7",
+      "after_sha256": "9e12fe8c3f284116815bb7a7820fb761539f5dd8736c88a325cdad0cdcf6e4c7",
+      "changed": false
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "before_sha256": "19b6b34535bce9a2882f9abb139eaf1ee689fc6902e6ecb23d9b6417d5bd5df8",
+      "after_sha256": "19b6b34535bce9a2882f9abb139eaf1ee689fc6902e6ecb23d9b6417d5bd5df8",
+      "changed": false
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "before_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "after_sha256": "1d1a78ec6b60fa9f4e8e22cf0c6ea5258d7b62dfd4086e0ed56d634997ff4867",
+      "changed": true
+    }
+  ]
+}

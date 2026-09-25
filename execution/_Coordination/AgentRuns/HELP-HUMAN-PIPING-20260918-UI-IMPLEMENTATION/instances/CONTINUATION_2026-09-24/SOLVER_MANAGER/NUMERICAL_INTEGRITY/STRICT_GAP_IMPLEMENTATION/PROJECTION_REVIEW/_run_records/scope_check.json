@@ -1,0 +1,11 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

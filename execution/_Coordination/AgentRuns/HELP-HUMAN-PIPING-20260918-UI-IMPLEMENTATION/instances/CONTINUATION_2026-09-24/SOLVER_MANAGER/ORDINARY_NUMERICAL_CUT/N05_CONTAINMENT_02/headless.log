@@ -1,0 +1,23 @@
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> /private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+   Compiling open_pipe_stress_headless_runner v0.1.0 (/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/core/runner/headless)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.16s
+     Running unittests src/lib.rs (/private/tmp/piping-numerical-corrections-headless-containment-target/debug/deps/open_pipe_stress_headless_runner-e76c7cb50ccd6a2d)
+
+running 3 tests
+test result_envelope_binding::tests::sensitive_actual_source_cannot_mint_qualified_canonical_export ... ok
+test result_envelope_binding::tests::typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes ... ok
+test result_envelope_binding::tests::qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 31 filtered out; finished in 6.22s
+

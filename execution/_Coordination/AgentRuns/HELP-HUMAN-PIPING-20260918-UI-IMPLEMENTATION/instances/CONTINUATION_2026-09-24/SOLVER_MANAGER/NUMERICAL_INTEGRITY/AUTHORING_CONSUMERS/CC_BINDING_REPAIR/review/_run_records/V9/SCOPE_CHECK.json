@@ -1,0 +1,29 @@
+{
+  "allowed": [
+    "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+    "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+    "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts"
+  ],
+  "paths": [
+    "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+    "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+    "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

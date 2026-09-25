@@ -1,0 +1,27 @@
+{
+  "purpose": "read-only reuse of existing dependencies after exact workspace manifests/lock comparison",
+  "files": [
+    {
+      "path": "projects/chirality-piping/package.json",
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/package.json",
+      "sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656"
+    },
+    {
+      "path": "projects/chirality-piping/package-lock.json",
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/package-lock.json",
+      "sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/package.json",
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/package.json",
+      "sha256": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa"
+    }
+  ],
+  "dependency_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules",
+  "versions": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.10",
+    "react": "19.2.6",
+    "vite": "7.3.3"
+  }
+}

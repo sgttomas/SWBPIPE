@@ -1,0 +1,72 @@
+[
+  {
+    "name": "nonlinear_seed",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "integrity_contact_seed",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "nonlinear_recovery",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "contact_recovery",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 101
+  },
+  {
+    "name": "product_integrity",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "integrity_",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 101
+  },
+  {
+    "name": "product_precision",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "precision_",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "product_curved",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "curved_bend",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0
+  }
+]

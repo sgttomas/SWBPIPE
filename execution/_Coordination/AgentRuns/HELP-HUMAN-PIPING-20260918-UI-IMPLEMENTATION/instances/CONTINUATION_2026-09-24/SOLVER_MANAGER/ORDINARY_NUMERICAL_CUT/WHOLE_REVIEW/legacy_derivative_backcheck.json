@@ -1,0 +1,85 @@
+{
+  "node": "v24.18.0",
+  "esbuild": "0.27.7",
+  "original_probe_sha256": "a4d90d5f623cb1531f89929d8ad83e4f8fe0f3fabe0748759941fb404af98896",
+  "identities": {
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts": "15c0211f6e87d62437324c90235ef3baf9f4be24264f64f6fc6ee41935964edf",
+    "apps/desktop/src/features/result-export/resultExportAdapter.test.ts": "295d36eb807265b427205ddfaa8c5de73cfa42ba3781aa6c77c6c46f14c777af",
+    "core/reporting/result_export/src/derivative.rs": "fbdf506e05a5e881798346e164e2c8a5705958e2b45d2dbb8b8fb3dcd5a9209b",
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "a2e9bcf16011ff6ab3421d48d0b534303a55d397f7e061a136566e683bf49fe4"
+  },
+  "attempts": [
+    {
+      "name": "baseline",
+      "construct": {
+        "accepted": true
+      },
+      "validate_prior_hash_valid_document": {
+        "accepted": true
+      },
+      "original_hash_still_valid": true
+    },
+    {
+      "name": "producer",
+      "construct": {
+        "accepted": false,
+        "error": "Error: LEGACY_DERIVATIVE_METADATA_CONTRADICTION"
+      },
+      "validate_prior_hash_valid_document": {
+        "accepted": false,
+        "error": "Error: LEGACY_DERIVATIVE_METADATA_CONTRADICTION"
+      },
+      "original_hash_still_valid": true
+    },
+    {
+      "name": "numerical_quality",
+      "construct": {
+        "accepted": false,
+        "error": "Error: LEGACY_DERIVATIVE_METADATA_CONTRADICTION"
+      },
+      "validate_prior_hash_valid_document": {
+        "accepted": false,
+        "error": "Error: LEGACY_DERIVATIVE_METADATA_CONTRADICTION"
+      },
+      "original_hash_still_valid": true
+    },
+    {
+      "name": "formulation_basis",
+      "construct": {
+        "accepted": false,
+        "error": "Error: LEGACY_DERIVATIVE_METADATA_CONTRADICTION"
+      },
+      "validate_prior_hash_valid_document": {
+        "accepted": false,
+        "error": "Error: LEGACY_DERIVATIVE_METADATA_CONTRADICTION"
+      },
+      "original_hash_still_valid": true
+    },
+    {
+      "name": "semantic_contract_ref",
+      "construct": {
+        "accepted": false,
+        "error": "Error: LEGACY_DERIVATIVE_METADATA_CONTRADICTION"
+      },
+      "validate_prior_hash_valid_document": {
+        "accepted": false,
+        "error": "Error: LEGACY_DERIVATIVE_METADATA_CONTRADICTION"
+      },
+      "original_hash_still_valid": true
+    },
+    {
+      "name": "all_headers",
+      "construct": {
+        "accepted": false,
+        "error": "Error: LEGACY_DERIVATIVE_METADATA_CONTRADICTION"
+      },
+      "validate_prior_hash_valid_document": {
+        "accepted": false,
+        "error": "Error: LEGACY_DERIVATIVE_METADATA_CONTRADICTION"
+      },
+      "original_hash_still_valid": true
+    }
+  ],
+  "scope": "Actual TS constructor and validator; existing WASM hashing; no Current admission or Rust execution."
+}

@@ -1,3 +1,4 @@
+import { sourceContract } from "../results/numericalResultQuality";
 import type React from "react";
 import { isTauriRuntime, syncNativeShellState } from "../../services/nativeMenu";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -777,12 +778,15 @@ export function useWorkspaceSession() {
         output = await runPreviewMechanics(solveModel, solverMode);
         if (solveRunGate.current.isCancellationRequested(runGeneration)) return;
       }
+      if (sourceContract(output) !== "precision" || !output.producer) {
+        throw new Error("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED: a fresh result requires the recognized precision producer; historical carriers remain available through saved-run inspection.");
+      }
       const manifest = await buildCurrentSessionInputManifest({
         model: solveModel,
         solver: {
-          solver_name: "open_pipe_stress_product_physics",
-          solver_version: "0.1.0",
-          solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
+          solver_name: output.producer.component_name,
+          solver_version: output.producer.component_version,
+          solver_build_ref: `${output.producer.component_name}@${output.producer.component_version}`,
           solver_mode: solverMode,
           settings: {
             nonlinear_iteration_policy:
@@ -2268,7 +2272,7 @@ export function useWorkspaceSession() {
     }
   }
 
-  const nativeRunPresence = runPresenceFromCells({ result, historicalRun, solveJob });
+  const nativeRunPresence = runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null });
   const nativeResultsEnabled = railStageState("results", nativeRunPresence).enabled;
   const nativeReviewEnabled = railStageState("review", nativeRunPresence).enabled;
   const nativeProjectName = projectSummary?.project_name ?? model?.project.name ?? null;
@@ -2486,7 +2490,7 @@ export function useWorkspaceSession() {
 
   /** The rail and the View menu: enter a stage, unless the rail disables it. */
   function enterStage(stage: ShellStage) {
-    if (!railStageState(stage, runPresenceFromCells({ result, historicalRun, solveJob })).enabled) return;
+    if (!railStageState(stage, runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null })).enabled) return;
     setActiveSection(sectionForStage(stage, shellNowRef.current.stageSurface));
   }
 

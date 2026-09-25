@@ -1,0 +1,35 @@
+[
+  {
+    "stage": "wasm",
+    "command": [
+      "npm",
+      "run",
+      "build:wasm",
+      "--workspace",
+      "apps/desktop"
+    ],
+    "cwd": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping",
+    "exit_code": 0,
+    "source_and_locks_unchanged": true,
+    "log_sha256": "ed95b62ee1d0a7694586f3c7ca14c323cb817ac410a47433f5692e96f287d80e",
+    "ended_unix": 1790300349.9738839
+  },
+  {
+    "stage": "vitest",
+    "command": [
+      "npm",
+      "test",
+      "--workspace",
+      "apps/desktop",
+      "--",
+      "src/services/previewService.test.ts",
+      "src/App.test.tsx",
+      "--maxWorkers=2"
+    ],
+    "cwd": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping",
+    "exit_code": 1,
+    "source_and_locks_unchanged": true,
+    "log_sha256": "2b48f39dfc98fe80a0bdac2d2bb9330d82c269cdd44278a489a592696144559e",
+    "ended_unix": 1790300452.3221838
+  }
+]

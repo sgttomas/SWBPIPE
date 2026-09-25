@@ -1,0 +1,26 @@
+{
+  "executor": "/root/solver_manager/kernel_review",
+  "parent": "/root/solver_manager",
+  "mechanism": "delegated-harness-native TASK Type2 resumed",
+  "dispatch_model": "gpt-6-astra",
+  "dispatch_reasoning": "xhigh",
+  "dispatch_attribution": "same original dispatch; no role/model change",
+  "descendants": [],
+  "raw_roots": {
+    "NUMERICAL_WORKTREE": "/private/tmp/piping-numerical-integrity-20260924",
+    "PRIMARY": "/Users/ryan/.codex/worktrees/6614/chirality"
+  },
+  "full_bodies_reread": {
+    "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+    ".agents/skills/software-code-review/SKILL.md": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+  },
+  "runtime": {
+    "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  },
+  "limits": "Read-only frozen source/dependencies and lightweight Python evidence; only NONLINEAR_REVIEW writes; no Cargo/Node/native/browser/source edits or Git writes",
+  "qualification_scope": "Focused test source clearance only, no Current/physics/extended-method claim"
+}

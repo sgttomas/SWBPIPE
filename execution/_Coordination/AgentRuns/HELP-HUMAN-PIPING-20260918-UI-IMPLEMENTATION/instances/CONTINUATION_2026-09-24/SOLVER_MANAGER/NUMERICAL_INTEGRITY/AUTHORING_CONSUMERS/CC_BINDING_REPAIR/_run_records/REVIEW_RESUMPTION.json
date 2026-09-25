@@ -1,0 +1,23 @@
+{
+  "reviewer": "/root/authoring_manager/cc_ts_review",
+  "mechanism": "collaboration.followup_task on existing fresh-context reviewer",
+  "events": [
+    {
+      "candidate": "V7 genuine interop CSV failure",
+      "operation": "followup_task",
+      "outcome": "agent thread limit reached"
+    },
+    {
+      "candidate": "V7 genuine interop CSV failure",
+      "operation": "send_message",
+      "outcome": "agent thread limit reached"
+    },
+    {
+      "candidate": "V8",
+      "capacity_change": "implementation TASK cc_ts_binding completed",
+      "operation": "followup_task",
+      "outcome": "accepted"
+    }
+  ],
+  "coverage": "Earlier refusal establishes no review; subsequent actual review return governs V8 coverage."
+}

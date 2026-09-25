@@ -1,0 +1,26 @@
+--- repair/projects/chirality-piping/core/product_physics/src/lib.rs
++++ final/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -11439,7 +11439,10 @@
+         assert!(metadata.basis.contains("solver_mode=sparse_interactive"));
+         assert!(metadata
+             .basis
+-            .contains("solution_basis=sparse_profile_direct_primary"));
++            .contains("solution_basis=sparse_structural_integrity_primary"));
++        assert!(metadata
++            .basis
++            .contains("profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053"));
+         assert!(metadata
+             .basis
+             .contains("default_sparse_promotion=interactive_default"));
+--- repair/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
++++ final/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+@@ -293,6 +293,9 @@
+     pub status: SparseEvidenceStatus,
+     pub policy_ref: String,
+     pub solver_mode: LinearSolveMode,
++    /// Legacy unscaled DEC050/053 observer identity. Historical `*_primary`
++    /// labels describe that observation's algorithm, not the selected M03
++    /// structural solve; the iteration's structural_report identifies its gate.
+     pub solution_basis: String,
+     pub assembly_basis: String,
+     pub reduced_dof_count: usize,

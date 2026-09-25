@@ -1,0 +1,47 @@
+{
+  "method": "Python scalar transcription of shown dense Cholesky/radix source, not Rust runtime evidence",
+  "original_free_K": [
+    [
+      200,
+      -100
+    ],
+    [
+      -100,
+      100
+    ]
+  ],
+  "force": [
+    0,
+    12.5
+  ],
+  "exact_solution": [
+    "1/8",
+    "1/4"
+  ],
+  "scale_exponents": [
+    -3,
+    -3
+  ],
+  "scaled_matrix": [
+    [
+      3.125,
+      -1.5625
+    ],
+    [
+      -1.5625,
+      1.5625
+    ]
+  ],
+  "observed_transcription_u": [
+    0.12499999999999997,
+    0.24999999999999997
+  ],
+  "gap_comparisons": [
+    false,
+    false
+  ],
+  "transcription_reactions": [
+    -3.552713678800501e-15,
+    0.0
+  ]
+}

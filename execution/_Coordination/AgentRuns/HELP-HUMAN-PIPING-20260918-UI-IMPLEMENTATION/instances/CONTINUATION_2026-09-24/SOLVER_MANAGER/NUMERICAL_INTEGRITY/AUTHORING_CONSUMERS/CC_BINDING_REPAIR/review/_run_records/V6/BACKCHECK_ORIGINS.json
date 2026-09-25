@@ -1,0 +1,30 @@
+{
+  "report_sha256": "ee3ff59d506ef57750a5f291e742826f5c4f6d3ac1a88684442ca073a6b87933",
+  "consulted_interfaces": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/hashService.ts",
+      "sha256": "0f1d342d60501b212c3a307b96ba1dfa625fcc1845cc33b47e54dd58341cf7e1"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/exportUnitDisclosure.ts",
+      "sha256": "07ce5a66ca7b952e04538000a15ddbacad1247ce9e5c207a2f085776c92d6e02"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "744484fdcd9ee326493a2dae1e6dc9019a4f9b702214bb9908905d659b429351"
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "d2248bc6c9a82a9c76ad2df1783c1412970c3b242340844964235ea154831683"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "ea2ae439ce6ac827e41e7cc3ea3c86e23d0267de80b67478b9005cc936390bb1"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+    }
+  ],
+  "scope_note": "The parent authorized stress source/test repair while this report was sealed; later live bytes are not covered."
+}

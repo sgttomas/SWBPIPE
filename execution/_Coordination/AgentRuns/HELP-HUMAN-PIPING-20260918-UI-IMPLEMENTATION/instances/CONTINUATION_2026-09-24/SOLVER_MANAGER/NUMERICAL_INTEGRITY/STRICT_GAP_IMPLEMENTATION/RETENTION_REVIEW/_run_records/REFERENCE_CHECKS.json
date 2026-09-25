@@ -1,0 +1,83 @@
+{
+  "kind": "Independent Fraction/source-retention reference checks, not executed Rust retention/replay",
+  "adjacent_source": {
+    "K": [
+      [
+        "100",
+        "-100",
+        "0"
+      ],
+      [
+        "-100",
+        "200",
+        "-100"
+      ],
+      [
+        "0",
+        "-100",
+        "100"
+      ]
+    ],
+    "force": [
+      "0",
+      "0",
+      "25/2"
+    ],
+    "free": [
+      2
+    ],
+    "prescribed": {
+      "0": "0",
+      "1": "9007199254740991/72057594037927936"
+    }
+  },
+  "singleton_witness": {
+    "a": "100",
+    "positive": true
+  },
+  "two_dof_witness": {
+    "a": "200",
+    "b": "-100",
+    "c": "100",
+    "determinant": "10000"
+  },
+  "exact_u": [
+    "0",
+    "9007199254740991/72057594037927936",
+    "18014398509481983/72057594037927936"
+  ],
+  "exact_reactions": [
+    "-225179981368524775/18014398509481984",
+    "-25/18014398509481984",
+    "0"
+  ],
+  "public_u": [
+    0.0,
+    0.12499999999999999,
+    0.25
+  ],
+  "reaction_from_exact_ratios": "-25/18014398509481984",
+  "exact_action_on_public_u": "-25/9007199254740992",
+  "factor_two_difference_verified": true,
+  "independent_original_source_vs_other_consistent_source": true,
+  "identified_force_tail_preserved_required": "1/1152921504606846976",
+  "tail_reaction": "-1152921504606846977/1152921504606846976",
+  "one_cap_accounting_model": [
+    {
+      "limit": 100,
+      "accepted": 100,
+      "rejected_unexecuted": 0
+    },
+    {
+      "limit": 99,
+      "accepted": 90,
+      "rejected_unexecuted": 10
+    },
+    {
+      "limit": 20,
+      "accepted": 0,
+      "rejected_unexecuted": 21
+    }
+  ],
+  "limits": "Actual Rust constructor/privacy/comparison/order/shape paths are reviewed in source; tests remain pending. Wire/import/persistence/currentness are outside this delta."
+}

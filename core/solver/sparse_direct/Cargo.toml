@@ -9,6 +9,4 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies]
-
-[dev-dependencies]
 open_pipe_stress_frame_kernel = { path = "../frame_kernel" }

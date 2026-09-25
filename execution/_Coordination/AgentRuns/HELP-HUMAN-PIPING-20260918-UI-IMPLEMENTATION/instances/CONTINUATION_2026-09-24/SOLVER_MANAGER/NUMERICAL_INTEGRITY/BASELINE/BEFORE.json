@@ -1,0 +1,21 @@
+{
+  "base": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "reference_status": "Independent early subset/application check from numerical_reference_review; full reference report follows. Expected values frozen before observation.",
+  "source_sha256": {
+    "projects/chirality-piping/validation/benchmarks/numerical_integrity/fixtures.json": "c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e",
+    "projects/chirality-piping/validation/benchmarks/numerical_integrity/generate.py": "b491529a4bff8ed0e25de1f85c2488192a8e55677413571da6c260932b1a71a2",
+    "projects/chirality-piping/validation/benchmarks/numerical_integrity/src/main.rs": "b86b6cfcbf0e7e3b93482b70d3604c0d72c3710b6d4acd527851c14e7188342d",
+    "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.toml": "0bfd8671bfd12b8929712aec5b7e3143dd5775f366c6aba4346e6c59efd0902e",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "904f72876024943778788e56fd4fe7dac03387350282cec215d1be0cf3f129b5",
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c"
+  },
+  "cargo_lock_before": "absent in new observation crate",
+  "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR={NUMERICAL_TARGET} cargo run --offline --manifest-path projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.toml",
+  "path_bases": {
+    "NUMERICAL_TARGET": "isolated run-local target, exact actual directory in _run_records/EXECUTION.json"
+  },
+  "authority": "ROOT explicitly granted sequential offline numerical baseline CPU lane after C4 build/dist release",
+  "interpretation": "Old product/generic API observations only, not assertions of newmethod correctness or intended physical oracle values."
+}

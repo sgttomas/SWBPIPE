@@ -1,0 +1,41 @@
+{
+  "agent": "/root/solver_manager/evidence_primitives",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type2",
+  "mechanism": "native followup delegation; no descendants",
+  "allocation": "same parent-supplied low implementation role",
+  "recorded_at": "2026-09-24T23:47:13.245082+00:00",
+  "checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "origins": [
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/SOLVER_FIRST_TRANCHE.md",
+      "sha256": "37de316089fc1d36df91f98d6a9a1cedec0f58825b55f939394d095d07d0f125"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/SOLVER_FIRST_CHECKS/_run_records/product_publication_baseline/cargo.log",
+      "sha256": "381e894a53937b6336cb1c1f205de0da4198639f9ad2f52787bff6685e3d2684"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/SOLVER_FIRST_CHECKS/_run_records/product_publication_baseline/BEFORE.json",
+      "sha256": "a51eb0d725d849b1c0a1db856042af8af8f418128b35251a5a0d7ff5d8b2f98f"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/SOLVER_FIRST_CHECKS/_run_records/product_publication_baseline/AFTER.json",
+      "sha256": "d9ab93ab5e714edf6ef74c23082d924c47cf01fee49bffe21dbe4a0b51b27adc"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "a5a3f7104b8a77c9d9709a9d4abd5123e14aedd4fa31f2d3763cc0101677034f"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+      "sha256": "f7600925cd44169ce6d04a03ae5c0e622a8f27aabee831377d297dce68ec51aa"
+    }
+  ],
+  "authorization": "Parent relays ROOT approval for minimal p1 unresolved containment after observed baseline; no independent personal-owner or engineering approval claimed.",
+  "execution_limits": "No Rust tests/Cargo/build/Git/formatting; only owned lib.rs and this evidence modified."
+}

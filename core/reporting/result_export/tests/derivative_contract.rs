@@ -4,7 +4,7 @@ use serde_json::{json,Value};
 fn project(row:Value)->Result<(Value,Value),String>{
  let base:Value=serde_json::from_str(include_str!("../../../../fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json")).unwrap();
  let model=json!({"project":{"id":"project:synthetic-semantic-contract"}});
- let source=json!({"run_id":"run:synthetic-semantic-contract","model_ref":model["project"]["id"],"status":{"mechanics":"MECHANICS_SOLVED"},"results":[row]});
+ let source=json!({"schema_version":"0.1.0","run_id":"run:synthetic-semantic-contract","model_ref":model["project"]["id"],"status":{"mechanics":"MECHANICS_SOLVED"},"results":[row]});
  let carrier=d::checksum(&source,"received_current_dimension_absent_carrier",d::reference("synthetic_received_carrier","fixture-only"))?;
  let origin=json!({"origin_id":"synthetic-fixture-unattested","origin_class":"received_current_dimension_absent","qualification_ref":d::reference("synthetic_fixture","not-authentic-Current"),"authentic_producer_available":false,"received_carrier_checksum":carrier,"original_producer_checksum":null,"origin_limit":"Unattested synthetic test projection","actual_model_ref":d::reference("model_payload","project:synthetic-semantic-contract"),"mechanics_run_ref":d::reference("mechanics_run","run:synthetic-semantic-contract"),"request_model_ref":null,"request_run_ref":null,"request_alias_disclosure":null});
  let doc=d::derive_document(base,&model,&source,origin,None)?;Ok((doc,source))

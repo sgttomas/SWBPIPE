@@ -1,0 +1,59 @@
+{
+  "actor": "/root/solver_manager/core_consumer_review",
+  "parent": "/root/solver_manager",
+  "mechanism": "resumed delegated-harness-native TASK Type 2 child",
+  "repository": "/private/tmp/piping-numerical-integrity-20260924",
+  "prior_instruction_origins": "../EXECUTION_CONTEXT.json",
+  "basis": "explicit final four-file frozen CC05\u201306 repair; no active Python writer per parent",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "runtime_or_heavy_test_execution": false,
+  "probe": "source-only Python; deterministic injected JSON hash, exact pinned modules/test helper",
+  "artifacts": [
+    {
+      "path": "COMBINED_END_HASHES.json",
+      "sha256": "fbd98746a685ddd4eb6a92e6739ffef5a47a3102892c5c24389da038d3b2d433"
+    },
+    {
+      "path": "COMBINED_START_HASHES.json",
+      "sha256": "ae7f85591ce59a289c1952a355ff6768bed81e5f7c80ebeee39273dc4e6b0a96"
+    },
+    {
+      "path": "backcheck_probe.json",
+      "sha256": "2d676b5de8a74a05eac4eb50041c020db13e446193405e09e43a48078f89bcba"
+    },
+    {
+      "path": "backcheck_probe.py",
+      "sha256": "bc9a4625910d705736d61d9e1331e4f5cefec37e4d00ba05f2777be2dba0d51e"
+    },
+    {
+      "path": "backcheck_probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "frozen/compatibility.py",
+      "sha256": "3e90836ad17d8ca0ba9aa249b959189457b9f38d230ab95e7ffb42ccf22595b9"
+    },
+    {
+      "path": "frozen/package_v0_3.py",
+      "sha256": "b16e5d9033401c4a08135238e73a7e6a3df3bc487b717c98eb82c86627071d62"
+    },
+    {
+      "path": "frozen/test_precision_consumer_contract.py",
+      "sha256": "5a3bd39653f7f8da27b5f33d3729fe190ea8478306ddca7f56bbbc9f8b60406c"
+    },
+    {
+      "path": "frozen/test_stress_neutral_precision.py",
+      "sha256": "08c9683950e44e1c1b2219fde0e9d2277da68954fddc1ceea14cc064b78e7890"
+    },
+    {
+      "path": "probe_setup_error.stderr",
+      "sha256": "a73770b4d009e9ae7f0e3fadca94cda7170e5c2cc0e81ae93d0fd368ee6bb7ba"
+    },
+    {
+      "path": "reviewed_delta.patch",
+      "sha256": "d34a832a89eb54c3d0aa46908deb6225c62224b473a43f1fd2f3476139810d4e"
+    }
+  ],
+  "report_sha256": "192f46b2685c13f300802be47dd7fa946b8bf7334a7f4a8734ae0f67ae2c5a3c",
+  "source_only_probe_observations": 64
+}

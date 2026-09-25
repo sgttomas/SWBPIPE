@@ -1,0 +1,78 @@
+{
+  "hashes": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/interop/source.json",
+      "actual_sha256": "d7e2b295abdd6f64f83199c83b9a58e3e09ca7b3b181df5d50151b06e6d2a6d4",
+      "expected_sha256": "d7e2b295abdd6f64f83199c83b9a58e3e09ca7b3b181df5d50151b06e6d2a6d4",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/interop/packet.json",
+      "actual_sha256": "222be840bdf5707e762ac53804f2e880907f4f8f7d08098e932bfbeeb365d8b0",
+      "expected_sha256": "222be840bdf5707e762ac53804f2e880907f4f8f7d08098e932bfbeeb365d8b0",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/interop/source.original.json",
+      "actual_sha256": "8a358f165f6e3bc2706ca203a0da0c86cf4e2df72758cf599d1276312bb86ea9",
+      "expected_sha256": "8a358f165f6e3bc2706ca203a0da0c86cf4e2df72758cf599d1276312bb86ea9",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/interop/analysis.json",
+      "actual_sha256": "36fcd393f872db52e8ef29af23bbdd9ff76b288739f122f79d4b6d05e9ee2e35",
+      "expected_sha256": "36fcd393f872db52e8ef29af23bbdd9ff76b288739f122f79d4b6d05e9ee2e35",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/interop/GENERATION.json",
+      "actual_sha256": "b2e54fb0813f38211b1f952f7ab51302a5b4ab41a4b4d5298a858c4cc41d5890",
+      "expected_sha256": "b2e54fb0813f38211b1f952f7ab51302a5b4ab41a4b4d5298a858c4cc41d5890",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/interop/input-custody-manifest.json",
+      "actual_sha256": "4300ba8f9b95b53acd2be0ea17ce7a3db2614b5a4411e8a2afbf5ff7c02596e4",
+      "expected_sha256": "4300ba8f9b95b53acd2be0ea17ce7a3db2614b5a4411e8a2afbf5ff7c02596e4",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/checks/interop_v7.log",
+      "actual_sha256": "099a45d02310ef6b6d41d0c86f4ae9204cfe3b82925c02c525f83d4e827059af",
+      "expected_sha256": "099a45d02310ef6b6d41d0c86f4ae9204cfe3b82925c02c525f83d4e827059af",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/interop/python_to_ts.test.ts",
+      "actual_sha256": "372fcf86889edd256f71eaeaddc534feb2e82a86ebfb551a75950d8069b8dce7",
+      "expected_sha256": "372fcf86889edd256f71eaeaddc534feb2e82a86ebfb551a75950d8069b8dce7",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/interop/vitest.interop.config.mjs",
+      "actual_sha256": "691bacb5a1be11f04e9690749a595328644152ad2418655cb5c545a2883395ae",
+      "expected_sha256": "691bacb5a1be11f04e9690749a595328644152ad2418655cb5c545a2883395ae",
+      "match": true
+    }
+  ],
+  "all_match": true,
+  "source_json_semantically_equal_original": true,
+  "source_numerical_status": "not_assessed",
+  "source_rows": 69,
+  "packet_rows": 69,
+  "lexical_counterexample": [
+    {
+      "result_id": "result:disp:node-N-110:rx",
+      "python_csv": "-3.308659368829149e-05",
+      "js_render": "-0.00003308659368829149",
+      "same_numeric_value": true,
+      "retained_csv_value": "-3.308659368829149e-05",
+      "retained_json_value": -3.308659368829149e-05,
+      "retained_csv_bits": "bf0158ceb3dec637",
+      "js_render_text_bits": "bf0158ceb3dec637",
+      "retained_json_bits": "bf0158ceb3dec637",
+      "all_same_bits": true
+    }
+  ],
+  "method": "Read retained artifacts; standard-library SHA256, JSON/CSV parse and binary64 bit comparison only. No TS or project runtime executed."
+}

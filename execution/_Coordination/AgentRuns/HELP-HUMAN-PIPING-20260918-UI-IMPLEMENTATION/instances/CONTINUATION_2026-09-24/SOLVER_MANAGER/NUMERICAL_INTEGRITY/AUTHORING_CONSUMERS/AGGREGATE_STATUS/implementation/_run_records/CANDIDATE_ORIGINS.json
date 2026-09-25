@@ -1,0 +1,21 @@
+{
+  "role": "TASK Type 2",
+  "agent": "/root/authoring_manager/aggregate_status_fix",
+  "parent": "/root/authoring_manager",
+  "mechanism": "delegated-harness-native collaboration child",
+  "phase_two_authorization": "Parent permitted correction before pending CPU slot, preserving original-source aliased baseline and current-source run against same frozen tests.",
+  "files": [
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c",
+      "frozen": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/candidate/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "sha256": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655",
+      "frozen": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/candidate/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts"
+    }
+  ],
+  "tests_unchanged_from_test_freeze": true,
+  "runtime_validation": "Not executed; parent owns pending baseline, corrected run and independent frozen review."
+}

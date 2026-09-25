@@ -1,0 +1,966 @@
+{
+  "kind": "Independent read-only backcheck of parent executed logs; no new Rust/build run",
+  "reviewed_two_file_hashes": {
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "d146409ae7dcc8ae0f1e6bb05446b9dd91efd318465d12ce9883109b47214616",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "d50f289e61807599a2b6f271e949a8304e8b97c58200ca1fd05a5e0b03fb514b"
+  },
+  "all_recorded_current_source_lock_hashes_match": true,
+  "snapshot_file_count": 37,
+  "recursive_local_manifest_count": 13,
+  "dependency_manifest_and_src_rs_coverage_verified": true,
+  "stages": [
+    {
+      "stage": "rotational",
+      "exit_code": 0,
+      "ended_unix": 1790288023.703522
+    },
+    {
+      "stage": "translational",
+      "exit_code": 0,
+      "ended_unix": 1790288023.7572448
+    },
+    {
+      "stage": "moment_alias",
+      "exit_code": 0,
+      "ended_unix": 1790288023.82218
+    }
+  ],
+  "baseline_counts": {
+    "invalid_support_token": 18,
+    "unsafe_solved": 12,
+    "legacy_rad_unit_rejected": 6
+  },
+  "postfix_counts": {
+    "preserved_invalid_support_token": 18,
+    "explicit_rotational_block": 18
+  },
+  "all36_postfix_no_solved_no_rotation": true,
+  "blocking_severity_and_no_mutation_assertions_executed": "All36 loop observations followed by test PASS; frozen body asserts blocking and accepted_model_state_mutated=false per case",
+  "case_comparison": [
+    {
+      "case": [
+        "SparseInteractive",
+        "rotation_x",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "rotation_x",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "rotation_x",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "RX",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "RX",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "RX",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "rotation_y",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "rotation_y",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "rotation_y",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "RY",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "RY",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "RY",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "rotation_z",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "rotation_z",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "rotation_z",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "RZ",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "RZ",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "SparseInteractive",
+        "RZ",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "rotation_x",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "rotation_x",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "rotation_x",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "RX",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "RX",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "RX",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "rotation_y",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "rotation_y",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "rotation_y",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "RY",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "RY",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "RY",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "rotation_z",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "rotation_z",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_SUPPORT_DOF_INVALID"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "rotation_z",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "RZ",
+        "0.05",
+        "mm"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "RZ",
+        "0.00005",
+        "m"
+      ],
+      "before": {
+        "status": "MECHANICS_SOLVED",
+        "rotation": "Some((5e-5, \"rad\"))",
+        "codes": [
+          "LOAD_CATEGORY_PREVIEW_MAPPED",
+          "NONLINEAR_SUPPORT_STATE_REVIEW",
+          "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+          "COMBINATION_STRESS_SUMMARY_SKIPPED",
+          "RULE_CHECK_INPUTS_MISSING"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    },
+    {
+      "case": [
+        "DenseScrutiny",
+        "RZ",
+        "0.00005",
+        "rad"
+      ],
+      "before": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "UNIT_CONVERSION_UNAVAILABLE"
+        ]
+      },
+      "after": {
+        "status": "MODEL_INCOMPLETE",
+        "rotation": "None",
+        "codes": [
+          "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
+        ]
+      }
+    }
+  ],
+  "input_sha256": {
+    "_run_records/POSTFIX/BEFORE.json": "245edb2443eac72b15844adbcf90141d808e5af81a4c6c2ae88ddadb734732f0",
+    "_run_records/POSTFIX/AFTER.json": "81f0fd43effa61761f3eb678fa0578b3b0e3056fd389a6398efdb7e0f10f365e",
+    "_run_records/POSTFIX/STAGES.json": "14d178b09916b7de718fae6232eaa7dc25c99a19d4281955638068173bd84188",
+    "_run_records/POSTFIX/rotational.log": "c8ec56bf223cc4aec0d2f70d7ea695deef7302e400316e10515cff228bc72522",
+    "_run_records/POSTFIX/translational.log": "d352310a2780f9e766c8b4867eae8a97db69b9d670e0f813ba1771ba89767854",
+    "_run_records/POSTFIX/moment_alias.log": "c5fd00b87b36b44dac6372d548d36b187dba8b4961f7728ef336f9b20004ab96",
+    "_run_records/BASELINE/baseline.log": "f2ce6a8483e22d6d9caac7af61c2347807f409062237494b9a20ac799d41b252",
+    "_run_records/BASELINE_TEST.patch": "de6f97043ed9512fced2bda7fa1db90946a929d0ed5693b5f5e3770dc7caf31c",
+    "_run_records/REPAIR/test_expectation.patch": "303c1366426508c61d486be7e78d3c1b0911704c0575ad134032f758bdea2f39",
+    "_run_records/REPAIR/validation.patch": "edd5bd4eb2f3ed635532353442fb3725d4eba11db6084c3dbec29f192fe58cd4",
+    "CANDIDATE_FILES.json": "702f89bc22ac9004be75b0022817883d23f61b6c18fea636c1acf93ea27fd6d9",
+    "REVIEW/RETURN.md": "709336748afdee114856d736b8cf44e47d7ed09d0eaeb8934275319e58c48d8d"
+  },
+  "runtime": {
+    "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "raw_root": "/private/tmp/piping-numerical-integrity-20260924"
+  },
+  "executor": "/root/solver_manager/kernel_review",
+  "parent": "/root/solver_manager",
+  "mechanism": "delegated-harness-native resumed TASK, no descendants",
+  "dispatch": "unchanged gpt-6-astra xhigh",
+  "instruction_basis": "Prior REVIEW/_run_records/ORIGINS.json; same frozen assignment and source review",
+  "limits": "Containment backcheck only; no Current/general angular/whole product/native qualification."
+}

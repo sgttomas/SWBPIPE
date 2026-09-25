@@ -1,0 +1,17 @@
+{
+  "status": "source repair frozen; no postfix Rust execution",
+  "path_basis": "REPO_ROOT active numerical checkout",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "before_sha256": "e215487709e06275bb92796455560e1bea16253c1c4fbf614f182b7da96d2df2",
+      "sha256": "37d19221af9900e40d500370c30c156e49f5469a905f20acb3b2e3db6ae54d80",
+      "bytes": 776031
+    }
+  ],
+  "protected_test": {
+    "path": "projects/chirality-piping/core/product_physics/tests/represented_gap_publication.rs",
+    "sha256": "1c33c4f0604b3eb0e31e689f3f965e65fd5d832377737f366b1b25e038fc1b78",
+    "unchanged": true
+  }
+}

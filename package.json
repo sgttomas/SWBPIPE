@@ -12,6 +12,6 @@
     "test:desktop": "npm test --workspace apps/desktop",
     "test:e2e:desktop": "npm run test:e2e --workspace apps/desktop",
     "test:e2e:dist:desktop": "npm run test:e2e:dist --workspace apps/desktop",
-    "generate:product-preview-mechanics": "cargo run --quiet --manifest-path core/product_physics/Cargo.toml --example preview_result > fixtures/product_preview/invented_mechanics_result.json"
+    "generate:product-preview-mechanics": "node tools/serialization/generate_product_preview_mechanics.mjs"
   }
 }

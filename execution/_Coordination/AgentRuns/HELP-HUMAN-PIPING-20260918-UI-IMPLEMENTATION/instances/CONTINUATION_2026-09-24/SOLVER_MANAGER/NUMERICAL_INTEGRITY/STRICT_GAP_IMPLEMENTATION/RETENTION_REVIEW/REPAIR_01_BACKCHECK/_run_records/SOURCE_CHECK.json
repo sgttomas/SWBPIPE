@@ -1,0 +1,8 @@
+{
+  "before_sha256": "2328cabde725a61334bbba0b9d37469388e402ea6dd7acdd9ad6347e5ca895a6",
+  "candidate_sha256": "fd78de18caf9f93b83495d1c7be3a5ca7340a03a16e6e2f5145aae4724c381f8",
+  "kernel_unchanged": true,
+  "actual_matches_frozen": true,
+  "complete_delta_verified": true,
+  "finding": "RET-01 remains open for uncharged admitted sizing traversal on late rejection"
+}

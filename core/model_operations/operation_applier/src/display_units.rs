@@ -54,6 +54,27 @@ mod tests {
         assert_eq!(output["items"][4]["status"], "unavailable");
     }
     #[test]
+    fn same_unit_display_preserves_small_values_and_still_validates_metadata() {
+        let stress = f64::from_bits(0x3fd12345679b3fe0);
+        let input = json!({"items":[
+            {"id":"absolute","value":1e-16,"from_unit":"degC","to_unit":"degC","dimension_id":"temperature"},
+            {"id":"alias","value":-1e-16,"from_unit":"C","to_unit":"degC","dimension_id":"temperature"},
+            {"id":"stress","value":stress,"from_unit":"MPa","to_unit":"MPa","dimension_id":"stress"},
+            {"id":"wrong","value":1,"from_unit":"m","to_unit":"m","dimension_id":"force"},
+            {"id":"unknown","value":1,"from_unit":"invalid","to_unit":"invalid","dimension_id":"temperature"},
+            {"id":"reference","value":1,"from_unit":"bar","to_unit":"bar","dimension_id":"pressure","reference":"gauge"}
+        ]});
+        let original = input.clone();
+        let output = convert_display_quantities(&input);
+        for index in 0..3 {
+            assert_eq!(output["items"][index]["status"], "converted");
+            assert_eq!(output["items"][index]["value"].as_f64().unwrap().to_bits(), input["items"][index]["value"].as_f64().unwrap().to_bits());
+        }
+        for index in 3..6 { assert_eq!(output["items"][index]["status"], "unavailable"); }
+        assert_eq!(input, original);
+    }
+
+    #[test]
     fn display_conversion_rejects_pressure_reference_payload_and_overflow() {
         let output = convert_display_quantities(&json!({"items":[
             {"id":"pressure","value":1,"from_unit":"Pa","to_unit":"psi","dimension_id":"pressure","reference":"gauge"},

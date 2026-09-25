@@ -1,0 +1,52 @@
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/linear_supports)
+   Compiling proc-macro2 v1.0.106
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling serde_core v1.0.228
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling zmij v1.0.21
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/diagnostics)
+   Compiling syn v2.0.117
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.149
+   Compiling serde_derive v1.0.228
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/curved_bend)
+   Compiling memchr v2.8.0
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_product_physics v0.2.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics)
+warning: variable does not need to be mutable
+    --> src/lib.rs:1183:9
+     |
+1183 |     let mut max_displacement = load_case_solves
+     |         ----^^^^^^^^^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:1186:9
+     |
+1186 |     let mut max_stress = load_case_solves
+     |         ----^^^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 2 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.40s
+     Running unittests src/lib.rs (/private/tmp/piping-numerical-integrity-target/debug/deps/open_pipe_stress_product_physics-1cdcd32cde0104b5)
+
+running 5 tests
+test tests::precision_nonfinite_values_are_rejected_not_serialized_as_null ... ok
+test tests::precision_same_unit_raw_quantity_bits_and_numeric_strings_roundtrip ... ok
+test tests::precision_solved_and_blocked_headers_bind_actual_producer_without_assessment ... ok
+test tests::precision_n01_bending_and_summary_match_independent_eb_reference ... ok
+test tests::precision_signed_subquantum_torsion_both_modes_matches_independent_annulus ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 185 filtered out; finished in 0.05s
+

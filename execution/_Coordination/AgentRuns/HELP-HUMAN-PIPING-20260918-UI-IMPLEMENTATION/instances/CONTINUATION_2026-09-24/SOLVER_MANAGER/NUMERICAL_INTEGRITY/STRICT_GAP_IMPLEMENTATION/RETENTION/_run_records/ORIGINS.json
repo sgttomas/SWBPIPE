@@ -1,0 +1,12 @@
+{
+  "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+  "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+  "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+  "projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "700338b91a54f9623ab479e5d0202f625a04810ebdce50e98196001da3675d9e",
+  "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "79272e2f731be9853a087c38d83260b6ba112d6b0a0ed48256a71b40f9bd942f",
+  "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/EXTENDED_METHOD_CONTRACT/REVISION_02/ROOT_SELECTION.md": "4bff35027661bf33021027e24e4e6936e1c610e7e2d3269683d17f064f512c8e",
+  "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/EXTENDED_METHOD_CONTRACT/REVISION_02/EXACT_BOUNDARY.md": "dc929d0643b3e56deb76dcd31be4bcd3bcc72d27fae661fadc881a69b990bf2b",
+  "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/EXTENDED_METHOD_CONTRACT/REVISION_02/WIRE_TYPES.md": "117cfee8ad019d69f629449dd04b2b9638263b785418af61de730ced424af85a",
+  "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/EXTENDED_METHOD_CONTRACT/REVISION_02/CONTRACT.md": "ba2f289633d48be804b88d7a828307ba9d86235ad51115efe5773bbb7de05d25"
+}

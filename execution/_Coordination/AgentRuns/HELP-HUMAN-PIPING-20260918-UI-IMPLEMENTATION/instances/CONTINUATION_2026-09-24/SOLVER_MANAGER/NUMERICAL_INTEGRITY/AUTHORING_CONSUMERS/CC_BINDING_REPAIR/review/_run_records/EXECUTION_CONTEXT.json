@@ -1,0 +1,137 @@
+{
+  "role": "TASK Type 2",
+  "agent": "/root/authoring_manager/cc_ts_review",
+  "actual_parent": "/root/authoring_manager",
+  "mechanism": "delegated-harness-native descendant via collaboration.spawn_agent",
+  "requested_allocation": "Astra/xhigh fresh nonimplementer (supplied assignment); actual model runtime identifier not independently exposed",
+  "runtime_checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "python_executable": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+  "python_version": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "instruction_origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "path": "tools/software_workflow/validate_change_scope.py",
+      "sha256": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d"
+    }
+  ],
+  "read_only_interface_origins": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "3e90836ad17d8ca0ba9aa249b959189457b9f38d230ab95e7ffb42ccf22595b9"
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "b16e5d9033401c4a08135238e73a7e6a3df3bc487b717c98eb82c86627071d62"
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package.py",
+      "sha256": "cb25f09a26922ead575b914dc9d8b054e8d3988b6c14f64bf36a830009739415"
+    }
+  ],
+  "supplied_evidence_origins": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CORE_CONSUMER_REVIEW/RETURN.md",
+      "sha256": "6d2defb0484be766ed0ff92bb306ddc00db0b0cd31a108b69d1dc65b932b95a6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CORE_CONSUMER_REVIEW/BACKCHECK_01.md",
+      "sha256": "11fddcc1a28e14764a4e37635eec8c0b81a396da16ee2636b9e5f8a62cfd3d98"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CORE_CONSUMER_REVIEW/FINAL_DISPOSITION.md",
+      "sha256": "cd3c78ee800678d484955da2b8b9e743b320360109c97ffb8d3b7de782509448"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/implementation/RETURN.md",
+      "sha256": "7afe24a09c60d6cc181c6a6b1a8fa7dbe7535b62d94650f29b00c069057014f3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/implementation/TS_FILES.json",
+      "sha256": "ca3fa8c9ed180d449928dec628b412229aeb7b36e6d41e4092ac6e99f30393e9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/implementation/TS_CANDIDATE.patch",
+      "sha256": "0156fdaf9eb15305db5b04b87f47d80ab24077c56173f9bde36549bcb7c9575e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/BEFORE.json",
+      "sha256": "223607b7d756096b7b82e2d16614930fc2985886c43a26fee243989035bae8a1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/TS_EXECUTION_CONTEXT.json",
+      "sha256": "95e96885c9f1f51b28e641134171fe8a16e5733469b496fe77a39a4a4b6ac6af"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/generic_basis_before.json",
+      "sha256": "935d2faf4d3dafafbf92ed032699fb2cdefe96dcc227b44e580a75dc532ad6f3"
+    }
+  ],
+  "method": "Static full ten-file candidate delta review against exact retained before snapshots; source caller/interface tracing; standard-library hashing and explicit-path scope helper only. No TypeScript runtime, Vitest, tsc, npm, Cargo, native/browser, Git or source edits.",
+  "boundary": "Assigned shared-worktree source scope and review-output write scope; not an OS sandbox. No delegation.",
+  "scope_helper_command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "tools/software_workflow/validate_change_scope.py",
+    "/private/tmp/piping-numerical-integrity-20260924",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts"
+  ],
+  "scope_helper_exit_code": 0
+}

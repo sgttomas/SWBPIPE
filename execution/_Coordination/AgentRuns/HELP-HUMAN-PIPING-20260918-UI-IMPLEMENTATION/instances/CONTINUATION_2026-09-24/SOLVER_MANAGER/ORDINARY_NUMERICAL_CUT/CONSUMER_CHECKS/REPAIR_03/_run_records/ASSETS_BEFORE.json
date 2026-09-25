@@ -1,0 +1,10 @@
+{
+  "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "a2e9bcf16011ff6ab3421d48d0b534303a55d397f7e061a136566e683bf49fe4",
+  "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8",
+  "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16",
+  "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+  "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+  "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+  "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+  "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm": "ff21fa163233c7dbb7178034613ccf37f03b45a798e17a5155920ba0c2ffe09c"
+}

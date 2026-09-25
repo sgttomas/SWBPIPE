@@ -1,0 +1,28 @@
+{
+  "actor": "/root/solver_manager/structural_integration",
+  "parent": "/root/solver_manager",
+  "origins": [
+    {
+      "origin": "primary",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/M03_RESIDUAL_SUCCESSOR_ADOPTION.md",
+      "sha256": "082d52b3064d10f892e877afba7e618ee6c81afea055abe853eba4289557ac2b"
+    },
+    {
+      "origin": "primary",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/ROW_SUCCESSOR_BACKCHECK.md",
+      "sha256": "9c54463a1e5287aafe7e2b0a0063479634c8c3af933d6aae7048c81f39009d9b"
+    },
+    {
+      "origin": "selected",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/BACKCHECK_QUALIFICATIONS.md",
+      "sha256": "e8d04776a3ec2e6dd612e1ba5535fe04926deaeb7ffcde41b8464255355ed80e"
+    }
+  ],
+  "predecessor_freeze": "SOURCE_FREEZE_PRE_SUCCESSOR.json",
+  "history_recovery": "PRE_SUCCESSOR_CANDIDATE.diff against base63 preserves former product zero assertions and hold-specific tests; prior failed logs untouched",
+  "checks": [
+    "rustfmt passed",
+    "git diff --check passed"
+  ],
+  "cargo_executed": false
+}

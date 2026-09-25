@@ -1,0 +1,40 @@
+{
+  "agent": "/root/solver_manager/evidence_primitives",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type2",
+  "mechanism": "native followup; no descendants",
+  "allocation": "Astra/low per parent",
+  "checkout": "/private/tmp/piping-numerical-corrections-20260924",
+  "time": "2026-09-25T02:41:19.274666+00:00",
+  "origins": [
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/.agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/core/serialization/canonical_json/adapter.py",
+      "sha256": "f6c92a186b65f1ae1990194098f668566b190a7ac77376b3fcf792d0711335df"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/tools/serialization/build_checked_json.py",
+      "sha256": "6d5d55434d2ca94c896c2794ebdebc89ef1bb0efbfd605d840b0835a9d654bd3"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/fixtures/analysis_runs/invented/analysis_run_v0_2.json",
+      "sha256": "2a62a971d9f74833470bd8ed0cabb7467d5ae844a7c57cba777758c4761c3fe7"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155"
+    }
+  ],
+  "limits": "Source editing/evidence only; no tests, runtime Python probe/import, canonical adapter execution, builds, Cargo or Git. Two preimages only; no after-source copies."
+}

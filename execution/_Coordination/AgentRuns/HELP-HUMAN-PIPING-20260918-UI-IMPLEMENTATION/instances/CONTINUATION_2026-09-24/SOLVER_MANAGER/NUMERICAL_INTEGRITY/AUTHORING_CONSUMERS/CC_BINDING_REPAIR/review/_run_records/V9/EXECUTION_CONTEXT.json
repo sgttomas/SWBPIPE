@@ -1,0 +1,47 @@
+{
+  "agent": "/root/authoring_manager/cc_ts_review",
+  "parent": "/root/authoring_manager",
+  "role": "TASK Type 2 independent reviewer continued",
+  "mechanism": "delegated-harness-native followup task",
+  "actual_model": "not independently exposed",
+  "requested_allocation": "Astra/xhigh per original brief",
+  "runtime_checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "scope": "Complete final ten-file CC delta, exact two-line V9 repair and retained affected-runtime evidence; review-output writes only",
+  "origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/RETURN.md",
+      "sha256": "c05ad6637a332a1dd7faf5acefec218e3a702065e227a39a632d05d58fd73e03"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/CHECKED_FILES.json",
+      "sha256": "63654fad57172c7cdcde8d64f40b2f84ca6f9357b06c3514a8d7c6a283d32659"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/interop/RELAY_BYTE_COMPARISON.json",
+      "sha256": "4a961d2b9063458b876c884107abf39538262fcba10f1e5bd43b0f0b65a7727d"
+    }
+  ],
+  "final_report_sha256": "cd45907cb7825dd720fb3e179c5c22306aa5f7b6788e5e23d4f34b63c14413df",
+  "final_source_freeze_match": true,
+  "limits": "No project runtime executed by reviewer. Actual prior run evidence is bound without claiming a full final rerun. Python relay validation and parent integration gates remain separate."
+}

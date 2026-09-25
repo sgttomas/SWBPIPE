@@ -1,0 +1,16 @@
+{
+  "command": [
+    "../../node_modules/.bin/vitest",
+    "run",
+    "--config",
+    "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/vitest.node.config.mjs",
+    "--maxWorkers=2",
+    "--no-cache"
+  ],
+  "started_at": "2026-09-24T23:58:53.784694+00:00",
+  "exit_code": 0,
+  "source_sha256": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c",
+  "test_sha256": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655",
+  "config_sha256": "c34d209c2d7c9d7d68630b0a4bc3e4ffe509920d14a16393cf0df7eac3270708",
+  "log_sha256": "97220ba807417a05715a743c02163ef0c44257486f22d66fc375b33765e48309"
+}

@@ -1,0 +1,11 @@
+{
+  "patch_sha256": "1536a68e85c727fdb2101e2099be021cc7592feda3d54c997ecc484305634122",
+  "changed_from_V5": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "old_sha256": "0f1e4ff61a4b7a920e4cbd009989f492fc681f88de2cba3b8c95874bec0b213e",
+      "new_sha256": "03f1a7be0fa3b67c6f723c42b559235067fe9eba5b13daafc6d90d9a00f58e68"
+    }
+  ],
+  "all_hashes_match": true
+}

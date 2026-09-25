@@ -1,0 +1,9 @@
+{
+  "source_product_sha256": "646b648b1931009f357f76b96d10f80d32e98369bd76920f61638136d8925e1a",
+  "selected_product_sha256": "3671265eca3f9b0ca1793bf020cb2e768834a25e8c2827d73251a674271140c6",
+  "nonlinear_source_and_selected_sha256": "ba45af590ab1bdb0ad4d58037c4ce2e52270ac08730386fbd081e755f85b2041",
+  "finite_capture_reverse_hunks": 24,
+  "transform_verified_against_original_full_before_after": true,
+  "changes": "remove only reviewed unused finite-capture Serialize increment; keep all ordinary numerical and repaired inspection/publication code",
+  "original_NUM_sources_unchanged": true
+}

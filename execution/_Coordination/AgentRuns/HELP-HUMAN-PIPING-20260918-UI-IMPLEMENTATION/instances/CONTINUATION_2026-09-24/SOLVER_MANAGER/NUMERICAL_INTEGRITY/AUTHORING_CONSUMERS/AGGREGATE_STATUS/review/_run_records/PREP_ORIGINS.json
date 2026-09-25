@@ -1,0 +1,220 @@
+{
+  "stage": "phase_1_test_oracle_diagnosis_review",
+  "agent": "/root/authoring_manager/aggregate_status_review",
+  "role": "TASK Type 2",
+  "parent": "/root/authoring_manager",
+  "parent_role": "WORKING_ITEMS Type 1",
+  "root_parent": "/root",
+  "delegation_mechanism": "delegated-harness-native collaboration child",
+  "independence": "Fresh nonimplementer. aggregate_status_fix authored the candidate; this reviewer did not edit product source or tests. Same-model review is not model diversity.",
+  "actual_checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "instructions": "Parent dispatch plus Root, full TASK, Piping AGENTS, Piping LOOP_INIT, project software-code-review skill. No other full role bodies loaded.",
+  "scope": [
+    "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+    "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS"
+  ],
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/review",
+  "host_boundary": "Actual writable /private/tmp shared filesystem; bounded paths are instructional, not per-child OS isolation. No escalation required.",
+  "prohibited_actions": "No tests, builds, native/browser, Git, configuration or dependency actions; no delegation.",
+  "actual_actions": [
+    "read source and supplied evidence",
+    "read relevant caller and type excerpts",
+    "compare exact file bytes and SHA-256",
+    "write review evidence only"
+  ],
+  "not_executed": [
+    "test runner",
+    "build",
+    "scope-validation helper",
+    "Git commands",
+    "browser/native qualification"
+  ],
+  "basis": [
+    {
+      "label": "root_agENTS",
+      "source_ref": "AGENTS.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "preserved_ref": "_run_records/prep_basis/root_agENTS.md"
+    },
+    {
+      "label": "task_role",
+      "source_ref": "agents/AGENT_TASK.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "preserved_ref": "_run_records/prep_basis/task_role.md"
+    },
+    {
+      "label": "piping_instructions",
+      "source_ref": "projects/chirality-piping/AGENTS.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "preserved_ref": "_run_records/prep_basis/piping_instructions.md"
+    },
+    {
+      "label": "piping_loop",
+      "source_ref": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "preserved_ref": "_run_records/prep_basis/piping_loop.md"
+    },
+    {
+      "label": "review_skill",
+      "source_ref": ".agents/skills/software-code-review/SKILL.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "preserved_ref": "_run_records/prep_basis/review_skill.md"
+    },
+    {
+      "label": "source",
+      "source_ref": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+      "preserved_ref": "_run_records/prep_basis/source.ts"
+    },
+    {
+      "label": "test",
+      "source_ref": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "sha256": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655",
+      "preserved_ref": "_run_records/prep_basis/test.ts"
+    },
+    {
+      "label": "diagnosis",
+      "source_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/DIAGNOSIS.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/DIAGNOSIS.md",
+      "sha256": "c74883f08e14694cde33593888a318b50a506aa0f0d8fd59577e7bc73cf386fb",
+      "preserved_ref": "_run_records/prep_basis/diagnosis.md"
+    },
+    {
+      "label": "producer_excerpt",
+      "source_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/PRODUCER_AGGREGATE.txt",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/PRODUCER_AGGREGATE.txt",
+      "sha256": "f1f4713d4149495fb350eb23bf904ec5a2953e6b844ec2fc5f7f825fa459c56c",
+      "preserved_ref": "_run_records/prep_basis/producer_excerpt.txt"
+    },
+    {
+      "label": "diagnostic_origins",
+      "source_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/ORIGINS.json",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/ORIGINS.json",
+      "sha256": "3a3b51f277cc024b613aec8533b445409e3fbff6b6a38a9e31775f129ff8fda4",
+      "preserved_ref": "_run_records/prep_basis/diagnostic_origins.json"
+    },
+    {
+      "label": "implementation_return",
+      "source_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/TEST_CANDIDATE.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/TEST_CANDIDATE.md",
+      "sha256": "a8899d4e7d1849bafa903049ffff631abeea4de666bf211ffe39f1c274ffca03",
+      "preserved_ref": "_run_records/prep_basis/implementation_return.md"
+    },
+    {
+      "label": "test_freeze",
+      "source_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/TEST_FREEZE.json",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/TEST_FREEZE.json",
+      "sha256": "708a5966724e32e4ec70231fef61dd7b0080f09c0e5140486f392a2fc313a79b",
+      "preserved_ref": "_run_records/prep_basis/test_freeze.json"
+    },
+    {
+      "label": "implementation_origins",
+      "source_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/ORIGINS.json",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/ORIGINS.json",
+      "sha256": "f2f6fecc553c3862bab778f4e830c62a71e59e31f1f79f2d72be266ff43aee9c",
+      "preserved_ref": "_run_records/prep_basis/implementation_origins.json"
+    },
+    {
+      "label": "source_preimage",
+      "source_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/before/numericalResultQuality.ts",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/before/numericalResultQuality.ts",
+      "sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+      "preserved_ref": "_run_records/prep_basis/source_preimage.ts"
+    },
+    {
+      "label": "test_preimage",
+      "source_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/before/numericalResultQuality.test.ts",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/before/numericalResultQuality.test.ts",
+      "sha256": "ec2ef7ba52b10ef9950a47f786812c38085816c5f99876ee6c6de0fecb702d18",
+      "preserved_ref": "_run_records/prep_basis/test_preimage.ts"
+    },
+    {
+      "label": "frozen_test",
+      "source_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/numericalResultQuality.test.frozen.ts",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/implementation/_run_records/numericalResultQuality.test.frozen.ts",
+      "sha256": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655",
+      "preserved_ref": "_run_records/prep_basis/frozen_test.ts"
+    },
+    {
+      "label": "live_producer_read_only",
+      "source_ref": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "37d19221af9900e40d500370c30c156e49f5469a905f20acb3b2e3db6ae54d80",
+      "reviewed_lines": [
+        896,
+        909
+      ],
+      "preserved_ref": "_run_records/PREP_PRODUCER_LIVE_EXCERPT.txt",
+      "full_file_reviewed": false,
+      "excerpt_matches_manager": true
+    },
+    {
+      "label": "types",
+      "source_ref": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src/types.ts",
+      "sha256": "25a3b2aa687bd8984cc053f6306e57c546c3adb6efbe8576140cae3f06e8bce1",
+      "reviewed_lines": [
+        287,
+        304
+      ],
+      "preserved_ref": "_run_records/prep_basis/types.txt",
+      "full_file_reviewed": false
+    },
+    {
+      "label": "historical_caller",
+      "source_ref": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "fd692788d9f1318cad28a5248ea9d9b1c3722498a55084cf21ed3a31fd4f2e49",
+      "reviewed_lines": [
+        263,
+        279
+      ],
+      "preserved_ref": "_run_records/prep_basis/historical_caller.txt",
+      "full_file_reviewed": false
+    },
+    {
+      "label": "current_caller",
+      "source_ref": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "sha256": "c92030018f057c8e826d0486db33a5c78246114d220fa0a062d87a3e21a94ac8",
+      "reviewed_lines": [
+        50,
+        64
+      ],
+      "preserved_ref": "_run_records/prep_basis/current_caller.txt",
+      "full_file_reviewed": false
+    },
+    {
+      "label": "current_export_caller",
+      "source_ref": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574",
+      "reviewed_lines": [
+        141,
+        148
+      ],
+      "preserved_ref": "_run_records/prep_basis/current_export_caller.txt",
+      "full_file_reviewed": false
+    },
+    {
+      "label": "stress_neutral_caller",
+      "source_ref": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "c88a2399b08e7289627b9104557c5a7ce983ee127b18b9fd7bb0f529b0a6377c",
+      "reviewed_lines": [
+        435,
+        448
+      ],
+      "preserved_ref": "_run_records/prep_basis/stress_neutral_caller.txt",
+      "full_file_reviewed": false
+    }
+  ]
+}

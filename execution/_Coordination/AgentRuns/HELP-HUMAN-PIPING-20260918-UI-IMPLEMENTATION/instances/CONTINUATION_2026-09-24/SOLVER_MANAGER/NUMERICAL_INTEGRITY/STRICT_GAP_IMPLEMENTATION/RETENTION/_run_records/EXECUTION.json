@@ -1,0 +1,34 @@
+{
+  "time_utc": "2026-09-24T22:46:33.820729+00:00",
+  "actual_parent": "/root/solver_manager",
+  "child": "/root/solver_manager/exact_gap_kernel",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native descendant resumed for bounded NGR02 retention repair",
+  "checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "selected_basis_origin": "primary worktree Revision02 ROOT_SELECTION + EXACT_BOUNDARY + WIRE_TYPES + CONTRACT (full hashes in ORIGINS.json)",
+  "write_scope": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/STRICT_GAP_IMPLEMENTATION/RETENTION"
+  ],
+  "os_isolation_claim": false,
+  "tests_authored": {
+    "kernel_new": 3,
+    "kernel_total": 20,
+    "adapter_new": 1
+  },
+  "observed_checks": [
+    "rustfmt --edition 2021 on both owned Rust files: exit0",
+    "source/read/hash/scope inspection"
+  ],
+  "unexecuted": [
+    "Cargo",
+    "Rust compile/test",
+    "Node/npm",
+    "native/browser",
+    "new independent review",
+    "DEC025"
+  ],
+  "parent_reported_prior_evidence": "helper700338b9 reviewed17PASS; adapter79272e2f/liba5a3f710 reviewed/focused6+3PASS; these are predecessor checks, not retention-delta execution",
+  "source_frozen": true
+}

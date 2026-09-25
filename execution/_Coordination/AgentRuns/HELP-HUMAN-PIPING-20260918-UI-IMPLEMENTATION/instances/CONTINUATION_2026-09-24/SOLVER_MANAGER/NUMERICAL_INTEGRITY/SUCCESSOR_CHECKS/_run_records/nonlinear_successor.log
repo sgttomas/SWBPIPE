@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/private/tmp/piping-numerical-integrity-target/debug/deps/open_pipe_stress_nonlinear_integration-9ba2d509973ec532)
+
+running 2 tests
+test product_equilibrium::tests::successor_both_backends_original_load_and_prescribed_mutations ... ok
+test tests::successor_rechecks_contact_admissibility_even_when_equations_and_count_flags_pass ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 46 filtered out; finished in 0.00s
+

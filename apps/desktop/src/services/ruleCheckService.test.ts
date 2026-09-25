@@ -180,7 +180,7 @@ describe("runRuleChecks", () => {
     expect(args).not.toHaveProperty("suppliedValueBindings");
   });
 
-  it("forwards non-empty bindings and prefers a solved envelope over the model", async () => {
+  it("forwards non-empty bindings and retains both solved envelope and model coverage basis", async () => {
     invokeMock.mockResolvedValue({
       document_kind: "openpipestress.rule_check.run",
       rule_pack_id: "x",
@@ -203,7 +203,7 @@ describe("runRuleChecks", () => {
     const [, args] = invokeMock.mock.calls[0];
     const typed = args as Record<string, unknown>;
     expect(typed).toHaveProperty("solvedEnvelope");
-    expect(typed).not.toHaveProperty("model");
+    expect(typed).toHaveProperty("model");
     expect(typed.solverResultBindings).toEqual([{ input_id: "actual", result_id: "result:stress:demo" }]);
     expect(typed.suppliedValueBindings).toEqual([
       { ref_id: "limit", value: 100, unit: "demo_unit", dimension: "stress" }

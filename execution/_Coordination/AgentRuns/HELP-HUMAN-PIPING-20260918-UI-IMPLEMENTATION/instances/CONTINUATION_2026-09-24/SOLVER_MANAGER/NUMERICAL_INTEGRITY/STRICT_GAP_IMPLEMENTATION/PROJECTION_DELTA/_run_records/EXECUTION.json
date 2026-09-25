@@ -1,0 +1,33 @@
+{
+  "time_utc": "2026-09-24T19:53:56.448040+00:00",
+  "parent": "/root/solver_manager",
+  "child": "/root/solver_manager/exact_gap_kernel",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native descendant resumed for new bounded delta",
+  "checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "write_scope": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/STRICT_GAP_IMPLEMENTATION/PROJECTION_DELTA"
+  ],
+  "no_os_isolation_claim": true,
+  "before_sha256": "9e12fe8c3f284116815bb7a7820fb761539f5dd8736c88a325cdad0cdcf6e4c7",
+  "after_sha256": "700338b91a54f9623ab479e5d0202f625a04810ebdce50e98196001da3675d9e",
+  "structural_unchanged_sha256": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+  "source_test_count": 17,
+  "checks_observed": [
+    "rustfmt --edition 2021 new module: exit 0",
+    "source inspection and hash/scope comparison"
+  ],
+  "not_run": [
+    "Cargo",
+    "rustc/build",
+    "Rust tests",
+    "Python arithmetic/projection execution",
+    "Node/npm",
+    "native/browser",
+    "DEC025"
+  ],
+  "parent_reported_prior_basis": "Original 9e12fe8c helper compiled, exact_boundary 11 passed /65 filtered at KERNEL_CHECKS; historical check is not a delta pass",
+  "new_test_basis": "Reviewed PROJECTION_PROPOSAL and independent_review.py/json; immutable original 27-case Fraction references; additional manager small-strain companion remains pending independent review",
+  "source_frozen": true
+}

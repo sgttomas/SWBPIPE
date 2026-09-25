@@ -1,0 +1,9 @@
+# Numerical aggregate status diagnostic
+
+The inspected product ranks status from checks_passed, sensitive, not_assessed, unresolved to failed and takes the maximum across cases. An empty case list defaults to not_assessed. The exact source excerpt and read identity are under _run_records/PRODUCER_AGGREGATE.txt and ORIGINS.json.
+
+The TypeScript source admits all five statuses but its aggregate comparison expects sensitive if any case is sensitive, otherwise checks_passed. Therefore an honest unresolved/failed/not_assessed aggregate can receive NUMERICAL_AGGREGATE_CONTRADICTION despite agreeing with its cases. A mixture of sensitive and unresolved is also compared against sensitive. Current eligibility already remains false because the independent numerical/case gates reject nonpassing states; this is a misleading diagnostic, not a demonstrated qualification bypass.
+
+Proposed bounded correction: compare against the same five-state worst-case aggregate, including the product's explicit empty-list default. Keep source dispatch, structural/fidelity/accuracy/evidence/identity, complete requested-case coverage and mechanics qualification gates unchanged. Consistent unresolved/failed/unassessed states lose only the false contradiction finding; genuine aggregate mismatches remain flagged and ineligible. No precision-2 interpretation, native/store or general UI work is included.
+
+Maintained regression controls should show honest individual/mixed nonpassing cases stay needs_recompute without the contradiction code, changed aggregate claims retain the contradiction, passed/sensitive positive controls keep their existing qualified outcomes when all other checks pass, and missing/duplicate/unknown/evidence cases remain refused. Test fixtures are consumer contract controls, not numerical producer qualification. Runtime reproduction is pending resource allocation at this writing.

@@ -1,0 +1,21 @@
+--- before/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
++++ after/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+@@ -4703,8 +4703,16 @@
+             assert!(solved.strict_gap_unqualified_reason().unwrap().contains("mixed/curved/user/affine"));
+             assert!(product_unsupported_gap_state_is_inspectable(&input, &[], &solved).unwrap());
+             assert!(!product_selected_state_is_qualified(&input, &[], &solved).unwrap());
+-            assert_eq!(solved.final_states[1].state, ActiveSetState::Active);
+-            assert_eq!(solved.final_states[2].state, ActiveSetState::Sliding);
++            assert_eq!(
++                solved.final_states.iter().find(|state| state.support_id == "gap")
++                    .expect("mixed inspection result must retain gap state").state,
++                ActiveSetState::Active,
++            );
++            assert_eq!(
++                solved.final_states.iter().find(|state| state.support_id == "friction")
++                    .expect("mixed inspection result must retain friction state").state,
++                ActiveSetState::Sliding,
++            );
+             assert!(solved.iterations.last().unwrap().product_equilibrium.passed);
+             assert!(solved.iterations.last().unwrap().contact_branches_admissible);
+         }

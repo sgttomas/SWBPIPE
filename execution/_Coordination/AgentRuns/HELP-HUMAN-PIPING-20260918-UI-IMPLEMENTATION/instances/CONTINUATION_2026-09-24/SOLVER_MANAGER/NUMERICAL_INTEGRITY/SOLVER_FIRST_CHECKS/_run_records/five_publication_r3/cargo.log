@@ -1,0 +1,25 @@
+   Compiling open_pipe_stress_product_physics v0.2.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.81s
+     Running tests/represented_gap_publication.rs (/private/tmp/piping-product-rotational-gap-target/debug/deps/represented_gap_publication-cb48fce8c34df1bf)
+
+running 17 tests
+test dense_negative_active_contact ... ok
+test dense_negative_active_open ... ok
+test dense_negative_inactive_open ... ok
+test dense_negative_inactive_contact ... ok
+test dense_positive_active_contact ... ok
+test dense_positive_active_open ... ok
+test dense_positive_inactive_contact ... ok
+test dense_positive_inactive_open ... ok
+test sparse_negative_active_contact ... ok
+test sparse_negative_active_open ... ok
+test ordinary_no_gap_companion_remains_qualified_and_matches_small_strain_axial_law ... ok
+test sparse_negative_inactive_contact ... ok
+test sparse_negative_inactive_open ... ok
+test sparse_positive_active_contact ... ok
+test sparse_positive_active_open ... ok
+test sparse_positive_inactive_contact ... ok
+test sparse_positive_inactive_open ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

@@ -1,0 +1,14 @@
+    let rank = |status: NumericalQualityStatus| match status {
+        NumericalQualityStatus::ChecksPassed => 0,
+        NumericalQualityStatus::Sensitive => 1,
+        NumericalQualityStatus::NotAssessed => 2,
+        NumericalQualityStatus::Unresolved => 3,
+        NumericalQualityStatus::Failed => 4,
+    };
+    quality.status = quality
+        .cases
+        .iter()
+        .map(|case| case.solve_quality)
+        .max_by_key(|&status| rank(status))
+        .unwrap_or(NumericalQualityStatus::NotAssessed);
+    quality

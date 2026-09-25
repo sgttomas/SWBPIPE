@@ -1,0 +1,284 @@
+--- before/projects/chirality-piping/package.json
++++ after/projects/chirality-piping/package.json
+@@ -12,6 +12,6 @@
+     "test:desktop": "npm test --workspace apps/desktop",
+     "test:e2e:desktop": "npm run test:e2e --workspace apps/desktop",
+     "test:e2e:dist:desktop": "npm run test:e2e:dist --workspace apps/desktop",
+-    "generate:product-preview-mechanics": "cargo run --quiet --manifest-path core/product_physics/Cargo.toml --example preview_result > fixtures/product_preview/invented_mechanics_result.json"
++    "generate:product-preview-mechanics": "node tools/serialization/generate_product_preview_mechanics.mjs"
+   }
+ }
+--- /dev/null
++++ after/projects/chirality-piping/tools/serialization/generate_product_preview_mechanics.mjs
+@@ -0,0 +1,271 @@
++// Generate example transport data from the actual product. No numerical outcome
++// is upgraded, and the immutable legacy fixture is never a write destination.
++import { spawnSync } from "node:child_process";
++import { createHash } from "node:crypto";
++import { readFileSync, writeFileSync, readdirSync, lstatSync, realpathSync,
++  existsSync, mkdtempSync, renameSync, unlinkSync, rmSync, openSync, fsyncSync, closeSync } from "node:fs";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++
++const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
++const manifest = "core/product_physics/Cargo.toml";
++const generator = "core/product_physics/examples/preview_result.rs";
++const input = "fixtures/product_preview/invented_preview_model.json";
++const legacy = "fixtures/product_preview/invented_mechanics_result.json";
++const recipe = "tools/serialization/generate_product_preview_mechanics.mjs";
++const recordPath = "fixtures/product_preview/precision_fixture_generation.json";
++const modes = [
++  ["sparse_interactive", "sparse", 1],
++  ["dense_scrutiny", "dense", 2],
++];
++const sha = bytes => createHash("sha256").update(bytes).digest("hex");
++const bytes = relative => readFileSync(checkedPath(relative, "file"));
++const fail = message => { throw new Error(message); };
++const exact = (actual, expected, message) => { if (actual !== expected) fail(message); };
++const portable = absolute => {
++  const relative = path.relative(root, absolute);
++  if (relative.startsWith(`..${path.sep}`) || relative === ".." || path.isAbsolute(relative)) fail("source outside project root");
++  return relative.split(path.sep).join("/");
++};
++// Reject redirects in every root/relative component before reads or writes.
++// Rechecked around replacement; this is not claimed to defeat hostile concurrent
++// directory replacement (generation still requires the ordinary single-writer lease).
++function validateRoot() {
++  let cursor = path.parse(root).root;
++  for (const part of root.slice(cursor.length).split(path.sep).filter(Boolean)) {
++    cursor = path.join(cursor, part);
++    const stat = lstatSync(cursor);
++    if (stat.isSymbolicLink() || !stat.isDirectory() || realpathSync(cursor) !== cursor) fail(`redirected project root: ${cursor}`);
++  }
++}
++function checkedPath(relative, kind, allowMissingLeaf = false) {
++  validateRoot();
++  if (path.isAbsolute(relative) || relative.split(/[\\/]/).some(part => part === ".." || part === "." || !part)) fail(`invalid project path: ${relative}`);
++  const parts = relative.split("/");
++  let cursor = root;
++  for (let index = 0; index < parts.length; index++) {
++    cursor = path.join(cursor, parts[index]);
++    let stat;
++    try { stat = lstatSync(cursor); }
++    catch (error) {
++      if (allowMissingLeaf && index === parts.length - 1 && error.code === "ENOENT") return cursor;
++      throw error;
++    }
++    if (stat.isSymbolicLink() || realpathSync(cursor) !== cursor) fail(`redirected project path: ${relative}`);
++    if (index < parts.length - 1 || kind === "directory") {
++      if (!stat.isDirectory()) fail(`not a project directory: ${relative}`);
++    } else if (!stat.isFile()) fail(`not a regular project file: ${relative}`);
++  }
++  return cursor;
++}
++function command(program, args) {
++  validateRoot();
++  const result = spawnSync(program, args, { cwd: root, maxBuffer: 128 * 1024 * 1024 });
++  if (result.stderr?.length) process.stderr.write(result.stderr);
++  if (result.error || result.status !== 0) fail(`${program} failed: ${result.error?.message ?? result.signal ?? result.status}`);
++  return { stdout: result.stdout, stderr: result.stderr };
++}
++const decode = value => new TextDecoder("utf-8", { fatal: true }).decode(value);
++const parse = value => JSON.parse(decode(value));
++function metadata() {
++  return parse(command("cargo", ["metadata", "--offline", "--locked", "--format-version", "1", "--manifest-path", manifest]).stdout);
++}
++function dependencyInventory(meta) {
++  return meta.packages.map(pkg => ({ name: pkg.name, version: pkg.version,
++    source: pkg.source ?? "project_local", ...(pkg.source === null ? { manifest: portable(pkg.manifest_path) } : {}) }))
++    .sort((a, b) => JSON.stringify(a) < JSON.stringify(b) ? -1 : JSON.stringify(a) > JSON.stringify(b) ? 1 : 0);
++}
++function sourceInventory(meta) {
++  const names = new Set([manifest, generator, input, legacy, recipe, "package.json"]);
++  function walk(relative) {
++    for (const entry of readdirSync(checkedPath(relative, "directory"), { withFileTypes: true })) {
++      if (["target", ".git", "node_modules", "__pycache__"].includes(entry.name)) continue;
++      const name = `${relative}/${entry.name}`;
++      if (entry.isSymbolicLink()) fail(`source inventory refuses symlink: ${name}`);
++      if (entry.isDirectory()) walk(name);
++      else if (entry.isFile()) names.add(name);
++    }
++  }
++  // Cargo identifies the actual local dependency closure; hash all its package
++  // files (excluding build/cache directories), not an assumed list of crate names.
++  for (const pkg of meta.packages.filter(pkg => pkg.source === null)) {
++    const directory = portable(path.dirname(pkg.manifest_path));
++    checkedPath(directory, "directory");
++    if (!directory.startsWith("core/")) fail(`local dependency outside bounded core inventory: ${directory}`);
++    walk(directory);
++  }
++  // The current product/unit include_str! inputs outside package directories.
++  walk("schemas");
++  for (const config of [".cargo/config", ".cargo/config.toml", "rust-toolchain", "rust-toolchain.toml"]) {
++    if (existsSync(path.join(root, config))) { checkedPath(config, "file"); names.add(config); }
++  }
++  return Object.fromEntries([...names].sort().map(name => {
++    checkedPath(name, "file");
++    return [name, sha(bytes(name))];
++  }));
++}
++function validate(result, mode, value, model) {
++  exact(result.schema_version, "0.2.0", "unexpected raw schema");
++  exact(result.document_kind, "openpipestress.product_preview.mechanics_result", "unexpected document kind");
++  exact(result.producer?.component_name, "open_pipe_stress_product_physics", "unexpected producer");
++  exact(result.producer?.component_version, "0.2.0", "unexpected producer version");
++  exact(result.producer?.semantic_contract_id, "openpipestress.result_semantics/0.3.0/precision-1", "unexpected semantics");
++  exact(result.model_ref, model.project.id, "output/input model mismatch");
++  if (!["MECHANICS_SOLVED", "MODEL_INCOMPLETE"].includes(result.status?.mechanics)) fail("unknown mechanics status");
++  const quality = result.numerical_quality;
++  const statuses = ["checks_passed", "sensitive", "not_assessed", "unresolved", "failed"];
++  if (!quality || !statuses.includes(quality.status) || !Array.isArray(quality.cases)) fail("missing numerical evidence");
++  exact(quality.value_representation, "finite_binary64", "unexpected numeric representation");
++  exact(quality.publication_quantization, "none", "unexpected publication quantization");
++  exact(quality.integrity_policy, "M03-INTEGRITY-v1", "unexpected integrity policy");
++  if (!Array.isArray(result.results) || !Array.isArray(result.diagnostics)) fail("invalid result collections");
++  const allIds = [...result.results, ...result.diagnostics].map(row => row.id);
++  if (allIds.some(id => typeof id !== "string" || !id) || new Set(allIds).size !== allIds.length) fail("ambiguous output evidence IDs");
++  if (result.results.some(row => typeof row.value !== "number" || !Number.isFinite(row.value))) fail("nonfinite/missing result scalar");
++  const expected = model.load_cases.map(item => item.id);
++  if (!expected.length || new Set(expected).size !== expected.length) fail("ambiguous requested cases");
++  if (quality.cases.some(c => c.basis_ref?.ref_type !== "load_case" || !expected.includes(c.basis_ref.ref_id) || !statuses.includes(c.solve_quality))) fail("unexpected numerical case");
++  // A genuine early blocked response may have no execution/quality-case rows.
++  // Preserve it as nonpassing; never manufacture mode or completed coverage.
++  if (result.status.mechanics === "MODEL_INCOMPLETE" && result.results.length === 0) {
++    if (["checks_passed", "sensitive"].includes(quality.status)) fail("empty blocked output claims passing quality");
++    return;
++  }
++  if (quality.cases.length !== expected.length || expected.some(id => quality.cases.filter(c => c.basis_ref.ref_id === id).length !== 1)) fail("numerical case coverage mismatch");
++  const aggregate = statuses[Math.max(...quality.cases.map(c => statuses.indexOf(c.solve_quality)))];
++  exact(quality.status, aggregate, "numerical aggregate contradiction");
++  const modeRows = result.results.filter(row => row.kind === "linear_solver_mode_basis");
++  if (modeRows.length !== expected.length) fail("mode evidence coverage mismatch");
++  for (const id of expected) {
++    const rows = modeRows.filter(row => row.basis_ref?.ref_type === "load_case" && row.basis_ref.ref_id === id);
++    if (rows.length !== 1) fail(`missing/duplicate mode evidence for ${id}`);
++    const row = rows[0], meta = row.metadata;
++    exact(row.value, value, "wrong mode value");
++    exact(row.unit, "mode_code", "wrong mode unit");
++    exact(meta?.component, "linear_solver_mode", "wrong mode component");
++    exact(meta?.coordinate_system, "reduced_system", "wrong mode frame");
++    exact(meta?.location, id, "wrong mode case location");
++    if (typeof meta.basis !== "string") fail("missing mode basis");
++    const fields = meta.basis.split(";").map(field => field.trim());
++    exact(fields.filter(field => field.startsWith("solver_mode=")).join(), `solver_mode=${mode}`, "crossed mode evidence");
++    exact(fields.filter(field => field.startsWith("solution_basis=")).join(), `solution_basis=${value === 1 ? "sparse" : "dense"}_structural_integrity_primary`, "wrong primary mode basis");
++  }
++}
++
++// Capture/validation finish before staging. Durable rollback preimages are
++// written and synced before any replacement; the hash record commits last.
++// Process/power-loss multi-file atomicity is not claimed.
++function replaceSet(items) {
++  const directory = checkedPath("fixtures/product_preview", "directory");
++  const stage = mkdtempSync(path.join(directory, ".precision-generation-"));
++  const stageRelative = portable(stage);
++  checkedPath(stageRelative, "directory");
++  const allowed = new Set([recordPath, ...modes.map(([, suffix]) => `fixtures/product_preview/invented_mechanics_result_precision_1_${suffix}.json`)]);
++  const staged = [];
++  const installed = [];
++  let retainRecovery = false;
++  function stageFile(name, existing = false) {
++    return checkedPath(`${stageRelative}/${name}`, "file", !existing);
++  }
++  function stageWrite(name, payload) {
++    const descriptor = openSync(stageFile(name), "wx");
++    try { writeFileSync(descriptor, payload); fsyncSync(descriptor); }
++    finally { closeSync(descriptor); }
++  }
++  try {
++    if (items.length !== allowed.size || new Set(items.map(([name]) => name)).size !== allowed.size) fail("generation requires exactly three distinct destinations");
++    items.forEach(([name, payload], index) => {
++      if (!allowed.has(name) || name === legacy) fail("forbidden generation destination");
++      const target = checkedPath(name, "file", true);
++      const existed = existsSync(target);
++      const previous = existed ? bytes(name) : null;
++      if (previous !== null) stageWrite(`${index}.old`, previous);
++      stageWrite(`${index}.new`, payload);
++      staged.push({ path: name, index, existed, previous_sha256: previous === null ? null : sha(previous), next_sha256: sha(payload) });
++    });
++    stageWrite("recovery.json", Buffer.from(`${JSON.stringify({ destinations: staged, note: "Restore each existing destination from its index.old backup; absent preimages require removing the new destination. Inspect actual files/hashes after interruption." }, null, 2)}\n`));
++    // Every backup and new file now exists before the first destination changes.
++    for (const entry of staged) {
++      checkedPath("fixtures/product_preview", "directory");
++      const target = checkedPath(entry.path, "file", true);
++      // Do not overwrite a destination changed since preimage capture.
++      exact(existsSync(target) ? sha(bytes(entry.path)) : null, entry.previous_sha256, "destination changed during staging");
++      renameSync(stageFile(`${entry.index}.new`, true), target);
++      installed.push(entry);
++    }
++  } catch (error) {
++    const failures = [];
++    for (const entry of installed.reverse()) {
++      try {
++        checkedPath("fixtures/product_preview", "directory");
++        const target = checkedPath(entry.path, "file", true);
++        // Refuse to destroy a subsequent writer's contents during recovery.
++        exact(existsSync(target) ? sha(bytes(entry.path)) : null, entry.next_sha256, "destination changed before rollback");
++        if (entry.existed) renameSync(stageFile(`${entry.index}.old`, true), target);
++        else unlinkSync(target);
++      } catch (rollbackError) {
++        failures.push(`${entry.path}: ${rollbackError.message}`);
++      }
++    }
++    if (failures.length) {
++      retainRecovery = true;
++      throw new Error(`Installation failed: ${error.message}; rollback incomplete: ${failures.join("; ")}; recovery material retained at ${stage}`);
++    }
++    throw error;
++  } finally {
++    if (!retainRecovery) {
++      try {
++        checkedPath(stageRelative, "directory");
++        rmSync(stage, { recursive: true, force: true });
++      } catch (cleanupError) {
++        process.stderr.write(`Staging cleanup incomplete; inspect retained material at ${stage}: ${cleanupError.message}\n`);
++      }
++    }
++  }
++}
++
++try {
++  if (process.argv.length !== 2) fail("usage: node tools/serialization/generate_product_preview_mechanics.mjs");
++  validateRoot();
++  checkedPath("fixtures/product_preview", "directory");
++  for (const fixed of [manifest, generator, input, legacy, recipe, "package.json"]) checkedPath(fixed, "file");
++  const meta = metadata();
++  const before = sourceInventory(meta);
++  const beforeText = JSON.stringify(before);
++  const model = parse(bytes(input));
++  const outputs = [];
++  const fixtureWrites = [];
++  for (const [mode, suffix, value] of modes) {
++    const args = ["run", "--offline", "--locked", "--quiet", "--manifest-path", manifest, "--example", "preview_result", "--", mode];
++    const captured = command("cargo", args);
++    const result = parse(captured.stdout);
++    validate(result, mode, value, model);
++    const outputPath = `fixtures/product_preview/invented_mechanics_result_precision_1_${suffix}.json`;
++    fixtureWrites.push([outputPath, captured.stdout]); // exact raw stdout, no reserialization
++    outputs.push({ mode, path: outputPath, sha256: sha(captured.stdout), command: ["cargo", ...args],
++      stderr_sha256: sha(captured.stderr), exit_code: 0, model_ref: result.model_ref,
++      mechanics_status: result.status.mechanics, numerical_status: result.numerical_quality.status,
++      row_count: result.results.length, load_case_ids: result.numerical_quality.cases.map(c => c.basis_ref.ref_id) });
++  }
++  const afterMeta = metadata();
++  exact(JSON.stringify(dependencyInventory(afterMeta)), JSON.stringify(dependencyInventory(meta)), "dependency resolution changed during generation");
++  const after = sourceInventory(afterMeta);
++  exact(JSON.stringify(after), beforeText, "source/input/lock/legacy changed during generation; no fixture replacement");
++  const record = {
++    record_kind: "actual_product_generated_example_fixture_basis", path_base: "projects/chirality-piping",
++    recipe: { path: recipe, sha256: before[recipe] }, generator: { path: generator, sha256: before[generator] },
++    input_model: { path: input, sha256: before[input] },
++    historical_fixture_preserved: { path: legacy, sha256: before[legacy] },
++    source_input_files: before, source_input_files_after: after,
++    inventory_json_sha256: sha(Buffer.from(beforeText)),
++    dependencies: dependencyInventory(meta),
++    tools: { node: process.version, cargo: decode(command("cargo", ["--version"]).stdout).trim(), rustc: decode(command("rustc", ["--version"]).stdout).trim() },
++    outputs, provenance: "Actual unchanged-input Rust executions; raw stdout retained as fixture bytes. No headers, quality or numeric values synthesized. Example transport data, not independent physics or source/build authentication.",
++  };
++  exact(JSON.stringify(sourceInventory(meta)), beforeText, "source/input changed before commit");
++  replaceSet([...fixtureWrites, [recordPath, Buffer.from(`${JSON.stringify(record, null, 2)}\n`)]]);
++  process.stdout.write(`${JSON.stringify({ generated: outputs.map(output => output.path), record: recordPath })}\n`);
++} catch (error) {
++  process.stderr.write(`Precision fixture generation failed: ${error.message}\n`);
++  process.exitCode = 1;
++}

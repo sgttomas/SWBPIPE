@@ -1,0 +1,32 @@
+[
+  {
+    "stage": "lock",
+    "exit_code": 0,
+    "ended_unix": 1790286802.839576
+  },
+  {
+    "stage": "compile",
+    "exit_code": 0,
+    "ended_unix": 1790286808.887639
+  },
+  {
+    "stage": "strict_gap",
+    "exit_code": 0,
+    "ended_unix": 1790286810.337394
+  },
+  {
+    "stage": "original_coupled",
+    "exit_code": 0,
+    "ended_unix": 1790286810.3962429
+  },
+  {
+    "stage": "decimal_gap",
+    "exit_code": 0,
+    "ended_unix": 1790286810.4485152
+  },
+  {
+    "stage": "affine",
+    "exit_code": 0,
+    "ended_unix": 1790286810.4960089
+  }
+]

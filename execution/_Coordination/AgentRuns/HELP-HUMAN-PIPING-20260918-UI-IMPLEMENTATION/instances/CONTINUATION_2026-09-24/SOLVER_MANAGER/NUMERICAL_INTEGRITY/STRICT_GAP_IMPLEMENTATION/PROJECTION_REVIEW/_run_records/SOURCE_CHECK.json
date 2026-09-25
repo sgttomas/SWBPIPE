@@ -1,0 +1,9 @@
+{
+  "source_hashes": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "700338b91a54f9623ab479e5d0202f625a04810ebdce50e98196001da3675d9e",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a"
+  },
+  "before_hash": "9e12fe8c3f284116815bb7a7820fb761539f5dd8736c88a325cdad0cdcf6e4c7",
+  "complete_delta_matches_before_and_frozen": true,
+  "structural_rs_unchanged": true
+}

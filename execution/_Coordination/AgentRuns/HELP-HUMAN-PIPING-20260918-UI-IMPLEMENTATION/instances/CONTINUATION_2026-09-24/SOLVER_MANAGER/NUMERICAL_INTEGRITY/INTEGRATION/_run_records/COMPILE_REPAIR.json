@@ -1,0 +1,10 @@
+{
+  "failure_log": "../KERNEL_INTEGRATION_CHECKS/_run_records/nonlinear_compile.log",
+  "failure_log_sha256": "a129fca8ad4867a848b18bc5262b2c196fec03685c3db0e74ee76aad7858325f",
+  "repair": "Move structural_report from ActiveSetIterationInput to NonlinearFrameIteration after final linearized solve and residual observation; report and displacements belong to same selected same-state solve.",
+  "checks": [
+    "scoped rustfmt passed",
+    "git diff --check passed"
+  ],
+  "cargo_run_by_child": false
+}

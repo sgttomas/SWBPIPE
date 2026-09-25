@@ -1,0 +1,13 @@
+{
+  "allowed": [
+    "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+    "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts"
+  ],
+  "paths": [
+    "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

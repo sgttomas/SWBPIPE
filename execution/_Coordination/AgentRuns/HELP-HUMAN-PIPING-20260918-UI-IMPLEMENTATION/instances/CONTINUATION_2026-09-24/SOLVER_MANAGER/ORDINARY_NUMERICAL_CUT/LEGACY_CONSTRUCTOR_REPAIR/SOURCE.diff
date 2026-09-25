@@ -1,0 +1,106 @@
+--- before/projects/chirality-piping/core/analysis_runs/compatibility.py
++++ after/projects/chirality-piping/core/analysis_runs/compatibility.py
+@@ -76,6 +76,9 @@
+     if record_version == "0.2.0":
+         if any(key in received for key in ("producer", "numerical_quality", "formulation_basis")):
+             raise ValueError("ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN")
++        source_version = received.get("schema_version")
++        if type(source_version) is not str or source_version not in ("0.1.0", "0.2.0"):
++            raise ValueError("ANALYSIS_LEGACY_SOURCE_VERSION_UNSUPPORTED")
+         contract_id, contract_hash, contract_path = SEMANTIC_CONTRACT_ID, SEMANTIC_CONTRACT_SHA256, _CONTRACT_PATH
+     else:
+         contract_id, contract_hash, contract_path = _source_contract(received)
+--- before/projects/chirality-piping/tests/test_analysis_run_compatibility.py
++++ after/projects/chirality-piping/tests/test_analysis_run_compatibility.py
+@@ -3,7 +3,12 @@
+ import json
+ from pathlib import Path
+ 
+-from core.analysis_runs.compatibility import build_analysis_run_v0_2, verify_analysis_run_record
++import pytest
++
++from core.analysis_runs.compatibility import (
++    analysis_record_projection, build_analysis_run_v0_2, verify_analysis_run_record,
++)
++from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
+ from core.analysis_runs.records import build_preview_analysis_run_envelope
+ from core.analysis_runs.legacy import DESKTOP_PROFILE, PYTHON_PROFILE, verify_legacy_checksum
+ import hashlib
+@@ -210,3 +215,77 @@
+     ]:
+         assert verify_legacy_checksum(invalid, profile=PYTHON_PROFILE, preimage=preimage, **args)["status"] == "unverifiable"
+     assert verify_legacy_checksum(claim, profile=PYTHON_PROFILE, preimage=preimage, expected_payload_scope="result_value", expected_payload_ref=ref, preimage_provenance_established=False)["status"] == "unverifiable"
++
++
++@pytest.mark.parametrize("version", ["99.0.0", "0.3.0", "0.2", "0.2.0 ", "", None, False, 0, 0.2, [], {}])
++def test_explicit_legacy_constructor_rejects_unknown_or_nonstring_source_version(version) -> None:
++    source = {"schema_version": version, "results": [], "diagnostics": []}
++    before = deepcopy(source)
++    with pytest.raises(ValueError, match="^ANALYSIS_LEGACY_SOURCE_VERSION_UNSUPPORTED$"):
++        build_analysis_run_v0_2(source, input_manifest_ref=MANIFEST_REF, input_manifest_hash=MANIFEST_HASH)
++    assert source == before
++
++
++def test_explicit_legacy_constructor_rejects_missing_source_version() -> None:
++    source = {"results": [], "diagnostics": []}
++    before = deepcopy(source)
++    with pytest.raises(ValueError, match="^ANALYSIS_LEGACY_SOURCE_VERSION_UNSUPPORTED$"):
++        build_analysis_run_v0_2(source, input_manifest_ref=MANIFEST_REF, input_manifest_hash=MANIFEST_HASH)
++    assert source == before
++
++
++@pytest.mark.parametrize("version", ["0.1.0", "0.2.0"])
++@pytest.mark.parametrize("header", ["producer", "numerical_quality", "formulation_basis"])
++@pytest.mark.parametrize("value", [None, False, {}, []])
++def test_explicit_legacy_constructor_rejects_header_presence_even_when_empty(version, header, value) -> None:
++    source = {"schema_version": version, header: value, "results": [], "diagnostics": []}
++    before = deepcopy(source)
++    with pytest.raises(ValueError, match="^ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN$"):
++        build_analysis_run_v0_2(source, input_manifest_ref=MANIFEST_REF, input_manifest_hash=MANIFEST_HASH)
++    assert source == before
++
++
++@pytest.mark.parametrize("mode", ["sparse", "dense"])
++def test_explicit_legacy_constructor_refuses_actual_current_precision_fixture(mode: str) -> None:
++    fixture = PROJECT / f"fixtures/product_preview/invented_mechanics_result_precision_1_{mode}.json"
++    original_bytes = fixture.read_bytes()
++    source = json.loads(original_bytes)
++    before = deepcopy(source)
++    assert source["schema_version"] == "0.2.0"
++    assert source["producer"]["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/precision-1"
++    with pytest.raises(ValueError, match="^ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN$"):
++        build_analysis_run_v0_2(source, input_manifest_ref=MANIFEST_REF, input_manifest_hash=MANIFEST_HASH)
++    assert source == before
++    assert fixture.read_bytes() == original_bytes
++
++
++def test_explicit_legacy_constructor_known_versions_preserve_real_hashes_and_semantics() -> None:
++    # This is the existing language-neutral one-row historical record basis.
++    # Both versions remain historical; no injected hash function or fake digest.
++    source = {
++        "schema_version": "0.2.0", "document_kind": "MechanicsResult", "run_id": "run:test", "model_ref": "model:test",
++        "status": {"mechanics": "MECHANICS_SOLVED", "rule_check": "RULE_INPUTS_INCOMPLETE", "professional_acceptance": "NOT_PROVIDED"},
++        "summary": {}, "results": [{"id": "result:test", "entity_ref": "node:test", "kind": "displacement_magnitude", "value": 1, "unit": "mm", "basis_ref": {"ref_type": "load_case", "ref_id": "load:test"}}], "diagnostics": [],
++    }
++    manifest = {"model_basis": {"model_ref": "model:test"}, "solver_basis": {"solver_name": "solver", "solver_version": "0.1.0", "solver_build_ref": "build:test", "settings": {"mode": "fixture"}}, "unit_basis": {"project_units": {"length": "mm"}}, "load_basis": {"load_cases": [], "combinations": []}}
++    records = {}
++    for version in ("0.1.0", "0.2.0"):
++        received = deepcopy(source)
++        received["schema_version"] = version
++        source_bytes = json.dumps(received, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
++        record = build_analysis_run_v0_2(received, input_manifest_ref={"object_type": "InputManifest", "ref": "input-manifest:test"}, input_manifest_hash="1" * 64, input_manifest=manifest)
++        assert json.dumps(received, ensure_ascii=False, separators=(",", ":")).encode("utf-8") == source_bytes
++        assert record["schema_version"] == "0.2.0"
++        assert hash_by_scope(record, "received_result") == canonical_sha256_checked_v1(received)
++        assert hash_by_scope(record, "analysis_run_record") == canonical_sha256_checked_v1(analysis_record_projection(record))
++        row = record["analysis_run"]["result_refs"][0]
++        assert row["hash_refs"][0]["value"] == canonical_sha256_checked_v1(received["results"][0])
++        assert verify_analysis_run_record(record) == "match"
++        records[version] = record
++    frozen = json.loads((PROJECT / "fixtures/analysis_runs/invented/analysis_run_v0_2.json").read_text())
++    assert records["0.2.0"] == frozen
++    assert records["0.1.0"]["analysis_run"]["result_refs"] == frozen["analysis_run"]["result_refs"]
++    assert records["0.1.0"]["analysis_run"]["reproducibility"]["semantic_contract"] == frozen["analysis_run"]["reproducibility"]["semantic_contract"]
++    # The source version is part of the received checksum, not erased or relabelled.
++    assert hash_by_scope(records["0.1.0"], "received_result") != hash_by_scope(records["0.2.0"], "received_result")
++    assert hash_by_scope(records["0.1.0"], "analysis_run_record") != hash_by_scope(records["0.2.0"], "analysis_run_record")

@@ -1,0 +1,382 @@
+{
+  "hash_seam": "injected JSON hash; exact frozen modules and test helper; NOT production JCS/native/file-I/O proof",
+  "probes": [
+    {
+      "probe": "baseline_packet_with_supplied_source_and_analysis",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "builder_wrong_load_case_ref",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "builder_wrong_component_ref",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "builder_wrong_result_family",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "rehashed_packet_source_model",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-SOURCE-BINDING-MISMATCH"
+    },
+    {
+      "probe": "rehashed_packet_source_result_ref",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-CARRIER-BINDING-MISMATCH"
+    },
+    {
+      "probe": "rehashed_packet_formulation_metadata_negative_control",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-SOURCE-BINDING-MISMATCH"
+    },
+    {
+      "probe": "rehashed_analysis_load_basis_refs",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH"
+    },
+    {
+      "probe": "rehashed_analysis_mechanics_status",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_STATUS_MISMATCH"
+    },
+    {
+      "probe": "rehashed_analysis_diagnostics",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH"
+    },
+    {
+      "probe": "rehashed_analysis_model_negative_control",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_MODEL_MISMATCH"
+    },
+    {
+      "probe": "rehashed_analysis_row_metadata_negative_control",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_ROW_INTERPRETATION_MISMATCH"
+    },
+    {
+      "probe": "rehashed_packet_source_result_ref_all_internal_links_updated",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-SOURCE-BINDING-MISMATCH"
+    },
+    {
+      "probe": "materialized_precision_contract_fields",
+      "fields_found_in_member_json": {
+        "producer": [],
+        "numerical_quality": [],
+        "formulation_basis": [],
+        "semantic_contract_ref": [],
+        "source_carrier_checksum": [],
+        "package_checksum": []
+      }
+    },
+    {
+      "probe": "transport_exact_reconstruction",
+      "exact": true,
+      "nine_member_count": 9,
+      "precision_fields_equal": {
+        "producer": true,
+        "numerical_quality": true,
+        "formulation_basis": true,
+        "semantic_contract_ref": true,
+        "source_carrier_checksum": true,
+        "package_checksum": true
+      }
+    },
+    {
+      "probe": "missing_projected_result_id",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "missing_projected_canonical_ref",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "missing_projected_row_kind",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "missing_projected_result_family",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "missing_projected_load_case_ref",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "missing_projected_station_ref",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "missing_projected_component_ref",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "missing_projected_value",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "missing_projected_unit",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "missing_projected_dimension",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "missing_projected_source_result_ref",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "missing_projected_correlation_status",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    },
+    {
+      "probe": "finite_rule_RULE_INPUTS_INCOMPLETE",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "finite_rule_USER_RULE_CHECKED",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "finite_rule_USER_RULE_FAILED",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "wider_basis_with_same_independent_witness",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "wider_basis_with_no_independent_witness",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH"
+    },
+    {
+      "probe": "invalid_independent_basis_[]",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_LOAD_BASIS_SOURCE_SCOPE_MISMATCH"
+    },
+    {
+      "probe": "invalid_independent_basis_[{'object_type': 'LoadCase', 'ref': 'additional:actual-model-case'}]",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_LOAD_BASIS_SOURCE_SCOPE_MISMATCH"
+    },
+    {
+      "probe": "invalid_independent_basis_[{'object_type': 'LoadCase', 'ref': 'load:actual'}, {'object_type': 'LoadCase', 'ref': 'additional:actual-model-case'}, {'object_type': 'LoadCase', 'ref': 'load:actual'}]",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_LOAD_BASIS_INVALID"
+    },
+    {
+      "probe": "transport_duplicate_nested",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-TRANSPORT-JSON-DUPLICATE-KEY"
+    },
+    {
+      "probe": "transport_bad_version",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-TRANSPORT-MANIFEST-INVALID"
+    },
+    {
+      "probe": "transport_metadata_collision",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-TRANSPORT-METADATA-COLLISION"
+    },
+    {
+      "probe": "transport_missing_member",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-MEMBER-INVENTORY-MISMATCH"
+    },
+    {
+      "probe": "transport_extra_member",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-MEMBER-INVENTORY-MISMATCH"
+    },
+    {
+      "probe": "transport_source_metadata_tamper",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-SOURCE-BINDING-MISMATCH"
+    },
+    {
+      "probe": "complete_builder_location_''",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-LOCATION-INVALID"
+    },
+    {
+      "probe": "complete_builder_location_7",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-LOCATION-INVALID"
+    },
+    {
+      "probe": "complete_builder_location_[]",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-LOCATION-INVALID"
+    },
+    {
+      "probe": "complete_builder_location_{}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-LOCATION-INVALID"
+    },
+    {
+      "probe": "complete_builder_location_False",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-LOCATION-INVALID"
+    },
+    {
+      "probe": "complete_builder_location_None",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "complete_builder_location_'end_i'",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "default_source_basis_{}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "default_source_basis_{'ref_type': 'load_case', 'ref_id': ''}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "default_source_basis_{'ref_type': 'load_case', 'ref_id': 7}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "default_source_basis_{'ref_type': '', 'ref_id': 'x'}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "default_source_basis_[]",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "default_source_basis_{'ref_type': 'load_case', 'ref_id': 'x', 'extra': True}",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "default_source_basis_None",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "default_source_basis_{'ref_type': 'custom', 'ref_id': 'generic:scope'}",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "invalid_identity_run_id_''",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "invalid_identity_run_id_7",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "invalid_identity_model_ref_[]",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "invalid_identity_model_ref_''",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "invalid_identity_result_id_''",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "invalid_identity_result_id_7",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_REFERENCE_INVALID"
+    },
+    {
+      "probe": "exact_maintained_null_reference_rehash_helper",
+      "completed_without_exception": true,
+      "invalid_json_ref_retained": true
+    },
+    {
+      "probe": "rehashed_null_reference_reaches_source_validator",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-ROW-SOURCE-MISMATCH"
+    }
+  ]
+}

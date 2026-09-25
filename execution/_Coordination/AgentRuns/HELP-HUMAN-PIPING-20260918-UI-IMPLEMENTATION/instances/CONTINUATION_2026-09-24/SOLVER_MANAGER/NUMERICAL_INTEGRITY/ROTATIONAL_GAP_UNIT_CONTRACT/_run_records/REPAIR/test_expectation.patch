@@ -1,0 +1,20 @@
+--- baseline/product_lib.rs
++++ after/product_lib.rs
+@@ -12690,8 +12690,16 @@
+                         .map(|row| (row.value, row.unit.as_str()));
+                     let codes = output.diagnostics.iter().map(|d| d.code.as_str()).collect::<Vec<_>>();
+                     println!("rotational-gap unit contract: mode={mode:?}, dof={dof}, gap={value} {unit}, mechanics={}, rotation={observed_rotation:?}, diagnostics={codes:?}", output.status.mechanics);
++                    // rotation_* is an authored moment-load spelling, not a
++                    // supported nonlinear-support DOF token in this contract.
++                    let required_code = if dof.starts_with("rotation_") {
++                        if unit == "rad" { "UNIT_CONVERSION_UNAVAILABLE" }
++                        else { "NONLINEAR_SUPPORT_DOF_INVALID" }
++                    } else {
++                        "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"
++                    };
+                     let blocked = output.diagnostics.iter().any(|d|
+-                        d.code == "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED" && d.severity == "blocking");
++                        d.code == required_code && d.severity == "blocking");
+                     if !blocked || output.status.mechanics == "MECHANICS_SOLVED" {
+                         missing_blocks.push(format!("{mode:?}/{dof}/{unit}"));
+                     }

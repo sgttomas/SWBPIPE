@@ -1,0 +1,7 @@
+# Decimal-spelled gap boundary and represented input
+
+The unchanged test audit_gap_equilibrium_both_signs_seeds_and_modes uses the two-node axial stiffness100, gap binary64 `0.05`, and force magnitudes4,5,6. It expects magnitude5 to be an exact closed-boundary Active state. Under the selected exact represented-input convention, that expectation is false: the gap equals3602879701896397/2^56, while the free displacement is exactly1/20. Gap minus free displacement is1/(5*2^56)>0. Prescribing the gap at force5 produces pulling reaction5/2^54 rather than zero; the contact law therefore releases it.
+
+The correct represented-source state at force5 is Inactive for both senses and every initial seed/mode. Its published binary64 displacement still equals the same float0.05, so published-value equality cannot recover this contact decision. Magnitude4 remains Inactive and magnitude6 Active. Existing numerical comparisons need no relaxed tolerance. The immutable dyadic coupled test and neighboring/physical small-strain references independently cover true exact equality.
+
+This is a manager-derived reference conflict, not a production execution result or an adopted test amendment. Original test excerpt and exact Fraction results remain in _run_records. No gap, force, tolerance, test assertion or source convention has been altered here. ROOT and independent review receive the finding for a transparent prospective oracle disposition; it must not be hidden by epsilon or fixture replacement.

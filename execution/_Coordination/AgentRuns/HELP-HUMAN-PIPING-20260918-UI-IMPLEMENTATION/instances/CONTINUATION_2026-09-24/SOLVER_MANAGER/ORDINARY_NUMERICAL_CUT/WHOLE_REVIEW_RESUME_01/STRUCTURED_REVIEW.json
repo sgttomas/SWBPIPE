@@ -1,0 +1,512 @@
+{
+  "schema_checks": {
+    "projects/chirality-piping/schemas/analysis_run.schema.json": {
+      "parse": "pass",
+      "reference_count": 4,
+      "missing_refs": []
+    },
+    "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json": {
+      "parse": "pass",
+      "reference_count": 32,
+      "missing_refs": []
+    },
+    "projects/chirality-piping/schemas/results.schema.yaml": {
+      "parse": "pass",
+      "reference_count": 300,
+      "missing_refs": []
+    },
+    "projects/chirality-piping/schemas/results.v0.3.schema.yaml": {
+      "parse": "pass",
+      "reference_count": 97,
+      "missing_refs": []
+    },
+    "projects/chirality-piping/schemas/stress_neutral_export.schema.json": {
+      "parse": "pass",
+      "reference_count": 3,
+      "missing_refs": []
+    },
+    "projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json": {
+      "parse": "pass",
+      "reference_count": 77,
+      "missing_refs": []
+    }
+  },
+  "fixture_checks": {
+    "sparse": {
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6",
+      "row_count": 830,
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "numerical_quality": {
+        "value_representation": "finite_binary64",
+        "publication_quantization": "none",
+        "integrity_policy": "M03-INTEGRITY-v1",
+        "status": "checks_passed",
+        "cases": [
+          {
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "load:L-100"
+            },
+            "structural_status": "passive_model_basis",
+            "solve_quality": "checks_passed",
+            "model_matrix_fidelity": "represented_equations_retained",
+            "accuracy_evidence": "not_claimed",
+            "evidence_refs": [
+              "diagnostic:numerical-integrity:load:L-100"
+            ]
+          },
+          {
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "load:L-200"
+            },
+            "structural_status": "passive_model_basis",
+            "solve_quality": "checks_passed",
+            "model_matrix_fidelity": "represented_equations_retained",
+            "accuracy_evidence": "not_claimed",
+            "evidence_refs": [
+              "diagnostic:numerical-integrity:load:L-200"
+            ]
+          }
+        ]
+      },
+      "ids_unique": true,
+      "generation_record_matches": true
+    },
+    "dense": {
+      "sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155",
+      "row_count": 832,
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "numerical_quality": {
+        "value_representation": "finite_binary64",
+        "publication_quantization": "none",
+        "integrity_policy": "M03-INTEGRITY-v1",
+        "status": "checks_passed",
+        "cases": [
+          {
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "load:L-100"
+            },
+            "structural_status": "passive_model_basis",
+            "solve_quality": "checks_passed",
+            "model_matrix_fidelity": "represented_equations_retained",
+            "accuracy_evidence": "not_claimed",
+            "evidence_refs": [
+              "diagnostic:numerical-integrity:load:L-100"
+            ]
+          },
+          {
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "load:L-200"
+            },
+            "structural_status": "passive_model_basis",
+            "solve_quality": "checks_passed",
+            "model_matrix_fidelity": "represented_equations_retained",
+            "accuracy_evidence": "not_claimed",
+            "evidence_refs": [
+              "diagnostic:numerical-integrity:load:L-200"
+            ]
+          }
+        ]
+      },
+      "ids_unique": true,
+      "generation_record_matches": true
+    }
+  },
+  "locks": {
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock": {
+      "external_complete_package_records_unchanged": true,
+      "local_before": [
+        "name = \"open_pipe_stress_audit_manifest\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_canonical_json\"\nversion = \"0.1.0\"\ndependencies = [\n \"ryu\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_completeness_checker\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_expression_evaluator\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_library_import_document\"\nversion = \"0.1.0\"\ndependencies = [\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_load_case_algebra\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_operation_applier\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_pdf_emitter\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_protected_content_linter\",\n \"open_pipe_stress_report_generator\",\n \"open_pipe_stress_report_renderer\",\n \"open_pipe_stress_report_sections\",\n \"serde\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_product_physics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_load_case_algebra\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_protected_content_linter\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_report_generator\"\nversion = \"0.1.0\"\ndependencies = [\n \"serde\",\n]",
+        "name = \"open_pipe_stress_report_package\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_audit_manifest\",\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_pdf_emitter\",\n \"open_pipe_stress_report_renderer\",\n \"open_pipe_stress_result_export\",\n \"serde\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_report_renderer\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_protected_content_linter\",\n \"open_pipe_stress_report_generator\",\n \"open_pipe_stress_report_sections\",\n \"serde\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_report_sections\"\nversion = \"0.1.0\"\ndependencies = [\n \"serde\",\n]",
+        "name = \"open_pipe_stress_result_export\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_rule_check_runner\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_completeness_checker\",\n \"open_pipe_stress_expression_evaluator\",\n \"open_pipe_stress_rule_pack_document\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_rule_pack_document\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_expression_evaluator\",\n \"open_pipe_stress_rule_pack_lifecycle\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_rule_pack_lifecycle\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_self_weight_wasm\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_product_physics\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_stress_recovery\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]",
+        "name = \"open_pipe_stress_units\"\nversion = \"0.1.0\"",
+        "name = \"openpipestress-desktop\"\nversion = \"0.1.0\"\ndependencies = [\n \"getrandom 0.3.4\",\n \"open_pipe_stress_audit_manifest\",\n \"open_pipe_stress_library_import_document\",\n \"open_pipe_stress_operation_applier\",\n \"open_pipe_stress_product_physics\",\n \"open_pipe_stress_report_package\",\n \"open_pipe_stress_report_renderer\",\n \"open_pipe_stress_result_export\",\n \"open_pipe_stress_rule_check_runner\",\n \"open_pipe_stress_rule_pack_document\",\n \"open_pipe_stress_self_weight_wasm\",\n \"open_pipe_stress_units\",\n \"rusqlite\",\n \"serde\",\n \"serde_json\",\n \"tauri\",\n \"tauri-build\",\n \"tauri-plugin-dialog\",\n]"
+      ],
+      "local_after": [
+        "name = \"open_pipe_stress_audit_manifest\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_canonical_json\"\nversion = \"0.1.0\"\ndependencies = [\n \"ryu\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_completeness_checker\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_expression_evaluator\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_library_import_document\"\nversion = \"0.1.0\"\ndependencies = [\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_load_case_algebra\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_operation_applier\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_pdf_emitter\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_protected_content_linter\",\n \"open_pipe_stress_report_generator\",\n \"open_pipe_stress_report_renderer\",\n \"open_pipe_stress_report_sections\",\n \"serde\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_product_physics\"\nversion = \"0.2.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_load_case_algebra\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_protected_content_linter\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_report_generator\"\nversion = \"0.1.0\"\ndependencies = [\n \"serde\",\n]",
+        "name = \"open_pipe_stress_report_package\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_audit_manifest\",\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_pdf_emitter\",\n \"open_pipe_stress_report_renderer\",\n \"open_pipe_stress_result_export\",\n \"serde\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_report_renderer\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_protected_content_linter\",\n \"open_pipe_stress_report_generator\",\n \"open_pipe_stress_report_sections\",\n \"serde\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_report_sections\"\nversion = \"0.1.0\"\ndependencies = [\n \"serde\",\n]",
+        "name = \"open_pipe_stress_result_export\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_rule_check_runner\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_completeness_checker\",\n \"open_pipe_stress_expression_evaluator\",\n \"open_pipe_stress_rule_pack_document\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_rule_pack_document\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_expression_evaluator\",\n \"open_pipe_stress_rule_pack_lifecycle\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_rule_pack_lifecycle\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_self_weight_wasm\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_product_physics\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_stress_recovery\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]",
+        "name = \"open_pipe_stress_units\"\nversion = \"0.1.0\"",
+        "name = \"openpipestress-desktop\"\nversion = \"0.1.0\"\ndependencies = [\n \"getrandom 0.3.4\",\n \"open_pipe_stress_audit_manifest\",\n \"open_pipe_stress_library_import_document\",\n \"open_pipe_stress_operation_applier\",\n \"open_pipe_stress_product_physics\",\n \"open_pipe_stress_report_package\",\n \"open_pipe_stress_report_renderer\",\n \"open_pipe_stress_result_export\",\n \"open_pipe_stress_rule_check_runner\",\n \"open_pipe_stress_rule_pack_document\",\n \"open_pipe_stress_self_weight_wasm\",\n \"open_pipe_stress_units\",\n \"rusqlite\",\n \"serde\",\n \"serde_json\",\n \"tauri\",\n \"tauri-build\",\n \"tauri-plugin-dialog\",\n]"
+      ]
+    },
+    "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock": {
+      "external_complete_package_records_unchanged": true,
+      "local_before": [
+        "name = \"open_pipe_stress_canonical_json\"\nversion = \"0.1.0\"\ndependencies = [\n \"ryu\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_load_case_algebra\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_product_physics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_load_case_algebra\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_self_weight_wasm\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_product_physics\",\n \"serde_json\",\n \"sha2\",\n \"wasm-bindgen\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_stress_recovery\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]",
+        "name = \"open_pipe_stress_units\"\nversion = \"0.1.0\""
+      ],
+      "local_after": [
+        "name = \"open_pipe_stress_canonical_json\"\nversion = \"0.1.0\"\ndependencies = [\n \"ryu\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_load_case_algebra\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_product_physics\"\nversion = \"0.2.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_load_case_algebra\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_self_weight_wasm\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_product_physics\",\n \"serde_json\",\n \"sha2\",\n \"wasm-bindgen\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_stress_recovery\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]",
+        "name = \"open_pipe_stress_units\"\nversion = \"0.1.0\""
+      ]
+    },
+    "projects/chirality-piping/core/product_physics/Cargo.lock": {
+      "external_complete_package_records_unchanged": true,
+      "local_before": [
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_load_case_algebra\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_product_physics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_load_case_algebra\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_stress_recovery\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]",
+        "name = \"open_pipe_stress_units\"\nversion = \"0.1.0\""
+      ],
+      "local_after": [
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_load_case_algebra\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_product_physics\"\nversion = \"0.2.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_load_case_algebra\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_stress_recovery\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]",
+        "name = \"open_pipe_stress_units\"\nversion = \"0.1.0\""
+      ]
+    },
+    "projects/chirality-piping/core/runner/headless/Cargo.lock": {
+      "external_complete_package_records_unchanged": true,
+      "local_before": [
+        "name = \"open_pipe_stress_audit_manifest\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_canonical_json\"\nversion = \"0.1.0\"\ndependencies = [\n \"ryu\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_headless_runner\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_mechanics_benchmarks\",\n \"open_pipe_stress_nonlinear_benchmarks\",\n \"open_pipe_stress_product_physics\",\n \"open_pipe_stress_report_package\",\n \"open_pipe_stress_result_export\",\n \"open_pipe_stress_stress_benchmarks\",\n \"serde\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_load_case_algebra\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n]",
+        "name = \"open_pipe_stress_mechanics_benchmarks\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_result_export\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_user_loads\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_nonlinear_benchmarks\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_pdf_emitter\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_protected_content_linter\",\n \"open_pipe_stress_report_generator\",\n \"open_pipe_stress_report_renderer\",\n \"open_pipe_stress_report_sections\",\n \"serde\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_product_physics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_load_case_algebra\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_protected_content_linter\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_report_generator\"\nversion = \"0.1.0\"\ndependencies = [\n \"serde\",\n]",
+        "name = \"open_pipe_stress_report_package\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_audit_manifest\",\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_pdf_emitter\",\n \"open_pipe_stress_report_renderer\",\n \"open_pipe_stress_result_export\",\n \"serde\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_report_renderer\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_protected_content_linter\",\n \"open_pipe_stress_report_generator\",\n \"open_pipe_stress_report_sections\",\n \"serde\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_report_sections\"\nversion = \"0.1.0\"\ndependencies = [\n \"serde\",\n]",
+        "name = \"open_pipe_stress_result_export\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_stress_benchmarks\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_result_export\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_stress_recovery\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]",
+        "name = \"open_pipe_stress_units\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_user_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]"
+      ],
+      "local_after": [
+        "name = \"open_pipe_stress_audit_manifest\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_canonical_json\"\nversion = \"0.1.0\"\ndependencies = [\n \"ryu\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_headless_runner\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_mechanics_benchmarks\",\n \"open_pipe_stress_nonlinear_benchmarks\",\n \"open_pipe_stress_product_physics\",\n \"open_pipe_stress_report_package\",\n \"open_pipe_stress_result_export\",\n \"open_pipe_stress_stress_benchmarks\",\n \"serde\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_load_case_algebra\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n]",
+        "name = \"open_pipe_stress_mechanics_benchmarks\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_result_export\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_user_loads\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_nonlinear_benchmarks\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_pdf_emitter\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_protected_content_linter\",\n \"open_pipe_stress_report_generator\",\n \"open_pipe_stress_report_renderer\",\n \"open_pipe_stress_report_sections\",\n \"serde\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_product_physics\"\nversion = \"0.2.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_load_case_algebra\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_protected_content_linter\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_report_generator\"\nversion = \"0.1.0\"\ndependencies = [\n \"serde\",\n]",
+        "name = \"open_pipe_stress_report_package\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_audit_manifest\",\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_pdf_emitter\",\n \"open_pipe_stress_report_renderer\",\n \"open_pipe_stress_result_export\",\n \"serde\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_report_renderer\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_protected_content_linter\",\n \"open_pipe_stress_report_generator\",\n \"open_pipe_stress_report_sections\",\n \"serde\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_report_sections\"\nversion = \"0.1.0\"\ndependencies = [\n \"serde\",\n]",
+        "name = \"open_pipe_stress_result_export\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_stress_benchmarks\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_result_export\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_stress_recovery\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]",
+        "name = \"open_pipe_stress_units\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_user_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]"
+      ]
+    },
+    "projects/chirality-piping/core/solver/diagnostics/Cargo.lock": {
+      "external_complete_package_records_unchanged": true,
+      "local_before": [
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\""
+      ],
+      "local_after": [
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]"
+      ]
+    },
+    "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.lock": {
+      "external_complete_package_records_unchanged": true,
+      "local_before": [
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\""
+      ],
+      "local_after": [
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]"
+      ]
+    },
+    "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock": {
+      "external_complete_package_records_unchanged": true,
+      "local_before": [
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\""
+      ],
+      "local_after": [
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]"
+      ]
+    },
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.lock": {
+      "external_complete_package_records_unchanged": true,
+      "local_before": [
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_solver_performance_harness\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\""
+      ],
+      "local_after": [
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_solver_performance_harness\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]"
+      ]
+    },
+    "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock": {
+      "external_complete_package_records_unchanged": true,
+      "local_before": [
+        "name = \"open_pipe_stress_canonical_json\"\nversion = \"0.1.0\"\ndependencies = [\n \"ryu\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_mechanics_benchmarks\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_result_export\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_user_loads\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_result_export\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_user_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]"
+      ],
+      "local_after": [
+        "name = \"open_pipe_stress_canonical_json\"\nversion = \"0.1.0\"\ndependencies = [\n \"ryu\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_mechanics_benchmarks\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_result_export\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_user_loads\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_result_export\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_user_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]"
+      ]
+    },
+    "projects/chirality-piping/validation/benchmarks/nonlinear/Cargo.lock": {
+      "external_complete_package_records_unchanged": true,
+      "local_before": [
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_nonlinear_benchmarks\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\""
+      ],
+      "local_after": [
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_nonlinear_benchmarks\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]"
+      ]
+    },
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock": {
+      "external_complete_package_records_unchanged": true,
+      "local_before": [
+        "name = \"open_pipe_stress_canonical_json\"\nversion = \"0.1.0\"\ndependencies = [\n \"ryu\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_load_case_algebra\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_operation_applier\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_physics_audit_regression\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_operation_applier\",\n \"open_pipe_stress_product_physics\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_product_physics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_load_case_algebra\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_stress_recovery\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]",
+        "name = \"open_pipe_stress_units\"\nversion = \"0.1.0\""
+      ],
+      "local_after": [
+        "name = \"open_pipe_stress_canonical_json\"\nversion = \"0.1.0\"\ndependencies = [\n \"ryu\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"",
+        "name = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_load_case_algebra\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n]",
+        "name = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_solver_diagnostics\",\n]",
+        "name = \"open_pipe_stress_operation_applier\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_canonical_json\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n \"sha2\",\n]",
+        "name = \"open_pipe_stress_physics_audit_regression\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_operation_applier\",\n \"open_pipe_stress_product_physics\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n]",
+        "name = \"open_pipe_stress_product_physics\"\nversion = \"0.2.0\"\ndependencies = [\n \"open_pipe_stress_curved_bend\",\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_load_case_algebra\",\n \"open_pipe_stress_nonlinear_integration\",\n \"open_pipe_stress_nonlinear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_solver_diagnostics\",\n \"open_pipe_stress_sparse_direct\",\n \"open_pipe_stress_straight_pipe\",\n \"open_pipe_stress_stress_recovery\",\n \"open_pipe_stress_units\",\n \"serde\",\n \"serde_json\",\n]",
+        "name = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n \"open_pipe_stress_linear_supports\",\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_sparse_direct\",\n]",
+        "name = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_frame_kernel\",\n]",
+        "name = \"open_pipe_stress_stress_recovery\"\nversion = \"0.1.0\"\ndependencies = [\n \"open_pipe_stress_primitive_loads\",\n \"open_pipe_stress_straight_pipe\",\n]",
+        "name = \"open_pipe_stress_units\"\nversion = \"0.1.0\""
+      ]
+    },
+    "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock": {
+      "new_lock": true,
+      "note": "New observer manifest; package identities inspected against existing product dependency closure separately"
+    }
+  },
+  "notes": [
+    "Prerequisite probe attempts aborted for unavailable yaml/tomllib; stdlib-only final check. Initial JSON pointer traversal was corrected for array indices. New benchmark lock has no historical preimage and is reported separately rather than compared against empty. No source changed."
+  ],
+  "semantic_rows_identical_to_historical": true,
+  "transport": {
+    "vectors": 26,
+    "decimal_bits": "pass"
+  },
+  "independent_reference_regeneration": "byte-identical"
+}

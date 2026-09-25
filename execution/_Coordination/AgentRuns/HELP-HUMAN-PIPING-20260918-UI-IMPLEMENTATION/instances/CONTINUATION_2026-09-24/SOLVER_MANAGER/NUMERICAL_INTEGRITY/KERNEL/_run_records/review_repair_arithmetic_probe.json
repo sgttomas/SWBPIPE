@@ -1,0 +1,15 @@
+{
+  "kind": "exact Fraction oracles plus expansion transcription, not Rust execution",
+  "low_tail_expansion": [
+    -1.1022302462515656e-17,
+    1.1102230246251565e-16
+  ],
+  "original_geometry_refutes_both_counterexamples": true,
+  "original_geometry_valid_3_4_axis": true,
+  "prescribed_coupling": {
+    "stored_u": 0.5,
+    "intended_u": 1.0,
+    "intended_residual": -1.0,
+    "relative_rhs_difference": 1.0
+  }
+}

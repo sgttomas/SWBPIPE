@@ -1,0 +1,16 @@
+{
+  "inputs": {
+    "FINDING.md": "48bb9823829793bfcf2b37c32ef6031bbde7fef67a3e8aa1151328e2fd3c11b0",
+    "_run_records/EXACT_REFERENCE.json": "76a05563f34146085ed18ac4da98f0f8354ce427c926a22868b128ebce9c48de",
+    "_run_records/original_test_excerpt.rs.txt": "6c95983e36c141d5d911cfcbfe3135deaafddc0810463dfadf4856d43ebbdd28",
+    "actor_preserved_before/lib.rs": "e21c812accb1ab2eb4cd2c9e4509cd25ba38982b3e649aafaeaa64ea9cb3f009",
+    "actor_preserved_BASIS.json": "53d8959c68bc02cac639c4188edfda24ce5151e4d7cc4b72dab8cbd07152e1e7",
+    "unchanged_nonlinear_supports_source": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e",
+    "previously_frozen_frame_kernel_lib.rs": "03f82e343c7aee8f9f38d4b983091d0b71faebb904fb4dc7b59692a0c9cc4ad9"
+  },
+  "original_excerpt_occurs_verbatim_in_actor_preserved_baseline": true,
+  "baseline_named_test_line": 4055,
+  "baseline_helper_line": 2907,
+  "support_law_matches_commit": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "live_nonlinear_lib_not_read_or_qualified": true
+}

@@ -1,0 +1,77 @@
+{
+  "time_utc": "2026-09-25T02:10:50.474585+00:00",
+  "checks": {
+    "all 13 harness preparation identities match": true,
+    "harness and maintained recipe equal reviewed source": true,
+    "maintained package equals reviewed proposal": true,
+    "real maintained replay successful recorded exit": true,
+    "replay raw stdout and stderr hashes": true,
+    "all replay preimages verified": true,
+    "all replay after hashes match maintained data": true,
+    "source inventories before and after identical": true,
+    "all 128 source inventory identities match": true,
+    "record binds exact applied recipe": true,
+    "inventory JSON hash recomputed": true,
+    "sparse_interactive replay bytes equal original preserved preimage": true,
+    "sparse_interactive original producer capture equals replay": true,
+    "sparse_interactive exact command and recorded successful exit": true,
+    "sparse_interactive output metadata agrees with bytes": true,
+    "dense_scrutiny replay bytes equal original preserved preimage": true,
+    "dense_scrutiny original producer capture equals replay": true,
+    "dense_scrutiny exact command and recorded successful exit": true,
+    "dense_scrutiny output metadata agrees with bytes": true
+  },
+  "all_passed": true,
+  "source_input_count": 128,
+  "dependency_count": 24,
+  "observed_record_tools": {
+    "node": "v24.18.0",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+  },
+  "inventory": [
+    {
+      "mode": "sparse_interactive",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6",
+      "rows": 830,
+      "recorded_rows": 830,
+      "numerical_status": "checks_passed",
+      "mechanics": "MECHANICS_SOLVED",
+      "mode_rows": [
+        {
+          "case": "load:L-100",
+          "value": 1.0,
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=2749.9502558746576; max_abs_sparse_residual=0.0000000002219167072325945; dense_fallback=false; dense_fallback_message=none"
+        },
+        {
+          "case": "load:L-200",
+          "value": 1.0,
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=2749.9502558746576; max_abs_sparse_residual=0.00000000008913048077374697; dense_fallback=false; dense_fallback_message=none"
+        }
+      ]
+    },
+    {
+      "mode": "dense_scrutiny",
+      "sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155",
+      "rows": 832,
+      "recorded_rows": 832,
+      "numerical_status": "checks_passed",
+      "mechanics": "MECHANICS_SOLVED",
+      "mode_rows": [
+        {
+          "case": "load:L-100",
+          "value": 2.0,
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=2749.9502558746576; max_abs_sparse_residual=0.0000000002219167072325945; dense_fallback=false; dense_fallback_message=none"
+        },
+        {
+          "case": "load:L-200",
+          "value": 2.0,
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=2749.9502558746576; max_abs_sparse_residual=0.00000000008913048077374697; dense_fallback=false; dense_fallback_message=none"
+        }
+      ]
+    }
+  ],
+  "doc_before_sha256": "fcf51f2870f15cff247f0eba2ec28434443bf63e60148e31a13c0dcd84a64138",
+  "doc_after_sha256": "8092a6308dba642374c552bb16f956c55a6c41d4328cb6ba558e9836320b06e5",
+  "limits": "Evidence backcheck of parent-run genuine replay; no reviewer execution of generator, Cargo, Node, harness or tests. Transaction controls separate; no Current/physics/full-cut claim."
+}

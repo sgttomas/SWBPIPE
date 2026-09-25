@@ -1,0 +1,15 @@
+  const currentSolvedResult = result && analysisRun?.schema_version === "0.3.0"
+    && currentRecord?.run_id === result.run_id
+    && inputManifest?.manifest.model_basis.model_ref === result.model_ref
+    && currentRecord.reproducibility.input_manifest_refs.length === 1
+    && currentRecord.reproducibility.input_manifest_refs[0].ref === inputManifest?.manifest_ref.ref
+    && currentRecord.reproducibility.input_manifest_hashes.length === 1
+    && currentRecord.reproducibility.input_manifest_hashes[0].value === inputManifest?.manifest_sha256
+    && currentRecord.reproducibility.semantic_contract?.id === PRECISION_CONTRACT_ID
+    && currentRecord.reproducibility.semantic_contract?.sha256 === PRECISION_CONTRACT_SHA256
+    && currentSolver?.solver_name === result.producer?.component_name
+    && currentSolver?.solver_version === result.producer?.component_version
+    && currentRecord.solver_version?.solver_name === currentSolver?.solver_name
+    && currentRecord.solver_version?.solver_version === currentSolver?.solver_version
+    && currentRecord.solver_version?.build_ref.ref === currentSolver?.solver_build_ref
+    && numericalResultStanding(result, inputManifest?.manifest.model_basis.model_payload).eligible ? result : null;

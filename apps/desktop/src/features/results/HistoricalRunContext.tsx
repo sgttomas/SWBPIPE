@@ -1,3 +1,4 @@
+import { numericalResultStanding } from "./numericalResultQuality";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence } from "../../types";
 import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
@@ -270,6 +271,7 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   const mechanicsResult = isRenderableMechanicsResult(rawMechanicsResult) ? rawMechanicsResult : null;
   const analysisRun = rawAnalysisRun as AnalysisRunEnvelope | null;
   const findings = ["HISTORICAL_INPUT_MANIFEST_MISSING"];
+  if (mechanicsResult) findings.push(...numericalResultStanding(mechanicsResult, opened.model).findings);
   if (hasReceivedMechanics && !mechanicsResult) findings.push("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
   if (analysisRun && (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string")) findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
@@ -290,18 +292,18 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
     envelopePayloadHash = recomputedEnvelope?.value ?? null;
     if (opened.project_envelope_hash && (opened.project_envelope_hash.value !== recomputedEnvelope?.value || opened.project_envelope_hash.payload_ref !== opened.model.project.id)) findings.push("HISTORICAL_ENVELOPE_HASH_MISMATCH");
     if (evidenceResult) {
-      const receivedScope = analysisRun?.schema_version === "0.2.0" ? "received_result" : "result_envelope";
+      const receivedScope = ["0.2.0", "0.3.0"].includes(analysisRun?.schema_version ?? "") ? "received_result" : "result_envelope";
       const storedResultHash = Array.isArray(record?.hashes) ? record.hashes.find((hash) => hash && typeof hash === "object" && hash.payload_scope === receivedScope) : null;
       if (!storedResultHash) findings.push("HISTORICAL_RESULT_HASH_MISSING");
-      else if (analysisRun?.schema_version === "0.2.0" && ((typeof storedResultHash.value === "string" ? storedResultHash.value.replace(/^sha256:/, "") : null) !== await canonicalSha256HexCheckedV1(evidenceResult) || storedResultHash.payload_ref?.ref !== `result-envelope:${evidenceResult.run_id}`)) findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
+      else if (["0.2.0", "0.3.0"].includes(analysisRun?.schema_version ?? "") && ((typeof storedResultHash.value === "string" ? storedResultHash.value.replace(/^sha256:/, "") : null) !== await canonicalSha256HexCheckedV1(evidenceResult) || storedResultHash.payload_ref?.ref !== `result-envelope:${evidenceResult.run_id}`)) findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
       else if (analysisRun?.schema_version === "0.1.0") {
         legacyVerification = await verifyLegacyDesktopAnalysis(analysisRun, evidenceResult);
         if (legacyVerification.result === "mismatch") findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
         if (legacyVerification.result === "unverifiable") findings.push("HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
       }
     }
-    if (analysisRun?.schema_version === "0.2.0") {
-      const verification = await verifyAnalysisRunRecord(analysisRun);
+    if (["0.2.0", "0.3.0"].includes(analysisRun?.schema_version ?? "")) {
+      const verification = await verifyAnalysisRunRecord(analysisRun!);
       if (verification === "mismatch") findings.push("HISTORICAL_ANALYSIS_HASH_MISMATCH");
       if (verification === "unverifiable") findings.push("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE");
     } else if (analysisRun?.schema_version === "0.1.0" && evidenceResult) {

@@ -1,0 +1,63 @@
+{
+  "source_input_count": 128,
+  "dependencies_count": 24,
+  "outputs": [
+    {
+      "mode": "sparse_interactive",
+      "path": "fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6",
+      "command": [
+        "cargo",
+        "run",
+        "--offline",
+        "--locked",
+        "--quiet",
+        "--manifest-path",
+        "core/product_physics/Cargo.toml",
+        "--example",
+        "preview_result",
+        "--",
+        "sparse_interactive"
+      ],
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "model_ref": "project:invented-loop-01",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "numerical_status": "checks_passed",
+      "row_count": 830,
+      "load_case_ids": [
+        "load:L-100",
+        "load:L-200"
+      ]
+    },
+    {
+      "mode": "dense_scrutiny",
+      "path": "fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155",
+      "command": [
+        "cargo",
+        "run",
+        "--offline",
+        "--locked",
+        "--quiet",
+        "--manifest-path",
+        "core/product_physics/Cargo.toml",
+        "--example",
+        "preview_result",
+        "--",
+        "dense_scrutiny"
+      ],
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "model_ref": "project:invented-loop-01",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "numerical_status": "checks_passed",
+      "row_count": 832,
+      "load_case_ids": [
+        "load:L-100",
+        "load:L-200"
+      ]
+    }
+  ],
+  "source_and_output_hashes_verified": true
+}

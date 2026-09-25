@@ -1,0 +1,45 @@
+{
+  "candidate": "../../CHECKED_CONSUMER_FILES.json",
+  "artifacts": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "sha256": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+      "sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "sha256": "db8e4ccb07e7bbcdf2b2b4efdb9877efd0e181bb204302539042788be310c3f4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "sha256": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "sha256": "11c577d6dce253a5065cfef0fafb6fb7902d1209f2eca30a0a9d3663157ba0eb"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b"
+    }
+  ],
+  "versions": {
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "node": "v24.18.0",
+    "wasm-bindgen": "wasm-bindgen 0.2.123"
+  },
+  "dependency_basis": "../DEPENDENCY_BASIS.json",
+  "dependency_feature": "core/serialization/canonical_json enables serde_json float_roundtrip; independently evidenced by solver manager"
+}

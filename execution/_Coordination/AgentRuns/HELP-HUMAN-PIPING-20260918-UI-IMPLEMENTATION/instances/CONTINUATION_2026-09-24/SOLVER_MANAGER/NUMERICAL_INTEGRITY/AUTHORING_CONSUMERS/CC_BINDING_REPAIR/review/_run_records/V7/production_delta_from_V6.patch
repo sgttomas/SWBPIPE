@@ -1,0 +1,41 @@
+--- V6/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
++++ V7/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
+@@ -3,7 +3,7 @@
+ import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
+ import { Download, FileJson } from "lucide-react";
+ import { useEffect, useState } from "react";
+-import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
++import { canonicalSha256HexCheckedV1, canonicalJsonCheckedV1 } from "../../services/hashService";
+ import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ResultBasisRef, ObjectRef } from "../../types";
+ import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
+ 
+@@ -632,6 +632,7 @@
+   const rows = packet.result_rows;
+   if (!Array.isArray(rows) || new Set(rows.map((row: any) => row?.result_id)).size !== rows.length
+     || rows.some((row: any) => typeof row?.result_id !== "string" || row?.canonical_ref?.ref !== row.result_id || row?.source_result_ref?.ref !== row.result_id)) throw new Error("SN-RESULT-ROW-IDENTITY-MISMATCH");
++  if (precision && rows.some((row: any) => typeof row.value !== "number" || !Number.isFinite(row.value))) throw new Error("SN-PRECISION-ROW-VALUE-INVALID");
+   if (packet.csv_text !== renderCsv(rows)) throw new Error("SN-CSV-ROW-BINDING-MISMATCH");
+   if (!Array.isArray(packet.stable_id_map) || packet.stable_id_map.length !== rows.length
+     || new Set(packet.stable_id_map.map((item: any) => item?.canonical_ref?.ref)).size !== rows.length
+@@ -647,7 +648,12 @@
+     if (precision && (!Number.isSafeInteger(witness.source_row_index) || witness.source_row_index < 0 || witness.witness_id !== `unit-witness:${witness.source_row_index}` || seenWitnessIds.has(witness.witness_id))) throw new Error("SN-UNIT-WITNESS-BINDING-MISMATCH");
+     seenWitnessIds.add(witness.witness_id);
+     const row = rows[witness.source_row_index];
+-    if (!row || seenWitnesses.has(witness.result_id) || witness.result_id !== row.result_id || JSON.stringify(witness.source_quantity) !== JSON.stringify({ value: row.value, unit: row.unit, dimension: row.dimension }) || JSON.stringify(witness.target_quantity) !== JSON.stringify(witness.source_quantity) || witness.conversion_performed !== false || witness.policy !== "preserve_received_value_and_unit") throw new Error("SN-UNIT-WITNESS-BINDING-MISMATCH");
++    if (!row || seenWitnesses.has(witness.result_id) || witness.result_id !== row.result_id || witness.conversion_performed !== false || witness.policy !== "preserve_received_value_and_unit") throw new Error("SN-UNIT-WITNESS-BINDING-MISMATCH");
++    const expectedQuantity = { value: row.value, unit: row.unit, dimension: row.dimension };
++    const quantityMatches = precision
++      ? witness.source_quantity !== undefined && witness.target_quantity !== undefined && await canonicalJsonCheckedV1(witness.source_quantity) === await canonicalJsonCheckedV1(expectedQuantity) && await canonicalJsonCheckedV1(witness.target_quantity) === await canonicalJsonCheckedV1(expectedQuantity)
++      : JSON.stringify(witness.source_quantity) === JSON.stringify(expectedQuantity) && JSON.stringify(witness.target_quantity) === JSON.stringify(witness.source_quantity);
++    if (!quantityMatches) throw new Error("SN-UNIT-WITNESS-BINDING-MISMATCH");
+     seenWitnesses.add(witness.result_id);
+   }
+   for (const entry of packet.loss_report) if (entry.target_artifact_ref?.ref !== packet.export_id || entry.human_review_required !== true) throw new Error("SN-LOSS-REPORT-BINDING-MISMATCH");
+@@ -692,6 +698,7 @@
+ }
+ 
+ export function precisionStressRow(item: MechanicsResult["results"][number], source: MechanicsResult): StressNeutralRow {
++  if (typeof item.value !== "number" || !Number.isFinite(item.value)) throw new Error("SN-PRECISION-ROW-VALUE-INVALID");
+   const { semantic } = analysisRowSemantics(item, source);
+   const location = item.metadata?.location;
+   if (location !== undefined && location !== null && (typeof location !== "string" || !location)) throw new Error("SN-PRECISION-ROW-LOCATION-INVALID");

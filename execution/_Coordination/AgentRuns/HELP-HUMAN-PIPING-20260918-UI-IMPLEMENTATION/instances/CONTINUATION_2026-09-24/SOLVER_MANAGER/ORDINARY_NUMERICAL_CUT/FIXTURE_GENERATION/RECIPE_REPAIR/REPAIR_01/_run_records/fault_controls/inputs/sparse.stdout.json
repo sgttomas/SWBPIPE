@@ -1,0 +1,47 @@
+{
+  "schema_version": "0.2.0",
+  "document_kind": "openpipestress.product_preview.mechanics_result",
+  "producer": {
+    "component_name": "open_pipe_stress_product_physics",
+    "component_version": "0.2.0",
+    "semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1"
+  },
+  "model_ref": "transaction-only:no-physics",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  },
+  "numerical_quality": {
+    "value_representation": "finite_binary64",
+    "publication_quantization": "none",
+    "integrity_policy": "M03-INTEGRITY-v1",
+    "status": "unresolved",
+    "cases": [
+      {
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:transaction-only"
+        },
+        "solve_quality": "unresolved"
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "row:transaction-only-mode",
+      "kind": "linear_solver_mode_basis",
+      "value": 1,
+      "unit": "mode_code",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:transaction-only"
+      },
+      "metadata": {
+        "component": "linear_solver_mode",
+        "coordinate_system": "reduced_system",
+        "location": "load:transaction-only",
+        "basis": "solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary"
+      }
+    }
+  ],
+  "diagnostics": []
+}

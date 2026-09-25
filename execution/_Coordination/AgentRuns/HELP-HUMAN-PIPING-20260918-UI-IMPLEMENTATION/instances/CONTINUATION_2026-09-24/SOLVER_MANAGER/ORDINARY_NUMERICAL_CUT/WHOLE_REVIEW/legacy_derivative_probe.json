@@ -1,0 +1,1697 @@
+{
+  "scope": "Actual TypeScript constructor and validator using existing operation-WASM canonical hash functions; no Rust validator execution and no Current claim.",
+  "node": "v24.18.0",
+  "esbuild": "0.27.7",
+  "compiled_in_memory_sha256": "4934aaa0e7e6f1633cadf2ae2410090d2b660adbbb90c4ff44364f53427f08b1",
+  "identities": {
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574",
+    "apps/desktop/src/services/hashService.ts": "0f1d342d60501b212c3a307b96ba1dfa625fcc1845cc33b47e54dd58341cf7e1",
+    "apps/desktop/src/services/wasmEngine/loadWasmEngine.ts": "fbd8f9b474484086395b6b7fd09de0ef3bc265736f58c2b1104781785a6e5073",
+    "core/reporting/result_export/src/derivative.rs": "fbdf506e05a5e881798346e164e2c8a5705958e2b45d2dbb8b8fb3dcd5a9209b",
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "a2e9bcf16011ff6ab3421d48d0b534303a55d397f7e061a136566e683bf49fe4"
+  },
+  "model": {
+    "project": {
+      "id": "project:independent-legacy-probe"
+    }
+  },
+  "source": {
+    "schema_version": "0.1.0",
+    "run_id": "independent-legacy-probe",
+    "model_ref": "project:independent-legacy-probe",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED"
+    },
+    "results": [
+      {
+        "id": "result:probe:ux",
+        "kind": "global_nodal_displacement_x",
+        "value": 0.125,
+        "unit": "mm",
+        "entity_ref": "node:probe",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:probe"
+        }
+      }
+    ]
+  },
+  "origin": {
+    "origin_id": "independent-probe-unattested",
+    "origin_class": "received_current_dimension_absent",
+    "qualification_ref": {
+      "ref_type": "synthetic_fixture",
+      "ref_id": "not-Current"
+    },
+    "authentic_producer_available": false,
+    "received_carrier_checksum": {
+      "algorithm": "sha256",
+      "canonicalization": "openpipestress_jcs_ijson_v1",
+      "payload_scope": "received_current_dimension_absent_carrier",
+      "payload_ref": {
+        "ref_type": "synthetic_received_carrier",
+        "ref_id": "probe"
+      },
+      "value": "c161d8f3428e8f208db7254cc0b2a98645827449ba7f2d3665db2c8e4af25be9"
+    },
+    "original_producer_checksum": null,
+    "origin_limit": "pure constructor/validator probe; no Current authenticity",
+    "actual_model_ref": {
+      "ref_type": "model_payload",
+      "ref_id": "project:independent-legacy-probe"
+    },
+    "mechanics_run_ref": {
+      "ref_type": "mechanics_run",
+      "ref_id": "independent-legacy-probe"
+    },
+    "request_model_ref": null,
+    "request_run_ref": null,
+    "request_alias_disclosure": null
+  },
+  "base": {
+    "schema_version": "0.2.0",
+    "result_envelope": {
+      "schema_version": "0.2.0",
+      "envelope_id": "probe",
+      "run_ref": {
+        "ref_type": "analysis_run",
+        "ref_id": "independent-legacy-probe"
+      },
+      "provenance": {
+        "source_name": "local qualified result derivative",
+        "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+        "source_license": "project-local",
+        "contributor": "SWBPIPE",
+        "contributor_certification": "local desktop session; human review required",
+        "redistribution_status": "private_only",
+        "review_status": "pending"
+      },
+      "unit_system_ref": {
+        "ref_type": "unit_system",
+        "ref_id": "probe"
+      },
+      "result_sets": [
+        {
+          "values": []
+        }
+      ],
+      "reproducibility": {}
+    }
+  },
+  "attempts": [
+    {
+      "name": "baseline",
+      "mutation": {},
+      "accepted": true,
+      "document": {
+        "schema_version": "0.2.0",
+        "result_envelope": {
+          "schema_version": "0.2.0",
+          "envelope_id": "probe",
+          "run_ref": {
+            "ref_type": "analysis_run",
+            "ref_id": "independent-legacy-probe"
+          },
+          "provenance": {
+            "source_name": "local qualified result derivative",
+            "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+            "source_license": "project-local",
+            "contributor": "SWBPIPE",
+            "contributor_certification": "local desktop session; human review required",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "unit_system_ref": {
+            "ref_type": "unit_system",
+            "ref_id": "probe"
+          },
+          "result_sets": [
+            {
+              "values": [
+                {
+                  "result_id": "result:probe:ux",
+                  "family": "displacement",
+                  "object_ref": {
+                    "ref_type": "preview_entity",
+                    "ref_id": "node:probe"
+                  },
+                  "basis_ref": {
+                    "ref_type": "load_case",
+                    "ref_id": "load:probe"
+                  },
+                  "magnitude": 0.125,
+                  "unit": "mm",
+                  "dimension": "length",
+                  "provenance": {
+                    "source_name": "local qualified result derivative",
+                    "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                    "source_license": "project-local",
+                    "contributor": "SWBPIPE",
+                    "contributor_certification": "local desktop session; human review required",
+                    "redistribution_status": "private_only",
+                    "review_status": "pending"
+                  },
+                  "source_kind": "global_nodal_displacement_x",
+                  "source_row_index": 0,
+                  "source_annotation_ref": {
+                    "ref_type": "source_annotation",
+                    "ref_id": "source-annotation:0"
+                  }
+                }
+              ]
+            }
+          ],
+          "reproducibility": {
+            "model_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_ref": {
+                "ref_type": "model_payload",
+                "ref_id": "project:independent-legacy-probe"
+              },
+              "value": "47c526f34b5308ecf8a2170d43ff049cf3406782be878abe8fb91aaa4056a6fd"
+            },
+            "raw_source_hashes": [],
+            "source_origin_bindings": [
+              {
+                "origin_id": "independent-probe-unattested",
+                "origin_class": "received_current_dimension_absent",
+                "qualification_ref": {
+                  "ref_type": "synthetic_fixture",
+                  "ref_id": "not-Current"
+                },
+                "authentic_producer_available": false,
+                "received_carrier_checksum": {
+                  "algorithm": "sha256",
+                  "canonicalization": "openpipestress_jcs_ijson_v1",
+                  "payload_scope": "received_current_dimension_absent_carrier",
+                  "payload_ref": {
+                    "ref_type": "synthetic_received_carrier",
+                    "ref_id": "probe"
+                  },
+                  "value": "c161d8f3428e8f208db7254cc0b2a98645827449ba7f2d3665db2c8e4af25be9"
+                },
+                "original_producer_checksum": null,
+                "origin_limit": "pure constructor/validator probe; no Current authenticity",
+                "actual_model_ref": {
+                  "ref_type": "model_payload",
+                  "ref_id": "project:independent-legacy-probe"
+                },
+                "mechanics_run_ref": {
+                  "ref_type": "mechanics_run",
+                  "ref_id": "independent-legacy-probe"
+                },
+                "request_model_ref": null,
+                "request_run_ref": null,
+                "request_alias_disclosure": null
+              }
+            ],
+            "request_hash": null,
+            "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
+            "derivative_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_scope": "derivative_document_excludes_own_hash",
+              "payload_ref": {
+                "ref_type": "derivative_document",
+                "ref_id": "probe"
+              },
+              "value": "208cc100f075aa407cb79c4315c97d7fe7fe01054a694f6d5a97bcbe12500ffc"
+            }
+          },
+          "model_ref": {
+            "ref_type": "model_payload",
+            "ref_id": "project:independent-legacy-probe"
+          },
+          "review_evidence": [],
+          "row_disclosures": [],
+          "source_annotations": [
+            {
+              "annotation_id": "source-annotation:0",
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "metadata": null,
+              "basis_ref": {
+                "ref_type": "load_case",
+                "ref_id": "load:probe"
+              },
+              "source_result_refs": [],
+              "observed_carrier_dimension": {
+                "present": false,
+                "value": null
+              },
+              "source_physical_semantic_dimension": "length",
+              "derivative_target_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              }
+            }
+          ],
+          "row_accounting": [
+            {
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "source_kind": "global_nodal_displacement_x",
+              "source_field_path": "/results/0",
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "disposition": "exported_quantity",
+              "target_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0"
+            }
+          ],
+          "unit_preservation_witnesses": [
+            {
+              "witness_id": "value-unit-witness:0",
+              "source_result_ref": {
+                "ref_type": "received_result",
+                "ref_id": "result:probe:ux"
+              },
+              "source_field_path": "/results/0",
+              "source_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "observed_dimension": {
+                  "present": false,
+                  "value": null
+                }
+              },
+              "target_result_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0",
+              "target_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "dimension": "length"
+              },
+              "target_quantity_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension",
+              "export_unit_policy": "no_numerical_conversion_preserve_received_unit",
+              "conversion_performed": false,
+              "unit_system_ref": {
+                "ref_type": "unit_system",
+                "ref_id": "probe"
+              },
+              "provenance": {
+                "source_name": "local qualified result derivative",
+                "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                "source_license": "project-local",
+                "contributor": "SWBPIPE",
+                "contributor_certification": "local desktop session; human review required",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              },
+              "source_row_index": 0,
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "source_physical_semantic_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              },
+              "target_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "derived_quantity_row",
+                "payload_ref": {
+                  "ref_type": "derivative_document",
+                  "ref_id": "probe"
+                },
+                "value": "aea6f40bb88823b8f4a28c75d4450e3b2af339b3f79ed272e67622ab7074f090"
+              }
+            }
+          ],
+          "unit_witness_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension"
+        }
+      },
+      "independently_recomputed_hash": "208cc100f075aa407cb79c4315c97d7fe7fe01054a694f6d5a97bcbe12500ffc"
+    },
+    {
+      "name": "producer",
+      "mutation": {
+        "producer": {
+          "component_name": "open_pipe_stress_product_physics",
+          "component_version": "0.2.0",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1"
+        }
+      },
+      "accepted": true,
+      "document": {
+        "schema_version": "0.2.0",
+        "result_envelope": {
+          "schema_version": "0.2.0",
+          "envelope_id": "probe",
+          "run_ref": {
+            "ref_type": "analysis_run",
+            "ref_id": "independent-legacy-probe"
+          },
+          "provenance": {
+            "source_name": "local qualified result derivative",
+            "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+            "source_license": "project-local",
+            "contributor": "SWBPIPE",
+            "contributor_certification": "local desktop session; human review required",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "unit_system_ref": {
+            "ref_type": "unit_system",
+            "ref_id": "probe"
+          },
+          "result_sets": [
+            {
+              "values": [
+                {
+                  "result_id": "result:probe:ux",
+                  "family": "displacement",
+                  "object_ref": {
+                    "ref_type": "preview_entity",
+                    "ref_id": "node:probe"
+                  },
+                  "basis_ref": {
+                    "ref_type": "load_case",
+                    "ref_id": "load:probe"
+                  },
+                  "magnitude": 0.125,
+                  "unit": "mm",
+                  "dimension": "length",
+                  "provenance": {
+                    "source_name": "local qualified result derivative",
+                    "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                    "source_license": "project-local",
+                    "contributor": "SWBPIPE",
+                    "contributor_certification": "local desktop session; human review required",
+                    "redistribution_status": "private_only",
+                    "review_status": "pending"
+                  },
+                  "source_kind": "global_nodal_displacement_x",
+                  "source_row_index": 0,
+                  "source_annotation_ref": {
+                    "ref_type": "source_annotation",
+                    "ref_id": "source-annotation:0"
+                  }
+                }
+              ]
+            }
+          ],
+          "reproducibility": {
+            "model_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_ref": {
+                "ref_type": "model_payload",
+                "ref_id": "project:independent-legacy-probe"
+              },
+              "value": "47c526f34b5308ecf8a2170d43ff049cf3406782be878abe8fb91aaa4056a6fd"
+            },
+            "raw_source_hashes": [],
+            "source_origin_bindings": [
+              {
+                "origin_id": "independent-probe-unattested",
+                "origin_class": "received_current_dimension_absent",
+                "qualification_ref": {
+                  "ref_type": "synthetic_fixture",
+                  "ref_id": "not-Current"
+                },
+                "authentic_producer_available": false,
+                "received_carrier_checksum": {
+                  "algorithm": "sha256",
+                  "canonicalization": "openpipestress_jcs_ijson_v1",
+                  "payload_scope": "received_current_dimension_absent_carrier",
+                  "payload_ref": {
+                    "ref_type": "synthetic_received_carrier",
+                    "ref_id": "probe"
+                  },
+                  "value": "c161d8f3428e8f208db7254cc0b2a98645827449ba7f2d3665db2c8e4af25be9"
+                },
+                "original_producer_checksum": null,
+                "origin_limit": "pure constructor/validator probe; no Current authenticity",
+                "actual_model_ref": {
+                  "ref_type": "model_payload",
+                  "ref_id": "project:independent-legacy-probe"
+                },
+                "mechanics_run_ref": {
+                  "ref_type": "mechanics_run",
+                  "ref_id": "independent-legacy-probe"
+                },
+                "request_model_ref": null,
+                "request_run_ref": null,
+                "request_alias_disclosure": null
+              }
+            ],
+            "request_hash": null,
+            "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
+            "derivative_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_scope": "derivative_document_excludes_own_hash",
+              "payload_ref": {
+                "ref_type": "derivative_document",
+                "ref_id": "probe"
+              },
+              "value": "a64687d98c9506edef4e04b9f14584860e9b4aa1707429222381e4fd1ab24c49"
+            }
+          },
+          "producer": {
+            "component_name": "open_pipe_stress_product_physics",
+            "component_version": "0.2.0",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1"
+          },
+          "model_ref": {
+            "ref_type": "model_payload",
+            "ref_id": "project:independent-legacy-probe"
+          },
+          "review_evidence": [],
+          "row_disclosures": [],
+          "source_annotations": [
+            {
+              "annotation_id": "source-annotation:0",
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "metadata": null,
+              "basis_ref": {
+                "ref_type": "load_case",
+                "ref_id": "load:probe"
+              },
+              "source_result_refs": [],
+              "observed_carrier_dimension": {
+                "present": false,
+                "value": null
+              },
+              "source_physical_semantic_dimension": "length",
+              "derivative_target_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              }
+            }
+          ],
+          "row_accounting": [
+            {
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "source_kind": "global_nodal_displacement_x",
+              "source_field_path": "/results/0",
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "disposition": "exported_quantity",
+              "target_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0"
+            }
+          ],
+          "unit_preservation_witnesses": [
+            {
+              "witness_id": "value-unit-witness:0",
+              "source_result_ref": {
+                "ref_type": "received_result",
+                "ref_id": "result:probe:ux"
+              },
+              "source_field_path": "/results/0",
+              "source_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "observed_dimension": {
+                  "present": false,
+                  "value": null
+                }
+              },
+              "target_result_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0",
+              "target_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "dimension": "length"
+              },
+              "target_quantity_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension",
+              "export_unit_policy": "no_numerical_conversion_preserve_received_unit",
+              "conversion_performed": false,
+              "unit_system_ref": {
+                "ref_type": "unit_system",
+                "ref_id": "probe"
+              },
+              "provenance": {
+                "source_name": "local qualified result derivative",
+                "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                "source_license": "project-local",
+                "contributor": "SWBPIPE",
+                "contributor_certification": "local desktop session; human review required",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              },
+              "source_row_index": 0,
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "source_physical_semantic_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              },
+              "target_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "derived_quantity_row",
+                "payload_ref": {
+                  "ref_type": "derivative_document",
+                  "ref_id": "probe"
+                },
+                "value": "aea6f40bb88823b8f4a28c75d4450e3b2af339b3f79ed272e67622ab7074f090"
+              }
+            }
+          ],
+          "unit_witness_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension"
+        }
+      },
+      "independently_recomputed_hash": "a64687d98c9506edef4e04b9f14584860e9b4aa1707429222381e4fd1ab24c49"
+    },
+    {
+      "name": "numerical_quality",
+      "mutation": {
+        "numerical_quality": {
+          "value_representation": "finite_binary64",
+          "publication_quantization": "none",
+          "integrity_policy": "M03-INTEGRITY-v1",
+          "status": "checks_passed",
+          "cases": []
+        }
+      },
+      "accepted": true,
+      "document": {
+        "schema_version": "0.2.0",
+        "result_envelope": {
+          "schema_version": "0.2.0",
+          "envelope_id": "probe",
+          "run_ref": {
+            "ref_type": "analysis_run",
+            "ref_id": "independent-legacy-probe"
+          },
+          "provenance": {
+            "source_name": "local qualified result derivative",
+            "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+            "source_license": "project-local",
+            "contributor": "SWBPIPE",
+            "contributor_certification": "local desktop session; human review required",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "unit_system_ref": {
+            "ref_type": "unit_system",
+            "ref_id": "probe"
+          },
+          "result_sets": [
+            {
+              "values": [
+                {
+                  "result_id": "result:probe:ux",
+                  "family": "displacement",
+                  "object_ref": {
+                    "ref_type": "preview_entity",
+                    "ref_id": "node:probe"
+                  },
+                  "basis_ref": {
+                    "ref_type": "load_case",
+                    "ref_id": "load:probe"
+                  },
+                  "magnitude": 0.125,
+                  "unit": "mm",
+                  "dimension": "length",
+                  "provenance": {
+                    "source_name": "local qualified result derivative",
+                    "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                    "source_license": "project-local",
+                    "contributor": "SWBPIPE",
+                    "contributor_certification": "local desktop session; human review required",
+                    "redistribution_status": "private_only",
+                    "review_status": "pending"
+                  },
+                  "source_kind": "global_nodal_displacement_x",
+                  "source_row_index": 0,
+                  "source_annotation_ref": {
+                    "ref_type": "source_annotation",
+                    "ref_id": "source-annotation:0"
+                  }
+                }
+              ]
+            }
+          ],
+          "reproducibility": {
+            "model_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_ref": {
+                "ref_type": "model_payload",
+                "ref_id": "project:independent-legacy-probe"
+              },
+              "value": "47c526f34b5308ecf8a2170d43ff049cf3406782be878abe8fb91aaa4056a6fd"
+            },
+            "raw_source_hashes": [],
+            "source_origin_bindings": [
+              {
+                "origin_id": "independent-probe-unattested",
+                "origin_class": "received_current_dimension_absent",
+                "qualification_ref": {
+                  "ref_type": "synthetic_fixture",
+                  "ref_id": "not-Current"
+                },
+                "authentic_producer_available": false,
+                "received_carrier_checksum": {
+                  "algorithm": "sha256",
+                  "canonicalization": "openpipestress_jcs_ijson_v1",
+                  "payload_scope": "received_current_dimension_absent_carrier",
+                  "payload_ref": {
+                    "ref_type": "synthetic_received_carrier",
+                    "ref_id": "probe"
+                  },
+                  "value": "c161d8f3428e8f208db7254cc0b2a98645827449ba7f2d3665db2c8e4af25be9"
+                },
+                "original_producer_checksum": null,
+                "origin_limit": "pure constructor/validator probe; no Current authenticity",
+                "actual_model_ref": {
+                  "ref_type": "model_payload",
+                  "ref_id": "project:independent-legacy-probe"
+                },
+                "mechanics_run_ref": {
+                  "ref_type": "mechanics_run",
+                  "ref_id": "independent-legacy-probe"
+                },
+                "request_model_ref": null,
+                "request_run_ref": null,
+                "request_alias_disclosure": null
+              }
+            ],
+            "request_hash": null,
+            "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
+            "derivative_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_scope": "derivative_document_excludes_own_hash",
+              "payload_ref": {
+                "ref_type": "derivative_document",
+                "ref_id": "probe"
+              },
+              "value": "abad9da3c737235c82a64d5ac5e79d654a7817482fbf974f94c375731b445401"
+            }
+          },
+          "numerical_quality": {
+            "value_representation": "finite_binary64",
+            "publication_quantization": "none",
+            "integrity_policy": "M03-INTEGRITY-v1",
+            "status": "checks_passed",
+            "cases": []
+          },
+          "model_ref": {
+            "ref_type": "model_payload",
+            "ref_id": "project:independent-legacy-probe"
+          },
+          "review_evidence": [],
+          "row_disclosures": [],
+          "source_annotations": [
+            {
+              "annotation_id": "source-annotation:0",
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "metadata": null,
+              "basis_ref": {
+                "ref_type": "load_case",
+                "ref_id": "load:probe"
+              },
+              "source_result_refs": [],
+              "observed_carrier_dimension": {
+                "present": false,
+                "value": null
+              },
+              "source_physical_semantic_dimension": "length",
+              "derivative_target_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              }
+            }
+          ],
+          "row_accounting": [
+            {
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "source_kind": "global_nodal_displacement_x",
+              "source_field_path": "/results/0",
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "disposition": "exported_quantity",
+              "target_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0"
+            }
+          ],
+          "unit_preservation_witnesses": [
+            {
+              "witness_id": "value-unit-witness:0",
+              "source_result_ref": {
+                "ref_type": "received_result",
+                "ref_id": "result:probe:ux"
+              },
+              "source_field_path": "/results/0",
+              "source_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "observed_dimension": {
+                  "present": false,
+                  "value": null
+                }
+              },
+              "target_result_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0",
+              "target_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "dimension": "length"
+              },
+              "target_quantity_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension",
+              "export_unit_policy": "no_numerical_conversion_preserve_received_unit",
+              "conversion_performed": false,
+              "unit_system_ref": {
+                "ref_type": "unit_system",
+                "ref_id": "probe"
+              },
+              "provenance": {
+                "source_name": "local qualified result derivative",
+                "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                "source_license": "project-local",
+                "contributor": "SWBPIPE",
+                "contributor_certification": "local desktop session; human review required",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              },
+              "source_row_index": 0,
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "source_physical_semantic_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              },
+              "target_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "derived_quantity_row",
+                "payload_ref": {
+                  "ref_type": "derivative_document",
+                  "ref_id": "probe"
+                },
+                "value": "aea6f40bb88823b8f4a28c75d4450e3b2af339b3f79ed272e67622ab7074f090"
+              }
+            }
+          ],
+          "unit_witness_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension"
+        }
+      },
+      "independently_recomputed_hash": "abad9da3c737235c82a64d5ac5e79d654a7817482fbf974f94c375731b445401"
+    },
+    {
+      "name": "formulation_basis",
+      "mutation": {
+        "formulation_basis": {
+          "profile_id": "product_preview_mechanics_v1",
+          "limitations": [
+            "Deliberately contradictory synthetic legacy-header probe."
+          ]
+        }
+      },
+      "accepted": true,
+      "document": {
+        "schema_version": "0.2.0",
+        "result_envelope": {
+          "schema_version": "0.2.0",
+          "envelope_id": "probe",
+          "run_ref": {
+            "ref_type": "analysis_run",
+            "ref_id": "independent-legacy-probe"
+          },
+          "provenance": {
+            "source_name": "local qualified result derivative",
+            "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+            "source_license": "project-local",
+            "contributor": "SWBPIPE",
+            "contributor_certification": "local desktop session; human review required",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "unit_system_ref": {
+            "ref_type": "unit_system",
+            "ref_id": "probe"
+          },
+          "result_sets": [
+            {
+              "values": [
+                {
+                  "result_id": "result:probe:ux",
+                  "family": "displacement",
+                  "object_ref": {
+                    "ref_type": "preview_entity",
+                    "ref_id": "node:probe"
+                  },
+                  "basis_ref": {
+                    "ref_type": "load_case",
+                    "ref_id": "load:probe"
+                  },
+                  "magnitude": 0.125,
+                  "unit": "mm",
+                  "dimension": "length",
+                  "provenance": {
+                    "source_name": "local qualified result derivative",
+                    "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                    "source_license": "project-local",
+                    "contributor": "SWBPIPE",
+                    "contributor_certification": "local desktop session; human review required",
+                    "redistribution_status": "private_only",
+                    "review_status": "pending"
+                  },
+                  "source_kind": "global_nodal_displacement_x",
+                  "source_row_index": 0,
+                  "source_annotation_ref": {
+                    "ref_type": "source_annotation",
+                    "ref_id": "source-annotation:0"
+                  }
+                }
+              ]
+            }
+          ],
+          "reproducibility": {
+            "model_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_ref": {
+                "ref_type": "model_payload",
+                "ref_id": "project:independent-legacy-probe"
+              },
+              "value": "47c526f34b5308ecf8a2170d43ff049cf3406782be878abe8fb91aaa4056a6fd"
+            },
+            "raw_source_hashes": [],
+            "source_origin_bindings": [
+              {
+                "origin_id": "independent-probe-unattested",
+                "origin_class": "received_current_dimension_absent",
+                "qualification_ref": {
+                  "ref_type": "synthetic_fixture",
+                  "ref_id": "not-Current"
+                },
+                "authentic_producer_available": false,
+                "received_carrier_checksum": {
+                  "algorithm": "sha256",
+                  "canonicalization": "openpipestress_jcs_ijson_v1",
+                  "payload_scope": "received_current_dimension_absent_carrier",
+                  "payload_ref": {
+                    "ref_type": "synthetic_received_carrier",
+                    "ref_id": "probe"
+                  },
+                  "value": "c161d8f3428e8f208db7254cc0b2a98645827449ba7f2d3665db2c8e4af25be9"
+                },
+                "original_producer_checksum": null,
+                "origin_limit": "pure constructor/validator probe; no Current authenticity",
+                "actual_model_ref": {
+                  "ref_type": "model_payload",
+                  "ref_id": "project:independent-legacy-probe"
+                },
+                "mechanics_run_ref": {
+                  "ref_type": "mechanics_run",
+                  "ref_id": "independent-legacy-probe"
+                },
+                "request_model_ref": null,
+                "request_run_ref": null,
+                "request_alias_disclosure": null
+              }
+            ],
+            "request_hash": null,
+            "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
+            "derivative_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_scope": "derivative_document_excludes_own_hash",
+              "payload_ref": {
+                "ref_type": "derivative_document",
+                "ref_id": "probe"
+              },
+              "value": "4edfe9d1351f823ea65f1be1d46c5f59a1ac51a8c41f8f40ef793e842f27235d"
+            }
+          },
+          "formulation_basis": {
+            "profile_id": "product_preview_mechanics_v1",
+            "limitations": [
+              "Deliberately contradictory synthetic legacy-header probe."
+            ]
+          },
+          "model_ref": {
+            "ref_type": "model_payload",
+            "ref_id": "project:independent-legacy-probe"
+          },
+          "review_evidence": [],
+          "row_disclosures": [],
+          "source_annotations": [
+            {
+              "annotation_id": "source-annotation:0",
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "metadata": null,
+              "basis_ref": {
+                "ref_type": "load_case",
+                "ref_id": "load:probe"
+              },
+              "source_result_refs": [],
+              "observed_carrier_dimension": {
+                "present": false,
+                "value": null
+              },
+              "source_physical_semantic_dimension": "length",
+              "derivative_target_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              }
+            }
+          ],
+          "row_accounting": [
+            {
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "source_kind": "global_nodal_displacement_x",
+              "source_field_path": "/results/0",
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "disposition": "exported_quantity",
+              "target_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0"
+            }
+          ],
+          "unit_preservation_witnesses": [
+            {
+              "witness_id": "value-unit-witness:0",
+              "source_result_ref": {
+                "ref_type": "received_result",
+                "ref_id": "result:probe:ux"
+              },
+              "source_field_path": "/results/0",
+              "source_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "observed_dimension": {
+                  "present": false,
+                  "value": null
+                }
+              },
+              "target_result_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0",
+              "target_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "dimension": "length"
+              },
+              "target_quantity_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension",
+              "export_unit_policy": "no_numerical_conversion_preserve_received_unit",
+              "conversion_performed": false,
+              "unit_system_ref": {
+                "ref_type": "unit_system",
+                "ref_id": "probe"
+              },
+              "provenance": {
+                "source_name": "local qualified result derivative",
+                "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                "source_license": "project-local",
+                "contributor": "SWBPIPE",
+                "contributor_certification": "local desktop session; human review required",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              },
+              "source_row_index": 0,
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "source_physical_semantic_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              },
+              "target_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "derived_quantity_row",
+                "payload_ref": {
+                  "ref_type": "derivative_document",
+                  "ref_id": "probe"
+                },
+                "value": "aea6f40bb88823b8f4a28c75d4450e3b2af339b3f79ed272e67622ab7074f090"
+              }
+            }
+          ],
+          "unit_witness_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension"
+        }
+      },
+      "independently_recomputed_hash": "4edfe9d1351f823ea65f1be1d46c5f59a1ac51a8c41f8f40ef793e842f27235d"
+    },
+    {
+      "name": "semantic_contract_ref",
+      "mutation": {
+        "semantic_contract_ref": {
+          "ref_type": "semantic_contract",
+          "ref_id": "openpipestress.result_semantics/0.3.0/precision-1"
+        }
+      },
+      "accepted": true,
+      "document": {
+        "schema_version": "0.2.0",
+        "result_envelope": {
+          "schema_version": "0.2.0",
+          "envelope_id": "probe",
+          "run_ref": {
+            "ref_type": "analysis_run",
+            "ref_id": "independent-legacy-probe"
+          },
+          "provenance": {
+            "source_name": "local qualified result derivative",
+            "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+            "source_license": "project-local",
+            "contributor": "SWBPIPE",
+            "contributor_certification": "local desktop session; human review required",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "unit_system_ref": {
+            "ref_type": "unit_system",
+            "ref_id": "probe"
+          },
+          "result_sets": [
+            {
+              "values": [
+                {
+                  "result_id": "result:probe:ux",
+                  "family": "displacement",
+                  "object_ref": {
+                    "ref_type": "preview_entity",
+                    "ref_id": "node:probe"
+                  },
+                  "basis_ref": {
+                    "ref_type": "load_case",
+                    "ref_id": "load:probe"
+                  },
+                  "magnitude": 0.125,
+                  "unit": "mm",
+                  "dimension": "length",
+                  "provenance": {
+                    "source_name": "local qualified result derivative",
+                    "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                    "source_license": "project-local",
+                    "contributor": "SWBPIPE",
+                    "contributor_certification": "local desktop session; human review required",
+                    "redistribution_status": "private_only",
+                    "review_status": "pending"
+                  },
+                  "source_kind": "global_nodal_displacement_x",
+                  "source_row_index": 0,
+                  "source_annotation_ref": {
+                    "ref_type": "source_annotation",
+                    "ref_id": "source-annotation:0"
+                  }
+                }
+              ]
+            }
+          ],
+          "reproducibility": {
+            "model_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_ref": {
+                "ref_type": "model_payload",
+                "ref_id": "project:independent-legacy-probe"
+              },
+              "value": "47c526f34b5308ecf8a2170d43ff049cf3406782be878abe8fb91aaa4056a6fd"
+            },
+            "raw_source_hashes": [],
+            "source_origin_bindings": [
+              {
+                "origin_id": "independent-probe-unattested",
+                "origin_class": "received_current_dimension_absent",
+                "qualification_ref": {
+                  "ref_type": "synthetic_fixture",
+                  "ref_id": "not-Current"
+                },
+                "authentic_producer_available": false,
+                "received_carrier_checksum": {
+                  "algorithm": "sha256",
+                  "canonicalization": "openpipestress_jcs_ijson_v1",
+                  "payload_scope": "received_current_dimension_absent_carrier",
+                  "payload_ref": {
+                    "ref_type": "synthetic_received_carrier",
+                    "ref_id": "probe"
+                  },
+                  "value": "c161d8f3428e8f208db7254cc0b2a98645827449ba7f2d3665db2c8e4af25be9"
+                },
+                "original_producer_checksum": null,
+                "origin_limit": "pure constructor/validator probe; no Current authenticity",
+                "actual_model_ref": {
+                  "ref_type": "model_payload",
+                  "ref_id": "project:independent-legacy-probe"
+                },
+                "mechanics_run_ref": {
+                  "ref_type": "mechanics_run",
+                  "ref_id": "independent-legacy-probe"
+                },
+                "request_model_ref": null,
+                "request_run_ref": null,
+                "request_alias_disclosure": null
+              }
+            ],
+            "request_hash": null,
+            "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
+            "derivative_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_scope": "derivative_document_excludes_own_hash",
+              "payload_ref": {
+                "ref_type": "derivative_document",
+                "ref_id": "probe"
+              },
+              "value": "12cfb0ad4ca57ee524571f53b17f181905cc29d642f51c1c904811989bcd6a9a"
+            }
+          },
+          "semantic_contract_ref": {
+            "ref_type": "semantic_contract",
+            "ref_id": "openpipestress.result_semantics/0.3.0/precision-1"
+          },
+          "model_ref": {
+            "ref_type": "model_payload",
+            "ref_id": "project:independent-legacy-probe"
+          },
+          "review_evidence": [],
+          "row_disclosures": [],
+          "source_annotations": [
+            {
+              "annotation_id": "source-annotation:0",
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "metadata": null,
+              "basis_ref": {
+                "ref_type": "load_case",
+                "ref_id": "load:probe"
+              },
+              "source_result_refs": [],
+              "observed_carrier_dimension": {
+                "present": false,
+                "value": null
+              },
+              "source_physical_semantic_dimension": "length",
+              "derivative_target_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              }
+            }
+          ],
+          "row_accounting": [
+            {
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "source_kind": "global_nodal_displacement_x",
+              "source_field_path": "/results/0",
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "disposition": "exported_quantity",
+              "target_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0"
+            }
+          ],
+          "unit_preservation_witnesses": [
+            {
+              "witness_id": "value-unit-witness:0",
+              "source_result_ref": {
+                "ref_type": "received_result",
+                "ref_id": "result:probe:ux"
+              },
+              "source_field_path": "/results/0",
+              "source_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "observed_dimension": {
+                  "present": false,
+                  "value": null
+                }
+              },
+              "target_result_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0",
+              "target_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "dimension": "length"
+              },
+              "target_quantity_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension",
+              "export_unit_policy": "no_numerical_conversion_preserve_received_unit",
+              "conversion_performed": false,
+              "unit_system_ref": {
+                "ref_type": "unit_system",
+                "ref_id": "probe"
+              },
+              "provenance": {
+                "source_name": "local qualified result derivative",
+                "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                "source_license": "project-local",
+                "contributor": "SWBPIPE",
+                "contributor_certification": "local desktop session; human review required",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              },
+              "source_row_index": 0,
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "source_physical_semantic_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              },
+              "target_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "derived_quantity_row",
+                "payload_ref": {
+                  "ref_type": "derivative_document",
+                  "ref_id": "probe"
+                },
+                "value": "aea6f40bb88823b8f4a28c75d4450e3b2af339b3f79ed272e67622ab7074f090"
+              }
+            }
+          ],
+          "unit_witness_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension"
+        }
+      },
+      "independently_recomputed_hash": "12cfb0ad4ca57ee524571f53b17f181905cc29d642f51c1c904811989bcd6a9a"
+    },
+    {
+      "name": "all_headers",
+      "mutation": {
+        "producer": {
+          "component_name": "open_pipe_stress_product_physics",
+          "component_version": "0.2.0",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1"
+        },
+        "numerical_quality": {
+          "value_representation": "finite_binary64",
+          "publication_quantization": "none",
+          "integrity_policy": "M03-INTEGRITY-v1",
+          "status": "checks_passed",
+          "cases": []
+        },
+        "formulation_basis": {
+          "profile_id": "product_preview_mechanics_v1",
+          "limitations": [
+            "Deliberately contradictory synthetic legacy-header probe."
+          ]
+        },
+        "semantic_contract_ref": {
+          "ref_type": "semantic_contract",
+          "ref_id": "openpipestress.result_semantics/0.3.0/precision-1"
+        }
+      },
+      "accepted": true,
+      "document": {
+        "schema_version": "0.2.0",
+        "result_envelope": {
+          "schema_version": "0.2.0",
+          "envelope_id": "probe",
+          "run_ref": {
+            "ref_type": "analysis_run",
+            "ref_id": "independent-legacy-probe"
+          },
+          "provenance": {
+            "source_name": "local qualified result derivative",
+            "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+            "source_license": "project-local",
+            "contributor": "SWBPIPE",
+            "contributor_certification": "local desktop session; human review required",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "unit_system_ref": {
+            "ref_type": "unit_system",
+            "ref_id": "probe"
+          },
+          "result_sets": [
+            {
+              "values": [
+                {
+                  "result_id": "result:probe:ux",
+                  "family": "displacement",
+                  "object_ref": {
+                    "ref_type": "preview_entity",
+                    "ref_id": "node:probe"
+                  },
+                  "basis_ref": {
+                    "ref_type": "load_case",
+                    "ref_id": "load:probe"
+                  },
+                  "magnitude": 0.125,
+                  "unit": "mm",
+                  "dimension": "length",
+                  "provenance": {
+                    "source_name": "local qualified result derivative",
+                    "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                    "source_license": "project-local",
+                    "contributor": "SWBPIPE",
+                    "contributor_certification": "local desktop session; human review required",
+                    "redistribution_status": "private_only",
+                    "review_status": "pending"
+                  },
+                  "source_kind": "global_nodal_displacement_x",
+                  "source_row_index": 0,
+                  "source_annotation_ref": {
+                    "ref_type": "source_annotation",
+                    "ref_id": "source-annotation:0"
+                  }
+                }
+              ]
+            }
+          ],
+          "reproducibility": {
+            "model_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_ref": {
+                "ref_type": "model_payload",
+                "ref_id": "project:independent-legacy-probe"
+              },
+              "value": "47c526f34b5308ecf8a2170d43ff049cf3406782be878abe8fb91aaa4056a6fd"
+            },
+            "raw_source_hashes": [],
+            "source_origin_bindings": [
+              {
+                "origin_id": "independent-probe-unattested",
+                "origin_class": "received_current_dimension_absent",
+                "qualification_ref": {
+                  "ref_type": "synthetic_fixture",
+                  "ref_id": "not-Current"
+                },
+                "authentic_producer_available": false,
+                "received_carrier_checksum": {
+                  "algorithm": "sha256",
+                  "canonicalization": "openpipestress_jcs_ijson_v1",
+                  "payload_scope": "received_current_dimension_absent_carrier",
+                  "payload_ref": {
+                    "ref_type": "synthetic_received_carrier",
+                    "ref_id": "probe"
+                  },
+                  "value": "c161d8f3428e8f208db7254cc0b2a98645827449ba7f2d3665db2c8e4af25be9"
+                },
+                "original_producer_checksum": null,
+                "origin_limit": "pure constructor/validator probe; no Current authenticity",
+                "actual_model_ref": {
+                  "ref_type": "model_payload",
+                  "ref_id": "project:independent-legacy-probe"
+                },
+                "mechanics_run_ref": {
+                  "ref_type": "mechanics_run",
+                  "ref_id": "independent-legacy-probe"
+                },
+                "request_model_ref": null,
+                "request_run_ref": null,
+                "request_alias_disclosure": null
+              }
+            ],
+            "request_hash": null,
+            "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
+            "derivative_hash": {
+              "algorithm": "sha256",
+              "canonicalization": "openpipestress_jcs_ijson_v1",
+              "payload_scope": "derivative_document_excludes_own_hash",
+              "payload_ref": {
+                "ref_type": "derivative_document",
+                "ref_id": "probe"
+              },
+              "value": "4920959564cd23ea8f4e8f64bf96e3a4f3f5332691c230303bd051e9f43750dd"
+            }
+          },
+          "producer": {
+            "component_name": "open_pipe_stress_product_physics",
+            "component_version": "0.2.0",
+            "semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1"
+          },
+          "numerical_quality": {
+            "value_representation": "finite_binary64",
+            "publication_quantization": "none",
+            "integrity_policy": "M03-INTEGRITY-v1",
+            "status": "checks_passed",
+            "cases": []
+          },
+          "formulation_basis": {
+            "profile_id": "product_preview_mechanics_v1",
+            "limitations": [
+              "Deliberately contradictory synthetic legacy-header probe."
+            ]
+          },
+          "semantic_contract_ref": {
+            "ref_type": "semantic_contract",
+            "ref_id": "openpipestress.result_semantics/0.3.0/precision-1"
+          },
+          "model_ref": {
+            "ref_type": "model_payload",
+            "ref_id": "project:independent-legacy-probe"
+          },
+          "review_evidence": [],
+          "row_disclosures": [],
+          "source_annotations": [
+            {
+              "annotation_id": "source-annotation:0",
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "metadata": null,
+              "basis_ref": {
+                "ref_type": "load_case",
+                "ref_id": "load:probe"
+              },
+              "source_result_refs": [],
+              "observed_carrier_dimension": {
+                "present": false,
+                "value": null
+              },
+              "source_physical_semantic_dimension": "length",
+              "derivative_target_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              }
+            }
+          ],
+          "row_accounting": [
+            {
+              "source_row_index": 0,
+              "source_result_id": "result:probe:ux",
+              "source_kind": "global_nodal_displacement_x",
+              "source_field_path": "/results/0",
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "disposition": "exported_quantity",
+              "target_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0"
+            }
+          ],
+          "unit_preservation_witnesses": [
+            {
+              "witness_id": "value-unit-witness:0",
+              "source_result_ref": {
+                "ref_type": "received_result",
+                "ref_id": "result:probe:ux"
+              },
+              "source_field_path": "/results/0",
+              "source_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "observed_dimension": {
+                  "present": false,
+                  "value": null
+                }
+              },
+              "target_result_ref": {
+                "ref_type": "quantity_result",
+                "ref_id": "result:probe:ux"
+              },
+              "target_field_path": "/result_envelope/result_sets/0/values/0",
+              "target_quantity": {
+                "value": 0.125,
+                "unit": "mm",
+                "dimension": "length"
+              },
+              "target_quantity_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension",
+              "export_unit_policy": "no_numerical_conversion_preserve_received_unit",
+              "conversion_performed": false,
+              "unit_system_ref": {
+                "ref_type": "unit_system",
+                "ref_id": "probe"
+              },
+              "provenance": {
+                "source_name": "local qualified result derivative",
+                "source_location": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+                "source_license": "project-local",
+                "contributor": "SWBPIPE",
+                "contributor_certification": "local desktop session; human review required",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              },
+              "source_row_index": 0,
+              "received_carrier_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "received_current_dimension_absent_row",
+                "payload_ref": {
+                  "ref_type": "synthetic_received_carrier",
+                  "ref_id": "probe"
+                },
+                "value": "40c35e531cf20bd75590ac0e2224f5225b2310039c632d6f8f5d8762e40c797e"
+              },
+              "original_producer_row_checksum": null,
+              "source_physical_semantic_dimension": "length",
+              "source_origin_ref": {
+                "ref_type": "source_origin_binding",
+                "ref_id": "independent-probe-unattested"
+              },
+              "target_row_checksum": {
+                "algorithm": "sha256",
+                "canonicalization": "openpipestress_jcs_ijson_v1",
+                "payload_scope": "derived_quantity_row",
+                "payload_ref": {
+                  "ref_type": "derivative_document",
+                  "ref_id": "probe"
+                },
+                "value": "aea6f40bb88823b8f4a28c75d4450e3b2af339b3f79ed272e67622ab7074f090"
+              }
+            }
+          ],
+          "unit_witness_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension"
+        }
+      },
+      "independently_recomputed_hash": "4920959564cd23ea8f4e8f64bf96e3a4f3f5332691c230303bd051e9f43750dd"
+    }
+  ]
+}

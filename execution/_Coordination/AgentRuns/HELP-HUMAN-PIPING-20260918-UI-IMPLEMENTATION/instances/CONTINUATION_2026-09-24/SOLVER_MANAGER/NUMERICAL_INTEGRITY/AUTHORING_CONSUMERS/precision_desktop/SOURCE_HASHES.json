@@ -1,0 +1,89 @@
+{
+  "status": "source refrozen after synthetic consumer diagnostic identity repair; affected rerun pending",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "sha256": "25a3b2aa687bd8984cc053f6306e57c546c3adb6efbe8576140cae3f06e8bce1"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "2c1c25ad96f8bcf939ead2db9fb399d1727ae5d784f58bd1be87cdca367532e7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "5feaa97565438c3a690169383357ce66a80f0cc45e2d92db731b4c7ada26cb75"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "fb00a90a73e51432837b82e1694ea1c79941afb8331da68c8925567b056aaa61"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+      "sha256": "ec6b48fced07464108cf729f9dd66f8e08b555a3d7249ce4a11e9168de2f35bc"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+      "sha256": "98155f7143932269f877688198733d6bdb85dbb5672b07d862a93c2f9e499531"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.test.ts",
+      "sha256": "c8390d5be9a2e02f2bae7fb6a83f6a6eb70cfafbfdb0448babeb80eb1d004f07"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "7902030bbda2b84c80774b22b78030d80f1bdb65f074f7fc5a69a31864f712f4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "7e26ee642bdabe4ce7353b1b188838084c2a81f40805ba30012e421382f847b2"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "744484fdcd9ee326493a2dae1e6dc9019a4f9b702214bb9908905d659b429351"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "e11d20c87564786bed96230949dcf80ee99ecbae8ed18fa2685701595e96a5a8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "sha256": "8836c994a22ddceacae573d5be3b45c22da0049db0a0a627e9fdec9373a93c1c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "47b7e0f617d6d4e3b2f97d7b82d3caeed55c64de8689882c504222cc13d2fde9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.test.tsx",
+      "sha256": "63713009827ec373fb677eced87ff62e53dab876cc8daba8c1e6f3250a5df290"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts",
+      "sha256": "95330590fbe7fb9f5370d8118e05b8a5f10320ee9c46d2bd9b2f9aaba0d65db0"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "fd692788d9f1318cad28a5248ea9d9b1c3722498a55084cf21ed3a31fd4f2e49"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "sha256": "aa585f699fda26b8868d4833a9e9ad246e5cfe2dffcb5f23067d99acf201304a"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "sha256": "c92030018f057c8e826d0486db33a5c78246114d220fa0a062d87a3e21a94ac8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.test.ts",
+      "sha256": "2f0dd6c8b199e3a1d77178ee14a9d5ae4b0e5268e17f8d64fe951ff6de86312d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "275947ea8e6f3c52d401da109e69410716267225f602e7d094ae302b34d7e165"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "sha256": "05dd482a55eddbd007ada6ca529818134442b216d76b6dc109ed646d5e7ad660"
+    }
+  ]
+}

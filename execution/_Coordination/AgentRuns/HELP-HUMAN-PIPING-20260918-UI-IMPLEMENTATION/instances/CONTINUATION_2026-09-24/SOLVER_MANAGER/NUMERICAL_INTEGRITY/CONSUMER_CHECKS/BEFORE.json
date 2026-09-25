@@ -1,0 +1,9 @@
+{
+  "stage": "Standalone canonical parser baseline then connectedconsumerchecks",
+  "authority": "ROOTgranted sequentialofflinejobs2 consumerchunk; product1testfailure explicitlyretainedpendingzero-policy scope review",
+  "source_freeze_ref": "../PRECISION_CONSUMERS/CANDIDATE_FILES.json",
+  "source_freeze_mismatches": [],
+  "canonical_manifest_before_sha256": "f9697f4eb3b4e1542cffa7cf2ce05cef1f4936f7ec7d71cf544b61177e6a4b6b",
+  "standalone_target_isolated_from_joined_product_features": true,
+  "runtime_ref": "_run_records/EXECUTION.json"
+}

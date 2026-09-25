@@ -1,0 +1,6 @@
+{
+  "outside_two_owned_report_files_changed": [],
+  "review_sha256": "8349420830f43aba9de88fc806814702f1814b992c7015cd9d9dec3c63f5d298",
+  "repair01_freeze_retained_sha256": "607c4fb1fd5377bb7cc2077aeea9b555829aa7e7edf0c8be2e566b7eda64068d",
+  "operations": "source edits and evidence only; no tests/builds/Git/native/dependencies"
+}

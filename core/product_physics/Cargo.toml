@@ -1,6 +1,6 @@
 [package]
 name = "open_pipe_stress_product_physics"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Product-preview physics adapter for OpenPipeStress"
 publish = false
@@ -22,4 +22,4 @@ open_pipe_stress_straight_pipe = { path = "../solver/straight_pipe" }
 open_pipe_stress_stress_recovery = { path = "../loads/stress_recovery" }
 open_pipe_stress_units = { path = "../units" }
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde_json = { version = "1", features = ["float_roundtrip"] }

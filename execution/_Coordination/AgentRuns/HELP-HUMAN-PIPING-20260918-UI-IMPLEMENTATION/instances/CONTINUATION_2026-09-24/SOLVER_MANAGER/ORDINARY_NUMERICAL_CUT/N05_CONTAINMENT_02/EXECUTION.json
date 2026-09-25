@@ -1,0 +1,19 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "-j2",
+    "--manifest-path",
+    "core/runner/headless/Cargo.toml",
+    "--lib",
+    "result_envelope_binding::tests"
+  ],
+  "target": "dedicated headless containment target; reused same manifest only",
+  "exit_code": 0,
+  "started_unix": 1790305977.183985,
+  "ended_unix": 1790305985.460011,
+  "log_sha256": "181d779f3398176dbb308399741b19d7dc5e5bc6a87d61f6171673ca9cdbdadc",
+  "source_112_unchanged": true
+}

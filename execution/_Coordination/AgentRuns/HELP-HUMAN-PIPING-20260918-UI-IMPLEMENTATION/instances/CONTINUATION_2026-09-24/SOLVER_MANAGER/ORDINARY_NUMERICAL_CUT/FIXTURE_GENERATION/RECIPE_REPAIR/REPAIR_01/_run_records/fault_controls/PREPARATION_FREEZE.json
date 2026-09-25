@@ -1,0 +1,80 @@
+{
+  "status": "SOURCE PREPARATION ONLY; no Node/harness/Cargo/producer execution",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "651a0943ec8b10000cb423a254672a4b06517a243095670db98d5c57067ec359",
+      "bytes": 3280
+    },
+    {
+      "path": "cargo-stub.mjs",
+      "sha256": "c3a21e56c1285ecb5743bdee6657862fc93f59fca0913dc91eb7d3fed85595aa",
+      "bytes": 1253
+    },
+    {
+      "path": "inputs/dense.preimage.json",
+      "sha256": "b9a8e1faf7695a3ef597224ea19730be5cff2c311c6edddb45364999c7896d36",
+      "bytes": 39
+    },
+    {
+      "path": "inputs/dense.stdout.json",
+      "sha256": "d5597a00fd92ed23f101cd850f4be5795959bc993b27ead58fb7c15b16062b0e",
+      "bytes": 1319
+    },
+    {
+      "path": "inputs/legacy.preimage.json",
+      "sha256": "c9984bd1f4c8621cf7bd3f48bdf33a061422752480fec8f8c50e69501cadb968",
+      "bytes": 40
+    },
+    {
+      "path": "inputs/model.json",
+      "sha256": "2909b867f93b7f439b168c3883f75ea7c5b971480b30530e92e27e486f6a3c2b",
+      "bytes": 134
+    },
+    {
+      "path": "inputs/record.preimage.json",
+      "sha256": "9518b4f7251f0557c18ab7d964e2dc470939f184e5975e91484fba2853fbf191",
+      "bytes": 40
+    },
+    {
+      "path": "inputs/sparse.preimage.json",
+      "sha256": "920f8209fd1d59a9f37f653a1d046333c92f13da9ee65e9784241ae0cb8e430c",
+      "bytes": 40
+    },
+    {
+      "path": "inputs/sparse.stdout.json",
+      "sha256": "d6007bf957f7c23511ad9e9ad0e8012bab7cf4d423cd5a80d0ecded29b667855",
+      "bytes": 1324
+    },
+    {
+      "path": "preload.cjs",
+      "sha256": "7f8c597d5e12248f4a03522938f5843b62de2c67432c33f7ee7073d9677e0dbd",
+      "bytes": 1473
+    },
+    {
+      "path": "recipe.mjs",
+      "sha256": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399",
+      "bytes": 16695
+    },
+    {
+      "path": "run.mjs",
+      "sha256": "32e8d8bb0879f77b8a0400429ddf4d592432ddb5082e97ed75ff6a42e10e12e8",
+      "bytes": 8847
+    },
+    {
+      "path": "rustc-stub.mjs",
+      "sha256": "efd80e4b8c64e9438e563fee367997e5e6869086732b5809c65f8f856fb9e1f6",
+      "bytes": 254
+    }
+  ],
+  "command": "node run.mjs ./EXECUTION_01",
+  "sandbox_parent": "/private/tmp (canonical realpath)",
+  "scenarios": [
+    "install2",
+    "install3",
+    "install3-rollback1",
+    "symlink-parent"
+  ],
+  "mocked": "Cargo metadata/outputs and rustc version; no compilation or physical model",
+  "actual_when_run": "exact reviewed recipe filesystem staging/rename/rollback/containment behavior under external rename faults"
+}

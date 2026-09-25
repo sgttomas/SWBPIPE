@@ -1,0 +1,14 @@
+[
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "sha256": "9e889f2c32aafaf572c0a119a25421f5ca98bcf497aad594a61d7dfa67953aba"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "sha256": "be012b56134b8813b13062d9081af7ec86983e26754f101fd9f43558ecf1e251"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+    "sha256": "594377d0e6f5057f2e98961ce45baac3f8e8720c300856f7fdc17a30aad6baac"
+  }
+]

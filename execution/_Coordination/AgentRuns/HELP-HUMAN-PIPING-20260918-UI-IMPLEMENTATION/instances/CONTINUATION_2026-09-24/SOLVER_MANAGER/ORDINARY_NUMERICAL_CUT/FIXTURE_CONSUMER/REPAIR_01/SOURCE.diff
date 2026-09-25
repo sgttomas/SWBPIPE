@@ -1,0 +1,67 @@
+--- before/projects/chirality-piping/apps/desktop/src/App.test.tsx
++++ after/projects/chirality-piping/apps/desktop/src/App.test.tsx
+@@ -1,3 +1,5 @@
++import { solverDisplayWithToken } from "./features/workspace/statusLabels";
++import { statusChipInputsFromCells, statusChips, statusChipText } from "./features/workspace/shellLayout";
+ import historicalMechanicsFixture from "../../../fixtures/product_preview/invented_mechanics_result.json";
+ import { buildAnalysisRunV02 } from "./services/analysisRunCompatibility";
+ import { changeFormControl, expectFormControlValue, compactOptionRecords } from "./test-support/workspaceTestControls";
+@@ -17352,13 +17354,39 @@
+     },
+   );
+ 
+-  it.each(["MECHANICS_BLOCKED", "MECHANICS_NONCONVERGED"])("keeps %s diagnostics while barring solved-only consumers", async (mechanics) => {
++  it.each(["MECHANICS_BLOCKED", "MECHANICS_NONCONVERGED"])("retains recorded %s through display-only helpers without fresh admission", async (mechanics) => {
++    const model = await loadPreviewModel();
++    const recorded = structuredClone(historicalMechanicsFixture) as MechanicsResult;
++    recorded.status.mechanics = mechanics;
++    recorded.diagnostics.push({ id: "diagnostic:recorded-display", code: "RECORDED_DISPLAY_DIAGNOSTIC", severity: "blocking", message: "Recorded display-only outcome retained" });
++    // B3A preserves unregistered recorded tokens for presentation. No native job,
++    // fresh V03 builder or Current result is claimed in this display-only route.
++    expect(solverDisplayWithToken(mechanics)).toBe(`Solver · Not solved (${mechanics})`);
++    const chips = statusChips(statusChipInputsFromCells({
++      model, result: recorded, historicalRun: null, solveJob: { state: "completed" },
++      ruleCheckAggregate: null, hasQualifiedCurrentResult: false,
++    }), "results");
++    expect(chips).toEqual([{ token: mechanics, label: "Not solved", domain: "Solver" }]);
++    expect(statusChipText(chips[0])).toBe("Solver · Not solved");
++    const overlay = buildDeformationOverlay(model, recorded);
++    expect(overlay.state).toBe("blocked");
++    expect(overlay.summary).toBe(`blocked; mechanics=${mechanics.toLowerCase().replaceAll("_", " ")}; rows=${recorded.results.length}`);
++    expect(overlay.nodePositions.size).toBe(0);
++    render(<DiagnosticsPanel model={model} knowledge={null} result={recorded}
++      selectedDiagnosticId={null} onSelectDiagnostic={vi.fn()} />);
++    expect(screen.getByTestId("diagnostic-RECORDED_DISPLAY_DIAGNOSTIC")).toHaveTextContent("Recorded display-only outcome retained");
++    expect(recorded.status.mechanics).toBe(mechanics);
++    expect(invokeMock).not.toHaveBeenCalled();
++  });
++
++  it("keeps registered MODEL_INCOMPLETE diagnostics while barring fresh solved-only consumers", async () => {
++    const mechanics = "MODEL_INCOMPLETE";
+     const model = await loadPreviewModel();
+     const output = structuredClone(await runPreviewMechanics(model));
+     output.status.mechanics = mechanics;
+     expect(output.results.length).toBeGreaterThan(0);
+     const overlay = buildDeformationOverlay(model, output);
+-    const failedSummary = `blocked; mechanics=${mechanics.toLowerCase().replaceAll("_", " ")}; rows=${output.results.length}`;
++    const failedSummary = `blocked; mechanics=Solver · Model incomplete (MODEL_INCOMPLETE); rows=${output.results.length}`;
+     expect(overlay.state).toBe("blocked");
+     expect(overlay.summary).toBe(failedSummary);
+     expect(overlay.nodePositions.size).toBe(0);
+@@ -17372,12 +17400,11 @@
+     await screen.findByTestId("desktop-preview-shell");
+     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+     act(() => nativeMenuCommand("analyze.run"));
+-    // B3A display-policy amendment (owner EIGHT_UX_ITEMS item 2): an unregistered
+-    // recorded solver value uses the display-only fallback, retaining its exact token
+-    // in Analyze and the chip. The solved-only and deformation boundaries below remain.
+-    await waitFor(() => expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent(`Solver · Not solved (${mechanics})`));
++    // Fresh connected admission uses a registered mechanics status. Unknown
++    // recorded-token display is covered separately without weakening V03.
++    await waitFor(() => expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent("Solver · Model incomplete (MODEL_INCOMPLETE)"));
+     const mechanicsChip = screen.getByTestId("status-pill-mechanics");
+-    expect(mechanicsChip).toHaveTextContent("Solver · Not solved");
++    expect(mechanicsChip).toHaveTextContent("Solver · Model incomplete");
+     expect(mechanicsChip).toHaveAttribute("data-status-token", mechanics);
+     expect(mechanicsChip).toHaveAttribute("title", mechanics);
+     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));

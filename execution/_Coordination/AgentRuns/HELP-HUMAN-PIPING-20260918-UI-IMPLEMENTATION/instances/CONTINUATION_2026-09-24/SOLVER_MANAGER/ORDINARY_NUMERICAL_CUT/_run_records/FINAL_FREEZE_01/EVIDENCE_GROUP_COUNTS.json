@@ -1,0 +1,179 @@
+{
+  "groups": [
+    {
+      "group": "NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS",
+      "files": 272,
+      "bytes": 2811417
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/BASELINE",
+      "files": 8,
+      "bytes": 1761649
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/CONSUMER_BINDING_CHECKS",
+      "files": 7,
+      "bytes": 6134
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR",
+      "files": 44,
+      "bytes": 770652
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/CONSUMER_CHECKS",
+      "files": 15,
+      "bytes": 37978
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS",
+      "files": 6,
+      "bytes": 61844
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/CORE_CONSUMER_REVIEW",
+      "files": 52,
+      "bytes": 541936
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/INITIAL_CHECKS",
+      "files": 10,
+      "bytes": 60275
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/INTEGRATION",
+      "files": 21,
+      "bytes": 487070
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/INTEGRATION_REVIEW",
+      "files": 45,
+      "bytes": 4990615
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/KERNEL",
+      "files": 12,
+      "bytes": 25079
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/KERNEL_INTEGRATION_CHECKS",
+      "files": 15,
+      "bytes": 44027
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/KERNEL_REVIEW",
+      "files": 27,
+      "bytes": 433157
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/ORACLES",
+      "files": 4,
+      "bytes": 12373
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/POLICY_ROW_PROBE",
+      "files": 15,
+      "bytes": 1153169
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/PRECISION_CONSUMERS",
+      "files": 6,
+      "bytes": 340048
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/PRECISION_PRODUCER",
+      "files": 8,
+      "bytes": 108779
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/PRODUCT_FULL_DIAGNOSIS",
+      "files": 59,
+      "bytes": 9700816
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/REFERENCE_REVIEW",
+      "files": 9,
+      "bytes": 76602
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/ROTATIONAL_GAP_UNIT_CONTRACT",
+      "files": 35,
+      "bytes": 2594540
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/SOLVER_FIRST_CHECKS",
+      "files": 66,
+      "bytes": 515767
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/STRICT_GAP_DESIGN",
+      "files": 12,
+      "bytes": 444865
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/STRICT_GAP_IMPLEMENTATION",
+      "files": 199,
+      "bytes": 5944531
+    },
+    {
+      "group": "NUMERICAL_INTEGRITY/SUCCESSOR_CHECKS",
+      "files": 10,
+      "bytes": 16945
+    },
+    {
+      "group": "ORDINARY_NUMERICAL_CUT/APP_FAILURE_DIAGNOSIS",
+      "files": 127,
+      "bytes": 7622240
+    },
+    {
+      "group": "ORDINARY_NUMERICAL_CUT/CHECKPOINT.md",
+      "files": 1,
+      "bytes": 1608
+    },
+    {
+      "group": "ORDINARY_NUMERICAL_CUT/CONSUMER_CHECKS",
+      "files": 15,
+      "bytes": 1730506
+    },
+    {
+      "group": "ORDINARY_NUMERICAL_CUT/FIXTURE_CONSUMER",
+      "files": 17,
+      "bytes": 3350679
+    },
+    {
+      "group": "ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION",
+      "files": 80,
+      "bytes": 3781535
+    },
+    {
+      "group": "ORDINARY_NUMERICAL_CUT/FIXTURE_ROUTE_REVIEW",
+      "files": 32,
+      "bytes": 150425
+    },
+    {
+      "group": "ORDINARY_NUMERICAL_CUT/README.md",
+      "files": 1,
+      "bytes": 2815
+    },
+    {
+      "group": "ORDINARY_NUMERICAL_CUT/REVIEW_BASIS_INDEX.json",
+      "files": 1,
+      "bytes": 3596
+    },
+    {
+      "group": "ORDINARY_NUMERICAL_CUT/SOURCE_FREEZE.json",
+      "files": 1,
+      "bytes": 21822
+    },
+    {
+      "group": "ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_BRIEF.md",
+      "files": 1,
+      "bytes": 6028
+    },
+    {
+      "group": "ORDINARY_NUMERICAL_CUT/_run_records",
+      "files": 133,
+      "bytes": 10826493
+    }
+  ]
+}

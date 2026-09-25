@@ -266,20 +266,22 @@ export type RunPresence = {
   hasResult: boolean;
   /** That result is a solved one (`currentSolvedResult !== null`): the Current solved run. */
   hasCurrentSolvedResult: boolean;
+  /** Derived eligibility only; never written into the received result. */
+  needsRecompute?: boolean;
   /** A reopened saved run is shown (`historicalRun !== null`). */
   historicalRunShown: boolean;
   /** `solveJob.state`. */
   solveJobState: SolveJobEvent["state"];
 };
 
-export type RailCaption = "Failed" | "Historical";
+export type RailCaption = "Failed" | "Historical" | "Needs recompute";
 
 export type RailStageState = {
   stage: ShellStage;
   label: string;
   enabled: boolean;
   /** Why the stage is disabled; shown as the tooltip and reachable by keyboard focus. Null when enabled. */
-  reason: "No run yet" | "No solved run" | "Needs a current run" | null;
+  reason: "No run yet" | "No solved run" | "Needs a current run" | "Needs recompute" | null;
   /** A state name under the label, not a status. */
   caption: RailCaption | null;
   tooltip: string;
@@ -300,12 +302,14 @@ export function railStageState(stage: ShellStage, run: RunPresence): RailStageSt
     if (!enabled) reason = "No run yet";
     // What is shown names the caption: a reopened saved run stays on screen while a later run fails.
     else if (run.historicalRunShown) caption = "Historical";
+    else if (run.needsRecompute) caption = "Needs recompute";
     else if (!run.hasResult && run.solveJobState === "failed") caption = "Failed";
   } else if (stage === "review") {
     // Only a Current solved run enables Review; a Historical run enables nothing.
     enabled = run.hasCurrentSolvedResult && !run.historicalRunShown;
     if (!enabled) {
       if (run.historicalRunShown) reason = "Needs a current run";
+      else if (run.needsRecompute) reason = "Needs recompute";
       else if (run.hasResult || runEnded(run.solveJobState)) reason = "No solved run";
       else reason = "No run yet";
     }
@@ -350,7 +354,7 @@ export const RAIL_FOOT_ITEMS: readonly RailFootItem[] = Object.freeze([
 // The status chip policy (§5.4). The status bar speaks for the current model
 // and its Current run, and for nothing else.
 
-export type StatusChip = { token: string; label: string; domain: StatusAuthorityDomain; source?: "Solve job state" };
+export type StatusChip = { token: string; label: string; domain: StatusAuthorityDomain; source?: "Solve job state" | "Derived numerical qualification" };
 
 export type StatusChipInputs = RunPresence & {
   /** `model.analysis_status.mechanics`: the status the model document records; null with no model. */
@@ -387,6 +391,7 @@ export function statusChips(inputs: StatusChipInputs, stage: ShellStage, pageOpe
   // the current model's standing, which a Historical record never supplies.
   if (inputs.historicalRunShown) return [];
   if (inputs.hasResult) {
+    if (inputs.needsRecompute) return [{ token: "needs_recompute", label: "Needs recompute", domain: "Solver", source: "Derived numerical qualification" }];
     const solver = chipFor(inputs.resultMechanicsStatus, "Solver") ?? (inputs.resultMechanicsStatus === null ? null : { token: inputs.resultMechanicsStatus, ...SOLVER_NOT_SOLVED });
     // Rule 7, first row: a run that did not solve shows whatever Solver status its record carries.
     if (!inputs.hasCurrentSolvedResult) return solver ? [solver] : [];
@@ -423,12 +428,15 @@ export function statusChipText(chip: StatusChip): string {
 /** The cells the two rules read, taken from the session's slices as plain values. */
 export function runPresenceFromCells(cells: {
   result: { status: { mechanics: string } } | null;
+  /** Supplied by the qualified session view, never inferred from mechanics status. */
+  hasQualifiedCurrentResult?: boolean;
   historicalRun: object | null;
   solveJob: { state: SolveJobEvent["state"] };
 }): RunPresence {
   return {
     hasResult: cells.result !== null,
-    hasCurrentSolvedResult: cells.result?.status.mechanics === "MECHANICS_SOLVED",
+    hasCurrentSolvedResult: cells.hasQualifiedCurrentResult === true && cells.result?.status.mechanics === "MECHANICS_SOLVED",
+    ...(cells.result?.status.mechanics === "MECHANICS_SOLVED" && cells.hasQualifiedCurrentResult !== true ? { needsRecompute: true } : {}),
     historicalRunShown: cells.historicalRun !== null,
     solveJobState: cells.solveJob.state
   };
@@ -437,6 +445,7 @@ export function runPresenceFromCells(cells: {
 export function statusChipInputsFromCells(cells: {
   model: { analysis_status: { mechanics: string } } | null;
   result: { status: { mechanics: string; professional_acceptance?: string } } | null;
+  hasQualifiedCurrentResult?: boolean;
   historicalRun: object | null;
   solveJob: { state: SolveJobEvent["state"] };
   ruleCheckAggregate: string | null;

@@ -1,0 +1,5 @@
+Command: rustfmt --edition 2021 projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs
+Exit: 0
+Stdout: empty
+Stderr: empty
+No compile/test/runtime execution of delta.

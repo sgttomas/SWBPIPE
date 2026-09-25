@@ -1,0 +1,17 @@
+{
+  "candidate": {
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "4162ebe82febd23cda8bafc06b4f4f79b99a0094b6f688d67f732a5784ff012f",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "79272e2f731be9853a087c38d83260b6ba112d6b0a0ed48256a71b40f9bd942f",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "700338b91a54f9623ab479e5d0202f625a04810ebdce50e98196001da3675d9e"
+  },
+  "actor_complete_delta_verified": true,
+  "adopted_oracle_delta_verified": true,
+  "oracle_delta_scope": "F5 expected-state threshold and explanatory comment only; all force/gap/quantity assertions retained",
+  "caller_snapshots": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "10a8d2195e4cd3674261251fb6e97106ab16ccabd46df60d346e7f6cd42bb645",
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e"
+  },
+  "caller_scope": "Read-only trace, not complete product diff or publication qualification"
+}

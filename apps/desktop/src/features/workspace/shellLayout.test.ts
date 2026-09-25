@@ -286,7 +286,7 @@ describe("the rail's states (§2.3, §2.6)", () => {
   it("reads run presence from the session's cells", () => {
     const solvedResult = { status: { mechanics: "MECHANICS_SOLVED" } };
     expect(runPresenceFromCells({ result: null, historicalRun: null, solveJob: { state: "not_started" } })).toEqual(NO_RUN);
-    expect(runPresenceFromCells({ result: solvedResult, historicalRun: null, solveJob: { state: "completed" } })).toEqual(SOLVED);
+    expect(runPresenceFromCells({ result: solvedResult, historicalRun: null, solveJob: { state: "completed" }, hasQualifiedCurrentResult: true })).toEqual(SOLVED);
     expect(
       runPresenceFromCells({ result: { status: { mechanics: "MODEL_INCOMPLETE" } }, historicalRun: null, solveJob: { state: "completed" } })
     ).toEqual(UNSOLVED_RESULT);
@@ -432,7 +432,8 @@ describe("the status chip policy (§5.4)", () => {
         result: { status: { mechanics: "MECHANICS_SOLVED", professional_acceptance: "NOT_PROVIDED" } },
         historicalRun: null,
         solveJob: { state: "completed" },
-        ruleCheckAggregate: "USER_RULE_CHECKED"
+        ruleCheckAggregate: "USER_RULE_CHECKED",
+        hasQualifiedCurrentResult: true
       })
     ).toEqual({
       ...SOLVED,
@@ -444,6 +445,22 @@ describe("the status chip policy (§5.4)", () => {
     expect(
       statusChipInputsFromCells({ model: null, result: null, historicalRun: null, solveJob: { state: "not_started" }, ruleCheckAggregate: null })
     ).toEqual({ ...NO_RUN, modelMechanicsStatus: null, resultMechanicsStatus: null, resultProfessionalStatus: null, rulePackStatus: null });
+  });
+});
+
+describe("derived numerical qualification", () => {
+  it("keeps unqualified solved evidence visible without promoting its raw status to Current", () => {
+    const result = { status: { mechanics: "MECHANICS_SOLVED", professional_acceptance: "NOT_PROVIDED" } };
+    const before = JSON.stringify(result);
+    const cells = { result, historicalRun: null, solveJob: { state: "completed" as const }, hasQualifiedCurrentResult: false };
+    const presence = runPresenceFromCells(cells);
+    expect(presence).toMatchObject({ hasResult: true, hasCurrentSolvedResult: false, needsRecompute: true });
+    expect(railStageState("results", presence)).toMatchObject({ enabled: true, caption: "Needs recompute" });
+    expect(railStageState("review", presence)).toMatchObject({ enabled: false, reason: "Needs recompute" });
+    const inputs = statusChipInputsFromCells({ ...cells, model: null, ruleCheckAggregate: "USER_RULE_CHECKED" });
+    expect(statusChips(inputs, "results")).toEqual([{ token: "needs_recompute", label: "Needs recompute", domain: "Solver", source: "Derived numerical qualification" }]);
+    expect(JSON.stringify(result)).toBe(before);
+    expect(statusChips({ ...inputs, historicalRunShown: true }, "results")).toEqual([]);
   });
 });
 

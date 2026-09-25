@@ -1,0 +1,45 @@
+2907:     fn two_node_axial_problem(
+2908:         nonlinear_supports: Vec<NonlinearSupport>,
+2909:         initial_states: Vec<SupportStateRecord>,
+2910:         max_iterations: usize,
+2911:     ) -> NonlinearFrameSolveInput {
+2912:         let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+2913:         let node_j = FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap();
+2914:         let section = FrameSection::new(100.0, 40.0, 1.0, 1.0, 1.0, 1.0).unwrap();
+2915:         let element = FrameElement::new(node_i, node_j, section, [0.0, 1.0, 0.0]).unwrap();
+2916:         let mut force = vec![0.0; 2 * DOF_PER_NODE];
+2917:         force[node_dof_index(1, FrameDof::Ux)] = 10.0;
+2918: 
+2919:         NonlinearFrameSolveInput {
+2920:             node_count: 2,
+2921:             elements: vec![element],
+2922:             user_stiffness_elements: Vec::new(),
+2923:             curved_bend_elements: Vec::new(),
+2924:             force,
+2925:             base_restrained_dofs: vec![
+2926:                 node_dof_index(0, FrameDof::Ux),
+2927:                 node_dof_index(0, FrameDof::Uy),
+2928:                 node_dof_index(0, FrameDof::Uz),
+2929:                 node_dof_index(0, FrameDof::Rx),
+2930:                 node_dof_index(0, FrameDof::Ry),
+2931:                 node_dof_index(0, FrameDof::Rz),
+2932:                 node_dof_index(1, FrameDof::Uy),
+2933:                 node_dof_index(1, FrameDof::Uz),
+2934:                 node_dof_index(1, FrameDof::Rx),
+2935:                 node_dof_index(1, FrameDof::Ry),
+2936:                 node_dof_index(1, FrameDof::Rz),
+2937:             ],
+2938:             nonlinear_supports,
+2939:             initial_states,
+2940:             friction_normal_reactions: Vec::new(),
+2941:             derived_friction_normal_reactions: Vec::new(),
+2942:             convergence: ConvergenceControl::new(
+2943:                 "DEC-046-fixture-active-set-count-tightening",
+2944:                 ConvergencePolicyStatus::Accepted,
+2945:                 0.0,
+2946:                 0.0,
+2947:                 max_iterations,
+2948:             )
+2949:             .unwrap(),
+2950:         }
+2951:     }

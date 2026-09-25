@@ -1,0 +1,121 @@
+
+ RUN  v4.1.10 /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/results/numericalResultQuality.test.ts (22 tests | 10 failed) 11ms
+     × keeps honest 'not_assessed' for [ 'not_assessed' ] ineligible without a contradiction 4ms
+     × keeps honest 'unresolved' for [ 'unresolved' ] ineligible without a contradiction 1ms
+     × keeps honest 'failed' for [ 'failed' ] ineligible without a contradiction 1ms
+     × keeps honest 'not_assessed' for [ 'checks_passed', 'sensitive', …(1) ] ineligible without a contradiction 0ms
+     × keeps honest 'unresolved' for [ 'unresolved', 'sensitive', …(1) ] ineligible without a contradiction 0ms
+     × keeps honest 'failed' for [ 'unresolved', 'failed', 'sensitive' ] ineligible without a contradiction 0ms
+     × recognizes unresolved aggregate with unassessed matrix fidelity 0ms
+     × flags a mismatched 'sensitive' claim for [ 'unresolved', 'sensitive' ], including conservative claims 0ms
+     × flags a mismatched 'checks_passed' claim for [ 'not_assessed' ], including conservative claims 0ms
+     × defaults empty cases to not_assessed but still requires requested-case coverage 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/results/numericalResultQuality.test.ts > aggregate consistency is distinct from numerical qualification > keeps honest 'not_assessed' for [ 'not_assessed' ] ineligible without a contradiction
+ FAIL  src/features/results/numericalResultQuality.test.ts > aggregate consistency is distinct from numerical qualification > keeps honest 'unresolved' for [ 'unresolved' ] ineligible without a contradiction
+ FAIL  src/features/results/numericalResultQuality.test.ts > aggregate consistency is distinct from numerical qualification > keeps honest 'failed' for [ 'failed' ] ineligible without a contradiction
+ FAIL  src/features/results/numericalResultQuality.test.ts > aggregate consistency is distinct from numerical qualification > keeps honest 'not_assessed' for [ 'checks_passed', 'sensitive', …(1) ] ineligible without a contradiction
+ FAIL  src/features/results/numericalResultQuality.test.ts > aggregate consistency is distinct from numerical qualification > keeps honest 'unresolved' for [ 'unresolved', 'sensitive', …(1) ] ineligible without a contradiction
+ FAIL  src/features/results/numericalResultQuality.test.ts > aggregate consistency is distinct from numerical qualification > keeps honest 'failed' for [ 'unresolved', 'failed', 'sensitive' ] ineligible without a contradiction
+AssertionError: expected { contract: 'precision', …(3) } to deeply equal { contract: 'precision', …(3) }
+
+- Expected
++ Received
+
+@@ -2,8 +2,9 @@
+    "contract": "precision",
+    "eligible": false,
+    "findings": [
+      "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+      "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
++     "NUMERICAL_AGGREGATE_CONTRADICTION",
+    ],
+    "status": "needs_recompute",
+  }
+
+ ❯ src/features/results/numericalResultQuality.test.ts:108:22
+    106|     const before = JSON.stringify({ raw, requested });
+    107|     const standing = numericalResultStanding(raw, requested);
+    108|     expect(standing).toEqual({ contract: "precision", status: "needs_r…
+       |                      ^
+    109|       findings: ["NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_…
+    110|     expect(JSON.stringify({ raw, requested })).toBe(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  src/features/results/numericalResultQuality.test.ts > aggregate consistency is distinct from numerical qualification > recognizes unresolved aggregate with unassessed matrix fidelity
+AssertionError: expected { contract: 'precision', …(3) } to deeply equal { contract: 'precision', …(3) }
+
+- Expected
++ Received
+
+@@ -2,8 +2,9 @@
+    "contract": "precision",
+    "eligible": false,
+    "findings": [
+      "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+      "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
++     "NUMERICAL_AGGREGATE_CONTRADICTION",
+    ],
+    "status": "needs_recompute",
+  }
+
+ ❯ src/features/results/numericalResultQuality.test.ts:116:53
+    114|     const { raw, requested } = aggregateFixture(["unresolved"], "unres…
+    115|     raw.numerical_quality!.cases[0].model_matrix_fidelity = "not_asses…
+    116|     expect(numericalResultStanding(raw, requested)).toEqual({ contract…
+       |                                                     ^
+    117|       findings: ["NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_…
+    118|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  src/features/results/numericalResultQuality.test.ts > aggregate consistency is distinct from numerical qualification > flags a mismatched 'sensitive' claim for [ 'unresolved', 'sensitive' ], including conservative claims
+ FAIL  src/features/results/numericalResultQuality.test.ts > aggregate consistency is distinct from numerical qualification > flags a mismatched 'checks_passed' claim for [ 'not_assessed' ], including conservative claims
+AssertionError: expected [ Array(1) ] to include 'NUMERICAL_AGGREGATE_CONTRADICTION'
+ ❯ src/features/results/numericalResultQuality.test.ts:133:31
+    131|     expect(standing.status).toBe("needs_recompute");
+    132|     expect(standing.eligible).toBe(false);
+    133|     expect(standing.findings).toContain("NUMERICAL_AGGREGATE_CONTRADIC…
+       |                               ^
+    134|   });
+    135|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  src/features/results/numericalResultQuality.test.ts > aggregate consistency is distinct from numerical qualification > defaults empty cases to not_assessed but still requires requested-case coverage
+AssertionError: expected { contract: 'precision', …(3) } to deeply equal { contract: 'precision', …(3) }
+
+- Expected
++ Received
+
+  {
+    "contract": "precision",
+    "eligible": false,
+    "findings": [
+      "NUMERICAL_CASE_COVERAGE_INCOMPLETE",
+-     "NUMERICAL_AGGREGATE_CONTRADICTION",
+    ],
+    "status": "needs_recompute",
+  }
+
+ ❯ src/features/results/numericalResultQuality.test.ts:149:49
+    147|       findings: ["NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_…
+    148|     raw.numerical_quality!.status = "checks_passed";
+    149|     expect(numericalResultStanding(raw, model)).toEqual({ contract: "p…
+       |                                                 ^
+    150|       findings: ["NUMERICAL_CASE_COVERAGE_INCOMPLETE", "NUMERICAL_AGGR…
+    151|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  10 failed | 12 passed (22)
+   Start at  17:58:02
+   Duration  152ms (transform 29ms, setup 0ms, import 38ms, tests 11ms, environment 0ms)
+

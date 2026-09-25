@@ -1,0 +1,89 @@
+{
+  "agent": "/root/solver_manager/fixture_route_review",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type 2; same independent reviewer backcheck",
+  "mechanism": "delegated-harness-native followup, no descendants",
+  "instruction_origins": [
+    {
+      "path": "AGENTS.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    }
+  ],
+  "supplied_basis": "Original R1/R2 review plus full RECIPE_REPAIR/REPAIR_01 proposal; App diagnosis excluded",
+  "review_inputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_ROUTE_REVIEW/RECIPE_REVIEW/RETURN.md",
+      "sha256": "93c26207fd86834ffb927bcc0d819d41e461003f0352ec7fb8b58557cff1eb2d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/PATCH_FREEZE.json",
+      "sha256": "a0be9a8a02c8a7484df9ed199c6cd6e8403adb0bf7463f817d677e19bab55553"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/PROPOSED.patch",
+      "sha256": "c45f8613271a67c4b6adc180da90771d33aab6a325a82c32cd29923aa2fc11be"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/proposed/tools/serialization/generate_product_preview_mechanics.mjs",
+      "sha256": "be74fec9edce8106edecee5529ad87c67b4e3fd396bfadd8fe6674b990fab706"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/_run_records/package.before.json",
+      "sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/PATCH_FREEZE.json",
+      "sha256": "4a3d62d32f3f19b1609c2a01cb4a2362f1107bf48894457e31cd50303be22667"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/PROPOSED.patch",
+      "sha256": "02e5a5b27bb4cd2a66cba21c5948d344c4e185941f0fac73ae5629a76276ee2c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/REPAIR.diff",
+      "sha256": "a8f5fc18008e7f1edfed623dc80090c56f22c6aae4fec8c0007e1b63519a5695"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/RETURN.md",
+      "sha256": "4bc9a371669eb74186336c86a6840d2dca645e00e73321963fa02254bedeb0d3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/_run_records/ORIGINS.json",
+      "sha256": "d71442f30289b0df1b5c9d40e8f4c6a1ac111130965c11d8aca5c3f37d3ba904"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/_run_records/script.before.mjs",
+      "sha256": "be74fec9edce8106edecee5529ad87c67b4e3fd396bfadd8fe6674b990fab706"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/proposed/package.json",
+      "sha256": "ae2274d2078a378387a82d99af3fd49d58232d62aa4c383d2511cff02bff2a63"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/proposed/tools/serialization/generate_product_preview_mechanics.mjs",
+      "sha256": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399"
+    }
+  ],
+  "limits": "Static identity/applicability checks only. No Node/Cargo/generator/build/test/Git execution; maintained files not applied by reviewer. No fixture freshness, numerical qualification or runtime outcome asserted."
+}

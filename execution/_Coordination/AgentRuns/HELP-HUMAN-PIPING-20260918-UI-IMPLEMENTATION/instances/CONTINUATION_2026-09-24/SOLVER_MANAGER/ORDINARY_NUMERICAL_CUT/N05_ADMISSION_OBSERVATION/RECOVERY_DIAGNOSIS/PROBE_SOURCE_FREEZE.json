@@ -1,0 +1,37 @@
+[
+  {
+    "repository_path": "AGENTS.md",
+    "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/AGENTS.md",
+    "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+  },
+  {
+    "repository_path": "projects/chirality-piping/AGENTS.md",
+    "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/AGENTS.md",
+    "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+  },
+  {
+    "repository_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+    "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+    "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+  },
+  {
+    "repository_path": "agents/AGENT_TASK.md",
+    "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+  },
+  {
+    "repository_path": ".agents/skills/software-defect-diagnosis/SKILL.md",
+    "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/.agents/skills/software-defect-diagnosis/SKILL.md",
+    "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+  },
+  {
+    "repository_path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+    "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+    "sha256": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c"
+  },
+  {
+    "repository_path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+    "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/core/analysis_runs/compatibility.py",
+    "sha256": "46d06f416a260a2cb7dbc5ee11be49f2da118a2ea528fc6b64ca147ad32f1abc"
+  }
+]

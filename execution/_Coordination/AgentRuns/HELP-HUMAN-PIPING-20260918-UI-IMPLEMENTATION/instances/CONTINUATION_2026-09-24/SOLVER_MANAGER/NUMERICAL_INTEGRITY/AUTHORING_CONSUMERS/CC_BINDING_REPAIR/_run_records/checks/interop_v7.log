@@ -1,0 +1,30 @@
+
+ RUN  v4.1.10 /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop
+
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/interop/python_to_ts.test.ts (1 test | 1 failed) 53ms
+   × reads actual Python canonical precision package with unqualified source, without promoting standing 52ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/interop/python_to_ts.test.ts > reads actual Python canonical precision package with unqualified source, without promoting standing
+AssertionError: promise rejected "Error: SN-CSV-ROW-BINDING-MISMATCH" instead of resolving
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/interop/python_to_ts.test.ts:15:56
+     13|  expect(await verifyAnalysisRunRecord(analysis)).toBe('match');
+     14|  await expect(validateAnalysisRunV03(analysis,source)).resolves.toBeUn…
+     15|  await expect(validateStressNeutralExportPacket(packet)).resolves.toBe…
+       |                                                        ^
+     16|  await expect(validateStressNeutralExportPacket(packet,source)).resolv…
+     17|  await expect(validateStressNeutralExportPacket(packet,source,analysis…
+
+Caused by: Error: SN-CSV-ROW-BINDING-MISMATCH
+ ❯ validateStressNeutralExportPacket src/features/stress-neutral/StressNeutralExportPanel.tsx:636:50
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/interop/python_to_ts.test.ts:15:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  12:12:50
+   Duration  306ms (transform 110ms, setup 0ms, import 170ms, tests 53ms, environment 0ms)
+

@@ -1,0 +1,19 @@
+{
+  "command": [
+    "cargo",
+    "run",
+    "--offline",
+    "--locked",
+    "-j2",
+    "--manifest-path",
+    "validation/benchmarks/numerical_integrity/Cargo.toml"
+  ],
+  "cwd": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping",
+  "target": "/private/tmp/piping-numerical-corrections-observer-target",
+  "exit_code": 0,
+  "started_unix": 1790304576.22478,
+  "ended_unix": 1790304586.863567,
+  "source_locks_unchanged": true,
+  "stdout_sha256": "36d717a2e3eff94f6d60092ddee19a5c12b52469aa951e3464e97a7839f2e61c",
+  "stderr_sha256": "028228111998c9457a347d9a95a00a956e167fe71f5270d9c3ca159e0b528fa5"
+}

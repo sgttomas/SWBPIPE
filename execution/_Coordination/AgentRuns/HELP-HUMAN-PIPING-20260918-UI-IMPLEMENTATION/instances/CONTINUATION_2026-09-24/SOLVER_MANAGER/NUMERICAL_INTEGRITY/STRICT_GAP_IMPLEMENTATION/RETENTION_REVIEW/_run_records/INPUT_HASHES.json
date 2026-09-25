@@ -1,0 +1,7 @@
+{
+  "RETURN.md": "f7a86b0b080983220adfb28759cedb6ae1bcde9a803e5815a1251a9e195906a4",
+  "_run_records/ORIGINS.json": "8a2b33b7af0ecdfd30a11c6bf2402f0da055db3fe591ba023bfffd25b6762c1f",
+  "_run_records/OUTPUT_HASHES.json": "5b1b76d273dcb0936feae393842ea687fd091cdc7f55046990086955ea39dc64",
+  "_run_records/exact_boundary.rs.diff": "879b7543732caeb4f43e8df4f9c41c1534fc7334e2f1400ca9f6d912438a9ba2",
+  "_run_records/structural_adapter.rs.diff": "a18b9593bac9996c36ef550144a6eca0f0e8fdd883b61455fccbf04eacc341de"
+}

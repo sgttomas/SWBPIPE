@@ -1,0 +1,58 @@
+--- before/projects/chirality-piping/core/product_physics/src/lib.rs
++++ after/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -2375,6 +2375,28 @@
+                 ) {
+                     Ok(true) => {}
+                     outcome => {
++                        // DIAGNOSIS_PRODUCT_FULL_OBSERVATION_BEGIN
++                        #[cfg(test)]
++                        if load_case.id == "load:L-MIXED-NONLINEAR" {
++                            eprintln!("DIAGPROBE FINAL_QUALIFICATION case={} mode={} outcome={outcome:?} converged={} strict_gap_unqualified_reason={:?} final_states={:#?} selected_u={:#?} selected_reactions={:#?}",
++                                load_case.id, solver_mode.as_str(), solve.converged,
++                                solve.strict_gap_unqualified_reason(), solve.final_states,
++                                solve.displacements, solve.reactions);
++                            for iteration in &solve.iterations {
++                                let strict_gap = match &iteration.strict_gap {
++                                    StrictGapEvidence::NotApplicable => ("not_applicable", None),
++                                    StrictGapEvidence::Qualified(_) => ("qualified", None),
++                                    StrictGapEvidence::Unsupported { reason, .. } => ("unsupported", Some(reason.as_str())),
++                                };
++                                eprintln!("DIAGPROBE ITERATION index={} strict_gap={strict_gap:?} contact_branches_admissible={} active_set={:#?} active_dofs={:#?} prescribed={:#?} selected_u={:#?} selected_reactions={:#?} sliding_forces={:#?} residual_observations={:#?} ordinary_structural_report={:#?} selected_product_equilibrium={:#?}",
++                                    iteration.iteration, iteration.contact_branches_admissible,
++                                    iteration.active_set, iteration.active_restrained_dofs,
++                                    iteration.active_prescribed_displacements, iteration.displacements,
++                                    iteration.reactions, iteration.applied_sliding_friction_forces,
++                                    iteration.residuals, iteration.structural_report, iteration.product_equilibrium);
++                            }
++                        }
++                        // DIAGNOSIS_PRODUCT_FULL_OBSERVATION_END
+                         let error=StructuralError::NumericallyUnresolved{reason:"M03 product final same-state equilibrium/contact qualification failed",global_dof:None};
+                         append_integrity_failure(diagnostics, &load_case.id, &error, model);
+                         if let Err(error) = outcome {
+@@ -12504,6 +12526,26 @@
+         assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
+     }
+ 
++    // SCOPED_MIXED_DELTA_PROBE_BEGIN — temporary observation only.
++    #[test]
++    fn diagnosis_probe_scoped_mixed_deltas() {
++        for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
++            for ux_force in [100_000.0, 120_000.0] {
++                let mut input = mixed_nonlinear_preview_request();
++                // Only this original UX magnitude changes. Y=100kN, Z=100N,
++                // gap/friction/one-way laws, seeds, geometry and all policy
++                // settings remain the original mixed fixture's typed inputs.
++                input.model.load_cases[0].primitive_loads[0].magnitude.value = ux_force;
++                eprintln!("SCOPED_DELTA INPUT mode={} ux_force={ux_force} {}", mode.as_str(),
++                    serde_json::to_string(&input).expect("finite original mixed fixture"));
++                let output = run_linear_static_preview_with_mode(input, mode);
++                eprintln!("SCOPED_DELTA OUTPUT mode={} ux_force={ux_force} status={:#?} quality={:#?} diagnostics={:#?} rows={:#?}",
++                    mode.as_str(), output.status, output.numerical_quality, output.diagnostics, output.results);
++            }
++        }
++    }
++    // SCOPED_MIXED_DELTA_PROBE_END
++
+     // CONTACT_REPAIR_V2_EXPECTATIONS_BEGIN
+     #[test]
+     fn contact_recovery_failed_sparse_and_dense_attempt_emits_no_success_fallback() {

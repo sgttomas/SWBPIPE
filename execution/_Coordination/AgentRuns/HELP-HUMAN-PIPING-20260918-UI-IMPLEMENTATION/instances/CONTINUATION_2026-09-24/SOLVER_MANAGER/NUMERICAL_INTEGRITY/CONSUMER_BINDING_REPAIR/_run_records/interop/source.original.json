@@ -1,0 +1,1305 @@
+{
+  "accepted_model_state_mutated": false,
+  "diagnostics": [
+    {
+      "affected_refs": [
+        "component:C-110",
+        "pipe:P-100",
+        "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+        "invented_user_entered_preview_no_code_table"
+      ],
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-100:end-j",
+      "message": "bend component component:C-110 applies user-entered through SIF 1.15 to pipe:P-100 end_j stress-recovery review; user-entered flexibility factor 2 enters the assembled curved-bend macro-element stiffness; solver_consumption is curved_bend_macro_element; no protected or default component factor is supplied",
+      "severity": "info",
+      "source": "core/product_physics"
+    },
+    {
+      "code": "RULE_CHECK_INPUTS_MISSING",
+      "id": "diagnostic:physics:rule-inputs-missing",
+      "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
+      "severity": "warning",
+      "source": "core/product_physics"
+    }
+  ],
+  "document_kind": "openpipestress.product_preview.mechanics_result",
+  "formulation_basis": {
+    "limitations": [
+      "Small-displacement product-preview mechanics; numerical integrity does not establish physical formulation correctness.",
+      "Pressure thrust and pressure stress retain the existing preview formulation and capability qualifications; pressure formulation qualification remains open.",
+      "Component stiffness, flexibility and stress modifiers depend on declared user inputs and supported component families; no general component qualification is provided.",
+      "Open-formula stress recovery retains its existing section, station and load-basis limitations; no code compliance result is produced.",
+      "Support, spring-hanger and nonlinear active-state behavior retain their existing capability and convergence qualifications; numerical precision does not qualify their constitutive models.",
+      "Protected rule inputs and professional acceptance are not provided; human review remains required."
+    ],
+    "profile_id": "product_preview_mechanics_v1"
+  },
+  "model_ref": "project:invented-loop-01",
+  "numerical_quality": {
+    "cases": [],
+    "integrity_policy": "M03-INTEGRITY-v1",
+    "publication_quantization": "none",
+    "status": "not_assessed",
+    "value_representation": "finite_binary64"
+  },
+  "producer": {
+    "component_name": "open_pipe_stress_product_physics",
+    "component_version": "0.2.0",
+    "semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1"
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_approval_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_compliance_claim": false,
+    "software_makes_sealing_claim": false
+  },
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "solver:linear_static_preview",
+      "id": "result:solver-mode:linear-solve-basis",
+      "kind": "linear_solver_mode_basis",
+      "metadata": {
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_profile_direct_primary; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=12; original_profile_entries=15; ordered_profile_entries=12; original_half_bandwidth=5; ordered_half_bandwidth=2; nonpositive_pivots=0; pivot_condition_ratio_proxy=14.152286379132343; max_abs_sparse_residual=0.0000000000018189894035458565; dense_fallback=false; dense_fallback_message=none",
+        "component": "linear_solver_mode",
+        "coordinate_system": "reduced_system",
+        "location": "load:L-100",
+        "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+      },
+      "unit": "mode_code",
+      "value": 1.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100",
+      "kind": "displacement_magnitude",
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110",
+      "kind": "displacement_magnitude",
+      "unit": "mm",
+      "value": 2.7177335930251227
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:ux",
+      "kind": "global_nodal_displacement_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:uy",
+      "kind": "global_nodal_displacement_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:uz",
+      "kind": "global_nodal_displacement_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:rx",
+      "kind": "global_nodal_rotation_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:ry",
+      "kind": "global_nodal_rotation_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:rz",
+      "kind": "global_nodal_rotation_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:ux",
+      "kind": "global_nodal_displacement_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.5281079150314638
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:uy",
+      "kind": "global_nodal_displacement_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 2.6356640001625986
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:uz",
+      "kind": "global_nodal_displacement_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": -0.4005660881618109
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:rx",
+      "kind": "global_nodal_rotation_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      },
+      "unit": "rad",
+      "value": -0.00003308659368829149
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:ry",
+      "kind": "global_nodal_rotation_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      },
+      "unit": "rad",
+      "value": 0.00026713423627109864
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:rz",
+      "kind": "global_nodal_rotation_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      },
+      "unit": "rad",
+      "value": 0.0019327653160282235
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "support:S-100",
+      "id": "result:reaction:support-S-100",
+      "kind": "reaction_resultant",
+      "unit": "N",
+      "value": 1085.424506559375
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": -3.637978807091713e-12
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:axial:end-j",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": 3.637978807091713e-12
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": -1000.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:shear-y:end-j",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": 1000.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": 422.07387912504475
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:shear-z:end-j",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": 2.842170943040401e-14
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": 115.32727457673124
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:torsion:end-j",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": -422.07387912504464
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:bending-y:end-j",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": -7.105427357601002e-15
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": -2000.0000000000068
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:bending-z:end-j",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": 1.8189894035458565e-12
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-1:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N",
+      "value": 382.68343236509304
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-1:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N",
+      "value": -923.8795325112854
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-1:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N",
+      "value": 316.5554093437835
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-1:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N*m",
+      "value": 96.60273078225646
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-1:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N*m",
+      "value": -234.58029570126578
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-1:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N*m",
+      "value": -1541.1961001461996
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:midspan:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N",
+      "value": 3.694822225952521e-12
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:midspan:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N",
+      "value": -1000.0000000000001
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:midspan:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N",
+      "value": 211.03693956252235
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:midspan:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N*m",
+      "value": 29.75072524014231
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:midspan:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N*m",
+      "value": -111.2994231491119
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:midspan:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N*m",
+      "value": -1000.0000000000033
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-3:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N",
+      "value": -382.6834323650863
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-3:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N",
+      "value": -923.8795325112883
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-3:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N",
+      "value": 105.51846978126116
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-3:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N*m",
+      "value": 3.8059467467810535
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-3:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N*m",
+      "value": -28.925777645711005
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-3:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "N*m",
+      "value": -458.8038998538061
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-i:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0.19971524315818745
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-i:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -2.777199838319102
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-i:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -14.616841254311083
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-i:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0.7926077332439619
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-j:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -0.19971524315818598
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-j:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 3.671966755707473e-17
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-j:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -1.3293939677451882e-14
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-j:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 1.8359833778537358e-17
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-1:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0.10808511073696103
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-1:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -1.7144114718273757
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-1:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -11.263709368800152
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-1:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0.35300669514429794
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:midspan:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 1.043565609771328e-15
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:midspan:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -0.8134229999334817
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:midspan:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -7.3084206271555585
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:midspan:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0.10871540700894643
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-3:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -0.10808511073695912
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-3:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -0.21140175000242878
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-3:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": -3.3531318855109586
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-3:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0.013907729855015075
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100",
+      "kind": "open_formula_stress_summary",
+      "unit": "MPa",
+      "value": 17.593756335788374
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "component:C-110",
+      "id": "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "metadata": {
+        "basis": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=2;source=invented_user_entered_preview_no_code_table;solver_consumption=curved_bend_macro_element;flexibility_realization=assembled_curved_bend_macro_element_stiffness",
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-100:end_j",
+        "sign_convention": "positive value is base open-mechanics stress summary multiplied by the user-entered SIF only; the user-entered flexibility factor enters the assembled curved-bend macro-element stiffness"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-100:end-j:axial-normal",
+        "result:stress:pipe-P-100:end-j:bending-normal-y",
+        "result:stress:pipe-P-100:end-j:bending-normal-z",
+        "result:stress:pipe-P-100:end-j:torsional-shear",
+        "result:stress:pipe-P-100"
+      ],
+      "unit": "MPa",
+      "value": 0.2296725296319292
+    },
+    {
+      "entity_ref": "component:C-110",
+      "id": "result:component-stiffness:component-C-110:curved-bend-flexibility",
+      "kind": "curved_bend_macro_element_review",
+      "metadata": {
+        "basis": "component_family=bend;user_entered_flexibility=2;flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m=1.4142135623730951;arc_included_angle_rad=1.5707963267948963;arc_length_m=2.221441469079183;arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source=invented_user_entered_preview_no_code_table;solver_consumption=curved_bend_macro_element;macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment=arc_end_cap_tangent_pair_plus_consistent_radial_wall_load;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
+        "component": "curved_bend_flexibility",
+        "coordinate_system": "component_local_preview",
+        "location": "pipe:P-100",
+        "sign_convention": "positive value is the user-entered bend flexibility factor consumed by the assembled curved-bend macro-element stiffness; the stress-review multiplier applies the user-entered SIF only and no protected or default component factor is supplied"
+      },
+      "unit": "unitless",
+      "value": 2.0
+    }
+  ],
+  "run_id": "run:preview-linear-static-001",
+  "schema_version": "0.2.0",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED",
+    "professional_acceptance": "NOT_PROVIDED",
+    "rule_check": "RULE_INPUTS_INCOMPLETE"
+  },
+  "summary": {
+    "component_pressure_thrust_load_count": 0,
+    "component_stress_modifier_count": 1,
+    "component_user_stiffness_macro_element_count": 1,
+    "load_case_count": 1,
+    "max_displacement": {
+      "location_ref": "node:N-110",
+      "result_ref": "result:disp:node-N-110",
+      "unit": "mm",
+      "value": 2.7177335930251227
+    },
+    "max_open_formula_stress": {
+      "location_ref": "pipe:P-100",
+      "result_ref": "result:stress:pipe-P-100",
+      "unit": "MPa",
+      "value": 17.593756335788374
+    },
+    "node_count": 2,
+    "segment_count": 1,
+    "spring_hanger_user_input_count": 0,
+    "support_count": 1
+  }
+}

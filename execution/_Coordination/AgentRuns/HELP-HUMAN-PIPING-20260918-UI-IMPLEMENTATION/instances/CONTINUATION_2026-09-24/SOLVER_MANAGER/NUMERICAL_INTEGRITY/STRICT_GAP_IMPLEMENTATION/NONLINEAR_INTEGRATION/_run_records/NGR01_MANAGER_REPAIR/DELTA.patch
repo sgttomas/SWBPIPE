@@ -1,0 +1,12 @@
+--- before/lib.rs
++++ after/lib.rs
+@@ -4643,8 +4643,7 @@
+                 1.0,
+             );
+             mixed.nonlinear_supports[1] =
+-                NonlinearSupport::one_way("g2", 2, FrameDof::Ux, ActivationSense::NegativeReaction)
+-                    .unwrap();
++                NonlinearSupport::one_way("g2", 2, FrameDof::Ux, ActivationSense::NegativeReaction);
+             let result = solve_active_set_frame_with_mode(&mixed, mode).unwrap();
+             assert!(result.converged);
+             assert!(result

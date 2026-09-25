@@ -1,0 +1,13 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/private/tmp/piping-nonlinear-integration-exact-gap-target/debug/deps/open_pipe_stress_nonlinear_integration-dd17f20a628b76ea)
+
+running 6 tests
+test tests::strict_gap_budget_and_duplicate_dofs_remain_explicit_without_projection ... ok
+test tests::strict_gap_nonzero_prescribed_root_preserves_original_coupling ... ok
+test tests::strict_gap_small_strain_axial_companion_both_senses_seeds_modes ... ok
+test tests::strict_gap_source_springs_and_decision_mutations_remain_bound ... ok
+test tests::strict_gap_unsupported_blocks_and_mixed_families_do_not_gain_qualification ... ok
+test tests::strict_gap_27_independent_neighbors_all_senses_seeds_and_backends ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 52 filtered out; finished in 1.21s
+

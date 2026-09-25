@@ -1,0 +1,1121 @@
+{
+  "base": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "baseline_exit_codes": [
+    0,
+    0
+  ],
+  "initial_core_source_sha256_ref": "BEFORE.json",
+  "corrected_observer_sha256": "f61f115b7c1e22490c204660ad505e2219bf67684add9c24511b4419b3a38037",
+  "initial_observer_archive_ref": "../ORACLES/_run_records/observer_initial.rs",
+  "correction": "N03 only: explicit anchor family permits authored rotational DOF. Initial Guide-family rejection was a fixture eligibility error, not mechanical evidence. No analytical expectation changed.",
+  "corrected_compile_scope": "Cargo corrected log compiled observer only; reused unchanged core baseline artifacts from initial base63 build. Numerical source authoring occurs separately after baseline.",
+  "log_sha256": {
+    "cargo.log": "d73d95da40e5e23da615b61c0c218f6875d02421e90aed84af473333283f3c8e",
+    "cargo_corrected.log": "a720433260010354a189952ca6fee38f3e339b205217c0d5aba0c8201926b309",
+    "observations.jsonl": "4064cfc1193f76b3bb289815f35615076bcd63afdf9cf0f71b49fd5f654fef45",
+    "observations_corrected.jsonl": "b226d7e4568b89194db89fb51fc28a44284a110a908c1a6c89881d728d3de94b"
+  },
+  "observer_manifest_lock_sha256": "64503e35d6f31194121f5aad77da6788d809acfa9c0bce04348c13027c2efda1",
+  "case_count": 38,
+  "product_observations": [
+    {
+      "case": "N08-positive",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N08-positive",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N08-negative",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N08-negative",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N08-small",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N08-small",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N08-small-negative",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N08-small-negative",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N09-torsion",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N09-torsion",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N05",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0001,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0001,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N05",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0001,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0001,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N06",
+      "mode": "dense_scrutiny",
+      "mechanics": "MODEL_INCOMPLETE",
+      "blocking_diagnostics": [
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "rotations": []
+    },
+    {
+      "case": "N06",
+      "mode": "sparse_interactive",
+      "mechanics": "MODEL_INCOMPLETE",
+      "blocking_diagnostics": [
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "rotations": []
+    },
+    {
+      "case": "N02-loaded",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 2013265919.999999,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 2684354559.999999,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 2013265919.999998,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 2684354560.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N02-loaded",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 1789569706.666667,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 2386092942.222224,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 1789569706.666666,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 2386092942.222224,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N02-unloaded",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N02-unloaded",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N01",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.00037,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N01",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.00037,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N09-bending",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.000926,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N09-bending",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.000926,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N03-RX-stabilized",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N03-RX-stabilized",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N03-RZ-not-stabilized",
+      "mode": "dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 2013265919.999999,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 2684354559.999999,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 2013265919.999998,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 2684354560.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N03-RZ-not-stabilized",
+      "mode": "sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "blocking_diagnostics": [],
+      "rotations": [
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_x",
+          "value": 1789569706.666667,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_y",
+          "value": 2386092942.222224,
+          "unit": "rad"
+        },
+        {
+          "node": "root",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_x",
+          "value": 1789569706.666666,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_y",
+          "value": 2386092942.222224,
+          "unit": "rad"
+        },
+        {
+          "node": "tip",
+          "kind": "global_nodal_rotation_z",
+          "value": 0.0,
+          "unit": "rad"
+        }
+      ]
+    },
+    {
+      "case": "N04",
+      "mode": "dense_scrutiny",
+      "mechanics": "MODEL_INCOMPLETE",
+      "blocking_diagnostics": [
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "rotations": []
+    },
+    {
+      "case": "N04",
+      "mode": "sparse_interactive",
+      "mechanics": "MODEL_INCOMPLETE",
+      "blocking_diagnostics": [
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "rotations": []
+    }
+  ],
+  "scope_limits": [
+    "NP-A separately constructed stored matrix is not labelled exact product section arithmetic",
+    "Generic nonsymmetric dense API acceptance of indefinite/skew matrices is not an API defect",
+    "Published N05 rounding masks underlying forward error; no physical accuracy pass inferred",
+    "No new method or numerical gate executed"
+  ],
+  "resource_status": "CPU lane returned ROOT after bounded baseline; no further heavy command authorized"
+}

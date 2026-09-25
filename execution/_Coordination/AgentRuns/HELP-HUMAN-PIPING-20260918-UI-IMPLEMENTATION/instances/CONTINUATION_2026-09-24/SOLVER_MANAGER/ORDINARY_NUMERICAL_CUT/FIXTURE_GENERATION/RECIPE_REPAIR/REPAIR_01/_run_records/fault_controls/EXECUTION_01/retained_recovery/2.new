@@ -1,0 +1,111 @@
+{
+  "record_kind": "actual_product_generated_example_fixture_basis",
+  "path_base": "projects/chirality-piping",
+  "recipe": {
+    "path": "tools/serialization/generate_product_preview_mechanics.mjs",
+    "sha256": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399"
+  },
+  "generator": {
+    "path": "core/product_physics/examples/preview_result.rs",
+    "sha256": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17"
+  },
+  "input_model": {
+    "path": "fixtures/product_preview/invented_preview_model.json",
+    "sha256": "2909b867f93b7f439b168c3883f75ea7c5b971480b30530e92e27e486f6a3c2b"
+  },
+  "historical_fixture_preserved": {
+    "path": "fixtures/product_preview/invented_mechanics_result.json",
+    "sha256": "c9984bd1f4c8621cf7bd3f48bdf33a061422752480fec8f8c50e69501cadb968"
+  },
+  "source_input_files": {
+    "core/product_physics/Cargo.lock": "fba21ee26906fc473020335515a0f94ca90997a2d010781d54f18c6a97ff754d",
+    "core/product_physics/Cargo.toml": "9c095e8785a8bb5aef51b44b3ce5ab9e1ef6f01372fa3f49e9f29640c941ccf1",
+    "core/product_physics/examples/preview_result.rs": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17",
+    "core/product_physics/src/lib.rs": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17",
+    "fixtures/product_preview/invented_mechanics_result.json": "c9984bd1f4c8621cf7bd3f48bdf33a061422752480fec8f8c50e69501cadb968",
+    "fixtures/product_preview/invented_preview_model.json": "2909b867f93b7f439b168c3883f75ea7c5b971480b30530e92e27e486f6a3c2b",
+    "package.json": "5d25dcae86cf890bc2d36579d137e4a50f6a5c00bed55a22a7f89b0d3d343897",
+    "tools/serialization/generate_product_preview_mechanics.mjs": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399"
+  },
+  "source_input_files_after": {
+    "core/product_physics/Cargo.lock": "fba21ee26906fc473020335515a0f94ca90997a2d010781d54f18c6a97ff754d",
+    "core/product_physics/Cargo.toml": "9c095e8785a8bb5aef51b44b3ce5ab9e1ef6f01372fa3f49e9f29640c941ccf1",
+    "core/product_physics/examples/preview_result.rs": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17",
+    "core/product_physics/src/lib.rs": "dda7ee88579b8a0a43e2976e649c6f13a57c98804b06b89cbe1f16d4ca001e17",
+    "fixtures/product_preview/invented_mechanics_result.json": "c9984bd1f4c8621cf7bd3f48bdf33a061422752480fec8f8c50e69501cadb968",
+    "fixtures/product_preview/invented_preview_model.json": "2909b867f93b7f439b168c3883f75ea7c5b971480b30530e92e27e486f6a3c2b",
+    "package.json": "5d25dcae86cf890bc2d36579d137e4a50f6a5c00bed55a22a7f89b0d3d343897",
+    "tools/serialization/generate_product_preview_mechanics.mjs": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399"
+  },
+  "inventory_json_sha256": "c460790e53edff2c82ac298ee1b0d3c7c1f6ce41c3badfb34d36117c63b01ef1",
+  "dependencies": [
+    {
+      "name": "transaction_only_local_stub",
+      "version": "0.0.0",
+      "source": "project_local",
+      "manifest": "core/product_physics/Cargo.toml"
+    }
+  ],
+  "tools": {
+    "node": "v24.18.0",
+    "cargo": "cargo 0.0.0 (transaction-only-stub)",
+    "rustc": "rustc 0.0.0 (transaction-only-stub)"
+  },
+  "outputs": [
+    {
+      "mode": "sparse_interactive",
+      "path": "fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "d6007bf957f7c23511ad9e9ad0e8012bab7cf4d423cd5a80d0ecded29b667855",
+      "command": [
+        "cargo",
+        "run",
+        "--offline",
+        "--locked",
+        "--quiet",
+        "--manifest-path",
+        "core/product_physics/Cargo.toml",
+        "--example",
+        "preview_result",
+        "--",
+        "sparse_interactive"
+      ],
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "model_ref": "transaction-only:no-physics",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "numerical_status": "unresolved",
+      "row_count": 1,
+      "load_case_ids": [
+        "load:transaction-only"
+      ]
+    },
+    {
+      "mode": "dense_scrutiny",
+      "path": "fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "d5597a00fd92ed23f101cd850f4be5795959bc993b27ead58fb7c15b16062b0e",
+      "command": [
+        "cargo",
+        "run",
+        "--offline",
+        "--locked",
+        "--quiet",
+        "--manifest-path",
+        "core/product_physics/Cargo.toml",
+        "--example",
+        "preview_result",
+        "--",
+        "dense_scrutiny"
+      ],
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "model_ref": "transaction-only:no-physics",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "numerical_status": "unresolved",
+      "row_count": 1,
+      "load_case_ids": [
+        "load:transaction-only"
+      ]
+    }
+  ],
+  "provenance": "Actual unchanged-input Rust executions; raw stdout retained as fixture bytes. No headers, quality or numeric values synthesized. Example transport data, not independent physics or source/build authentication."
+}

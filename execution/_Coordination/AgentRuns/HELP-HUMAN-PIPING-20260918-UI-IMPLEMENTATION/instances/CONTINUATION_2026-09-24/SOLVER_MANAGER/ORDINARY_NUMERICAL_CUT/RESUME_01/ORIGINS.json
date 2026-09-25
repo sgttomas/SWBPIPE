@@ -1,0 +1,87 @@
+{
+  "parent": "/root",
+  "agent": "/root/numerical_resume",
+  "role": "WORKING_ITEMS",
+  "mechanism": "delegated-harness-native",
+  "predecessor_instance": "/root/solver_manager (interrupted; not this instance)",
+  "scope": "ordinary numerical corrections checkout source/evidence integration only",
+  "source_freeze": "FINAL_SOURCE_FREEZE_02.json",
+  "instructions": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "origin": "active checkout at supplied base"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+      "origin": "active checkout at supplied base"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "origin": "active checkout at supplied base"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "origin": "active checkout at supplied base"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "origin": "active checkout at supplied base"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "origin": "active checkout at supplied base"
+    }
+  ],
+  "recovery": {
+    "observer": "N05_ADMISSION_OBSERVATION/_run_records/EXECUTION.json",
+    "observer_exit_code": 0,
+    "process_inspection": "ps -axo pid,ppid,etime,%cpu,%mem,command (escalated read-only); no cargo/observer/pytest/vitest process found",
+    "original_freeze_unchanged": "faea30d225ec3e1dba27e44b16399d32b4bb610bd11681865cfe3c05b3b993b2"
+  },
+  "children": [
+    {
+      "agent": "/root/numerical_resume/n05_admission",
+      "role": "TASK",
+      "scope": "read-only completed observer and real admission diagnosis",
+      "write_root": "N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS"
+    },
+    {
+      "agent": "/root/numerical_resume/whole_cut_review",
+      "role": "TASK independent reviewer",
+      "scope": "complete frozen111file diff and verification review",
+      "write_root": "WHOLE_REVIEW_RESUME_01",
+      "fresh_context": true
+    },
+    {
+      "agent": "/root/numerical_resume/source_recovery_design",
+      "role": "HELPS_HUMANS commissioned by ROOT",
+      "scope": "read-only exact-source small-block recovery design and independent-reference plan",
+      "write_root": "SOURCE_RECOVERY_DESIGN_01"
+    },
+    {
+      "agent": "/root/numerical_resume/source_recovery_design_review",
+      "role": "TASK independent design/math/source-applicability reviewer",
+      "scope": "read-only source-recovery design a925f8a8c8f58cf6186504910f99b3b43e23a4eced10c019470e9d918c7613df",
+      "write_root": "SOURCE_RECOVERY_DESIGN_REVIEW_01",
+      "fresh_context": true
+    }
+  ],
+  "additional_consultation": [
+    {
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e",
+      "reason": "ROOT commissioned full-role bounded source recovery design"
+    },
+    {
+      "path": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba",
+      "reason": "ROOT-authorized scoped local source/evidence checkpoint"
+    }
+  ]
+}

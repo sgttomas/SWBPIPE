@@ -1,0 +1,22 @@
+[
+  {
+    "path": "../KERNEL_INTEGRATION_CHECKS/_run_records/nonlinear_recovery.log",
+    "sha256": "5afa020bb8942fc65faf7037d88c7b57ad92e982c9a9061e9df5a18cc75e08a6"
+  },
+  {
+    "path": "../KERNEL_INTEGRATION_CHECKS/_run_records/nonlinear_seed.log",
+    "sha256": "3b19fffc526c8c83228a43c693117bcade7f4bcc724d190bed1f0cfc41a5e013"
+  },
+  {
+    "path": "../KERNEL_INTEGRATION_CHECKS/_run_records/product_curved.log",
+    "sha256": "d870f6b62ce3b420d26372681aee90fed9e89a211e469d267929c7fbfb076b9a"
+  },
+  {
+    "path": "../KERNEL_INTEGRATION_CHECKS/_run_records/product_integrity.log",
+    "sha256": "4eac3eb58244739004869f99e55b3e2ac2b5879d921e4ba3b4d22435817b56cb"
+  },
+  {
+    "path": "../KERNEL_INTEGRATION_CHECKS/_run_records/product_precision.log",
+    "sha256": "2579949833b0fd593d896028f0dcb0b85b58f8e32b7cf5fd54d7902c804e64c6"
+  }
+]

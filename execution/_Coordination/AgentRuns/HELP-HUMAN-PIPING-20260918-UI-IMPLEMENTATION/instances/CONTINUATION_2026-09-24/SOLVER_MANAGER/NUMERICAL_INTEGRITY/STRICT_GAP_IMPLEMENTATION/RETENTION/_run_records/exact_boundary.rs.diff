@@ -1,0 +1,1047 @@
+--- before/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs
++++ after/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs
+@@ -45,7 +45,7 @@
+     DeclaredVector,
+     IdentifiedRepresentedContributions,
+ }
+-#[derive(Debug, Clone, Copy)]
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+ pub struct Limits {
+     pub dofs: usize,
+     pub source_terms: usize,
+@@ -146,6 +146,61 @@
+     numerator: Expansion,
+     denominator: Expansion,
+ }
++impl PartialEq for Ratio {
++    fn eq(&self, other: &Self) -> bool {
++        same_terms(&self.numerator.terms, &other.numerator.terms)
++            && same_terms(&self.denominator.terms, &other.denominator.terms)
++    }
++}
++fn same_terms(a: &[f64], b: &[f64]) -> bool {
++    a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.to_bits() == y.to_bits())
++}
++/// Actual constructor witnesses; accessors expose original ordered expansion
++/// terms. Positivity is established by construction/replay, not a caller boolean.
++#[derive(Debug, Clone, PartialEq)]
++pub struct BlockWitness {
++    dofs: Vec<usize>,
++    a: Vec<f64>,
++    b: Option<Vec<f64>>,
++    c: Option<Vec<f64>>,
++    determinant: Option<Vec<f64>>,
++}
++impl BlockWitness {
++    pub fn dofs(&self) -> &[usize] {
++        &self.dofs
++    }
++    pub fn a_terms(&self) -> &[f64] {
++        &self.a
++    }
++    pub fn b_terms(&self) -> Option<&[f64]> {
++        self.b.as_deref()
++    }
++    pub fn c_terms(&self) -> Option<&[f64]> {
++        self.c.as_deref()
++    }
++    pub fn determinant_terms(&self) -> Option<&[f64]> {
++        self.determinant.as_deref()
++    }
++    fn scalar_count(&self) -> usize {
++        self.dofs.len()
++            + self.a.len()
++            + self.b.as_ref().map_or(0, Vec::len)
++            + self.c.as_ref().map_or(0, Vec::len)
++            + self.determinant.as_ref().map_or(0, Vec::len)
++    }
++    fn same_bits(&self, b: &Self) -> bool {
++        let opt = |a: &Option<Vec<f64>>, b: &Option<Vec<f64>>| match (a, b) {
++            (None, None) => true,
++            (Some(a), Some(b)) => same_terms(a, b),
++            _ => false,
++        };
++        self.dofs == b.dofs
++            && same_terms(&self.a, &b.a)
++            && opt(&self.b, &b.b)
++            && opt(&self.c, &b.c)
++            && opt(&self.determinant, &b.determinant)
++    }
++}
+ impl Ratio {
+     pub fn numerator_terms(&self) -> &[f64] {
+         &self.numerator.terms
+@@ -184,7 +239,7 @@
+         denominator: w.scalar(1.0)?,
+     })
+ }
+-#[derive(Debug)]
++#[derive(Debug, Clone, PartialEq)]
+ struct Snapshot {
+     identity: String,
+     stiffness: Vec<Vec<f64>>,
+@@ -203,6 +258,7 @@
+     k: Vec<Vec<Expansion>>,
+     f: Vec<Expansion>,
+     blocks: Vec<Vec<usize>>,
++    witnesses: Vec<BlockWitness>,
+     limits: Limits,
+     preparation_operations: usize,
+ }
+@@ -213,6 +269,22 @@
+         force_basis: ForceBasis<'_>,
+         limits: Limits,
+     ) -> Result<Self, Error> {
++        let mut w = Work {
++            limits,
++            used: 0,
++            rejected: 0,
++        };
++        Self::new_charged(system, identity, force_basis, limits, &mut w)
++    }
++    fn new_charged(
++        system: &StructuralSystem<'_>,
++        identity: &str,
++        force_basis: ForceBasis<'_>,
++        limits: Limits,
++        w: &mut Work,
++    ) -> Result<Self, Error> {
++        let start = w.used;
++        w.charge(8)?;
+         let n = system.force.len();
+         if n > 256
+             || n > limits.dofs
+@@ -266,11 +338,6 @@
+         if count > 16_384 || count > limits.source_terms {
+             return Err(Error::Budget);
+         }
+-        let mut w = Work {
+-            limits,
+-            used: 0,
+-            rejected: 0,
+-        };
+         w.charge(n.checked_mul(n).ok_or(Error::Budget)?)?;
+         let mut k = vec![vec![Expansion::default(); n]; n];
+         let mut ordered_k = vec![vec![0.0_f64; n]; n];
+@@ -328,6 +395,7 @@
+         }
+         let mut visited = vec![false; n];
+         let mut blocks = Vec::new();
++        let mut witnesses = Vec::new();
+         for &i in system.free_dofs {
+             if visited[i] {
+                 continue;
+@@ -351,14 +419,34 @@
+             if sign(&k[i][i]) != Sign::Positive {
+                 return Err(Error::NotPositiveDefinite);
+             }
++            w.charge(block.len().saturating_add(k[i][i].terms.len()))?;
++            let mut witness = BlockWitness {
++                dofs: block.clone(),
++                a: k[i][i].terms.clone(),
++                b: None,
++                c: None,
++                determinant: None,
++            };
+             if block.len() == 2 {
+                 let j = block[1];
+                 let ac = w.mul(&k[i][i], &k[j][j])?;
+                 let bb = w.mul(&k[i][j], &k[i][j])?;
+-                if sign(&w.sum(&ac, &bb, -1.0)?) != Sign::Positive {
++                let determinant = w.sum(&ac, &bb, -1.0)?;
++                if sign(&determinant) != Sign::Positive {
+                     return Err(Error::NotPositiveDefinite);
+                 }
+-            }
++                w.charge(
++                    k[i][j]
++                        .terms
++                        .len()
++                        .saturating_add(k[j][j].terms.len())
++                        .saturating_add(determinant.terms.len()),
++                )?;
++                witness.b = Some(k[i][j].terms.clone());
++                witness.c = Some(k[j][j].terms.clone());
++                witness.determinant = Some(determinant.terms);
++            }
++            witnesses.push(witness);
+             blocks.push(block);
+         }
+         Ok(Self {
+@@ -381,8 +469,9 @@
+             k,
+             f,
+             blocks,
++            witnesses,
+             limits,
+-            preparation_operations: w.used,
++            preparation_operations: w.used - start,
+         })
+     }
+     pub fn free_dofs(&self) -> &[usize] {
+@@ -472,12 +561,15 @@
+             used: self.preparation_operations,
+             rejected: 0,
+         };
++        self.solve_charged(&mut w)
++    }
++    fn solve_charged(&self, w: &mut Work) -> Result<Response<'_>, Error> {
+         let n = self.f.len();
+         let zero = w.scalar(0.0)?;
+-        let mut u = vec![constant(&mut w, zero)?; n];
++        let mut u = vec![constant(w, zero)?; n];
+         for &(i, v) in &self.source.prescribed {
+             let value = w.scalar(v)?;
+-            u[i] = constant(&mut w, value)?;
++            u[i] = constant(w, value)?;
+         }
+         for block in &self.blocks {
+             let mut h = Vec::new();
+@@ -519,7 +611,7 @@
+         for i in 0..n {
+             let empty = Expansion::default();
+             let negf = w.sum(&empty, &self.f[i], -1.0)?;
+-            let mut r = constant(&mut w, negf)?;
++            let mut r = constant(w, negf)?;
+             for (j, uj) in u.iter().enumerate() {
+                 if self.k[i][j].is_zero() {
+                     continue;
+@@ -528,7 +620,7 @@
+                     numerator: w.mul(&self.k[i][j], &uj.numerator)?,
+                     denominator: uj.denominator.clone(),
+                 };
+-                r = ratio_add(&mut w, &r, &term)?;
++                r = ratio_add(w, &r, &term)?;
+             }
+             reactions.push(r);
+         }
+@@ -993,9 +1085,829 @@
+     }
+ }
+ 
++/// Exact contact operands from a single live response. A projected displacement
++/// never supplies the penetration or reaction evidence.
++#[derive(Debug, Clone, PartialEq)]
++pub struct RetainedContact {
++    dof: usize,
++    sense: i8,
++    gap: f64,
++    prescribed: Option<f64>,
++    penetration: Ratio,
++    normalized_reaction: Ratio,
++    penetration_sign: Sign,
++    reaction_sign: Sign,
++}
++impl RetainedContact {
++    pub fn dof(&self) -> usize {
++        self.dof
++    }
++    pub fn sense(&self) -> i8 {
++        self.sense
++    }
++    pub fn gap(&self) -> f64 {
++        self.gap
++    }
++    pub fn prescribed_value(&self) -> Option<f64> {
++        self.prescribed
++    }
++    pub fn penetration(&self) -> &Ratio {
++        &self.penetration
++    }
++    pub fn normalized_reaction(&self) -> &Ratio {
++        &self.normalized_reaction
++    }
++    pub fn penetration_sign(&self) -> Sign {
++        self.penetration_sign
++    }
++    pub fn reaction_sign(&self) -> Sign {
++        self.reaction_sign
++    }
++    fn same_bits(&self, b: &Self) -> bool {
++        self.dof == b.dof
++            && self.sense == b.sense
++            && self.gap.to_bits() == b.gap.to_bits()
++            && self.prescribed.map(f64::to_bits) == b.prescribed.map(f64::to_bits)
++            && self.penetration == b.penetration
++            && self.normalized_reaction == b.normalized_reaction
++            && self.penetration_sign == b.penetration_sign
++            && self.reaction_sign == b.reaction_sign
++    }
++}
++#[derive(Debug)]
++pub struct GapProof<'r, 'a> {
++    response: &'r Response<'a>,
++    contact: RetainedContact,
++}
++impl GapProof<'_, '_> {
++    pub fn contact(&self) -> &RetainedContact {
++        &self.contact
++    }
++}
++#[derive(Debug, Clone, PartialEq)]
++pub struct RetainedProjection {
++    quantity: Quantity,
++    dof: usize,
++    value: f64,
++    interval: [f64; 2],
++    absolute_error: f64,
++    relative_error: f64,
++    relative_limit: f64,
++    basis: ProjectionBasis,
++}
++impl RetainedProjection {
++    pub fn quantity(&self) -> Quantity {
++        self.quantity
++    }
++    pub fn dof(&self) -> usize {
++        self.dof
++    }
++    pub fn value(&self) -> f64 {
++        self.value
++    }
++    pub fn interval(&self) -> [f64; 2] {
++        self.interval
++    }
++    pub fn absolute_error_bound(&self) -> f64 {
++        self.absolute_error
++    }
++    pub fn relative_error_bound(&self) -> f64 {
++        self.relative_error
++    }
++    pub fn relative_limit(&self) -> f64 {
++        self.relative_limit
++    }
++    pub fn basis(&self) -> ProjectionBasis {
++        self.basis
++    }
++    fn matches_data(&self, p: &ProjectionData) -> bool {
++        self.value.to_bits() == p.value.to_bits()
++            && same_terms(&self.interval, &p.interval)
++            && self.absolute_error.to_bits() == p.absolute.to_bits()
++            && self.relative_error.to_bits() == p.relative.to_bits()
++            && self.basis == p.basis
++    }
++}
++/// Owned retained represented-source evidence, independent of the live Context.
++/// No public/import constructor exists. Read-only wire conversion does not grant
++/// method admission or a passing case policy. Replays require expected source.
++#[derive(Debug, Clone, PartialEq)]
++pub struct RetainedResponse {
++    source: Snapshot,
++    limits: Limits,
++    witnesses: Vec<BlockWitness>,
++    displacement: Vec<Ratio>,
++    reactions: Vec<Ratio>,
++    contacts: Vec<RetainedContact>,
++    projections: Vec<RetainedProjection>,
++    preparation_and_solve_charged: usize,
++}
++#[derive(Debug)]
++pub struct ReplayCheck {
++    dofs: usize,
++    blocks: usize,
++    contacts: usize,
++    projections: usize,
++}
++impl ReplayCheck {
++    pub fn dofs(&self) -> usize {
++        self.dofs
++    }
++    pub fn blocks(&self) -> usize {
++        self.blocks
++    }
++    pub fn contacts(&self) -> usize {
++        self.contacts
++    }
++    pub fn projections(&self) -> usize {
++        self.projections
++    }
++}
++impl Snapshot {
++    fn system(&self) -> StructuralSystem<'_> {
++        StructuralSystem {
++            stiffness: &self.stiffness,
++            force: &self.force,
++            free_dofs: &self.free,
++            prescribed: &self.prescribed,
++            contributions: Some(&self.contributions),
++            symmetry: self
++                .symmetry
++                .as_ref()
++                .map(|(a, c, b)| super::SymmetryEvidence {
++                    absolute_roundoff: a,
++                    operation_counts: c,
++                    basis: b,
++                }),
++        }
++    }
++    fn force_basis(&self) -> ForceBasis<'_> {
++        match &self.force_terms {
++            Some(t) => ForceBasis::IdentifiedContributions(t),
++            None => ForceBasis::DeclaredVector,
++        }
++    }
++    fn copy_charge(&self) -> usize {
++        // Saturation rejects before copying if strings/arrays exceed the cap.
++        let mut n = self
++            .identity
++            .len()
++            .saturating_add(self.force.len())
++            .saturating_add(self.free.len())
++            .saturating_add(self.prescribed.len().saturating_mul(2));
++        for row in &self.stiffness {
++            n = n.saturating_add(row.len());
++        }
++        n = n.saturating_add(self.contributions.len().saturating_mul(3));
++        if let Some(t) = &self.force_terms {
++            for x in t {
++                n = n.saturating_add(x.source.len()).saturating_add(2);
++            }
++        }
++        if let Some((a, c, b)) = &self.symmetry {
++            n = n.saturating_add(b.len());
++            for r in a {
++                n = n.saturating_add(r.len());
++            }
++            for r in c {
++                n = n.saturating_add(r.len());
++            }
++        }
++        n
++    }
++}
++fn ratio_charge(r: &Ratio) -> usize {
++    r.numerator
++        .terms
++        .len()
++        .saturating_add(r.denominator.terms.len())
++}
++fn contact_charged(
++    response: &Response<'_>,
++    dof: usize,
++    sense: i8,
++    gap: f64,
++    w: &mut Work,
++) -> Result<RetainedContact, Error> {
++    w.charge(16)?;
++    if !matches!(sense, -1 | 1) || !gap.is_finite() {
++        return Err(Error::Invalid("retained contact operands"));
++    }
++    let u = response
++        .displacement
++        .get(dof)
++        .ok_or(Error::Invalid("retained contact dof"))?;
++    let r = &response.reactions[dof];
++    let g = w.scalar(gap)?;
++    let gd = w.mul(&g, &u.denominator)?;
++    let sn = w.sum(&Expansion::default(), &u.numerator, sense as f64)?;
++    w.charge(
++        u.denominator
++            .terms
++            .len()
++            .saturating_add(r.denominator.terms.len()),
++    )?;
++    let penetration = Ratio {
++        numerator: w.sum(&sn, &gd, -1.0)?,
++        denominator: u.denominator.clone(),
++    };
++    let normalized_reaction = Ratio {
++        numerator: w.sum(&Expansion::default(), &r.numerator, sense as f64)?,
++        denominator: r.denominator.clone(),
++    };
++    w.charge(ratio_charge(&penetration).saturating_add(ratio_charge(&normalized_reaction)))?;
++    Ok(RetainedContact {
++        dof,
++        sense,
++        gap,
++        prescribed: response
++            .context
++            .source
++            .prescribed
++            .iter()
++            .find(|(i, _)| *i == dof)
++            .map(|(_, v)| *v),
++        penetration_sign: penetration.sign(),
++        reaction_sign: normalized_reaction.sign(),
++        penetration,
++        normalized_reaction,
++    })
++}
++impl<'a> Response<'a> {
++    pub fn gap_proof_with_work(
++        &self,
++        dof: usize,
++        sense: i8,
++        gap: f64,
++        work_limit: usize,
++    ) -> Attempt<GapProof<'_, 'a>> {
++        metered(self.context.limits, work_limit, |w| {
++            Ok(GapProof {
++                response: self,
++                contact: contact_charged(self, dof, sense, gap, w)?,
++            })
++        })
++    }
++    /// Copy complete actual source, minors, ratios and same-response leaf proofs.
++    /// Requires all displacement/reaction projection slots exactly once.
++    pub fn retain_with_work(
++        &self,
++        contacts: &[GapProof<'_, '_>],
++        projections: &[QualifiedProjection<'_, '_>],
++        work_limit: usize,
++    ) -> Attempt<RetainedResponse> {
++        metered(self.context.limits, work_limit, |w| {
++            let n = self.displacement.len();
++            w.charge(16)?;
++            if contacts.len() > n || projections.len() != 2 * n {
++                return Err(Error::Invalid("retention leaf coverage"));
++            }
++            let mut seen = vec![false; 2 * n];
++            let mut contact_seen = vec![false; n];
++            for p in projections {
++                w.charge(8)?;
++                if !std::ptr::eq(self, p.response) || p.dof >= n {
++                    return Err(Error::Invalid("retention projection response"));
++                }
++                let index = 2 * p.dof + usize::from(p.quantity == Quantity::Reaction);
++                if seen[index] {
++                    return Err(Error::Invalid("duplicate retained projection"));
++                }
++                seen[index] = true;
++            }
++            for p in contacts {
++                w.charge(8)?;
++                if !std::ptr::eq(self, p.response)
++                    || p.contact.dof >= n
++                    || contact_seen[p.contact.dof]
++                {
++                    return Err(Error::Invalid("retention contact response/coverage"));
++                }
++                contact_seen[p.contact.dof] = true;
++            }
++            let mut copies = self.context.source.copy_charge();
++            for b in &self.context.witnesses {
++                copies = copies.saturating_add(b.scalar_count());
++            }
++            for r in self.displacement.iter().chain(&self.reactions) {
++                copies = copies.saturating_add(ratio_charge(r));
++            }
++            for c in contacts {
++                copies = copies
++                    .saturating_add(8)
++                    .saturating_add(ratio_charge(&c.contact.penetration))
++                    .saturating_add(ratio_charge(&c.contact.normalized_reaction));
++            }
++            copies = copies.saturating_add(projections.len().saturating_mul(12));
++            w.charge(copies)?;
++            Ok(RetainedResponse {
++                source: self.context.source.clone(),
++                limits: self.context.limits,
++                witnesses: self.context.witnesses.clone(),
++                displacement: self.displacement.clone(),
++                reactions: self.reactions.clone(),
++                contacts: contacts.iter().map(|p| p.contact.clone()).collect(),
++                projections: projections
++                    .iter()
++                    .map(|p| RetainedProjection {
++                        quantity: p.quantity,
++                        dof: p.dof,
++                        value: p.value,
++                        interval: p.interval,
++                        absolute_error: p.absolute_error,
++                        relative_error: p.relative_error,
++                        relative_limit: p.relative_limit,
++                        basis: p.basis,
++                    })
++                    .collect(),
++                preparation_and_solve_charged: self.operations,
++            })
++        })
++    }
++}
++impl RetainedResponse {
++    pub fn source_system(&self) -> StructuralSystem<'_> {
++        self.source.system()
++    }
++    pub fn source_identity(&self) -> &str {
++        &self.source.identity
++    }
++    pub fn force_basis(&self) -> ForceBasis<'_> {
++        self.source.force_basis()
++    }
++    pub fn limits(&self) -> Limits {
++        self.limits
++    }
++    pub fn block_witnesses(&self) -> &[BlockWitness] {
++        &self.witnesses
++    }
++    pub fn displacements(&self) -> &[Ratio] {
++        &self.displacement
++    }
++    pub fn reactions(&self) -> &[Ratio] {
++        &self.reactions
++    }
++    pub fn contacts(&self) -> &[RetainedContact] {
++        &self.contacts
++    }
++    pub fn projections(&self) -> &[RetainedProjection] {
++        &self.projections
++    }
++    pub fn preparation_and_solve_charged(&self) -> usize {
++        self.preparation_and_solve_charged
++    }
++    /// Rebuild from original source with ONE bounded Work; compare ordered terms
++    /// before trusting any retained sign. No externally supplied expansion is
++    /// interpreted using its last term. Expected-source correspondence is a
++    /// separate check: replaying against one's own source proves consistency,
++    /// not identity to a different current invocation.
++    pub fn replay_against(
++        &self,
++        expected: &StructuralSystem<'_>,
++        identity: &str,
++        force_basis: ForceBasis<'_>,
++        expected_contacts: &[(usize, i8, f64)],
++        expected_relative_limit: f64,
++        expected_limits: Limits,
++        work_limit: usize,
++    ) -> Attempt<ReplayCheck> {
++        metered(expected_limits, work_limit, |w| {
++            w.charge(16)?;
++            if self.limits != expected_limits
++                || self.limits.expansion_terms < 2
++                || self.limits.expansion_terms > 4096
++                || !expected_relative_limit.is_finite()
++                || expected_relative_limit < 0.0
++            {
++                return Err(Error::Invalid("retained expected policy/limits"));
++            }
++            let n = self.source.force.len();
++            if n > 256
++                || n > self.limits.dofs
++                || self.displacement.len() != n
++                || self.reactions.len() != n
++                || self.witnesses.len() > n
++                || self.contacts.len() > n
++                || self.projections.len() != 2 * n
++            {
++                return Err(Error::Invalid("retained dimensions"));
++            }
++            if self.source.contributions.len() > 16_384
++                || self
++                    .source
++                    .force_terms
++                    .as_ref()
++                    .is_some_and(|t| t.len() > 16_384)
++            {
++                return Err(Error::Invalid("retained source count"));
++            }
++            w.charge(
++                n.saturating_mul(n)
++                    .saturating_add(n.saturating_mul(32))
++                    .saturating_add(self.source.contributions.len().saturating_mul(4)),
++            )?;
++            if self.source.stiffness.len() != n
++                || self.source.stiffness.iter().any(|r| r.len() != n)
++                || self.source.free.len() > n
++                || self.source.prescribed.len() > n
++                || self.source.contributions.len() > self.limits.source_terms
++                || self
++                    .source
++                    .force_terms
++                    .as_ref()
++                    .is_some_and(|t| t.len() > self.limits.source_terms)
++            {
++                return Err(Error::Invalid("retained source dimensions"));
++            }
++            // Bound scalar inspection/copy before any replay arithmetic or clone.
++            let mut count = self.source.copy_charge();
++            for r in self.displacement.iter().chain(&self.reactions) {
++                if r.numerator.terms.len() > self.limits.expansion_terms
++                    || r.denominator.terms.is_empty()
++                    || r.denominator.terms.len() > self.limits.expansion_terms
++                {
++                    return Err(Error::Invalid("retained ratio term count"));
++                }
++                count = count.saturating_add(ratio_charge(r));
++            }
++            for b in &self.witnesses {
++                if b.dofs.is_empty()
++                    || b.dofs.len() > 2
++                    || b.scalar_count() > 4 * self.limits.expansion_terms + 2
++                {
++                    return Err(Error::Invalid("retained minor size"));
++                }
++                count = count.saturating_add(b.scalar_count());
++            }
++            for c in &self.contacts {
++                for r in [&c.penetration, &c.normalized_reaction] {
++                    if r.numerator.terms.len() > self.limits.expansion_terms
++                        || r.denominator.terms.is_empty()
++                        || r.denominator.terms.len() > self.limits.expansion_terms
++                    {
++                        return Err(Error::Invalid("retained contact term count"));
++                    }
++                }
++                count = count
++                    .saturating_add(8)
++                    .saturating_add(ratio_charge(&c.penetration))
++                    .saturating_add(ratio_charge(&c.normalized_reaction));
++            }
++            count = count.saturating_add(self.projections.len().saturating_mul(12));
++            w.charge(count)?;
++            if expected_contacts.len() != self.contacts.len()
++                || !expected_contacts
++                    .iter()
++                    .zip(&self.contacts)
++                    .all(|(&(d, s, g), c)| {
++                        d == c.dof && s == c.sense && g.to_bits() == c.gap.to_bits()
++                    })
++                || self
++                    .projections
++                    .iter()
++                    .any(|p| p.relative_limit.to_bits() != expected_relative_limit.to_bits())
++            {
++                return Err(Error::Invalid(
++                    "retained expected contact/projection policy",
++                ));
++            }
++            let source = self.source.system();
++            let context = Context::new_charged(
++                &source,
++                &self.source.identity,
++                self.source.force_basis(),
++                self.limits,
++                w,
++            )?;
++            if !context.matches(expected, identity, force_basis) {
++                return Err(Error::Invalid("retained expected-source binding"));
++            }
++            if context.witnesses.len() != self.witnesses.len()
++                || !context
++                    .witnesses
++                    .iter()
++                    .zip(&self.witnesses)
++                    .all(|(a, b)| a.same_bits(b))
++            {
++                return Err(Error::Invalid("retained block/minor mismatch"));
++            }
++            let response = context.solve_charged(w)?;
++            if response.displacement != self.displacement || response.reactions != self.reactions {
++                return Err(Error::Invalid("retained ratio mismatch"));
++            }
++            let mut contact_seen = vec![false; n];
++            for c in &self.contacts {
++                if c.dof >= n || contact_seen[c.dof] {
++                    return Err(Error::Invalid("retained contact coverage"));
++                }
++                contact_seen[c.dof] = true;
++                let recomputed = contact_charged(&response, c.dof, c.sense, c.gap, w)?;
++                if !c.same_bits(&recomputed) {
++                    return Err(Error::Invalid("retained contact mismatch"));
++                }
++            }
++            let mut seen = vec![false; 2 * n];
++            for p in &self.projections {
++                w.charge(8)?;
++                if p.dof >= n {
++                    return Err(Error::Invalid("retained projection dof"));
++                }
++                let index = 2 * p.dof + usize::from(p.quantity == Quantity::Reaction);
++                if seen[index] {
++                    return Err(Error::Invalid("retained projection coverage"));
++                }
++                seen[index] = true;
++                let ratio = match p.quantity {
++                    Quantity::Displacement => &response.displacement[p.dof],
++                    Quantity::Reaction => &response.reactions[p.dof],
++                };
++                let q = project(w, ratio, p.relative_limit)?;
++                if !p.matches_data(&q) {
++                    return Err(Error::Invalid("retained projection mismatch"));
++                }
++            }
++            Ok(ReplayCheck {
++                dofs: n,
++                blocks: self.witnesses.len(),
++                contacts: self.contacts.len(),
++                projections: self.projections.len(),
++            })
++        })
++    }
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
++    fn retained_fixture(c: &Context, requests: &[(usize, i8, f64)]) -> RetainedResponse {
++        let r = c.solve().unwrap();
++        let contacts = requests
++            .iter()
++            .map(|&(d, s, g)| r.gap_proof_with_work(d, s, g, usize::MAX).result.unwrap())
++            .collect::<Vec<_>>();
++        let mut projections = Vec::new();
++        for dof in 0..c.dof_count() {
++            projections.push(
++                r.project_displacement(dof, 1e-9, usize::MAX)
++                    .result
++                    .unwrap(),
++            );
++            projections.push(r.project_reaction(dof, 1e-9, usize::MAX).result.unwrap());
++        }
++        r.retain_with_work(&contacts, &projections, usize::MAX)
++            .result
++            .unwrap()
++    }
++    #[test]
++    fn retained_adjacent_witness_replays_after_context_drop() {
++        let gap = f64::from_bits(0.125_f64.to_bits() - 1);
++        let requests = [(1, 1, gap), (2, 1, 0.25)];
++        let retained = {
++            let c = chain(12.5, [gap, 0.25], [true, false], 1.0, 0.0);
++            retained_fixture(&c, &requests)
++        };
++        // Context and response are gone. The original expected input is explicit.
++        let k = vec![
++            vec![100.0, -100.0, 0.0],
++            vec![-100.0, 200.0, -100.0],
++            vec![0.0, -100.0, 100.0],
++        ];
++        let cs = contributions(&k);
++        let fixed = [(0, 0.0), (1, gap)];
++        let expected = StructuralSystem {
++            stiffness: &k,
++            force: &[0.0, 0.0, 12.5],
++            free_dofs: &[2],
++            prescribed: &fixed,
++            contributions: Some(&cs),
++            symmetry: None,
++        };
++        let replay = retained.replay_against(
++            &expected,
++            "independent-rational-control",
++            ForceBasis::DeclaredVector,
++            &requests,
++            1e-9,
++            Limits::default(),
++            usize::MAX,
++        );
++        assert!(replay.work.charged > 0);
++        assert_eq!(replay.result.unwrap().dofs(), 3);
++        assert_eq!(retained.contacts()[1].penetration_sign(), Sign::Negative);
++        let public_u = retained
++            .projections()
++            .iter()
++            .find(|p| p.quantity() == Quantity::Displacement && p.dof() == 2)
++            .unwrap()
++            .value();
++        assert_eq!(public_u, 0.25); // exact u2 = 1/4 - 2^-56 rounds to 1/4
++        assert_eq!(
++            retained.reactions()[1].approximate_projection().unwrap(),
++            -25.0 * 2.0_f64.powi(-54)
++        );
++        let mut on_public = Expansion::default();
++        on_public.add_product(200.0, gap, 0).unwrap();
++        on_public.add_product(-100.0, public_u, 0).unwrap();
++        assert_eq!(
++            on_public.exact_scalar().unwrap(),
++            Some(-25.0 * 2.0_f64.powi(-53))
++        );
++        assert_ne!(
++            on_public.terms.as_slice(),
++            retained.reactions()[1].numerator_terms()
++        );
++        let denied = retained.replay_against(
++            &expected,
++            "independent-rational-control",
++            ForceBasis::DeclaredVector,
++            &requests,
++            1e-9,
++            Limits::default(),
++            replay.work.charged - 1,
++        );
++        assert!(matches!(denied.result, Err(Error::Budget)));
++        assert!(denied.work.rejected > 0);
++    }
++    #[test]
++    fn retained_mutations_and_different_consistent_source_reject_original_binding() {
++        let c = chain(12.5, [0.125, 0.25], [false, false], 1.0, 0.0);
++        let requests = [(1, 1, 0.125), (2, 1, 0.25)];
++        let retained = retained_fixture(&c, &requests);
++        let expected = c.source.system();
++        let check = |x: &RetainedResponse| {
++            x.replay_against(
++                &expected,
++                c.source_identity(),
++                ForceBasis::DeclaredVector,
++                &requests,
++                1e-9,
++                Limits::default(),
++                usize::MAX,
++            )
++            .result
++            .is_err()
++        };
++        let mut mutants = Vec::new();
++        let mut m = retained.clone();
++        m.source.force[0] = -0.0;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.source.prescribed[0].1 = 0.0625;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.source.free.reverse();
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.source.contributions[3].value = -99.0;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.source.identity.push_str(" another invocation");
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.witnesses[0].a[0] = -200.0;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.witnesses[0].determinant.as_mut().unwrap()[0] = -10000.0;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.witnesses[0].dofs.reverse();
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.displacement[1].denominator.terms.clear();
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.displacement[1].denominator.terms[0] *= -1.0;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.displacement[1].numerator.terms.push(2.0_f64.powi(-60));
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.reactions[1].numerator.terms.push(2.0_f64.powi(-60));
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.contacts[0].penetration_sign = Sign::Positive;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.contacts[0].gap = 0.5;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.projections[2].value = 0.5;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.projections[2].basis = ProjectionBasis::OutwardInterval;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.projections[2].relative_limit = 1e-8;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.projections[2].absolute_error = 1.0;
++        mutants.push(m);
++        let mut m = retained.clone();
++        m.limits.operations *= 2;
++        mutants.push(m);
++        for (i, m) in mutants.iter().enumerate() {
++            assert!(check(m), "mutation {i}");
++        }
++        let other = chain(13.0, [0.125, 0.25], [false, false], 1.0, 0.0);
++        let other = retained_fixture(&other, &requests);
++        assert!(check(&other));
++        assert!(other
++            .replay_against(
++                &other.source_system(),
++                other.source_identity(),
++                other.force_basis(),
++                &requests,
++                1e-9,
++                other.limits(),
++                usize::MAX
++            )
++            .result
++            .is_ok());
++    }
++    #[test]
++    fn retained_force_tail_and_projection_rebinding_are_checked() {
++        let k = vec![vec![1.0]];
++        let cs = contributions(&k);
++        let fixed = [(0, 0.0)];
++        let system = StructuralSystem {
++            stiffness: &k,
++            force: &[1.0],
++            free_dofs: &[],
++            prescribed: &fixed,
++            contributions: Some(&cs),
++            symmetry: None,
++        };
++        let terms = [
++            ForceContribution {
++                source: "direct".into(),
++                dof: 0,
++                value: 1.0,
++            },
++            ForceContribution {
++                source: "tail".into(),
++                dof: 0,
++                value: 2.0_f64.powi(-60),
++            },
++        ];
++        let c = Context::new(
++            &system,
++            "force terms",
++            ForceBasis::IdentifiedContributions(&terms),
++            Limits::default(),
++        )
++        .unwrap();
++        let retained = retained_fixture(&c, &[]);
++        assert_eq!(retained.reactions()[0].numerator_terms().len(), 2);
++        assert!(retained
++            .replay_against(
++                &system,
++                "force terms",
++                ForceBasis::IdentifiedContributions(&terms),
++                &[],
++                1e-9,
++                Limits::default(),
++                usize::MAX
++            )
++            .result
++            .is_ok());
++        let mut m = retained.clone();
++        m.source.force_terms.as_mut().unwrap()[1].value = 0.0;
++        assert!(m
++            .replay_against(
++                &system,
++                "force terms",
++                ForceBasis::IdentifiedContributions(&terms),
++                &[],
++                1e-9,
++                Limits::default(),
++                usize::MAX
++            )
++            .result
++            .is_err());
++        assert!(retained
++            .replay_against(
++                &system,
++                "force terms",
++                ForceBasis::DeclaredVector,
++                &[],
++                1e-9,
++                Limits::default(),
++                usize::MAX
++            )
++            .result
++            .is_err());
++        let a = c.solve().unwrap();
++        let b = c.solve().unwrap();
++        let wrong = [
++            b.project_displacement(0, 1e-9, usize::MAX).result.unwrap(),
++            b.project_reaction(0, 1e-9, usize::MAX).result.unwrap(),
++        ];
++        assert!(a.retain_with_work(&[], &wrong, usize::MAX).result.is_err());
++        assert!(matches!(
++            a.retain_with_work(&[], &[], 0).result,
++            Err(Error::Budget)
++        ));
++    }
+     fn scalar_projection(n: f64, d: f64, criterion: f64, budget: usize) -> Attempt<ProjectionData> {
+         let mut numerator = Expansion::default();
+         numerator.add(n).unwrap();

@@ -1,0 +1,28 @@
+{
+  "finding": "F4",
+  "status": "Confirmed by static branch comparison; no runtime execution",
+  "source_hashes": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "e11d20c87564786bed96230949dcf80ee99ecbae8ed18fa2685701595e96a5a8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "fb00a90a73e51432837b82e1694ea1c79941afb8331da68c8925567b056aaa61"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "9bc67065db2949641ddb4d97434ffb5c70e75f9ae7fd6de75e40674e5e81ebba"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "f17bbe9dd97aa6aff468543330f413691e5eef02d4ae11a6c1217ca80905efbf"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "fd692788d9f1318cad28a5248ea9d9b1c3722498a55084cf21ed3a31fd4f2e49"
+    }
+  ],
+  "candidate_manifest": "../CURRENT_CONSUMER_FILES.json",
+  "candidate32_hashes_match_at_review": true
+}

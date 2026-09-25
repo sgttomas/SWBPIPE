@@ -1,0 +1,1 @@
+Initial lookup of REVISION_02 inside numerical checkout raised StopIteration; no file edited. Selected primary basis recovered read-only from /Users/ryan/.codex/worktrees/6614/chirality.

@@ -1,0 +1,26 @@
+import { it, expect } from 'vitest';
+import { readFileSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
+import { validateStressNeutralExportPacket } from '../../../../../../../../../../../../apps/desktop/src/features/stress-neutral/StressNeutralExportPanel';
+import { validateAnalysisRunV03, verifyAnalysisRunRecord } from '../../../../../../../../../../../../apps/desktop/src/services/analysisRunCompatibility';
+import { canonicalJsonCheckedV1, canonicalSha256HexCheckedV1 } from '../../../../../../../../../../../../apps/desktop/src/services/hashService';
+const dir=process.env.PRECISION_INTEROP_INPUT_DIR;
+if (!dir) throw new Error('PRECISION_INTEROP_INPUT_DIR required');
+const read=(name:string)=>JSON.parse(readFileSync(path.join(dir!,name),'utf8'));
+it('reads actual Python canonical precision package with unqualified source, without promoting standing',async()=>{
+ const source=read('source.json'),analysis=read('analysis.json'),packet=read('packet.json');
+ expect(source.numerical_quality.status).toBe('not_assessed');
+ expect(await verifyAnalysisRunRecord(analysis)).toBe('match');
+ await expect(validateAnalysisRunV03(analysis,source)).resolves.toBeUndefined();
+ await expect(validateStressNeutralExportPacket(packet)).resolves.toBeUndefined();
+ await expect(validateStressNeutralExportPacket(packet,source)).resolves.toBeUndefined();
+ await expect(validateStressNeutralExportPacket(packet,source,analysis)).resolves.toBeUndefined();
+ await expect(validateStressNeutralExportPacket(packet,undefined,analysis)).rejects.toThrow('SN-PRECISION-ANALYSIS-SOURCE-REQUIRED');
+ expect(packet.source_carrier_checksum.value).toBe(await canonicalSha256HexCheckedV1(source));
+ const wrongSource=structuredClone(source); wrongSource.model_ref+=':wrong';
+ await expect(validateStressNeutralExportPacket(packet,wrongSource)).rejects.toThrow();
+ const canonical=await canonicalJsonCheckedV1(packet);
+ await expect(validateStressNeutralExportPacket(JSON.parse(canonical),source,analysis)).resolves.toBeUndefined();
+ const output=process.env.PRECISION_INTEROP_OUTPUT_DIR;
+ if(output)writeFileSync(path.join(output,'ts-reencoded-python.packet.json'),canonical);
+});

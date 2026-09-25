@@ -1,0 +1,11 @@
+{
+  "cwd": "/private/tmp/piping-numerical-integrity-20260924",
+  "target_dir": "/private/tmp/piping-numerical-integrity-target",
+  "build_jobs": 2,
+  "offline": true,
+  "commands": [
+    "cargo test --offline --manifest-path projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+    "cargo test --offline --manifest-path projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+    "cargo test --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml"
+  ]
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "path": "INITIAL_REVIEW.md",
+    "sha256": "613179e14c2d09b323e121b6361c4cf789ba7682e900a917528fbe0852cd3174"
+  },
+  {
+    "path": "RETURN.md",
+    "sha256": "958da7ed5cbf56f7098f83e3b9f8ef2e0ee465006d49d1ff533b7d3c041b14de"
+  },
+  {
+    "path": "_run_records/ADDITIONAL_READS.json",
+    "sha256": "8b0ced59722c7903dfebdddded3f929ccb83462cf6c80638f07fce66f2105d49"
+  },
+  {
+    "path": "_run_records/AFFINE_BASIS.json",
+    "sha256": "742a2cf56e3b848e70dfb1da296254dfcf04aed23475a732e80f4e0d814940ac"
+  },
+  {
+    "path": "_run_records/AFFINE_REVIEW.json",
+    "sha256": "e0a1db44c1d70d8be9b748b936d85b55fb34c77eb7f08ed185ad360aca44a60d"
+  },
+  {
+    "path": "_run_records/ORIGINS.json",
+    "sha256": "b50fd5bbab54304e4c0d24c61cc0f1d5c12173c66403bb5096b260d04e432f13"
+  },
+  {
+    "path": "_run_records/RECEIPT_REPAIR_SOURCES.json",
+    "sha256": "c1f549e138dea5ed73fae3a289205025de529a39fd9871ee8a6a764ed9f4bd1a"
+  },
+  {
+    "path": "_run_records/receipt_repair.diff",
+    "sha256": "81cc88d014d3292d4b0732258c08b16b166ad494a46180cf88e81e0dc44330e4"
+  },
+  {
+    "path": "_run_records/receipt_repair_sources/projects/chirality-piping/core/product_physics/src/lib.rs",
+    "sha256": "10a8d2195e4cd3674261251fb6e97106ab16ccabd46df60d346e7f6cd42bb645"
+  },
+  {
+    "path": "_run_records/receipt_repair_sources/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "sha256": "e21c812accb1ab2eb4cd2c9e4509cd25ba38982b3e649aafaeaa64ea9cb3f009"
+  },
+  {
+    "path": "_run_records/receipt_repair_sources/projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs",
+    "sha256": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e"
+  },
+  {
+    "path": "_run_records/receipt_repair_sources/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+    "sha256": "594377d0e6f5057f2e98961ce45baac3f8e8720c300856f7fdc17a30aad6baac"
+  },
+  {
+    "path": "_run_records/reviewed_sources/projects/chirality-piping/core/product_physics/src/lib.rs",
+    "sha256": "9af010d71842f19c4a416b66e1093366b36e98ba3863bca5e0ae8b3d415aa874"
+  },
+  {
+    "path": "_run_records/reviewed_sources/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "sha256": "42b4b2d641fb454f5c425a585294ae6b27a93ee5fe6c1cb5d6108577b5b49cbd"
+  },
+  {
+    "path": "_run_records/reviewed_sources/projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs",
+    "sha256": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e"
+  },
+  {
+    "path": "_run_records/reviewed_sources/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+    "sha256": "594377d0e6f5057f2e98961ce45baac3f8e8720c300856f7fdc17a30aad6baac"
+  },
+  {
+    "path": "_run_records/scope_check.json",
+    "sha256": "937beb3ff6e61d14c2cb584953c6a597941a239e79ea0aad99326675f7f53448"
+  },
+  {
+    "path": "_run_records/source_probes.json",
+    "sha256": "59e006aa2ccf0e30ddf0394a1f2ee25d457eb6fcb88549279707f7e40e386d21"
+  },
+  {
+    "path": "_run_records/source_probes.py",
+    "sha256": "9e005b5012bda45d48d1cebf79920588f7d8f622d8c653f0e54425ea99e266ff"
+  },
+  {
+    "path": "_run_records/successor_delta.diff",
+    "sha256": "0fe6c81ddd9e01896fe8ff8301bc491388e72b91d4b5d57463e22de192b68804"
+  }
+]

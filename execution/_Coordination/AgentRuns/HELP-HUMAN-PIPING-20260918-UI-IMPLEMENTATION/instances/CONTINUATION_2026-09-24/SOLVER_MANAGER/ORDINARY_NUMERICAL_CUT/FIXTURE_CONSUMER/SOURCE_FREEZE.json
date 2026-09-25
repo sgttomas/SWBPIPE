@@ -1,0 +1,32 @@
+{
+  "status": "source-only frozen for review; no TypeScript/Vitest/App/build run",
+  "path_basis": "REPO_ROOT clean numerical-corrections checkout",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "before_sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498",
+      "sha256": "74b79d41ec53ac8fc5ce267340c404b3ff90f744e3dd24d1236bbf02774f8fdb",
+      "bytes": 26602
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "before_sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347",
+      "sha256": "b038e31b2797ed14f6dd34743408bde9a8bea4e9561b81d529a1e99041092fe0",
+      "bytes": 24185
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "before_sha256": "686687e5b124c393254abd08699183203fbcd417b361368334d46dd478b33028",
+      "sha256": "97e6b7af0f7a88dfe77928d953ba21b0643d1ee9633c6ab38c805ee4e7a00131",
+      "bytes": 801473
+    }
+  ],
+  "out_of_scope_unchanged_by_task": [
+    "workspaceSession.ts",
+    "analysisRunCompatibility.ts",
+    "resultsSessionState.ts",
+    "fixtures",
+    "generator",
+    "dependencies/config/cache"
+  ]
+}

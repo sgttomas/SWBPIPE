@@ -1,0 +1,9 @@
+# Focused exact-gap computational checks
+
+The reviewed candidate compiled. Six strict_gap tests passed, including432 neighbor solves plus repeats,16 physically small-strain cases, springs/prescribed-source/receipt mutations and explicit unsupported/budget cases. The original coupled exact-contact control, ROOT-corrected decimal-gap control and existing affine source/reference control each passed: nine maintained test functions in the selected runtime checks. All other nonlinear tests were filtered; no full-suite or product qualification is asserted.
+
+The source was liba5a3f710 with adapter79272e2f and unchanged equilibrium helper. The original decimal-gap assertion and failure context remain in DECIMAL_GAP_BASIS; its expected-state correction follows ROOT's explicit disposition, preserving0.05, loads/senses/seeds/modes and1e-14 quantity tolerances. True dyadic ties remain Active. No contact epsilon or snap was introduced.
+
+A dedicated nonlinear manifest target and explicit offline jobs2 commands were used. Root lock resolution and all recorded source hashes are retained in _run_records; recorded source hashes stayed unchanged. This does not retroactively claim the initial snapshot covered every transitive manifest; later product probes use recursive local-dependency snapshots. No competing writer owned the other solver/load dependencies during this run.
+
+NGR02 remains a blocking Current/public-method issue: actual ratio/source/minor evidence must be retained and field-specific recovery declared through the selected Revision02 contract. Computational sign/projection passes do not supply those missing artifacts. Broad mixed-family/large-block capability, product emission, full affected suites and native/application qualification remain open. The compute lane was returned before the separately queued product unit probe.

@@ -1,0 +1,124 @@
+--- before/projects/chirality-piping/core/product_physics/src/lib.rs
++++ after/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -1737,7 +1737,7 @@
+                 "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
+                 "warning",
+                 format!(
+-                    "Load case {} retains source-bound ordinary binary64 mechanics for inspection only: strict-gap proof is unavailable ({reason}). Ordinary original-system equilibrium, returned-state classifier, separate zero count/cap/contact/sliding checks passed, and product displacement/reaction deltas satisfy their existing limits. Exact-gap and recovery qualification remain unresolved; these rows do not grant Current or downstream qualified use. Ordinary structural report: {:?}; ordinary selected-state equilibrium: {:?}",
++                    "Load case {} retains source-bound ordinary binary64 mechanics for inspection only: strict-gap proof is unavailable ({reason}). Ordinary original-system equilibrium, returned-state classifier, separate zero count/cap/contact/sliding checks passed. Delta rows retain their scoped observation/policy metadata; no universal delta acceptance is asserted. Exact-gap and recovery qualification remain unresolved; these rows do not grant Current or downstream qualified use. Ordinary structural report: {:?}; ordinary selected-state equilibrium: {:?}",
+                     load_case.id, iteration.structural_report, iteration.product_equilibrium
+                 ),
+                 vec![load_case.id.clone()],
+@@ -2381,14 +2381,6 @@
+     ) {
+         Ok(solve) => {
+             if solve.converged {
+-                if !product_selected_delta_limits_satisfied(&solve) {
+-                    let error = StructuralError::NumericallyUnresolved {
+-                        reason: "M03 product selected-state displacement/reaction delta limits exceeded or unavailable",
+-                        global_dof: None,
+-                    };
+-                    append_integrity_failure(diagnostics, &load_case.id, &error, model);
+-                    return None;
+-                }
+                 match open_pipe_stress_nonlinear_integration::product_selected_state_is_qualified(
+                     &input, &springs, &solve,
+                 ) {
+@@ -2619,34 +2611,6 @@
+             diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error));
+             None
+         }
+-    }
+-}
+-
+-// Product-owned DEC-046 delta limits apply to every selected nonlinear state,
+-// whether strictly qualified or retained only for source-bound inspection.
+-fn product_selected_delta_limits_satisfied(solve: &NonlinearFrameSolveResult) -> bool {
+-    let Some(last) = solve.iterations.last() else { return false; };
+-    if solve.iterations.len() > DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS {
+-        return false;
+-    }
+-    let has_previous = solve.iterations.len() > 1;
+-    let residuals = &last.residuals;
+-    [
+-        (residuals.max_abs_translation_delta_from_previous,
+-         DEC_046_PRODUCT_PREVIEW_TRANSLATION_DELTA_ABSOLUTE_LIMIT_MM / 1000.0),
+-        (residuals.max_abs_rotation_delta_from_previous,
+-         DEC_046_PRODUCT_PREVIEW_ROTATION_DELTA_ABSOLUTE_LIMIT_RAD),
+-        (residuals.max_abs_force_reaction_delta_from_previous,
+-         DEC_046_PRODUCT_PREVIEW_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT_N),
+-        (residuals.max_abs_moment_reaction_delta_from_previous,
+-         DEC_046_PRODUCT_PREVIEW_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT_N_M),
+-    ].into_iter().all(|(value, limit)| product_delta_within_limit(value, limit, has_previous))
+-}
+-
+-fn product_delta_within_limit(value: Option<f64>, limit: f64, has_previous: bool) -> bool {
+-    match value {
+-        Some(value) => value.is_finite() && value >= 0.0 && value <= limit,
+-        None => !has_previous,
+     }
+ }
+ 
+@@ -12006,62 +11970,6 @@
+     }
+ 
+     #[test]
+-    fn product_force_delta_limit_applies_to_actual_initially_active_one_way_loop() {
+-        for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
+-            for force in [100_000.0, 120_000.0] {
+-                let mut input = friction_preview_request();
+-                // Preserve the original two-node fixture/section/loads, replacing
+-                // only its nonlinear law by the declared active one-way control.
+-                let law = input.model.supports[1].nonlinear.as_mut().unwrap();
+-                law.behavior = "one_way".into();
+-                law.initial_state = Some("active".into());
+-                law.active_when = Some("positive_reaction".into());
+-                law.friction_coefficient = None;
+-                law.normal_reaction = None;
+-                input.model.load_cases[0].primitive_loads[0].magnitude.value = force;
+-                let output = run_linear_static_preview_with_mode(input, mode);
+-                if force == 100_000.0 {
+-                    assert_eq!(output.status.mechanics, "MECHANICS_SOLVED", "{:?}", output.diagnostics);
+-                    assert_eq!(output.numerical_quality.status, NumericalQualityStatus::ChecksPassed);
+-                    assert_eq!(result_value(&output, "result:nonlinear-support:iteration-count"), 2.0);
+-                    assert_eq!(result_value(&output, "result:nonlinear-support:support-NL-FRIC-110:state-code"), 0.0);
+-                    let delta = result_value(&output, "result:nonlinear-support:max-force-reaction-delta");
+-                    assert!(delta > 0.0 && delta <= DEC_046_PRODUCT_PREVIEW_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT_N);
+-                } else {
+-                    assert_eq!(output.status.mechanics, "MODEL_INCOMPLETE");
+-                    assert!(output.results.is_empty());
+-                    assert!(output.diagnostics.iter().any(|d|
+-                        d.code == "NUMERICAL_INTEGRITY_UNRESOLVED"
+-                            && d.id == integrity_diagnostic_id("load:L-FRICTION")
+-                            && d.message.contains("displacement/reaction delta limits exceeded or unavailable")
+-                    ), "{:?}", output.diagnostics);
+-                }
+-            }
+-        }
+-        // An inactive seed may have no previous-iterate delta. This control is
+-        // intentionally about the authored active seed, not seed-independent accuracy.
+-    }
+-
+-    #[test]
+-    fn product_delta_limits_reject_excess_missing_and_nonfinite_observations() {
+-        for limit in [
+-            DEC_046_PRODUCT_PREVIEW_TRANSLATION_DELTA_ABSOLUTE_LIMIT_MM / 1000.0,
+-            DEC_046_PRODUCT_PREVIEW_ROTATION_DELTA_ABSOLUTE_LIMIT_RAD,
+-            DEC_046_PRODUCT_PREVIEW_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT_N,
+-            DEC_046_PRODUCT_PREVIEW_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT_N_M,
+-        ] {
+-            assert!(product_delta_within_limit(Some(limit), limit, true));
+-            assert!(product_delta_within_limit(Some(0.0), limit, true));
+-            assert!(!product_delta_within_limit(Some(f64::from_bits(limit.to_bits() + 1)), limit, true));
+-            for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, -1.0] {
+-                assert!(!product_delta_within_limit(Some(value), limit, true));
+-            }
+-            assert!(product_delta_within_limit(None, limit, false));
+-            assert!(!product_delta_within_limit(None, limit, true));
+-        }
+-    }
+-
+-    #[test]
+     fn successor_mixed_product_evaluates_actual_final_rows_in_both_modes() {
+         for mode in [
+             PreviewSolverMode::DenseScrutiny,

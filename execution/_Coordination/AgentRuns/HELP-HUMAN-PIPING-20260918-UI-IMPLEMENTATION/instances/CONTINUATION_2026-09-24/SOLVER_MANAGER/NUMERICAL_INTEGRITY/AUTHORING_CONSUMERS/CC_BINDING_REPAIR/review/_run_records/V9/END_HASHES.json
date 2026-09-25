@@ -1,0 +1,55 @@
+{
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "expected_sha256": "742d66ed8c969a7ef9290c7a0a24005ffc19342d20cfea4f7886147508a0b9f4",
+      "actual_sha256": "742d66ed8c969a7ef9290c7a0a24005ffc19342d20cfea4f7886147508a0b9f4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+      "expected_sha256": "c5680b9afb831c4d427f3bdff7feb54e9b06329377c9e6664dcced50c36fb018",
+      "actual_sha256": "c5680b9afb831c4d427f3bdff7feb54e9b06329377c9e6664dcced50c36fb018"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "expected_sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498",
+      "actual_sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "expected_sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347",
+      "actual_sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "expected_sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574",
+      "actual_sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "expected_sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28",
+      "actual_sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "expected_sha256": "c88a2399b08e7289627b9104557c5a7ce983ee127b18b9fd7bb0f529b0a6377c",
+      "actual_sha256": "c88a2399b08e7289627b9104557c5a7ce983ee127b18b9fd7bb0f529b0a6377c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "expected_sha256": "c59154974556ccbd388ab21bb0e35273e23e722ff05e785d480b8c9371be3898",
+      "actual_sha256": "c59154974556ccbd388ab21bb0e35273e23e722ff05e785d480b8c9371be3898"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "expected_sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+      "actual_sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "expected_sha256": "ec2ef7ba52b10ef9950a47f786812c38085816c5f99876ee6c6de0fecb702d18",
+      "actual_sha256": "ec2ef7ba52b10ef9950a47f786812c38085816c5f99876ee6c6de0fecb702d18"
+    }
+  ],
+  "all_match": true
+}

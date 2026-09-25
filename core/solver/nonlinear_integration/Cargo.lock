@@ -60,3 +60,6 @@ dependencies = [
 [[package]]
 name = "open_pipe_stress_sparse_direct"
 version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_frame_kernel",
+]

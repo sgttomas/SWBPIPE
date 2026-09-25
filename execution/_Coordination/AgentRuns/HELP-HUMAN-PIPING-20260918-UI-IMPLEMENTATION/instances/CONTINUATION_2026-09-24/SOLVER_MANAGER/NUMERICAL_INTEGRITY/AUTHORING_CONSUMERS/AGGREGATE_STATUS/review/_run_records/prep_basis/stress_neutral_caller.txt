@@ -1,0 +1,14 @@
+export async function buildStressNeutralExportPacket(args: { model: PreviewModel; result: MechanicsResult; analysisRun: AnalysisRunEnvelope }) {
+  const route = sourceContract(args.result);
+  if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
+  const precision = route === "precision";
+  const version = precision ? "0.3.0" : STRESS_NEUTRAL_EXPORT_VERSION;
+  const profile = precision ? "ops.stress_neutral.v3" : STRESS_NEUTRAL_EXPORT_PROFILE;
+  let sourceCarrierChecksum;
+  if (precision) {
+    if (!numericalResultStanding(args.result, args.model).eligible) throw new Error("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
+    if (args.analysisRun.schema_version !== "0.3.0" || args.analysisRun.analysis_run.run_id !== args.result.run_id || args.model.project.id !== args.result.model_ref
+      || args.analysisRun.analysis_run.solver_version?.solver_name !== args.result.producer!.component_name
+      || args.analysisRun.analysis_run.solver_version?.solver_version !== args.result.producer!.component_version
+      || !args.analysisRun.analysis_run.solver_version?.build_ref.ref
+      || args.analysisRun.analysis_run.reproducibility.semantic_contract?.id !== PRECISION_CONTRACT_ID

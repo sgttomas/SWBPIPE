@@ -81,6 +81,15 @@ fn validate_connected_input_contracts(model: &PreviewModel, diagnostics: &mut Ve
         let Ok(nonlinear_dof) = parse_dof(&nonlinear.dof) else {
             continue;
         };
+        if nonlinear.behavior == "gap" && !nonlinear_dof.is_translational() {
+            diagnostics.push(diag(
+                &format!("diagnostic:support:{}:rotational-gap", nonlinear_support.id),
+                "NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED",
+                "blocking",
+                "the current gap input is a length; rotational gaps require a qualified angular input and recovery contract. This record remains editable, but solving is blocked",
+                vec![nonlinear_support.id.clone(), nonlinear.dof.clone()],
+            ));
+        }
         for linear_support in model
             .supports
             .iter()

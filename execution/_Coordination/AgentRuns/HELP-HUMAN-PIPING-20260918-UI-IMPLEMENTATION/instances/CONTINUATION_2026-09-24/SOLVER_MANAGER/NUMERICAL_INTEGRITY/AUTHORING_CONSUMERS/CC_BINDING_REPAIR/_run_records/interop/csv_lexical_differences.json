@@ -1,0 +1,8 @@
+[
+  {
+    "result_id": "result:disp:node-N-110:rx",
+    "python_csv": "-3.308659368829149e-05",
+    "js_render": "-0.00003308659368829149",
+    "same_numeric_value": true
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "reader": "/root/solver_manager",
+  "root": "/private/tmp/piping-numerical-integrity-20260924",
+  "files": {
+    "projects/chirality-piping/plans/PLAN_COMPLETION_LOG.md": "f35016711c30196a01da705f75684b23bebdc27507c7ed944fa0313535b7eb40",
+    "projects/chirality-piping/plans/VERIFICATION_2026-06-21_r4_exit_gap.md": "b24bbb3953d2f2cc0c3a959e04adb9e006952fe7aa06bb60ba23ae454a844e56",
+    "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-19_release_convergence_tolerance_policy.md": "82dc283c740dc1d3cc83399bbce3b7a45b40d2f2c57c28a7f9417d47aa1c01c7",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-PRODDISPREACTIONPOLICY-001.md": "e9e6365fe165c1a1589cf1ace4129ff9a81089c5341378e568464952c4444c29"
+  }
+}

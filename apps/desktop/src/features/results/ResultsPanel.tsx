@@ -1,3 +1,4 @@
+import { sourceContract } from "./numericalResultQuality";
 import type { ReactNode } from "react";
 import { QuantityReadout } from "../display-units";
 import { semanticFamily, semanticDimension, semanticCategory } from "./resultSemantics";
@@ -53,18 +54,18 @@ export function ResultsPanel({
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE);
   const familyCounts = useMemo(
-    () => (result ? countResultFamilies(result.results) : EMPTY_RESULT_FAMILY_COUNTS),
+    () => (result ? countResultFamilies(result.results, result) : EMPTY_RESULT_FAMILY_COUNTS),
     [result]
   );
   const filteredResults = useMemo(
-    () => (result ? filterResults(result.results, filterText, familyFilter) : []),
+    () => (result ? filterResults(result.results, filterText, familyFilter, result) : []),
     [familyFilter, filterText, result]
   );
   const page = useMemo(
     () => paginateResults(filteredResults, pageIndex, pageSize),
     [filteredResults, pageIndex, pageSize]
   );
-  const groups = result ? groupResults(page.items) : [];
+  const groups = result ? groupResults(page.items, result) : [];
   const interpretation = result
     ? buildResultInterpretation({ result, resultId: selectedResultId, knowledge, analysisRun })
     : null;
@@ -95,6 +96,7 @@ export function ResultsPanel({
       <div className="panel-title">Results</div>
       {result ? (
         <>
+          <p data-testid="numerical-result-standing">{sourceContract(result) === "legacy" ? "Historical precision: absolute rounding; integrity not assessed. Needs recompute." : sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}</p>
           <ResultControls
             familyCounts={familyCounts}
             familyFilter={familyFilter}
@@ -148,11 +150,11 @@ export function ResultsPanel({
                           }}
                           tabIndex={0}
                         >
-                          <td>{item.id}<small> {semanticCategory(item)}</small></td>
+                          <td>{item.id}<small> {semanticCategory(item, result)}</small></td>
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td>
-                            <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: semanticDimension(item) ?? "unknown" }} />
+                            <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: semanticDimension(item, result) ?? "unknown" }} />
                           </td>
                           <td className="dual-unit-cell" data-testid={`result-row-dual-${item.id}`}>
                             <span>Entered: {item.value} {item.unit}</span>
@@ -473,7 +475,7 @@ function MechanicsGapLedger({ gaps }: { gaps: MechanicsGap[] }) {
   );
 }
 
-function groupResults(resultItems: MechanicsResult["results"]) {
+function groupResults(resultItems: MechanicsResult["results"], source: MechanicsResult) {
   const specs: { title: string; family: ResultFamily }[] = [
     { title: "Displacement", family: "displacement" },
     { title: "Rotation", family: "rotation" },
@@ -488,7 +490,7 @@ function groupResults(resultItems: MechanicsResult["results"]) {
   return specs
     .map((spec) => ({
       title: spec.title,
-      items: resultItems.filter((item) => resultFamilyKey(item) === spec.family)
+      items: resultItems.filter((item) => resultFamilyKey(item, source) === spec.family)
     }))
     .filter((group) => group.items.length > 0);
 }
@@ -516,10 +518,10 @@ function paginateResults(resultItems: MechanicsResult["results"], pageIndex: num
   };
 }
 
-function countResultFamilies(resultItems: MechanicsResult["results"]): ResultFamilyCounts {
+function countResultFamilies(resultItems: MechanicsResult["results"], source: MechanicsResult): ResultFamilyCounts {
   const counts: ResultFamilyCounts = { ...EMPTY_RESULT_FAMILY_COUNTS, total: resultItems.length };
   for (const item of resultItems) {
-    counts[resultFamilyKey(item)] += 1;
+    counts[resultFamilyKey(item, source)] += 1;
   }
   return counts;
 }
@@ -527,12 +529,13 @@ function countResultFamilies(resultItems: MechanicsResult["results"]): ResultFam
 function filterResults(
   resultItems: MechanicsResult["results"],
   filterText: string,
-  familyFilter: ResultFamilyFilter
+  familyFilter: ResultFamilyFilter,
+  source: MechanicsResult
 ): MechanicsResult["results"] {
   const query = filterText.trim().toLowerCase();
 
   return resultItems.filter((item) => {
-    if (familyFilter !== "all" && resultFamilyKey(item) !== familyFilter) return false;
+    if (familyFilter !== "all" && resultFamilyKey(item, source) !== familyFilter) return false;
     if (!query) return true;
     const searchable = [
       item.id,
@@ -556,12 +559,12 @@ function filterResults(
   });
 }
 
-function resultFamilyKey(result: MechanicsResult["results"][number]): ResultFamily {
-  return semanticFamily(result) as ResultFamily;
+function resultFamilyKey(result: MechanicsResult["results"][number], source: MechanicsResult): ResultFamily {
+  return semanticFamily(result, source) as ResultFamily;
 }
 function SemanticResultQuantity({result,id,fallback}:{result:MechanicsResult|null;id:string;fallback:string}) {
   const row=result?.results.find(x=>x.id===id);
-  return row?<QuantityReadout quantity={{value:row.value,unit:row.unit,dimension_id:semanticDimension(row)??"unknown"}}/>:<span>{fallback}</span>;
+  return row?<QuantityReadout quantity={{value:row.value,unit:row.unit,dimension_id:semanticDimension(row, result ?? undefined)??"unknown"}}/>:<span>{fallback}</span>;
 }
 
 function hasResultSemanticToken(value: string, expected: string): boolean {

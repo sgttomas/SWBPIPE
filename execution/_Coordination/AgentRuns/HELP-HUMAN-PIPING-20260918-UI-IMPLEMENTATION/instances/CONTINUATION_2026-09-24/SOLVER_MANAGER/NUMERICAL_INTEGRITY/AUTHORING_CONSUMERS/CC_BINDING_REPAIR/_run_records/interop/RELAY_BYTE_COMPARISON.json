@@ -1,0 +1,9 @@
+{
+  "python_packet_sha256": "222be840bdf5707e762ac53804f2e880907f4f8f7d08098e932bfbeeb365d8b0",
+  "typescript_relay_sha256": "68ea6540323a8018074fc2ef636a7e413aeb95f6456265b4992b320cd04e27cb",
+  "same_json": true,
+  "same_bytes": false,
+  "strip_final_lf_same": true,
+  "source_numerical_quality": "not_assessed unchanged",
+  "claim": "actual Python builder to TypeScript validator/canonical serializer; no TypeScript builder or integrity qualification claim"
+}

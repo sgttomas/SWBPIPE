@@ -36,12 +36,12 @@ export function buildResultInterpretation({
   const resultHashes =
     analysisRun?.analysis_run.result_refs.find((ref) => ref.result_ref.ref === item.id)?.hash_refs.length ?? 0;
   const envelopeHashAvailable = Boolean(
-    analysisRun?.analysis_run.hashes.some((hash) => hash.payload_scope === (analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope"))
+    analysisRun?.analysis_run.hashes.some((hash) => hash.payload_scope === (["0.2.0", "0.3.0"].includes(analysisRun.schema_version) ? "received_result" : "result_envelope"))
   );
 
   return {
     result_id: item.id,
-    family: semanticFamily(item)==="other" ? semanticCategory(item) : semanticFamily(item),
+    family: semanticFamily(item, result)==="other" ? semanticCategory(item, result) : semanticFamily(item, result),
     entity_ref: item.entity_ref,
     value_label: `${item.value} ${item.unit}`,
     component: item.metadata?.component ?? item.kind,
@@ -235,7 +235,7 @@ function endpointPairFor(
 ): ResultInterpretation["endpoint_pair"] {
   const metadata = item.metadata;
   if (!metadata || !["end_i", "end_j"].includes(metadata.location)) return undefined;
-  const family = resultFamily(item);
+  const family = semanticFamily(item, result);
   if (family !== "force" && family !== "moment" && family !== "stress") return undefined;
 
   const values = result.results
@@ -290,7 +290,6 @@ function diagnosticExplanation(
   return `${diagnostic.message} ${affectedSummary} ${resultSummary}`;
 }
 
-function resultFamily(result: MechanicsResult["results"][number]): string {return semanticFamily(result);}
 
 function basisLabel(result: MechanicsResult["results"][number]): string {
   const basis = result.metadata?.basis ?? "reported_result_value";

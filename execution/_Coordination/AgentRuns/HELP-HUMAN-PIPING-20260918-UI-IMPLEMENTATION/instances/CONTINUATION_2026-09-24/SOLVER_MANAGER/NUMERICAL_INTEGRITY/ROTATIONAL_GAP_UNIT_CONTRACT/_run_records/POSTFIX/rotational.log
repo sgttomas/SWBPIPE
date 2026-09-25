@@ -1,0 +1,45 @@
+   Compiling open_pipe_stress_product_physics v0.2.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.46s
+     Running unittests src/lib.rs (/private/tmp/piping-product-rotational-gap-target/debug/deps/open_pipe_stress_product_physics-c924aecbdc551246)
+
+running 1 test
+rotational-gap unit contract: mode=SparseInteractive, dof=rotation_x, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=SparseInteractive, dof=rotation_x, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=SparseInteractive, dof=rotation_x, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["UNIT_CONVERSION_UNAVAILABLE"]
+rotational-gap unit contract: mode=SparseInteractive, dof=RX, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=SparseInteractive, dof=RX, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=SparseInteractive, dof=RX, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=SparseInteractive, dof=rotation_y, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=SparseInteractive, dof=rotation_y, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=SparseInteractive, dof=rotation_y, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["UNIT_CONVERSION_UNAVAILABLE"]
+rotational-gap unit contract: mode=SparseInteractive, dof=RY, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=SparseInteractive, dof=RY, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=SparseInteractive, dof=RY, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=SparseInteractive, dof=rotation_z, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=SparseInteractive, dof=rotation_z, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=SparseInteractive, dof=rotation_z, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["UNIT_CONVERSION_UNAVAILABLE"]
+rotational-gap unit contract: mode=SparseInteractive, dof=RZ, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=SparseInteractive, dof=RZ, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=SparseInteractive, dof=RZ, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=rotation_x, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=rotation_x, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=rotation_x, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["UNIT_CONVERSION_UNAVAILABLE"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=RX, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=RX, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=RX, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=rotation_y, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=rotation_y, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=rotation_y, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["UNIT_CONVERSION_UNAVAILABLE"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=RY, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=RY, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=RY, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=rotation_z, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=rotation_z, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_SUPPORT_DOF_INVALID"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=rotation_z, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["UNIT_CONVERSION_UNAVAILABLE"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=RZ, gap=0.05 mm, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=RZ, gap=0.00005 m, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+rotational-gap unit contract: mode=DenseScrutiny, dof=RZ, gap=0.00005 rad, mechanics=MODEL_INCOMPLETE, rotation=None, diagnostics=["NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED"]
+test tests::unit_contract_rotational_gap_cannot_consume_a_length_as_an_angle ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 196 filtered out; finished in 0.02s
+

@@ -1,0 +1,3 @@
+   Compiling piping_numerical_integrity_observer v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/validation/benchmarks/numerical_integrity)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.97s
+     Running `/private/tmp/piping-numerical-integrity-target/debug/piping_numerical_integrity_observer`

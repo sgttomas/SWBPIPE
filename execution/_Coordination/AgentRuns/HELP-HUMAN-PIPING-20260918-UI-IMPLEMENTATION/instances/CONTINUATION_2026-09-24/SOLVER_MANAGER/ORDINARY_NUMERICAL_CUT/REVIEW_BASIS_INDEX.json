@@ -1,0 +1,66 @@
+{
+  "path_base": "repository_root",
+  "scope": "Named instructions and numerical/adoption basis for whole-cut review; all locally present at immutable base Git origin",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "origin_commit": "f702b439536c6e76af8e1c81ee536d5685e87907",
+      "origin_identity": "exact tracked bytes at base commit"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "origin_commit": "f702b439536c6e76af8e1c81ee536d5685e87907",
+      "origin_identity": "exact tracked bytes at base commit"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "origin_commit": "f702b439536c6e76af8e1c81ee536d5685e87907",
+      "origin_identity": "exact tracked bytes at base commit"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "origin_commit": "f702b439536c6e76af8e1c81ee536d5685e87907",
+      "origin_identity": "exact tracked bytes at base commit"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "origin_commit": "f702b439536c6e76af8e1c81ee536d5685e87907",
+      "origin_identity": "exact tracked bytes at base commit"
+    },
+    {
+      "path": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+      "origin_commit": "f702b439536c6e76af8e1c81ee536d5685e87907",
+      "origin_identity": "exact tracked bytes at base commit"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_REFERENCE.md",
+      "sha256": "67c8aac5798e9663528bea94b58d6d8f2eb8308f94b7ebb78aa22dca4b8f94ca",
+      "origin_commit": "f702b439536c6e76af8e1c81ee536d5685e87907",
+      "origin_identity": "exact tracked bytes at base commit"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/RETURN.md",
+      "sha256": "c83877d55ddb23c634112551fb3319f3f39080b2839c285a81f32296177a9216",
+      "origin_commit": "f702b439536c6e76af8e1c81ee536d5685e87907",
+      "origin_identity": "exact tracked bytes at base commit"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/PRODUCT_RESIDUAL_SCOPE.md",
+      "sha256": "e719b96953ef7fe566b0113b2c89d1cfff2e7aca12db0f17bc480ce49c39b853",
+      "origin_commit": "f702b439536c6e76af8e1c81ee536d5685e87907",
+      "origin_identity": "exact tracked bytes at base commit"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/M03_RESIDUAL_SUCCESSOR_ADOPTION.md",
+      "sha256": "00a35f8a6292875e9aeb84c0a7b3faddb769b7f37bf7403208ada3787780de42",
+      "origin_commit": "f702b439536c6e76af8e1c81ee536d5685e87907",
+      "origin_identity": "exact tracked bytes at base commit"
+    }
+  ]
+}

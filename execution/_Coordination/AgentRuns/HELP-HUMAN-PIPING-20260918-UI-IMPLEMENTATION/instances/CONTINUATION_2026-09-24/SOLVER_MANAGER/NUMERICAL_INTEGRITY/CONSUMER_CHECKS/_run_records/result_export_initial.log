@@ -1,0 +1,73 @@
+     Locking 23 packages to latest compatible versions
+   Compiling proc-macro2 v1.0.107
+   Compiling version_check v0.9.5
+   Compiling generic-array v0.14.7
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling typenum v1.20.1
+   Compiling libc v0.2.189
+   Compiling zmij v1.0.23
+   Compiling syn v3.0.6
+   Compiling serde_json v1.0.151
+   Compiling serde v1.0.229
+   Compiling serde_derive v1.0.229
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling cfg-if v1.0.5
+   Compiling ryu v1.0.23
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_result_export v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/reporting/result_export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.71s
+     Running unittests src/lib.rs (/private/tmp/piping-precision-consumers-target/debug/deps/open_pipe_stress_result_export-efcd6d29a3a5d83c)
+
+running 13 tests
+test tests::result_values_sort_deterministically_for_regression_comparison ... ok
+test tests::stiffness_dimensions_serialize_as_explicit_contract_identifiers ... ok
+test tests::load_vector_and_station_resultant_set_types_are_governed_vocabulary ... ok
+test tests::professional_boundary_violation_is_blocking ... ok
+test tests::local_force_and_moment_metadata_is_mandatory ... ok
+test tests::protected_rule_pack_reference_blocks_export ... ok
+test tests::rule_pack_payload_must_remain_redacted ... ok
+test tests::human_review_required_status_is_mandatory ... ok
+test tests::unsupported_result_set_type_is_blocking ... ok
+test tests::valid_envelope_has_no_blocking_diagnostics ... ok
+test tests::missing_units_and_dimensions_are_blocking ... ok
+test tests::tp_phys_015_fixture_serializes_to_schema_wrapper ... ok
+test tests::tp_section_021_fixture_serializes_section_property_evidence ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/derivative_contract.rs (/private/tmp/piping-precision-consumers-target/debug/deps/derivative_contract-00a24c1f6641d8e2)
+
+running 6 tests
+test guarded_serializer_numeric_keys_unicode_negative_zero_and_unsafe_int ... ok
+test independent_qualified_hash_vectors_match_exact_utf8_and_digest ... ok
+test integer_values_unknown_disclosures_and_accounting_tamper ... ok
+test validator_rejects_rescoped_ghost_orphan_and_semantic_tampering_even_when_rehashed ... ok
+test all28_raw_annotations_are_exact_and_canonical_projection_is_strict ... ok
+test all60_independent_semantics_metadata_and_missing_cases ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+
+     Running tests/precision_contract.rs (/private/tmp/piping-precision-consumers-target/debug/deps/precision_contract-533cd6509afa94a5)
+
+running 4 tests
+test rule_eligibility_requires_actual_case_coverage_and_resolving_evidence ... ok
+test historical_hash_vectors_and_rows_are_unchanged ... ok
+test explicit_dispatch_metadata_binding_and_unchanged_ijson_limit ... ok
+test same_unit_bits_survive_json_derive_read_and_hash ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+   Doc-tests open_pipe_stress_result_export
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,48 @@
+{
+  "created_utc": "2026-09-25T03:07:55.814224+00:00",
+  "parent_candidate_notification": "freeze03 112files / 2ce50f4c61fbab02095a9db2e5f6e0558e706076c4b8fbc8fbb8c209ebca56f2",
+  "notification_authority": "Parent source-gates-ready message; this child independently hashes only directly invoked TS/Python sources and immutable observation/reference inputs. No claim of independently verifying all 112 candidate files.",
+  "source": [
+    {
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "repository_path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "2bb4b372826b90b188da0b91673e22250896986b6bd5b50c918f8c4ae376c16e",
+      "retained_copy": "numericalResultQuality.ts.post-containment-source"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "repository_path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "dfda14ed91a310b50308a7ebe1fe56f791cf14c097d98ab2882bf2162e0459e7",
+      "retained_copy": "compatibility.py.post-containment-source"
+    }
+  ],
+  "commands": [
+    {
+      "command": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/audit.py --output POST_CONTAINMENT_PYTHON.json",
+      "exit_code": 0
+    },
+    {
+      "command": "node projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/audit.mjs --output POST_CONTAINMENT_TS.json",
+      "exit_code": 0,
+      "stderr": "Only stripTypeScriptTypes experimental warning."
+    }
+  ],
+  "unchanged_precontainment_artifacts_and_inputs": {
+    "TS_ADMISSION.json": true,
+    "PYTHON_COMPARISON_ADMISSION.json": true,
+    "numericalResultQuality.ts.observed-source": true,
+    "compatibility.py.observed-source": true,
+    "PROBE_SOURCE_FREEZE.json": true,
+    "projects/chirality-piping/validation/benchmarks/numerical_integrity/generate.py": true,
+    "projects/chirality-piping/validation/benchmarks/numerical_integrity/fixtures.json": true,
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/_run_records/EXECUTION.json": true,
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/_run_records/SELECTED.json": true,
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/_run_records/stdout.jsonl": true
+  },
+  "checks": {
+    "all_actual_saved_N05_N06_modes_rejected_by_TS": true,
+    "all_actual_saved_N05_N06_modes_need_recompute_in_Python": true,
+    "numerical_accuracy_recovery_demonstrated": false,
+    "actual_UI_Current_or_complete_export_exercised": false
+  }
+}

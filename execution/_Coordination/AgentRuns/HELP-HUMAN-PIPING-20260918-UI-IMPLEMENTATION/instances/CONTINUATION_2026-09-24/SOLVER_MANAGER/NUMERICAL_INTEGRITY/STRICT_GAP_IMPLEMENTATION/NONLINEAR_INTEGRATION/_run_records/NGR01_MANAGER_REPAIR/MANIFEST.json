@@ -1,0 +1,7 @@
+{
+  "author": "/root/solver_manager",
+  "finding": "NGR-01",
+  "scope": "remove invalid unwrap on API that returns Self",
+  "source_after_sha256": "a5a3f7104b8a77c9d9709a9d4abd5123e14aedd4fa31f2d3763cc0101677034f",
+  "runtime": "not run; resource lane released after unrelated wrapper qualification"
+}

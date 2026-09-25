@@ -1,0 +1,12 @@
+{
+  "author": "/root/solver_manager",
+  "path_base": "repository_root",
+  "purpose": "actual default-model producer output for both requested modes; no synthetic headers or fixture edits",
+  "files": {
+    "projects/chirality-piping/core/product_physics/examples/preview_result.rs": "1e725db3e61abb0e94cbc9db8a8a0f504bc4203ea7b3aa41aaebb6a8a88cd864",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "3671265eca3f9b0ca1793bf020cb2e768834a25e8c2827d73251a674271140c6",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "ba45af590ab1bdb0ad4d58037c4ce2e52270ac08730386fbd081e755f85b2041",
+    "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"
+  }
+}

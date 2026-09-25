@@ -1,0 +1,309 @@
+"""Versioned analysis-record compatibility and strict 0.2 construction."""
+from __future__ import annotations
+
+from copy import deepcopy
+from pathlib import Path
+import json
+from typing import Any, Callable, Mapping
+
+from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
+
+SCHEMA_VERSION = "0.2.0"
+PROFILE = "openpipestress_jcs_ijson_v1"
+SEMANTIC_CONTRACT_SHA256 = "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+SEMANTIC_CONTRACT_ID = "openpipestress_result_semantics_v0_2"
+_CONTRACT_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "results" / "semantic_contract_v0_2.json"
+
+
+def _semantic_rows(path: Path = _CONTRACT_PATH) -> list[dict[str, Any]]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return payload["rows"]
+
+
+def _semantic(row: Mapping[str, Any], path: Path = _CONTRACT_PATH) -> tuple[dict[str, Any] | None, list[str]]:
+    kind = str(row.get("kind", ""))
+    unit = str(row.get("unit", ""))
+    candidates = [entry for entry in _semantic_rows(path) if entry["kind"] == kind]
+    if not candidates:
+        return None, ["SOURCE_SIGNATURE_UNKNOWN"]
+    units = [entry for entry in candidates if entry["unit"] == unit]
+    if not units:
+        raise ValueError(f"SOURCE_UNIT_CONTRADICTION: {kind} / {unit}")
+    metadata = row.get("metadata") if isinstance(row.get("metadata"), Mapping) else {}
+    component = metadata.get("component") if isinstance(metadata, Mapping) else None
+    exact = [entry for entry in units if entry.get("component") == component]
+    if exact:
+        legacy_dimension = exact[0].get("legacy_declared_dimension")
+        if row.get("dimension") and legacy_dimension and row.get("dimension") != legacy_dimension:
+            raise ValueError(f"ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH: {row.get('id')}")
+        return exact[0], []
+    generic = [entry for entry in units if entry.get("component") is None]
+    if generic:
+        legacy_dimension = generic[0].get("legacy_declared_dimension")
+        if row.get("dimension") and legacy_dimension and row.get("dimension") != legacy_dimension:
+            raise ValueError(f"ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH: {row.get('id')}")
+        return generic[0], ["OPTIONAL_SOURCE_METADATA_MISSING"] if component is None else []
+    if component is not None:
+        raise ValueError(f"SOURCE_COMPONENT_CONTRADICTION: {kind} / {component}")
+    return None, ["SOURCE_COMPONENT_MISSING_SEMANTICS_UNAVAILABLE"]
+
+
+def _checksum(scope: str, ref: dict[str, str], value: Any, hash_fn: Callable[[Any], str]) -> dict[str, Any]:
+    return {"algorithm": "sha256", "canonicalization": PROFILE, "payload_ref": ref, "payload_scope": scope, "value": hash_fn(value)}
+
+
+def analysis_record_projection(envelope: Mapping[str, Any]) -> dict[str, Any]:
+    projected = deepcopy(dict(envelope))
+    hashes = projected["analysis_run"]["hashes"]
+    matches = [row for row in hashes if row.get("payload_scope") == "analysis_run_record"]
+    if len(matches) > 1:
+        raise ValueError("ANALYSIS-RUN-RECORD-CHECKSUM-DUPLICATE")
+    projected["analysis_run"]["hashes"] = [row for row in hashes if row.get("payload_scope") != "analysis_run_record"]
+    return projected
+
+
+def _build_analysis_run(
+    mechanics_result: Mapping[str, Any], *, input_manifest_ref: Mapping[str, str], input_manifest_hash: str,
+    input_manifest: Mapping[str, Any] | None = None,
+    created_at: str | None = None, rule_check_status: str | None = None,
+    hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1,
+    solver_name: str = "unavailable:not-supplied", solver_version: str = "unavailable:not-supplied",
+    solver_build_ref: Mapping[str, str] | None = None, settings_ref: Mapping[str, str] | None = None,
+    unit_system_ref: Mapping[str, str] | None = None,
+    record_version: str = "0.2.0",
+) -> dict[str, Any]:
+    received = deepcopy(dict(mechanics_result))
+    if record_version == "0.2.0":
+        if any(key in received for key in ("producer", "numerical_quality", "formulation_basis")):
+            raise ValueError("ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN")
+        contract_id, contract_hash, contract_path = SEMANTIC_CONTRACT_ID, SEMANTIC_CONTRACT_SHA256, _CONTRACT_PATH
+    else:
+        contract_id, contract_hash, contract_path = _source_contract(received)
+        if contract_id != PRECISION_CONTRACT_ID:
+            raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
+    run_id = str(received.get("run_id", "run:unknown"))
+    rows = [deepcopy(dict(row)) for row in received.get("results", []) if isinstance(row, Mapping)]
+    refs = []
+    for row in rows:
+        semantic, findings = _semantic(row, contract_path)
+        row_id = str(row.get("id", "result:unknown"))
+        refs.append({
+            "result_ref": {"object_type": "Result", "ref": row_id},
+            "source_row_index": len(refs),
+            "category": semantic.get("category") if semantic else "unknown",
+            "source_dimension": semantic.get("source_physical_semantic_dimension") if semantic else None,
+            "result_family": semantic.get("family") if semantic else None,
+            "semantic_contract": {"id": contract_id, "sha256": contract_hash, "signature_id": semantic.get("signature_id") if semantic else None},
+            "interpretation": {"status": semantic.get("canonical_disposition") if semantic else "unavailable", "findings": findings},
+            "source_annotation": {"kind": row.get("kind"), "unit": row.get("unit"), "metadata": deepcopy(row.get("metadata"))},
+            "hash_refs": [_checksum("result_row", {"object_type": "Result", "ref": row_id}, row, hash_fn)],
+            "privacy_classification": "source_evidence",
+        })
+    statuses = {"HUMAN_REVIEW_REQUIRED"}
+    status = received.get("status") if isinstance(received.get("status"), Mapping) else {}
+    statuses.update(str(status[field]) for field in ("mechanics", "rule_check") if status.get(field))
+    if rule_check_status:
+        statuses.discard(str(status.get("rule_check", "")))
+        statuses.add(rule_check_status)
+    run_ref = {"object_type": "AnalysisRun", "ref": run_id}
+    received_ref = {"object_type": "ResultEnvelope", "ref": f"result-envelope:{run_id}"}
+    manifest = deepcopy(dict(input_manifest)) if input_manifest is not None else None
+    if manifest is not None and manifest.get("model_basis", {}).get("model_ref") != received.get("model_ref"):
+        raise ValueError("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH")
+    solver_basis = manifest.get("solver_basis", {}) if manifest is not None else {}
+    solver_name = str(solver_basis.get("solver_name", solver_name))
+    solver_version = str(solver_basis.get("solver_version", solver_version))
+    if solver_build_ref is None and solver_basis.get("solver_build_ref"):
+        solver_build_ref = {"object_type": "ExternalReference", "ref": str(solver_basis["solver_build_ref"])}
+    manifest_identity = f"{input_manifest_ref['ref']}:{input_manifest_hash}"
+    if settings_ref is None:
+        settings_ref = {"object_type": "SolverSettings", "ref": f"solver-settings:{manifest_identity}"}
+    if unit_system_ref is None:
+        unit_system_ref = {"object_type": "UnitSystem", "ref": f"unit-system:{received.get('model_ref', 'unknown')}:{input_manifest_hash}"}
+    load_basis_refs: list[dict[str, str]] = []
+    seen_basis: set[str] = set()
+    for row in rows:
+        basis = row.get("basis_ref") if isinstance(row.get("basis_ref"), Mapping) else None
+        if not basis:
+            continue
+        object_type = "Combination" if basis.get("ref_type") == "combination" else "LoadCase"
+        key = f"{object_type}:{basis.get('ref_id')}"
+        if key not in seen_basis:
+            seen_basis.add(key)
+            load_basis_refs.append({"object_type": object_type, "ref": str(basis.get("ref_id"))})
+    provenance = {"source_name": f"OpenPipeStress analysis record {record_version[:-2]}", "source_location": f"analysis_run.compatibility.v{record_version[:-2]}", "source_license": "project-governed", "review_status": "pending", "professional_claim": False}
+    determinism_notes = (["created_at_unavailable"] if created_at is None else []) + (["model_state_ref_and_solver_settings_unit_basis_bound_by_input_manifest"] if manifest is not None else ["input_manifest_payload_unavailable_solver_settings_unit_basis_not_independently_verified"])
+    for row in refs:
+        row["provenance"] = deepcopy(provenance)
+    envelope: dict[str, Any] = {
+        "schema_version": record_version, "deliverable_id": "DEL-14-02", "package_id": "PKG-14", "scope_item": "SOW-072", "objectives": ["OBJ-016"],
+        "run_contract_status": {"record_contract": "strict_analysis_run_v0_3" if record_version == "0.3.0" else "strict_analysis_run_v0_2", "result_binding": "received_mechanics_result", "external_validation_boundary": "reference_only_not_determined_by_software"},
+        "analysis_run": {
+            "run_id": run_id, "run_name": f"{run_id} analysis record", "run_kind": "mechanics_solve", "created_at": created_at,
+            "model_state_ref": {"object_type": "ModelState", "ref": f"state:{received.get('model_ref', 'unknown')}:preview"},
+            "solver_version": {"solver_name": solver_name, "solver_version": solver_version, "build_ref": deepcopy(dict(solver_build_ref or {"object_type": "ExternalReference", "ref": "unavailable:solver-build-not-supplied"}))},
+            "settings_ref": deepcopy(dict(settings_ref or {"object_type": "SolverSettings", "ref": "unavailable:solver-settings-not-supplied"})), "unit_system_ref": deepcopy(dict(unit_system_ref or {"object_type": "UnitSystem", "ref": "unavailable:unit-system-not-supplied"})),
+            "load_basis_refs": load_basis_refs, "diagnostics": [{"source_annotation": deepcopy(item)} for item in received.get("diagnostics", [])], "result_refs": refs, "rule_pack_refs": [], "library_refs": [],
+            "hashes": [_checksum("received_result", received_ref, received, hash_fn)], "analysis_status": sorted(statuses),
+            "reproducibility": {"input_manifest_refs": [deepcopy(dict(input_manifest_ref))], "input_manifest_hashes": [{"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_ref": deepcopy(dict(input_manifest_ref)), "payload_scope": "input_manifest", "value": input_manifest_hash}], "semantic_contract": {"id": contract_id, "sha256": contract_hash}, "determinism_notes": determinism_notes, "unresolved_tbd": []},
+            "immutability_policy": {"run_record_is_read_only": True, "mutation_policy": "changes_create_new_immutable_record_revision", "new_mechanics_run_required_for_record_revision": False, "record_revision_identity": "analysis_run_record_sha256", "hash_invalidates_external_acceptance": True},
+            "professional_boundary": {"human_review_required": True, "software_makes_compliance_claim": False, "software_makes_certification_claim": False, "software_makes_sealing_claim": False, "software_makes_approval_claim": False, "software_makes_authentication_claim": False},
+            "provenance": provenance,
+        },
+    }
+    envelope["analysis_run"]["hashes"].insert(0, _checksum("analysis_run_record", run_ref, analysis_record_projection(envelope), hash_fn))
+    return envelope
+
+
+def verify_analysis_run_record(envelope: Mapping[str, Any], hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1) -> str:
+    version = envelope.get("schema_version")
+    if version not in {SCHEMA_VERSION, "0.3.0"}:
+        if version == "0.1.0":
+            return "unverifiable"
+        raise ValueError(f"ANALYSIS-RUN-SCHEMA-VERSION-UNSUPPORTED: {version}")
+    matches = [row for row in envelope["analysis_run"]["hashes"] if row.get("payload_scope") == "analysis_run_record"]
+    if len(matches) != 1:
+        return "unverifiable"
+    expected_ref = {"object_type": "AnalysisRun", "ref": envelope["analysis_run"].get("run_id")}
+    claim = matches[0]
+    if claim.get("algorithm") != "sha256" or claim.get("canonicalization") != PROFILE or claim.get("payload_ref") != expected_ref:
+        return "mismatch"
+    return "match" if claim.get("value") == hash_fn(analysis_record_projection(envelope)) else "mismatch"
+
+
+PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1"
+PRECISION_CONTRACT_SHA256 = "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+_PRECISION_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_precision_1.json")
+
+
+def _source_contract(source: Mapping[str, Any]) -> tuple[str, str, Path]:
+    """Interpretation dispatch does not authenticate a producer or qualify Current."""
+    version = source.get("schema_version")
+    if version == "0.1.0":
+        if any(key in source for key in ("producer", "numerical_quality", "formulation_basis")):
+            raise ValueError("LEGACY_SOURCE_METADATA_CONTRADICTION")
+        return SEMANTIC_CONTRACT_ID, SEMANTIC_CONTRACT_SHA256, _CONTRACT_PATH
+    if version != "0.2.0":
+        raise ValueError("SOURCE_SCHEMA_VERSION_UNSUPPORTED")
+    producer = source.get("producer")
+    if producer != {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": PRECISION_CONTRACT_ID}:
+        raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    quality = source.get("numerical_quality")
+    if not isinstance(quality, Mapping) or set(quality) != {"value_representation", "publication_quantization", "integrity_policy", "status", "cases"} or quality.get("value_representation") != "finite_binary64" or quality.get("publication_quantization") != "none" or quality.get("integrity_policy") != "M03-INTEGRITY-v1" or quality.get("status") not in {"not_assessed", "checks_passed", "sensitive", "unresolved", "failed"} or not isinstance(quality.get("cases"), list):
+        raise ValueError("SOURCE_NUMERICAL_QUALITY_INVALID")
+    statuses = {"not_assessed", "checks_passed", "sensitive", "unresolved", "failed"}
+    for case in quality["cases"]:
+        if not isinstance(case, Mapping) or set(case) != {"basis_ref", "structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence", "evidence_refs"}:
+            raise ValueError("SOURCE_NUMERICAL_CASE_INVALID")
+        basis = case.get("basis_ref")
+        if not isinstance(basis, Mapping) or set(basis) != {"ref_type", "ref_id"} or not all(isinstance(value, str) and value for value in basis.values()) or case.get("solve_quality") not in statuses or case.get("structural_status") not in {"passive_model_basis", "physical_mechanism_witnessed", "negative_energy_witnessed", "numerically_unresolved"} or case.get("model_matrix_fidelity") not in {"represented_equations_retained", "assembly_loss_detected", "assembly_uncertainty", "not_assessed"} or case.get("accuracy_evidence") not in {"not_claimed", "reference_verified", "unresolved"} or not isinstance(case.get("evidence_refs"), list) or not all(isinstance(item, str) and item for item in case["evidence_refs"]):
+            raise ValueError("SOURCE_NUMERICAL_CASE_INVALID")
+    formulation = source.get("formulation_basis")
+    if not isinstance(formulation, Mapping) or set(formulation) != {"profile_id", "limitations"} or formulation.get("profile_id") != "product_preview_mechanics_v1" or not isinstance(formulation.get("limitations"), list) or not formulation["limitations"] or not all(isinstance(item, str) and item for item in formulation["limitations"]):
+        raise ValueError("SOURCE_FORMULATION_BASIS_UNSUPPORTED")
+    return PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256, _PRECISION_CONTRACT_PATH
+
+
+def numerical_use_standing(source: Mapping[str, Any], requested_basis_refs: list[Mapping[str, str]]) -> str:
+    """Derived numerical eligibility only; never mutates an authentic historical record.
+
+    A positive result still requires the caller's existing model/input/build/source
+    authentication. Matching an input hash alone supplies no numerical evidence.
+    """
+    try:
+        contract, _, _ = _source_contract(source)
+    except ValueError:
+        return "unsupported"
+    if contract != PRECISION_CONTRACT_ID:
+        return "needs_recompute"
+    quality = source["numerical_quality"]
+    if quality["status"] not in {"checks_passed", "sensitive"} or not requested_basis_refs:
+        return "needs_recompute"
+    cases = quality["cases"]
+    if len(cases) != len(requested_basis_refs):
+        return "needs_recompute"
+    if not isinstance(source.get("results"), list) or not isinstance(source.get("diagnostics"), list):
+        return "needs_recompute"
+    evidence_ids: set[str] = set()
+    for item in [*source["results"], *source["diagnostics"]]:
+        item_id = item.get("id") if isinstance(item, Mapping) else None
+        if not isinstance(item_id, str) or not item_id or item_id in evidence_ids:
+            return "needs_recompute"
+        evidence_ids.add(item_id)
+    statuses = []
+    for index, basis in enumerate(requested_basis_refs):
+        if basis in requested_basis_refs[:index]:
+            return "needs_recompute"
+        matched = [case for case in cases if isinstance(case, Mapping) and case.get("basis_ref") == basis]
+        if len(matched) != 1:
+            return "needs_recompute"
+        case = matched[0]
+        refs = case.get("evidence_refs")
+        if case.get("solve_quality") not in {"checks_passed", "sensitive"} or case.get("structural_status") != "passive_model_basis" or case.get("model_matrix_fidelity") != "represented_equations_retained" or case.get("accuracy_evidence") not in {"not_claimed", "reference_verified"} or not isinstance(refs, list) or not refs or not all(isinstance(ref, str) and ref in evidence_ids for ref in refs):
+            return "needs_recompute"
+        statuses.append(case["solve_quality"])
+    aggregate = "sensitive" if "sensitive" in statuses else "checks_passed"
+    return "numerically_eligible" if quality["status"] == aggregate else "needs_recompute"
+
+
+def build_analysis_run_v0_2(mechanics_result: Mapping[str, Any], **kwargs: Any) -> dict[str, Any]:
+    """Explicit historical construction; includes original synthetic fixture meanings.
+
+    Excluded from current source dispatch and refuses precision metadata.
+    """
+    return _build_analysis_run(mechanics_result, record_version="0.2.0", **kwargs)
+
+
+def build_analysis_run_v0_3(mechanics_result: Mapping[str, Any], **kwargs: Any) -> dict[str, Any]:
+    """Strict precision-1 analysis record with prospective 0.3 identity."""
+    _source_contract(mechanics_result)
+    producer = mechanics_result["producer"]
+    kwargs.setdefault("solver_name", producer["component_name"])
+    kwargs.setdefault("solver_version", producer["component_version"])
+    record = _build_analysis_run(mechanics_result, record_version="0.3.0", **kwargs)
+    validate_analysis_run_v0_3(record, mechanics_result, hash_fn=kwargs.get("hash_fn", canonical_sha256_checked_v1))
+    return record
+
+
+def build_analysis_run(mechanics_result: Mapping[str, Any], **kwargs: Any) -> dict[str, Any]:
+    contract, _, _ = _source_contract(mechanics_result)
+    return build_analysis_run_v0_3(mechanics_result, **kwargs) if contract == PRECISION_CONTRACT_ID else build_analysis_run_v0_2(mechanics_result, **kwargs)
+
+
+def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str, Any], *, hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1) -> None:
+    """Validate source interpretation/bindings separately from checksum verification.
+
+    This accepts supplied evidence only; it does not authenticate a claimed build.
+    """
+    contract_id, contract_hash, path = _source_contract(source)
+    if contract_id != PRECISION_CONTRACT_ID or envelope.get("schema_version") != "0.3.0" or envelope.get("run_contract_status", {}).get("record_contract") != "strict_analysis_run_v0_3":
+        raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
+    run = envelope.get("analysis_run", {})
+    solver = run.get("solver_version", {})
+    if solver.get("solver_name") != source["producer"]["component_name"] or solver.get("solver_version") != source["producer"]["component_version"]:
+        raise ValueError("ANALYSIS_SOURCE_PRODUCER_MISMATCH")
+    if run.get("model_state_ref") != {"object_type":"ModelState", "ref":f"state:{source.get('model_ref')}:preview"}:
+        raise ValueError("ANALYSIS_SOURCE_MODEL_MISMATCH")
+    if run.get("run_id") != source.get("run_id"):
+        raise ValueError("ANALYSIS_SOURCE_RUN_MISMATCH")
+    semantic = {"id": contract_id, "sha256": contract_hash}
+    if run.get("reproducibility", {}).get("semantic_contract") != semantic:
+        raise ValueError("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH")
+    hashes = [item for item in run.get("hashes", []) if item.get("payload_scope") == "received_result"]
+    expected_hash = _checksum("received_result", {"object_type": "ResultEnvelope", "ref": f"result-envelope:{source.get('run_id')}"}, source, hash_fn)
+    if hashes != [expected_hash]:
+        raise ValueError("ANALYSIS_RECEIVED_SOURCE_MISMATCH")
+    rows = source.get("results", [])
+    refs = run.get("result_refs", [])
+    if len(rows) != len(refs) or len({row.get("id") for row in rows}) != len(rows):
+        raise ValueError("ANALYSIS_ROW_ACCOUNTING_MISMATCH")
+    for index, (row, ref) in enumerate(zip(rows, refs)):
+        interpretation, findings = _semantic(row, path)
+        expected_semantic = {**semantic, "signature_id": interpretation.get("signature_id") if interpretation else None}
+        expected_ref = {"object_type": "Result", "ref": str(row.get("id", "result:unknown"))}
+        if ref.get("source_row_index") != index or ref.get("result_ref") != expected_ref or ref.get("semantic_contract") != expected_semantic or ref.get("hash_refs") != [_checksum("result_row", expected_ref, row, hash_fn)]:
+            raise ValueError("ANALYSIS_ROW_SOURCE_BINDING_MISMATCH")
+        if ref.get("category") != (interpretation.get("category") if interpretation else "unknown") or ref.get("source_dimension") != (interpretation.get("source_physical_semantic_dimension") if interpretation else None) or ref.get("result_family") != (interpretation.get("family") if interpretation else None) or ref.get("interpretation") != {"status": interpretation.get("canonical_disposition") if interpretation else "unavailable", "findings": findings} or ref.get("source_annotation") != {"kind": row.get("kind"), "unit": row.get("unit"), "metadata": row.get("metadata")}:
+            raise ValueError("ANALYSIS_ROW_INTERPRETATION_MISMATCH")
+    if verify_analysis_run_record(envelope, hash_fn) != "match":
+        raise ValueError("ANALYSIS_RECORD_CHECKSUM_MISMATCH")

@@ -1,0 +1,83 @@
+{
+  "command": [
+    "../../node_modules/.bin/vitest",
+    "run",
+    "--config",
+    "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/CC_BINDING_REPAIR/_run_records/interop/vitest.interop.config.mjs",
+    "--maxWorkers=2",
+    "--no-cache"
+  ],
+  "source_manifest": {
+    "files": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+        "before_sha256": "a03889b5525015b108adcf4523a39740f35f3b303ebdc246fd049ec8cf5f002a",
+        "after_sha256": "742d66ed8c969a7ef9290c7a0a24005ffc19342d20cfea4f7886147508a0b9f4"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+        "before_sha256": "ddfafa76bfcfa2b32519cdfdef698dea6e7cc4223db3fb87434f423a3293d78f",
+        "after_sha256": "c5680b9afb831c4d427f3bdff7feb54e9b06329377c9e6664dcced50c36fb018"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+        "before_sha256": "2c1c25ad96f8bcf939ead2db9fb399d1727ae5d784f58bd1be87cdca367532e7",
+        "after_sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+        "before_sha256": "5feaa97565438c3a690169383357ce66a80f0cc45e2d92db731b4c7ada26cb75",
+        "after_sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+        "before_sha256": "7902030bbda2b84c80774b22b78030d80f1bdb65f074f7fc5a69a31864f712f4",
+        "after_sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+        "before_sha256": "7e26ee642bdabe4ce7353b1b188838084c2a81f40805ba30012e421382f847b2",
+        "after_sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+        "before_sha256": "275947ea8e6f3c52d401da109e69410716267225f602e7d094ae302b34d7e165",
+        "after_sha256": "04e45ef642c8779c026b6e7807638956acf738b5ce393d3d46fb48701285522b"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+        "before_sha256": "05dd482a55eddbd007ada6ca529818134442b216d76b6dc109ed646d5e7ad660",
+        "after_sha256": "a3642c8626381c4eaddf264272c2ee46c4766471ef29a65eea42b42b4db582d8"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+        "before_sha256": "4f945e571a7d289de9ad87f0fcf2407faf5a169fbe150ffdd5ba206aecad16c5",
+        "after_sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+        "before_sha256": "81702a9b255defe92c1d7d39432706f7c49a49f61ae195c654fd13524b0863be",
+        "after_sha256": "ec2ef7ba52b10ef9950a47f786812c38085816c5f99876ee6c6de0fecb702d18"
+      }
+    ],
+    "delta_sha256": "62f59a262fa11cd193ff08bf6e0c0e3c6864d873c11bb8a44ff515b118068980",
+    "status": "frozen V8 candidate; received .3 CSV binary64 spelling validation; rerun/typecheck/review required"
+  },
+  "started_at": "2026-09-24T18:19:34.509834+00:00",
+  "exit_code": 0,
+  "log_sha256": "9bee4d82fcd97b5d2520f2a117c491543ebf71d14eb16a495d88daa6c8ca3a45",
+  "inputs": {
+    "source.json": "d7e2b295abdd6f64f83199c83b9a58e3e09ca7b3b181df5d50151b06e6d2a6d4",
+    "packet.json": "222be840bdf5707e762ac53804f2e880907f4f8f7d08098e932bfbeeb365d8b0",
+    "source.original.json": "8a358f165f6e3bc2706ca203a0da0c86cf4e2df72758cf599d1276312bb86ea9",
+    "analysis.json": "36fcd393f872db52e8ef29af23bbdd9ff76b288739f122f79d4b6d05e9ee2e35",
+    "GENERATION.json": "b2e54fb0813f38211b1f952f7ab51302a5b4ab41a4b4d5298a858c4cc41d5890",
+    "input-custody-manifest.json": "4300ba8f9b95b53acd2be0ea17ce7a3db2614b5a4411e8a2afbf5ff7c02596e4"
+  },
+  "harness": {
+    "ts-reencoded-python.packet.json": "68ea6540323a8018074fc2ef636a7e413aeb95f6456265b4992b320cd04e27cb",
+    "python_to_ts.test.ts": "372fcf86889edd256f71eaeaddc534feb2e82a86ebfb551a75950d8069b8dce7",
+    "vitest.interop.config.mjs": "691bacb5a1be11f04e9690749a595328644152ad2418655cb5c545a2883395ae",
+    "csv_lexical_differences.json": "35b27a3b15e6a7c7bfa4fe766d17c04892e83ce4fb1f338d7d0951fc755dc0b6"
+  }
+}

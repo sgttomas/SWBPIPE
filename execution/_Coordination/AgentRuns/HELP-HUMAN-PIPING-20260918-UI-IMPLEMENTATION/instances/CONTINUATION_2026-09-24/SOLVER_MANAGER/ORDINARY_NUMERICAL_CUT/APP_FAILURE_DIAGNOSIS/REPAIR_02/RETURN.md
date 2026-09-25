@@ -1,0 +1,11 @@
+# Repair 02 — solver identity provenance
+
+Addresses the single P2 finding in `../REPAIR_01_REVIEW/REVIEW.md`. Only `features/report/reportPackageRequest.ts` and its maintained test changed after Repair01. No tests, builds, Git, native or dependency operations performed. The fourteen-file combined candidate is frozen for the same reviewer's backcheck; no passing runtime claim.
+
+The report first verifies manifest bytes, current model/manifest identity and the analysis record's manifest references/hash as before. It then checks strict analysis solver identity against that verified manifest. On the current0.3 route, the received source must satisfy recognized precision producer structure, and the actual producer component name/version must match the recorded manifest/run identity. Build reference comes from the mutually consistent recorded manifest/run value, without constructing one from the producer version. Both result envelope and audit manifest use the same checked identity.
+
+Known historical0.1/0.2 source carriers without precision fields retain recorded historical identity; strict records require matching run solver metadata, while analysis0.1 may retain its prior absent solver metadata and use the verified recorded manifest. No source bytes are upgraded. Renderer/app component versions are unchanged. Mismatched identities are rejected rather than relabeled.
+
+Tests now assert current0.2 producer identity and recorded build in both output locations, historical0.1 identity and unchanged received source, mismatched run name/version/build, a freshly hash-valid manifest and coherent analysis record that disagree with the actual producer name/version, and an alternate consistent recorded build reference that must be preserved literally. These checks are authored but unexecuted.
+
+`_run_records/incremental.diff` is the two-file Repair01-to-Repair02 delta. `combined_14_files.diff` compares the original pre-Repair01 bytes with all fourteen final files. `SOURCE_FREEZE.json` records original, Repair01 and current hashes; `before/`, `after/` and `combined_after/` preserve exact bytes. `BOUNDARY_CHECK.json` confirms the other twelve files remain at the reviewed Repair01 freeze. Prior Repair01 evidence is unchanged.

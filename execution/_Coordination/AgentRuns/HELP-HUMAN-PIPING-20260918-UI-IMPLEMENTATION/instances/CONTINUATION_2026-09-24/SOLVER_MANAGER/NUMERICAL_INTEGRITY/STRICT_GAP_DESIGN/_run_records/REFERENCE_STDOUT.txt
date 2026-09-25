@@ -1,0 +1,19 @@
+{
+  "basis": "Independently derived exact rational K, F and represented neighbor inputs; no production output oracle",
+  "physical_signs": 2,
+  "input_combinations": 27,
+  "initial_seeds": 4,
+  "backend_independent_expected_cases_for_two_modes": 432,
+  "max_reference_iterations": 3
+}
+below equal equal (0, 0) r= ('0', '0')
+equal below below (1, 1) r= ('0', '-25/18014398509481984')
+equal below equal (1, 0) r= ('-25/18014398509481984', '0')
+equal below above (1, 0) r= ('-25/18014398509481984', '0')
+equal equal below (0, 1) r= ('0', '-25/18014398509481984')
+equal equal equal (1, 1) r= ('0', '0')
+equal equal above (1, 0) r= ('0', '0')
+equal above below (0, 1) r= ('0', '-25/18014398509481984')
+equal above equal (0, 1) r= ('0', '0')
+equal above above (0, 0) r= ('0', '0')
+above equal equal (1, 1) r= ('0', '-1/562949953421312')

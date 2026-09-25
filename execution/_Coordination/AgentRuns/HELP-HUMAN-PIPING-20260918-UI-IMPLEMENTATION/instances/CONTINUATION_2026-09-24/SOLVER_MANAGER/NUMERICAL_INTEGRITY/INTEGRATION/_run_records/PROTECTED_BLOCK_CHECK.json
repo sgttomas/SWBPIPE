@@ -1,0 +1,14 @@
+[
+  {
+    "section": "CONTACT_CLASS",
+    "base_sha256": "e7d28960ac9d6c8cb88353025ec9513ca1ec9dda0ee294593c9c53ed9951a7a9",
+    "current_sha256": "e7d28960ac9d6c8cb88353025ec9513ca1ec9dda0ee294593c9c53ed9951a7a9",
+    "identical": true
+  },
+  {
+    "section": "CONTACT_RECOVERY",
+    "base_sha256": "d9dc619fc7fb1e11a2d023640fc835f3e5d06a1c00066d192e30ac9c59ca1391",
+    "current_sha256": "d9dc619fc7fb1e11a2d023640fc835f3e5d06a1c00066d192e30ac9c59ca1391",
+    "identical": true
+  }
+]

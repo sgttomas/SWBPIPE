@@ -1,0 +1,20 @@
+[
+  {
+    "test": "audit_coupled_exact_contacts_converge_from_all_seeds",
+    "unchanged": true,
+    "before_sha256": "c2c5d99ae4948dbe85cdf15b1ba5a3216acd2926191cde8fce59413c1bdb1a22",
+    "after_sha256": "c2c5d99ae4948dbe85cdf15b1ba5a3216acd2926191cde8fce59413c1bdb1a22"
+  },
+  {
+    "test": "audit_gap_equilibrium_both_signs_seeds_and_modes",
+    "unchanged": true,
+    "before_sha256": "d9f8960424f452bd2b637bb770d06e1377d98a3323df9d31b1f27d97dc3e11c0",
+    "after_sha256": "d9f8960424f452bd2b637bb770d06e1377d98a3323df9d31b1f27d97dc3e11c0"
+  },
+  {
+    "test": "current_normal_affine_fixture_matches_both_signed_oracles_seeds_and_modes",
+    "unchanged": true,
+    "before_sha256": "b266883f1366dc35594c8813a4767d63ae24f838244f1ae7a67877b65d66700d",
+    "after_sha256": "b266883f1366dc35594c8813a4767d63ae24f838244f1ae7a67877b65d66700d"
+  }
+]

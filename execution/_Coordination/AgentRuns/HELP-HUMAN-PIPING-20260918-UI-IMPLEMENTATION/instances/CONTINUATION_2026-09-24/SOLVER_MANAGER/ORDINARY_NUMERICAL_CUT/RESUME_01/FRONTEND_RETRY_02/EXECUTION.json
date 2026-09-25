@@ -1,0 +1,16 @@
+{
+  "command": [
+    "npm",
+    "test",
+    "--workspace",
+    "apps/desktop",
+    "--",
+    "src/features/result-export/resultExportAdapter.test.ts",
+    "--maxWorkers=2"
+  ],
+  "exit_code": 0,
+  "started_unix": 1790305253.740119,
+  "ended_unix": 1790305260.28896,
+  "log_sha256": "69f2008b1a881e30cc39452d55141c6adf811e533bdd93b09bcefb27074f91b9",
+  "source_111_unchanged": true
+}

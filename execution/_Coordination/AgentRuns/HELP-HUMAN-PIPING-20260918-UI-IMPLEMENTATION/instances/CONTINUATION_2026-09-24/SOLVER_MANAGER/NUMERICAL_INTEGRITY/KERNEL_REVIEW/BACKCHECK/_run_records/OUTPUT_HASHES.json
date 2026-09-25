@@ -1,0 +1,14 @@
+{
+  "RETURN.md": "75c0890c5b05441a70895a1b91c68b5d89ce167914441596be6fb59000cefa96",
+  "_run_records/independent_backcheck.py": "116751cf65de9ab34fda5a1cd94a9e9c3d25e98c5ee0e86581d0e35e1882c96a",
+  "_run_records/independent_backcheck.json": "b16de804525fe81127a1e7d69d8002ce3b91e25f205f2f795322aba042ff6ae1",
+  "_run_records/scope_check.json": "4ccf813efd6efca006ee471664faff74819d800175b5ed1ffdbfc804244cd237",
+  "_run_records/SOURCE_CHECK.json": "9565c3a7e46c155a3ec3fd84d836e9b179b744badb5c8019b82bc6a29a3a80f0",
+  "_run_records/INPUT_HASHES.json": "a028c83a126076db86e2885e916b7713fc13d549b0a87b3a1b7782ba50d7df86",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "03f82e343c7aee8f9f38d4b983091d0b71faebb904fb4dc7b59692a0c9cc4ad9",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs": "091d4069852c6033da38074af297c5eaa5a9469510c00d577f222e077aec2c15",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "3a016181fc49092d2775cc365dd2956b4c137c1f6bb64046a77b925ef5f9cce0",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/sparse_direct/Cargo.toml": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "51e010af1ef62c95faf854c6308aec7a0f0be7123546083be993f6090b257b12",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/sparse_direct/src/structural.rs": "89af5f9e72867072b0f9e2a54245592aa51745f1992ec20f118d20d1e13ae08f"
+}

@@ -1,3 +1,4 @@
+import { numericalResultStanding, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../results/numericalResultQuality";
 import { useMemo, useRef, useState } from "react";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { buildPreviewComparison } from "../../services/previewService";
@@ -37,7 +38,6 @@ import type { SolveProofEvidence } from "./solveProof";
 export function useResultsSessionState() {
   const [result, setResult] = useState<MechanicsResult | null>(null);
   const [historicalRun, setHistoricalRun] = useState<HistoricalRunContext | null>(null);
-  const currentSolvedResult = result?.status.mechanics === "MECHANICS_SOLVED" ? result : null;
   const [analysisRun, setAnalysisRun] = useState<AnalysisRunEnvelope | null>(null);
   const resultBasisRef = useRef<{ value: MechanicsResult | null; sequence: number }>({ value: null, sequence: 0 });
   if (resultBasisRef.current.value !== result) resultBasisRef.current = { value: result, sequence: resultBasisRef.current.sequence + 1 };
@@ -45,6 +45,23 @@ export function useResultsSessionState() {
   if (analysisBasisRef.current.value !== analysisRun) analysisBasisRef.current = { value: analysisRun, sequence: analysisBasisRef.current.sequence + 1 };
   const [inputManifest, setInputManifest] =
     useState<CurrentSessionInputManifestEvidence | null>(null);
+  const currentSolver = inputManifest?.manifest.solver_basis;
+  const currentRecord = analysisRun?.analysis_run;
+  const currentSolvedResult = result && analysisRun?.schema_version === "0.3.0"
+    && currentRecord?.run_id === result.run_id
+    && inputManifest?.manifest.model_basis.model_ref === result.model_ref
+    && currentRecord.reproducibility.input_manifest_refs.length === 1
+    && currentRecord.reproducibility.input_manifest_refs[0].ref === inputManifest?.manifest_ref.ref
+    && currentRecord.reproducibility.input_manifest_hashes.length === 1
+    && currentRecord.reproducibility.input_manifest_hashes[0].value === inputManifest?.manifest_sha256
+    && currentRecord.reproducibility.semantic_contract?.id === PRECISION_CONTRACT_ID
+    && currentRecord.reproducibility.semantic_contract?.sha256 === PRECISION_CONTRACT_SHA256
+    && currentSolver?.solver_name === result.producer?.component_name
+    && currentSolver?.solver_version === result.producer?.component_version
+    && currentRecord.solver_version?.solver_name === currentSolver?.solver_name
+    && currentRecord.solver_version?.solver_version === currentSolver?.solver_version
+    && currentRecord.solver_version?.build_ref.ref === currentSolver?.solver_build_ref
+    && numericalResultStanding(result, inputManifest?.manifest.model_basis.model_payload).eligible ? result : null;
   // Worst-of rule-check aggregate from the GUI run panel, lifted so it can be
   // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).
   const [ruleCheckAggregate, setRuleCheckAggregate] = useState<RuleCheckStatus | null>(null);

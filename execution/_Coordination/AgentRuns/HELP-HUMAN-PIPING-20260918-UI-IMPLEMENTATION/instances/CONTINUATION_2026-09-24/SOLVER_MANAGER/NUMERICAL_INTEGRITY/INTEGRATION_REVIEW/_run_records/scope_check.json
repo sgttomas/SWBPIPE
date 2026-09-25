@@ -1,0 +1,17 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/product_physics",
+    "projects/chirality-piping/core/solver/nonlinear_integration"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "projects/chirality-piping/core/product_physics/Cargo.lock",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.lock",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

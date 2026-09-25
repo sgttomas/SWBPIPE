@@ -1,3 +1,5 @@
+import { loadPreviewModel, runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
+import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 // DEC-021 (A7) coverage: the rendered-report seam routes through the Tauri
 // renderer command only (no fallback renderer in browser preview), the
 // adapter composes the renderer input from session envelopes with explicit
@@ -519,5 +521,30 @@ describe("RenderedReportPanel", () => {
     });
     expect(screen.queryByTestId("rendered-report-route")).not.toBeInTheDocument();
     expect(invokeMock).not.toHaveBeenCalled();
+  });
+});
+
+async function currentPrecisionSession() {
+  const model = await loadPreviewModel();
+  const result = await runPreviewMechanics(model);
+  const inputManifest = await buildCurrentSessionInputManifest({
+    model,
+    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
+    active_rule_packs: [], external_assets: []
+  });
+  const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
+  const receivedHash = analysisRun.analysis_run.hashes.find(hash => hash.payload_scope === "received_result")!.value;
+  expect(analysisRun.schema_version).toBe("0.3.0");
+  return { model, result, analysisRun, receivedHash };
+}
+
+describe("renderer received-result hash binding", () => {
+  it("uses the actual current received hash and rejects unknown analysis versions", async () => {
+    const session = await currentPrecisionSession();
+    const input = await buildRenderableReportInput({ ...session, projectSummary: null });
+    expect(input.calculation_report.audit_manifest_refs[1].checksum.value).toBe(session.receivedHash);
+    const future = structuredClone(session.analysisRun);
+    future.schema_version = "0.4.0";
+    await expect(buildRenderableReportInput({ ...session, analysisRun: future, projectSummary: null })).rejects.toThrow("REPORT-ANALYSIS-VERSION-UNSUPPORTED");
   });
 });

@@ -1,0 +1,9 @@
+{
+  "actor": "/root/solver_manager",
+  "path_basis": "this record directory",
+  "sha256": {
+    "analyze.py": "a1f89e2a7b5c4c6ba06b45b61acd3850d8a85ddfd205370c9b5375fd82d34b83",
+    "ANALYSIS.json": "4cb3b3edb8f9991d86e7d37c4db66f5e47f424f2c271b45981a3ebe9c95dec41",
+    "RETURN.md": "e149282511d36257367c03d426a77f7de343f8e5a584211be87c7d8bd1b2ce07"
+  }
+}

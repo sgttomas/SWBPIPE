@@ -1,0 +1,60 @@
+--- before/projects/chirality-piping/core/product_physics/src/lib.rs
++++ after/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -25,7 +25,7 @@
+     AlgebraOperand, AlgebraQuantity, AlgebraResult, AnalysisStatus as AlgebraAnalysisStatus,
+     CombinationTerm, FindingCode, RangeMode,
+ };
+-use open_pipe_stress_nonlinear_integration::structural_adapter::AssemblyEvidence;
++use open_pipe_stress_nonlinear_integration::structural_adapter::{AssemblyEvidence, StrictGapEvidence};
+ use open_pipe_stress_nonlinear_integration::{
+     eligible_contact_dofs, solve_active_set_frame_with_mode_and_springs, ConvergenceControl,
+     ConvergencePolicyStatus, CurvedBendStiffnessElement, DerivedFrictionNormalReaction,
+@@ -849,6 +849,12 @@
+                     NumericalQualityStatus::Failed,
+                     ModelMatrixFidelity::NotAssessed,
+                     AccuracyEvidence::NotClaimed,
++                ),
++                Some("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED") => (
++                    StructuralStatus::NumericallyUnresolved,
++                    NumericalQualityStatus::Unresolved,
++                    ModelMatrixFidelity::NotAssessed,
++                    AccuracyEvidence::Unresolved,
+                 ),
+                 Some("NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED") => (
+                     StructuralStatus::NumericallyUnresolved,
+@@ -1712,13 +1718,28 @@
+         .as_ref()
+         .and_then(|solve| solve.iterations.last())
+     {
+-        append_integrity_report(
+-            diagnostics,
+-            &load_case.id,
+-            &iteration.structural_report,
+-            model,
+-            Some(&iteration.product_equilibrium),
+-        );
++        if matches!(&iteration.strict_gap, StrictGapEvidence::Qualified(_)) {
++            // The ordinary factor/solve report precedes exact-ratio selection.
++            // It cannot qualify the selected mixed field-recovery basis.
++            diagnostics.push(diag(
++                &integrity_diagnostic_id(&load_case.id),
++                "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
++                "warning",
++                format!(
++                    "Load case {} selected represented-exact-ratio global displacement and support reactions, while member fields are recovered from projected binary64 displacement. The ordinary structural report is a preprojection precondition, and selected-public-displacement equilibrium does not prove exact-ratio equilibrium or complete field recovery. Mixed recovery remains numerically unresolved and unavailable for Current reliance; computed loop and quantity rows remain inspection evidence only. Ordinary structural precondition: {:?}; selected-public-displacement equilibrium: {:?}",
++                    load_case.id, iteration.structural_report, iteration.product_equilibrium
++                ),
++                vec![load_case.id.clone()],
++            ));
++        } else {
++            append_integrity_report(
++                diagnostics,
++                &load_case.id,
++                &iteration.structural_report,
++                model,
++                Some(&iteration.product_equilibrium),
++            );
++        }
+     }
+     require_finite_mechanics(displacements.iter().copied())?;
+     let component_pressure_thrust_load_count = append_expansion_joint_pressure_thrust_results(

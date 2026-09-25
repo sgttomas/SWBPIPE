@@ -1,0 +1,56 @@
+{
+  "status": "PASS: static source/hash/scope and baseline-evidence checks only",
+  "candidate": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "37d19221af9900e40d500370c30c156e49f5469a905f20acb3b2e3db6ae54d80",
+    "projects/chirality-piping/core/product_physics/tests/represented_gap_publication.rs": "1c33c4f0604b3eb0e31e689f3f965e65fd5d832377737f366b1b25e038fc1b78"
+  },
+  "before_lib_sha256": "e215487709e06275bb92796455560e1bea16253c1c4fbf614f182b7da96d2df2",
+  "owned_source_diff_exact": true,
+  "owned_test_diff_exact": true,
+  "production_hunk_count": 3,
+  "scope_check_command": [
+    "python3",
+    "tools/software_workflow/validate_change_scope.py",
+    ".",
+    "--allowed",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "--allowed",
+    "projects/chirality-piping/core/product_physics/tests/represented_gap_publication.rs",
+    "--path",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "--path",
+    "projects/chirality-piping/core/product_physics/tests/represented_gap_publication.rs"
+  ],
+  "baseline_evidence": {
+    "exit_code": 101,
+    "source_unchanged_during_baseline": true,
+    "gap_cases_failed_after_loop_contact_prerequisites": 16,
+    "failure_line": 119,
+    "ordinary_companion_test": "passed; 4 solves by source control flow",
+    "log_sha256": "381e894a53937b6336cb1c1f205de0da4198639f9ad2f52787bff6685e3d2684",
+    "snapshot_source_count": 55,
+    "current_delta_from_baseline": {
+      "projects/chirality-piping/core/product_physics/src/lib.rs": {
+        "baseline": "e215487709e06275bb92796455560e1bea16253c1c4fbf614f182b7da96d2df2",
+        "current": "37d19221af9900e40d500370c30c156e49f5469a905f20acb3b2e3db6ae54d80"
+      }
+    }
+  },
+  "independent_axial_preconditions": {
+    "area_m2": 0.0014922565104551519,
+    "gap_m": 0.0001,
+    "contact_load_n": 29845.130209103037,
+    "u_25000_mm": 0.08376575952205018,
+    "u_100000_mm": 0.3350630380882007,
+    "maximum_ordinary_axial_strain": 0.0003350630380882007,
+    "existing_relative_displacement_criterion": 1e-09
+  },
+  "not_executed": [
+    "postfix Rust tests",
+    "Cargo/build",
+    "npm",
+    "native application",
+    "Git"
+  ],
+  "postfix_runtime_claim": "none"
+}

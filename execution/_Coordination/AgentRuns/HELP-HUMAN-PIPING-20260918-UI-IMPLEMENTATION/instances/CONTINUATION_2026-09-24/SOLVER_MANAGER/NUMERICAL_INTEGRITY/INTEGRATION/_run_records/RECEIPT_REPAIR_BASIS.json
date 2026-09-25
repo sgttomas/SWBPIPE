@@ -1,0 +1,15 @@
+{
+  "actor": "/root/solver_manager/structural_integration",
+  "review_coordination": "/root/solver_manager/integration_review recommended opaque completion receipt, explicit springs, complete source/output/coverage binding and no second factorization before authoring",
+  "affine_authority_reported_by": "/root/solver_manager",
+  "affine_direction": "ROOT prospective disposition: retain exact repeat/seed equivalence within each algorithm and exact discrete state/outcome identity across modes; cross-algorithm floating quantities use the existing 1e-12 physical-reference criterion. No new epsilon; no gap relaxation.",
+  "old_failed_affine_log": "../SUCCESSOR_CHECKS/_run_records/nonlinear_full.log",
+  "gap_test_identical_to_base": true,
+  "gap_test_base_sha256": "41fc6f5750a655dd02a8cb72f88209cd8d71f3892b7528c49a2c7c8b90ad76be",
+  "gap_test_current_sha256": "41fc6f5750a655dd02a8cb72f88209cd8d71f3892b7528c49a2c7c8b90ad76be",
+  "checks": [
+    "rustfmt passed",
+    "git diff --check passed"
+  ],
+  "cargo_run": false
+}

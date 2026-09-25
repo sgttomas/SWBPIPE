@@ -1,0 +1,83 @@
+{
+  "actor": "/root/solver_manager/core_consumer_review",
+  "parent": "/root/solver_manager",
+  "mechanism": "resumed delegated-harness-native TASK Type 2 child on shared filesystem",
+  "repository": "/private/tmp/piping-numerical-integrity-20260924",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "prior_instruction_origins": "../EXECUTION_CONTEXT.json",
+  "basis": "parent bounded final stable-map/nullish-rule four-file frozen delta; no active writer",
+  "source_only_probe_observations": 117,
+  "production_jcs_or_heavy_tests": false,
+  "supplied_origins": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/CANDIDATE_FILES.json",
+      "absolute_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/CANDIDATE_FILES.json",
+      "sha256": "fe675ec0794307f805bca4e92145857e9a42950339a20e6855d662787adce50c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/STABLE_MAP_PROBE.json",
+      "absolute_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/STABLE_MAP_PROBE.json",
+      "sha256": "52027830e1cca77c91fb7fa5d8064e871c3562ccb66508cb1d7ba57e134ad72f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/STABLE_MAP_REPAIR/RESULTS.json",
+      "absolute_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/STABLE_MAP_REPAIR/RESULTS.json",
+      "sha256": "9d6ad8e19bdf29466b0fc2199fa7ea65b7c6c683717f943f8936a0e6a16d3f7e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/STABLE_MAP_REPAIR/probe.json",
+      "absolute_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_BINDING_REPAIR/_run_records/STABLE_MAP_REPAIR/probe.json",
+      "sha256": "3d836c756a6af60008916faf16e032375aa56e5e6893bd4518adb7d6db9a1786"
+    }
+  ],
+  "reports": {
+    "BACKCHECK_03.md": "f16afb8d6db5983df0581490a9ac021e802e08c8c7a3c7dcf18fb385aad59c25",
+    "FINAL_DISPOSITION.md": "ae0b98708fb683bfbd58ac1f85d9687675362a735c26e1aabe98c021ee8e1694"
+  },
+  "artifacts": [
+    {
+      "path": "COMBINED_END_HASHES.json",
+      "sha256": "4162fc068da3d4d9e7bc1c2e3e68d78a0ba1840cd5ae836ff752ae613e11628f"
+    },
+    {
+      "path": "COMBINED_START_HASHES.json",
+      "sha256": "1c0e101a3e5c1543b55aad1b7204e3fa0474af3de7b3a80597db49bac3946003"
+    },
+    {
+      "path": "FINAL_DISPOSITION_BEFORE.md",
+      "sha256": "cd3c78ee800678d484955da2b8b9e743b320360109c97ffb8d3b7de782509448"
+    },
+    {
+      "path": "backcheck_probe.json",
+      "sha256": "972aa4f90a9baaf576b269f35a8758f4791b753a0aaab2e83e410bb27013e9f1"
+    },
+    {
+      "path": "backcheck_probe.py",
+      "sha256": "69920645679e64ab7af712afc40cc1025d51655a0a79acc266c5b1e41544e948"
+    },
+    {
+      "path": "backcheck_probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "frozen/compatibility.py",
+      "sha256": "ea2ae439ce6ac827e41e7cc3ea3c86e23d0267de80b67478b9005cc936390bb1"
+    },
+    {
+      "path": "frozen/package_v0_3.py",
+      "sha256": "d2248bc6c9a82a9c76ad2df1783c1412970c3b242340844964235ea154831683"
+    },
+    {
+      "path": "frozen/test_precision_consumer_contract.py",
+      "sha256": "20569a31f5364e69d66d44946badaffc14145579a6a3072c19dbe68e492f71af"
+    },
+    {
+      "path": "frozen/test_stress_neutral_precision.py",
+      "sha256": "da5095b9a7e182925a6185955a692a02317c469209e953dffe15efe4e9662782"
+    },
+    {
+      "path": "reviewed_delta.patch",
+      "sha256": "183d83ef897b5c58dc11d92d38c084dc9d6a6c658d484e2ae919d2f65135d850"
+    }
+  ]
+}

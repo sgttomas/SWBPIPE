@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CORE_CONSUMER_REVIEW/_run_records/BACKCHECK_02/backcheck_probe.py", line 168, in <module>
+    helpers['rehash_packet'](bad)
+  File "frozen/test_stress_neutral_precision.py", line 93, in rehash_packet
+NameError: name 'package_projection' is not defined

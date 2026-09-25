@@ -1,0 +1,812 @@
+{
+  "actor": "/root/solver_manager",
+  "method": "Independent Python Fraction arithmetic on exact captured binary64 inputs, plus 120-digit Gauss-Legendre analytical reference; no production oracle import",
+  "entry_test": "tests::mixed_nonlinear_preview_bundle_converges_and_emits_each_support_state",
+  "mode": "SparseInteractive",
+  "source_ref": "_run_records/SOURCE_CONTEXT.json",
+  "raw_events_ref": "_run_records/rows.jsonl",
+  "old_protected_witness": {
+    "actual_force_residual": 5.684341886080802e-14,
+    "limit": 0.0,
+    "result": "FAILED; unchanged",
+    "actual_moment_residual": 0.0,
+    "actual_work_residual": 7.995487033189681e-19
+  },
+  "selected_iteration": {
+    "iteration": 2,
+    "converged": true,
+    "blocked": false,
+    "active_count_residual": 0.0,
+    "changed_supports": [],
+    "states": [
+      [
+        "support:NL-MIX-FRIC-110",
+        "Sliding"
+      ],
+      [
+        "support:NL-MIX-GAP-110",
+        "Active"
+      ],
+      [
+        "support:NL-MIX-ONEWAY-110",
+        "Inactive"
+      ]
+    ],
+    "friction_dof_force": [
+      [
+        8.0,
+        -3.0
+      ]
+    ],
+    "convergence_original": "ConvergenceControl { policy_ref: \"DEC-046-CV-B-product-preview-active-set-count-v1\", policy_status: Accepted, residual_tolerance: 0.0, absolute_residual_floor: 0.0, max_iterations: 4 }"
+  },
+  "rows": [
+    {
+      "global_dof": 6,
+      "node_index": 1,
+      "node_id": "node:N-110",
+      "dof": "UX",
+      "unit": "N",
+      "applied": 100.0,
+      "displacement": 1.4122000274347406e-07,
+      "observed_residual": 0.0,
+      "observed_residual_hex": "0x0.0p+0",
+      "exact_represented_residual": "-4.3841557599900530594385757443189817234192873218745489793946035206317901611328125E-15",
+      "exact_represented_denominator": "199.9999999999999956158442400099469405614242556810182765807126781254510206053964793682098388671875",
+      "actual_evaluation_error": "4.3841557599900530594385757443189817234192873218745489793946035206317901611328125E-15",
+      "legacy_literal_operation_count": 25,
+      "legacy_conservative_roundoff_count": 26,
+      "legacy_evaluation_error_bound": "5.77315972805083054833735009261147089943663361647587098518067668498497724882644258016995171189654039375854891580910762919E-13",
+      "actual_error_within_bound": true,
+      "all_intermediates_normal_or_zero": true,
+      "selected_nonzero_coefficient_count": 2,
+      "selected_policy_operation_count": 6,
+      "selected_gamma": "6.66133814775094367988438187673928317992136487865052258163670283498797195733864939002707928138406369838749746574515401554E-16",
+      "selected_target": "4.26325641456060395512600440111314123514967352233633445224748981439230205269673560961733074008580076696799837807689856994E-14",
+      "observed_componentwise_ratio": "0",
+      "exact_represented_componentwise_ratio": "2.19207787999502657777134219179439123126461571717665387792539737749048143040313655808502360537550120310199490695833103690E-17",
+      "independent_guard_ratio_using_exact_denominator": "6.66133814775095551279796019194132498474562996448322285045015847226868559427156471991216284631011535814201060325017334070E-16",
+      "independent_selected_screen_pass": true,
+      "observed_work_product": 0.0,
+      "exact_represented_work_product": "6.19130488453612900558198701193298582447972778256287602521652530475257188689937727456437734068865221169161196235197763826E-22",
+      "row_derived_target_work_bound": "1.20411416512076373331166889494050564544608973234037685612788200948916033083707480072091217832149967283960956782637908943E-18",
+      "nonzero_coefficient_terms": [
+        {
+          "column": 0,
+          "dof": "UX",
+          "coefficient": -708114984.1191397,
+          "coefficient_hex": "-0x1.51a7d140f3ff8p+29",
+          "displacement": 0.0,
+          "displacement_hex": "0x0.0p+0",
+          "rounded_product": -0.0,
+          "exact_product": "0"
+        },
+        {
+          "column": 6,
+          "dof": "UX",
+          "coefficient": 708114984.1191397,
+          "coefficient_hex": "0x1.51a7d140f3ff8p+29",
+          "displacement": 1.4122000274347406e-07,
+          "displacement_hex": "0x1.2f44847ddcb6ap-23",
+          "rounded_product": 100.0,
+          "exact_product": "99.9999999999999956158442400099469405614242556810182765807126781254510206053964793682098388671875"
+        }
+      ]
+    },
+    {
+      "global_dof": 8,
+      "node_index": 1,
+      "node_id": "node:N-110",
+      "dof": "UZ",
+      "unit": "N",
+      "applied": 97.0,
+      "displacement": 1.406580954035886e-05,
+      "observed_residual": -5.684341886080802e-14,
+      "observed_residual_hex": "-0x1.0000000000000p-44",
+      "exact_represented_residual": "-5.419598456585851249469652551753160482465865310786057307268492877483367919921875E-14",
+      "exact_represented_denominator": "775.9999999999998075487584810032351731448005455505319608554282151402503586723469197750091552734375",
+      "actual_evaluation_error": "2.64743429494950237499341588871839517534134689213942692731507122516632080078125E-15",
+      "legacy_literal_operation_count": 25,
+      "legacy_conservative_roundoff_count": 26,
+      "legacy_evaluation_error_bound": "2.23998597448372174633125032215391837667452958739917884489871790746301235454602961999176005501771489056411007074611270916E-12",
+      "actual_error_within_bound": true,
+      "all_intermediates_normal_or_zero": true,
+      "selected_nonzero_coefficient_count": 4,
+      "selected_policy_operation_count": 10,
+      "selected_gamma": "1.11022302462515777301879607592313472385745046004359865837780590291778801437894465852009237998816284519729701081618999636E-15",
+      "selected_target": "7.10542735760100974732029488590806223268768294427903141361795777867384329202524581452859123192424220926270086922361597670E-14",
+      "observed_componentwise_ratio": "7.32518284288763259885248274227334333129218389574919501904158531426255577573779840142836387508693165092862835952875284394E-17",
+      "exact_represented_componentwise_ratio": "6.98401862962094406385658326560087555026442467899457742311750034127724247018335402993583551432848404610752044361359631389E-17",
+      "independent_guard_ratio_using_exact_denominator": "1.18347485305403717109192860683249561783826379990158435559734632578640978210105650256841247999535648507292473624181296246E-15",
+      "independent_selected_screen_pass": true,
+      "observed_work_product": 7.995487033189681e-19,
+      "exact_represented_work_product": "7.62310396755594163840525433359712009835271819627014996956622165055586072009797766725643840966541466257905268477657045878E-19",
+      "row_derived_target_work_bound": "7.75562242219399730501246511788568694255000380594211534728910748781619519223346522658057276795345695628664375483627485600E-16",
+      "nonzero_coefficient_terms": [
+        {
+          "column": 2,
+          "dof": "UZ",
+          "coefficient": -27584619.206361078,
+          "coefficient_hex": "-0x1.a4e86b34d4146p+24",
+          "displacement": 0.0,
+          "displacement_hex": "0x0.0p+0",
+          "rounded_product": -0.0,
+          "exact_product": "0"
+        },
+        {
+          "column": 4,
+          "dof": "RY",
+          "coefficient": 13792309.603180539,
+          "coefficient_hex": "0x1.a4e86b34d4146p+23",
+          "displacement": 0.0,
+          "displacement_hex": "0x0.0p+0",
+          "rounded_product": 0.0,
+          "exact_product": "0"
+        },
+        {
+          "column": 8,
+          "dof": "UZ",
+          "coefficient": 27584619.206361078,
+          "coefficient_hex": "0x1.a4e86b34d4146p+24",
+          "displacement": 1.406580954035886e-05,
+          "displacement_hex": "0x1.d7f8624993fc2p-17",
+          "rounded_product": 387.9999999999999,
+          "exact_product": "387.99999999999987667638695757236133922413751400946356809838755363983864299370907247066497802734375"
+        },
+        {
+          "column": 10,
+          "dof": "RY",
+          "coefficient": 13792309.603180539,
+          "coefficient_hex": "0x1.a4e86b34d4146p+23",
+          "displacement": -2.109871431053829e-05,
+          "displacement_hex": "-0x1.61fa49b72efd2p-16",
+          "rounded_product": -290.99999999999994,
+          "exact_product": "-290.99999999999993087237152343087383392066303154106839275704066150041171567863784730434417724609375"
+        }
+      ]
+    },
+    {
+      "global_dof": 9,
+      "node_index": 1,
+      "node_id": "node:N-110",
+      "dof": "RX",
+      "unit": "N*m",
+      "applied": 0.0,
+      "displacement": 0.0,
+      "observed_residual": 0.0,
+      "observed_residual_hex": "0x0.0p+0",
+      "exact_represented_residual": "0",
+      "exact_represented_denominator": "0",
+      "actual_evaluation_error": "0",
+      "legacy_literal_operation_count": 25,
+      "legacy_conservative_roundoff_count": 26,
+      "legacy_evaluation_error_bound": "0",
+      "actual_error_within_bound": true,
+      "all_intermediates_normal_or_zero": true,
+      "selected_nonzero_coefficient_count": 2,
+      "selected_policy_operation_count": 6,
+      "selected_gamma": "6.66133814775094367988438187673928317992136487865052258163670283498797195733864939002707928138406369838749746574515401554E-16",
+      "selected_target": "4.26325641456060395512600440111314123514967352233633445224748981439230205269673560961733074008580076696799837807689856994E-14",
+      "observed_componentwise_ratio": "0",
+      "exact_represented_componentwise_ratio": "0",
+      "independent_guard_ratio_using_exact_denominator": "0",
+      "independent_selected_screen_pass": true,
+      "observed_work_product": 0.0,
+      "exact_represented_work_product": "0",
+      "row_derived_target_work_bound": "0",
+      "nonzero_coefficient_terms": [
+        {
+          "column": 3,
+          "dof": "RX",
+          "coefficient": -1770013.0657415024,
+          "coefficient_hex": "-0x1.b021d10d46f63p+20",
+          "displacement": 0.0,
+          "displacement_hex": "0x0.0p+0",
+          "rounded_product": -0.0,
+          "exact_product": "0"
+        },
+        {
+          "column": 9,
+          "dof": "RX",
+          "coefficient": 1770013.0657415024,
+          "coefficient_hex": "0x1.b021d10d46f63p+20",
+          "displacement": 0.0,
+          "displacement_hex": "0x0.0p+0",
+          "rounded_product": 0.0,
+          "exact_product": "0"
+        }
+      ]
+    },
+    {
+      "global_dof": 10,
+      "node_index": 1,
+      "node_id": "node:N-110",
+      "dof": "RY",
+      "unit": "N*m",
+      "applied": 0.0,
+      "displacement": -2.109871431053829e-05,
+      "observed_residual": 0.0,
+      "observed_residual_hex": "0x0.0p+0",
+      "exact_represented_residual": "-2.47691491498976073643133952547485860415203695605868006168748252093791961669921875E-15",
+      "exact_represented_denominator": "387.9999999999998791533018725621220756554770394843221722504245096985187046811915934085845947265625",
+      "actual_evaluation_error": "2.47691491498976073643133952547485860415203695605868006168748252093791961669921875E-15",
+      "legacy_literal_operation_count": 25,
+      "legacy_conservative_roundoff_count": 26,
+      "legacy_evaluation_error_bound": "1.11999298724186080209491900017093928664651064319877408068523832132963137663354391538195108768776463778230388722352088181E-12",
+      "actual_error_within_bound": true,
+      "all_intermediates_normal_or_zero": true,
+      "selected_nonzero_coefficient_count": 4,
+      "selected_policy_operation_count": 10,
+      "selected_gamma": "1.11022302462515777301879607592313472385745046004359865837780590291778801437894465852009237998816284519729701081618999636E-15",
+      "selected_target": "7.10542735760100974732029488590806223268768294427903141361795777867384329202524581452859123192424220926270086922361597670E-14",
+      "observed_componentwise_ratio": "0",
+      "exact_represented_componentwise_ratio": "6.38380132729319976260992636704490208970316307222592294082647500466344353195622933545476212198111616679716146036578084655E-18",
+      "independent_guard_ratio_using_exact_denominator": "1.11022302462516073124719065472747685055190491953980455647516872939496703973963936834715027235891072043059215090476611168E-15",
+      "independent_selected_screen_pass": true,
+      "observed_work_product": 0.0,
+      "exact_represented_work_product": "5.22597201628801989866632271486579791780591303138613766521399623705242359867701293444214029156835542430301067007292203925E-20",
+      "row_derived_target_work_bound": "5.81671681664549807668953878009362643361843433870871202873700424147184221804315393524200285507709316441271244471966849987E-16",
+      "nonzero_coefficient_terms": [
+        {
+          "column": 2,
+          "dof": "UZ",
+          "coefficient": -13792309.603180539,
+          "coefficient_hex": "-0x1.a4e86b34d4146p+23",
+          "displacement": 0.0,
+          "displacement_hex": "0x0.0p+0",
+          "rounded_product": -0.0,
+          "exact_product": "0"
+        },
+        {
+          "column": 4,
+          "dof": "RY",
+          "coefficient": 4597436.534393513,
+          "coefficient_hex": "0x1.189af223380d9p+22",
+          "displacement": 0.0,
+          "displacement_hex": "0x0.0p+0",
+          "rounded_product": 0.0,
+          "exact_product": "0"
+        },
+        {
+          "column": 8,
+          "dof": "UZ",
+          "coefficient": 13792309.603180539,
+          "coefficient_hex": "0x1.a4e86b34d4146p+23",
+          "displacement": 1.406580954035886e-05,
+          "displacement_hex": "0x1.d7f8624993fc2p-17",
+          "rounded_product": 193.99999999999994,
+          "exact_product": "193.999999999999938338193478786180669612068757004731784049193776819919321496854536235332489013671875"
+        },
+        {
+          "column": 10,
+          "dof": "RY",
+          "coefficient": 9194873.068787025,
+          "coefficient_hex": "0x1.189af223380d9p+23",
+          "displacement": -2.109871431053829e-05,
+          "displacement_hex": "-0x1.61fa49b72efd2p-16",
+          "rounded_product": -193.99999999999994,
+          "exact_product": "-193.999999999999940815108393775941406043408282479590388201230732878599383184337057173252105712890625"
+        }
+      ]
+    },
+    {
+      "global_dof": 11,
+      "node_index": 1,
+      "node_id": "node:N-110",
+      "dof": "RZ",
+      "unit": "N*m",
+      "applied": 0.0,
+      "displacement": 7.500000000000001e-05,
+      "observed_residual": 0.0,
+      "observed_residual_hex": "0x0.0p+0",
+      "exact_represented_residual": "-1.541268699043845967707206275051771529106293956434825531687238253653049468994140625E-14",
+      "exact_represented_denominator": "1379.23096031805393697681993505649315702477868338318107229063802510182767946389503777027130126953125",
+      "actual_evaluation_error": "1.541268699043845967707206275051771529106293956434825531687238253653049468994140625E-14",
+      "legacy_literal_operation_count": 25,
+      "legacy_conservative_roundoff_count": 26,
+      "legacy_evaluation_error_bound": "3.98126031789453115041394854692654945941337650364129670281184517914427809226873042161647973324875843564563831697082094536E-12",
+      "actual_error_within_bound": true,
+      "all_intermediates_normal_or_zero": true,
+      "selected_nonzero_coefficient_count": 4,
+      "selected_policy_operation_count": 10,
+      "selected_gamma": "1.11022302462515777301879607592313472385745046004359865837780590291778801437894465852009237998816284519729701081618999636E-15",
+      "selected_target": "7.10542735760100974732029488590806223268768294427903141361795777867384329202524581452859123192424220926270086922361597670E-14",
+      "observed_componentwise_ratio": "0",
+      "exact_represented_componentwise_ratio": "1.11748412223027950527066185660207402314168215883337423517049532015798780092405052887207925362567255217586015307668128328E-17",
+      "independent_guard_ratio_using_exact_denominator": "1.11022302462516073124719065472747685055190491953980455647516872939496703973963936834715027235891072043059215090476611168E-15",
+      "independent_selected_screen_pass": true,
+      "observed_work_product": 0.0,
+      "exact_represented_work_product": "1.15595152428288458339582325582740077382538144082670819334848028460010988390540364728488660457331210123024800573432457895E-18",
+      "row_derived_target_work_bound": "7.35001904842066052107874707207874143351742740995564429491199069318839295941114070060250519124841911277647770945478671889E-15",
+      "nonzero_coefficient_terms": [
+        {
+          "column": 1,
+          "dof": "UY",
+          "coefficient": 13792309.603180539,
+          "coefficient_hex": "0x1.a4e86b34d4146p+23",
+          "displacement": 0.0,
+          "displacement_hex": "0x0.0p+0",
+          "rounded_product": 0.0,
+          "exact_product": "0"
+        },
+        {
+          "column": 5,
+          "dof": "RZ",
+          "coefficient": 4597436.534393513,
+          "coefficient_hex": "0x1.189af223380d9p+22",
+          "displacement": 0.0,
+          "displacement_hex": "0x0.0p+0",
+          "rounded_product": 0.0,
+          "exact_product": "0"
+        },
+        {
+          "column": 7,
+          "dof": "UY",
+          "coefficient": -13792309.603180539,
+          "coefficient_hex": "-0x1.a4e86b34d4146p+23",
+          "displacement": 5e-05,
+          "displacement_hex": "0x1.a36e2eb1c432dp-15",
+          "rounded_product": -689.615480159027,
+          "exact_product": "-689.61548015902697619475346274747641704842071695044818167678879472504149816813878715038299560546875"
+        },
+        {
+          "column": 11,
+          "dof": "RZ",
+          "coefficient": 9194873.068787025,
+          "coefficient_hex": "0x1.189af223380d9p+23",
+          "displacement": 7.500000000000001e-05,
+          "displacement_hex": "0x1.3a92a30553262p-14",
+          "rounded_product": 689.615480159027,
+          "exact_product": "689.6154801590269607820664723090167399763579664327328906138492303767861812957562506198883056640625"
+        }
+      ]
+    }
+  ],
+  "analytical_reference": {
+    "theory": "Prismatic small-displacement Euler-Bernoulli and axial elasticity; original synthetic input values, no real-pipe/shear/code acceptance claim",
+    "L_over_OD": "5.95238095238095238095238095238095238095238095238095238095238095238095238095238095238095238095238095238095238095238095238",
+    "max_rotation_rad": "0.000075",
+    "area_m2": "0.00354057492059569697974739909295599975049020991309574426023876255553090908988455754145379524816056593561588089350046915958",
+    "second_moment_m4": "0.0000114935913359837813205049943055084141900288439303870598048000829458922136330377449189443828243412371684930533505258980093",
+    "references": [
+      {
+        "global_dof": 6,
+        "node_index": 1,
+        "node_id": "node:N-110",
+        "dof": "UX",
+        "unit": "m",
+        "quantity": "translation_m",
+        "expected_decimal": "1.41220002743474122243907509647306443686299596930307407939367652226172846170564804871440818781058638825264279260654798613E-7",
+        "observed": 1.4122000274347406e-07,
+        "relative_error": "4.32727840126054509132068194926103148895748442474650492123701647258479889672064833457649492309765649544958593017923750961E-16",
+        "existing_relative_limit": "1e-9",
+        "pass": true
+      },
+      {
+        "global_dof": 7,
+        "node_index": 1,
+        "node_id": "node:N-110",
+        "dof": "UY",
+        "unit": "m",
+        "quantity": "translation_m",
+        "expected_decimal": "0.00005",
+        "observed": 5e-05,
+        "relative_error": "4.792173602385929598312941379845142364501953125E-17",
+        "existing_relative_limit": "1e-9",
+        "pass": true
+      },
+      {
+        "global_dof": 8,
+        "node_index": 1,
+        "node_id": "node:N-110",
+        "dof": "UZ",
+        "unit": "m",
+        "quantity": "translation_m",
+        "expected_decimal": "0.0000140658095403588652113043547023886279425707209880526952330829544509703669141776779078729399787063924693113952902410632427",
+        "observed": 1.406580954035886e-05,
+        "relative_error": "4.10529177940939184052124653777837042430094780643106995393105563371369175842075291036505997700855884063278847853870580195E-16",
+        "existing_relative_limit": "1e-9",
+        "pass": true
+      },
+      {
+        "global_dof": 10,
+        "node_index": 1,
+        "node_id": "node:N-110",
+        "dof": "RY",
+        "unit": "rad",
+        "quantity": "rotation_rad",
+        "expected_decimal": "-0.0000210987143105382978169565320535829419138560814820790428496244316764555503712665168618094099680595887039670929353615948641",
+        "observed": -2.109871431053829e-05,
+        "relative_error": "3.30236802321517875928707695056323005534130212709237272538846468866039755484856848602369987256094517829399955369325332823E-16",
+        "existing_relative_limit": "1e-9",
+        "pass": true
+      },
+      {
+        "global_dof": 11,
+        "node_index": 1,
+        "node_id": "node:N-110",
+        "dof": "RZ",
+        "unit": "rad",
+        "quantity": "rotation_rad",
+        "expected_decimal": "0.000075",
+        "observed": 7.500000000000001e-05,
+        "relative_error": "9.30968265440886474001066138346989949544270833333333333333333333333333333333333333333333333333333333333333333333333333333E-17",
+        "existing_relative_limit": "1e-9",
+        "pass": true
+      }
+    ],
+    "reference_force_balance": "Fx=100 N; net Fz=100-0.3*10=97 N; UY=entered gap5e-5 m; root FY=-3EI*gap/L^3, contact Y=3EI*gap/L^3-100000 N; explicit one-dimensional friction -3 N"
+  },
+  "negative_controls": {
+    "initial_solution_used_as_final": {
+      "rows": [
+        {
+          "global_dof": 6,
+          "node_index": 1,
+          "node_id": "node:N-110",
+          "dof": "UX",
+          "unit": "N",
+          "applied": 100.0,
+          "displacement": 0.0,
+          "observed_residual": -100.0,
+          "observed_residual_hex": "-0x1.9000000000000p+6",
+          "exact_represented_residual": "-100",
+          "exact_represented_denominator": "100",
+          "actual_evaluation_error": "0",
+          "legacy_literal_operation_count": 25,
+          "legacy_conservative_roundoff_count": 26,
+          "legacy_evaluation_error_bound": "2.88657986402541533744475373399737944830579604936389780952513500326606617524372976532293714601861127592894412473491773691E-13",
+          "actual_error_within_bound": true,
+          "all_intermediates_normal_or_zero": true,
+          "selected_nonzero_coefficient_count": 2,
+          "selected_policy_operation_count": 6,
+          "selected_gamma": "6.66133814775094367988438187673928317992136487865052258163670283498797195733864939002707928138406369838749746574515401554E-16",
+          "selected_target": "4.26325641456060395512600440111314123514967352233633445224748981439230205269673560961733074008580076696799837807689856994E-14",
+          "observed_componentwise_ratio": "1",
+          "exact_represented_componentwise_ratio": "1",
+          "independent_guard_ratio_using_exact_denominator": "1.00000000000000177635683940025302847575263723718333427864921643871106576163359781137270769650599702675577679784038778598",
+          "independent_selected_screen_pass": false,
+          "observed_work_product": 0.0,
+          "exact_represented_work_product": "0",
+          "row_derived_target_work_bound": "0",
+          "nonzero_coefficient_terms": [
+            {
+              "column": 0,
+              "dof": "UX",
+              "coefficient": -708114984.1191397,
+              "coefficient_hex": "-0x1.51a7d140f3ff8p+29",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": -0.0,
+              "exact_product": "0"
+            },
+            {
+              "column": 6,
+              "dof": "UX",
+              "coefficient": 708114984.1191397,
+              "coefficient_hex": "0x1.51a7d140f3ff8p+29",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": 0.0,
+              "exact_product": "0"
+            }
+          ]
+        },
+        {
+          "global_dof": 8,
+          "node_index": 1,
+          "node_id": "node:N-110",
+          "dof": "UZ",
+          "unit": "N",
+          "applied": 97.0,
+          "displacement": 0.0,
+          "observed_residual": -97.0,
+          "observed_residual_hex": "-0x1.8400000000000p+6",
+          "exact_represented_residual": "-97",
+          "exact_represented_denominator": "97",
+          "actual_evaluation_error": "0",
+          "legacy_literal_operation_count": 25,
+          "legacy_conservative_roundoff_count": 26,
+          "legacy_evaluation_error_bound": "2.79998246810465287732141112197745806485662216788298087523938095316808418998641787236324903163805293765107580099287020481E-13",
+          "actual_error_within_bound": true,
+          "all_intermediates_normal_or_zero": true,
+          "selected_nonzero_coefficient_count": 4,
+          "selected_policy_operation_count": 10,
+          "selected_gamma": "1.11022302462515777301879607592313472385745046004359865837780590291778801437894465852009237998816284519729701081618999636E-15",
+          "selected_target": "7.10542735760100974732029488590806223268768294427903141361795777867384329202524581452859123192424220926270086922361597670E-14",
+          "observed_componentwise_ratio": "1",
+          "exact_represented_componentwise_ratio": "1",
+          "independent_guard_ratio_using_exact_denominator": "1.00000000000000266453525910038181068873146627312335092354793841087965584671420095398458406046536855644280825638537657793",
+          "independent_selected_screen_pass": false,
+          "observed_work_product": 0.0,
+          "exact_represented_work_product": "0",
+          "row_derived_target_work_bound": "0",
+          "nonzero_coefficient_terms": [
+            {
+              "column": 2,
+              "dof": "UZ",
+              "coefficient": -27584619.206361078,
+              "coefficient_hex": "-0x1.a4e86b34d4146p+24",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": -0.0,
+              "exact_product": "0"
+            },
+            {
+              "column": 4,
+              "dof": "RY",
+              "coefficient": 13792309.603180539,
+              "coefficient_hex": "0x1.a4e86b34d4146p+23",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": 0.0,
+              "exact_product": "0"
+            },
+            {
+              "column": 8,
+              "dof": "UZ",
+              "coefficient": 27584619.206361078,
+              "coefficient_hex": "0x1.a4e86b34d4146p+24",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": 0.0,
+              "exact_product": "0"
+            },
+            {
+              "column": 10,
+              "dof": "RY",
+              "coefficient": 13792309.603180539,
+              "coefficient_hex": "0x1.a4e86b34d4146p+23",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": 0.0,
+              "exact_product": "0"
+            }
+          ]
+        },
+        {
+          "global_dof": 9,
+          "node_index": 1,
+          "node_id": "node:N-110",
+          "dof": "RX",
+          "unit": "N*m",
+          "applied": 0.0,
+          "displacement": 0.0,
+          "observed_residual": 0.0,
+          "observed_residual_hex": "0x0.0p+0",
+          "exact_represented_residual": "0",
+          "exact_represented_denominator": "0",
+          "actual_evaluation_error": "0",
+          "legacy_literal_operation_count": 25,
+          "legacy_conservative_roundoff_count": 26,
+          "legacy_evaluation_error_bound": "0",
+          "actual_error_within_bound": true,
+          "all_intermediates_normal_or_zero": true,
+          "selected_nonzero_coefficient_count": 2,
+          "selected_policy_operation_count": 6,
+          "selected_gamma": "6.66133814775094367988438187673928317992136487865052258163670283498797195733864939002707928138406369838749746574515401554E-16",
+          "selected_target": "4.26325641456060395512600440111314123514967352233633445224748981439230205269673560961733074008580076696799837807689856994E-14",
+          "observed_componentwise_ratio": "0",
+          "exact_represented_componentwise_ratio": "0",
+          "independent_guard_ratio_using_exact_denominator": "0",
+          "independent_selected_screen_pass": true,
+          "observed_work_product": 0.0,
+          "exact_represented_work_product": "0",
+          "row_derived_target_work_bound": "0",
+          "nonzero_coefficient_terms": [
+            {
+              "column": 3,
+              "dof": "RX",
+              "coefficient": -1770013.0657415024,
+              "coefficient_hex": "-0x1.b021d10d46f63p+20",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": -0.0,
+              "exact_product": "0"
+            },
+            {
+              "column": 9,
+              "dof": "RX",
+              "coefficient": 1770013.0657415024,
+              "coefficient_hex": "0x1.b021d10d46f63p+20",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": 0.0,
+              "exact_product": "0"
+            }
+          ]
+        },
+        {
+          "global_dof": 10,
+          "node_index": 1,
+          "node_id": "node:N-110",
+          "dof": "RY",
+          "unit": "N*m",
+          "applied": 0.0,
+          "displacement": 0.0,
+          "observed_residual": 0.0,
+          "observed_residual_hex": "0x0.0p+0",
+          "exact_represented_residual": "0",
+          "exact_represented_denominator": "0",
+          "actual_evaluation_error": "0",
+          "legacy_literal_operation_count": 25,
+          "legacy_conservative_roundoff_count": 26,
+          "legacy_evaluation_error_bound": "0",
+          "actual_error_within_bound": true,
+          "all_intermediates_normal_or_zero": true,
+          "selected_nonzero_coefficient_count": 4,
+          "selected_policy_operation_count": 10,
+          "selected_gamma": "1.11022302462515777301879607592313472385745046004359865837780590291778801437894465852009237998816284519729701081618999636E-15",
+          "selected_target": "7.10542735760100974732029488590806223268768294427903141361795777867384329202524581452859123192424220926270086922361597670E-14",
+          "observed_componentwise_ratio": "0",
+          "exact_represented_componentwise_ratio": "0",
+          "independent_guard_ratio_using_exact_denominator": "0",
+          "independent_selected_screen_pass": true,
+          "observed_work_product": 0.0,
+          "exact_represented_work_product": "0",
+          "row_derived_target_work_bound": "0",
+          "nonzero_coefficient_terms": [
+            {
+              "column": 2,
+              "dof": "UZ",
+              "coefficient": -13792309.603180539,
+              "coefficient_hex": "-0x1.a4e86b34d4146p+23",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": -0.0,
+              "exact_product": "0"
+            },
+            {
+              "column": 4,
+              "dof": "RY",
+              "coefficient": 4597436.534393513,
+              "coefficient_hex": "0x1.189af223380d9p+22",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": 0.0,
+              "exact_product": "0"
+            },
+            {
+              "column": 8,
+              "dof": "UZ",
+              "coefficient": 13792309.603180539,
+              "coefficient_hex": "0x1.a4e86b34d4146p+23",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": 0.0,
+              "exact_product": "0"
+            },
+            {
+              "column": 10,
+              "dof": "RY",
+              "coefficient": 9194873.068787025,
+              "coefficient_hex": "0x1.189af223380d9p+23",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": 0.0,
+              "exact_product": "0"
+            }
+          ]
+        },
+        {
+          "global_dof": 11,
+          "node_index": 1,
+          "node_id": "node:N-110",
+          "dof": "RZ",
+          "unit": "N*m",
+          "applied": 0.0,
+          "displacement": 0.02175125186653432,
+          "observed_residual": 0.0,
+          "observed_residual_hex": "0x0.0p+0",
+          "exact_represented_residual": "-1.3504954592966983230242617618609298445198074745121630257926881313323974609375E-11",
+          "exact_represented_denominator": "399999.999999999868576149401587918598758781595225325102005431432417026371695101261138916015625",
+          "actual_evaluation_error": "1.3504954592966983230242617618609298445198074745121630257926881313323974609375E-11",
+          "legacy_literal_operation_count": 25,
+          "legacy_conservative_roundoff_count": 26,
+          "legacy_evaluation_error_bound": "1.15463194561016575561246070353810572092296976205529864249521917247769293044203000704639537888131863921701857503661288656E-9",
+          "actual_error_within_bound": true,
+          "all_intermediates_normal_or_zero": true,
+          "selected_nonzero_coefficient_count": 4,
+          "selected_policy_operation_count": 10,
+          "selected_gamma": "1.11022302462515777301879607592313472385745046004359865837780590291778801437894465852009237998816284519729701081618999636E-15",
+          "selected_target": "7.10542735760100974732029488590806223268768294427903141361795777867384329202524581452859123192424220926270086922361597670E-14",
+          "observed_componentwise_ratio": "0",
+          "exact_represented_componentwise_ratio": "3.37623864824174691685636363242259296267471371158172280355653164888748795186522113919658071397175284669621928849538253864E-17",
+          "independent_guard_ratio_using_exact_denominator": "1.11022302462516073124719065472747685055190491953980455647516872939496703973963936834715027235891072043059215090476611168E-15",
+          "independent_selected_screen_pass": true,
+          "observed_work_product": 0.0,
+          "exact_represented_work_product": "2.93749668797734321242162635153441212604636850035668897485682108839255710453522140399830670561692747000392955669667571783E-13",
+          "row_derived_target_work_bound": "6.18207760298171712642119583286072483187755339519661602949622825634224021534764119822393661824174825847452210735876414152E-10",
+          "nonzero_coefficient_terms": [
+            {
+              "column": 1,
+              "dof": "UY",
+              "coefficient": 13792309.603180539,
+              "coefficient_hex": "0x1.a4e86b34d4146p+23",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": 0.0,
+              "exact_product": "0"
+            },
+            {
+              "column": 5,
+              "dof": "RZ",
+              "coefficient": 4597436.534393513,
+              "coefficient_hex": "0x1.189af223380d9p+22",
+              "displacement": 0.0,
+              "displacement_hex": "0x0.0p+0",
+              "rounded_product": 0.0,
+              "exact_product": "0"
+            },
+            {
+              "column": 7,
+              "dof": "UY",
+              "coefficient": -13792309.603180539,
+              "coefficient_hex": "-0x1.a4e86b34d4146p+23",
+              "displacement": 0.014500834577689546,
+              "displacement_hex": "0x1.db29d123501ecp-7",
+              "rounded_product": -199999.99999999994,
+              "exact_product": "-199999.9999999999410405519972774509145006996069173117736017530887693283148109912872314453125"
+            },
+            {
+              "column": 11,
+              "dof": "RZ",
+              "coefficient": 9194873.068787025,
+              "coefficient_hex": "0x1.189af223380d9p+23",
+              "displacement": 0.02175125186653432,
+              "displacement_hex": "0x1.645f5cda7c171p-6",
+              "rounded_product": 199999.99999999994,
+              "exact_product": "199999.999999999927535597404310467684258081988308013328403678343647698056884109973907470703125"
+            }
+          ]
+        }
+      ],
+      "final_boundary_mismatches": [
+        {
+          "global_dof": 7,
+          "candidate_initial_value": 0.014500834577689546,
+          "required_final_value": 5e-05,
+          "difference": 0.014450834577689546
+        }
+      ],
+      "rejects": true,
+      "initial_count_residual": 3.0,
+      "note": "First linearized solution can satisfy its own constraints; it is not the converged final contact/friction state."
+    },
+    "tiny_omitted_load": {
+      "K": [
+        [
+          1.0
+        ]
+      ],
+      "candidate_u": [
+        0.0
+      ],
+      "true_f": [
+        1e-12
+      ],
+      "residual_N": -1e-12,
+      "denominator_N": 1e-12,
+      "eta": "1",
+      "target": "2.84217094304040200566194542393194917815143437953525758007805791971803980458318493431226973519484882414231527774043335125E-14",
+      "old_six_decimal_value": 0.0,
+      "work_Nm": 0.0,
+      "rejects": true
+    }
+  },
+  "claims_limits": [
+    "The old protected zero criterion still fails; no threshold/assertion/source outcome was changed.",
+    "Nonzero exact represented residual and floating evaluation error are distinguished. The observed residual is not claimed solely an evaluation artifact.",
+    "M03 row checks are separate from positive-factor/model-fidelity/contact/convergence/cap checks; standalone row pass is not operational qualification.",
+    "The M03 bound is an operational roundoff-model screen, not a formal IEEE certificate; original represented K is not the intended physical model.",
+    "EB reference is applicable to the defined element theory; L/D near5.95 does not establish negligible shear in a real pipe."
+  ],
+  "raw_sha256": {
+    "rows.jsonl": "3ab27e31fd568c48899f351a39a2796dfa094b82833b2f592771b9dc78915a4f",
+    "model.json": "c1236b88fdeb04852580246af96542812a97a5ac963b88cc48afd99b90bde149",
+    "result.json": "ce8899d0df4b3409f16a5a21daa687082037240ce5260357e69bbbb833364453",
+    "run.log": "23d08d8c2d836c982b8c972c2c412d29b8a1c2fac51b8ae10f9c8fec8a9d2376",
+    "instrumentation.patch": "71a5c088b8eadf9907e82791b7d515a61d00ef782ea84510e07cf6f825481e9d",
+    "SOURCE_CONTEXT.json": "d74d4386930a279465291c5a0f037145bc2b6155cb72cdc8c02e06dfb83c27dc"
+  }
+}

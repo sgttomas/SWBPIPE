@@ -1,0 +1,371 @@
+{
+  "kind": "Independent actual-source arithmetic/accounting transcription plus Fraction checks; NOT Rust runtime",
+  "edge_cases": {
+    "-1_zero": {
+      "status": "ok",
+      "projection": {
+        "value": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "absolute": 0.0,
+        "relative": 0.0,
+        "basis": "exact_zero"
+      },
+      "charged": 20,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "-1_minsub": {
+      "status": "ok",
+      "projection": {
+        "value": -5e-324,
+        "lo": -5e-324,
+        "hi": -5e-324,
+        "absolute": 0.0,
+        "relative": 0.0,
+        "basis": "exact_identity"
+      },
+      "charged": 3246,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "-1_min_normal": {
+      "status": "ok",
+      "projection": {
+        "value": -2.2250738585072014e-308,
+        "lo": -2.2250738585072014e-308,
+        "hi": -2.2250738585072014e-308,
+        "absolute": 0.0,
+        "relative": 0.0,
+        "basis": "exact_identity"
+      },
+      "charged": 3246,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "-1_max_finite": {
+      "status": "ok",
+      "projection": {
+        "value": -1.7976931348623157e+308,
+        "lo": -1.7976931348623157e+308,
+        "hi": -1.7976931348623157e+308,
+        "absolute": 0.0,
+        "relative": 0.0,
+        "basis": "exact_identity"
+      },
+      "charged": 3246,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "-1_tail": {
+      "status": "ok",
+      "projection": {
+        "value": -8.673617379884035e-19,
+        "lo": -8.673617379884035e-19,
+        "hi": -8.673617379884035e-19,
+        "absolute": 0.0,
+        "relative": 0.0,
+        "basis": "exact_identity"
+      },
+      "charged": 3246,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "-1_half_minsub": {
+      "status": "Unresolved",
+      "charged": 38,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "-1_one_and_half_minsub": {
+      "status": "Unresolved",
+      "charged": 3318,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "-1_overflow": {
+      "status": "ArithmeticError",
+      "charged": 38,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "-1_third": {
+      "status": "ok",
+      "projection": {
+        "value": -0.3333333333333333,
+        "lo": -0.33333333333333354,
+        "hi": -0.3333333333333332,
+        "absolute": 2.2204460492503136e-16,
+        "relative": 6.661338147750944e-16,
+        "basis": "outward_interval"
+      },
+      "charged": 3363,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "-1_gradual": {
+      "status": "ok",
+      "projection": {
+        "value": -9.090909090909e-311,
+        "lo": -9.09090909091e-311,
+        "hi": -9.090909090908e-311,
+        "absolute": 1.5e-323,
+        "relative": 1.6304166312763041e-13,
+        "basis": "outward_interval"
+      },
+      "charged": 3343,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "1_zero": {
+      "status": "ok",
+      "projection": {
+        "value": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "absolute": 0.0,
+        "relative": 0.0,
+        "basis": "exact_zero"
+      },
+      "charged": 20,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "1_minsub": {
+      "status": "ok",
+      "projection": {
+        "value": 5e-324,
+        "lo": 5e-324,
+        "hi": 5e-324,
+        "absolute": 0.0,
+        "relative": 0.0,
+        "basis": "exact_identity"
+      },
+      "charged": 3246,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "1_min_normal": {
+      "status": "ok",
+      "projection": {
+        "value": 2.2250738585072014e-308,
+        "lo": 2.2250738585072014e-308,
+        "hi": 2.2250738585072014e-308,
+        "absolute": 0.0,
+        "relative": 0.0,
+        "basis": "exact_identity"
+      },
+      "charged": 3246,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "1_max_finite": {
+      "status": "ok",
+      "projection": {
+        "value": 1.7976931348623157e+308,
+        "lo": 1.7976931348623157e+308,
+        "hi": 1.7976931348623157e+308,
+        "absolute": 0.0,
+        "relative": 0.0,
+        "basis": "exact_identity"
+      },
+      "charged": 3246,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "1_tail": {
+      "status": "ok",
+      "projection": {
+        "value": 8.673617379884035e-19,
+        "lo": 8.673617379884035e-19,
+        "hi": 8.673617379884035e-19,
+        "absolute": 0.0,
+        "relative": 0.0,
+        "basis": "exact_identity"
+      },
+      "charged": 3246,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "1_half_minsub": {
+      "status": "Unresolved",
+      "charged": 38,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "1_one_and_half_minsub": {
+      "status": "Unresolved",
+      "charged": 3318,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "1_overflow": {
+      "status": "ArithmeticError",
+      "charged": 38,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "1_third": {
+      "status": "ok",
+      "projection": {
+        "value": 0.3333333333333333,
+        "lo": 0.3333333333333332,
+        "hi": 0.33333333333333354,
+        "absolute": 2.2204460492503136e-16,
+        "relative": 6.661338147750944e-16,
+        "basis": "outward_interval"
+      },
+      "charged": 3363,
+      "rejected": 0,
+      "limit": 2000000
+    },
+    "1_gradual": {
+      "status": "ok",
+      "projection": {
+        "value": 9.090909090909e-311,
+        "lo": 9.090909090908e-311,
+        "hi": 9.09090909091e-311,
+        "absolute": 1.5e-323,
+        "relative": 1.6304166312763041e-13,
+        "basis": "outward_interval"
+      },
+      "charged": 3343,
+      "rejected": 0,
+      "limit": 2000000
+    }
+  },
+  "random_scalar_probes": {
+    "count": 200,
+    "qualified": 200,
+    "unresolved": 0,
+    "maximum_relative_bound": 6.588504896950952e-16
+  },
+  "multi_tail_probes": {
+    "count": 100,
+    "qualified": 100,
+    "maximum_relative_bound": 6.876272973801733e-16
+  },
+  "budget_attempts": [
+    {
+      "status": "Budget",
+      "charged": 0,
+      "rejected": 4,
+      "limit": 0
+    },
+    {
+      "status": "Budget",
+      "charged": 4,
+      "rejected": 16,
+      "limit": 4
+    },
+    {
+      "status": "Budget",
+      "charged": 4,
+      "rejected": 16,
+      "limit": 19
+    },
+    {
+      "status": "Budget",
+      "charged": 20,
+      "rejected": 18,
+      "limit": 20
+    },
+    {
+      "status": "Budget",
+      "charged": 20,
+      "rejected": 18,
+      "limit": 21
+    },
+    {
+      "status": "Budget",
+      "charged": 38,
+      "rejected": 1,
+      "limit": 38
+    },
+    {
+      "status": "Budget",
+      "charged": 39,
+      "rejected": 3200,
+      "limit": 39
+    },
+    {
+      "status": "Budget",
+      "charged": 39,
+      "rejected": 3200,
+      "limit": 100
+    },
+    {
+      "status": "Budget",
+      "charged": 39,
+      "rejected": 3200,
+      "limit": 3238
+    },
+    {
+      "status": "Budget",
+      "charged": 3239,
+      "rejected": 7,
+      "limit": 3239
+    },
+    {
+      "status": "Budget",
+      "charged": 3239,
+      "rejected": 7,
+      "limit": 3240
+    },
+    {
+      "status": "ok",
+      "projection": {
+        "value": 0.3333333333333333,
+        "lo": 0.3333333333333332,
+        "hi": 0.33333333333333354,
+        "absolute": 2.2204460492503136e-16,
+        "relative": 6.661338147750944e-16,
+        "basis": "outward_interval"
+      },
+      "charged": 3363,
+      "rejected": 0,
+      "limit": 10000
+    },
+    {
+      "status": "ok",
+      "projection": {
+        "value": 0.3333333333333333,
+        "lo": 0.3333333333333332,
+        "hi": 0.33333333333333354,
+        "absolute": 2.2204460492503136e-16,
+        "relative": 6.661338147750944e-16,
+        "basis": "outward_interval"
+      },
+      "charged": 3363,
+      "rejected": 0,
+      "limit": 2000000
+    }
+  ],
+  "exact_success_charge": 3363,
+  "one_less_limit_rejected": true,
+  "arithmetic_shortcut_failed_reservation_retained": 3343,
+  "negative_controls": {
+    "zero_relative_bound": true,
+    "shift_interval_off_answer": true,
+    "rounded_reaction_erases_tail": true
+  },
+  "small_strain_companion": {
+    "k_N_per_m": "781250000",
+    "force_N": "48828125/1024",
+    "gap1_m": "1/16384",
+    "gap2_m": "1/8192",
+    "minor1": "1562500000",
+    "determinant": "610351562500000000",
+    "free_residuals": [
+      "0",
+      "0"
+    ],
+    "strain_each_span": "1/16384",
+    "strain_each_span_decimal": 6.103515625e-05,
+    "linear_stress_Pa": "48828125/4",
+    "strain_energy_J": "48828125/16777216",
+    "four_signed_scalar_projections_exact": true,
+    "scope": "Two equal 1m passive axial bars under the stated small-strain linear elastic model; no material adequacy or full-pipe qualification"
+  },
+  "limits": "No Rust compilation/test/native execution; source/response pointer binding assessed by code/lifetime review."
+}

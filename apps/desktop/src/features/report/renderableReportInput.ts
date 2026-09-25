@@ -1,3 +1,4 @@
+import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import type {
   AnalysisRunEnvelope,
   LocalProjectSummary,
@@ -288,7 +289,8 @@ export async function buildRenderableReportInput({
   const provenance = sessionProvenance(model);
   const modelHashValue = await canonicalSha256Hex(model);
   const runRecordHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
-  const receivedResultScope = analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope";
+  const receivedResultScope = analysisResultHashScope(analysisRun.schema_version);
+  if (receivedResultScope === null) throw new Error("REPORT-ANALYSIS-VERSION-UNSUPPORTED");
   const resultEnvelopeHash = run.hashes.find((item) => item.payload_scope === receivedResultScope);
 
   const analysisStatus = Array.from(

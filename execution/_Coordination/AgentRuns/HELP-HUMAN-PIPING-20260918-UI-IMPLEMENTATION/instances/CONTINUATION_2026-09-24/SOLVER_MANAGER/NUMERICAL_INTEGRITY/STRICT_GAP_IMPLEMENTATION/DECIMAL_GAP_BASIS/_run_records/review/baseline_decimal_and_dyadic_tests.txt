@@ -1,0 +1,106 @@
+4054:     #[test]
+4055:     fn audit_gap_equilibrium_both_signs_seeds_and_modes() {
+4056:         for (sign, direction) in [
+4057:             (1.0, GapDirection::PositiveDisplacement),
+4058:             (-1.0, GapDirection::NegativeDisplacement),
+4059:         ] {
+4060:             for seed in [ActiveSetState::Active, ActiveSetState::Inactive] {
+4061:                 for mode in [
+4062:                     LinearSolveMode::DenseScrutiny,
+4063:                     LinearSolveMode::SparseInteractive,
+4064:                 ] {
+4065:                     for magnitude in [4.0, 5.0, 6.0] {
+4066:                         let support =
+4067:                             NonlinearSupport::gap("gap", 1, FrameDof::Ux, 0.05, direction).unwrap();
+4068:                         let mut input = two_node_axial_problem(
+4069:                             vec![support],
+4070:                             vec![SupportStateRecord::new("gap", seed)],
+4071:                             8,
+4072:                         );
+4073:                         input.force[6] = sign * magnitude;
+4074:                         let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+4075:                         assert!(
+4076:                             result.converged,
+4077:                             "sign={sign} seed={seed:?} mode={mode:?} F={magnitude}"
+4078:                         );
+4079:                         let expected_u = sign * if magnitude < 5.0 { 0.04 } else { 0.05 };
+4080:                         let expected_r = if magnitude > 5.0 { -sign } else { 0.0 };
+4081:                         assert!((result.displacements[6] - expected_u).abs() < 1e-14);
+4082:                         assert!((result.reactions[6] - expected_r).abs() < 1e-14);
+4083:                         assert_eq!(
+4084:                             result.final_states[0].state,
+4085:                             if magnitude < 5.0 {
+4086:                                 ActiveSetState::Inactive
+4087:                             } else {
+4088:                                 ActiveSetState::Active
+4089:                             }
+4090:                         );
+4091:                     }
+4092:                 }
+4093:             }
+4094:         }
+4095:     }
+4096: 
+4097:     #[test]
+4098:     fn audit_coupled_exact_contacts_converge_from_all_seeds() {
+4099:         for sign in [1.0, -1.0] {
+4100:             for seed1 in [ActiveSetState::Active, ActiveSetState::Inactive] {
+4101:                 for seed2 in [ActiveSetState::Active, ActiveSetState::Inactive] {
+4102:                     for mode in [
+4103:                         LinearSolveMode::DenseScrutiny,
+4104:                         LinearSolveMode::SparseInteractive,
+4105:                     ] {
+4106:                         let mut input = two_node_axial_problem(vec![], vec![], 8);
+4107:                         input.node_count = 3;
+4108:                         input.elements.push(
+4109:                             FrameElement::new(
+4110:                                 FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap(),
+4111:                                 FrameNode::new(2, [2.0, 0.0, 0.0]).unwrap(),
+4112:                                 FrameSection::new(100.0, 40.0, 1.0, 1.0, 1.0, 1.0).unwrap(),
+4113:                                 [0.0, 1.0, 0.0],
+4114:                             )
+4115:                             .unwrap(),
+4116:                         );
+4117:                         input.force = vec![0.0; 18];
+4118:                         input.force[12] = sign * 12.5;
+4119:                         input.base_restrained_dofs.extend(13..18);
+4120:                         let direction = if sign > 0.0 {
+4121:                             GapDirection::PositiveDisplacement
+4122:                         } else {
+4123:                             GapDirection::NegativeDisplacement
+4124:                         };
+4125:                         input.nonlinear_supports = vec![
+4126:                             NonlinearSupport::gap("g1", 1, FrameDof::Ux, 0.125, direction).unwrap(),
+4127:                             NonlinearSupport::gap("g2", 2, FrameDof::Ux, 0.25, direction).unwrap(),
+4128:                         ];
+4129:                         input.initial_states = vec![
+4130:                             SupportStateRecord::new("g1", seed1),
+4131:                             SupportStateRecord::new("g2", seed2),
+4132:                         ];
+4133:                         let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+4134:                         assert!(result.converged);
+4135:                         assert_eq!(result.displacements[6], sign * 0.125);
+4136:                         assert_eq!(result.displacements[12], sign * 0.25);
+4137:                         assert_eq!(result.reactions[6], 0.0);
+4138:                         assert_eq!(result.reactions[12], 0.0);
+4139:                         assert!(result
+4140:                             .final_states
+4141:                             .iter()
+4142:                             .all(|state| state.state == ActiveSetState::Active));
+4143:                     }
+4144:                 }
+4145:             }
+4146:         }
+4147:     }
+4148: 
+4149:     #[test]
+4150:     fn audit_literal_zero_iteration_cap_returns_error() {
+4151:         let mut input = two_node_axial_problem(vec![], vec![], 4);
+4152:         input.convergence.max_iterations = 0;
+4153:         assert!(matches!(
+4154:             solve_active_set_frame(&input),
+4155:             Err(NonlinearIntegrationError::InvalidInput { .. })
+4156:         ));
+4157:     }
+4158: 
+4159:     #[test]

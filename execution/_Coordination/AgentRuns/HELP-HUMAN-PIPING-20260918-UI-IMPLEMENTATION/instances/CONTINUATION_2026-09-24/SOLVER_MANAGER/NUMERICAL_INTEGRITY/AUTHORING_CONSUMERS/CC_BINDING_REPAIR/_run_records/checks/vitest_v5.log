@@ -1,0 +1,25 @@
+
+ RUN  v4.1.10 /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/stress-neutral/StressNeutralExportPanel.test.tsx (10 tests | 1 failed) 6237ms
+   × binds precision v3 metadata and preserves shared f64 bits in CSV and JSON 126ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/stress-neutral/StressNeutralExportPanel.test.tsx > binds precision v3 metadata and preserves shared f64 bits in CSV and JSON
+AssertionError: expected [Function] to throw error including 'SN-STABLE-ID-MAP-BINDING-MISMATCH' but got 'SN-PRECISION-ROW-SOURCE-MISMATCH'
+
+Expected: "SN-STABLE-ID-MAP-BINDING-MISMATCH"
+Received: "SN-PRECISION-ROW-SOURCE-MISMATCH"
+
+ ❯ src/features/stress-neutral/StressNeutralExportPanel.test.tsx:165:65
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 19 passed (20)
+   Start at  12:00:53
+   Duration  7.05s (transform 276ms, setup 211ms, import 328ms, tests 6.27s, environment 715ms)
+

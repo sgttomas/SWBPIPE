@@ -1,0 +1,19 @@
+{
+  "RETURN.md": "913677f7217ef11a6e206ed5df7ae12329a8001050aa60e3e56c3f4120d628d8",
+  "_run_records/FINAL_CANDIDATE.json": "3c63b878442ec1b64376dcd45886ad0249b8fc6113279e604cc0fd04ec12f273",
+  "_run_records/NGR01_BACKCHECK.json": "d07d56f6547d3500c589d9ce8f14108087fb05e4bc6883aaf5d2617106c7c46f",
+  "_run_records/CONTROL_CHECKS.json": "9fbcb10210ef9a0d768d8f1b9b33f29476a0f9799a377a775f7ae0b6dc82016a",
+  "_run_records/scope_check.json": "8f4e30e8bd1bdf747934895cd409866b78f2ec60c7cef527e5e50b6384140ae9",
+  "_run_records/SOURCE_CHECK.json": "63d4a513cbd3b58577f4d2c41ef14506833585f51667a7fd14e43de29d6c8da2",
+  "_run_records/NGR01_FINAL_lib.rs": "a5a3f7104b8a77c9d9709a9d4abd5123e14aedd4fa31f2d3763cc0101677034f",
+  "_run_records/INPUT_HASHES.json": "b50c6c61c538e003c5eb6a0943323ab772947fb16a63d598819f45d7d7d2411e",
+  "_run_records/ORIGINS.json": "7b4917f2d72e6c504eaf12f69b173278c6c49e1766ccd15402587c82249d67ac",
+  "_run_records/check_controls.py": "6cbbd3dedfbe4aeb2e3f541d0aef952a3488348e5dc73955a0a38ceb8ea79598",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "4162ebe82febd23cda8bafc06b4f4f79b99a0094b6f688d67f732a5784ff012f",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "79272e2f731be9853a087c38d83260b6ba112d6b0a0ed48256a71b40f9bd942f",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "700338b91a54f9623ab479e5d0202f625a04810ebdce50e98196001da3675d9e",
+  "_run_records/caller_snapshots/projects/chirality-piping/core/product_physics/src/lib.rs": "10a8d2195e4cd3674261251fb6e97106ab16ccabd46df60d346e7f6cd42bb645",
+  "_run_records/caller_snapshots/projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e"
+}

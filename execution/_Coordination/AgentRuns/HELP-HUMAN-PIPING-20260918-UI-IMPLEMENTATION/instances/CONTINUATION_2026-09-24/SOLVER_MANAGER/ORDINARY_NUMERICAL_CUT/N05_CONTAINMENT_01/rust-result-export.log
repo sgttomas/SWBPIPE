@@ -1,0 +1,35 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling version_check v0.9.5
+   Compiling generic-array v0.14.7
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling typenum v1.20.1
+   Compiling libc v0.2.189
+   Compiling zmij v1.0.23
+   Compiling syn v3.0.6
+   Compiling serde_json v1.0.151
+   Compiling serde v1.0.229
+   Compiling serde_derive v1.0.229
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling ryu v1.0.23
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_result_export v0.1.0 (/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/core/reporting/result_export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.59s
+     Running tests/precision_contract.rs (/private/tmp/piping-numerical-corrections-result-export-containment-target/debug/deps/precision_contract-45118d03aab187d7)
+
+running 4 tests
+test rule_eligibility_requires_actual_case_coverage_and_resolving_evidence ... ok
+test historical_hash_vectors_and_rows_are_unchanged ... ok
+test explicit_dispatch_metadata_binding_and_unchanged_ijson_limit ... ok
+test same_unit_bits_survive_json_derive_read_and_hash ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+

@@ -1,0 +1,13 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

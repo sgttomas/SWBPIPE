@@ -1,0 +1,11 @@
+{
+  "agent": "/root/solver_manager/evidence_primitives",
+  "parent": "/root/solver_manager",
+  "mechanism": "native followup TASK; no descendants",
+  "time": "2026-09-25T02:08:04.607290+00:00",
+  "checkout": "/private/tmp/piping-numerical-corrections-20260924",
+  "recipe_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/proposed/tools/serialization/generate_product_preview_mechanics.mjs",
+  "recipe_sha256": "4ebeca47a8040f8334ea38ea4c36bb5d50078b7ad2912a0981a9e86e3d10d399",
+  "write_boundary": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_GENERATION/RECIPE_REPAIR/REPAIR_01/_run_records/fault_controls",
+  "limits": "No execution, builds, source changes, production hooks or private data."
+}

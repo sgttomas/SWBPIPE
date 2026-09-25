@@ -1,0 +1,24 @@
+{
+  "status": "Independent binary64 arithmetic illustration of pre-repair source path; not a Rust execution claim",
+  "source": "projects/chirality-piping/core/units/src/lib.rs",
+  "source_sha256_before": "b133ae071a28d0ba0e897ad3c50694cc108f956cd9ce32e1288d5a027bdc970c",
+  "witnesses": [
+    {
+      "unit": "degC",
+      "dimension": "temperature",
+      "input": 1e-16,
+      "canonical_intermediate": 273.15,
+      "old_arithmetic_output": 0.0,
+      "expected_identity_output": 1e-16
+    },
+    {
+      "unit": "MPa",
+      "dimension": "stress",
+      "input": 0.2677777778417276,
+      "input_bits": "3fd12345679b3fe0",
+      "old_arithmetic_output": 0.26777777784172757,
+      "old_output_bits": "3fd12345679b3fdf",
+      "expected_identity_output": 0.2677777778417276
+    }
+  ]
+}

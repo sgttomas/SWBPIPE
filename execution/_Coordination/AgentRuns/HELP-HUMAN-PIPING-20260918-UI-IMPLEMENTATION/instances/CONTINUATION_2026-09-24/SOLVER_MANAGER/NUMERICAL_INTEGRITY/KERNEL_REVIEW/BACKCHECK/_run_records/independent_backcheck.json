@@ -1,0 +1,54 @@
+{
+  "expansion_sequences": {
+    "count": 165,
+    "all_intermediate_sums_exact": true
+  },
+  "expansion_products": {
+    "count": 165,
+    "exact_accepted": 162,
+    "explicit_range_rejections": 3
+  },
+  "geometry_original_action": {
+    "false_modes_refuted": 6,
+    "valid_oblique_controls": 6
+  },
+  "prescribed_coupling": [
+    {
+      "coupling": -1.0,
+      "relative_rhs_change": 0.0,
+      "intended_free_residual": 0.0,
+      "residual_is_zero": true
+    },
+    {
+      "coupling": -1.125,
+      "relative_rhs_change": 0.125,
+      "intended_free_residual": -0.125,
+      "residual_is_zero": false
+    },
+    {
+      "coupling": -2.0,
+      "relative_rhs_change": 1.0,
+      "intended_free_residual": -1.0,
+      "residual_is_zero": false
+    }
+  ],
+  "moved_profile_factor": {
+    "even_odd": {
+      "max_abs_error": 1.3322676295501878e-15,
+      "positive_pivots": true
+    },
+    "natural": {
+      "max_abs_error": 0.0,
+      "positive_pivots": true
+    },
+    "reverse": {
+      "max_abs_error": 4.440892098500626e-15,
+      "positive_pivots": true
+    }
+  },
+  "limitations": [
+    "Python transcriptions, not Rust execution.",
+    "Only bounded module repair consequences, not whole numerical qualification.",
+    "No protected tolerance modified; candidate CI/native/full N/R/NP integration remains separate."
+  ]
+}

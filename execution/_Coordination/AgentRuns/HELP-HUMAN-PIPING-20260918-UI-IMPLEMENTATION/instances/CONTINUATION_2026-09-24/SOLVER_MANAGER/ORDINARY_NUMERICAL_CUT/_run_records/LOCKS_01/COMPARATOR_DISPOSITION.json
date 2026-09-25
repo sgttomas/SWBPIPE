@@ -1,0 +1,12 @@
+{
+  "initial_guard_result": "false positive; multiple concurrently locked versions were collapsed by package-name key",
+  "actual_registry_package_tuple_changes": [],
+  "actual_local_package_change": {
+    "name": "open_pipe_stress_product_physics",
+    "before": "0.1.0",
+    "after": "0.2.0"
+  },
+  "raw_initial_result_preserved": true,
+  "next_driver": "LOCKS_02 uses complete name/version/source/checksum tuple sets",
+  "not_a_cargo_or_build_failure": true
+}

@@ -1,0 +1,12 @@
+{
+  "status": "prepared, NOT APPLIED, NOT EXECUTED",
+  "target": "projects/chirality-piping/core/product_physics/src/lib.rs",
+  "before_sha256": "37d19221af9900e40d500370c30c156e49f5469a905f20acb3b2e3db6ae54d80",
+  "probe_candidate_sha256": "738d4aabda61453d83daee23d7f0df85ffe959a3f34b88e872da70d0e631b783",
+  "patch_sha256": "925fdef0fb7321273df7e508cacaa07d5b01e475766bb66d90cfd7c4975ea65a",
+  "actual_target_unchanged": true,
+  "removal_restores_exact_before": true,
+  "probe_test": "tests::diagnosis_probe_product_full_five_failures",
+  "public_runs": 14,
+  "edits": "one temporary test plus cfg(test) print-only observation at failed mixed qualification branch; original predicates and assertions untouched"
+}

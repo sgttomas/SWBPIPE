@@ -1,0 +1,32 @@
+[
+  {
+    "mutation": "annulus",
+    "exit_code": 1,
+    "failure": "AssertionError: ('0.00005401968567847649473536515298', '0.000027009842839238247367682576487745526046885163911127472295832086132366451553045681865704529410878851491976518173797944631398389329030611130738')"
+  },
+  {
+    "mutation": "reaction",
+    "exit_code": 1,
+    "failure": "AssertionError"
+  },
+  {
+    "mutation": "original_residual",
+    "exit_code": 1,
+    "failure": "AssertionError: (Decimal('0'), '1')"
+  },
+  {
+    "mutation": "stored_spring",
+    "exit_code": 1,
+    "failure": "AssertionError"
+  },
+  {
+    "mutation": "band_entry",
+    "exit_code": 1,
+    "failure": "AssertionError"
+  },
+  {
+    "mutation": "internal_mode",
+    "exit_code": 1,
+    "failure": "AssertionError"
+  }
+]

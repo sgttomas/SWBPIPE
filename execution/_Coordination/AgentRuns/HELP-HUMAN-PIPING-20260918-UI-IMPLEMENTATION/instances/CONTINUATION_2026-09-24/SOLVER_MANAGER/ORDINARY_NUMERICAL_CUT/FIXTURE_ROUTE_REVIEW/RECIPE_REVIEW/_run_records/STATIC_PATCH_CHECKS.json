@@ -1,0 +1,30 @@
+{
+  "time_utc": "2026-09-25T01:50:50.929742+00:00",
+  "checks": {
+    "exact frozen patch": true,
+    "exact original package": true,
+    "exact proposed package": true,
+    "exact proposed generator": true,
+    "maintained script still absent": true,
+    "all maintained freeze files unchanged": true,
+    "complete patch reconstructed from exact sources": true,
+    "package has only intended script-command edit": true,
+    "explicit proposed-path scope validation without Git": true,
+    "prior read instruction origins unchanged": true
+  },
+  "all_static_identity_checks_passed": true,
+  "scope_command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/private/tmp/piping-numerical-corrections-20260924/tools/software_workflow/validate_change_scope.py",
+    "/private/tmp/piping-numerical-corrections-20260924",
+    "--allowed",
+    "projects/chirality-piping/package.json",
+    "--path",
+    "projects/chirality-piping/package.json",
+    "--allowed",
+    "projects/chirality-piping/tools/serialization/generate_product_preview_mechanics.mjs",
+    "--path",
+    "projects/chirality-piping/tools/serialization/generate_product_preview_mechanics.mjs"
+  ],
+  "qualification": "Identity/applicability checks only. Semantic review has two unresolved write-safety findings. No Node/Cargo/generator/test execution."
+}

@@ -1,0 +1,170 @@
+{
+  "exit_code": 0,
+  "restored": true,
+  "public_runs": [
+    {
+      "label": "label=audit_nonfinite_computed_mechanics mode=dense_scrutiny",
+      "mechanics": "MODEL_INCOMPLETE",
+      "diagnostic_codes": [
+        "NUMERICAL_INTEGRITY_UNRESOLVED"
+      ],
+      "empty_rows": true
+    },
+    {
+      "label": "label=contact_failed_attempt mode=dense_scrutiny",
+      "mechanics": "MODEL_INCOMPLETE",
+      "diagnostic_codes": [
+        "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM"
+      ],
+      "empty_rows": true
+    },
+    {
+      "label": "label=contact_forward_control seed=active mode=dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "diagnostic_codes": [
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ],
+      "empty_rows": false
+    },
+    {
+      "label": "label=contact_reversed seed=active mode=dense_scrutiny",
+      "mechanics": "MODEL_INCOMPLETE",
+      "diagnostic_codes": [
+        "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM",
+        "NONLINEAR_SUPPORT_LOOP_BLOCKED",
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "empty_rows": true
+    },
+    {
+      "label": "label=contact_forward_control seed=inactive mode=dense_scrutiny",
+      "mechanics": "MECHANICS_SOLVED",
+      "diagnostic_codes": [
+        "SOLVER_SINGULAR_SYSTEM",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ],
+      "empty_rows": false
+    },
+    {
+      "label": "label=contact_reversed seed=inactive mode=dense_scrutiny",
+      "mechanics": "MODEL_INCOMPLETE",
+      "diagnostic_codes": [
+        "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM",
+        "NONLINEAR_SUPPORT_LOOP_BLOCKED",
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "empty_rows": true
+    },
+    {
+      "label": "label=mixed_original_fixture mode=dense_scrutiny",
+      "mechanics": "MODEL_INCOMPLETE",
+      "diagnostic_codes": [
+        "NUMERICAL_INTEGRITY_UNRESOLVED",
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "empty_rows": true
+    },
+    {
+      "label": "label=audit_nonfinite_computed_mechanics mode=sparse_interactive",
+      "mechanics": "MODEL_INCOMPLETE",
+      "diagnostic_codes": [
+        "NUMERICAL_INTEGRITY_UNRESOLVED"
+      ],
+      "empty_rows": true
+    },
+    {
+      "label": "label=contact_failed_attempt mode=sparse_interactive",
+      "mechanics": "MODEL_INCOMPLETE",
+      "diagnostic_codes": [
+        "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM"
+      ],
+      "empty_rows": true
+    },
+    {
+      "label": "label=contact_forward_control seed=active mode=sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "diagnostic_codes": [
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ],
+      "empty_rows": false
+    },
+    {
+      "label": "label=contact_reversed seed=active mode=sparse_interactive",
+      "mechanics": "MODEL_INCOMPLETE",
+      "diagnostic_codes": [
+        "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM",
+        "NONLINEAR_SUPPORT_LOOP_BLOCKED",
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "empty_rows": true
+    },
+    {
+      "label": "label=contact_forward_control seed=inactive mode=sparse_interactive",
+      "mechanics": "MECHANICS_SOLVED",
+      "diagnostic_codes": [
+        "SOLVER_SINGULAR_SYSTEM",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ],
+      "empty_rows": false
+    },
+    {
+      "label": "label=contact_reversed seed=inactive mode=sparse_interactive",
+      "mechanics": "MODEL_INCOMPLETE",
+      "diagnostic_codes": [
+        "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM",
+        "NONLINEAR_SUPPORT_LOOP_BLOCKED",
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "empty_rows": true
+    },
+    {
+      "label": "label=mixed_original_fixture mode=sparse_interactive",
+      "mechanics": "MODEL_INCOMPLETE",
+      "diagnostic_codes": [
+        "NUMERICAL_INTEGRITY_UNRESOLVED",
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "empty_rows": true
+    }
+  ],
+  "mixed_headlines": [
+    "DIAGPROBE FINAL_QUALIFICATION case=load:L-MIXED-NONLINEAR mode=dense_scrutiny outcome=Ok(false) converged=true strict_gap_unqualified_reason=Some(\"strict-gap proof supports only gap-only objective straight-frame bodies with declared nodal loads and linear springs; mixed/curved/user/affine source capability remains unqualified\") final_states=[",
+    "DIAGPROBE ITERATION index=1 strict_gap=(\"unsupported\", Some(\"strict-gap proof supports only gap-only objective straight-frame bodies with declared nodal loads and linear springs; mixed/curved/user/affine source capability remains unqualified\")) contact_branches_admissible=true active_set=ActiveSetIteration {",
+    "DIAGPROBE ITERATION index=2 strict_gap=(\"unsupported\", Some(\"strict-gap proof supports only gap-only objective straight-frame bodies with declared nodal loads and linear springs; mixed/curved/user/affine source capability remains unqualified\")) contact_branches_admissible=true active_set=ActiveSetIteration {",
+    "DIAGPROBE FINAL_QUALIFICATION case=load:L-MIXED-NONLINEAR mode=sparse_interactive outcome=Ok(false) converged=true strict_gap_unqualified_reason=Some(\"strict-gap proof supports only gap-only objective straight-frame bodies with declared nodal loads and linear springs; mixed/curved/user/affine source capability remains unqualified\") final_states=[",
+    "DIAGPROBE ITERATION index=1 strict_gap=(\"unsupported\", Some(\"strict-gap proof supports only gap-only objective straight-frame bodies with declared nodal loads and linear springs; mixed/curved/user/affine source capability remains unqualified\")) contact_branches_admissible=true active_set=ActiveSetIteration {",
+    "DIAGPROBE ITERATION index=2 strict_gap=(\"unsupported\", Some(\"strict-gap proof supports only gap-only objective straight-frame bodies with declared nodal loads and linear springs; mixed/curved/user/affine source capability remains unqualified\")) contact_branches_admissible=true active_set=ActiveSetIteration {"
+  ]
+}

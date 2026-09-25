@@ -1,0 +1,30 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+    "--lib",
+    "precision_native",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "/private/tmp/piping-numerical-integrity-20260924",
+  "environment": {
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/private/tmp/piping-numerical-authoring-target-20260924"
+  },
+  "source_hashes_before": {
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml": "ae8eb2d1193fb96d742820614eebb6b69eaefa2256d23d79193c3b4b3dcb0b16",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "64e5dedd41eefe17bdd0bd092d88d95978af960821f0da60f9fa85fb2daca4ef",
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock": "8b68e437515761bf5877a485cc99c52947bac386595f0182f5dcbc17732c71af"
+  },
+  "source_hashes_after": {
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml": "ae8eb2d1193fb96d742820614eebb6b69eaefa2256d23d79193c3b4b3dcb0b16",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "64e5dedd41eefe17bdd0bd092d88d95978af960821f0da60f9fa85fb2daca4ef",
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock": "be0edb2bfc9e3c97cc0a85df4bcf63ee276785be22f689657a2d3730bd551b49"
+  },
+  "exit_code": 0
+}

@@ -1,0 +1,40 @@
+     Locking 1 package to latest compatible version
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/sparse_direct)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.33s
+     Running unittests src/lib.rs (/private/tmp/piping-numerical-integrity-target/debug/deps/open_pipe_stress_sparse_direct-de4451018e7d62db)
+
+running 24 tests
+test tests::rcm_rejects_out_of_range_adjacency ... ok
+test tests::invalid_inputs_are_rejected ... ok
+test tests::ldlt_factorization_and_solve_match_hand_computation_exactly ... ok
+test tests::profile_storage_round_trips_dense_entries ... ok
+test tests::rcm_orders_path_graph_deterministically ... ok
+test structural::tests::mapped_prescribed_equations_and_loaded_constraint ... ok
+test tests::nonpositive_pivot_is_counted_and_located_not_silently_absorbed ... ok
+test tests::rcm_orders_star_graph_with_degree_then_index_tie_break ... ok
+test structural::tests::soft_positive_sparse_uses_typed_gate_not_legacy_absolute_guard ... ok
+test tests::rcm_symmetrizes_and_deduplicates_input_adjacency ... ok
+test structural::tests::rejection_does_not_fall_back_to_lu_or_ignore_triangle ... ok
+test tests::profile_storage_sums_direct_entries ... ok
+test tests::rcm_processes_components_by_lowest_index_and_handles_isolated_nodes ... ok
+test tests::audit_rejects_unrepresentable_solution ... ok
+test tests::rcm_reduces_bandwidth_of_scrambled_path_numbering ... ok
+test tests::singular_pivot_location_maps_back_through_ordering ... ok
+test tests::singular_pivot_reports_ordered_and_original_location ... ok
+test tests::zero_dimension_system_solves_to_empty_solution ... ok
+test tests::chain_solve_reports_positive_definite_banded_factorization ... ok
+test tests::sparse_path_matches_dense_solve_on_small_invented_chain ... ok
+test tests::entry_assembled_sparse_path_matches_dense_derived_path ... ok
+test tests::repeat_sparse_solves_are_bitwise_identical ... ok
+test tests::sparse_path_matches_dense_solve_on_small_invented_grid_frame ... ok
+test tests::sparse_path_matches_dense_solve_on_larger_generated_banded_chain ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+   Doc-tests open_pipe_stress_sparse_direct
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

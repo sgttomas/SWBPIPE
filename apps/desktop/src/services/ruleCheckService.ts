@@ -106,14 +106,14 @@ export async function runRuleChecks(args: {
   projectId?: string | null;
 }): Promise<RuleCheckRunRoute> {
   if (!isTauriRuntime()) return unavailable();
-  // Prefer an already-solved envelope (so the backend does not re-solve); fall
-  // back to the model so the backend solves it. Empty binding arrays are
+  // Supply the model even with a solved envelope so the backend can verify
+  // complete requested-case coverage without inferring requests from results. Empty binding arrays are
   // omitted so the backend treats those inputs as unsupplied (never a silent
   // pass). `projectId` scopes the private-library lookup for
   // `private_library_value` inputs (resolved backend-side from the local store).
   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument };
   if (args.solvedEnvelope) invokeArgs.solvedEnvelope = args.solvedEnvelope;
-  else if (args.model) invokeArgs.model = args.model;
+  if (args.model) invokeArgs.model = args.model;
   if (args.solverResultBindings && args.solverResultBindings.length > 0) {
     invokeArgs.solverResultBindings = args.solverResultBindings;
   }

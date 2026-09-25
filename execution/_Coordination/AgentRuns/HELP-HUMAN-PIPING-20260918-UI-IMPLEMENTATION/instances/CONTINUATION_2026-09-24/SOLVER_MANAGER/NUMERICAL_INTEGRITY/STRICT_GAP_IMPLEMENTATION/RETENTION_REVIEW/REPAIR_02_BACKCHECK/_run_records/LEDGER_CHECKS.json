@@ -1,0 +1,90 @@
+{
+  "kind": "Independent two-stage control-flow/overflow model, not executed Rust",
+  "representative_cases": {
+    "short": {
+      "full": {
+        "ok": true,
+        "charged": 19388,
+        "rejected": 0,
+        "prefix": 17280,
+        "visited_dynamic": 168
+      },
+      "historical_1088": {
+        "ok": false,
+        "charged": 0,
+        "rejected": 1472,
+        "visited_dynamic": 0
+      },
+      "C_minus_one": {
+        "ok": false,
+        "charged": 17280,
+        "rejected": 2108,
+        "visited_dynamic": 168
+      },
+      "late_nested_error": {
+        "ok": false,
+        "charged": 17280,
+        "rejected": 6204,
+        "visited_dynamic": 169
+      },
+      "child_budget_example": {
+        "outer": 19888,
+        "child_limit": 500,
+        "combined_accepted": 19888,
+        "child_rejected": 16
+      }
+    },
+    "long": {
+      "full": {
+        "ok": true,
+        "charged": 35764,
+        "rejected": 0,
+        "prefix": 17280,
+        "visited_dynamic": 168
+      },
+      "historical_1088": {
+        "ok": false,
+        "charged": 0,
+        "rejected": 1472,
+        "visited_dynamic": 0
+      },
+      "C_minus_one": {
+        "ok": false,
+        "charged": 17280,
+        "rejected": 18484,
+        "visited_dynamic": 168
+      },
+      "late_nested_error": {
+        "ok": false,
+        "charged": 17280,
+        "rejected": 22580,
+        "visited_dynamic": 169
+      },
+      "child_budget_example": {
+        "outer": 36264,
+        "child_limit": 500,
+        "combined_accepted": 36264,
+        "child_rejected": 16
+      }
+    }
+  },
+  "overflow": {
+    "prefix": {
+      "ok": false,
+      "charged": 0,
+      "rejected": 18446744073709551615,
+      "visited_dynamic": 0
+    },
+    "dynamic": {
+      "ok": false,
+      "charged": 256,
+      "rejected": 18446744073709551615,
+      "visited_dynamic": 2
+    }
+  },
+  "limit_sweep_cases": 2000,
+  "success_costs_preserved": true,
+  "late_rejection_retains_accepted_prefix": true,
+  "no_child_budget_reset": true,
+  "limits": "Byte lists are representative, not claimed actual Rust fixture charge measurements. Retention tests remain pending."
+}

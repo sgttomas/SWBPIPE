@@ -31,3 +31,11 @@ __all__ = [
     "validate_stress_neutral_export_package_v0_2",
     "write_materialized_members_v0_2",
 ]
+
+from .package_v0_3 import (
+    build_stress_neutral_export_package_v0_3,
+    materialized_members_v0_3,
+    validate_stress_neutral_export_package_v0_3,
+    write_materialized_members_v0_3,
+)
+__all__ += ["build_stress_neutral_export_package_v0_3", "materialized_members_v0_3", "validate_stress_neutral_export_package_v0_3", "write_materialized_members_v0_3"]

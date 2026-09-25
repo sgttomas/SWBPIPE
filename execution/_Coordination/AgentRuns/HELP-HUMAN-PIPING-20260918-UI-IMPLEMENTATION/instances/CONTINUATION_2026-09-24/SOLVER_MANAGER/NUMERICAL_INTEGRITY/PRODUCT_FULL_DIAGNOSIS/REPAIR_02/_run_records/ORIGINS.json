@@ -1,0 +1,19 @@
+{
+  "agent": "/root/solver_manager/evidence_primitives",
+  "parent": "/root/solver_manager",
+  "mechanism": "native followup TASK; no descendants",
+  "checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "at": "2026-09-25T00:22:26.278170+00:00",
+  "owning_scope_sources": [
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/plans/PLAN_COMPLETION_LOG.md",
+      "sha256": "f35016711c30196a01da705f75684b23bebdc27507c7ed944fa0313535b7eb40"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-PRODDISPREACTIONPOLICY-001.md",
+      "sha256": "e9e6365fe165c1a1589cf1ace4129ff9a81089c5341378e568464952c4444c29"
+    }
+  ],
+  "steering": "ROOT relay: do not discard converged inspectable computations solely for iteration2 large delta; scoped mixed fixture policy, stable-iteration continuation remains M06 required.",
+  "execution_limits": "No Rust/Cargo/build/Git/tests/probe execution. Only owned isolated delta changes removed from current product source; nonlinear five-repair bytes unchanged."
+}

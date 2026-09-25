@@ -1,0 +1,129 @@
+{
+  "executor": "/root/solver_manager/strict_gap_design",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type2",
+  "delegation_mechanism": "delegated-harness-native collaboration child",
+  "actual_scope": "Independent source-only design, exact Python Fraction reference proof, primary-source web reading. Writes solely STRICT_GAP_DESIGN. No production edits, cargo/native/node execution, Git operations, or descendants.",
+  "authority_basis": "Parent brief: ROOT correctness all-findings steering; no protected tolerance or boundary convention change",
+  "local_environment": {
+    "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "utc": "2026-09-24T18:03:41.082988+00:00"
+  },
+  "origins": [
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "sha256": "3a016181fc49092d2775cc365dd2956b4c137c1f6bb64046a77b925ef5f9cce0"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "e21c812accb1ab2eb4cd2c9e4509cd25ba38982b3e649aafaeaa64ea9cb3f009"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+      "sha256": "594377d0e6f5057f2e98961ce45baac3f8e8720c300856f7fdc17a30aad6baac"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "sha256": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTEGRATION/BOUNDARY_DIAGNOSIS/RETURN.md",
+      "sha256": "b8c2c1f5ea9774a3d042dbfd2e93ed0bfb2ed446553703d113210776450650da"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTEGRATION/BOUNDARY_DIAGNOSIS/OBSERVATION_ONLY.patch",
+      "sha256": "1add85a78b3c02ffd68038c377adb6076fed6cc7e1204fc274314419ae5a06fd"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTEGRATION/BOUNDARY_DIAGNOSIS/BASIS.json",
+      "sha256": "389fc215fad13d2df15f61c24b71e8e9a61fc770cfd859203edbd738de28314b"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS/_run_records/CASES.json",
+      "sha256": "ee309a08192616222072977a59871cf10c638e16e9286105af36e0d520757446"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS/_run_records/probe.log",
+      "sha256": "effff296947ad8ad3940b4f4c5268690af2b36cd90fac95dc657efbf363acea5"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS/_run_records/PROBE_RESULT.json",
+      "sha256": "b07357da365f44ad9ce0e8afc865cc7173442b945a7c140cbff32123f893fd0f"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS/_run_records/BEFORE.json",
+      "sha256": "ac7eab14873ba40393e3e493b0e4bb601e077d427d36b12842972845bddbd1a8"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTEGRATION_REVIEW/SUCCESSOR/INITIAL_REVIEW.md",
+      "sha256": "613179e14c2d09b323e121b6361c4cf789ba7682e900a917528fbe0852cd3174"
+    },
+    {
+      "root": "/private/tmp/piping-numerical-integrity-20260924",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTEGRATION_REVIEW/SUCCESSOR/RETURN.md",
+      "sha256": "958da7ed5cbf56f7098f83e3b9f8ef2e0ee465006d49d1ff533b7d3c041b14de"
+    },
+    {
+      "root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_IMPLEMENTATION.md",
+      "sha256": "aacb0b01c17d0c0ef1eaadba35203aeaafeea24c76f1c9d4be0cd8830101837e"
+    },
+    {
+      "root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/M03_RESIDUAL_SUCCESSOR_ADOPTION.md",
+      "sha256": "082d52b3064d10f892e877afba7e618ee6c81afea055abe853eba4289557ac2b"
+    },
+    {
+      "root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_REFERENCE.md",
+      "sha256": "67c8aac5798e9663528bea94b58d6d8f2eb8308f94b7ebb78aa22dca4b8f94ca"
+    },
+    {
+      "root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/CONTRACT.md",
+      "sha256": "3e239d5535a1b1d864a8220e3716c42a9bace07bd9bd6376a8ff2d8f40a6ac3a"
+    },
+    {
+      "root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/SOURCE_QUALIFICATION.md",
+      "sha256": "1234db1335109c2233e92a92c171d18839a319174fd4ecbe579795db982fd622"
+    }
+  ],
+  "skills_selected": [],
+  "workflows_selected": [],
+  "other_role_bodies_read": [],
+  "limits": "Shared filesystem and instruction-bounded write scope; no OS sandbox isolation or model-diversity claim. Some long read tool responses were truncated; actual consulted excerpts concern numerical policy, contribution contract and governing runtime source. Hashes bind complete origin files, not a claim every byte was displayed."
+}

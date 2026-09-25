@@ -1,0 +1,120 @@
+{
+  "recorded_utc": "2026-09-24T16:24:45.041226+00:00",
+  "status": "PASS_BOUNDED_MANAGER_FAN_IN",
+  "source_manifest": "../CHECKED_CONSUMER_FILES.json",
+  "source_manifest_sha256": "67acd6e5239aaec4882151ac58df5b1e05fd4c30b9428725ddc3c3f272c0e6de",
+  "source_file_count": 33,
+  "source_hash_mismatches": [],
+  "artifact_hash_mismatches": [],
+  "dependency_hash_mismatches": [],
+  "checks": {
+    "units": {
+      "passed": 17,
+      "failed": 0
+    },
+    "applier_display": {
+      "passed": 3,
+      "failed": 0,
+      "other_applier_tests": "Filtered out; not claimed"
+    },
+    "wasm_build": "Operation and self-weight engines built; 8 artifacts rehashed",
+    "typescript": "Initial and final noEmit exit0, empty logs",
+    "vitest_initial": {
+      "passed": 133,
+      "failed": 9,
+      "total": 142,
+      "files_passed": 11,
+      "files_failed": 1
+    },
+    "vitest_export_repair": {
+      "passed": 15,
+      "failed": 0,
+      "file": "src/features/result-export/resultExportAdapter.test.ts"
+    },
+    "distinct_focused_vitest_cases_covered": 142,
+    "vitest_accounting": "127 unchanged cases passed initially plus all15 repaired export cases passed; no combined final12-file run claimed",
+    "native_precision": {
+      "passed": 3,
+      "failed": 0,
+      "other_native_tests": "102 filtered out; not claimed"
+    }
+  },
+  "repair_delta": "Exact prior export-test hash reconstructed by removing only synthetic-mock labeling, unique diagnostic ID mapping, and describe-label change. Original immutable result fixture matches base bytes.",
+  "reviewer_runtime_execution": false,
+  "raw_evidence": [
+    {
+      "path": "_run_records/checks/BUILD_BASIS.json",
+      "sha256": "2571d6448b77d2543b410c6d4edeabc893488b52634137c90645871d56c60164"
+    },
+    {
+      "path": "_run_records/checks/applier_display.log",
+      "sha256": "964512f29a0bdfbba0e2d73d1fae76b254b2504ed429977574e83fc8b39af4a7"
+    },
+    {
+      "path": "_run_records/checks/applier_display.result.json",
+      "sha256": "ff8eaa0562b87973ccfaa555010d27ce77e9b1b4ce8b22fd612922fbe8fb2d72"
+    },
+    {
+      "path": "_run_records/checks/native_precision_initial.log",
+      "sha256": "9f6459354f163ddd8a00ed336c87669a5399dd4ef5a03efae4666f27a2b1c826"
+    },
+    {
+      "path": "_run_records/checks/native_precision_initial.result.json",
+      "sha256": "23f252e93560dfc9410768f617fc9b39c60f270ea8fa263c8c0404dd5ab2393b"
+    },
+    {
+      "path": "_run_records/checks/tsc_final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/checks/tsc_final.result.json",
+      "sha256": "cd80cc8444b7b164e4c81a67edd97436505fcb81a8097ebc7656026fd79097bb"
+    },
+    {
+      "path": "_run_records/checks/tsc_initial.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/checks/tsc_initial.result.json",
+      "sha256": "cd80cc8444b7b164e4c81a67edd97436505fcb81a8097ebc7656026fd79097bb"
+    },
+    {
+      "path": "_run_records/checks/units.log",
+      "sha256": "acd7a9bb7319b824c9333cdd995d22876a6ef2971a8a4d3dc3a55066dc7aa8da"
+    },
+    {
+      "path": "_run_records/checks/units.result.json",
+      "sha256": "df04cb35a2deeacb4e291423b3e6eced7366be6e92a6fc8a9cfb114884224d41"
+    },
+    {
+      "path": "_run_records/checks/vitest_export_repair.log",
+      "sha256": "2ca91eef3b4b7ffae81c3da14019185888a39ea67c50c8a1cdd484520f3b2c9d"
+    },
+    {
+      "path": "_run_records/checks/vitest_export_repair.result.json",
+      "sha256": "c96469eb5e0934f9574e03b2f4fabc3608b9ff41f2905806c34d4ac832b88013"
+    },
+    {
+      "path": "_run_records/checks/vitest_initial.log",
+      "sha256": "bd887e425b28521a50ff976cd700b47ef2fab76d95599384dcf5f53a79088384"
+    },
+    {
+      "path": "_run_records/checks/vitest_initial.result.json",
+      "sha256": "a024e745629d1b332443ef98dbf122b45f4495fca0ca8d6b5a674c16fa1dbba7"
+    },
+    {
+      "path": "_run_records/checks/wasm_build.log",
+      "sha256": "0860860716a16946b32fc04bea6e895246bd2c6828e33fd7f4a7ca326ba2fae4"
+    },
+    {
+      "path": "_run_records/checks/wasm_build.result.json",
+      "sha256": "ac3e5e3fa8deb4f48a5079bf310601fcdb3943086951ac586b07c9fe27c1cc6d"
+    }
+  ],
+  "outstanding": [
+    "Actual native UI workflow witness",
+    "Genuine product gate-qualified browser Current fixture",
+    "Integrated M03/kernel/protected criterion gates",
+    "Whole integrated candidate review, DEC-025/CI and merge gates"
+  ]
+}

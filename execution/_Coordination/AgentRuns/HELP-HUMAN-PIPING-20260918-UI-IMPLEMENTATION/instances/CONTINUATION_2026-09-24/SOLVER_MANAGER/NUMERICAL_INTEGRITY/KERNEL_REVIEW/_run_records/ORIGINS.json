@@ -1,0 +1,67 @@
+{
+  "executor": "/root/solver_manager/kernel_review",
+  "parent": "/root/solver_manager",
+  "mechanism": "delegated-harness-native",
+  "dispatch_model": "gpt-6-astra",
+  "dispatch_reasoning": "xhigh",
+  "dispatch_attribution": "parent task instruction",
+  "role": "TASK Type 2",
+  "descendants": [],
+  "review_base": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "roots": {
+    "NUMERICAL_WORKTREE": "/private/tmp/piping-numerical-integrity-20260924",
+    "PRIMARY": "/Users/ryan/.codex/worktrees/6614/chirality"
+  },
+  "instructions_and_basis": [
+    {
+      "alias": "NUMERICAL_WORKTREE",
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "alias": "NUMERICAL_WORKTREE",
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "alias": "NUMERICAL_WORKTREE",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "alias": "NUMERICAL_WORKTREE",
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "alias": "PRIMARY",
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "alias": "PRIMARY",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_IMPLEMENTATION.md",
+      "sha256": "aacb0b01c17d0c0ef1eaadba35203aeaafeea24c76f1c9d4be0cd8830101837e"
+    },
+    {
+      "alias": "PRIMARY",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_REFERENCE.md",
+      "sha256": "67c8aac5798e9663528bea94b58d6d8f2eb8308f94b7ebb78aa22dca4b8f94ca"
+    },
+    {
+      "alias": "PRIMARY",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/RETURN.md",
+      "sha256": "c83877d55ddb23c634112551fb3319f3f39080b2839c285a81f32296177a9216"
+    },
+    {
+      "alias": "PRIMARY",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/DERIVATIONS_AND_REFERENCES.md",
+      "sha256": "59b341232b5051b00b39f5a39442476a0c5764ac855a56994c7f89cd5cbf5d11"
+    }
+  ],
+  "runtime": {
+    "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O"
+  },
+  "enforcement_limits": "Host workspace-write; source-read-only assignment; writes only owned KERNEL_REVIEW evidence. No Cargo/build/npm/native/browser. No source edits or commits."
+}

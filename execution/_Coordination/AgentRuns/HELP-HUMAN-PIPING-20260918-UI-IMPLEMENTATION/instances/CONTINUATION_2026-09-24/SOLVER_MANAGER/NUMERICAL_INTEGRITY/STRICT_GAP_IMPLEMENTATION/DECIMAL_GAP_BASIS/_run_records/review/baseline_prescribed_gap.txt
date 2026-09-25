@@ -1,0 +1,33 @@
+1726: fn prescribed_displacement_for_state(
+1727:     support: &NonlinearSupport,
+1728:     state: ActiveSetState,
+1729: ) -> Result<Option<f64>, NonlinearIntegrationError> {
+1730:     match state {
+1731:         ActiveSetState::Inactive | ActiveSetState::Sliding => Ok(None),
+1732:         ActiveSetState::Sticking => Ok(Some(0.0)),
+1733:         ActiveSetState::Active => match support.behavior {
+1734:             NonlinearSupportBehavior::Gap { closes_when } => {
+1735:                 let gap = support
+1736:                     .gap
+1737:                     .ok_or_else(|| NonlinearSupportError::MissingGap {
+1738:                         support_id: support.support_id.clone(),
+1739:                     })?;
+1740:                 validate_nonnegative_finite("gap", gap)?;
+1741:                 Ok(Some(match closes_when {
+1742:                     GapDirection::PositiveDisplacement => gap,
+1743:                     GapDirection::NegativeDisplacement => -gap,
+1744:                 }))
+1745:             }
+1746:             NonlinearSupportBehavior::OneWay { .. }
+1747:             | NonlinearSupportBehavior::LiftOff { .. }
+1748:             | NonlinearSupportBehavior::Friction => Ok(Some(0.0)),
+1749:         },
+1750:     }
+1751: }
+1752: 
+1753: #[cfg(test)]
+1754: fn solve_linearized_system(
+1755:     stiffness: &DenseMatrix,
+1756:     force: &DenseVector,
+1757:     boundary: &BoundaryState,
+1758:     linear_solve_mode: LinearSolveMode,

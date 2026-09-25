@@ -1,0 +1,9 @@
+{
+  "RETURN.md": "ae786a3d802703e57a81e303ba89e1c403cf11eff7107e168d2307b9aa2e4183",
+  "_run_records/check_ledger.py": "fc8c2bf49398e50af9fd4e4687d1577bc33840092b235304e959c702aa88a5f2",
+  "_run_records/SOURCE_CHECK.json": "8a617c05646eb2d656481462ad2b67ea9d241cf312ead15d47878cdced2c58f0",
+  "_run_records/FROZEN_structural_adapter.rs": "f7600925cd44169ce6d04a03ae5c0e622a8f27aabee831377d297dce68ec51aa",
+  "_run_records/LEDGER_CHECKS.json": "6078972148c3b84cdfb2f31cc432cc6229c574e846c2f075b0ab3b0a3fa8688e",
+  "_run_records/INPUT_HASHES.json": "6a899d2501762eed1b93a546762a582c0d2dde5bfb5f205296276f27d44d1f79",
+  "_run_records/ORIGINS.json": "888491319b8b3227f53825964e4b2904ca1ebef7219aeb28980c150effc51404"
+}

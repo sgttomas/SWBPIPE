@@ -1,0 +1,44 @@
+{
+  "base": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "actor": "/root/solver_manager/precision_producer",
+  "parent": "/root/solver_manager",
+  "continuation": "bounded precision expectation repair; no new delegation",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "4f78091a3bf865f76c2121d25d1d7e0e35c1bbc0b8a144a21d2456144e34bd09"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "sha256": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.lock",
+      "sha256": "39843130aa97195bf011fc6abf728c56f1f57c8af2164549d7e03352a9a0b6c7"
+    }
+  ],
+  "diff_sha256": "cbd5c91e67874cf1891bed87908f70539eb84e333b74720804747dac26d813f3",
+  "additional_read_origins": [
+    {
+      "origin_kind": "selected_checkout",
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-04_tolerance_coverage_thresholds.md",
+      "sha256": "2f4b4cc44e7c74d60640f80b13cb1a46b91677903b56e6b1d45a4adfc5115b4a"
+    },
+    {
+      "origin_kind": "selected_checkout",
+      "path": "projects/chirality-piping/validation/benchmarks/sparse_default_promotion_policy.dec053.json",
+      "sha256": "b85ef2aaed5b288345ab68388caf2108194e01233cfde67feaa0f8093296c5f3"
+    },
+    {
+      "origin_kind": "selected_checkout",
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c"
+    }
+  ],
+  "parent_initial_failure_log_sha256": "cb0923a8a387600995905fee454c49abc619707238ca7e1435db6fa7eb0bf1c3",
+  "checks": {
+    "rustfmt": "passed",
+    "git_diff_check": "passed",
+    "cargo": "not run in continuation; parent rerun outstanding"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "stage": "Repairedkernel+producer frozenrerun",
+  "source_sha256": {
+    "projects/chirality-piping/core/product_physics/Cargo.lock": "39843130aa97195bf011fc6abf728c56f1f57c8af2164549d7e03352a9a0b6c7",
+    "projects/chirality-piping/core/product_physics/Cargo.toml": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542",
+    "projects/chirality-piping/core/product_physics/examples/preview_result.rs": "6cb68ea97330ee541d80318a5bcd69469957bfd39edcbf71d4313faae85e8241",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "4f78091a3bf865f76c2121d25d1d7e0e35c1bbc0b8a144a21d2456144e34bd09",
+    "projects/chirality-piping/core/product_physics/src/pressure_exact.rs": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+    "projects/chirality-piping/core/product_physics/src/self_weight.rs": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml": "c124ff5534616207027d932d561b810fed824ee7a095b4a06f738ff9d226c317",
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "03f82e343c7aee8f9f38d4b983091d0b71faebb904fb4dc7b59692a0c9cc4ad9",
+    "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs": "95b5f2fdf2deaaa78fe5fd887ba836ded7552a7c575f4f2830a5c4ad536afd33",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "168c78233805254cb88a1d6d6aad5baa93a7f2e912249642dd0989538fb1a27e",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock": "86a316b6f076f21b01531b16c1336abeccfb484d8425ad44fc560831d1c34b36",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "51e010af1ef62c95faf854c6308aec7a0f0be7123546083be993f6090b257b12",
+    "projects/chirality-piping/core/solver/sparse_direct/src/structural.rs": "09939a029b575bde9d677f95e35113da62b68ab2c535a93850ee217609f12ded"
+  },
+  "authority": "ROOT granted sequentialofflinejobs2 frame\u2192sparse\u2192fullproduct afterinitialfailures retained",
+  "source_boundary": "kernel+producer returnedfrozen; backend/desktopconsumers disjoint and not permittedparticipatingcratewrites",
+  "runtime_context_ref": "_run_records/EXECUTION.json"
+}

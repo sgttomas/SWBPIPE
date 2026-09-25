@@ -1,0 +1,43 @@
+{
+  "method": "Read-only inspection of JSON fixture and accepted semantic signature table; no application/test execution",
+  "row_count": 830,
+  "no_raw_dimensions": true,
+  "result_families": {
+    "other": 52,
+    "reaction": 29,
+    "displacement": 66,
+    "rotation": 45,
+    "force": 180,
+    "moment": 180,
+    "stress": 278
+  },
+  "units": [
+    "MPa",
+    "N",
+    "N*m",
+    "N*m/rad",
+    "N/m",
+    "boolean",
+    "count",
+    "m",
+    "mm",
+    "mode_code",
+    "rad",
+    "state_code"
+  ],
+  "diagnostic_work": [
+    {
+      "id": "result:nonlinear-support:free-dof-work-residual",
+      "unit": "N*m",
+      "has_raw_dimension": false,
+      "derivative_dimension": null
+    },
+    {
+      "id": "result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual",
+      "unit": "N*m",
+      "has_raw_dimension": false,
+      "derivative_dimension": null
+    }
+  ],
+  "display_displacement": 3.9773012982613305
+}

@@ -1,0 +1,14 @@
+{
+  "metadata_roots_checked": 20,
+  "compilation_runs": 0,
+  "existing_lock_changes": 11,
+  "new_observer_lock": true,
+  "existing_registry_tuples_changed": false,
+  "actual_required_changes": [
+    "local product package0.1.0 to0.2.0",
+    "sparse_direct to frame_kernel local dependency edge",
+    "new numerical integrity observer closure"
+  ],
+  "initial_checker_false_alarm": "LOCKS_01/COMPARATOR_DISPOSITION.json",
+  "successful_metadata_records": "LOCKS_02/RESULTS.json"
+}

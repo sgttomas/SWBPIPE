@@ -1,0 +1,75 @@
+{
+  "diff_sha256": "f3d828846982fd49621e5a084b4a82a2f02d27206e79207d91310a38f4dbbf02",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "f440763e98e07254aa916e8103148ace1cd9742e39d27cd815b2156fd9cda435",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "sha256": "ec2abbffeb468615592f5a28d4de01a61759847b5538a78b24b693612445b08a",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "sha256": "2c5c9c448d115540b79cd4127b23a276b83c8eee223ae1e6ea2bb6330f3ebd87",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+      "sha256": "1e18cb8fa6a7f59a31a4da780c037cd6fa3f50877c61cc8306f491e7fe2dfede",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "sha256": "aa9d6f0cf50e98136489915c827d659f944173eba6cb11a872b2ed7b206350ad",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
+      "sha256": "b13146287f0031a04cb21805041735d9b56df867797053dae6101ec72915ebda",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "sha256": "09a5246e9bc5d3469a09e7ab08b2ba557b9592294680614f83652b8c50e09a7c",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+      "sha256": "ee39515972d32fe4f527ee76aa3a6b3021dfe17fcb45fcc83aae166f27e62e72",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts",
+      "sha256": "5f315485b9eb4befd89d45cfa18e1f470d19195fa735c665b71ba1590a00b141",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/renderedReport.test.tsx",
+      "sha256": "2df633be14bc95d72d978f9c06f90f27ba4ec1ce5f039356cc37796a14faba29",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "sha256": "9da94de0b2173e3d43b955a766d40735f8bc86454e31515214b0bffe0b2fb9f1",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "sha256": "d9dafe684171865ee6354fd9c4cbfc187698263c6f628fda2fd8807a63980e65",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/analysisResultHashScope.test.ts",
+      "sha256": "06395b2c5af166745c7d29a943a90333d2e0392bed39758f765cd96f462f050d",
+      "matches_frozen_postimage": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/analysisResultHashScope.ts",
+      "sha256": "58e20af6798a607711ce4989fd1a40b32c597e7e530e03eb61f043b376e2791a",
+      "matches_frozen_postimage": true
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+     Locking 48 packages to latest compatible versions
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_result_export v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/reporting/result_export)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_report_generator v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/reporting/report_generator)
+   Compiling open_pipe_stress_report_sections v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/reporting/report_sections)
+   Compiling open_pipe_stress_protected_content_linter v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/reporting/protected_content_linter)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_report_renderer v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/reporting/report_renderer)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_pdf_emitter v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/reporting/pdf_emitter)
+   Compiling open_pipe_stress_user_loads v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/loads/user_loads)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_audit_manifest v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/reporting/audit_manifest)
+   Compiling open_pipe_stress_product_physics v0.2.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics)
+   Compiling open_pipe_stress_report_package v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/reporting/report_package)
+   Compiling open_pipe_stress_mechanics_benchmarks v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/validation/benchmarks/mechanics)
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling open_pipe_stress_stress_benchmarks v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/validation/benchmarks/stress)
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+   Compiling open_pipe_stress_nonlinear_benchmarks v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/validation/benchmarks/nonlinear)
+   Compiling open_pipe_stress_headless_runner v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/runner/headless)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.92s
+     Running unittests src/lib.rs (/private/tmp/piping-precision-consumers-target/debug/deps/open_pipe_stress_headless_runner-77939da8050191cf)
+
+running 33 tests
+test tests::analysis_status_for_rule_check_maps_the_runner_vocabulary ... ok
+test benchmark_binding::tests::non_finite_suite_observation_fails_closed_at_runner_seam ... ok
+test benchmark_binding::tests::duplicate_suite_observation_names_fail_closed_at_runner_seam ... ok
+test benchmark_binding::tests::suite_execution_error_fails_closed_at_runner_seam ... ok
+test redaction_binding::tests::unknown_local_value_stays_unknown_and_warning_only ... ok
+test redaction_binding::tests::source_intent_is_not_authoritative ... ok
+test redaction_binding::tests::canonical_parity_corpus_matches_rust_contract_mirror ... ok
+test redaction_binding::tests::wrapper_intent_retains_known_private_with_warning ... ok
+test benchmark_binding::tests::incomplete_suite_observations_fail_closed_at_runner_seam ... ok
+test benchmark_binding::tests::expected_observed_name_mismatch_fails_closed_at_runner_seam ... ok
+test tests::privacy_and_professional_boundary_violations_are_blocking ... ok
+test tests::reference_level_validation_still_accepts_without_full_payload ... ok
+test redaction_binding::tests::every_private_named_runner_field_preserves_null_tbd_and_unknown_as_warning_only ... ok
+test tests::request_requires_load_basis_and_d33_policy ... ok
+test tests::result_requires_human_review_and_result_export_compatibility ... ok
+test tests::result_requires_schema_vocabulary_and_result_envelope_checksum ... ok
+test tests::valid_request_has_no_blocking_diagnostics ... ok
+test tests::full_payload_validation_blocks_envelope_ref_mismatch_and_missing_checksum ... ok
+test tests::valid_result_has_no_blocking_diagnostics ... ok
+test tests::tp_phys_015_result_envelope_payload_validates_when_supplied ... ok
+test benchmark_binding::tests::stress_and_nonlinear_whole_suites_remain_matched ... ok
+test tests::preview_bridge_blocks_invalid_runner_metadata_before_solve ... ok
+test benchmark_binding::tests::unknown_mechanics_fixture_id_fails_closed ... ok
+test tests::preview_bridge_drives_user_rule_checked_into_analysis_status ... ok
+test tests::preview_bridge_drives_user_rule_failed_into_envelope_and_analysis_status ... ok
+test tests::preview_bridge_blocks_unrecognized_rule_check_aggregate ... ok
+test tests::preview_bridge_executes_product_physics_with_deterministic_refs ... ok
+test result_envelope_binding::tests::typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes ... ok
+test tests::preview_bridge_incomplete_aggregate_equals_the_no_aggregate_default ... ok
+test redaction_binding::tests::report_package_without_intent_blocks_once_and_withholds_payload ... ok
+test redaction_binding::tests::report_package_is_classified_once_without_scalar_descent_at_all_sizes ... ok
+test benchmark_binding::tests::mechanics_whole_suite_is_25_cases_206_values_and_preserves_original_11_91 ... ok
+test result_envelope_binding::tests::qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity ... ok
+
+test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.05s
+
+     Running unittests src/bin/headless_preview_runner.rs (/private/tmp/piping-precision-consumers-target/debug/deps/headless_preview_runner-2097e1002cc82886)
+
+running 1 test
+test tests::provisional_request_is_schema_complete ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/openpipestress-runner.rs (/private/tmp/piping-precision-consumers-target/debug/deps/openpipestress_runner-c8a264070399fedf)
+
+running 15 tests
+test tests::stable_verbs_map_to_runner_operations ... ok
+test tests::solve_blocks_missing_payload_without_running_solver ... ok
+test tests::run_regression_blocks_missing_payload_without_executing_cases ... ok
+test tests::run_benchmark_blocks_missing_payload_without_executing_cases ... ok
+test tests::export_results_blocks_when_its_payload_is_missing ... ok
+test tests::run_regression_rejects_benchmark_suites ... ok
+test tests::validate_input_accepts_d33_policy_request ... ok
+test tests::run_benchmark_rejects_unsupported_suite_names ... ok
+test tests::run_benchmark_multi_case_stress_run_matches_recorded_values ... ok
+test tests::run_regression_named_case_reports_recorded_and_observed_outcome ... ok
+test tests::run_benchmark_whole_suite_default_reports_every_case_without_silent_skips ... ok
+test tests::run_regression_executes_full_nonlinear_inventory_and_matches ... ok
+test tests::run_benchmark_unknown_case_blocks_with_structured_diagnostic ... ok
+test tests::run_benchmark_executes_named_mechanics_case_and_matches_recorded_values ... ok
+test tests::solve_runs_invented_preview_model_with_stdout_json_contract ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.84s
+
+   Doc-tests open_pipe_stress_headless_runner
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

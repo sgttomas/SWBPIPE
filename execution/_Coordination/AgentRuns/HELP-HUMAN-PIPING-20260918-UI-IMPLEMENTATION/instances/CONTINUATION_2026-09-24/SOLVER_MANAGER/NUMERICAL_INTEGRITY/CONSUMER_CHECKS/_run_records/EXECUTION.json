@@ -1,0 +1,9 @@
+{
+  "cwd": "/private/tmp/piping-numerical-integrity-20260924",
+  "canonical_target": "/private/tmp/piping-canonical-precision-target",
+  "consumer_target": "/private/tmp/piping-precision-consumers-target",
+  "documents": "/private/tmp/piping-precision-consumer-documents",
+  "headless_documents": "/private/tmp/piping-precision-headless-documents",
+  "build_jobs": 2,
+  "offline": true
+}

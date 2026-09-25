@@ -1,0 +1,44 @@
+[
+  {
+    "mode": "sparse_interactive",
+    "mechanics": "MECHANICS_SOLVED",
+    "quality": "checks_passed",
+    "rows": 830,
+    "row_modes": [
+      [
+        "load:L-100",
+        1.0
+      ],
+      [
+        "load:L-200",
+        1.0
+      ]
+    ],
+    "source_headers": {
+      "component_name": "open_pipe_stress_product_physics",
+      "component_version": "0.2.0",
+      "semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1"
+    }
+  },
+  {
+    "mode": "dense_scrutiny",
+    "mechanics": "MECHANICS_SOLVED",
+    "quality": "checks_passed",
+    "rows": 832,
+    "row_modes": [
+      [
+        "load:L-100",
+        2.0
+      ],
+      [
+        "load:L-200",
+        2.0
+      ]
+    ],
+    "source_headers": {
+      "component_name": "open_pipe_stress_product_physics",
+      "component_version": "0.2.0",
+      "semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1"
+    }
+  }
+]

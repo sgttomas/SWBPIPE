@@ -1,0 +1,49 @@
+warning: function `dense_from_entries` is never used
+    --> src/lib.rs:1769:4
+     |
+1769 | fn dense_from_entries(
+     |    ^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `sparse_evidence_dense_fallback` is never used
+    --> src/lib.rs:1816:4
+     |
+1816 | fn sparse_evidence_dense_fallback(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_nonlinear_integration` (lib test) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/private/tmp/piping-numerical-integrity-target/debug/deps/open_pipe_stress_nonlinear_integration-9ba2d509973ec532)
+
+running 6 tests
+test tests::contact_recovery_warning_preserves_original_singular_seed_provenance ... ok
+
+thread 'tests::contact_recovery_caps_and_later_singularity_are_honest' (78525135) panicked at src/lib.rs:2504:13:
+assertion failed: matches!(solve_active_set_frame_with_mode(&contact_recovery_problem(ActiveSetState::Active,
+    ActiveSetState::Active, true, 4), mode),
+    Err(NonlinearIntegrationError::FrameKernel(FrameKernelError::SingularSystem
+    { .. })))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test tests::contact_recovery_caps_and_later_singularity_are_honest ... FAILED
+test tests::contact_recovery_invalid_classes_do_not_rescue_and_springs_survive ... ok
+test tests::contact_recovery_later_changed_boundary_rejects_classifier_tolerance_one ... ok
+
+thread 'tests::contact_recovery_two_gap_independent_oracle_seeds_order_modes' (78525139) panicked at src/lib.rs:2456:29:
+assertion failed: solved.diagnostics.iter().any(|d|
+        d.severity == DiagnosticSeverity::Warning &&
+                    d.message.contains("all-active") &&
+                d.message.contains("first") &&
+            d.message.contains(mode.as_str()))
+test tests::contact_recovery_two_gap_independent_oracle_seeds_order_modes ... FAILED
+test tests::contact_recovery_signed_gap_one_way_lift_off_and_zero_conventions ... ok
+
+failures:
+
+failures:
+    tests::contact_recovery_caps_and_later_singularity_are_honest
+    tests::contact_recovery_two_gap_independent_oracle_seeds_order_modes
+
+test result: FAILED. 4 passed; 2 failed; 0 ignored; 0 measured; 40 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--lib`

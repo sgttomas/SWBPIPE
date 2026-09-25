@@ -1,0 +1,21 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+    "projects/chirality-piping/core/solver/sparse_direct/src/structural.rs"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+    "projects/chirality-piping/core/solver/sparse_direct/src/structural.rs"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

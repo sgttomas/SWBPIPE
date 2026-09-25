@@ -1,0 +1,39 @@
+{
+  "at_utc": "2026-09-24T17:02:43.251722+00:00",
+  "candidate": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "abce376badf268218968614881861fe2f2975c909118612d028e8d301e3e69f7",
+      "expected_sha256": "abce376badf268218968614881861fe2f2975c909118612d028e8d301e3e69f7"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "3b410f4d3c7fc20dd1cd3131bee481080d1050a031b1e211494f98539bf651f4",
+      "expected_sha256": "3b410f4d3c7fc20dd1cd3131bee481080d1050a031b1e211494f98539bf651f4"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+      "sha256": "594377d0e6f5057f2e98961ce45baac3f8e8720c300856f7fdc17a30aad6baac",
+      "expected_sha256": "594377d0e6f5057f2e98961ce45baac3f8e8720c300856f7fdc17a30aad6baac"
+    }
+  ],
+  "source_review": "IREV01 and IREV02 causes repaired; exact typed mechanism assertions and hold-specific expectation preserve protected numeric fixture/limits",
+  "independent_identity_transcription": {
+    "cases": [
+      "load:a-b",
+      "load-a:b"
+    ],
+    "ids": [
+      "diagnostic:numerical-integrity:load:a-b",
+      "diagnostic:numerical-integrity:load-a:b"
+    ],
+    "assigned": [
+      "checks_passed",
+      "not_assessed"
+    ]
+  },
+  "remaining_source_test_mismatch": "valid_invented_model_solves_deterministically still expects sparse_profile_direct_primary; emitted identity is sparse_structural_integrity_primary",
+  "runtime": "Parent rerun pending; reviewer did not execute Rust",
+  "git_root": "/private/tmp/piping-numerical-integrity-20260924",
+  "head": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9"
+}

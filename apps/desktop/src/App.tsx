@@ -335,7 +335,7 @@ function AppSession() {
           stageViewMemory={stageViewMemory}
           pageOpen={shell.page !== null}
           tableDrawer={tableDrawer}
-          run={runPresenceFromCells({ result, historicalRun, solveJob })}
+          run={runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null })}
           theme={uiPreferences.theme}
           density={uiPreferences.density}
           onCommand={runMenuCommand}
@@ -351,7 +351,7 @@ function AppSession() {
               stage: shell.stage,
               pageOpen: shell.page !== null,
               stageViewMemory,
-              run: runPresenceFromCells({ result, historicalRun, solveJob }),
+              run: runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null }),
               theme: uiPreferences.theme,
               density: uiPreferences.density,
               onCommand: runMenuCommand

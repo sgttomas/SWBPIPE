@@ -1,0 +1,198 @@
+{
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/__init__.py",
+      "sha256": "ffca538dac8e6549eaad02723a97a537682f9b06e5b6329a80394ee04e614a9c",
+      "observed_sha256": "ffca538dac8e6549eaad02723a97a537682f9b06e5b6329a80394ee04e614a9c",
+      "matches": true,
+      "end_sha256": "ffca538dac8e6549eaad02723a97a537682f9b06e5b6329a80394ee04e614a9c",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "ea2ae439ce6ac827e41e7cc3ea3c86e23d0267de80b67478b9005cc936390bb1",
+      "observed_sha256": "ea2ae439ce6ac827e41e7cc3ea3c86e23d0267de80b67478b9005cc936390bb1",
+      "matches": true,
+      "end_sha256": "ea2ae439ce6ac827e41e7cc3ea3c86e23d0267de80b67478b9005cc936390bb1",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/__init__.py",
+      "sha256": "de3def096a57678d092f3b87b0b4b0369c603cacba9797086aac30a5c7b04478",
+      "observed_sha256": "de3def096a57678d092f3b87b0b4b0369c603cacba9797086aac30a5c7b04478",
+      "matches": true,
+      "end_sha256": "de3def096a57678d092f3b87b0b4b0369c603cacba9797086aac30a5c7b04478",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "d2248bc6c9a82a9c76ad2df1783c1412970c3b242340844964235ea154831683",
+      "observed_sha256": "d2248bc6c9a82a9c76ad2df1783c1412970c3b242340844964235ea154831683",
+      "matches": true,
+      "end_sha256": "d2248bc6c9a82a9c76ad2df1783c1412970c3b242340844964235ea154831683",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/Cargo.toml",
+      "sha256": "196fb7e2adbe364eb725bd291a40fb47f37a3da02f5d05177b6cc77dabeeb36a",
+      "observed_sha256": "196fb7e2adbe364eb725bd291a40fb47f37a3da02f5d05177b6cc77dabeeb36a",
+      "matches": true,
+      "end_sha256": "196fb7e2adbe364eb725bd291a40fb47f37a3da02f5d05177b6cc77dabeeb36a",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "sha256": "fbdf506e05a5e881798346e164e2c8a5705958e2b45d2dbb8b8fb3dcd5a9209b",
+      "observed_sha256": "fbdf506e05a5e881798346e164e2c8a5705958e2b45d2dbb8b8fb3dcd5a9209b",
+      "matches": true,
+      "end_sha256": "fbdf506e05a5e881798346e164e2c8a5705958e2b45d2dbb8b8fb3dcd5a9209b",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "9bc67065db2949641ddb4d97434ffb5c70e75f9ae7fd6de75e40674e5e81ebba",
+      "observed_sha256": "9bc67065db2949641ddb4d97434ffb5c70e75f9ae7fd6de75e40674e5e81ebba",
+      "matches": true,
+      "end_sha256": "9bc67065db2949641ddb4d97434ffb5c70e75f9ae7fd6de75e40674e5e81ebba",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/derivative_contract.rs",
+      "sha256": "f62194e8a126245aacc04fe24794684fce2448a47ba4746892d7b95ba35eeae9",
+      "observed_sha256": "f62194e8a126245aacc04fe24794684fce2448a47ba4746892d7b95ba35eeae9",
+      "matches": true,
+      "end_sha256": "f62194e8a126245aacc04fe24794684fce2448a47ba4746892d7b95ba35eeae9",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/precision_contract.rs",
+      "sha256": "f968875494cd806226d0ad12435d9becbc82393ebac9abe0f07857207c6088c9",
+      "observed_sha256": "f968875494cd806226d0ad12435d9becbc82393ebac9abe0f07857207c6088c9",
+      "matches": true,
+      "end_sha256": "f968875494cd806226d0ad12435d9becbc82393ebac9abe0f07857207c6088c9",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/Cargo.toml",
+      "sha256": "a053e40fb1159c704bf42c4634d567581d48975a5d8be36a8a555564c634a21a",
+      "observed_sha256": "a053e40fb1159c704bf42c4634d567581d48975a5d8be36a8a555564c634a21a",
+      "matches": true,
+      "end_sha256": "a053e40fb1159c704bf42c4634d567581d48975a5d8be36a8a555564c634a21a",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "67b11bce2afa984c46eb442f2bc56d53fbb755e6985c0af120847daabe521e90",
+      "observed_sha256": "67b11bce2afa984c46eb442f2bc56d53fbb755e6985c0af120847daabe521e90",
+      "matches": true,
+      "end_sha256": "67b11bce2afa984c46eb442f2bc56d53fbb755e6985c0af120847daabe521e90",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "fef9429e9538959fab498692af4e627aad508dd661fdf1cb6dc447b739af482f",
+      "observed_sha256": "fef9429e9538959fab498692af4e627aad508dd661fdf1cb6dc447b739af482f",
+      "matches": true,
+      "end_sha256": "fef9429e9538959fab498692af4e627aad508dd661fdf1cb6dc447b739af482f",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4",
+      "observed_sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4",
+      "matches": true,
+      "end_sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/tests/precision_transport.rs",
+      "sha256": "07eded16d1ffd37c2c9f4c10b57e79e187ef7647704f5dd640a6b0c35f3f5d9a",
+      "observed_sha256": "07eded16d1ffd37c2c9f4c10b57e79e187ef7647704f5dd640a6b0c35f3f5d9a",
+      "matches": true,
+      "end_sha256": "07eded16d1ffd37c2c9f4c10b57e79e187ef7647704f5dd640a6b0c35f3f5d9a",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/precision_transport_v0_3.json",
+      "sha256": "fc06b4a54073bbbdf933128360fc29454a0844ee0129d6b41728f60176b62897",
+      "observed_sha256": "fc06b4a54073bbbdf933128360fc29454a0844ee0129d6b41728f60176b62897",
+      "matches": true,
+      "end_sha256": "fc06b4a54073bbbdf933128360fc29454a0844ee0129d6b41728f60176b62897",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_precision_1.json",
+      "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
+      "observed_sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
+      "matches": true,
+      "end_sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.schema.json",
+      "sha256": "0c399a2a62ad247bc38f9d3e40c176bac0e56b5ab6604c0189f552834a8b8a83",
+      "observed_sha256": "0c399a2a62ad247bc38f9d3e40c176bac0e56b5ab6604c0189f552834a8b8a83",
+      "matches": true,
+      "end_sha256": "0c399a2a62ad247bc38f9d3e40c176bac0e56b5ab6604c0189f552834a8b8a83",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+      "sha256": "d95083745fffd97daffb08cbfae3f7f12e969440d474e4668eba717aceb240c5",
+      "observed_sha256": "d95083745fffd97daffb08cbfae3f7f12e969440d474e4668eba717aceb240c5",
+      "matches": true,
+      "end_sha256": "d95083745fffd97daffb08cbfae3f7f12e969440d474e4668eba717aceb240c5",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.schema.yaml",
+      "sha256": "9f2adf6a1017bb6cee72dd7a13906af94f15224b8886c979212ee4c144a77c5d",
+      "observed_sha256": "9f2adf6a1017bb6cee72dd7a13906af94f15224b8886c979212ee4c144a77c5d",
+      "matches": true,
+      "end_sha256": "9f2adf6a1017bb6cee72dd7a13906af94f15224b8886c979212ee4c144a77c5d",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "6c7ea9eb8b695475d9efa62f1c5cf517ec961db11b1959466191f852eae84fda",
+      "observed_sha256": "6c7ea9eb8b695475d9efa62f1c5cf517ec961db11b1959466191f852eae84fda",
+      "matches": true,
+      "end_sha256": "6c7ea9eb8b695475d9efa62f1c5cf517ec961db11b1959466191f852eae84fda",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.schema.json",
+      "sha256": "d7f372334df0d641db22cbce4cf442ef110324beaeb28091a6bfb5ad4f3021a1",
+      "observed_sha256": "d7f372334df0d641db22cbce4cf442ef110324beaeb28091a6bfb5ad4f3021a1",
+      "matches": true,
+      "end_sha256": "d7f372334df0d641db22cbce4cf442ef110324beaeb28091a6bfb5ad4f3021a1",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "88647b3499e56530f8628e071686b86f2beacf005f8a351a5981593f1aa7e50f",
+      "observed_sha256": "88647b3499e56530f8628e071686b86f2beacf005f8a351a5981593f1aa7e50f",
+      "matches": true,
+      "end_sha256": "88647b3499e56530f8628e071686b86f2beacf005f8a351a5981593f1aa7e50f",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_precision_consumer_contract.py",
+      "sha256": "20569a31f5364e69d66d44946badaffc14145579a6a3072c19dbe68e492f71af",
+      "observed_sha256": "20569a31f5364e69d66d44946badaffc14145579a6a3072c19dbe68e492f71af",
+      "matches": true,
+      "end_sha256": "20569a31f5364e69d66d44946badaffc14145579a6a3072c19dbe68e492f71af",
+      "end_matches": true
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_stress_neutral_precision.py",
+      "sha256": "da5095b9a7e182925a6185955a692a02317c469209e953dffe15efe4e9662782",
+      "observed_sha256": "da5095b9a7e182925a6185955a692a02317c469209e953dffe15efe4e9662782",
+      "matches": true,
+      "end_sha256": "da5095b9a7e182925a6185955a692a02317c469209e953dffe15efe4e9662782",
+      "end_matches": true
+    }
+  ],
+  "all_match": true,
+  "all_end_match": true
+}

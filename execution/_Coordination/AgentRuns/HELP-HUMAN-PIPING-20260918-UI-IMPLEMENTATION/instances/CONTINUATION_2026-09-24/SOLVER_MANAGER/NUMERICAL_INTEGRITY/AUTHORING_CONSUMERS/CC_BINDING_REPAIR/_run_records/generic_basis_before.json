@@ -1,0 +1,42 @@
+{
+  "method": "Actual unchanged TypeScript module transpiled in memory; only pure sourceContract invoked; no Vitest/WASM/build/network",
+  "source": {
+    "schema_version": "0.2.0",
+    "producer": {
+      "component_name": "open_pipe_stress_product_physics",
+      "component_version": "0.2.0",
+      "semantic_contract_id": "openpipestress.result_semantics/0.3.0/precision-1"
+    },
+    "numerical_quality": {
+      "value_representation": "finite_binary64",
+      "publication_quantization": "none",
+      "integrity_policy": "M03-INTEGRITY-v1",
+      "status": "not_assessed",
+      "cases": [
+        {
+          "basis_ref": {
+            "ref_type": "custom-basis",
+            "ref_id": "case:probe"
+          },
+          "structural_status": "numerically_unresolved",
+          "solve_quality": "not_assessed",
+          "model_matrix_fidelity": "not_assessed",
+          "accuracy_evidence": "not_claimed",
+          "evidence_refs": []
+        }
+      ]
+    },
+    "formulation_basis": {
+      "profile_id": "product_preview_mechanics_v1",
+      "limitations": [
+        "Pure source-shape parity probe; not a solve or Current qualification"
+      ]
+    }
+  },
+  "source_sha256": "4f945e571a7d289de9ad87f0fcf2407faf5a169fbe150ffdd5ba206aecad16c5",
+  "control_ref_type": "load_case",
+  "control_result": "precision",
+  "generic_ref_type": "custom-basis",
+  "generic_result": "unsupported",
+  "expected_shared_contract_result": "precision"
+}

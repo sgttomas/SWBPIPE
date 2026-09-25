@@ -1,0 +1,1096 @@
+--- a/projects/chirality-piping/apps/desktop/src/App.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+@@ -1,7 +1,8 @@
+ import { solverDisplayWithToken } from "./features/workspace/statusLabels";
+ import { statusChipInputsFromCells, statusChips, statusChipText } from "./features/workspace/shellLayout";
+ import historicalMechanicsFixture from "../../../fixtures/product_preview/invented_mechanics_result.json";
+-import { buildAnalysisRunV02 } from "./services/analysisRunCompatibility";
++import { PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "./features/results/numericalResultQuality";
++import { analysisRowSemantics, buildAnalysisRunV02 } from "./services/analysisRunCompatibility";
+ import { changeFormControl, expectFormControlValue, compactOptionRecords } from "./test-support/workspaceTestControls";
+ import type { ViewportViewCommand } from "./features/viewport/viewportSelection";
+ import {
+@@ -40,9 +41,10 @@
+   buildAnalysisRunPreview,
+   buildPreviewComparison,
+   loadPreviewModel,
++  loadDesignKnowledge,
+   runPreviewMechanics,
+ } from "./services/previewService";
+-import { canonicalSha256Hex, computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
++import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
+ import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
+ import { applyModelOperation } from "./services/operationService";
+ import { applyOperationBatch, type OperationBatchOutcome } from "./services/operationBatchService";
+@@ -7187,6 +7189,13 @@
+   });
+ 
+   it("carries queued editor intents into the report packet as review-only operation context", async () => {
++    const fixtureModel = await loadPreviewModel();
++    const fixtureResult = await runPreviewMechanics(fixtureModel);
++    const displacements = fixtureResult.results.filter(row => row.kind === "displacement_magnitude" && fixtureModel.nodes.some(node => node.id === row.entity_ref));
++    expect(displacements.every(row => Number.isFinite(row.value))).toBe(true);
++    const maximum = Math.max(...displacements.map(row => Math.abs(row.value)));
++    const nodeCount = new Set(displacements.map(row => row.entity_ref)).size;
++    expect(new Set(displacements.map(row => row.unit))).toEqual(new Set(["mm"]));
+     render(<App />);
+ 
+     const tree = await screen.findByLabelText("Model tree");
+@@ -7213,7 +7222,7 @@
+     await waitFor(() =>
+       expect(
+         screen.getByTestId("viewport-deformation-status").textContent,
+-      ).toContain("available; nodes=5; max=4.927112 mm"),
++      ).toContain(`available; nodes=${nodeCount}; max=${maximum} mm`),
+     );
+     const report = reportPanel();
+     expect(
+@@ -9988,6 +9997,17 @@
+   it("shows computed mechanics diagnostics in results, knowledge, and review-only proposal context", async () => {
+     const expectedModel = await loadPreviewModel();
+     const expectedSource = await runPreviewMechanics(expectedModel);
++    const expectedKnowledge = await loadDesignKnowledge();
++    const solveDiagnostics = [...expectedModel.diagnostics, ...expectedSource.diagnostics];
++    const allDiagnostics = [...solveDiagnostics, ...expectedKnowledge.diagnostics];
++    const integrityDiagnostics = expectedSource.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED");
++    expect(integrityDiagnostics).toHaveLength(expectedModel.load_cases.length);
++    expect(integrityDiagnostics.every(item => item.severity === "info")).toBe(true);
++    const receivedDimensionRows = expectedSource.results.filter(row => Number.isFinite(row.value) && typeof row.dimension === "string" && Boolean(row.dimension));
++    const missingDimensionRows = expectedSource.results.filter(row => !receivedDimensionRows.includes(row));
++    expect(expectedSource.schema_version).toBe("0.2.0");
++    expect(expectedSource.producer?.semantic_contract_id).toBe(PRECISION_CONTRACT_ID);
++    expect(expectedSource.results.every(row => !Object.hasOwn(row, "dimension"))).toBe(true);
+     const originalSource = JSON.stringify({ model: expectedModel, result: expectedSource });
+     render(<App />);
+ 
+@@ -10018,7 +10038,7 @@
+     ).toContain("Rule pack · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE)");
+     expect(
+       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
+-    ).toContain("32 diagnostics");
++    ).toContain(`${solveDiagnostics.length} diagnostics`);
+     expect(
+       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
+     ).toContain("12 warnings");
+@@ -10112,7 +10132,7 @@
+     expect(solveJobPacket.summary.job_state).toBe("completed");
+     expect(solveJobPacket.summary.event_count).toBe(3);
+     expect(solveJobPacket.summary.result_row_count).toBe(830);
+-    expect(solveJobPacket.summary.diagnostic_count).toBe(32);
++    expect(solveJobPacket.summary.diagnostic_count).toBe(solveDiagnostics.length);
+     expect(solveJobPacket.summary.cancellation_requested).toBe(false);
+     expect(solveJobPacket.summary.cancellation_status).toBe("not_requested");
+     expect(solveJobPacket.progress_contract.progress_basis).toBe(
+@@ -10225,8 +10245,12 @@
+     const resultExportHref = within(resultExport).getByTestId("result-export-link").getAttribute("href") ?? "";
+     const resultExportPacket = JSON.parse(decodeURIComponent(resultExportHref.split(",", 2)[1]));
+     const e = resultExportPacket.result_envelope;
+-    expect(resultExportPacket.schema_version).toBe("0.2.0");
+-    expect(e.schema_version).toBe("0.2.0");
++    expect(resultExportPacket.schema_version).toBe("0.3.0");
++    expect(e.schema_version).toBe("0.3.0");
++    expect(e.producer).toEqual(expectedSource.producer);
++    expect(e.numerical_quality).toEqual(expectedSource.numerical_quality);
++    expect(e.formulation_basis).toEqual(expectedSource.formulation_basis);
++    expect(e.semantic_contract_ref).toEqual({ ref_type: "semantic_contract", ref_id: PRECISION_CONTRACT_ID });
+     expect(resultExportPacket.deliverable_id).toBe("DEL-08-04");
+     expect(resultExportPacket.package_id).toBe("PKG-08");
+     expect(resultExportPacket.scope_item).toBe("SOW-046");
+@@ -10250,7 +10274,7 @@
+       expect(account.source_kind).toBe(row.kind);
+       expect(account.source_field_path).toBe(`/results/${index}`);
+       expect(account.original_producer_row_checksum).toBeNull();
+-      expect(account.received_carrier_row_checksum).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_legacy_enriched_row", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256Hex(row) });
++      expect(account.received_carrier_row_checksum).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_row", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256HexCheckedV1(row) });
+       expect(annotation).toMatchObject({ source_row_index: index, source_result_id: row.id, metadata: row.metadata ?? null, basis_ref: row.basis_ref ?? null, source_result_refs: row.source_result_refs ?? [], observed_carrier_dimension: { present: Object.hasOwn(row,"dimension"), value: row.dimension ?? null } });
+       const target = account.target_field_path.split("/").slice(1).reduce((value: any, key: string) => value[key], resultExportPacket);
+       expect(account.target_ref.ref_id).toBe(row.id);
+@@ -10266,7 +10290,7 @@
+         expect(witness.conversion_performed).toBe(false);
+         expect(witness.original_producer_row_checksum).toBeNull();
+         expect(witness.target_field_path).toBe(account.target_field_path);
+-        expect(witness.target_row_checksum.value).toBe(await canonicalSha256Hex(target));
++        expect(witness.target_row_checksum.value).toBe(await canonicalSha256HexCheckedV1(target));
+       }
+     }
+     expect(e.unit_preservation_witnesses).toHaveLength(e.result_sets[0].values.length + e.review_evidence.length);
+@@ -10281,16 +10305,16 @@
+     expect(e.reproducibility.run_hashes).toHaveLength(2);
+     expect(e.reproducibility.run_hashes.map((h: {payload_ref: {ref_type: string}}) => h.payload_ref.ref_type)).toEqual(["AnalysisRun", "ResultEnvelope"]);
+     expect(e.reproducibility.audit_manifest_ref.ref_type).toBe("audit_manifest");
+-    expect(e.reproducibility.model_hash).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, value: await canonicalSha256Hex(expectedModel) });
++    expect(e.reproducibility.model_hash).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, value: await canonicalSha256HexCheckedV1(expectedModel) });
+     expect(e.reproducibility.raw_source_hashes).toEqual([]);
+     expect(e.reproducibility.request_hash).toBeNull();
+     expect(e.reproducibility.source_origin_bindings).toHaveLength(1);
+-    expect(e.reproducibility.source_origin_bindings[0]).toMatchObject({ origin_class: "received_current_qualified_legacy_enriched", authentic_producer_available: false, original_producer_checksum: null, actual_model_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, mechanics_run_ref: { ref_type: "mechanics_run", ref_id: expectedSource.run_id }, qualification_ref: {ref_type: "current_manifest", ref_id: e.reproducibility.audit_manifest_ref.ref_id}, received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_legacy_enriched_carrier", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256Hex(expectedSource) } });
++    expect(e.reproducibility.source_origin_bindings[0]).toMatchObject({ origin_class: "received_current_dimension_absent", authentic_producer_available: false, original_producer_checksum: null, actual_model_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, mechanics_run_ref: { ref_type: "mechanics_run", ref_id: expectedSource.run_id }, qualification_ref: {ref_type: "current_manifest", ref_id: e.reproducibility.audit_manifest_ref.ref_id}, received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_carrier", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256HexCheckedV1(expectedSource) } });
+     const digestPayload = structuredClone(resultExportPacket);
+     delete digestPayload.result_envelope.reproducibility.derivative_hash;
+-    expect(e.reproducibility.derivative_hash).toEqual({algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "derivative_document_excludes_own_hash", payload_ref: {ref_type: "derivative_document", ref_id: e.envelope_id}, value: await canonicalSha256Hex(digestPayload)});
++    expect(e.reproducibility.derivative_hash).toEqual({algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "derivative_document_excludes_own_hash", payload_ref: {ref_type: "derivative_document", ref_id: e.envelope_id}, value: await canonicalSha256HexCheckedV1(digestPayload)});
+     expect(e.analysis_status).toEqual(expect.arrayContaining(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]));
+-    expect(e).not.toHaveProperty("rule_pack_refs"); // 0.2 carries rule completeness in analysis_status; no private pack payload is exported.
++    expect(e).not.toHaveProperty("rule_pack_refs"); // 0.3 carries rule completeness in analysis_status; no private pack payload is exported.
+     expect(e.downstream_use.additional_export_formats).toBe("TBD");
+     expect(e.professional_boundary).toMatchObject({human_review_required: true, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_makes_authentication_claim: false});
+     expect(screen.getByTestId("governing-ratio-status")).toHaveTextContent("unavailable");
+@@ -10299,10 +10323,11 @@
+     fireEvent.click(ownIntent);
+     expect(within(resultExport).getByTestId("result-export-link")).not.toHaveAttribute("href");
+     expect(within(resultExport).getByTestId("result-export-link")).toHaveAttribute("aria-disabled", "true");
+-    const incompatibleWorkDiagnostics = expectedSource.results.filter(row => row.kind === "nonlinear_support_free_dof_work_residual" && row.unit === "N*m");
+-    expect(incompatibleWorkDiagnostics).toHaveLength(2);
+-    expect(incompatibleWorkDiagnostics.every(row => row.dimension === "moment")).toBe(true); // immutable legacy moment declaration; work diagnostics have no physical semantic dimension
+-    const expectedStressWitnessCount = expectedSource.results.length - incompatibleWorkDiagnostics.length;
++    const diagnosticWorkRows = expectedSource.results.filter(row => analysisRowSemantics(row, expectedSource).semantic?.category === "diagnostic_work");
++    expect(diagnosticWorkRows).toHaveLength(expectedModel.load_cases.length);
++    expect(diagnosticWorkRows.every(row => row.kind === "nonlinear_support_free_dof_work_residual" && row.unit === "N*m" && !Object.hasOwn(row, "dimension"))).toBe(true);
++    expect(diagnosticWorkRows.every(row => analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension === null)).toBe(true);
++    const expectedStressWitnessCount = expectedSource.results.length - diagnosticWorkRows.length;
+     const stressNeutral = stressNeutralExport();
+     expect(
+       (await within(stressNeutral).findByTestId("stress-neutral-summary")).textContent,
+@@ -10318,7 +10343,7 @@
+     ).toContain("stress_neutral_csv_json");
+     expect(
+       within(stressNeutral).getByTestId("stress-neutral-format").textContent,
+-    ).toContain("ops.stress_neutral.v2");
++    ).toContain("ops.stress_neutral.v3");
+     expect(
+       within(stressNeutral).getByTestId("stress-neutral-state-binding")
+         .textContent,
+@@ -10390,18 +10415,24 @@
+       decodeURIComponent(stressNeutralHref.split(",", 2)[1]),
+     );
+     expect(stressNeutralPacket.document_kind).toBeUndefined();
+-    expect(stressNeutralPacket.schema_version).toBe("0.2.0");
++    expect(stressNeutralPacket.schema_version).toBe("0.3.0");
++    expect(stressNeutralPacket.producer).toEqual(expectedSource.producer);
++    expect(stressNeutralPacket.numerical_quality).toEqual(expectedSource.numerical_quality);
++    expect(stressNeutralPacket.formulation_basis).toEqual(expectedSource.formulation_basis);
++    expect(stressNeutralPacket.semantic_contract).toEqual({ id: PRECISION_CONTRACT_ID, sha256: PRECISION_CONTRACT_SHA256 });
++    expect(stressNeutralPacket.source_carrier_checksum).toEqual({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_result", payload_ref: { object_type: "ResultEnvelope", ref: `result-envelope:${expectedSource.run_id}` }, value: await canonicalSha256HexCheckedV1(expectedSource) });
++    expect(stressNeutralPacket.received_source_checksums).toContainEqual(stressNeutralPacket.source_carrier_checksum);
+     expect(stressNeutralPacket.deliverable_id).toBe("DEL-17-06");
+     expect(stressNeutralPacket.package_id).toBe("PKG-17");
+     expect(stressNeutralPacket.scope_items).toEqual(["SOW-046", "SOW-074"]);
+     expect(stressNeutralPacket.objectives).toEqual(["OBJ-007", "OBJ-017", "OBJ-018"]);
+     expect(stressNeutralPacket.package_status).toBe("stress_neutral_export_package");
+     expect(stressNeutralPacket.export_profile.target_family).toBe("stress_neutral_csv_json");
+-    expect(stressNeutralPacket.export_profile.profile_id).toBe("ops.stress_neutral.v2");
+-    expect(stressNeutralPacket.export_profile.profile_version).toBe("0.2.0");
++    expect(stressNeutralPacket.export_profile.profile_id).toBe("ops.stress_neutral.v3");
++    expect(stressNeutralPacket.export_profile.profile_version).toBe("0.3.0");
+     expect(stressNeutralPacket.manifest.export_profile_ref).toEqual({
+       object_type: "StressNeutralExportProfile",
+-      ref: "ops.stress_neutral.v2",
++      ref: "ops.stress_neutral.v3",
+     });
+     expect(stressNeutralPacket.export_profile.csv_columns).toHaveLength(11);
+     expect(stressNeutralPacket.export_profile.csv_columns).toContain("result_id");
+@@ -10414,6 +10445,16 @@
+     expect(stressNeutralPacket.unit_system_disclosure.conversion_performed).toBe(false);
+     expect(stressNeutralPacket.unit_system_disclosure.protected_content_included).toBe(false);
+     expect(stressNeutralPacket.unit_preservation_witnesses).toHaveLength(expectedStressWitnessCount);
++    const workIds = new Set(diagnosticWorkRows.map(row => row.id));
++    expect(stressNeutralPacket.unit_preservation_witnesses.some((witness: { result_id: string }) => workIds.has(witness.result_id))).toBe(false);
++    const workWithholdings = stressNeutralPacket.diagnostics.filter((diagnostic: { code: string }) => diagnostic.code === "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK");
++    expect(new Set(workWithholdings.map((diagnostic: { source: { ref: string } }) => diagnostic.source.ref))).toEqual(workIds);
++    expect(workWithholdings.every((diagnostic: { severity: string }) => diagnostic.severity === "info")).toBe(true);
++    expect(stressNeutralPacket.diagnostics).toEqual(expect.arrayContaining([expect.objectContaining({ code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", severity: "blocking" })]));
++    for (const row of expectedSource.results) {
++      const retained = stressNeutralPacket.result_rows.find((candidate: { result_id: string }) => candidate.result_id === row.id);
++      expect(retained).toMatchObject({ value: row.value, unit: row.unit, dimension: analysisRowSemantics(row, expectedSource).semantic?.derivative_target_dimension ?? "TBD" });
++    }
+     expect(stressNeutralPacket.manifest.package_members.map((item: { filename: string }) => item.filename)).toEqual([
+       "manifest.json",
+       "stress_neutral_results.csv",
+@@ -10443,6 +10484,9 @@
+       (entry: { category: string }) => entry.category,
+     )).toContain("exported");
+     expect(stressNeutralPacket.package_checksum.value).toMatch(/^[0-9a-f]{64}$/);
++    const stressDigestPayload = structuredClone(stressNeutralPacket);
++    delete stressDigestPayload.package_checksum;
++    expect(stressNeutralPacket.package_checksum.value).toBe(await canonicalSha256HexCheckedV1(stressDigestPayload));
+     expect(stressNeutralPacket.package_checksum.payload_scope).toBe(
+       "complete_package_excluding_self_checksum",
+     );
+@@ -10497,7 +10541,7 @@
+     expect(
+       within(headlessRunner).getByTestId("headless-runner-unit-witnesses")
+         .textContent,
+-    ).toContain("count=830");
++    ).toContain(`count=${receivedDimensionRows.length}`);
+     expect(
+       within(headlessRunner).getByTestId("headless-runner-unit-witnesses")
+         .textContent,
+@@ -10567,18 +10611,13 @@
+     expect(headlessPacket.result.unit_witness_policy).toBe(
+       "preserve_source_result_value_unit_and_dimension_per_headless_result_handoff_row",
+     );
+-    expect(headlessPacket.result.unit_preservation_witnesses).toHaveLength(830);
+-    const headlessUnitWitness =
+-      headlessPacket.result.unit_preservation_witnesses.find(
+-        (item: { source_result_ref: { ref_id: string } }) =>
+-          item.source_result_ref.ref_id === "result:force:pipe-P-120:axial",
+-      );
+-    expect(headlessUnitWitness.source_quantity.unit).toBe("N");
+-    expect(headlessUnitWitness.source_quantity.dimension).toBe("force");
+-    expect(headlessUnitWitness.target_quantity.unit).toBe("N");
+-    expect(headlessUnitWitness.target_quantity.dimension).toBe("force");
+-    expect(headlessUnitWitness.conversion_performed).toBe(false);
+-    expect(headlessPacket.result.diagnostics).toHaveLength(32);
++    expect(headlessPacket.result.unit_preservation_witnesses).toHaveLength(receivedDimensionRows.length);
++    expect(headlessPacket.result.unit_preservation_witnesses.map((witness: { source_result_ref: { ref_id: string } }) => witness.source_result_ref.ref_id).sort())
++      .toEqual(receivedDimensionRows.map(row => row.id).sort());
++    expect(headlessPacket.result.diagnostics.filter((diagnostic: { code: string }) => diagnostic.code === "RUNNER_RECEIVED_DIMENSION_WITNESS_UNAVAILABLE"))
++      .toHaveLength(missingDimensionRows.length);
++    expect(expectedSource.results.find(row => row.id === "result:force:pipe-P-120:axial")?.dimension).toBeUndefined();
++    expect(headlessPacket.result.diagnostics).toHaveLength(solveDiagnostics.length + missingDimensionRows.length);
+     expect(headlessPacket.result.privacy.telemetry_allowed).toBe(false);
+     expect(
+       headlessPacket.result.professional_boundary
+@@ -10598,7 +10637,7 @@
+     expect(
+       within(adapterFramework).getByTestId("adapter-framework-summary")
+         .textContent,
+-    ).toContain("diagnostics=32");
++    ).toContain(`diagnostics=${solveDiagnostics.length}`);
+     expect(
+       within(adapterFramework).getByTestId("adapter-framework-validation")
+         .textContent,
+@@ -10626,7 +10665,7 @@
+     expect(adapterPacket.operation_result.parse_status).toBe(
+       "[REDACTED]",
+     );
+-    expect(adapterPacket.operation_result.diagnostics).toHaveLength(32);
++    expect(adapterPacket.operation_result.diagnostics).toHaveLength(solveDiagnostics.length);
+     expect(adapterPacket.operation_result.checksums).toHaveLength(2);
+     expect(adapterPacket.operation_result.audit_manifest_refs[0].ref_id).toBe(
+       "[REDACTED]",
+@@ -11153,7 +11192,7 @@
+     expect(
+       nativePackagePacket.loss_report.entries[2].affected_refs,
+     ).not.toContain("canonical_package_hash");
+-    expect(nativePackagePacket.diagnostics).toHaveLength(32);
++    expect(nativePackagePacket.diagnostics).toHaveLength(solveDiagnostics.length);
+     expect(nativePackagePacket.generation_context.network_required).toBe(false);
+     expect(nativePackagePacket.generation_context.telemetry_enabled).toBe(
+       false,
+@@ -11531,7 +11570,9 @@
+     expect(
+       within(results).getByText("result:disp:node-N-140"),
+     ).toBeInTheDocument();
+-    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent("3.977301 mm");
++    const displayedDisplacement = expectedSource.results.find(row => row.id === "result:disp:node-N-140")!;
++    expect(Number.isFinite(displayedDisplacement.value)).toBe(true);
++    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent(`${displayedDisplacement.value} ${displayedDisplacement.unit}`);
+     expect(
+       within(results).getByTestId("result-filter-summary").textContent,
+     ).toContain("830 of 830 results match filter");
+@@ -11956,7 +11997,8 @@
+     expect(
+       within(knowledge).getByText(/Computed displacement review/i),
+     ).toBeInTheDocument();
+-    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent("result:disp:node-N-140 is 3.977301 mm");
++    const summaryDisplacement = expectedSource.summary.max_displacement!;
++    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent(`${summaryDisplacement.result_ref} is ${summaryDisplacement.value} ${summaryDisplacement.unit}`);
+     expect(
+       within(knowledge).getByText(/result:force:pipe-P-120:axial is/i),
+     ).toBeInTheDocument();
+@@ -12139,7 +12181,7 @@
+     ).toContain("no private payload");
+     expect(
+       within(report).getByTestId("report-export-summary").textContent,
+-    ).toContain("34 diagnostics");
++    ).toContain(`${allDiagnostics.length} diagnostics`);
+     }
+     const exportHref =
+       within(report).getByTestId("report-export-link").getAttribute("href") ??
+@@ -12733,7 +12775,7 @@
+       "handoff-export-summary",
+     );
+     expect(handoffExportSummary.textContent).toContain("26 entities");
+-    expect(handoffExportSummary.textContent).toContain("34 diagnostics");
++    expect(handoffExportSummary.textContent).toContain(`${allDiagnostics.length} diagnostics`);
+     expect(
+       within(handoff).getByTestId("handoff-target-profile").textContent,
+     ).toContain("native_open_json_preview");
+@@ -12789,7 +12831,7 @@
+     );
+     expect(
+       within(handoff).getByTestId("handoff-unit-witnesses").textContent,
+-    ).toContain("count=830");
++    ).toContain(`count=${receivedDimensionRows.length}`);
+     expect(
+       within(handoff).getByTestId("handoff-unit-witnesses").textContent,
+     ).toContain("conversion=false");
+@@ -12808,17 +12850,10 @@
+     expect(handoffPacket.unit_witness_policy).toBe(
+       "preserve_source_result_value_unit_and_dimension_per_handoff_result_ref",
+     );
+-    expect(handoffPacket.unit_preservation_witnesses).toHaveLength(830);
+-    const handoffStressWitness = handoffPacket.unit_preservation_witnesses.find(
+-      (item: { source_ref: { ref: string } }) =>
+-        item.source_ref.ref ===
+-        "result:stress:pipe-P-120:end-j:torsional-shear",
+-    );
+-    expect(handoffStressWitness).toBeTruthy();
+-    expect(handoffStressWitness.source_quantity.unit).toBe("MPa");
+-    expect(handoffStressWitness.source_quantity.dimension).toBe("stress");
+-    expect(handoffStressWitness.target_quantity.unit).toBe("MPa");
+-    expect(handoffStressWitness.conversion_performed).toBe(false);
++    expect(handoffPacket.unit_preservation_witnesses).toHaveLength(receivedDimensionRows.length);
++    expect(handoffPacket.unit_preservation_witnesses.map((witness: { source_ref: { ref: string } }) => witness.source_ref.ref).sort())
++      .toEqual(receivedDimensionRows.map(row => row.id).sort());
++    expect(expectedSource.results.find(row => row.id === "result:stress:pipe-P-120:end-j:torsional-shear")?.dimension).toBeUndefined();
+     expect(handoffPacket.stable_id_map.entity_ref_count).toBe(26);
+     expect(handoffPacket.stable_id_map.entity_refs).toContain(
+       "material:invented-carbon-steel",
+@@ -13551,11 +13586,17 @@
+           item.export_id === "operation_review_ledger",
+       ).readiness,
+     ).toBe("empty_operation_queue");
++    expect(JSON.stringify({ model: expectedModel, result: expectedSource })).toBe(originalSource);
+     // Heavy full-<App/> Three.js render: inherit the 30s global testTimeout
+     // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
+   });
+ 
+   it("links selected diagnostics to affected result and model context", async () => {
++    const model = await loadPreviewModel();
++    const source = await runPreviewMechanics(model);
++    const knowledge = await loadDesignKnowledge();
++    const expectedDiagnostics = [...model.diagnostics, ...knowledge.diagnostics, ...source.diagnostics];
++    expect(source.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED")).toHaveLength(model.load_cases.length);
+     render(<App />);
+ 
+     fireEvent.click(await runMechanicsButton());
+@@ -13571,14 +13612,14 @@
+     const diagnostics = await screen.findByLabelText("Diagnostics");
+     expect(
+       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
+-    ).toContain("34 of 34 diagnostics visible");
++    ).toContain(`${expectedDiagnostics.length} of ${expectedDiagnostics.length} diagnostics visible`);
+     expect(
+       within(diagnostics).getByTestId("diagnostic-severity-warning")
+         .textContent,
+     ).toContain("13 Warnings");
+     expect(
+       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
+-    ).toContain("21 Info");
++    ).toContain(`${expectedDiagnostics.filter(item => item.severity === "info").length} Info`);
+     expect(
+       within(diagnostics).getByTestId("diagnostic-severity-error").textContent,
+     ).toContain("0 Errors");
+@@ -13595,7 +13636,7 @@
+     );
+     expect(
+       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
+-    ).toContain("1 of 34 diagnostics visible");
++    ).toContain(`1 of ${expectedDiagnostics.length} diagnostics visible`);
+     expect(
+       within(diagnostics).getByTestId("diagnostic-severity-warning")
+         .textContent,
+@@ -13662,7 +13703,7 @@
+     fireEvent.click(within(diagnostics).getByTestId("clear-diagnostic-filter"));
+     expect(
+       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
+-    ).toContain("34 of 34 diagnostics visible");
++    ).toContain(`${expectedDiagnostics.length} of ${expectedDiagnostics.length} diagnostics visible`);
+     expect(
+       within(diagnostics).getByTestId("diagnostic-RULE_CHECK_NOT_PERFORMED"),
+     ).toBeInTheDocument();
+@@ -17039,7 +17080,10 @@
+     expect(screen.getByTestId("rule-check-run")).toBeDisabled();
+     expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
+     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
++    expect(screen.getByTestId("solve-job-export-link")).toHaveAttribute("aria-disabled", "true");
++    fireEvent.click(screen.getByTestId("solve-job-export-link-local-private-intent"));
+     const href = screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
++    expect(href).toMatch(/^data:/);
+     const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
+     expect(packet.error_message).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+     expect(packet.error_message).not.toContain("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED");
+@@ -17842,6 +17886,19 @@
+ 
+   it("lets a fresh same-model solve win against a delayed Historical refresh", async () => {
+     const opened = await workflowStoredEnvelope();
++    opened.model = await loadPreviewModel();
++    opened.summary.project_id = opened.model.project.id;
++    opened.summary.project_name = opened.model.project.name;
++    // Rebind only the test's historical record to the exact default model;
++    // its received legacy bytes stay historical and never become fresh output.
++    const historical = structuredClone(historicalMechanicsFixture) as MechanicsResult;
++    const historicalManifest = await buildCurrentSessionInputManifest({
++      model: opened.model,
++      solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0", solver_mode: "sparse_interactive", settings: {} },
++      active_rule_packs: [], external_assets: []
++    });
++    opened.mechanics_result = historical;
++    opened.analysis_run = await buildAnalysisRunV02(historical, historicalManifest);
+     const refreshed = await withCurrentPersistenceHashes(opened);
+     const pendingSave = deferred<LocalProjectEnvelope>();
+     invokeMock.mockImplementation((command: string) => {
+@@ -17859,13 +17916,13 @@
+     delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+     openWorkspaceSection("solve");
+     fireEvent.click(await runMechanicsButton());
+-    await waitFor(() => expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete"), { timeout: 10000 });
++    await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"), { timeout: 10000 });
+     openWorkspaceSection("results");
+     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
+     await act(async () => pendingSave.resolve(refreshed));
+     await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
+-    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
++    expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
+   });
+ 
+   it("adopts a changed native persistence model and retains returned results as Historical", async () => {
+--- a/projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx
+@@ -1,3 +1,5 @@
++import { semanticDimension } from "../results/resultSemantics";
++import { sourceContract } from "../results/numericalResultQuality";
+ import { QuantityReadout } from "../display-units";
+ import type { MechanicsResult } from "../../types";
+ import { GitCompare } from "lucide-react";
+@@ -150,7 +152,15 @@
+   // Do not borrow metadata from a different result value or conflicting pair.
+   if (!right || right.unit !== delta.unit || right.value !== delta.right_value) return "unknown";
+   if (left && (left.unit !== delta.unit || left.value !== delta.left_value || (left.dimension && left.dimension !== right.dimension))) return "unknown";
+-  return right.dimension ?? "unknown";
++  if (!result) return "unknown";
++  const contract = sourceContract(result);
++  if (contract === "legacy") return right.dimension ?? "unknown";
++  if (contract !== "precision") return "unknown";
++  const rightDimension = semanticDimension(right, result);
++  const leftDimension = left ? semanticDimension(left, result) : null;
++  if (!left || !rightDimension || leftDimension !== rightDimension) return "unknown";
++  if ((right.dimension && right.dimension !== rightDimension) || (left.dimension && left.dimension !== leftDimension)) return "unknown";
++  return rightDimension;
+ }
+ 
+ function safeTestId(value: string): string {
+--- a/projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx
+@@ -1,3 +1,4 @@
++import precisionResult from "../../../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json";
+ import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+ import { describe, expect, it, vi } from "vitest";
+ import { DisplayUnitSelector, DisplayUnitsProvider } from "./index";
+@@ -17,7 +18,7 @@
+ }));
+ 
+ const sourceResult: MechanicsResult = {
+-  schema_version: "1", document_kind: "test", run_id: "run:display", model_ref: "model:display",
++  schema_version: "0.1.0", document_kind: "test", run_id: "run:display", model_ref: "model:display",
+   status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" },
+   summary: { max_displacement: { value: 0.0254, unit: "m", location_ref: "node:1", result_ref: "disp" } },
+   results: [
+@@ -129,6 +130,41 @@
+     expect(JSON.stringify(compared)).toBe(before);
+   });
+ 
++  it("resolves current comparison dimensions from source semantics without altering absent declarations", async () => {
++    const result = structuredClone(precisionResult) as MechanicsResult;
++    const before = JSON.stringify(result);
++    const compared = comparison();
++    const kinds = ["element_local_axial_force", "element_local_bending_moment_z"];
++    compared.result_deltas = kinds.map((kind, index) => {
++      const right = result.results.find(row => row.kind === kind && row.basis_ref?.ref_type === "combination" && row.source_result_refs?.length)!;
++      const left = result.results.find(row => right.source_result_refs!.includes(row.id))!;
++      expect(right.dimension).toBeUndefined();
++      expect(left.dimension).toBeUndefined();
++      return { ...compared.result_deltas[0], mapping_id: `precision:${index}`, left_result_id: left.id, right_result_id: right.id, unit: right.unit, left_value: left.value, right_value: right.value, raw_delta: right.value - left.value, absolute_delta: Math.abs(right.value - left.value) };
++    });
++    const convert = converter();
++    const view = (source: MechanicsResult) => <DisplayUnitsProvider initialPreference="US" converter={convert}><ComparisonPanel comparison={compared} result={source} onSelectResult={() => {}} /></DisplayUnitsProvider>;
++    const rendered = render(view(result));
++    await waitFor(() => expect(convert.mock.calls.flatMap(call => call[0])).toEqual(expect.arrayContaining([
++      expect.objectContaining({ dimension_id: "force", from_unit: "N", to_unit: "lbf" }),
++      expect.objectContaining({ dimension_id: "moment", from_unit: "N*m", to_unit: "lbf*ft" })
++    ])));
++    expect(convert.mock.calls.flatMap(call => call[0]).some(item => item.dimension_id === "energy")).toBe(false);
++    expect(JSON.stringify(result)).toBe(before);
++    const contradictory = structuredClone(result);
++    contradictory.results.find(row => row.id === compared.result_deltas[0].right_result_id)!.metadata!.component = "bending_moment_z";
++    rendered.rerender(view(contradictory));
++    expect(screen.getByTestId(`comparison-delta-${compared.result_deltas[0].right_result_id}`)).toHaveTextContent("unknown");
++    const future = structuredClone(result);
++    future.schema_version = "0.4.0";
++    rendered.rerender(view(future));
++    expect(screen.getByTestId(`comparison-delta-${compared.result_deltas[1].right_result_id}`)).toHaveTextContent("unknown");
++    const unknown = structuredClone(result);
++    unknown.results.find(row => row.id === compared.result_deltas[0].right_result_id)!.kind = "unregistered_force_like_kind";
++    rendered.rerender(view(unknown));
++    expect(screen.getByTestId(`comparison-delta-${compared.result_deltas[0].right_result_id}`)).toHaveTextContent("unknown");
++  });
++
+   it("converts rule-check picker and reference preview values without changing selections or pack JSON", async () => {
+     const result = structuredClone(sourceResult);
+     const before = JSON.stringify(result);
+--- a/projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx
+@@ -1,3 +1,5 @@
++import { loadPreviewModel, runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
++import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+ // Rider coverage for TP-SEAM-CORPUS-001 (operation-seam unification plan §3
+ // T1 rider; assessment §5.3): when the mechanics result summary does not
+ // carry location references, the Local FEA handoff package must emit an
+@@ -8,7 +10,7 @@
+ import { render, screen, within } from "@testing-library/react";
+ import { describe, expect, it } from "vitest";
+ import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
+-import { LocalFeaHandoffPanel } from "./LocalFeaHandoffPanel";
++import { LocalFeaHandoffPanel, buildLocalFeaHandoffPacket } from "./LocalFeaHandoffPanel";
+ 
+ function inventedModel(): PreviewModel {
+   return {
+@@ -68,6 +70,7 @@
+ 
+ function inventedAnalysisRun(): AnalysisRunEnvelope {
+   return {
++    schema_version: "0.1.0",
+     analysis_run: {
+       run_id: "run:rider-test-001",
+       run_name: "Invented rider run",
+@@ -218,3 +221,31 @@
+     }
+   });
+ });
++
++async function currentPrecisionSession() {
++  const model = await loadPreviewModel();
++  const result = await runPreviewMechanics(model);
++  const inputManifest = await buildCurrentSessionInputManifest({
++    model,
++    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
++    active_rule_packs: [], external_assets: []
++  });
++  const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
++  const receivedHash = analysisRun.analysis_run.hashes.find(hash => hash.payload_scope === "received_result")!.value;
++  expect(analysisRun.schema_version).toBe("0.3.0");
++  return { model, result, analysisRun, receivedHash };
++}
++
++describe("Local FEA received-result hash binding", () => {
++  it("retains the current received hash and discloses unsupported future versions", async () => {
++    const session = await currentPrecisionSession();
++    const before = JSON.stringify(session);
++    const packet = buildLocalFeaHandoffPacket(session);
++    expect(packet.handoff_package.source_refs.result_hash.value).toBe(session.receivedHash);
++    expect(JSON.stringify(session)).toBe(before);
++    const future = structuredClone(session.analysisRun);
++    future.schema_version = "0.4.0";
++    const unsupported = buildLocalFeaHandoffPacket({ ...session, analysisRun: future });
++    expect(unsupported.handoff_package.source_refs.result_hash.value).toBe("TBD_analysis_record_version_unsupported");
++  });
++});
+--- a/projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx
+@@ -1,3 +1,4 @@
++import { analysisResultHashScope } from "../results/analysisResultHashScope";
+ import { Download, FileJson } from "lucide-react";
+ import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
+ 
+@@ -135,7 +136,7 @@
+   );
+ }
+ 
+-function buildLocalFeaHandoffPacket({
++export function buildLocalFeaHandoffPacket({
+   model,
+   result,
+   analysisRun
+@@ -149,13 +150,14 @@
+   const selectedResults = selectedResultRefs(result);
+   const diagnostics = localFeaDiagnostics(selected);
+   const unitPreservationWitnesses = localFeaUnitPreservationWitnesses(model, result, selectedResults);
+-  const resultHash = run.hashes.find((item) => item.payload_scope === (analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope"));
++  const resultHashScope = analysisResultHashScope(analysisRun.schema_version);
++  const resultHash = run.hashes.find((item) => item.payload_scope === resultHashScope);
+   const modelRef = reference("model", run.model_state_ref.ref);
+   const resultEnvelopeRef = reference("result_envelope", `result-envelope:${result.run_id}`);
+   const modelHash = checksum("TBD", "TBD", modelRef, "TBD_browser_preview_does_not_emit_model_state_hash");
+   const resultEnvelopeHash = resultHash
+     ? checksum("sha256", "JCS-compatible-json", resultEnvelopeRef, resultHash.value)
+-    : checksum("TBD", "TBD", resultEnvelopeRef, "TBD_browser_preview_does_not_emit_result_envelope_hash");
++    : checksum("TBD", "TBD", resultEnvelopeRef, resultHashScope === null ? "TBD_analysis_record_version_unsupported" : "TBD_browser_preview_does_not_emit_result_envelope_hash");
+ 
+   return {
+     schema_version: LOCAL_FEA_HANDOFF_VERSION,
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.test.ts
+@@ -0,0 +1,34 @@
++import { describe, expect, it } from "vitest";
++import { buildNativePackageReview } from "./NativePackagePanel";
++import { loadPreviewModel, runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
++import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
++
++async function currentPrecisionSession() {
++  const model = await loadPreviewModel();
++  const result = await runPreviewMechanics(model);
++  const inputManifest = await buildCurrentSessionInputManifest({
++    model,
++    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
++    active_rule_packs: [], external_assets: []
++  });
++  const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
++  const receivedHash = analysisRun.analysis_run.hashes.find(hash => hash.payload_scope === "received_result")!.value;
++  expect(analysisRun.schema_version).toBe("0.3.0");
++  return { model, result, analysisRun, receivedHash };
++}
++
++describe("native review package received-result hash binding", () => {
++  it("uses the actual current received hash and discloses unsupported future versions", async () => {
++    const session = await currentPrecisionSession();
++    const input = { ...session, editorIntents: [], modelHash: null, projectSummary: null, proposal: null, selectedReviewTarget: null, storageCapability: null };
++    const before = JSON.stringify(input);
++    const packet = buildNativePackageReview(input);
++    const member = packet.manifest.package_members.find(item => item.path === "results/result_envelope_ref.json");
++    expect(member?.hash_status).toBe(`sha256:${session.receivedHash}`);
++    expect(JSON.stringify(input)).toBe(before);
++    const future = structuredClone(session.analysisRun);
++    future.schema_version = "0.4.0";
++    const unsupported = buildNativePackageReview({ ...input, analysisRun: future });
++    expect(unsupported.manifest.package_members.find(item => item.path === "results/result_envelope_ref.json")?.hash_status).toBe("TBD_analysis_record_version_unsupported");
++  });
++});
+--- a/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx
+@@ -1,3 +1,4 @@
++import { analysisResultHashScope } from "../results/analysisResultHashScope";
+ import { Download } from "lucide-react";
+ import { usePackageHash } from "../../services/usePackageHash";
+ import type {
+@@ -255,7 +256,7 @@
+       "results/result_envelope_ref.json",
+       "result_envelope_ref",
+       "result-envelope reference, status, and hash scope",
+-      runHashStatus(runHashRefs, analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope")
++      runHashStatus(runHashRefs, analysisResultHashScope(analysisRun.schema_version))
+     ),
+     member(
+       "maps/unit_preservation_witnesses.json",
+@@ -954,7 +955,8 @@
+   return { value: candidate.value, unit: candidate.unit };
+ }
+ 
+-function runHashStatus(runHashRefs: Array<{ payload_scope: string; value: string }>, scope?: string): string {
++function runHashStatus(runHashRefs: Array<{ payload_scope: string; value: string }>, scope?: string | null): string {
++  if (scope === null) return "TBD_analysis_record_version_unsupported";
+   if (!scope) return `${runHashRefs.length}_analysis_run_hash_refs_available`;
+   const hash = runHashRefs.find((item) => item.payload_scope === scope);
+   return hash ? `sha256:${hash.value}` : "TBD_hash_ref_not_available";
+--- a/projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx
+@@ -1,3 +1,4 @@
++import { analysisResultHashScope } from "../results/analysisResultHashScope";
+ import { Download, FileText } from "lucide-react";
+ import type {
+   AgentProposal,
+@@ -52,7 +53,7 @@
+   const severitySummary = countDiagnosticsBySeverity(diagnostics);
+   const run = analysisRun?.analysis_run;
+   const resultHashCount = run?.result_refs.reduce((count, item) => count + item.hash_refs.length, 0) ?? 0;
+-  const resultHashScope = analysisRun?.schema_version === "0.2.0" ? "received_result" : "result_envelope";
++  const resultHashScope = analysisResultHashScope(analysisRun?.schema_version);
+   const envelopeHash = run?.hashes.find((item) => item.payload_scope === resultHashScope);
+   const loadBasisRefs = run?.load_basis_refs?.map((item) => item.ref).join(", ") ?? "not generated";
+   const persistenceEvidence = reportPersistenceEvidence({
+--- a/projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts
+@@ -1,3 +1,4 @@
++import { analysisResultHashScope } from "../results/analysisResultHashScope";
+ import type {
+   AnalysisRunEnvelope,
+   LocalProjectSummary,
+@@ -288,7 +289,8 @@
+   const provenance = sessionProvenance(model);
+   const modelHashValue = await canonicalSha256Hex(model);
+   const runRecordHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
+-  const receivedResultScope = analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope";
++  const receivedResultScope = analysisResultHashScope(analysisRun.schema_version);
++  if (receivedResultScope === null) throw new Error("REPORT-ANALYSIS-VERSION-UNSUPPORTED");
+   const resultEnvelopeHash = run.hashes.find((item) => item.payload_scope === receivedResultScope);
+ 
+   const analysisStatus = Array.from(
+--- a/projects/chirality-piping/apps/desktop/src/features/report/renderedReport.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/report/renderedReport.test.tsx
+@@ -1,3 +1,5 @@
++import { loadPreviewModel, runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
++import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+ // DEC-021 (A7) coverage: the rendered-report seam routes through the Tauri
+ // renderer command only (no fallback renderer in browser preview), the
+ // adapter composes the renderer input from session envelopes with explicit
+@@ -521,3 +523,28 @@
+     expect(invokeMock).not.toHaveBeenCalled();
+   });
+ });
++
++async function currentPrecisionSession() {
++  const model = await loadPreviewModel();
++  const result = await runPreviewMechanics(model);
++  const inputManifest = await buildCurrentSessionInputManifest({
++    model,
++    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
++    active_rule_packs: [], external_assets: []
++  });
++  const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
++  const receivedHash = analysisRun.analysis_run.hashes.find(hash => hash.payload_scope === "received_result")!.value;
++  expect(analysisRun.schema_version).toBe("0.3.0");
++  return { model, result, analysisRun, receivedHash };
++}
++
++describe("renderer received-result hash binding", () => {
++  it("uses the actual current received hash and rejects unknown analysis versions", async () => {
++    const session = await currentPrecisionSession();
++    const input = await buildRenderableReportInput({ ...session, projectSummary: null });
++    expect(input.calculation_report.audit_manifest_refs[1].checksum.value).toBe(session.receivedHash);
++    const future = structuredClone(session.analysisRun);
++    future.schema_version = "0.4.0";
++    await expect(buildRenderableReportInput({ ...session, analysisRun: future, projectSummary: null })).rejects.toThrow("REPORT-ANALYSIS-VERSION-UNSUPPORTED");
++  });
++});
+--- a/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts
+@@ -1,21 +1,23 @@
+ import { describe, expect, it } from "vitest";
+ import { buildAnalysisRunPreview, buildPreviewComparison, loadPreviewModel, runPreviewMechanics } from "../../services/previewService";
+-import { canonicalSha256Hex } from "../../services/hashService";
++import { canonicalSha256Hex, canonicalSha256HexCheckedV1 } from "../../services/hashService";
+ import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+-import type { PreviewModel } from "../../types";
++import historicalResult from "../../../../../fixtures/product_preview/invented_mechanics_result.json";
++import { analysisRecordProjection, buildAnalysisRunV02, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
++import type { MechanicsResult, PreviewModel } from "../../types";
+ import {resultSemantics} from "../results/resultSemantics";
+ import { buildReportPackageRequest } from "./reportPackageRequest";
+ import componentProvenanceProjection from "../../../../../fixtures/reports/invented/component_provenance_cross_layer_projection.json";
+ 
+-async function currentSession(sourceModel?: PreviewModel) {
+-  const model = structuredClone(sourceModel ?? (await loadPreviewModel()));
++async function currentSession() {
++  const model = await loadPreviewModel();
+   const result = await runPreviewMechanics(model);
+   const inputManifest = await buildCurrentSessionInputManifest({
+     model,
+     solver: {
+       solver_name: "open_pipe_stress_product_physics",
+-      solver_version: "0.1.0",
+-      solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
++      solver_version: "0.2.0",
++      solver_build_ref: "open_pipe_stress_product_physics@0.2.0",
+       solver_mode: "sparse_interactive",
+       settings: {
+         nonlinear_iteration_policy:
+@@ -32,15 +34,28 @@
+   return { model, result, inputManifest, analysisRun };
+ }
+ 
++// Historical projection compatibility only: no fresh solve is requested for
++// the provenance-edited model, and the received legacy carrier stays unchanged.
++async function legacyProvenanceSession(model: PreviewModel) {
++  const result = structuredClone(historicalResult) as MechanicsResult;
++  const inputManifest = await buildCurrentSessionInputManifest({
++    model,
++    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0", solver_mode: "sparse_interactive", settings: {} },
++    active_rule_packs: [], external_assets: []
++  });
++  const analysisRun = await buildAnalysisRunV02(result, inputManifest);
++  return { model, result, inputManifest, analysisRun };
++}
++
+ describe("report-package current-session request", () => {
+-  it("matches the shared component-provenance projection at the production package boundary", async () => {
++  it("preserves the legacy component-provenance projection at the package boundary", async () => {
+     const modelWithMissingProvenance = structuredClone(await loadPreviewModel());
+     const missingComponent = modelWithMissingProvenance.components.find(
+       (component) => component.id === "component:C-140"
+     );
+     expect(missingComponent).toBeDefined();
+     missingComponent!.provenance = "";
+-    const { model, result, inputManifest, analysisRun } = await currentSession(
++    const { model, result, inputManifest, analysisRun } = await legacyProvenanceSession(
+       modelWithMissingProvenance
+     );
+     const manifestComponent = inputManifest.manifest.model_basis.model_payload.components.find(
+@@ -63,6 +78,10 @@
+       comparison: null,
+       ruleCheckAggregate: null
+     });
++    const historicalIdentity = { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0" };
++    expect(request.result_envelopes[0]).toMatchObject(historicalIdentity);
++    expect(request.audit_manifest.solver_version).toEqual(historicalIdentity);
++    expect(result).toEqual(historicalResult);
+     const sections = request.report.report_sections;
+     const presentId = componentProvenanceProjection.present_component.value.value_id;
+     const missingId = componentProvenanceProjection.missing_component.value.value_id;
+@@ -110,6 +129,15 @@
+       ruleCheckAggregate: null
+     });
+ 
++    const sourceIdentity = { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: inputManifest.manifest.solver_basis.solver_build_ref };
++    expect(sourceIdentity).toEqual({ solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0" });
++    expect(request.result_envelopes[0]).toMatchObject(sourceIdentity);
++    expect(request.audit_manifest.solver_version).toEqual(sourceIdentity);
++    expect(result.schema_version).toBe("0.2.0");
++    expect(analysisRun.schema_version).toBe("0.3.0");
++    expect(result.results.every(row => row.dimension === undefined)).toBe(true);
++    const dimensions = request.result_envelopes[0].result_sets.flatMap(set => set.values).map(value => value.dimension);
++    expect(dimensions).toEqual(expect.arrayContaining(["force", "moment"]));
+     expect(request.export_profile_id).toBe("desktop_local_private_report_package_1");
+     expect(request.source_model_ref.ref_id).toBe(result.model_ref);
+     expect(request.audit_manifest.model_hash?.value).toMatch(/^[a-f0-9]{64}$/);
+@@ -121,13 +149,13 @@
+       inputManifest.manifest_ref.ref
+     );
+     const resultEnvelopeHash = analysisRun.analysis_run.hashes.find(
+-      (item) => item.payload_scope === "result_envelope"
++      (item) => item.payload_scope === "received_result"
+     )?.value;
+     expect(inputManifest.manifest_sha256).not.toBe(resultEnvelopeHash);
+     expect(request.audit_manifest.rule_pack_refs).toEqual([]);
+     expect(request.result_envelopes[0].run_ref.ref_id).toBe(result.run_id);
+     expect(request.result_envelopes[0].result_sets.flatMap((set) => set.values).length).toBeLessThan(result.results.length);
+-    for(const value of request.result_envelopes[0].result_sets.flatMap(set=>set.values)){const row=result.results.find(row=>row.id===value.result_id)!;expect(resultSemantics(row)?.category).toBe("physical_quantity");expect(value.magnitude).toBe(row.value);expect(value.unit).toBe(row.unit);expect(value.dimension).toBe(resultSemantics(row)?.derivative_target_dimension);}
++    for(const value of request.result_envelopes[0].result_sets.flatMap(set=>set.values)){const row=result.results.find(row=>row.id===value.result_id)!;expect(resultSemantics(row, result)?.category).toBe("physical_quantity");expect(value.magnitude).toBe(row.value);expect(value.unit).toBe(row.unit);expect(value.dimension).toBe(resultSemantics(row, result)?.derivative_target_dimension);}
+     expect(request.result_envelopes[0].diagnostics.some(d=>d.code==="REPORT_SOURCE_EVIDENCE_DISCLOSED")).toBe(true);
+     expect(request.result_envelopes[0].provenance).toMatchObject({
+       source_location: "local desktop session",
+@@ -356,4 +384,78 @@
+       ).rejects.toThrow("INPUT-MANIFEST-HASH-MISMATCH");
+     }
+   });
++  it("rejects future analysis versions and missing current received-result hashes", async () => {
++    const session = await currentSession();
++    const future = structuredClone(session.analysisRun);
++    future.schema_version = "0.4.0";
++    await expect(buildReportPackageRequest({ ...session, analysisRun: future, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
++      .rejects.toThrow("REPORT-PACKAGE-ANALYSIS-VERSION-UNSUPPORTED");
++    const futureSource = structuredClone(session.result);
++    futureSource.schema_version = "0.4.0";
++    await expect(buildReportPackageRequest({ ...session, result: futureSource, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
++      .rejects.toThrow("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
++    const missing = structuredClone(session.analysisRun);
++    missing.analysis_run.hashes = missing.analysis_run.hashes.filter(hash => hash.payload_scope !== "received_result");
++    await expect(buildReportPackageRequest({ ...session, analysisRun: missing, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
++      .rejects.toThrow("REPORT-PACKAGE-HASH-BINDING-INCOMPLETE");
++  });
++
++  it("discloses an unregistered source row without inferring force from N", async () => {
++    const { model, result, inputManifest } = await currentSession();
++    const annotated = structuredClone(result);
++    const unknownId = "result:test:unregistered-source";
++    annotated.results.push({ id: unknownId, entity_ref: model.project.id, kind: "unregistered_source_kind", value: 1, unit: "N" });
++    const analysisRun = await buildAnalysisRunPreview(annotated, { inputManifest });
++    const before = JSON.stringify(annotated);
++    const request = await buildReportPackageRequest({ model, result: annotated, inputManifest, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null });
++    expect(request.result_envelopes[0].result_sets.flatMap(set => set.values).some(value => value.result_id === unknownId)).toBe(false);
++    expect(JSON.stringify(request.result_envelopes[0].diagnostics)).toContain(unknownId);
++    expect(JSON.stringify(annotated)).toBe(before);
++  });
++
++  it.each(["solver_name", "solver_version", "build_ref"] as const)("rejects recorded %s that differs from the verified manifest", async field => {
++    const session = await currentSession();
++    const analysisRun = structuredClone(session.analysisRun);
++    const solver = analysisRun.analysis_run.solver_version!;
++    if (field === "build_ref") solver.build_ref.ref = "build:conflicting-record";
++    else solver[field] = "conflicting-record";
++    await expect(buildReportPackageRequest({ ...session, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
++      .rejects.toThrow("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH");
++  });
++
++  it.each(["solver_name", "solver_version"] as const)("rejects a hash-valid manifest and coherent record with the wrong producer %s", async field => {
++    const session = await currentSession();
++    const receivedSourceBefore = JSON.stringify(session.result);
++    const solver = { ...session.inputManifest.manifest.solver_basis, [field]: field === "solver_version" ? "0.1.0" : "different_solver" };
++    const inputManifest = await buildCurrentSessionInputManifest({ model: session.model, solver, active_rule_packs: [], external_assets: [] });
++    await expect(buildAnalysisRunPreview(session.result, { inputManifest })).rejects.toThrow("ANALYSIS_SOURCE_PRODUCER_MISMATCH");
++    // Deliberately adversarial, test-only record: do not bypass the strict
++    // builder by changing its validator or pretending this is admitted output.
++    const analysisRun = structuredClone(session.analysisRun);
++    const run = analysisRun.analysis_run;
++    run.solver_version = { solver_name: solver.solver_name, solver_version: solver.solver_version, build_ref: { object_type: "ExternalReference", ref: solver.solver_build_ref } };
++    run.settings_ref = { object_type: "SolverSettings", ref: `solver-settings:${inputManifest.manifest_ref.ref}:${inputManifest.manifest_sha256}` };
++    run.unit_system_ref = { object_type: "UnitSystem", ref: `unit-system:${session.result.model_ref}:${inputManifest.manifest_sha256}` };
++    run.reproducibility.input_manifest_refs = [structuredClone(inputManifest.manifest_ref)];
++    run.reproducibility.input_manifest_hashes = [{ ...run.reproducibility.input_manifest_hashes[0], payload_ref: structuredClone(inputManifest.manifest_ref), value: inputManifest.manifest_sha256 }];
++    run.hashes.find(hash => hash.payload_scope === "analysis_run_record")!.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(analysisRun));
++    expect(await verifyAnalysisRunRecord(analysisRun)).toBe("match");
++    expect(run.hashes.find(hash => hash.payload_scope === "received_result"))
++      .toEqual(session.analysisRun.analysis_run.hashes.find(hash => hash.payload_scope === "received_result"));
++    await expect(buildReportPackageRequest({ ...session, inputManifest, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
++      .rejects.toThrow("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH");
++    expect(JSON.stringify(session.result)).toBe(receivedSourceBefore);
++  });
++
++  it("preserves a consistent recorded build reference without inventing one from producer version", async () => {
++    const session = await currentSession();
++    const recordedBuild = "build:captured-current-product-physics";
++    const inputManifest = await buildCurrentSessionInputManifest({ model: session.model, solver: { ...session.inputManifest.manifest.solver_basis, solver_build_ref: recordedBuild }, active_rule_packs: [], external_assets: [] });
++    const analysisRun = await buildAnalysisRunPreview(session.result, { inputManifest });
++    const request = await buildReportPackageRequest({ ...session, inputManifest, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null });
++    expect(request.result_envelopes[0].solver_build_ref).toBe(recordedBuild);
++    expect(request.audit_manifest.solver_version.solver_build_ref).toBe(recordedBuild);
++    expect(request.audit_manifest.solver_version.solver_version).toBe(session.result.producer!.component_version);
++  });
++
+ });
+--- a/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts
+@@ -1,3 +1,5 @@
++import { sourceContract } from "../results/numericalResultQuality";
++import { analysisResultHashScope } from "../results/analysisResultHashScope";
+ import type {
+   AnalysisRunEnvelope,
+   LocalProjectSummary,
+@@ -72,6 +74,36 @@
+       `REPORT-PACKAGE-SHA256-INVALID: ${label} must be bare lowercase 64-hex.`
+     );
+   }
++}
++
++// Called only after the manifest bytes and the run's manifest binding are checked.
++// Source producer identity and recorded build identity are different evidence.
++function reportSolverIdentity(result: MechanicsResult, analysisRun: AnalysisRunEnvelope, inputManifest: CurrentSessionInputManifestEvidence) {
++  const manifestSolver = inputManifest.manifest.solver_basis;
++  const recordedSolver = analysisRun.analysis_run.solver_version;
++  const precision = analysisRun.schema_version === "0.3.0";
++  if (!precision && (!(result.schema_version === "0.1.0" || result.schema_version === "0.2.0") ||
++    ["producer", "numerical_quality", "formulation_basis"].some(key => Object.hasOwn(result, key)))) {
++    throw new Error("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
++  }
++  // Legacy 0.1 records may lack a solver-version field; the verified manifest
++  // still supplies recorded identity. Strict records must carry both records.
++  if ((!recordedSolver && analysisRun.schema_version !== "0.1.0") ||
++    (recordedSolver && (recordedSolver.solver_name !== manifestSolver.solver_name ||
++      recordedSolver.solver_version !== manifestSolver.solver_version ||
++      recordedSolver.build_ref?.ref !== manifestSolver.solver_build_ref))) {
++    throw new Error("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: analysis record and verified manifest differ.");
++  }
++  if (precision && (sourceContract(result) !== "precision" ||
++    result.producer!.component_name !== manifestSolver.solver_name ||
++    result.producer!.component_version !== manifestSolver.solver_version)) {
++    throw new Error("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: recorded identity differs from the received producer.");
++  }
++  return {
++    solver_name: precision ? result.producer!.component_name : manifestSolver.solver_name,
++    solver_version: precision ? result.producer!.component_version : manifestSolver.solver_version,
++    solver_build_ref: manifestSolver.solver_build_ref
++  };
+ }
+ 
+ export async function buildReportPackageRequest({
+@@ -91,6 +123,14 @@
+   comparison: PreviewComparison | null;
+   ruleCheckAggregate: string | null;
+ }) {
++  const resultHashScope = analysisResultHashScope(analysisRun.schema_version);
++  const strictAnalysis = resultHashScope === "received_result";
++  if (resultHashScope === null) {
++    throw new Error("REPORT-PACKAGE-ANALYSIS-VERSION-UNSUPPORTED");
++  }
++  if (analysisRun.schema_version === "0.3.0" && sourceContract(result) !== "precision") {
++    throw new Error("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
++  }
+   await verifyCurrentSessionInputManifest(inputManifest);
+   if (
+     inputManifest.manifest.model_basis.model_ref !== model.project.id ||
+@@ -123,7 +163,6 @@
+   const report = await buildRenderableReportInput({ model, result, analysisRun, projectSummary });
+   const run = analysisRun.analysis_run;
+   const runHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
+-  const resultHashScope = analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope";
+   const resultEnvelopeHash = run.hashes.find(
+     (item) => item.payload_scope === resultHashScope
+   );
+@@ -173,6 +212,7 @@
+     );
+   }
+ 
++  const solverIdentity = reportSolverIdentity(result, analysisRun, inputManifest);
+   const provenance = privateProvenance(model);
+   const resultDimensions = new Map(
+     run.result_refs.map((item) => [
+@@ -183,9 +223,9 @@
+   const semanticDisclosures: Array<{id:string;reason:string}> = [];
+   const groupedResults = new Map<string, MechanicsResult["results"]>();
+   for (const item of result.results) {
+-    const semantics = resultSemantics(item); // known unit/component contradictions fail closed
++    const semantics = resultSemantics(item, analysisRun.schema_version === "0.3.0" ? result : undefined); // known unit/component contradictions fail closed
+     const declared = resultDimensions.get(item.id);
+-    const expectedSourceDimension = analysisRun.schema_version === "0.2.0"
++    const expectedSourceDimension = strictAnalysis
+       ? semantics?.source_physical_semantic_dimension
+       : item.dimension;
+     if (!resultDimensions.has(item.id) || (expectedSourceDimension ?? null) !== (declared ?? null)) throw new Error(`REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH: ${item.id}`);
+@@ -206,14 +246,14 @@
+       set_type: "mechanics",
+       basis_ref: reference(basis.ref_type, basis.ref_id),
+       values: values.map((item) => {
+-        const semantics = resultSemantics(item)!;
++        const semantics = resultSemantics(item, analysisRun.schema_version === "0.3.0" ? result : undefined)!;
+         const sourceDimension = resultDimensions.get(item.id);
+         if (!sourceDimension) {
+           throw new Error(
+             `REPORT-PACKAGE-SOURCE-DIMENSION-MISSING: ${item.id} has no DEL-14-02 source declaration.`
+           );
+         }
+-        const expectedSourceDimension = analysisRun.schema_version === "0.2.0"
++        const expectedSourceDimension = strictAnalysis
+           ? semantics?.source_physical_semantic_dimension
+           : item.dimension;
+         if (expectedSourceDimension && expectedSourceDimension !== sourceDimension) {
+@@ -252,9 +292,7 @@
+     schema_version: "1.0.0",
+     model_ref: reference("model", result.model_ref),
+     run_ref: reference("analysis_run", result.run_id),
+-    solver_name: "open_pipe_stress_product_physics",
+-    solver_version: "0.1.0",
+-    solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
++    ...solverIdentity,
+     unit_system_ref: reference("unit_system", UNIT_SYSTEM_REF),
+     load_basis_refs: run.load_basis_refs.map((item) => reference(item.object_type, item.ref)),
+     result_sets: resultSets,
+@@ -309,11 +347,7 @@
+         payload_ref: inputManifestRef.ref,
+         value: inputHash.value
+       },
+-      solver_version: {
+-        solver_name: "open_pipe_stress_product_physics",
+-        solver_version: "0.1.0",
+-        solver_build_ref: "open_pipe_stress_product_physics@0.1.0"
+-      },
++      solver_version: { ...solverIdentity },
+       unit_system_ref: UNIT_SYSTEM_REF,
+       rule_pack_refs: [],
+       assets: [],
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/results/analysisResultHashScope.test.ts
+@@ -0,0 +1,11 @@
++import { describe, expect, it } from "vitest";
++import { analysisResultHashScope } from "./analysisResultHashScope";
++
++describe("analysis received-result hash dispatch", () => {
++  it.each([["0.1.0", "result_envelope"], ["0.2.0", "received_result"], ["0.3.0", "received_result"]])("maps exact version %s", (version, scope) => {
++    expect(analysisResultHashScope(version)).toBe(scope);
++  });
++  it.each([undefined, null, "", "0.4.0", "0.3.1", "1.0.0"])("refuses unsupported version %s", version => {
++    expect(analysisResultHashScope(version)).toBeNull();
++  });
++});
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/results/analysisResultHashScope.ts
+@@ -0,0 +1,9 @@
++/** Exact analysis-record versions; unknown records never inherit legacy scope. */
++export function analysisResultHashScope(version: string | null | undefined): "result_envelope" | "received_result" | null {
++  switch (version) {
++    case "0.1.0": return "result_envelope";
++    case "0.2.0":
++    case "0.3.0": return "received_result";
++    default: return null;
++  }
++}

@@ -903,6 +903,11 @@ pub fn convert(value: f64, from: UnitId, to: UnitId) -> Result<f64, UnitError> {
     if from_def.dimension == Dimension::Tbd {
         return Err(UnitError::UnresolvedDimension);
     }
+    // Identity is exact after all finite and semantic dimension checks. Routing
+    // through an affine offset or scale and back can erase small values or bits.
+    if from == to {
+        return Ok(value);
+    }
     let canonical_value = from_def.transform_to_canonical.to_canonical(value);
     Ok(to_def
         .transform_to_canonical
@@ -932,6 +937,11 @@ pub fn convert_for_dimension(
     }
     if dimension == Dimension::Tbd {
         return Err(UnitError::UnresolvedDimension);
+    }
+    // Identity is exact after all finite and semantic dimension checks. Routing
+    // through an affine offset or scale and back can erase small values or bits.
+    if from == to {
+        return Ok(value);
     }
     let canonical_value = from_def.transform_to_canonical.to_canonical(value);
     Ok(to_def
@@ -1020,6 +1030,10 @@ pub fn convert_pressure_kind(
 ) -> Result<f64, UnitError> {
     require_dimension(from_unit, Dimension::Pressure)?;
     require_dimension(to_unit, Dimension::Pressure)?;
+    // Unit identity cannot bypass a gauge/absolute reference change.
+    if from_kind == to_kind && from_unit == to_unit {
+        return convert(value, from_unit, to_unit);
+    }
     let value_pa = convert(value, from_unit, UnitId::Pascal)?;
     let reference_pa = match (from_kind, to_kind) {
         (PressureKind::Absolute, PressureKind::Absolute)
@@ -1722,6 +1736,36 @@ mod tests {
                 assert!(unit_by_symbol("C", *dimension).is_err());
             }
         }
+    }
+
+    #[test]
+    fn same_unit_identity_preserves_bits_without_canonical_round_trip() {
+        // Mathematical identity witnesses, including a scale round-trip counterexample.
+        for value in [1.0e-16, -1.0e-16, f64::from_bits(1), f64::from_bits(0x3fd12345679b3fe0)] {
+            for &unit in catalog() {
+                let dimension = unit.definition().dimension;
+                assert_eq!(convert(value, unit, unit).unwrap().to_bits(), value.to_bits());
+                assert_eq!(convert_for_dimension(value, dimension, unit, unit).unwrap().to_bits(), value.to_bits());
+            }
+        }
+        let c = unit_by_symbol("C", Dimension::Temperature).unwrap();
+        let deg_c = unit_by_symbol("degC", Dimension::Temperature).unwrap();
+        assert_eq!(convert(1.0e-16, c, deg_c).unwrap().to_bits(), 1.0e-16_f64.to_bits());
+    }
+
+    #[test]
+    fn identity_does_not_bypass_finite_dimension_offset_or_pressure_kind_validation() {
+        assert!(convert(f64::NAN, UnitId::DegreeCelsius, UnitId::DegreeCelsius).is_err());
+        assert!(convert_for_dimension(f64::INFINITY, Dimension::Stress, UnitId::Megapascal, UnitId::Megapascal).is_err());
+        assert!(convert_for_dimension(1.0, Dimension::Force, UnitId::Meter, UnitId::Meter).is_err());
+        assert!(convert_for_dimension(1.0, Dimension::TemperatureInterval, UnitId::DegreeCelsius, UnitId::DegreeCelsius).is_err());
+        assert!(convert(1.0, UnitId::DegreeCelsius, UnitId::DegreeCelsiusInterval).is_err());
+        let value = f64::from_bits(0x3fd12345679b3fe0);
+        assert_eq!(convert_pressure_kind(value, UnitId::Megapascal, PressureKind::Gauge, UnitId::Megapascal, PressureKind::Gauge, None).unwrap().to_bits(), value.to_bits());
+        assert_eq!(convert_pressure_kind(value, UnitId::Megapascal, PressureKind::Gauge, UnitId::Megapascal, PressureKind::Absolute, None).unwrap_err(), UnitError::MissingPressureReference);
+        assert!(convert_pressure_kind(1.0, UnitId::Meter, PressureKind::Gauge, UnitId::Meter, PressureKind::Gauge, None).is_err());
+        // Preserve the existing different-unit overflow rejection.
+        assert!(convert_pressure_kind(1e308, UnitId::Megapascal, PressureKind::Gauge, UnitId::Pascal, PressureKind::Gauge, None).is_err());
     }
 
     #[test]

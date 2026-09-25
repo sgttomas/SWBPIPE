@@ -1,0 +1,18 @@
+[
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "sha256": "10a8d2195e4cd3674261251fb6e97106ab16ccabd46df60d346e7f6cd42bb645"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "sha256": "e21c812accb1ab2eb4cd2c9e4509cd25ba38982b3e649aafaeaa64ea9cb3f009"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+    "sha256": "594377d0e6f5057f2e98961ce45baac3f8e8720c300856f7fdc17a30aad6baac"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs",
+    "sha256": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e"
+  }
+]

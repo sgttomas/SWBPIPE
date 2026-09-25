@@ -1,0 +1,12 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/private/tmp/piping-numerical-integrity-target/debug/deps/open_pipe_stress_product_physics-1cdcd32cde0104b5)
+
+running 5 tests
+test tests::integrity_disconnected_body_is_not_restrained_by_another_bodys_anchor ... ok
+test tests::integrity_exact_case_ids_do_not_alias_passing_and_unassessed_cases ... ok
+test tests::integrity_exact_case_ids_keep_actual_linear_passes_and_component_warnings_distinct ... ok
+test tests::integrity_oblique_torsion_requires_actual_rotational_ground_in_both_modes ... ok
+test tests::integrity_multicase_evidence_and_component_diagnostics_have_unique_real_case_identity ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 191 filtered out; finished in 0.02s
+

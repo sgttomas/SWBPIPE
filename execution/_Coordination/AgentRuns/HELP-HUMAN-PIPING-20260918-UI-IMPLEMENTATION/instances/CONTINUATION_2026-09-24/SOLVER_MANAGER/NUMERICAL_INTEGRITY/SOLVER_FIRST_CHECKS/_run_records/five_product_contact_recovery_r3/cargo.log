@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/private/tmp/piping-product-rotational-gap-target/debug/deps/open_pipe_stress_product_physics-c924aecbdc551246)
+
+running 4 tests
+test tests::contact_recovery_failed_sparse_and_dense_attempt_emits_no_success_fallback ... ok
+test tests::contact_recovery_product_insufficient_or_invalid_potential_restraint_stays_blocked ... ok
+test tests::contact_recovery_product_crosses_preflight_and_absent_linear_solution ... ok
+test tests::contact_recovery_product_selected_tip_matches_axial_oracle_and_reverse_blocks ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 199 filtered out; finished in 0.02s
+

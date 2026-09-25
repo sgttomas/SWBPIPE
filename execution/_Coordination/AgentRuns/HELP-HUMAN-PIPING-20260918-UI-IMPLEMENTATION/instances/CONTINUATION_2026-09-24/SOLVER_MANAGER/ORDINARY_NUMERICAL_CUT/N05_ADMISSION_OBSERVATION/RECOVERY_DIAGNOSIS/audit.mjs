@@ -1,0 +1,16 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { stripTypeScriptTypes } from "node:module";
+import path from "node:path";
+const root = process.cwd();
+const project = path.join(root, "projects/chirality-piping");
+const source = process.argv.includes("--frozen") ? new URL("numericalResultQuality.ts.observed-source", import.meta.url) : path.join(project, "apps/desktop/src/features/results/numericalResultQuality.ts");
+const compiled = stripTypeScriptTypes(readFileSync(source, "utf8"), { mode: "strip" });
+const production = await import("data:text/javascript;base64," + Buffer.from(compiled).toString("base64"));
+const observation = path.dirname(path.dirname(new URL(import.meta.url).pathname));
+const rows = JSON.parse(readFileSync(path.join(observation, "_run_records/SELECTED.json"), "utf8"));
+const results = rows.filter(r => ["N05", "N06"].includes(r.case)).map(r => ({case:r.case,mode:r.mode,sourceContract:production.sourceContract(r.observed),numericalResultStanding:production.numericalResultStanding(r.observed,r.input)}));
+const output={method:"Actual saved product carrier and authored observer input passed unchanged to actual TypeScript function; Node strips only TypeScript types. No kernel-derived product envelope, input manifest, analysis record or Current state constructed.",node:process.version,results};
+const outputName = process.argv.includes("--output") ? process.argv[process.argv.indexOf("--output")+1] : (process.argv.includes("--frozen") ? "TS_FROZEN_REPLAY.json" : "TS_ADMISSION.json");
+if (path.basename(outputName) !== outputName) throw new Error("Evidence filename must stay in this directory");
+writeFileSync(new URL(outputName,import.meta.url),JSON.stringify(output,null,2)+"\n");
+console.log(JSON.stringify(output,null,2));

@@ -1,0 +1,84 @@
+{
+  "source_number_convention": "exact represented binary64 scalar inputs",
+  "k": "100",
+  "gap": "3602879701896397/72057594037927936",
+  "F": "5",
+  "free_u": "1/20",
+  "gap_minus_free_u": "1/360287970189639680",
+  "prescribed_pulling_reaction": "5/18014398509481984",
+  "cases": [
+    {
+      "sense": -1,
+      "force": 4,
+      "gap_magnitude": "3602879701896397/72057594037927936",
+      "free_displacement": "-1/25",
+      "closed_inequality": false,
+      "exact_state": "Inactive",
+      "selected_displacement": "-1/25",
+      "reaction": "0",
+      "published_displacement": -0.04,
+      "published_reaction": 0.0
+    },
+    {
+      "sense": -1,
+      "force": 5,
+      "gap_magnitude": "3602879701896397/72057594037927936",
+      "free_displacement": "-1/20",
+      "closed_inequality": false,
+      "exact_state": "Inactive",
+      "selected_displacement": "-1/20",
+      "reaction": "0",
+      "published_displacement": -0.05,
+      "published_reaction": 0.0
+    },
+    {
+      "sense": -1,
+      "force": 6,
+      "gap_magnitude": "3602879701896397/72057594037927936",
+      "free_displacement": "-3/50",
+      "closed_inequality": true,
+      "exact_state": "Active",
+      "selected_displacement": "-3602879701896397/72057594037927936",
+      "reaction": "18014398509481979/18014398509481984",
+      "published_displacement": -0.05,
+      "published_reaction": 0.9999999999999998
+    },
+    {
+      "sense": 1,
+      "force": 4,
+      "gap_magnitude": "3602879701896397/72057594037927936",
+      "free_displacement": "1/25",
+      "closed_inequality": false,
+      "exact_state": "Inactive",
+      "selected_displacement": "1/25",
+      "reaction": "0",
+      "published_displacement": 0.04,
+      "published_reaction": 0.0
+    },
+    {
+      "sense": 1,
+      "force": 5,
+      "gap_magnitude": "3602879701896397/72057594037927936",
+      "free_displacement": "1/20",
+      "closed_inequality": false,
+      "exact_state": "Inactive",
+      "selected_displacement": "1/20",
+      "reaction": "0",
+      "published_displacement": 0.05,
+      "published_reaction": 0.0
+    },
+    {
+      "sense": 1,
+      "force": 6,
+      "gap_magnitude": "3602879701896397/72057594037927936",
+      "free_displacement": "3/50",
+      "closed_inequality": true,
+      "exact_state": "Active",
+      "selected_displacement": "3602879701896397/72057594037927936",
+      "reaction": "-18014398509481979/18014398509481984",
+      "published_displacement": 0.05,
+      "published_reaction": -0.9999999999999998
+    }
+  ],
+  "no_production_run": true
+}

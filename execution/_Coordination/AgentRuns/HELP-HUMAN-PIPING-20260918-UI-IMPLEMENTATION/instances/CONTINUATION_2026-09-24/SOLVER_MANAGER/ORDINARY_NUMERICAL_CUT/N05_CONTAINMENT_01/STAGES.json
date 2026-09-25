@@ -1,0 +1,102 @@
+[
+  {
+    "stage": "rust-result-export",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-j2",
+      "--manifest-path",
+      "core/reporting/result_export/Cargo.toml",
+      "--test",
+      "precision_contract"
+    ],
+    "cwd_repository_relative": "projects/chirality-piping",
+    "environment_overrides": {
+      "CARGO_TARGET_DIR": "/private/tmp/piping-numerical-corrections-result-export-containment-target"
+    },
+    "exit_code": 0,
+    "started_unix": 1790305626.951191,
+    "ended_unix": 1790305635.145325,
+    "log_sha256": "35886a8d9dc38ebdf37f195c9a15b75ee9856979b0a3e789061a1fa2bea14501"
+  },
+  {
+    "stage": "rust-headless-binding",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-j2",
+      "--manifest-path",
+      "core/runner/headless/Cargo.toml",
+      "--lib",
+      "result_envelope_binding::tests"
+    ],
+    "cwd_repository_relative": "projects/chirality-piping",
+    "environment_overrides": {
+      "CARGO_TARGET_DIR": "/private/tmp/piping-numerical-corrections-headless-containment-target",
+      "HEADLESS_PRECISION_OUTPUT_DIR": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/HEADLESS_OUTPUTS"
+    },
+    "exit_code": 0,
+    "started_unix": 1790305635.145848,
+    "ended_unix": 1790305659.115257,
+    "log_sha256": "23702b15816ad962cbfd7f91ab8230f0326be0759f2dd3545056290532ca9bde"
+  },
+  {
+    "stage": "frontend",
+    "command": [
+      "npm",
+      "test",
+      "--workspace",
+      "apps/desktop",
+      "--",
+      "src/features/results/numericalResultQuality.test.ts",
+      "src/features/workspace/resultsSessionState.test.ts",
+      "src/features/result-export/resultExportAdapter.test.ts",
+      "src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "src/services/previewService.test.ts",
+      "--maxWorkers=2"
+    ],
+    "cwd_repository_relative": "projects/chirality-piping",
+    "environment_overrides": {},
+    "exit_code": 0,
+    "started_unix": 1790305659.115714,
+    "ended_unix": 1790305668.9518049,
+    "log_sha256": "f3e5489d800126983a72de54e70d58429681cf76ed0192fe91e450570f334ab8"
+  },
+  {
+    "stage": "tsc",
+    "command": [
+      "./node_modules/.bin/tsc",
+      "-b",
+      "apps/desktop/tsconfig.json"
+    ],
+    "cwd_repository_relative": "projects/chirality-piping",
+    "environment_overrides": {},
+    "exit_code": 0,
+    "started_unix": 1790305668.952395,
+    "ended_unix": 1790305675.431073,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "stage": "python",
+    "command": [
+      "/private/tmp/chirality-piping-dec025-venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_analysis_run_compatibility.py",
+      "tests/test_precision_consumer_contract.py"
+    ],
+    "cwd_repository_relative": "projects/chirality-piping",
+    "environment_overrides": {
+      "HEADLESS_PRECISION_OUTPUT_DIR": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/HEADLESS_OUTPUTS"
+    },
+    "exit_code": 0,
+    "started_unix": 1790305675.431753,
+    "ended_unix": 1790305698.867938,
+    "log_sha256": "76a2b842ab1fd213d75669eb56af6914c8be98a0312714f4927674ccd4b28be5"
+  }
+]

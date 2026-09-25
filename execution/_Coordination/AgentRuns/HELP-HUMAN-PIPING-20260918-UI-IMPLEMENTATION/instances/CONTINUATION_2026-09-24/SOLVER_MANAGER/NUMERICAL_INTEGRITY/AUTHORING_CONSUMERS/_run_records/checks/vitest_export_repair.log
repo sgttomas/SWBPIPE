@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  10:19:13
+   Duration  4.99s (transform 115ms, setup 91ms, import 100ms, tests 4.41s, environment 301ms)
+

@@ -1,0 +1,14 @@
+{
+  "agent": "/root/solver_manager/app_cut_diagnosis",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native followup_task",
+  "authority": "Parent authorized repair of single reviewed P2 with two report files only; same fourteen-file combined freeze for backcheck; no runtime or Git.",
+  "instruction_basis": "../../_run_records/runtime_origins.json",
+  "additional_read": {
+    "origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/APP_FAILURE_DIAGNOSIS/REPAIR_01_REVIEW/REVIEW.md",
+    "sha256": "8349420830f43aba9de88fc806814702f1814b992c7015cd9d9dec3c63f5d298"
+  },
+  "return": "../RETURN.md",
+  "tests": "not run"
+}

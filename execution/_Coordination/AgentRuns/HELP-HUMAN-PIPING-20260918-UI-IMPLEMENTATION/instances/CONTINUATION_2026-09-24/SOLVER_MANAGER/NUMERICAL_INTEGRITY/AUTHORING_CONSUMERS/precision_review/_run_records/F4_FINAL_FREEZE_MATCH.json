@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "scope": "32-file source review after F4 repair and restored enriched/absent history fixture distinction",
+  "manager_manifest": "../CURRENT_CONSUMER_FILES.json",
+  "reviewed_manifest": "SOURCE_HASHES_F4_BACKCHECK.json",
+  "manager_manifest_sha256": "47daded25086df2cb26697c1b0b6560c99d4939122f1c48686672650db4d3f76",
+  "file_count": 32,
+  "mismatches": [],
+  "runtime_execution": "Reviewer none; manager runtime lane allocated, results not yet reviewed"
+}

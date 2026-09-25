@@ -1,0 +1,25 @@
+{
+  "allowed": [
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/core/product_physics/examples/preview_result.rs",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+    "projects/chirality-piping/fixtures/product_preview/precision_fixture_generation.json",
+    "projects/chirality-piping/fixtures/product_preview/PRECISION_FIXTURES.md"
+  ],
+  "paths": [
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/core/product_physics/examples/preview_result.rs",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+    "projects/chirality-piping/fixtures/product_preview/precision_fixture_generation.json",
+    "projects/chirality-piping/fixtures/product_preview/PRECISION_FIXTURES.md"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

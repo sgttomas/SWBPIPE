@@ -1,0 +1,4 @@
+{
+  "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "fd78de18caf9f93b83495d1c7be3a5ca7340a03a16e6e2f5145aae4724c381f8",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "6801610d0bb515eab33603163423812b81bf94946d8c23b99c127b655d996a7f"
+}

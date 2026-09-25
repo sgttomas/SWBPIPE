@@ -1,0 +1,664 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/analysis_run.v0.3.schema.json",
+  "title": "Analysis record 0.3 with precision-1 source semantics",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "run_contract_status",
+    "analysis_run"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "deliverable_id": {
+      "const": "DEL-14-02"
+    },
+    "package_id": {
+      "const": "PKG-14"
+    },
+    "scope_item": {
+      "const": "SOW-072"
+    },
+    "objectives": {
+      "type": "array",
+      "const": [
+        "OBJ-016"
+      ]
+    },
+    "run_contract_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_contract",
+        "result_binding",
+        "external_validation_boundary"
+      ],
+      "properties": {
+        "record_contract": {
+          "const": "strict_analysis_run_v0_3"
+        },
+        "result_binding": {
+          "const": "received_mechanics_result"
+        },
+        "external_validation_boundary": {
+          "const": "reference_only_not_determined_by_software"
+        }
+      }
+    },
+    "analysis_run": {
+      "$ref": "#/$defs/AnalysisRun"
+    }
+  },
+  "$defs": {
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_type",
+        "ref"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "openpipestress_jcs_ijson_v1",
+            "rfc8785_jcs"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "enum": [
+            "analysis_run_record",
+            "received_result",
+            "result_row",
+            "input_manifest"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "AnalysisRunRecordChecksum": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Checksum"
+        },
+        {
+          "properties": {
+            "canonicalization": {
+              "const": "openpipestress_jcs_ijson_v1"
+            },
+            "payload_scope": {
+              "const": "analysis_run_record"
+            },
+            "payload_ref": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/Reference"
+                },
+                {
+                  "properties": {
+                    "object_type": {
+                      "const": "AnalysisRun"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ReceivedResultChecksum": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Checksum"
+        },
+        {
+          "properties": {
+            "canonicalization": {
+              "const": "openpipestress_jcs_ijson_v1"
+            },
+            "payload_scope": {
+              "const": "received_result"
+            },
+            "payload_ref": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/Reference"
+                },
+                {
+                  "properties": {
+                    "object_type": {
+                      "const": "ResultEnvelope"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ResultRowChecksum": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Checksum"
+        },
+        {
+          "properties": {
+            "canonicalization": {
+              "const": "openpipestress_jcs_ijson_v1"
+            },
+            "payload_scope": {
+              "const": "result_row"
+            },
+            "payload_ref": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/Reference"
+                },
+                {
+                  "properties": {
+                    "object_type": {
+                      "const": "Result"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "InputManifestChecksum": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Checksum"
+        },
+        {
+          "properties": {
+            "canonicalization": {
+              "const": "rfc8785_jcs"
+            },
+            "payload_scope": {
+              "const": "input_manifest"
+            },
+            "payload_ref": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/Reference"
+                },
+                {
+                  "properties": {
+                    "object_type": {
+                      "const": "InputManifest"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "SemanticContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sha256"
+      ],
+      "properties": {
+        "id": {
+          "const": "openpipestress.result_semantics/0.3.0/precision-1"
+        },
+        "sha256": {
+          "const": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
+        },
+        "signature_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ResultRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_ref",
+        "source_row_index",
+        "category",
+        "source_dimension",
+        "result_family",
+        "semantic_contract",
+        "interpretation",
+        "source_annotation",
+        "hash_refs",
+        "privacy_classification",
+        "provenance"
+      ],
+      "properties": {
+        "result_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_row_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_dimension": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "result_family": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "semantic_contract": {
+          "$ref": "#/$defs/SemanticContract"
+        },
+        "interpretation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "findings"
+          ],
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "findings": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "source_annotation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "unit",
+            "metadata"
+          ],
+          "properties": {
+            "kind": {},
+            "unit": {},
+            "metadata": {}
+          }
+        },
+        "hash_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/ResultRowChecksum"
+          }
+        },
+        "privacy_classification": {
+          "const": "source_evidence"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "AnalysisRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "run_name",
+        "run_kind",
+        "created_at",
+        "model_state_ref",
+        "load_basis_refs",
+        "diagnostics",
+        "result_refs",
+        "rule_pack_refs",
+        "library_refs",
+        "hashes",
+        "analysis_status",
+        "reproducibility",
+        "immutability_policy",
+        "professional_boundary",
+        "solver_version",
+        "settings_ref",
+        "unit_system_ref",
+        "provenance"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_kind": {
+          "const": "mechanics_solve"
+        },
+        "created_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "model_state_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "load_basis_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "result_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResultRef"
+          }
+        },
+        "rule_pack_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "library_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "hashes": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AnalysisRunRecordChecksum"
+              },
+              {
+                "$ref": "#/$defs/ReceivedResultChecksum"
+              }
+            ]
+          },
+          "maxItems": 2,
+          "allOf": [
+            {
+              "contains": {
+                "$ref": "#/$defs/AnalysisRunRecordChecksum"
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "$ref": "#/$defs/ReceivedResultChecksum"
+              },
+              "minContains": 1,
+              "maxContains": 1
+            }
+          ]
+        },
+        "analysis_status": {
+          "type": "array",
+          "contains": {
+            "const": "HUMAN_REVIEW_REQUIRED"
+          },
+          "items": {
+            "enum": [
+              "MODEL_INCOMPLETE",
+              "MECHANICS_SOLVED",
+              "RULE_INPUTS_INCOMPLETE",
+              "USER_RULE_CHECKED",
+              "USER_RULE_FAILED",
+              "HUMAN_REVIEW_REQUIRED"
+            ]
+          }
+        },
+        "reproducibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "input_manifest_refs",
+            "input_manifest_hashes",
+            "semantic_contract"
+          ],
+          "properties": {
+            "input_manifest_refs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1,
+              "items": {
+                "$ref": "#/$defs/Reference"
+              }
+            },
+            "input_manifest_hashes": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1,
+              "items": {
+                "$ref": "#/$defs/InputManifestChecksum"
+              }
+            },
+            "semantic_contract": {
+              "$ref": "#/$defs/SemanticContract"
+            },
+            "determinism_notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unresolved_tbd": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "immutability_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "run_record_is_read_only",
+            "mutation_policy",
+            "new_mechanics_run_required_for_record_revision",
+            "record_revision_identity",
+            "hash_invalidates_external_acceptance"
+          ],
+          "properties": {
+            "run_record_is_read_only": {
+              "const": true
+            },
+            "mutation_policy": {
+              "const": "changes_create_new_immutable_record_revision"
+            },
+            "new_mechanics_run_required_for_record_revision": {
+              "const": false
+            },
+            "record_revision_identity": {
+              "const": "analysis_run_record_sha256"
+            },
+            "hash_invalidates_external_acceptance": {
+              "const": true
+            }
+          }
+        },
+        "professional_boundary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "human_review_required",
+            "software_makes_compliance_claim",
+            "software_makes_certification_claim",
+            "software_makes_sealing_claim",
+            "software_makes_approval_claim",
+            "software_makes_authentication_claim"
+          ],
+          "properties": {
+            "human_review_required": {
+              "const": true
+            },
+            "software_makes_compliance_claim": {
+              "const": false
+            },
+            "software_makes_certification_claim": {
+              "const": false
+            },
+            "software_makes_sealing_claim": {
+              "const": false
+            },
+            "software_makes_approval_claim": {
+              "const": false
+            },
+            "software_makes_authentication_claim": {
+              "const": false
+            }
+          }
+        },
+        "solver_version": {
+          "$ref": "#/$defs/SolverVersion"
+        },
+        "settings_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "review_status",
+        "professional_claim"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_status": {
+          "enum": [
+            "pending",
+            "machine_checked",
+            "human_reviewed"
+          ]
+        },
+        "professional_claim": {
+          "const": false
+        }
+      }
+    },
+    "SolverVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "solver_name",
+        "solver_version",
+        "build_ref"
+      ],
+      "properties": {
+        "solver_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "solver_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "build_ref": {
+          "$ref": "#/$defs/Reference"
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_annotation"
+      ],
+      "properties": {
+        "source_annotation": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

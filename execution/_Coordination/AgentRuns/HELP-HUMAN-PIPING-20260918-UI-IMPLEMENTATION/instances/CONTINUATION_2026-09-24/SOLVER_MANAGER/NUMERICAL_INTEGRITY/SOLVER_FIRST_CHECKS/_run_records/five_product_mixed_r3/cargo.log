@@ -1,0 +1,13 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/private/tmp/piping-product-rotational-gap-target/debug/deps/open_pipe_stress_product_physics-c924aecbdc551246)
+
+running 6 tests
+test tests::explicit_anchor_mixed_dofs_leave_uy_spring_and_other_dofs_free ... ok
+test tests::mixed_nonlinear_preview_bundle_converges_and_emits_each_support_state ... ok
+test tests::endpoint_section_cut_mixed_hydrotest_pressure_blocks_entire_solve ... ok
+test tests::subspan_wind_mixed_whole_and_partial_marking_superposes_on_distinct_pipes ... ok
+test tests::successor_mixed_product_evaluates_actual_final_rows_in_both_modes ... ok
+test tests::mixed_units_are_normalized_at_preview_mechanics_boundary ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 197 filtered out; finished in 0.04s
+

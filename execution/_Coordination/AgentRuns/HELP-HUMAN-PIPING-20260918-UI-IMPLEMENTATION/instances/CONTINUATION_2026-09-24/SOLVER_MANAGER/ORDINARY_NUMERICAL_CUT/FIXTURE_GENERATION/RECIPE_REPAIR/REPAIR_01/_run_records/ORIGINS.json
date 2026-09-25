@@ -1,0 +1,12 @@
+{
+  "agent": "/root/solver_manager/evidence_primitives",
+  "parent": "/root/solver_manager",
+  "mechanism": "native followup TASK; no descendants",
+  "checkout": "/private/tmp/piping-numerical-corrections-20260924",
+  "at": "2026-09-25T01:54:23.325990+00:00",
+  "review": {
+    "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_ROUTE_REVIEW/RECIPE_REVIEW/RETURN.md",
+    "sha256": "93c26207fd86834ffb927bcc0d819d41e461003f0352ec7fb8b58557cff1eb2d"
+  },
+  "limits": "Proposal evidence only; no maintained source/application, Node/Cargo/test/build/Git replay."
+}

@@ -1,0 +1,392 @@
+{
+  "geometry": {
+    "normalization_underflow": {
+      "status": "MechanismWitnessed",
+      "normalized_relative": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "candidate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "singular_values": [
+        1.7320508075688772,
+        1.6180339887498947,
+        1.6180339887498947,
+        0.0,
+        0.6180339887498948,
+        0.6180339887498948
+      ],
+      "screen": 1.1076265073569339e-13,
+      "iterations": 2,
+      "actual_exact_rank": 6,
+      "normalized_exact_rank": 5,
+      "actual_action_nonzero": true,
+      "maximum_actual_action": 1e-200
+    },
+    "centering_rounds_noncollinearity": {
+      "status": "MechanismWitnessed",
+      "normalized_relative": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.7071067811865476,
+          -0.7071067811865476,
+          0.0
+        ],
+        [
+          -0.7071067811865476,
+          -0.7071067811865476,
+          0.0
+        ]
+      ],
+      "candidate": [
+        0.0,
+        0.0,
+        0.0,
+        -0.7071067811865476,
+        -0.7071067811865476,
+        0.0
+      ],
+      "singular_values": [
+        1.804808565347839,
+        1.527525231651947,
+        1.618033988749895,
+        0.618033988749895,
+        0.0,
+        0.6397911449166401
+      ],
+      "screen": 1.1541542539909646e-13,
+      "iterations": 64,
+      "actual_exact_rank": 6,
+      "normalized_exact_rank": 5,
+      "actual_action_nonzero": true,
+      "maximum_actual_action": 1.4142135623730951
+    },
+    "near_collinear_retained": {
+      "status": "NumericallyUnresolved",
+      "normalized_relative": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          1.0,
+          1e-16,
+          0.0
+        ]
+      ],
+      "candidate": [
+        0.0,
+        0.0,
+        -7.703719777548943e-34,
+        1.0,
+        5e-17,
+        0.0
+      ],
+      "singular_values": [
+        1.7320508075688772,
+        1.6180339887498947,
+        1.6180339887498947,
+        4.999999999999999e-17,
+        0.6180339887498948,
+        0.6180339887498948
+      ],
+      "screen": 1.1076265073569339e-13,
+      "iterations": 3,
+      "actual_exact_rank": 6,
+      "normalized_exact_rank": 6,
+      "actual_action_nonzero": true,
+      "maximum_actual_action": 5e-17
+    },
+    "noncollinear_positive": {
+      "status": "Restrained",
+      "singular_values": [
+        1.6675660126077214,
+        1.5811388300841893,
+        1.5102239590221096,
+        0.46821319246213566,
+        0.7071067811865475,
+        0.8480705121601532
+      ],
+      "screen": 1.0663892249929679e-13
+    },
+    "N02": {
+      "status": "MechanismWitnessed",
+      "normalized_relative": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.6,
+          0.8,
+          0.0
+        ]
+      ],
+      "candidate": [
+        0.0,
+        0.0,
+        0.0,
+        0.6,
+        0.8,
+        0.0
+      ],
+      "singular_values": [
+        1.2921259536155814,
+        1.4142135623730951,
+        1.3065629648763766,
+        0.5411961001461969,
+        0.0,
+        0.574813465389447
+      ],
+      "screen": 6.029155041345701e-14,
+      "iterations": 64,
+      "actual_exact_rank": 5,
+      "normalized_exact_rank": 5,
+      "actual_action_nonzero": false,
+      "maximum_actual_action": 0.0
+    },
+    "N03_RX": {
+      "status": "Restrained",
+      "singular_values": [
+        1.2921259536155814,
+        1.4142135623730951,
+        1.3804124433710894,
+        0.9999999999999999,
+        0.3073458738721871,
+        0.574813465389447
+      ],
+      "screen": 7.034014214903319e-14
+    },
+    "N03_RZ": {
+      "status": "MechanismWitnessed",
+      "normalized_relative": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.6,
+          0.8,
+          0.0
+        ]
+      ],
+      "candidate": [
+        0.0,
+        0.0,
+        0.0,
+        0.6,
+        0.8,
+        0.0
+      ],
+      "singular_values": [
+        1.0,
+        1.2956068267791174,
+        1.3065629648763766,
+        0.5411961001461969,
+        0.0,
+        1.523615092601589
+      ],
+      "screen": 7.578155452997586e-14,
+      "iterations": 64,
+      "actual_exact_rank": 5,
+      "normalized_exact_rank": 5,
+      "actual_action_nonzero": false,
+      "maximum_actual_action": 0.0
+    }
+  },
+  "residual_controls": {
+    "R01": [
+      {
+        "row": 0,
+        "ratio": 0.004975124378109904,
+        "target": 2.842170943040402e-14,
+        "passed": false,
+        "normal_residual": 0.009765625,
+        "physical_residual": 10.0,
+        "operations": 4
+      }
+    ],
+    "R02": [
+      {
+        "row": 0,
+        "ratio": 0.004975124378109904,
+        "target": 2.842170943040402e-14,
+        "passed": false,
+        "normal_residual": 0.009765625,
+        "physical_residual": 10.0,
+        "operations": 4
+      }
+    ],
+    "R03": [
+      {
+        "row": 0,
+        "ratio": 1.0000000000000018,
+        "target": 2.842170943040402e-14,
+        "passed": false,
+        "normal_residual": -1.953125,
+        "physical_residual": -1000.0,
+        "operations": 4
+      }
+    ],
+    "R04": [
+      {
+        "row": 1,
+        "ratio": 1.0000000000000027,
+        "target": 5.684341886080807e-14,
+        "passed": false,
+        "normal_residual": -0.9108010928070995,
+        "physical_residual": -119380.52083641215,
+        "operations": 8
+      }
+    ],
+    "R05": [
+      {
+        "row": 0,
+        "ratio": 0.1111111111111117,
+        "target": 2.842170943040402e-14,
+        "passed": false,
+        "normal_residual": 0.244140625,
+        "physical_residual": 250.0,
+        "operations": 4
+      }
+    ],
+    "R04_valid": [
+      {
+        "row": 1,
+        "ratio": 8.881784197001284e-16,
+        "target": 5.684341886080807e-14,
+        "passed": true,
+        "normal_residual": 0.0,
+        "physical_residual": 0.0,
+        "operations": 8
+      }
+    ],
+    "soft_cancellation": [
+      {
+        "row": 0,
+        "ratio": 5.269796704346447e-16,
+        "target": 2.842170943040402e-14,
+        "passed": true,
+        "normal_residual": -2.220446049250313e-16,
+        "physical_residual": -6.63123685e-316,
+        "operations": 4
+      }
+    ],
+    "all_fixed": []
+  },
+  "invalid_energy": {
+    "exact_energy": "-2",
+    "zero_load_null_rank": 1
+  },
+  "public_completion_bypass": {
+    "empty_pivots": [],
+    "rcond": 0.3333333333333333,
+    "residual_rows": [
+      {
+        "row": 0,
+        "ratio": 7.216449660063539e-16,
+        "target": 4.263256414560604e-14,
+        "passed": true,
+        "normal_residual": -1.1102230246251565e-16,
+        "physical_residual": -1.1102230246251565e-16,
+        "operations": 6
+      },
+      {
+        "row": 1,
+        "ratio": 6.938893903907249e-16,
+        "target": 4.263256414560604e-14,
+        "passed": true,
+        "normal_residual": -5.551115123125783e-17,
+        "physical_residual": -5.551115123125783e-17,
+        "operations": 6
+      }
+    ],
+    "negative_energy": -2,
+    "source_result": "finish_structural returns Passed; top-level wrappers correctly reject"
+  },
+  "prescribed_contribution_loss": {
+    "stored_u": [
+      1.0,
+      0.5
+    ],
+    "intended_u": [
+      1.0,
+      1.0
+    ],
+    "reported_free_free_perturbation": 0.0,
+    "reported_amplification": 0.0,
+    "original_stored_residual": [
+      {
+        "row": 1,
+        "ratio": 6.66133814775096e-16,
+        "target": 4.263256414560604e-14,
+        "passed": true,
+        "normal_residual": 0.0,
+        "physical_residual": 0.0,
+        "operations": 6
+      }
+    ],
+    "intended_free_residual": "-1"
+  },
+  "low_word_loss": {
+    "terms": [
+      1e+16,
+      1.0,
+      1e-16,
+      -1.0,
+      -1e+16
+    ],
+    "accumulated_high": 0.0,
+    "accumulated_low": 0.0,
+    "exact_total": "2028240960365167/20282409603651670423947251286016",
+    "exact_total_float": 1e-16
+  },
+  "NP_B": {
+    "n8_orderings": {
+      "even_odd": true,
+      "natural": true,
+      "reverse": true
+    },
+    "exact_rcond1": 0.018556935097880433,
+    "hager_rcond_transcription": 0.02135131400417051,
+    "n80_comparison_squared_u": 8954.221020926989,
+    "analytical_uniform_condition2_bound": "<429 for dyadic family, independent of order"
+  },
+  "limitations": [
+    "Source transcriptions are not Rust execution.",
+    "Parent frame 51/51 and sparse 24/24 logs are separate observed runs.",
+    "No full N01-N09 product, sparse/fallback mutation, native, DEC050/053, or closure claim.",
+    "N05/N06 still require contribution-preserving physical-accuracy repair."
+  ]
+}

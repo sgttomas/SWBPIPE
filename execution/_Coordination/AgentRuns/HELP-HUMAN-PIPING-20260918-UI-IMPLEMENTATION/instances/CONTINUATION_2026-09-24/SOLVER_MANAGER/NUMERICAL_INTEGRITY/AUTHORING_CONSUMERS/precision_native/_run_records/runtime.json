@@ -1,0 +1,9 @@
+{
+  "checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "agent": "/root/authoring_manager/precision_native",
+  "parent": "/root/authoring_manager",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "enforcement": "assigned shared worktree scope, not OS sandbox; host permissions remain actual boundary",
+  "heavy_commands_executed": []
+}

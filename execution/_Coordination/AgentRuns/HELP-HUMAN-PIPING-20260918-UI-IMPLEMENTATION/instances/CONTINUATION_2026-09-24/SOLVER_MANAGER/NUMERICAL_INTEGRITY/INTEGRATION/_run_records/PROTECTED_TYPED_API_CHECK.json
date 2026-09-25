@@ -1,0 +1,7 @@
+{
+  "section": "CONTACT_RECOVERY",
+  "original_sha256": "d9dc619fc7fb1e11a2d023640fc835f3e5d06a1c00066d192e30ac9c59ca1391",
+  "current_sha256": "553cc6d6bee73f3ca2b7536b20e8f987017abbbdaeed6b46ac33f82641b126fd",
+  "only_change_after_normalizing_two_error_type_patterns": true,
+  "change_authorization": "Parent explicitly authorized adapting obsolete FrameKernel::Singular API assertions to actual typed structural mechanism; numerical limits/admissibility/cap assertions preserved"
+}

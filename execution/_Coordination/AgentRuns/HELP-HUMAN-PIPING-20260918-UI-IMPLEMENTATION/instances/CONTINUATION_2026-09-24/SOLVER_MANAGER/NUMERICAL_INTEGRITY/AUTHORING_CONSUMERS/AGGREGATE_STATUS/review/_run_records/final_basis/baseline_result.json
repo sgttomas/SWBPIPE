@@ -1,0 +1,17 @@
+{
+  "command": [
+    "../../node_modules/.bin/vitest",
+    "run",
+    "--config",
+    "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/AGGREGATE_STATUS/_run_records/vitest.baseline.config.mjs",
+    "--maxWorkers=2",
+    "--no-cache"
+  ],
+  "started_at": "2026-09-24T23:58:01.851632+00:00",
+  "exit_code": 1,
+  "route": "Explicit source-snapshot baseline: only ./numericalResultQuality imports the exact original module through config alias; same maintained tests as repaired run. No mock/reimplementation.",
+  "source_sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+  "test_sha256": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655",
+  "config_sha256": "908577d21761129cfc255080186c57e850c98c6080465e4d9672fdb37f01cb54",
+  "log_sha256": "a30d21751bc42ee8cd729fe438010137de023c51ed749f7946be2ce2c8a843c7"
+}

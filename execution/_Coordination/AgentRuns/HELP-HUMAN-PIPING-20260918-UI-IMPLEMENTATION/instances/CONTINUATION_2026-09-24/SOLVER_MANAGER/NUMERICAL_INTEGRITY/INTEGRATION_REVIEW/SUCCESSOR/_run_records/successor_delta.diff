@@ -1,0 +1,657 @@
+--- pre-successor/projects/chirality-piping/core/product_physics/src/lib.rs
++++ successor/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -768,18 +768,18 @@
+     case_id: &str,
+     report: &StructuralReport,
+     model: &PreviewModel,
+-    nonlinear: bool,
++    equilibrium: Option<
++        &open_pipe_stress_nonlinear_integration::product_equilibrium::ProductEquilibriumReport,
++    >,
+ ) {
+-    let code = if nonlinear {
+-        "NUMERICAL_INTEGRITY_NONLINEAR_POLICY_UNRESOLVED"
+-    } else if report.quality == SolveQuality::Sensitive {
++    let code = if report.quality == SolveQuality::Sensitive {
+         "NUMERICAL_INTEGRITY_SENSITIVE"
+     } else {
+         "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+     };
+-    diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, if nonlinear || report.quality == SolveQuality::Sensitive { "warning" } else { "info" },
++    diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, if report.quality == SolveQuality::Sensitive { "warning" } else { "info" },
+         format!("{} represented original-equation structural evidence for load case {}: {:?}; global_dof_map={:?}. {} No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.", report.policy, case_id, report, integrity_dof_map(model),
+-            if nonlinear { "Structural subsolves passed; protected nonlinear force/moment/work/count/cap and admissibility policy remains independently applicable, and Current qualification is unresolved pending its successor disposition." } else { "The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable." }),
++            equilibrium.map(|e|format!("{} final same-state evaluated equilibrium and derived residual-work evidence: {:?}; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed",e.policy,e)).unwrap_or_else(||"The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable.".into())),
+         vec![case_id.to_string()]));
+ }
+ 
+@@ -1695,15 +1695,20 @@
+                 &load_case.id,
+                 &linear.structural_report,
+                 model,
+-                false,
++                None,
+             );
+         }
+-    } else if let Some(report) = selected_nonlinear
++    } else if let Some(iteration) = selected_nonlinear
+         .as_ref()
+         .and_then(|solve| solve.iterations.last())
+-        .map(|iteration| &iteration.structural_report)
+     {
+-        append_integrity_report(diagnostics, &load_case.id, report, model, true);
++        append_integrity_report(
++            diagnostics,
++            &load_case.id,
++            &iteration.structural_report,
++            model,
++            Some(&iteration.product_equilibrium),
++        );
+     }
+     require_finite_mechanics(displacements.iter().copied())?;
+     let component_pressure_thrust_load_count = append_expansion_joint_pressure_thrust_results(
+@@ -2333,6 +2338,21 @@
+         &springs,
+     ) {
+         Ok(solve) => {
++            if solve.converged {
++                match open_pipe_stress_nonlinear_integration::product_selected_state_is_qualified(
++                    &input, &solve,
++                ) {
++                    Ok(true) => {}
++                    outcome => {
++                        let error=StructuralError::NumericallyUnresolved{reason:"M03 product final same-state equilibrium/contact qualification failed",global_dof:None};
++                        append_integrity_failure(diagnostics, &load_case.id, &error, model);
++                        if let Err(error) = outcome {
++                            diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error));
++                        }
++                        return None;
++                    }
++                }
++            }
+             for (index, solver_diagnostic) in solve.diagnostics.iter().enumerate() {
+                 diagnostics.push(product_diag_from_solver_diag(
+                     solver_diagnostic,
+@@ -2399,6 +2419,7 @@
+                 append_nonlinear_residual_observation_results(
+                     results,
+                     &final_iteration.residuals,
++                    &final_iteration.product_equilibrium,
+                     &solve.policy_ref,
+                     solver_mode,
+                 );
+@@ -2520,13 +2541,13 @@
+                 },
+                 if solve.converged { "info" } else { "warning" },
+                 format!(
+-                    "{} nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; accepted free-DOF work residual policy_ref={}; accepted general-energy residual policy_ref={}; accepted displacement/reaction-delta policy_ref={} for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
++                    "{} nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; prospective evaluated force/moment equilibrium policy_ref={}; derived per-row residual-work policy_ref={}; historical general-energy alias is residual work, not total energy balance; historical policy_ref={}; accepted displacement/reaction-delta policy_ref={} for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+                     solver_mode.as_str(),
+                     solve.iterations.len(),
+                     final_residual,
+                     solve.policy_ref,
+-                    DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF,
+-                    DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF,
++                    open_pipe_stress_nonlinear_integration::product_equilibrium::POLICY,
++                    open_pipe_stress_nonlinear_integration::product_equilibrium::POLICY,
+                     DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_POLICY_REF,
+                     DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_POLICY_REF
+                 ),
+@@ -3105,6 +3126,7 @@
+ fn append_nonlinear_residual_observation_results(
+     results: &mut Vec<ResultItem>,
+     residuals: &NonlinearResidualObservation,
++    equilibrium: &open_pipe_stress_nonlinear_integration::product_equilibrium::ProductEquilibriumReport,
+     policy_ref: &str,
+     solver_mode: PreviewSolverMode,
+ ) {
+@@ -3119,20 +3141,11 @@
+         DEC_046_PRODUCT_PREVIEW_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT_N_M
+     );
+     let free_dof_work_threshold_basis = format!(
+-        "{}_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold={} N*m; general_energy_threshold_policy_ref={}; general_energy_threshold_policy_status=accepted; general_energy_threshold={} N*m; product_preview_only",
+-        solver_mode.as_str(),
+-        DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF,
+-        DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_ABSOLUTE_LIMIT,
+-        DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_POLICY_REF,
+-        DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_ABSOLUTE_LIMIT
+-    );
++        "{}_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; observed_compliance={}; residual_basis=free_dof_work_residual; work_target=per_row_abs_u_times_tau_times_original_denominator_with_evaluation_allowance; observed_governing_global_dof={:?}; general_energy_alias=residual_work_not_total_energy_balance; historical_superseded_policy_refs={},{}, historical_limits={} N*m,{} N*m; product_preview_only",
++        solver_mode.as_str(),equilibrium.policy,equilibrium.passed,equilibrium.observed_governing_work_dof,DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF,DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_POLICY_REF,DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_ABSOLUTE_LIMIT,DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_ABSOLUTE_LIMIT);
+     let force_moment_threshold_basis = format!(
+-        "{}_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold={} N; moment_threshold={} N*m; product_preview_only",
+-        solver_mode.as_str(),
+-        DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF,
+-        DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_ABSOLUTE_LIMIT,
+-        DEC_046_PRODUCT_PREVIEW_FREE_DOF_MOMENT_ABSOLUTE_LIMIT
+-    );
++        "{}_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; observed_compliance={}; residual_basis=free_dof_force_moment_equilibrium; target=64*gamma(actual_row_operation_count); original_full_equations_with_prescribed_coupling; evaluation_allowance_and_denominator_guard; historical_superseded_policy_ref={}; historical_zero_limits={} N,{} N*m; product_preview_only",
++        solver_mode.as_str(),equilibrium.policy,equilibrium.passed,DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF,DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_ABSOLUTE_LIMIT,DEC_046_PRODUCT_PREVIEW_FREE_DOF_MOMENT_ABSOLUTE_LIMIT);
+     if let Some(value) = residuals.max_abs_translation_delta_from_previous {
+         append_nonlinear_scalar_result(
+             results,
+@@ -3193,7 +3206,7 @@
+         results,
+         "result:nonlinear-support:free-dof-force-residual",
+         "nonlinear_support_observed_free_dof_force_residual",
+-        residuals.max_abs_free_dof_force_residual,
++        equilibrium.rows.iter().filter(|r|r.global_dof%6<3).map(|r|r.residual.abs()).fold(0.0,f64::max),
+         "N",
+         "nonlinear_supports",
+         "observed_free_dof_force_residual",
+@@ -3205,7 +3218,7 @@
+         results,
+         "result:nonlinear-support:free-dof-moment-residual",
+         "nonlinear_support_observed_free_dof_moment_residual",
+-        residuals.max_abs_free_dof_moment_residual,
++        equilibrium.rows.iter().filter(|r|r.global_dof%6>=3).map(|r|r.residual.abs()).fold(0.0,f64::max),
+         "N*m",
+         "nonlinear_supports",
+         "observed_free_dof_moment_residual",
+@@ -3217,7 +3230,11 @@
+         results,
+         "result:nonlinear-support:free-dof-work-residual",
+         "nonlinear_support_free_dof_work_residual",
+-        residuals.max_abs_free_dof_work_residual,
++        equilibrium
++            .work_rows
++            .iter()
++            .map(|r| r.observed_work)
++            .fold(0.0, f64::max),
+         "N*m",
+         "nonlinear_supports",
+         "free_dof_work_residual",
+@@ -10303,7 +10320,7 @@
+         input.model.load_cases[1].id = "load-a:b".into();
+         input.model.combinations.clear();
+         // A new explicit linear-only companion; the retained nonlinear fixture
+-        // remains separately checked as unresolved under its protected policy.
++        // remains separately checked against the adopted equilibrium successor.
+         input
+             .model
+             .supports
+@@ -10386,16 +10403,22 @@
+                 .unwrap();
+             assert_eq!(
+                 quality.structural_status,
+-                StructuralStatus::NumericallyUnresolved,
++                StructuralStatus::PassiveModelBasis,
+                 "{:?}",
+                 output.diagnostics
+             );
+-            assert_eq!(quality.solve_quality, NumericalQualityStatus::Unresolved);
++            assert!(matches!(
++                quality.solve_quality,
++                NumericalQualityStatus::ChecksPassed | NumericalQualityStatus::Sensitive
++            ));
+             assert!(output
+                 .diagnostics
+                 .iter()
+                 .any(|d| d.id == quality.evidence_refs[0]
+-                    && d.code == "NUMERICAL_INTEGRITY_NONLINEAR_POLICY_UNRESOLVED"));
++                    && d.message.contains(
++                        open_pipe_stress_nonlinear_integration::product_equilibrium::POLICY
++                    )
++                    && d.message.contains("passed: true")));
+             assert_eq!(quality.evidence_refs.len(), 1);
+             assert!(output
+                 .diagnostics
+@@ -11895,6 +11918,51 @@
+                 provenance: Some("invented_example_user_input".to_string()),
+             });
+         request
++    }
++
++    #[test]
++    fn successor_mixed_product_evaluates_actual_final_rows_in_both_modes() {
++        for mode in [
++            PreviewSolverMode::DenseScrutiny,
++            PreviewSolverMode::SparseInteractive,
++        ] {
++            let output =
++                run_linear_static_preview_with_mode(mixed_nonlinear_preview_request(), mode);
++            assert_eq!(
++                output.status.mechanics, "MECHANICS_SOLVED",
++                "{:?}",
++                output.diagnostics
++            );
++            assert!(matches!(
++                output.numerical_quality.status,
++                NumericalQualityStatus::ChecksPassed | NumericalQualityStatus::Sensitive
++            ));
++            let evidence = output
++                .diagnostics
++                .iter()
++                .find(|d| d.id == output.numerical_quality.cases[0].evidence_refs[0])
++                .unwrap();
++            assert!(evidence
++                .message
++                .contains(open_pipe_stress_nonlinear_integration::product_equilibrium::POLICY));
++            assert!(evidence.message.contains("normalized_evaluation_allowance"));
++            assert!(evidence.message.contains("observed_governing_work_dof"));
++            assert!(evidence
++                .message
++                .contains("separate zero count/cap/contact/sliding checks passed"));
++            for metric in ["force", "moment", "work"] {
++                let id = format!("result:nonlinear-support:free-dof-{metric}-residual");
++                let row = output.results.iter().find(|row| row.id == id).unwrap();
++                assert!(row.value.is_finite());
++                let basis = &row.metadata.as_ref().unwrap().basis;
++                assert!(basis.contains("observed_compliance=true"));
++                assert!(basis
++                    .contains(open_pipe_stress_nonlinear_integration::product_equilibrium::POLICY));
++                assert!(
++                    !basis.contains("threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof")
++                );
++            }
++        }
+     }
+ 
+     #[test]
+@@ -12038,17 +12106,14 @@
+                 <= DEC_046_PRODUCT_PREVIEW_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT_N_M,
+             "max moment reaction delta {max_moment_reaction_delta}"
+         );
+-        assert_eq!(
+-            result_value(&result, "result:nonlinear-support:free-dof-force-residual"),
+-            0.0
++        assert!(
++            result_value(&result, "result:nonlinear-support:free-dof-force-residual").is_finite()
+         );
+-        assert_eq!(
+-            result_value(&result, "result:nonlinear-support:free-dof-moment-residual"),
+-            0.0
++        assert!(
++            result_value(&result, "result:nonlinear-support:free-dof-moment-residual").is_finite()
+         );
+-        assert_eq!(
+-            result_value(&result, "result:nonlinear-support:free-dof-work-residual"),
+-            0.0
++        assert!(
++            result_value(&result, "result:nonlinear-support:free-dof-work-residual").is_finite()
+         );
+         let translation_delta = result
+             .results
+@@ -12086,7 +12151,11 @@
+             .expect("work residual row exists");
+         for residual in [force_residual, moment_residual] {
+             let basis = &residual.metadata.as_ref().unwrap().basis;
+-            assert!(basis.contains(DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF));
++            assert!(
++                basis.contains(open_pipe_stress_nonlinear_integration::product_equilibrium::POLICY)
++            );
++            assert!(basis.contains("observed_compliance=true"));
++            assert!(basis.contains("target=64*gamma(actual_row_operation_count)"));
+             assert!(basis.contains("threshold_policy_status=accepted"));
+             assert!(basis.contains("residual_basis=free_dof_force_moment_equilibrium"));
+             assert!(!basis.contains("threshold=TBD"));
+@@ -12096,8 +12165,10 @@
+         assert!(work_basis.contains(DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_POLICY_REF));
+         assert!(work_basis.contains("threshold_policy_status=accepted"));
+         assert!(work_basis.contains("residual_basis=free_dof_work_residual"));
+-        assert!(work_basis.contains("general_energy_threshold_policy_status=accepted"));
+-        assert!(work_basis.contains("general_energy_threshold=0 N*m"));
++        assert!(work_basis
++            .contains(open_pipe_stress_nonlinear_integration::product_equilibrium::POLICY));
++        assert!(work_basis.contains("observed_compliance=true"));
++        assert!(work_basis.contains("general_energy_alias=residual_work_not_total_energy_balance"));
+         assert!(!work_basis.contains("observed_residual_only"));
+         let iteration_count = result
+             .results
+--- pre-successor/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
++++ successor/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+@@ -6,6 +6,7 @@
+ //! standards content, public support defaults, catalog values, or professional
+ //! approval claims.
+ 
++pub mod product_equilibrium;
+ pub mod structural_adapter;
+ use open_pipe_stress_frame_kernel::structural::{
+     StructuralError, StructuralReport, StructuralSystem,
+@@ -248,6 +249,8 @@
+ 
+ #[derive(Debug, Clone, PartialEq)]
+ pub struct NonlinearFrameIteration {
++    pub product_equilibrium: product_equilibrium::ProductEquilibriumReport,
++    pub contact_branches_admissible: bool,
+     /// Gates this iteration's retained original equations and the actual
+     /// active_restrained_dofs/active_prescribed_displacements below. It does
+     /// not certify the newly classified active_set states: a caller's nonzero
+@@ -632,6 +635,9 @@
+         );
+ 
+         let iteration = NonlinearFrameIteration {
++            product_equilibrium: linearized.product_equilibrium,
++            contact_branches_admissible: resolved_friction.tangential_branches_admissible
++                && sliding_solve.derived_normal_branches_admissible,
+             structural_report: linearized.structural_report,
+             iteration: iteration_index,
+             active_restrained_dofs: boundary.dofs.clone(),
+@@ -688,6 +694,84 @@
+     unreachable!("positive max_iterations loop must return on the capped final iteration")
+ }
+ 
++/// Product qualification requires zero classified state changes in addition to
++/// the actual retained-boundary equilibrium report. Generic count tolerances
++/// and convergence policies are not changed by this product-only check.
++pub fn product_selected_state_is_qualified(
++    input: &NonlinearFrameSolveInput,
++    solve: &NonlinearFrameSolveResult,
++) -> Result<bool, NonlinearIntegrationError> {
++    validate_input(input)?;
++    let Some(last) = solve.iterations.last() else {
++        return Ok(false);
++    };
++    let expected = input.node_count * DOF_PER_NODE;
++    if solve.displacements.len() != expected
++        || solve.reactions.len() != expected
++        || solve
++            .displacements
++            .iter()
++            .chain(&solve.reactions)
++            .any(|value| !value.is_finite())
++    {
++        return Ok(false);
++    }
++    let boundary = active_boundary(
++        input.node_count,
++        &input.base_restrained_dofs,
++        &input.nonlinear_supports,
++        &solve.final_states,
++    )?;
++    let normals = friction_normal_map(input)?;
++    let derived = derived_friction_normal_map(input)?;
++    let trials = build_trial_states(
++        &input.nonlinear_supports,
++        &solve.displacements,
++        &solve.reactions,
++        &normals,
++        &derived,
++    )?;
++    for support in &input.nonlinear_supports {
++        if !matches!(support.behavior, NonlinearSupportBehavior::Friction) {
++            let state = solve
++                .final_states
++                .iter()
++                .find(|s| s.support_id == support.support_id)
++                .map(|s| s.state);
++            let trial = trials
++                .iter()
++                .find(|t| t.support_id == support.support_id)
++                .ok_or_else(|| NonlinearIntegrationError::InvalidInput {
++                    detail: "missing final contact trial".into(),
++                })?;
++            if Some(open_pipe_stress_nonlinear_supports::classify_support_state(
++                support, trial, state,
++            )?) != state
++            {
++                return Ok(false);
++            }
++        }
++    }
++    Ok(solve.converged
++        && last.contact_branches_admissible
++        && last.active_set.changed_supports.is_empty()
++        && last.active_set.residual_norm == 0.0
++        && last.product_equilibrium.policy == product_equilibrium::POLICY
++        && last.product_equilibrium.passed
++        && last.product_equilibrium.rows == last.structural_report.residual_rows
++        && last.structural_report.contribution_audit_performed
++        && last.active_set.states == solve.final_states
++        && last
++            .structural_report
++            .residual_rows
++            .iter()
++            .all(|r| r.passed)
++        && boundary.dofs == last.active_restrained_dofs
++        && boundary.displacements == last.active_prescribed_displacements
++        && solve.displacements == last.displacements
++        && solve.reactions == last.reactions)
++}
++
+ pub fn assembled_loop_assumptions() -> Vec<String> {
+     vec![
+         "Active nonlinear support states are represented as prescribed frame DOFs in the current linearized iteration.".to_string(),
+@@ -731,6 +815,7 @@
+ 
+ #[derive(Debug, Clone, PartialEq)]
+ struct LinearizedSolve {
++    product_equilibrium: product_equilibrium::ProductEquilibriumReport,
+     structural_report: StructuralReport,
+     displacements: DenseVector,
+     reactions: DenseVector,
+@@ -1600,6 +1685,23 @@
+         }
+     };
+     let displacements = checked.displacements;
++    let original = StructuralSystem {
++        stiffness,
++        force,
++        free_dofs: &reduced.free_dofs,
++        prescribed: &prescribed,
++        contributions: assembly.map(|a| a.contributions.as_slice()),
++        symmetry: assembly.map(
++            |a| open_pipe_stress_frame_kernel::structural::SymmetryEvidence {
++                absolute_roundoff: &a.absolute_roundoff,
++                operation_counts: &a.operation_counts,
++                basis: "same retained structural assembly evidence",
++            },
++        ),
++    };
++    // The selected solve above already gates formation/factor/fidelity. Reuse
++    // its caller's actual original K/f/u and full prescribed map for measurement.
++    let product_equilibrium = product_equilibrium::evaluate(&original, &displacements)?;
+     // DEC050/053 retains the legacy unscaled sparse factor/report basis as an
+     // observation only; it never selects or rescues the structural solution.
+     let sparse_evidence = match linear_solve_mode {
+@@ -1643,6 +1745,7 @@
+ 
+     validate_finite("free DOF work residual", max_abs_free_dof_work_residual)?;
+     Ok(LinearizedSolve {
++        product_equilibrium,
+         structural_report: checked.report,
+         displacements,
+         reactions,
+@@ -2274,6 +2377,34 @@
+         }
+     }
+     // CONTACT_CLASS_FROZEN_END
++
++    #[test]
++    fn successor_rechecks_contact_admissibility_even_when_equations_and_count_flags_pass() {
++        for mode in [
++            LinearSolveMode::DenseScrutiny,
++            LinearSolveMode::SparseInteractive,
++        ] {
++            let input =
++                contact_recovery_problem(ActiveSetState::Active, ActiveSetState::Active, true, 1);
++            let mut trial = solve_active_set_frame_with_mode(&input, mode).unwrap();
++            assert!(!trial.converged);
++            assert!(trial.iterations[0].product_equilibrium.passed);
++            assert!(trial.iterations[0]
++                .structural_report
++                .residual_rows
++                .iter()
++                .all(|row| row.passed));
++            // Retain actual same-boundary K/f/u/reactions. Corrupt only the
++            // claimed classification/convergence flags to accept the authored
++            // active contact state despite its inadmissible reaction sign.
++            trial.final_states = input.initial_states.clone();
++            trial.converged = true;
++            trial.iterations[0].active_set.changed_supports.clear();
++            trial.iterations[0].active_set.residual_norm = 0.0;
++            trial.iterations[0].active_set.states = trial.final_states.clone();
++            assert!(!product_selected_state_is_qualified(&input, &trial).unwrap());
++        }
++    }
+ 
+     #[test]
+     fn integrity_contact_seed_cannot_hide_arbitrary_zero_diagonal_negative_energy() {
+--- pre-successor/projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs
++++ successor/projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs
+@@ -0,0 +1,165 @@
++//! Prospective product-preview continuous equilibrium measurement. This evidence
++//! supplements, and never replaces, structural factor/fidelity and contact gates.
++use open_pipe_stress_frame_kernel::structural::{
++    self, ResidualRow, StructuralError, StructuralSystem,
++};
++pub const POLICY: &str = "M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1";
++#[derive(Debug, Clone, PartialEq)]
++pub struct WorkRow {
++    pub global_dof: usize,
++    pub observed_work: f64,
++    pub evaluation_allowance: f64,
++    pub derived_target: f64,
++    pub normalized_work: f64,
++    pub normalized_allowance: f64,
++    pub normalized_target: f64,
++    pub scale_exponent: i32,
++    pub passed: bool,
++}
++#[derive(Debug, Clone, PartialEq)]
++pub struct ProductEquilibriumReport {
++    pub policy: &'static str,
++    pub rows: Vec<ResidualRow>,
++    pub work_rows: Vec<WorkRow>,
++    /// Governs the measured work only; no exact-arithmetic maximum is claimed.
++    pub observed_governing_work_dof: Option<usize>,
++    pub passed: bool,
++}
++fn exponent(x: f64) -> i32 {
++    let bits = x.abs().to_bits();
++    let e = ((bits >> 52) & 0x7ff) as i32;
++    if e != 0 {
++        e - 1023
++    } else {
++        -1074 + (63 - (bits & ((1u64 << 52) - 1)).leading_zeros() as i32)
++    }
++}
++fn record(mut value: f64, mut power: i32) -> Result<f64, StructuralError> {
++    while power != 0 {
++        let step = power.clamp(-512, 512);
++        value *= 2f64.powi(step);
++        power -= step;
++        if !value.is_finite() {
++            return Err(StructuralError::Range(
++                "product residual-work record overflow",
++            ));
++        }
++    }
++    Ok(value)
++}
++/// Re-evaluate immutable full original equations and prescribed compatibility.
++/// Calling this function alone does not establish structural or contact validity.
++pub fn evaluate(
++    system: &StructuralSystem<'_>,
++    u: &[f64],
++) -> Result<ProductEquilibriumReport, StructuralError> {
++    let rows = structural::evaluate_original_residual(system, u)?;
++    let mut work_rows = Vec::with_capacity(rows.len());
++    for row in &rows {
++        let value = u[row.global_dof].abs();
++        let power = if value == 0.0 { 0 } else { exponent(value) };
++        let mantissa = if value == 0.0 {
++            0.0
++        } else {
++            structural::radix_scale(value, -power)?
++        };
++        let work = structural::checked_product(mantissa, row.normalized_residual.abs())?;
++        let allowance = structural::checked_product(mantissa, row.normalized_evaluation_allowance)?;
++        let denominator = structural::checked_quotient(
++            row.normalized_denominator,
++            1.0 + structural::gamma(row.operation_count),
++        )?;
++        let target = structural::checked_product(
++            mantissa,
++            structural::checked_product(row.target, denominator)?,
++        )?;
++        let scale = power + row.row_scale_exponent;
++        // The authoritative equilibrium guard already includes evaluation and
++        // denominator reserves. Multiplying both sides by |u_i| preserves it;
++        // u_i=0 never changes a failed equilibrium row into a passing row.
++        work_rows.push(WorkRow {
++            global_dof: row.global_dof,
++            observed_work: record(work, scale)?,
++            evaluation_allowance: record(allowance, scale)?,
++            derived_target: record(target, scale)?,
++            normalized_work: work,
++            normalized_allowance: allowance,
++            normalized_target: target,
++            scale_exponent: scale,
++            passed: row.passed,
++        });
++    }
++    let governing = work_rows
++        .iter()
++        .max_by(|a, b| a.observed_work.total_cmp(&b.observed_work))
++        .map(|r| r.global_dof);
++    let passed = rows.iter().all(|r| r.passed) && work_rows.iter().all(|r| r.passed);
++    Ok(ProductEquilibriumReport {
++        policy: POLICY,
++        rows,
++        work_rows,
++        observed_governing_work_dof: governing,
++        passed,
++    })
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn successor_both_backends_original_load_and_prescribed_mutations() {
++        for sparse in [false, true] {
++            let k = vec![vec![2.0, -1.0], vec![-1.0, 2.0]];
++            let system = StructuralSystem {
++                stiffness: &k,
++                force: &[99.0, 3.0],
++                free_dofs: &[1],
++                prescribed: &[(0, 1.0)],
++                contributions: None,
++                symmetry: None,
++            };
++            let solved = if sparse {
++                open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&system)
++            } else {
++                structural::solve_structural_dense(&system)
++            }
++            .unwrap();
++            let report = evaluate(&system, &solved.displacements).unwrap();
++            assert!(report.passed);
++            assert_eq!(report.policy, POLICY);
++            assert_eq!(report.rows[0].global_dof, 1);
++            assert_eq!(solved.displacements[0], 1.0);
++            assert!((solved.displacements[1] - 2.0).abs() <= 1e-9 * 2.0);
++            let mut wrong = solved.displacements.clone();
++            wrong[0] = 0.0;
++            assert!(matches!(
++                evaluate(&system, &wrong),
++                Err(StructuralError::InvalidInput(
++                    "prescribed displacement incompatibility"
++                ))
++            ));
++            let tiny = vec![vec![1.0]];
++            let original = StructuralSystem {
++                stiffness: &tiny,
++                force: &[1e-12],
++                free_dofs: &[0],
++                prescribed: &[],
++                contributions: None,
++                symmetry: None,
++            };
++            let solved = if sparse {
++                open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&original)
++            } else {
++                structural::solve_structural_dense(&original)
++            }
++            .unwrap();
++            assert!(evaluate(&original, &solved.displacements).unwrap().passed);
++            let omitted = evaluate(&original, &[0.0]).unwrap();
++            assert!(!omitted.passed);
++            assert!(!omitted.work_rows[0].passed);
++            assert_eq!(omitted.work_rows[0].observed_work, 0.0);
++            assert!(omitted.rows[0].guarded_ratio > omitted.rows[0].target);
++            assert_eq!(omitted.rows[0].residual, -1e-12);
++        }
++    }
++}

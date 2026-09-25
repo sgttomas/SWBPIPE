@@ -1,0 +1,76 @@
+{
+  "hash_seam": "injected JSON hash; isolates source relational checks, NOT production JCS proof",
+  "probes": [
+    {
+      "probe": "baseline_packet_with_supplied_source_and_analysis",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "builder_wrong_load_case_ref",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "builder_wrong_component_ref",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "builder_wrong_result_family",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "rehashed_packet_source_model",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "rehashed_packet_source_result_ref",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-CARRIER-BINDING-MISMATCH"
+    },
+    {
+      "probe": "rehashed_packet_formulation_metadata_negative_control",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "SN-PRECISION-SOURCE-BINDING-MISMATCH"
+    },
+    {
+      "probe": "rehashed_analysis_load_basis_refs",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "rehashed_analysis_mechanics_status",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "rehashed_analysis_diagnostics",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "rehashed_analysis_model_negative_control",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_SOURCE_MODEL_MISMATCH"
+    },
+    {
+      "probe": "rehashed_analysis_row_metadata_negative_control",
+      "result": "REJECTED",
+      "exception": "ValueError",
+      "message": "ANALYSIS_ROW_INTERPRETATION_MISMATCH"
+    },
+    {
+      "probe": "rehashed_packet_source_result_ref_all_internal_links_updated",
+      "result": "ACCEPTED"
+    },
+    {
+      "probe": "materialized_precision_contract_fields",
+      "fields_found_in_member_json": {
+        "producer": [],
+        "numerical_quality": [],
+        "formulation_basis": [],
+        "semantic_contract_ref": [],
+        "source_carrier_checksum": [],
+        "package_checksum": []
+      }
+    }
+  ]
+}

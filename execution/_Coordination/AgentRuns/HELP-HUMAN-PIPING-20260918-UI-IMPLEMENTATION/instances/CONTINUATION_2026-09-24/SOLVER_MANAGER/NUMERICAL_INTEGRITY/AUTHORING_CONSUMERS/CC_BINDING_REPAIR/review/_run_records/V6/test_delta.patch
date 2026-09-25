@@ -1,0 +1,15 @@
+--- V5/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
++++ V6/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
+@@ -160,8 +160,10 @@
+    await expect(validateStressNeutralExportPacket(badWitness)).rejects.toThrow('SN-UNIT-WITNESS-BINDING-MISMATCH');
+  }
+ 
+- for(const mutate of [(p:any)=>{p.stable_id_map[0].canonical_ref.object_type='Wrong';},(p:any)=>{p.stable_id_map[0].export_ref.ref='';},(p:any)=>{p.stable_id_map[0].export_ref.object_type='';},(p:any)=>{p.stable_id_map[0].export_ref.extra=true;},(p:any)=>{delete p.stable_id_map[0].export_ref.ref;},(p:any)=>{p.stable_id_map[0].export_ref=null;},(p:any)=>{delete p.stable_id_map[0].export_ref.object_type;},(p:any)=>{p.stable_id_map[0].export_ref.ref=null;}]) {
+-   const badMap=structuredClone(imported);mutate(badMap);await rehash(badMap);
++ for(const mutate of [(p:any)=>{p.stable_id_map[0].canonical_ref={...p.stable_id_map[0].canonical_ref,object_type:'Wrong'};},(p:any)=>{p.stable_id_map[0].export_ref.ref='';},(p:any)=>{p.stable_id_map[0].export_ref.object_type='';},(p:any)=>{p.stable_id_map[0].export_ref.extra=true;},(p:any)=>{delete p.stable_id_map[0].export_ref.ref;},(p:any)=>{p.stable_id_map[0].export_ref=null;},(p:any)=>{delete p.stable_id_map[0].export_ref.object_type;},(p:any)=>{p.stable_id_map[0].export_ref.ref=null;}]) {
++   const badMap=structuredClone(imported),rowsBefore=structuredClone(badMap.result_rows);mutate(badMap);
++   expect(badMap.result_rows).toEqual(rowsBefore);
++   await rehash(badMap);
+    await expect(validateStressNeutralExportPacket(badMap,result)).rejects.toThrow('SN-STABLE-ID-MAP-BINDING-MISMATCH');
+  }
+ 

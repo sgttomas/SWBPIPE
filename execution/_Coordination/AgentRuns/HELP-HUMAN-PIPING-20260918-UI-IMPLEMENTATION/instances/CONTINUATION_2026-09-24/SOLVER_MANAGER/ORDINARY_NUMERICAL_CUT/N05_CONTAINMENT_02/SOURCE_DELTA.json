@@ -1,0 +1,12 @@
+{
+  "from": "FINAL_SOURCE_FREEZE_03.json",
+  "to": "FINAL_SOURCE_FREEZE_04.json",
+  "changes": [
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "previous_sha256": "6c0e1dfea4997f27605a757001e8488cd29773fbafeceafd4d8c392459bef2df",
+      "sha256": "21b5ce6d58a614107e9beb34879458a452a77904c19a8400ae74f7f06d9a7d75"
+    }
+  ],
+  "reason": "Independent reviewer requested non-vacuous explicit Unresolved assertion on the two existing solved gap controls. No production, fixture, scientific or threshold change."
+}

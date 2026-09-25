@@ -1,0 +1,10 @@
+{
+  "agent": "/root/solver_manager/app_cut_diagnosis",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native followup_task",
+  "authority": "Parent authorized sole test-fixture setup repair from completed backcheck; runtime/Git prohibited.",
+  "instruction_basis": "../../_run_records/runtime_origins.json",
+  "review_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/APP_FAILURE_DIAGNOSIS/REPAIR_01_REVIEW/REPAIR_02_BACKCHECK/BACKCHECK.md",
+  "review_sha256": "ae137153706de79e5e42e817f94b6c9864b131a62bd9035271930b841e65954e"
+}

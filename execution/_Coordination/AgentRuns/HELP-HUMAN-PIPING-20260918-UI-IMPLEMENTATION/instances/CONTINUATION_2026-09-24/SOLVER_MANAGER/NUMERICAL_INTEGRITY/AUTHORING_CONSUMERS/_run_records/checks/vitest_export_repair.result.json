@@ -1,0 +1,13 @@
+{
+  "command": [
+    "../../node_modules/.bin/vitest",
+    "run",
+    "--config",
+    "vitest.m34.config.ts",
+    "--maxWorkers=1",
+    "src/features/result-export/resultExportAdapter.test.ts"
+  ],
+  "cwd": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop",
+  "cache_config": "import base from \"./vite.config\";\nexport default { ...base, cacheDir: \"/private/tmp/piping-numerical-authoring-vite-cache-20260924\", test: { ...(base as any).test, cache: false } };\n",
+  "exit_code": 0
+}

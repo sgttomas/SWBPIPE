@@ -1,0 +1,19 @@
+{
+  "status": "narrow source-only repair; runtime checks unexecuted",
+  "path_basis": "REPO_ROOT clean numerical checkout",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "before_sha256": "ea2ae439ce6ac827e41e7cc3ea3c86e23d0267de80b67478b9005cc936390bb1",
+      "sha256": "46d06f416a260a2cb7dbc5ee11be49f2da118a2ea528fc6b64ca147ad32f1abc",
+      "bytes": 27446
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_analysis_run_compatibility.py",
+      "before_sha256": "d8e7aade831b38671926d189bbd9c0db24a96fe3e70e6454123ddecf3bc96a5a",
+      "sha256": "742d35f1c978a403d701baa5b0892eb3ef3f59465cb2806cc07bc062bdc1cdf7",
+      "bytes": 21867
+    }
+  ],
+  "preserved": "prior110-file freeze/diff; default dispatch and Current gates; schema/table/source fixtures; all existing test bodies"
+}

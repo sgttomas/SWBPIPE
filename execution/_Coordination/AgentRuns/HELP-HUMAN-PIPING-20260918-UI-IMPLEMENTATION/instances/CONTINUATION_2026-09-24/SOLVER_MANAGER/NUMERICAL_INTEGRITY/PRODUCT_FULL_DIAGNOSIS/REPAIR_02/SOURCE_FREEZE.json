@@ -1,0 +1,21 @@
+{
+  "status": "five-repairs-only source frozen; delta enforcement HELD and absent",
+  "path_basis": "REPO_ROOT original numerical checkout",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "before_sha256": "a5a3f7104b8a77c9d9709a9d4abd5123e14aedd4fa31f2d3763cc0101677034f",
+      "sha256": "572d0ed16d6811d2cc0b93c26d2610ac480a56f56ac2225572510749ee96d739",
+      "bytes": 231487
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "before_sha256": "37d19221af9900e40d500370c30c156e49f5469a905f20acb3b2e3db6ae54d80",
+      "sha256": "646b648b1931009f357f76b96d10f80d32e98369bd76920f61638136d8925e1a",
+      "bytes": 778592
+    }
+  ],
+  "held_repair01_custody": "all files unchanged",
+  "protected_publication_test_sha256": "1c33c4f0604b3eb0e31e689f3f965e65fd5d832377737f366b1b25e038fc1b78",
+  "warning_correction": "Remove unsupported universal delta-pass statement; preserve original delta row metadata and constants."
+}

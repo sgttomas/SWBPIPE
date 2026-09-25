@@ -1,0 +1,14 @@
+[
+  {
+    "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "sha256": "9f79789baa32a90db52e76922eb3d88ec380a9a9dff8472f0d94cfc16385e083"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+    "sha256": "79272e2f731be9853a087c38d83260b6ba112d6b0a0ed48256a71b40f9bd942f"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs",
+    "sha256": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e"
+  }
+]

@@ -1,3 +1,8 @@
+import historicalMechanicsFixture from "../../../../fixtures/product_preview/invented_mechanics_result.json";
+import sparseMechanicsFixture from "../../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json";
+import denseMechanicsFixture from "../../../../fixtures/product_preview/invented_mechanics_result_precision_1_dense.json";
+import { buildAnalysisRunV02 } from "./analysisRunCompatibility";
+import { numericalResultStanding, sourceContract, PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -9,11 +14,14 @@ afterEach(() => {
 import type { MechanicsResult, PreviewModel } from "../types";
 import {
   appliedRuleCheckStatus,
+  bindSourceResultDimensions,
   buildAnalysisRunPreview,
   loadDesignKnowledge,
   loadPreviewModel,
   runPreviewMechanics,
   startPreviewMechanicsJob,
+  validateBrowserMechanicsFixture,
+  type PreviewSolverMode,
 } from "./previewService";
 import {
   buildCurrentSessionInputManifest,
@@ -28,7 +36,10 @@ function cloneModel(model: PreviewModel): PreviewModel {
 // solve runs no user rule checks), so the aggregate-threading behavior is
 // isolated from any fixture content.
 const solvedResultStub = {
-  schema_version: "0.1.0",
+  schema_version: "0.2.0",
+  producer: {component_name:"open_pipe_stress_product_physics", component_version:"0.2.0", semantic_contract_id:PRECISION_CONTRACT_ID},
+  numerical_quality: {value_representation:"finite_binary64",publication_quantization:"none",integrity_policy:"M03-INTEGRITY-v1",status:"not_assessed",cases:[]},
+  formulation_basis: {profile_id:"product_preview_mechanics_v1", limitations:["Synthetic consumer test; no physics proof"]},
   document_kind: "openpipestress.product_preview.mechanics_result",
   run_id: "run:appagg-test",
   model_ref: "project:appagg-test",
@@ -44,6 +55,7 @@ const solvedResultStub = {
 
 async function manifestFor(
   result: MechanicsResult,
+  solverMode: PreviewSolverMode = "sparse_interactive",
 ): Promise<CurrentSessionInputManifestEvidence> {
   const model = cloneModel(await loadPreviewModel());
   model.project.id = result.model_ref;
@@ -51,13 +63,13 @@ async function manifestFor(
     model,
     solver: {
       solver_name: "open_pipe_stress_product_physics",
-      solver_version: "0.1.0",
-      solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
-      solver_mode: "sparse_interactive",
+      solver_version: "0.2.0",
+      solver_build_ref: "open_pipe_stress_product_physics@0.2.0",
+      solver_mode: solverMode,
       settings: {
         nonlinear_iteration_policy:
           "DEC-046-CV-B-product-preview-active-set-count-v1",
-        sparse_evidence_lane: true,
+        sparse_evidence_lane: solverMode === "sparse_interactive",
       },
     },
     active_rule_packs: [],
@@ -83,27 +95,27 @@ function hashByScope(
     ?.value;
 }
 
-describe("previewService mechanics browser fallback", () => {
-  it("returns the bundled solved fixture when no model payload is supplied", async () => {
+describe("previewService browser fixture execution boundary", () => {
+  it("returns the actual bundled producer result when no model payload is supplied", async () => {
     const result = await runPreviewMechanics();
 
-    expect(result.status.mechanics).toBe("MECHANICS_SOLVED");
+    expect(result.status.mechanics).toBe(sparseMechanicsFixture.status.mechanics);
     expect(result.model_ref).toBe("project:invented-loop-01");
-    expect(result.results.length).toBeGreaterThan(0);
+    expect(result.results.length).toBe(sparseMechanicsFixture.results.length);
   });
 
-  it("keeps the bundled solved fixture for the unchanged bundled model", async () => {
+  it("keeps the genuine fixture result for the unchanged bundled model", async () => {
     const model = await loadPreviewModel();
     const result = await runPreviewMechanics(model);
 
-    expect(result.status.mechanics).toBe("MECHANICS_SOLVED");
+    expect(result.status.mechanics).toBe(sparseMechanicsFixture.status.mechanics);
     expect(result.model_ref).toBe("project:invented-loop-01");
-    expect(result.results.length).toBeGreaterThan(0);
+    expect(result.results.length).toBe(sparseMechanicsFixture.results.length);
   });
 
-  it("surfaces nonlinear support loop evidence rows and diagnostics", async () => {
-    const result = await runPreviewMechanics();
-    const run = await buildRun(result);
+  it("preserves historical rounded nonlinear fixture evidence without calling it a fresh solve", async () => {
+    const result = structuredClone(historicalMechanicsFixture) as MechanicsResult;
+    const run = await buildAnalysisRunV02(result, await manifestFor(result));
 
     expect(
       result.results.find(
@@ -195,31 +207,90 @@ describe("previewService mechanics browser fallback", () => {
     ).toBeNull();
   });
 
-  it("blocks edited-model fixture reuse instead of publishing stale result rows", async () => {
+  it("throws the specific edited-model backend error before creating a raw result", async () => {
     const original = await loadPreviewModel();
     const edited = cloneModel(original);
     edited.project.id = "project:edited-browser-solve";
     edited.materials![0].elastic_modulus.value = 195_000_000_000;
-
-    const result = await runPreviewMechanics(edited);
-
-    expect(result.model_ref).toBe("project:edited-browser-solve");
-    expect(result.status.mechanics).toBe("MODEL_INCOMPLETE");
-    expect(result.status.rule_check).toBe("RULE_INPUTS_INCOMPLETE");
-    expect(result.results).toEqual([]);
-    expect(result.summary.node_count).toBe(edited.nodes.length);
-    expect(result.summary.segment_count).toBe(edited.pipe_segments.length);
-    expect(result.summary.support_count).toBe(edited.supports.length);
-    expect(result.summary.load_case_count).toBe(edited.load_cases.length);
-    expect(result.diagnostics).toHaveLength(1);
-    expect(result.diagnostics[0]).toMatchObject({
-      code: "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL",
-      severity: "blocking",
-      affected_refs: ["project:edited-browser-solve"],
-    });
+    await expect(runPreviewMechanics(edited)).rejects.toThrow("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+    expect(invokeMock).not.toHaveBeenCalled();
     expect(original.project.id).toBe("project:invented-loop-01");
     expect(original.materials![0].elastic_modulus.value).toBe(200_000_000_000);
   });
+
+  it.each([
+    ["sparse_interactive", sparseMechanicsFixture],
+    ["dense_scrutiny", denseMechanicsFixture],
+  ] as const)("returns genuine %s fixture bytes and preserves producer quality", async (mode, fixture) => {
+    const model = await loadPreviewModel();
+    const result = await runPreviewMechanics(model, mode);
+    expect(result).toEqual(fixture);
+    expect(sourceContract(result)).toBe("precision");
+    expect(result.numerical_quality).toEqual(fixture.numerical_quality);
+    const current = numericalResultStanding(result, model);
+    if (!["checks_passed", "sensitive"].includes(fixture.numerical_quality.status)) {
+      expect(current.eligible).toBe(false);
+      expect(current.findings).toContain("NUMERICAL_INTEGRITY_NOT_QUALIFIED");
+    } else {
+      expect(current.eligible).toBe(true);
+    }
+    const record = await buildAnalysisRunPreview(result, { inputManifest: await manifestFor(result, mode) });
+    expect(record.schema_version).toBe("0.3.0");
+    expect(result).toEqual(fixture);
+  });
+
+  it("defaults to exact sparse fixture and returns independent copies", async () => {
+    const first = await runPreviewMechanics();
+    expect(first).toEqual(sparseMechanicsFixture);
+    first.diagnostics.push({ id: "caller-mutation", code: "CALLER_MUTATION", severity: "info", message: "test mutation" });
+    expect(await runPreviewMechanics()).toEqual(sparseMechanicsFixture);
+    expect(await runPreviewMechanics(null, "dense_scrutiny")).toEqual(denseMechanicsFixture);
+  });
+
+  it("compares model content canonically rather than object key insertion order", async () => {
+    const model = await loadPreviewModel();
+    const reordered = Object.fromEntries(Object.entries(model).reverse()) as PreviewModel;
+    expect(await runPreviewMechanics(reordered)).toEqual(sparseMechanicsFixture);
+    const edited = cloneModel(model);
+    edited.nodes[0].position.y += 0.5;
+    await expect(runPreviewMechanics(edited, "dense_scrutiny")).rejects.toThrow("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+  });
+
+  it("does not let a caller mutate the known fixture model comparison basis", async () => {
+    const model = await loadPreviewModel();
+    const originalY = model.nodes[0].position.y;
+    model.nodes[0].position.y += 0.5;
+    await expect(runPreviewMechanics(model)).rejects.toThrow("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+    expect((await loadPreviewModel()).nodes[0].position.y).toBe(originalY);
+  });
+
+  it("rejects unknown runtime modes without invoking or choosing another fixture", async () => {
+    const invalid = "unregistered_solver" as PreviewSolverMode;
+    await expect(runPreviewMechanics(null, invalid)).rejects.toThrow("PREVIEW_SOLVER_MODE_UNSUPPORTED");
+    await expect(startPreviewMechanicsJob(null, invalid)).rejects.toThrow("PREVIEW_SOLVER_MODE_UNSUPPORTED");
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects crossed, missing and ambiguous actual mode evidence", async () => {
+    const model = await loadPreviewModel();
+    const sparse = structuredClone(sparseMechanicsFixture) as MechanicsResult;
+    expect(() => validateBrowserMechanicsFixture(sparse, "dense_scrutiny", model)).toThrow("BROWSER_FIXTURE_SOLVER_MODE_BINDING_MISMATCH");
+    const modeRow = sparse.results.find(row => row.kind === "linear_solver_mode_basis");
+    expect(modeRow).toBeDefined();
+    for (const mutate of [
+      (result: MechanicsResult) => { result.results = result.results.filter(row => row.kind !== "linear_solver_mode_basis"); },
+      (result: MechanicsResult) => { result.results.push(structuredClone(modeRow!)); },
+      (result: MechanicsResult) => { result.results.find(row => row.kind === "linear_solver_mode_basis")!.value = 2; },
+      (result: MechanicsResult) => { result.results.find(row => row.kind === "linear_solver_mode_basis")!.metadata!.basis += "; solver_mode=dense_scrutiny"; },
+    ]) {
+      const changed = structuredClone(sparse);
+      mutate(changed);
+      expect(() => validateBrowserMechanicsFixture(changed, "sparse_interactive", model)).toThrow("BROWSER_FIXTURE_SOLVER_MODE_BINDING_MISMATCH");
+    }
+    expect(() => validateBrowserMechanicsFixture(structuredClone(historicalMechanicsFixture) as MechanicsResult, "sparse_interactive", model))
+      .toThrow("BROWSER_FIXTURE_PRODUCER_CONTRACT_UNSUPPORTED");
+  });
+
 });
 
 describe("appliedRuleCheckStatus (TP-C4-APPAGG-001)", () => {
@@ -310,7 +381,7 @@ describe("buildAnalysisRunPreview rule-check aggregate (TP-C4-APPAGG-001)", () =
 
 describe("analysis-run input-manifest and source-dimension binding", () => {
   it("binds the exact manifest independently from the result envelope and declares stiffness dimensions", async () => {
-    const result = await runPreviewMechanics();
+    const result = await precisionFixtureSource();
     const manifest = await manifestFor(result);
     const env = await buildAnalysisRunPreview(result, {
       inputManifest: manifest,
@@ -350,7 +421,7 @@ describe("analysis-run input-manifest and source-dimension binding", () => {
   });
 
   it("blocks manifest evidence for a different model", async () => {
-    const result = await runPreviewMechanics();
+    const result = await precisionFixtureSource();
     const manifest = await manifestFor(result);
     const mismatched = structuredClone(result);
     mismatched.model_ref = "project:different-model";
@@ -361,7 +432,7 @@ describe("analysis-run input-manifest and source-dimension binding", () => {
   });
 
   it("blocks transformed manifest evidence until its ref and hash are recomputed", async () => {
-    const result = await runPreviewMechanics();
+    const result = await precisionFixtureSource();
     const manifest = await manifestFor(result);
     manifest.manifest.solver_basis.settings.sparse_evidence_lane = false;
 
@@ -371,7 +442,7 @@ describe("analysis-run input-manifest and source-dimension binding", () => {
   });
 
   it("blocks wrong-prefix and wrong-model manifest refs with a valid digest", async () => {
-    const result = await runPreviewMechanics();
+    const result = await precisionFixtureSource();
     const manifest = await manifestFor(result);
     for (const refValue of [
       `result-envelope:project-invented-loop-01:${manifest.manifest_sha256}`,
@@ -386,7 +457,7 @@ describe("analysis-run input-manifest and source-dimension binding", () => {
   });
 
   it("blocks a unit that contradicts the exact kind semantics", async () => {
-    const result = structuredClone(await runPreviewMechanics());
+    const result = structuredClone(await precisionFixtureSource());
     const target = result.results.find(
       (item) => item.kind === "element_local_axial_force",
     );
@@ -398,7 +469,7 @@ describe("analysis-run input-manifest and source-dimension binding", () => {
   });
 
   it("blocks an explicit dimension that contradicts exact result kind semantics", async () => {
-    const result = structuredClone(await runPreviewMechanics());
+    const result = structuredClone(await precisionFixtureSource());
     const target = result.results.find(
       (item) => item.kind === "element_local_axial_force",
     );
@@ -433,6 +504,13 @@ describe("native loader fallback compatibility", () => {
 });
 
 describe("native mechanics failure boundary", () => {
+  it("forwards the exact requested native mode without a fixture fallback", async () => {
+    const model = await loadPreviewModel();
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(structuredClone(denseMechanicsFixture));
+    expect(await runPreviewMechanics(model, "dense_scrutiny")).toEqual(denseMechanicsFixture);
+    expect(invokeMock).toHaveBeenCalledExactlyOnceWith("run_preview_mechanics_with_solver_mode", { model, solverMode: "dense_scrutiny" });
+  });
   it("propagates direct native solve rejection without a bundled result", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     const failure = new Error("invented native IPC solve failure");
@@ -453,4 +531,34 @@ describe("native mechanics failure boundary", () => {
     await expect(startPreviewMechanicsJob()).resolves.toEqual({ mode: "browser_fixture_no_backend_job" });
     expect(invokeMock).not.toHaveBeenCalled();
   });
+});
+
+it("does not enrich precision or unsupported raw0.2 carriers while reading history", () => {
+ const raw = {schema_version:"0.2.0",results:[{id:"tiny",kind:"global_nodal_rotation_x",value:-1e-12,unit:"rad",entity_ref:"n"}]} as MechanicsResult;
+ expect(bindSourceResultDimensions(raw)).toBe(raw);
+ expect(Object.hasOwn(raw.results[0], "dimension")).toBe(false);
+ expect(raw.results[0].value).toBe(-1e-12);
+});
+
+async function precisionFixtureSource(): Promise<MechanicsResult> {
+ return runPreviewMechanics();
+}
+it("Current analysis composition refuses legacy and unknown raw without a historical fallback",async()=>{
+ const legacy=structuredClone(historicalMechanicsFixture) as MechanicsResult, before=JSON.stringify(legacy);
+ await expect(buildAnalysisRunPreview(legacy,{inputManifest:await manifestFor(legacy)})).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+ const unknown={...legacy,schema_version:"0.2.0"};
+ await expect(buildAnalysisRunPreview(unknown,{inputManifest:await manifestFor(unknown)})).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+ expect(JSON.stringify(legacy)).toBe(before);
+});
+
+it("uses verified model requested bases even when result rows have no basis", async () => {
+  const raw = structuredClone(solvedResultStub);
+  const inputManifest = await manifestFor(raw);
+  const model = inputManifest.manifest.model_basis.model_payload;
+  const record = await buildAnalysisRunPreview(raw, { inputManifest });
+  expect(record.analysis_run.load_basis_refs).toEqual([
+    ...model.load_cases.map(c => ({ object_type: "LoadCase", ref: c.id })),
+    ...(model.combinations ?? []).map(c => ({ object_type: "Combination", ref: c.id })),
+  ]);
+  expect(record.analysis_run.load_basis_refs.length).toBeGreaterThan(0);
 });

@@ -1,0 +1,26 @@
+{
+  "from": "FINAL_SOURCE_FREEZE.json",
+  "to": "FINAL_SOURCE_FREEZE_02.json",
+  "changed_files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "295d36eb807265b427205ddfaa8c5de73cfa42ba3781aa6c77c6c46f14c777af",
+      "previous_sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "15c0211f6e87d62437324c90235ef3baf9f4be24264f64f6fc6ee41935964edf",
+      "previous_sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "46d06f416a260a2cb7dbc5ee11be49f2da118a2ea528fc6b64ca147ad32f1abc",
+      "previous_sha256": "ea2ae439ce6ac827e41e7cc3ea3c86e23d0267de80b67478b9005cc936390bb1"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_analysis_run_compatibility.py",
+      "sha256": "742d35f1c978a403d701baa5b0892eb3ef3f59465cb2806cc07bc062bdc1cdf7",
+      "previous_sha256": null
+    }
+  ]
+}

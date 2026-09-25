@@ -284,7 +284,25 @@ export type DesignKnowledge = {
   diagnostics: Diagnostic[];
 };
 
+export type NumericalQualityStatus = "not_assessed" | "checks_passed" | "sensitive" | "unresolved" | "failed";
+export type NumericalQuality = {
+  value_representation: "finite_binary64";
+  publication_quantization: "none";
+  integrity_policy: "M03-INTEGRITY-v1";
+  status: NumericalQualityStatus;
+  cases: Array<{
+    basis_ref: ResultBasisRef;
+    structural_status: "passive_model_basis" | "physical_mechanism_witnessed" | "negative_energy_witnessed" | "numerically_unresolved";
+    solve_quality: NumericalQualityStatus;
+    model_matrix_fidelity: "represented_equations_retained" | "assembly_loss_detected" | "assembly_uncertainty" | "not_assessed";
+    accuracy_evidence: "not_claimed" | "reference_verified" | "unresolved";
+    evidence_refs: string[];
+  }>;
+};
 export type MechanicsResult = {
+  producer?: { component_name: string; component_version: string; semantic_contract_id: string };
+  numerical_quality?: NumericalQuality;
+  formulation_basis?: { profile_id: string; limitations: string[] };
   schema_version: string;
   document_kind: string;
   run_id: string;

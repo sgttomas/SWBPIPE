@@ -1,0 +1,71 @@
+{
+  "sources": {
+    "projects/chirality-piping/core/product_physics/Cargo.toml": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542",
+    "projects/chirality-piping/core/product_physics/src/pressure_exact.rs": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "75c7ecd24d590f539fcbe3d9a16e3cffe31cacaee8e012c81ead7fdbce338f31",
+    "projects/chirality-piping/core/product_physics/src/self_weight.rs": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1",
+    "projects/chirality-piping/core/solver/curved_bend/Cargo.toml": "49e42be72ad63f6f7c215f2fb39592d4134f37533f876b5161591c9004f1f239",
+    "projects/chirality-piping/core/solver/curved_bend/src/lib.rs": "6bfead4091998117612e0a4cebc9807280e2eef60f970acbd6e366e3f0c8dd4b",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml": "356759be03719db6c362fe9b6b3bec437bcc9dab4777100895b343c3245e6a23",
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "1ce52845b3351ee587352f626627723c896bede25809f690aa79afe863a045e9",
+    "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs": "091d4069852c6033da38074af297c5eaa5a9469510c00d577f222e077aec2c15",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+    "projects/chirality-piping/core/solver/frame_kernel/src/extended_arithmetic.rs": "891abba3b077a9bfd6efd5c7e6f3f766b4c9a0c5e69fd4a5656725c86f1d6712",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "700338b91a54f9623ab479e5d0202f625a04810ebdce50e98196001da3675d9e",
+    "projects/chirality-piping/core/loads/load_case_algebra/Cargo.toml": "b675c2414a573332d33e9e29d5db907ec4582c75b1bd53ece52a6dda26f746da",
+    "projects/chirality-piping/core/loads/load_case_algebra/src/lib.rs": "fd70056f81320e33fad4f7e05152a4c83f2a97fd20aaaad384f25eff0b66a050",
+    "projects/chirality-piping/core/loads/primitive_loads/Cargo.toml": "97959fbf7124f55b39ea51a33ae1da1f1abcc9fc1b969f7d42d9ea0fcab894a0",
+    "projects/chirality-piping/core/loads/primitive_loads/src/lib.rs": "fea5e1839ba663b2df47c1b4b98c0cb98482e1d00806c7ac670af63b918a4252",
+    "projects/chirality-piping/core/solver/linear_supports/Cargo.toml": "db634677878b548ca51ad7b14d0532540b0471a439ac7e8d7e28a405b32e5b08",
+    "projects/chirality-piping/core/solver/linear_supports/src/lib.rs": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+    "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml": "6b6760eafdb97092345cb28aebac456cfccc9381542dcf0ec28bdcd3771587ea",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "a5a3f7104b8a77c9d9709a9d4abd5123e14aedd4fa31f2d3763cc0101677034f",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "79272e2f731be9853a087c38d83260b6ba112d6b0a0ed48256a71b40f9bd942f",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e",
+    "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml": "328a321c2d77b620665f449dbdb58246953299cacffcaae25bb542e7339f3b64",
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e",
+    "projects/chirality-piping/core/solver/diagnostics/Cargo.toml": "b97f1331ea132a493008eb94d985b6afd26c8ea13476e56c1fa2a098f34244b6",
+    "projects/chirality-piping/core/solver/diagnostics/src/lib.rs": "b9092ce5a8b3f38b9124c14f8dbd5853ca250b41c1b7571cc02b913bb74fdfa1",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "51e010af1ef62c95faf854c6308aec7a0f0be7123546083be993f6090b257b12",
+    "projects/chirality-piping/core/solver/sparse_direct/src/structural.rs": "89af5f9e72867072b0f9e2a54245592aa51745f1992ec20f118d20d1e13ae08f",
+    "projects/chirality-piping/core/solver/straight_pipe/Cargo.toml": "7aed2782a0421df01ca78d58c26c8648d179b871d5cdd2503b2e911bacd42ff4",
+    "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+    "projects/chirality-piping/core/loads/stress_recovery/Cargo.toml": "d6eee12b661aa7723a5d87185029d5505c6a500cbc88bc479423247ce2da53f6",
+    "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+    "projects/chirality-piping/core/units/Cargo.toml": "7216e6bddcdd99ed45d7ed9a8fc9471016a719bbc80d201d980eda69592220a7",
+    "projects/chirality-piping/core/units/src/lib.rs": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+  },
+  "local_manifest_count": 13,
+  "target": "/private/tmp/piping-product-rotational-gap-target",
+  "lock_before": "39843130aa97195bf011fc6abf728c56f1f57c8af2164549d7e03352a9a0b6c7",
+  "stages": [
+    [
+      "lock",
+      [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics/Cargo.toml"
+      ]
+    ],
+    [
+      "baseline",
+      [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j2",
+        "--manifest-path",
+        "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "unit_contract_rotational_gap_cannot_consume_a_length_as_an_angle",
+        "--",
+        "--nocapture"
+      ]
+    ]
+  ],
+  "started_unix": 1790287248.297175
+}

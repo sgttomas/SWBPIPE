@@ -1,0 +1,26 @@
+{
+  "parent": "/root/solver_manager",
+  "agent": "/root/solver_manager/app_cut_diagnosis",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native followup_task",
+  "authorization": "Parent follow-up authorizes exact diagnosed source/test repairs, then three additional hash readers; no runtime checks or Git.",
+  "instruction_basis_reference": "../../_run_records/runtime_origins.json",
+  "supplied_basis": "Original eleven frozen failures, diagnosis and parent scope extensions; no delegation.",
+  "writes": [
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts",
+    "projects/chirality-piping/apps/desktop/src/features/report/renderedReport.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+    "projects/chirality-piping/apps/desktop/src/features/results/analysisResultHashScope.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/results/analysisResultHashScope.ts"
+  ],
+  "enforcement": "Host permits tmp checkout writes; scope enforced by bounded assignment and exact preimage/freeze inventory."
+}

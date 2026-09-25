@@ -1,0 +1,1499 @@
+//! Caller-side provenance for the M03 passive structural gate.
+//! Formation allowances are arithmetic estimates, never physical accuracy proofs.
+use crate::{CurvedBendStiffnessElement, LinearSolveMode};
+use open_pipe_stress_frame_kernel::rigid_body::{
+    assess_rigid_body, ObjectiveFamily, RigidBodyStatus,
+};
+use open_pipe_stress_frame_kernel::structural::{
+    self, StiffnessContribution, StructuralError, StructuralSolution, StructuralSystem,
+    SymmetryEvidence,
+};
+use open_pipe_stress_frame_kernel::{
+    element_dof_map, FrameElement, Matrix12, UserStiffnessElement,
+};
+
+#[derive(Debug, Clone)]
+pub struct AssemblyEvidence {
+    pub contributions: Vec<StiffnessContribution>,
+    pub absolute_roundoff: Vec<Vec<f64>>,
+    pub operation_counts: Vec<Vec<usize>>,
+    coordinates: Vec<Option<[f64; 3]>>,
+    edges: Vec<(usize, usize, bool)>,
+    spring_ground: Vec<usize>,
+}
+impl AssemblyEvidence {
+    pub fn new(
+        node_count: usize,
+        frames: &[FrameElement],
+        users: &[UserStiffnessElement],
+        curved: &[CurvedBendStiffnessElement],
+        springs: &[(usize, f64)],
+    ) -> Result<Self, StructuralError> {
+        let n = node_count * 6;
+        let mut result = Self {
+            contributions: Vec::new(),
+            absolute_roundoff: vec![vec![0.0; n]; n],
+            operation_counts: vec![vec![0; n]; n],
+            coordinates: vec![None; node_count],
+            edges: Vec::new(),
+            spring_ground: Vec::new(),
+        };
+        for element in frames {
+            let local = element
+                .local_stiffness()
+                .map_err(|_| StructuralError::InvalidInput("frame local stiffness"))?;
+            let t = element
+                .orientation()
+                .map_err(|_| StructuralError::InvalidInput("frame orientation"))?
+                .transformation_matrix();
+            let evidence = structural::transform_roundoff(&local, &t)?;
+            result.node(element.node_i.index, element.node_i.coordinates)?;
+            result.node(element.node_j.index, element.node_j.coordinates)?;
+            result.element(
+                element.node_i.index,
+                element.node_j.index,
+                &element
+                    .global_stiffness()
+                    .map_err(|_| StructuralError::InvalidInput("frame stiffness"))?,
+                &evidence.absolute_roundoff,
+                &evidence.operation_counts,
+                true,
+            )?;
+        }
+        for element in users {
+            let local = element.local_stiffness();
+            let t = element
+                .orientation()
+                .map_err(|_| StructuralError::InvalidInput("user orientation"))?
+                .transformation_matrix();
+            let evidence = structural::transform_roundoff(&local, &t)?;
+            result.node(element.node_i.index, element.node_i.coordinates)?;
+            result.node(element.node_j.index, element.node_j.coordinates)?;
+            // Relative translation/rotation springs are not objective frame energy.
+            result.element(
+                element.node_i.index,
+                element.node_j.index,
+                &element
+                    .global_stiffness()
+                    .map_err(|_| StructuralError::InvalidInput("user stiffness"))?,
+                &evidence.absolute_roundoff,
+                &evidence.operation_counts,
+                false,
+            )?;
+        }
+        for element in curved {
+            let zero = [[0.0; 12]; 12];
+            let counts = [[0; 12]; 12];
+            let (bounds, operations) = element
+                .symmetry_formation
+                .as_ref()
+                .map(|e| (&e.0, &e.1))
+                .unwrap_or((&zero, &counts));
+            // Explicit slots have no silently inferred objective/nullspace contract.
+            result.element(
+                element.node_i,
+                element.node_j,
+                &element.global_stiffness,
+                bounds,
+                operations,
+                false,
+            )?;
+        }
+        for &(dof, value) in springs {
+            if dof >= n || !value.is_finite() || value < 0.0 {
+                return Err(StructuralError::InvalidInput("ground spring"));
+            }
+            result.contributions.push(StiffnessContribution {
+                row: dof,
+                col: dof,
+                value,
+            });
+            result.operation_counts[dof][dof] += 1;
+            if value > 0.0 {
+                result.spring_ground.push(dof);
+            }
+        }
+        // Sequential scatter adds are independent of transformation formation.
+        let mut magnitudes = vec![vec![0.0; n]; n];
+        let mut scatter_counts = vec![vec![0usize; n]; n];
+        for c in &result.contributions {
+            magnitudes[c.row][c.col] += c.value.abs();
+            scatter_counts[c.row][c.col] += 1;
+        }
+        for i in 0..n {
+            for j in 0..n {
+                result.absolute_roundoff[i][j] +=
+                    structural::gamma(scatter_counts[i][j]) * magnitudes[i][j];
+                if !result.absolute_roundoff[i][j].is_finite() {
+                    return Err(StructuralError::Range("assembly allowance"));
+                }
+            }
+        }
+        Ok(result)
+    }
+    fn node(&mut self, index: usize, point: [f64; 3]) -> Result<(), StructuralError> {
+        let slot = self
+            .coordinates
+            .get_mut(index)
+            .ok_or(StructuralError::InvalidInput("node index"))?;
+        if slot.is_some_and(|old| old != point) {
+            return Err(StructuralError::InvalidInput(
+                "inconsistent node coordinates",
+            ));
+        }
+        *slot = Some(point);
+        Ok(())
+    }
+    fn element(
+        &mut self,
+        a: usize,
+        b: usize,
+        k: &Matrix12,
+        bounds: &Matrix12,
+        counts: &[[usize; 12]; 12],
+        objective: bool,
+    ) -> Result<(), StructuralError> {
+        if a >= self.coordinates.len() || b >= self.coordinates.len() {
+            return Err(StructuralError::InvalidInput("element endpoint"));
+        }
+        self.edges.push((a, b, objective));
+        let map = element_dof_map(a, b);
+        for i in 0..12 {
+            for j in 0..12 {
+                self.contributions.push(StiffnessContribution {
+                    row: map[i],
+                    col: map[j],
+                    value: k[i][j],
+                });
+                self.absolute_roundoff[map[i]][map[j]] += bounds[i][j];
+                self.operation_counts[map[i]][map[j]] += counts[i][j] + 1;
+            }
+        }
+        Ok(())
+    }
+    /// Screen each actual connected body using only selected ground constraints.
+    pub fn qualified_passive_family(&self) -> bool {
+        !self.edges.is_empty() && self.edges.iter().all(|(_, _, qualified)| *qualified)
+    }
+
+    pub fn geometry(&self, prescribed: &[(usize, f64)]) -> Result<(), StructuralError> {
+        let n = self.coordinates.len();
+        let mut seen = vec![false; n];
+        for seed in 0..n {
+            if seen[seed] {
+                continue;
+            }
+            let mut body = vec![seed];
+            seen[seed] = true;
+            let mut index = 0;
+            while index < body.len() {
+                let node = body[index];
+                index += 1;
+                for &(a, b, _) in &self.edges {
+                    let other = if a == node {
+                        Some(b)
+                    } else if b == node {
+                        Some(a)
+                    } else {
+                        None
+                    };
+                    if let Some(other) = other {
+                        if !seen[other] {
+                            seen[other] = true;
+                            body.push(other);
+                        }
+                    }
+                }
+            }
+            let qualified = self
+                .edges
+                .iter()
+                .filter(|(a, _, _)| body.contains(a))
+                .all(|(_, _, q)| *q);
+            // An unqualified family is still checked by the matrix gate, but cannot
+            // turn a geometric null vector into a physical mechanism assertion.
+            if !qualified || body.iter().any(|&i| self.coordinates[i].is_none()) {
+                continue;
+            }
+            let coordinates = body
+                .iter()
+                .map(|&i| self.coordinates[i].unwrap())
+                .collect::<Vec<_>>();
+            let ground = prescribed
+                .iter()
+                .map(|&(d, _)| d)
+                .chain(self.spring_ground.iter().copied())
+                .filter_map(|d| body.iter().position(|&i| i == d / 6).map(|i| 6 * i + d % 6))
+                .collect::<Vec<_>>();
+            let assessment = assess_rigid_body(
+                &coordinates,
+                &ground,
+                ObjectiveFamily::WeldedUnreleasedElasticFrames,
+            )?;
+            match assessment.status {
+                RigidBodyStatus::Restrained => {}
+                RigidBodyStatus::MechanismWitnessed => {
+                    let mut direction = vec![0.0; 6 * n];
+                    for (&global, motion) in body.iter().zip(assessment.node_motion.unwrap()) {
+                        direction[6 * global..6 * global + 6].copy_from_slice(&motion);
+                    }
+                    return Err(StructuralError::Mechanism { direction });
+                }
+                _ => {
+                    return Err(StructuralError::NumericallyUnresolved {
+                        reason: "rigid-restraint rank unresolved",
+                        global_dof: None,
+                    })
+                }
+            }
+        }
+        Ok(())
+    }
+    pub fn solve(
+        &self,
+        k: &[Vec<f64>],
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+    ) -> Result<StructuralSolution, StructuralError> {
+        self.geometry(prescribed)?;
+        let family_basis = if self.edges.iter().all(|(_, _, qualified)| *qualified) {
+            "objective welded unreleased straight-frame family"
+        } else {
+            "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing user/curved elements; matrix positivity remains mandatory"
+        };
+        let symmetry_basis = format!("represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; {family_basis}");
+        let system = StructuralSystem {
+            stiffness: k,
+            force: f,
+            free_dofs: free,
+            prescribed,
+            contributions: Some(&self.contributions),
+            symmetry: Some(SymmetryEvidence {
+                absolute_roundoff: &self.absolute_roundoff,
+                operation_counts: &self.operation_counts,
+                basis: &symmetry_basis,
+            }),
+        };
+        match mode {
+            LinearSolveMode::DenseScrutiny => structural::solve_structural_dense(&system),
+            LinearSolveMode::SparseInteractive => {
+                open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&system)
+            }
+        }
+    }
+}
+
+/// Trace the curved source's *symmetry* formation: the explicitly symmetrized
+/// represented tip inverse, H*K and (H*K)*H^T six-term dots, then T^T*K*T.
+/// This does not bound inverse accuracy or qualify the curved physical nullspace.
+pub fn curved_formation(
+    element: &open_pipe_stress_curved_bend::CurvedBendMacroElement,
+) -> Result<(Matrix12, [[usize; 12]; 12]), crate::NonlinearIntegrationError> {
+    let invalid = |error: open_pipe_stress_curved_bend::CurvedBendError| {
+        crate::NonlinearIntegrationError::InvalidInput {
+            detail: format!("curved symmetry formation: {error}"),
+        }
+    };
+    let local = element.local_stiffness().map_err(invalid)?;
+    let t = element
+        .orientation()
+        .map_err(invalid)?
+        .transformation_matrix();
+    let geometry = element.geometry().map_err(invalid)?;
+    let chord = [
+        geometry.radius * (geometry.included_angle.cos() - 1.0),
+        geometry.radius * geometry.included_angle.sin(),
+        0.0,
+    ];
+    let mut h = [[0.0; 6]; 6];
+    for i in 0..6 {
+        h[i][i] = 1.0;
+    }
+    h[3][1] = -chord[2];
+    h[3][2] = chord[1];
+    h[4][0] = chord[2];
+    h[4][2] = -chord[0];
+    h[5][0] = -chord[1];
+    h[5][1] = chord[0];
+    let mut coupled = [[0.0; 6]; 6];
+    let mut magnitude = [[0.0; 6]; 6];
+    for i in 0..6 {
+        for j in 0..6 {
+            for k in 0..6 {
+                let term = structural::checked_product(h[i][k], local[k + 6][j + 6])?;
+                coupled[i][j] = structural::checked_value(coupled[i][j] + term)?;
+                magnitude[i][j] = structural::checked_value(magnitude[i][j] + term.abs())?;
+            }
+        }
+    }
+    let g = structural::gamma(12);
+    let mut local_bounds = [[0.0; 12]; 12];
+    for i in 0..6 {
+        for j in 0..6 {
+            let first = structural::checked_quotient(
+                structural::checked_product(g, magnitude[i][j])?,
+                1.0 - g,
+            )?;
+            local_bounds[i][j + 6] = first;
+            local_bounds[j + 6][i] = first;
+            let mut inherited = 0.0;
+            let mut second = 0.0;
+            for k in 0..6 {
+                let first_bound = structural::checked_quotient(
+                    structural::checked_product(g, magnitude[i][k])?,
+                    1.0 - g,
+                )?;
+                inherited = structural::checked_value(
+                    inherited + structural::checked_product(h[j][k].abs(), first_bound)?,
+                )?;
+                second = structural::checked_value(
+                    second + structural::checked_product(coupled[i][k], h[j][k])?.abs(),
+                )?;
+            }
+            local_bounds[i][j] = structural::checked_product(
+                structural::checked_value(inherited + structural::checked_product(g, second)?)?,
+                1.0 + 64.0 * f64::EPSILON,
+            )?;
+        }
+    }
+    let mut bounds = structural::transform_roundoff(&local, &t)?.absolute_roundoff;
+    for i in 0..12 {
+        for j in 0..12 {
+            let mut inherited = 0.0;
+            for a in 0..12 {
+                for b in 0..12 {
+                    let term = structural::checked_product(
+                        structural::checked_product(t[a][i].abs(), local_bounds[a][b])?,
+                        t[b][j].abs(),
+                    )?;
+                    inherited = structural::checked_value(inherited + term)?;
+                }
+            }
+            bounds[i][j] = structural::checked_value(
+                bounds[i][j] + inherited / (1.0 - structural::gamma(432)),
+            )?;
+        }
+    }
+    // Longest formation-error path contributing to each global entry:
+    // local anchor block 24, cross block 12, tip block 0; global stages 48.
+    let counts = std::array::from_fn(|i| {
+        std::array::from_fn(|j| {
+            let mut longest = 48;
+            for a in 0..12 {
+                for b in 0..12 {
+                    if t[a][i] != 0.0 && t[b][j] != 0.0 {
+                        let local_count = if a < 6 && b < 6 {
+                            24
+                        } else if a < 6 || b < 6 {
+                            12
+                        } else {
+                            0
+                        };
+                        longest = longest.max(48 + local_count);
+                    }
+                }
+            }
+            longest
+        })
+    });
+    Ok((bounds, counts))
+}
+
+/// A first inactive-contact seed may lack rank before its bounded all-active
+/// trial. This permits initialization only; the trial and final state still
+/// pass the full gate. Assembly loss, skew, range and negative energy cannot
+/// be rescued by changing contact state.
+pub fn permits_contact_seed_trial(error: &StructuralError, qualified_passive_family: bool) -> bool {
+    match error {
+        StructuralError::Mechanism { .. } => true,
+        StructuralError::NumericallyUnresolved { reason, .. } if qualified_passive_family => {
+            matches!(
+                *reason,
+                "rigid-restraint rank unresolved"
+                    | "zero original diagonal; no physical nullity inferred"
+                    | "nonpositive or cancellation-unresolved structural pivot"
+                    | "scaled condition estimate at working-precision boundary"
+            )
+        }
+        _ => false,
+    }
+}
+
+// Bounded strict-gap integration. All values/projections below refer to the
+// declared represented contribution equations, not unrecorded primitive loads.
+use open_pipe_stress_frame_kernel::structural::exact_boundary as exact;
+#[derive(Debug, Clone, PartialEq)]
+pub enum StrictGapEvidence {
+    NotApplicable,
+    Qualified(ExactGapReport),
+    Unsupported { reason: String, work: ExactGapWork },
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct ExactGapWork {
+    pub preparation_and_solve_charged: Option<usize>,
+    pub charged: usize,
+    pub rejected: usize,
+    pub reserved_for_unobserved_failure: usize,
+    pub attempts: Vec<(String, exact::WorkReport, Option<String>)>,
+}
+#[derive(Debug, Clone, PartialEq)]
+pub struct GapDecision {
+    pub support_id: String,
+    pub global_dof: usize,
+    pub sense: i8,
+    pub gap: f64,
+    pub prior: open_pipe_stress_nonlinear_supports::ActiveSetState,
+    pub gap_sign: exact::Sign,
+    pub reaction_sign: exact::Sign,
+    pub state: open_pipe_stress_nonlinear_supports::ActiveSetState,
+}
+#[derive(Debug, Clone, PartialEq)]
+pub struct GapProjection {
+    pub quantity: exact::Quantity,
+    pub global_dof: usize,
+    pub value: f64,
+    pub interval: [f64; 2],
+    pub absolute_error_bound: f64,
+    pub relative_error_bound: f64,
+    pub criterion: f64,
+    pub basis: exact::ProjectionBasis,
+}
+#[derive(Debug, Clone, PartialEq)]
+pub struct ExactGapReport {
+    retained: exact::RetainedResponse,
+    admitted_limits: exact::Limits,
+    ordinary_state: crate::LinearizedSolve,
+    selected_state: SelectedProjectionState,
+    decision_sources: Vec<GapDecision>,
+    work_snapshot: ExactGapWork,
+    pub source_identity: String,
+    pub source_level: &'static str,
+    pub free_dofs: Vec<usize>,
+    pub prescribed: Vec<(usize, f64)>,
+    pub decisions: Vec<GapDecision>,
+    pub projections: Vec<GapProjection>,
+    pub ordinary_displacements: Vec<f64>,
+    pub corrected_coordinate_count: usize,
+    pub work: ExactGapWork,
+}
+/// The selected projected state and its actual floating equilibrium report are
+/// distinct from ordinary precondition state/report and exact retained ratios.
+#[derive(Debug, Clone, PartialEq)]
+struct SelectedProjectionState {
+    displacements: Vec<f64>,
+    reactions: Vec<f64>,
+    equilibrium: crate::product_equilibrium::ProductEquilibriumReport,
+}
+impl ExactGapReport {
+    pub fn retained(&self) -> &exact::RetainedResponse {
+        &self.retained
+    }
+    pub fn ordinary_reactions(&self) -> &[f64] {
+        &self.ordinary_state.reactions
+    }
+    pub fn ordinary_structural_report(&self) -> &structural::StructuralReport {
+        &self.ordinary_state.structural_report
+    }
+    pub fn ordinary_equilibrium_report(
+        &self,
+    ) -> &crate::product_equilibrium::ProductEquilibriumReport {
+        &self.ordinary_state.product_equilibrium
+    }
+    pub fn selected_displacements(&self) -> &[f64] {
+        &self.selected_state.displacements
+    }
+    pub fn selected_reactions(&self) -> &[f64] {
+        &self.selected_state.reactions
+    }
+    pub fn selected_equilibrium_report(
+        &self,
+    ) -> &crate::product_equilibrium::ProductEquilibriumReport {
+        &self.selected_state.equilibrium
+    }
+    fn summaries_match(&self) -> bool {
+        let bits = |a: &[f64], b: &[f64]| {
+            a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.to_bits() == y.to_bits())
+        };
+        let source = self.retained.source_system();
+        if self.admitted_limits != self.retained.limits()
+            || self.work != self.work_snapshot
+            || self.source_identity != self.retained.source_identity()
+            || self.source_level != GAP_SOURCE_LEVEL
+            || self.free_dofs != source.free_dofs
+            || self.prescribed.len() != source.prescribed.len()
+            || !self
+                .prescribed
+                .iter()
+                .zip(source.prescribed)
+                .all(|((i, a), (j, b))| i == j && a.to_bits() == b.to_bits())
+            || !bits(
+                &self.ordinary_displacements,
+                &self.ordinary_state.displacements,
+            )
+            || self.decisions != self.decision_sources
+            || self.decisions.len() != self.retained.contacts().len()
+            || self.projections.len() != self.retained.projections().len()
+        {
+            return false;
+        }
+        for (d, c) in self.decisions.iter().zip(self.retained.contacts()) {
+            if d.global_dof != c.dof()
+                || d.sense != c.sense()
+                || d.gap.to_bits() != c.gap().to_bits()
+                || d.gap_sign != c.penetration_sign()
+                || d.reaction_sign != c.reaction_sign()
+            {
+                return false;
+            }
+            use open_pipe_stress_nonlinear_supports::ActiveSetState;
+            let active = if d.prior == ActiveSetState::Active {
+                c.reaction_sign() != exact::Sign::Positive
+            } else if d.prior == ActiveSetState::Inactive {
+                c.penetration_sign() != exact::Sign::Negative
+            } else {
+                return false;
+            };
+            if (d.state == ActiveSetState::Active) != active
+                || !matches!(d.state, ActiveSetState::Active | ActiveSetState::Inactive)
+            {
+                return false;
+            }
+        }
+        for (p, r) in self.projections.iter().zip(self.retained.projections()) {
+            if p.quantity != r.quantity()
+                || p.global_dof != r.dof()
+                || p.value.to_bits() != r.value().to_bits()
+                || !bits(&p.interval, &r.interval())
+                || p.absolute_error_bound.to_bits() != r.absolute_error_bound().to_bits()
+                || p.relative_error_bound.to_bits() != r.relative_error_bound().to_bits()
+                || p.criterion.to_bits() != r.relative_limit().to_bits()
+                || p.criterion != GAP_PROJECTION_RELATIVE_LIMIT
+                || p.basis != r.basis()
+            {
+                return false;
+            }
+            let values = match p.quantity {
+                exact::Quantity::Displacement => &self.selected_state.displacements,
+                exact::Quantity::Reaction => &self.selected_state.reactions,
+            };
+            if values.get(p.global_dof).map(|v| v.to_bits()) != Some(p.value.to_bits()) {
+                return false;
+            }
+        }
+        self.corrected_coordinate_count
+            == self
+                .ordinary_state
+                .displacements
+                .iter()
+                .zip(&self.selected_state.displacements)
+                .filter(|(a, b)| a.to_bits() != b.to_bits())
+                .count()
+    }
+    /// Reserve the complete metadata comparison before inspecting string bytes.
+    /// Both public and private sides count, so mutated larger summaries are also
+    /// bounded. First accept/debit the O(1) container-length sizing prefix;
+    /// then visit admitted entries to reserve dynamic comparison bytes. A late
+    /// byte/overflow rejection retains the prefix charge and rejects only the
+    /// unexecuted byte reservation (usize::MAX marks its saturated size).
+    fn summary_comparison_charge(&self, limit: usize) -> Result<usize, exact::WorkReport> {
+        fn add(total: &mut usize, count: usize, width: usize, limit: usize) -> Result<(), usize> {
+            let amount = count.checked_mul(width).ok_or(usize::MAX)?;
+            *total = total.checked_add(amount).ok_or(usize::MAX)?;
+            if *total > limit {
+                return Err(*total);
+            }
+            Ok(())
+        }
+        let source = self.retained.source_system();
+        let mut total = 256;
+        if total > limit {
+            return Err(exact::WorkReport {
+                charged: 0,
+                rejected: total,
+                limit,
+            });
+        }
+        // Fixed scalar fields, length checks, repeated numeric summary loops,
+        // and construction of the expected-contact triples are covered here.
+        for count in [
+            self.free_dofs.len(),
+            source.free_dofs.len(),
+            self.prescribed.len(),
+            source.prescribed.len(),
+            self.ordinary_displacements.len(),
+            self.ordinary_state.displacements.len(),
+            self.selected_state.displacements.len(),
+            self.selected_state.reactions.len(),
+            self.decisions.len(),
+            self.decision_sources.len(),
+            self.retained.contacts().len(),
+            self.projections.len(),
+            self.retained.projections().len(),
+            self.work.attempts.len(),
+            self.work_snapshot.attempts.len(),
+        ] {
+            add(&mut total, count, 64, limit).map_err(|rejected| exact::WorkReport {
+                charged: 0,
+                rejected,
+                limit,
+            })?;
+        }
+        // The complete sizing traversal is now conservatively charged, even if
+        // it stops early. Dynamic comparison bytes have not yet been accepted.
+        let prefix = total;
+        let remaining = limit - prefix;
+        let late_rejection = |rejected| exact::WorkReport {
+            charged: prefix,
+            rejected,
+            limit,
+        };
+        let mut dynamic = 0;
+        for bytes in [
+            self.source_identity.len(),
+            self.retained.source_identity().len(),
+            self.source_level.len(),
+            GAP_SOURCE_LEVEL.len(),
+        ] {
+            add(&mut dynamic, bytes, 1, remaining).map_err(late_rejection)?;
+        }
+        for work in [&self.work, &self.work_snapshot] {
+            for (label, _, error) in &work.attempts {
+                add(&mut dynamic, label.len(), 1, remaining).map_err(late_rejection)?;
+                add(
+                    &mut dynamic,
+                    error.as_ref().map_or(0, String::len),
+                    1,
+                    remaining,
+                )
+                .map_err(late_rejection)?;
+            }
+        }
+        for decisions in [&self.decisions, &self.decision_sources] {
+            for decision in decisions {
+                add(&mut dynamic, decision.support_id.len(), 1, remaining)
+                    .map_err(late_rejection)?;
+            }
+        }
+        // Bounds above establish prefix + dynamic <= limit without overflow.
+        Ok(prefix + dynamic)
+    }
+    /// Private-owned retained evidence survives dropping Context. This verifies
+    /// summaries and exact replay against independently supplied source; it does
+    /// not emit a public method receipt or establish a passing case policy.
+    pub fn replay_retained_against(
+        &self,
+        expected: &StructuralSystem<'_>,
+        identity: &str,
+        force_basis: exact::ForceBasis<'_>,
+        work_limit: usize,
+    ) -> exact::Attempt<exact::ReplayCheck> {
+        let limit = work_limit.min(self.retained.limits().operations);
+        let charge = match self.summary_comparison_charge(limit) {
+            Ok(charge) => charge,
+            Err(work) => {
+                return exact::Attempt {
+                    result: Err(exact::Error::Budget),
+                    work,
+                }
+            }
+        };
+        if !self.summaries_match() {
+            return exact::Attempt {
+                result: Err(exact::Error::Invalid("retained adapter summary mismatch")),
+                work: exact::WorkReport {
+                    charged: charge,
+                    rejected: 0,
+                    limit,
+                },
+            };
+        }
+        let contacts = self
+            .decision_sources
+            .iter()
+            .map(|d| (d.global_dof, d.sense, d.gap))
+            .collect::<Vec<_>>();
+        let mut attempt = self.retained.replay_against(
+            expected,
+            identity,
+            force_basis,
+            &contacts,
+            GAP_PROJECTION_RELATIVE_LIMIT,
+            self.admitted_limits,
+            limit - charge,
+        );
+
+        attempt.work.charged = attempt.work.charged.saturating_add(charge);
+        attempt.work.limit = limit;
+        attempt
+    }
+}
+const GAP_SOURCE_LEVEL:&str="represented frame/spring contributions; declared aggregate nodal load entries; exact original Kfc and prescribed values";
+const GAP_PROJECTION_RELATIVE_LIMIT: f64 = 1e-9;
+pub(crate) const GAP_RUN_WORK_LIMIT: usize = 8_000_000;
+fn gap_attempt<T>(
+    attempt: exact::Attempt<T>,
+    work: &mut ExactGapWork,
+    label: String,
+) -> Result<T, exact::Error> {
+    work.charged = work.charged.saturating_add(attempt.work.charged);
+    work.rejected = work.rejected.saturating_add(attempt.work.rejected);
+    work.attempts.push((
+        label,
+        attempt.work,
+        attempt.result.as_ref().err().map(|e| format!("{e:?}")),
+    ));
+    attempt.result
+}
+// Conservative copy reservations in bytes-as-work-units, including nested
+// dynamic rows/strings. This is not a hardware operation or wall-time count.
+fn state_retention_charge(
+    ordinary: &crate::LinearizedSolve,
+    projected: &crate::product_equilibrium::ProductEquilibriumReport,
+    decisions: &[GapDecision],
+    work: &ExactGapWork,
+) -> usize {
+    let mut n = std::mem::size_of_val(ordinary)
+        .saturating_add(ordinary.displacements.len().saturating_mul(32))
+        .saturating_add(ordinary.reactions.len().saturating_mul(24));
+    let r = &ordinary.structural_report;
+    for bytes in [
+        std::mem::size_of_val(r.scale_exponents.as_slice()),
+        std::mem::size_of_val(r.pivots.as_slice()),
+        std::mem::size_of_val(r.residual_rows.as_slice()),
+        std::mem::size_of_val(r.intended_residual_rows.as_slice()),
+        std::mem::size_of_val(r.contribution_rounding.as_slice()),
+    ] {
+        n = n.saturating_add(bytes);
+    }
+    for c in &r.contribution_rounding {
+        n = n.saturating_add(
+            c.accumulated_expansion
+                .len()
+                .saturating_add(c.difference_expansion.len())
+                .saturating_mul(8),
+        );
+    }
+    n = n.saturating_add(r.symmetry_basis.as_ref().map_or(0, String::len));
+    for e in [&ordinary.product_equilibrium, projected] {
+        n = n
+            .saturating_add(std::mem::size_of_val(e.rows.as_slice()))
+            .saturating_add(std::mem::size_of_val(e.work_rows.as_slice()));
+    }
+    let sparse = &ordinary.sparse_evidence;
+    for text in [
+        &sparse.policy_ref,
+        &sparse.solution_basis,
+        &sparse.assembly_basis,
+    ] {
+        n = n.saturating_add(text.len());
+    }
+    n = n.saturating_add(sparse.failure_message.as_ref().map_or(0, String::len));
+    for d in decisions {
+        n = n
+            .saturating_add(std::mem::size_of_val(d))
+            .saturating_add(d.support_id.len());
+    }
+    for (label, _, error) in &work.attempts {
+        n = n
+            .saturating_add(label.len())
+            .saturating_add(error.as_ref().map_or(0, String::len))
+            .saturating_add(64);
+    }
+    n.saturating_mul(2).saturating_add(256)
+}
+/// No extra contact-state solve occurs here. Exact ratios correct/project the
+/// response of this iteration's ORIGINAL partition, then ordinary counting runs.
+pub(crate) fn scrutinize_gaps(
+    input: &crate::NonlinearFrameSolveInput,
+    assembly: &AssemblyEvidence,
+    stiffness: &[Vec<f64>],
+    boundary: &crate::BoundaryState,
+    prior: &[open_pipe_stress_nonlinear_supports::SupportStateRecord],
+    iteration: usize,
+    mode: crate::LinearSolveMode,
+    solve: &mut crate::SlidingIterationSolve,
+    remaining_run_work: &mut usize,
+) -> StrictGapEvidence {
+    use open_pipe_stress_nonlinear_supports::{
+        ActiveSetState, GapDirection, NonlinearSupportBehavior,
+    };
+    let has_gap = input
+        .nonlinear_supports
+        .iter()
+        .any(|s| matches!(s.behavior, NonlinearSupportBehavior::Gap { .. }));
+    if !has_gap {
+        return StrictGapEvidence::NotApplicable;
+    }
+    let mut work = ExactGapWork::default();
+    let unsupported =
+        |reason: String, work: ExactGapWork| StrictGapEvidence::Unsupported { reason, work };
+    if !input
+        .nonlinear_supports
+        .iter()
+        .all(|s| matches!(s.behavior, NonlinearSupportBehavior::Gap { .. }))
+        || !input.user_stiffness_elements.is_empty()
+        || !input.curved_bend_elements.is_empty()
+        || !assembly.qualified_passive_family()
+        || !input.friction_normal_reactions.is_empty()
+        || !input.derived_friction_normal_reactions.is_empty()
+        || !solve.applied_forces.is_empty()
+    {
+        return unsupported("strict-gap proof supports only gap-only objective straight-frame bodies with declared nodal loads and linear springs; mixed/curved/user/affine source capability remains unqualified".into(),work);
+    }
+    let mut gap_dofs = std::collections::HashSet::new();
+    if input
+        .nonlinear_supports
+        .iter()
+        .any(|support| !gap_dofs.insert(crate::node_dof_index(support.node_index, support.dof)))
+    {
+        return unsupported(
+            "duplicate gap DOFs cannot acquire exact-law qualification".into(),
+            work,
+        );
+    }
+    let per_call = exact::Limits::default().operations.min(*remaining_run_work);
+    if per_call == 0 {
+        return unsupported("strict-gap undertaking work budget exhausted".into(), work);
+    }
+    let outcome = (|| -> Result<ExactGapReport, exact::Error> {
+        let prescribed = boundary
+            .dofs
+            .iter()
+            .copied()
+            .zip(boundary.displacements.iter().copied())
+            .collect::<Vec<_>>();
+        let free = (0..input.force.len())
+            .filter(|d| !boundary.dofs.contains(d))
+            .collect::<Vec<_>>();
+        let mut force = input.force.clone();
+        crate::add_applied_forces(&mut force, &solve.applied_forces);
+        let mut terms = input
+            .force
+            .iter()
+            .enumerate()
+            .map(|(dof, &value)| exact::ForceContribution {
+                source: format!("declared input.force[{dof}]"),
+                dof,
+                value,
+            })
+            .collect::<Vec<_>>();
+        for applied in &solve.applied_forces {
+            terms.push(exact::ForceContribution {
+                source: format!("selected affine {}", applied.support_id),
+                dof: applied.global_dof,
+                value: applied.force,
+            });
+        }
+        let system = StructuralSystem {
+            stiffness,
+            force: &force,
+            free_dofs: &free,
+            prescribed: &prescribed,
+            contributions: Some(&assembly.contributions),
+            symmetry: Some(SymmetryEvidence {
+                absolute_roundoff: &assembly.absolute_roundoff,
+                operation_counts: &assembly.operation_counts,
+                basis: "original represented assembly, no symmetry projection in exact proof",
+            }),
+        };
+        let identity=format!("nonlinear original partition iteration={iteration}; mode={}; declared-force-plus-selected-affine-source",mode.as_str());
+        let context = exact::Context::new(
+            &system,
+            &identity,
+            exact::ForceBasis::IdentifiedContributions(&terms),
+            exact::Limits {
+                operations: per_call,
+                ..exact::Limits::default()
+            },
+        )?;
+        if !context.matches(
+            &system,
+            &identity,
+            exact::ForceBasis::IdentifiedContributions(&terms),
+        ) {
+            return Err(exact::Error::Invalid("exact source binding"));
+        }
+        let response = context.solve()?;
+        work.preparation_and_solve_charged = Some(response.operations());
+        work.charged = response.operations();
+        let mut decisions = Vec::new();
+        let mut contact_proofs = Vec::new();
+        for support in &input.nonlinear_supports {
+            let state = prior
+                .iter()
+                .find(|s| s.support_id == support.support_id)
+                .ok_or(exact::Error::Invalid("missing prior gap state"))?
+                .state;
+            if !matches!(state, ActiveSetState::Active | ActiveSetState::Inactive) {
+                return Err(exact::Error::Invalid("unsupported gap state"));
+            }
+            let sense = match support.behavior {
+                NonlinearSupportBehavior::Gap {
+                    closes_when: GapDirection::PositiveDisplacement,
+                } => 1,
+                NonlinearSupportBehavior::Gap {
+                    closes_when: GapDirection::NegativeDisplacement,
+                } => -1,
+                _ => return Err(exact::Error::Invalid("gap source family")),
+            };
+            let gap = support.gap.ok_or(exact::Error::Invalid("missing gap"))?;
+            let dof = crate::node_dof_index(support.node_index, support.dof);
+            let proof = gap_attempt(
+                response.gap_proof_with_work(
+                    dof,
+                    sense,
+                    gap,
+                    per_call.saturating_sub(work.charged),
+                ),
+                &mut work,
+                format!("gap operands {}", support.support_id),
+            )?;
+            let sign = proof.contact().penetration_sign();
+            let reaction = proof.contact().reaction_sign();
+            contact_proofs.push(proof);
+            let active = if state == ActiveSetState::Active {
+                reaction != exact::Sign::Positive
+            } else {
+                sign != exact::Sign::Negative
+            };
+            decisions.push(GapDecision {
+                support_id: support.support_id.clone(),
+                global_dof: dof,
+                sense,
+                gap,
+                prior: state,
+                gap_sign: sign,
+                reaction_sign: reaction,
+                state: if active {
+                    ActiveSetState::Active
+                } else {
+                    ActiveSetState::Inactive
+                },
+            });
+        }
+        let mut u = Vec::with_capacity(input.force.len());
+        let mut reactions = Vec::with_capacity(input.force.len());
+        let mut projections = Vec::new();
+        let mut projection_proofs = Vec::new();
+        for dof in 0..input.force.len() {
+            for quantity in [exact::Quantity::Displacement, exact::Quantity::Reaction] {
+                let remaining = per_call.saturating_sub(work.charged);
+                let attempt = match quantity {
+                    exact::Quantity::Displacement => {
+                        response.project_displacement(dof, GAP_PROJECTION_RELATIVE_LIMIT, remaining)
+                    }
+                    exact::Quantity::Reaction => {
+                        response.project_reaction(dof, GAP_PROJECTION_RELATIVE_LIMIT, remaining)
+                    }
+                };
+                let p = gap_attempt(
+                    attempt,
+                    &mut work,
+                    format!("projection {quantity:?} dof={dof}"),
+                )?;
+                if !p.is_for(&response, quantity, dof)
+                    || p.relative_limit() != GAP_PROJECTION_RELATIVE_LIMIT
+                    || p.relative_error_bound() > GAP_PROJECTION_RELATIVE_LIMIT
+                {
+                    return Err(exact::Error::ProjectionUnresolved(
+                        "projection identity/criterion",
+                    ));
+                }
+                match quantity {
+                    exact::Quantity::Displacement => u.push(p.value()),
+                    exact::Quantity::Reaction => reactions.push(p.value()),
+                };
+                projections.push(GapProjection {
+                    quantity,
+                    global_dof: dof,
+                    value: p.value(),
+                    interval: p.interval(),
+                    absolute_error_bound: p.absolute_error_bound(),
+                    relative_error_bound: p.relative_error_bound(),
+                    criterion: p.relative_limit(),
+                    basis: p.basis(),
+                });
+                projection_proofs.push(p);
+            }
+        }
+        let retained = gap_attempt(
+            response.retain_with_work(
+                &contact_proofs,
+                &projection_proofs,
+                per_call.saturating_sub(work.charged),
+            ),
+            &mut work,
+            "retain source/minors/ratios/contact/projection".into(),
+        )?;
+        let equilibrium = crate::product_equilibrium::evaluate(&system, &u)?;
+        if !equilibrium.passed {
+            return Err(exact::Error::ProjectionUnresolved(
+                "projected exact response fails original represented equilibrium gate",
+            ));
+        }
+        let state_charge =
+            state_retention_charge(&solve.linearized, &equilibrium, &decisions, &work);
+        let remaining = per_call.saturating_sub(work.charged);
+        gap_attempt(
+            exact::Attempt {
+                result: if state_charge <= remaining {
+                    Ok(())
+                } else {
+                    Err(exact::Error::Budget)
+                },
+                work: exact::WorkReport {
+                    charged: if state_charge <= remaining {
+                        state_charge
+                    } else {
+                        0
+                    },
+                    rejected: if state_charge <= remaining {
+                        0
+                    } else {
+                        state_charge
+                    },
+                    limit: remaining,
+                },
+            },
+            &mut work,
+            "retain ordinary/projected states and reports".into(),
+        )?;
+        let ordinary_state = solve.linearized.clone();
+        let selected_state = SelectedProjectionState {
+            displacements: u.clone(),
+            reactions: reactions.clone(),
+            equilibrium: equilibrium.clone(),
+        };
+        let ordinary = solve.linearized.displacements.clone();
+        let corrected = ordinary
+            .iter()
+            .zip(&u)
+            .filter(|(a, b)| a.to_bits() != b.to_bits())
+            .count();
+        solve.linearized.displacements = u;
+        // Recover action from the SAME exact ratios, never from rounded u.
+        solve.linearized.reactions = reactions.clone();
+        solve.reactions = reactions;
+        solve.linearized.max_abs_free_dof_force_residual = equilibrium
+            .rows
+            .iter()
+            .filter(|r| r.global_dof % 6 < 3)
+            .map(|r| r.residual.abs())
+            .fold(0.0, f64::max);
+        solve.linearized.max_abs_free_dof_moment_residual = equilibrium
+            .rows
+            .iter()
+            .filter(|r| r.global_dof % 6 >= 3)
+            .map(|r| r.residual.abs())
+            .fold(0.0, f64::max);
+        solve.linearized.max_abs_free_dof_work_residual = equilibrium
+            .work_rows
+            .iter()
+            .map(|r| r.observed_work)
+            .fold(0.0, f64::max);
+        solve.linearized.product_equilibrium = equilibrium;
+        Ok(ExactGapReport {
+            admitted_limits: retained.limits(),
+            retained,
+            ordinary_state,
+            selected_state,
+            decision_sources: decisions.clone(),
+            work_snapshot: work.clone(),
+            source_identity: identity,
+            source_level: GAP_SOURCE_LEVEL,
+            free_dofs: free,
+            prescribed,
+            decisions,
+            projections,
+            ordinary_displacements: ordinary,
+            corrected_coordinate_count: corrected,
+            work: work.clone(),
+        })
+    })();
+    // The helper exposes metered attempts and successful preparation/solve;
+    // failed preparation/solve has no work return. Reserve that whole cap so
+    // unknown consumed work cannot disappear from the undertaking budget.
+    let debit = if work.preparation_and_solve_charged.is_some() {
+        work.charged
+    } else {
+        work.reserved_for_unobserved_failure = per_call;
+        per_call
+    };
+    *remaining_run_work = remaining_run_work.saturating_sub(debit);
+    match outcome {Ok(report)=>StrictGapEvidence::Qualified(report),Err(error)=>unsupported(format!("strict-gap exact source/predicate/projection unresolved: {error:?}; unavailable preparation accounting reserves full {per_call} when applicable"),work)}
+}
+
+pub(crate) fn exact_gap_iteration(
+    input: &crate::ActiveSetIterationInput,
+    report: &ExactGapReport,
+) -> Result<crate::ActiveSetIteration, crate::NonlinearIntegrationError> {
+    use open_pipe_stress_nonlinear_supports::{ActiveSetState, SupportStateRecord};
+    if !report.summaries_match() || report.decisions.len() != input.supports.len() {
+        return Err(crate::NonlinearIntegrationError::InvalidInput {
+            detail: "incomplete exact gap decision coverage".into(),
+        });
+    }
+    let mut states = Vec::new();
+    let mut changed = Vec::new();
+    let mut ids = std::collections::HashSet::new();
+    for support in &input.supports {
+        let matches = report
+            .decisions
+            .iter()
+            .filter(|d| d.support_id == support.support_id)
+            .collect::<Vec<_>>();
+        if matches.len() != 1 || !ids.insert(support.support_id.clone()) {
+            return Err(crate::NonlinearIntegrationError::InvalidInput {
+                detail: "duplicate or missing exact gap decision".into(),
+            });
+        }
+        let decision = matches[0];
+        let prior = input
+            .prior_states
+            .iter()
+            .find(|p| p.support_id == support.support_id)
+            .map(|p| p.state);
+        if prior != Some(decision.prior)
+            || !matches!(
+                decision.state,
+                ActiveSetState::Active | ActiveSetState::Inactive
+            )
+        {
+            return Err(crate::NonlinearIntegrationError::InvalidInput {
+                detail: "exact gap prior-state mismatch".into(),
+            });
+        }
+        if decision.state != decision.prior {
+            changed.push(support.support_id.clone());
+        }
+        states.push(SupportStateRecord::new(&support.support_id, decision.state));
+    }
+    states.sort_by(|a, b| a.support_id.cmp(&b.support_id));
+    changed.sort();
+    let residual = changed.len() as f64;
+    let diagnostic = open_pipe_stress_solver_diagnostics::convergence_diagnostic(
+        input.iteration,
+        input.max_iterations,
+        residual,
+        input.tolerance,
+    )
+    .map_err(|e| crate::NonlinearIntegrationError::InvalidInput {
+        detail: format!("exact gap count diagnostic: {e}"),
+    })?;
+    let mut diagnostics = Vec::new();
+    if let Some(mut d) = diagnostic {
+        d.message.push_str(&format!(
+            "; exact gap decisions; changed_supports={changed:?}; states={states:?}"
+        ));
+        diagnostics.push(d);
+    }
+    Ok(crate::ActiveSetIteration {
+        iteration: input.iteration,
+        states,
+        changed_supports: changed,
+        residual_norm: residual,
+        converged: residual <= input.tolerance,
+        diagnostics,
+    })
+}
+
+#[cfg(test)]
+mod retention_tests {
+    use super::*;
+    use crate::{ConvergenceControl, ConvergencePolicyStatus, NonlinearFrameSolveInput};
+    use open_pipe_stress_frame_kernel::{FrameDof, FrameNode, FrameSection};
+    use open_pipe_stress_nonlinear_supports::{
+        ActiveSetState, GapDirection, NonlinearSupport, SupportStateRecord,
+    };
+    fn adjacent_input() -> NonlinearFrameSolveInput {
+        let section = FrameSection::new(100.0, 40.0, 1.0, 1.0, 1.0, 1.0).unwrap();
+        let elements = (0..2)
+            .map(|i| {
+                FrameElement::new(
+                    FrameNode::new(i, [i as f64, 0.0, 0.0]).unwrap(),
+                    FrameNode::new(i + 1, [(i + 1) as f64, 0.0, 0.0]).unwrap(),
+                    section,
+                    [0.0, 1.0, 0.0],
+                )
+                .unwrap()
+            })
+            .collect();
+        let mut force = vec![0.0; 18];
+        force[12] = 12.5;
+        NonlinearFrameSolveInput {
+            node_count: 3,
+            elements,
+            user_stiffness_elements: vec![],
+            curved_bend_elements: vec![],
+            force,
+            base_restrained_dofs: (0..18).filter(|&i| i != 6 && i != 12).collect(),
+            nonlinear_supports: vec![
+                NonlinearSupport::gap(
+                    "g1",
+                    1,
+                    FrameDof::Ux,
+                    f64::from_bits(0.125_f64.to_bits() - 1),
+                    GapDirection::PositiveDisplacement,
+                )
+                .unwrap(),
+                NonlinearSupport::gap(
+                    "g2",
+                    2,
+                    FrameDof::Ux,
+                    0.25,
+                    GapDirection::PositiveDisplacement,
+                )
+                .unwrap(),
+            ],
+            initial_states: vec![
+                SupportStateRecord::new("g1", ActiveSetState::Active),
+                SupportStateRecord::new("g2", ActiveSetState::Inactive),
+            ],
+            friction_normal_reactions: vec![],
+            derived_friction_normal_reactions: vec![],
+            convergence: ConvergenceControl::new(
+                "DEC-046-fixture-active-set-count-tightening",
+                ConvergencePolicyStatus::Accepted,
+                0.0,
+                0.0,
+                4,
+            )
+            .unwrap(),
+        }
+    }
+    #[test]
+    fn ret01_long_id_and_nested_error_are_reserved_before_summary_comparison() {
+        let mut comparison_charges = Vec::new();
+        for id in ["g1".to_string(), "x".repeat(4096)] {
+            let mut input = adjacent_input();
+            input.nonlinear_supports[0].support_id = id.clone();
+            input.initial_states[0].support_id = id;
+            let mode = LinearSolveMode::DenseScrutiny;
+            let solved = crate::solve_active_set_frame_with_mode(&input, mode).unwrap();
+            let iteration = solved.iterations.last().unwrap();
+            let report = match &iteration.strict_gap {
+                StrictGapEvidence::Qualified(r) => r,
+                other => panic!("{other:?}"),
+            };
+            let stiffness = crate::assemble_global_stiffness_with_user_elements(
+                input.node_count,
+                &input.elements,
+                &[],
+            )
+            .unwrap();
+            let assembly =
+                AssemblyEvidence::new(input.node_count, &input.elements, &[], &[], &[]).unwrap();
+            let fixed = (0..18)
+                .filter(|&d| d != 12)
+                .map(|d| {
+                    (
+                        d,
+                        if d == 6 {
+                            f64::from_bits(0.125_f64.to_bits() - 1)
+                        } else {
+                            0.0
+                        },
+                    )
+                })
+                .collect::<Vec<_>>();
+            let terms = input
+                .force
+                .iter()
+                .enumerate()
+                .map(|(dof, &value)| exact::ForceContribution {
+                    source: format!("declared input.force[{dof}]"),
+                    dof,
+                    value,
+                })
+                .collect::<Vec<_>>();
+            let source = StructuralSystem {
+                stiffness: &stiffness,
+                force: &input.force,
+                free_dofs: &[12],
+                prescribed: &fixed,
+                contributions: Some(&assembly.contributions),
+                symmetry: Some(SymmetryEvidence {
+                    absolute_roundoff: &assembly.absolute_roundoff,
+                    operation_counts: &assembly.operation_counts,
+                    basis: "original represented assembly, no symmetry projection in exact proof",
+                }),
+            };
+            let identity=format!("nonlinear original partition iteration={}; mode={}; declared-force-plus-selected-affine-source",iteration.iteration,mode.as_str());
+            let replay = |r: &ExactGapReport, limit| {
+                r.replay_retained_against(
+                    &source,
+                    &identity,
+                    exact::ForceBasis::IdentifiedContributions(&terms),
+                    limit,
+                )
+            };
+            let charge = report.summary_comparison_charge(usize::MAX).unwrap();
+            comparison_charges.push(charge);
+            // RET-01's old fixed prefix admitted 1088 and compared long strings.
+            // The repaired reservation rejects before summaries_match instead.
+            let tight = replay(report, 1088);
+            assert!(matches!(tight.result, Err(exact::Error::Budget)));
+            assert_eq!(tight.work.charged, 0);
+            assert!(tight.work.rejected > 1088);
+            let before_comparison = replay(report, charge - 1);
+            assert!(matches!(
+                before_comparison.result,
+                Err(exact::Error::Budget)
+            ));
+            assert!(before_comparison.work.charged > 0);
+            assert!(before_comparison.work.charged < charge);
+            assert_eq!(
+                before_comparison.work.charged + before_comparison.work.rejected,
+                charge
+            );
+            // Prefix accepted; only unexecuted dynamic bytes were rejected.
+            let sizing_prefix = before_comparison.work.charged;
+            let sufficient = replay(report, usize::MAX);
+            assert!(sufficient.result.is_ok(), "{:?}", sufficient.result);
+            assert!(sufficient.work.charged > charge);
+            let one_short = replay(report, sufficient.work.charged - 1);
+            assert!(matches!(one_short.result, Err(exact::Error::Budget)));
+            assert!(one_short.work.rejected > 0);
+            assert!(one_short.work.charged >= charge);
+            // Public failed-attempt strings are compared even though this honest
+            // successful report had no errors. Mutated metadata must be sized
+            // before rejecting its mismatch with the immutable work snapshot.
+            let mut changed = report.clone();
+            changed.work.attempts[0].2 = Some("e".repeat(4096));
+            assert_eq!(
+                changed.summary_comparison_charge(usize::MAX).unwrap(),
+                charge + 4096
+            );
+            let denied = replay(&changed, charge);
+            assert!(matches!(denied.result, Err(exact::Error::Budget)));
+            assert_eq!(denied.work.charged, sizing_prefix);
+            assert!(denied.work.rejected > charge - sizing_prefix);
+            assert!(matches!(
+                replay(&changed, usize::MAX).result,
+                Err(exact::Error::Invalid("retained adapter summary mismatch"))
+            ));
+        }
+        // Both decision IDs and work labels have public/private copies.
+        assert!(comparison_charges[1] >= comparison_charges[0] + 4 * (4096 - 2));
+    }
+    #[test]
+    fn actual_adapter_retains_adjacent_response_and_separate_ordinary_projected_states() {
+        for mode in [
+            LinearSolveMode::DenseScrutiny,
+            LinearSolveMode::SparseInteractive,
+        ] {
+            let input = adjacent_input();
+            let solved = crate::solve_active_set_frame_with_mode(&input, mode).unwrap();
+            let iteration = solved.iterations.last().unwrap();
+            let report = match &iteration.strict_gap {
+                StrictGapEvidence::Qualified(r) => r,
+                other => panic!("{other:?}"),
+            };
+            // scrutinize_gaps' temporary Context has already been dropped.
+            let retained = report.retained();
+            assert_eq!(retained.displacements().len(), 18);
+            assert_eq!(retained.reactions().len(), 18);
+            assert_eq!(report.selected_displacements()[12], 0.25);
+            assert_eq!(report.selected_reactions()[6], -25.0 * 2.0_f64.powi(-54));
+            assert_eq!(
+                retained.contacts()[1].penetration_sign(),
+                exact::Sign::Negative
+            );
+            assert_eq!(
+                report.ordinary_structural_report(),
+                &iteration.structural_report
+            );
+            assert_eq!(
+                report.selected_equilibrium_report(),
+                &iteration.product_equilibrium
+            );
+            assert!(!std::ptr::eq(
+                report.ordinary_equilibrium_report(),
+                report.selected_equilibrium_report()
+            ));
+            let stiffness = crate::assemble_global_stiffness_with_user_elements(
+                input.node_count,
+                &input.elements,
+                &[],
+            )
+            .unwrap();
+            let assembly =
+                AssemblyEvidence::new(input.node_count, &input.elements, &[], &[], &[]).unwrap();
+            let fixed = (0..18)
+                .filter(|&d| d != 12)
+                .map(|d| {
+                    (
+                        d,
+                        if d == 6 {
+                            f64::from_bits(0.125_f64.to_bits() - 1)
+                        } else {
+                            0.0
+                        },
+                    )
+                })
+                .collect::<Vec<_>>();
+            let terms = input
+                .force
+                .iter()
+                .enumerate()
+                .map(|(dof, &value)| exact::ForceContribution {
+                    source: format!("declared input.force[{dof}]"),
+                    dof,
+                    value,
+                })
+                .collect::<Vec<_>>();
+            let source = StructuralSystem {
+                stiffness: &stiffness,
+                force: &input.force,
+                free_dofs: &[12],
+                prescribed: &fixed,
+                contributions: Some(&assembly.contributions),
+                symmetry: Some(SymmetryEvidence {
+                    absolute_roundoff: &assembly.absolute_roundoff,
+                    operation_counts: &assembly.operation_counts,
+                    basis: "original represented assembly, no symmetry projection in exact proof",
+                }),
+            };
+            let identity=format!("nonlinear original partition iteration={}; mode={}; declared-force-plus-selected-affine-source",iteration.iteration,mode.as_str());
+            let replay = report.replay_retained_against(
+                &source,
+                &identity,
+                exact::ForceBasis::IdentifiedContributions(&terms),
+                usize::MAX,
+            );
+            assert!(replay.result.is_ok(), "{:?}", replay.result);
+            assert!(replay.work.charged > 0);
+            let mut changed = report.clone();
+            changed.projections[12].value += 1.0;
+            assert!(changed
+                .replay_retained_against(
+                    &source,
+                    &identity,
+                    exact::ForceBasis::IdentifiedContributions(&terms),
+                    usize::MAX
+                )
+                .result
+                .is_err());
+            let mut changed = report.clone();
+            changed.decisions[0].gap_sign = exact::Sign::Positive;
+            assert!(!changed.summaries_match());
+            let mut changed = report.clone();
+            changed.ordinary_displacements[12] = 0.5;
+            assert!(!changed.summaries_match());
+            let mut changed = report.clone();
+            changed.work.charged += 1;
+            assert!(!changed.summaries_match());
+            assert!(report
+                .replay_retained_against(
+                    &source,
+                    &identity,
+                    exact::ForceBasis::IdentifiedContributions(&terms),
+                    0
+                )
+                .result
+                .is_err());
+        }
+    }
+}

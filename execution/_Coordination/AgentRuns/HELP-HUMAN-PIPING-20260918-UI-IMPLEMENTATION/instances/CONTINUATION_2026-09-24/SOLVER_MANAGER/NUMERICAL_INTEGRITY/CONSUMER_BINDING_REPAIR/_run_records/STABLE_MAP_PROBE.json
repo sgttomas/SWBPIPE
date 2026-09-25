@@ -1,0 +1,84 @@
+{
+  "method": "manager source-only injected deterministic JSON hash, not actual JCS/native execution",
+  "source_sha256": "b16e5d9033401c4a08135238e73a7e6a3df3bc487b717c98eb82c86627071d62",
+  "observations": [
+    {
+      "case": "canonical_type",
+      "result": "ACCEPTED",
+      "map": {
+        "canonical_ref": {
+          "object_type": "Material",
+          "ref": "result:0"
+        },
+        "export_ref": {
+          "object_type": "StressNeutralRow",
+          "ref": "result:0"
+        },
+        "loss_category": "exported",
+        "mapping_status": "mapped",
+        "provenance": {
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "privacy_classification": "public_metadata",
+          "redistribution_status": "public_permissive",
+          "review_status": "machine_checked",
+          "source_license": "project-governed",
+          "source_location": "core/handoff/stress_neutral/package.py",
+          "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+        }
+      }
+    },
+    {
+      "case": "empty_export",
+      "result": "ACCEPTED",
+      "map": {
+        "canonical_ref": {
+          "object_type": "Result",
+          "ref": "result:0"
+        },
+        "export_ref": {
+          "object_type": "StressNeutralRow",
+          "ref": ""
+        },
+        "loss_category": "exported",
+        "mapping_status": "mapped",
+        "provenance": {
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "privacy_classification": "public_metadata",
+          "redistribution_status": "public_permissive",
+          "review_status": "machine_checked",
+          "source_license": "project-governed",
+          "source_location": "core/handoff/stress_neutral/package.py",
+          "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+        }
+      }
+    },
+    {
+      "case": "null_export",
+      "result": "ACCEPTED",
+      "map": {
+        "canonical_ref": {
+          "object_type": "Result",
+          "ref": "result:0"
+        },
+        "export_ref": {
+          "object_type": "StressNeutralRow",
+          "ref": null
+        },
+        "loss_category": "exported",
+        "mapping_status": "mapped",
+        "provenance": {
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "privacy_classification": "public_metadata",
+          "redistribution_status": "public_permissive",
+          "review_status": "machine_checked",
+          "source_license": "project-governed",
+          "source_location": "core/handoff/stress_neutral/package.py",
+          "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+        }
+      }
+    }
+  ]
+}

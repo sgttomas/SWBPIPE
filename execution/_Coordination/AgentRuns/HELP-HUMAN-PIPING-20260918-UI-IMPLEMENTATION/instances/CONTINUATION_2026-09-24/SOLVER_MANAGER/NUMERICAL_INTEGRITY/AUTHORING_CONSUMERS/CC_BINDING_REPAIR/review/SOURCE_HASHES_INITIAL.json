@@ -1,0 +1,97 @@
+{
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "before_sha256": "a03889b5525015b108adcf4523a39740f35f3b303ebdc246fd049ec8cf5f002a",
+      "after_sha256": "9d6a8297673952c53ac62e002357481a0397793fe656b34ace34cc11e9f67637",
+      "actual_before_sha256": "a03889b5525015b108adcf4523a39740f35f3b303ebdc246fd049ec8cf5f002a",
+      "actual_after_sha256": "9d6a8297673952c53ac62e002357481a0397793fe656b34ace34cc11e9f67637",
+      "before_match": true,
+      "after_match": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+      "before_sha256": "ddfafa76bfcfa2b32519cdfdef698dea6e7cc4223db3fb87434f423a3293d78f",
+      "after_sha256": "48f660b825e35f185acf151d4fbd9d63ac1b402c55655effba64a8b66f314375",
+      "actual_before_sha256": "ddfafa76bfcfa2b32519cdfdef698dea6e7cc4223db3fb87434f423a3293d78f",
+      "actual_after_sha256": "48f660b825e35f185acf151d4fbd9d63ac1b402c55655effba64a8b66f314375",
+      "before_match": true,
+      "after_match": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "before_sha256": "2c1c25ad96f8bcf939ead2db9fb399d1727ae5d784f58bd1be87cdca367532e7",
+      "after_sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498",
+      "actual_before_sha256": "2c1c25ad96f8bcf939ead2db9fb399d1727ae5d784f58bd1be87cdca367532e7",
+      "actual_after_sha256": "7d14cdcfd6c21c49590f49615724e7d4b187018d2f2a6c65492ceb7bde6ea498",
+      "before_match": true,
+      "after_match": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "before_sha256": "5feaa97565438c3a690169383357ce66a80f0cc45e2d92db731b4c7ada26cb75",
+      "after_sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347",
+      "actual_before_sha256": "5feaa97565438c3a690169383357ce66a80f0cc45e2d92db731b4c7ada26cb75",
+      "actual_after_sha256": "7c6114f08b5fd952922ecb96dcb25b6ad70aa7ac2b0e1d2fce9511edcda7c347",
+      "before_match": true,
+      "after_match": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "before_sha256": "7902030bbda2b84c80774b22b78030d80f1bdb65f074f7fc5a69a31864f712f4",
+      "after_sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574",
+      "actual_before_sha256": "7902030bbda2b84c80774b22b78030d80f1bdb65f074f7fc5a69a31864f712f4",
+      "actual_after_sha256": "ebef190b7aff5b6f2da9f938b0c79c5e71f8d2f9f19d2a4ff04ce09f0122c574",
+      "before_match": true,
+      "after_match": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "before_sha256": "7e26ee642bdabe4ce7353b1b188838084c2a81f40805ba30012e421382f847b2",
+      "after_sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28",
+      "actual_before_sha256": "7e26ee642bdabe4ce7353b1b188838084c2a81f40805ba30012e421382f847b2",
+      "actual_after_sha256": "4f731ce5c3076af5d2e1c06e1e656c4b4d9c18e26a1e6ea4fb6beab52adfea28",
+      "before_match": true,
+      "after_match": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "before_sha256": "275947ea8e6f3c52d401da109e69410716267225f602e7d094ae302b34d7e165",
+      "after_sha256": "3051ed4def2ad6aaa3e5a1fb5c4719d8791182e49e951dfe355d8e9faf949836",
+      "actual_before_sha256": "275947ea8e6f3c52d401da109e69410716267225f602e7d094ae302b34d7e165",
+      "actual_after_sha256": "3051ed4def2ad6aaa3e5a1fb5c4719d8791182e49e951dfe355d8e9faf949836",
+      "before_match": true,
+      "after_match": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "before_sha256": "05dd482a55eddbd007ada6ca529818134442b216d76b6dc109ed646d5e7ad660",
+      "after_sha256": "33e1cc5804bbc5a02278901b0362bd82792f1f2245f2b02e34c1ee45e95371f3",
+      "actual_before_sha256": "05dd482a55eddbd007ada6ca529818134442b216d76b6dc109ed646d5e7ad660",
+      "actual_after_sha256": "33e1cc5804bbc5a02278901b0362bd82792f1f2245f2b02e34c1ee45e95371f3",
+      "before_match": true,
+      "after_match": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "before_sha256": "4f945e571a7d289de9ad87f0fcf2407faf5a169fbe150ffdd5ba206aecad16c5",
+      "after_sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+      "actual_before_sha256": "4f945e571a7d289de9ad87f0fcf2407faf5a169fbe150ffdd5ba206aecad16c5",
+      "actual_after_sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+      "before_match": true,
+      "after_match": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "before_sha256": "81702a9b255defe92c1d7d39432706f7c49a49f61ae195c654fd13524b0863be",
+      "after_sha256": "ec2ef7ba52b10ef9950a47f786812c38085816c5f99876ee6c6de0fecb702d18",
+      "actual_before_sha256": "81702a9b255defe92c1d7d39432706f7c49a49f61ae195c654fd13524b0863be",
+      "actual_after_sha256": "ec2ef7ba52b10ef9950a47f786812c38085816c5f99876ee6c6de0fecb702d18",
+      "before_match": true,
+      "after_match": true
+    }
+  ],
+  "delta_sha256": "0156fdaf9eb15305db5b04b87f47d80ab24077c56173f9bde36549bcb7c9575e",
+  "delta_hash_matches": true,
+  "exact_delta_text_matches": true
+}

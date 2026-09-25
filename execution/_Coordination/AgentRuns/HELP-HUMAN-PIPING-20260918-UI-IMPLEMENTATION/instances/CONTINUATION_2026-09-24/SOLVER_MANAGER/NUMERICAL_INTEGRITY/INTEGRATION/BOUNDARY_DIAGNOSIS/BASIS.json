@@ -1,0 +1,7 @@
+{
+  "source_path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+  "source_sha256": "42b4b2d641fb454f5c425a585294ae6b27a93ee5fe6c1cb5d6108577b5b49cbd",
+  "failed_log_sha256": "7f8a539c955ee906bb5bd6d1bd617b80bbd9f52a5e0b5bfd2e503a51863d8bbf",
+  "patch_sha256": "1add85a78b3c02ffd68038c377adb6076fed6cc7e1204fc274314419ae5a06fd",
+  "scope": "evidence-only. Actual source and tests unchanged. Observation patch adds separate tests without altering any protected assertion."
+}

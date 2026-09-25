@@ -1,0 +1,36 @@
+{
+  "source_sha256": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c",
+  "test_sha256": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655",
+  "source_matches_final_dispatch": true,
+  "test_matches_final_dispatch": true,
+  "source_matches_frozen_copy": true,
+  "test_matches_frozen_copy": true,
+  "test_matches_test_first_freeze": true,
+  "original_tests_are_unchanged_prefix": true,
+  "every_source_byte_outside_aggregate_comparison_unchanged": true,
+  "original_source_snapshot_sha256": "ba8c30b9a849488e1b6c01afd80aca0a9e7c28c1aca83e4e0e69498d2156bf8c",
+  "supplied_complete_bounded_diff_matches_reconstructed_diff": true,
+  "baseline_source_recorded_hash_matches": true,
+  "baseline_test_recorded_hash_matches": true,
+  "baseline_config_recorded_hash_matches": true,
+  "baseline_log_recorded_hash_matches": true,
+  "source_still_matches_final_dispatch": true,
+  "test_still_matches_final_dispatch": true,
+  "runtime_evidence": {
+    "repaired": {
+      "exit_code": 0,
+      "source_recorded_hash_matches": true,
+      "test_recorded_hash_matches": true,
+      "log_recorded_hash_matches": true,
+      "config_recorded_hash_matches": true,
+      "observed_summary": "1 file passed; 22 tests passed"
+    },
+    "tsc": {
+      "exit_code": 0,
+      "source_recorded_hash_matches": true,
+      "test_recorded_hash_matches": true,
+      "log_recorded_hash_matches": true,
+      "observed_summary": "tsc --noEmit exit 0, empty log"
+    }
+  }
+}

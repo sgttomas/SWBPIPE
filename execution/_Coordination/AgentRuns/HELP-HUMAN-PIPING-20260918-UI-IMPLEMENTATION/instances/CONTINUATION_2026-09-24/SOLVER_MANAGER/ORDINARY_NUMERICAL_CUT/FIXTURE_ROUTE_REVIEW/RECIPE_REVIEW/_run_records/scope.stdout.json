@@ -1,0 +1,13 @@
+{
+  "allowed": [
+    "projects/chirality-piping/package.json",
+    "projects/chirality-piping/tools/serialization/generate_product_preview_mechanics.mjs"
+  ],
+  "paths": [
+    "projects/chirality-piping/package.json",
+    "projects/chirality-piping/tools/serialization/generate_product_preview_mechanics.mjs"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

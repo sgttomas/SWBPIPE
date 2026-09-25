@@ -1,0 +1,26 @@
+{
+  "agent": "/root/solver_manager/evidence_primitives",
+  "parent": "/root/solver_manager",
+  "mechanism": "native followup TASK; no descendants",
+  "checkout": "/private/tmp/piping-numerical-corrections-20260924",
+  "at": "2026-09-25T01:30:18.464910+00:00",
+  "origins": [
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_ROUTE_REVIEW/RETURN.md",
+      "sha256": "21ff093564a8e77a60b98db438bd1de83e8d8cf7cb96742fa1fec47b3d8799a0"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "742d66ed8c969a7ef9290c7a0a24005ffc19342d20cfea4f7886147508a0b9f4"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/workspace/statusLabels.ts",
+      "sha256": "455dac444b0b60ff4631f9eecbffe42f6914baf81b5b56d7dd35ede536122cf0"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.ts",
+      "sha256": "9dce386b4b5f8c489890e77bdcf962d3c815ec687d50a0beeb6e2b48e865b336"
+    }
+  ],
+  "limits": "No tests/build/Git/deps or production edits. Original consumer freeze and review retained."
+}

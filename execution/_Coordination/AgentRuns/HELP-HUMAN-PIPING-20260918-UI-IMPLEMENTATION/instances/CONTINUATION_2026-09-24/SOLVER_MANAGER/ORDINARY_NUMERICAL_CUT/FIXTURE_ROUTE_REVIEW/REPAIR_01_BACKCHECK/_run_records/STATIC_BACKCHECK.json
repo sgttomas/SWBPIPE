@@ -1,0 +1,32 @@
+{
+  "time_utc": "2026-09-25T01:35:36.184999+00:00",
+  "agent": "/root/solver_manager/fixture_route_review",
+  "parent": "/root/solver_manager",
+  "mechanism": "delegated-harness-native same-reviewer followup; TASK Type 2; no descendants",
+  "scope": "F1 App-only repair backcheck",
+  "instruction_basis": "Inherited from prior read; actual paths and hashes recorded in FIXTURE_ROUTE_REVIEW/_run_records/ORIGINS.json; unchanged checked here",
+  "checks": {
+    "only App.test.tsx in repair freeze": true,
+    "preimage equals reviewed prior source": true,
+    "repaired live source equals frozen after": true,
+    "full delta reconstructs exactly": true,
+    "all other prior reviewed source state unchanged": true,
+    "all generation input hashes unchanged": true,
+    "actual stdout fixture bytes unchanged": true,
+    "all prior instruction origins unchanged": true,
+    "explicit-path scope validation without Git": true
+  },
+  "all_passed": true,
+  "mismatches": [],
+  "source_sha256": "475aa1b3e82adcfb3ed5a9ff017bc6dc17a44bc21e11a3913f6babf700d59a2d",
+  "scope_command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/private/tmp/piping-numerical-corrections-20260924/tools/software_workflow/validate_change_scope.py",
+    "/private/tmp/piping-numerical-corrections-20260924",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx"
+  ],
+  "limits": "Python data/source checks only; no Git, builds, tests, native/browser, production or test edits"
+}

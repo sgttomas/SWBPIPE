@@ -1,0 +1,14 @@
+{
+  "hashes": {
+    "source": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c",
+    "test": "1abc6b1db8fba159e0f49fa21aff417b1438ab501cabdd2089674fdac0b1e655",
+    "diff": "de531d69a2d360d9cc25c3fd30ac151262da3b8d5b7b0bf6563ae82e2748e053",
+    "review": "bfc382175079c0ebb31814bddbf06646c66890db88d79e2e97dcebc5d06301a6",
+    "return": "91710ec29c17fdcdf2f8d5e4d3b3b50bcd92f98bc35c132be971f2292dbb75a2"
+  },
+  "review": "no unresolved actionable finding",
+  "baseline": "10 failed / 12 passed original snapshot",
+  "repaired": "22 passed same test bytes",
+  "typecheck": "exit 0",
+  "runtime_limits": "no producer raw/native/physical qualification"
+}

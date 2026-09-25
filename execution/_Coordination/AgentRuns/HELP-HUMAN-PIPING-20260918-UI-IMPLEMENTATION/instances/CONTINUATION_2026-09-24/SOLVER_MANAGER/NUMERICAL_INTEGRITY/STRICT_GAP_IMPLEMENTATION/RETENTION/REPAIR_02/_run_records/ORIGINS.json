@@ -1,0 +1,9 @@
+{
+  "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+  "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+  "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+  "projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+  "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "fd78de18caf9f93b83495d1c7be3a5ca7340a03a16e6e2f5145aae4724c381f8",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "6801610d0bb515eab33603163423812b81bf94946d8c23b99c127b655d996a7f",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/STRICT_GAP_IMPLEMENTATION/RETENTION_REVIEW/REPAIR_01_BACKCHECK/RETURN.md": "805c1819bc8252a23b7b790b242fd570e2de9cd407515acf86b625d99eb6f1c0"
+}

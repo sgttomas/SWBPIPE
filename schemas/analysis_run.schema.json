@@ -5,14 +5,63 @@
   "oneOf": [
     {
       "allOf": [
-        {"type": "object", "required": ["schema_version"], "properties": {"schema_version": {"const": "0.1.0"}}},
-        {"oneOf": [{"$ref": "analysis_run.v0.1.schema.json"}, {"$ref": "analysis_run.legacy-desktop.v0.1.schema.json"}]}
+        {
+          "type": "object",
+          "required": [
+            "schema_version"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "0.1.0"
+            }
+          }
+        },
+        {
+          "oneOf": [
+            {
+              "$ref": "analysis_run.v0.1.schema.json"
+            },
+            {
+              "$ref": "analysis_run.legacy-desktop.v0.1.schema.json"
+            }
+          ]
+        }
       ]
     },
     {
       "allOf": [
-        {"type": "object", "required": ["schema_version"], "properties": {"schema_version": {"const": "0.2.0"}}},
-        {"$ref": "analysis_run.v0.2.schema.json"}
+        {
+          "type": "object",
+          "required": [
+            "schema_version"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "0.2.0"
+            }
+          }
+        },
+        {
+          "$ref": "analysis_run.v0.2.schema.json"
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "schema_version"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "0.3.0"
+            }
+          }
+        },
+        {
+          "$ref": "analysis_run.v0.3.schema.json"
+        }
       ]
     }
   ]

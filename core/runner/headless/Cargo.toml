@@ -32,5 +32,5 @@ open_pipe_stress_mechanics_benchmarks = { path = "../../../validation/benchmarks
 open_pipe_stress_stress_benchmarks = { path = "../../../validation/benchmarks/stress" }
 open_pipe_stress_nonlinear_benchmarks = { path = "../../../validation/benchmarks/nonlinear" }
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde_json = { version = "1", features = ["float_roundtrip"] }
 sha2 = "0.10"

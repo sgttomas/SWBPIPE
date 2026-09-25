@@ -1,0 +1,18 @@
+{
+  "status": "observation-only NOT APPLIED NOT EXECUTED; temporary reviewed-preimage transaction required",
+  "test": "tests::diagnosis_probe_scoped_mixed_deltas",
+  "runs": 4,
+  "scope": "original mixed helper; only UX force100N->100kN/120kN; both modes; prints only; original mixed final-qualification instrumentation exposes last deltas/state when rows withheld",
+  "product": {
+    "target": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "basis_sha256": "37d19221af9900e40d500370c30c156e49f5469a905f20acb3b2e3db6ae54d80",
+    "probe_candidate_sha256": "94eb5fad6ac92a1a464a226205bdd3a99b9195f2040e26bc75b3b14486d1b4a7",
+    "patch_sha256": "898a8d17b1e6005cc44f26fcfaab547ba74e01a374f9c08ebb0fbce71259db7a",
+    "restore_five_repairs_sha256": "646b648b1931009f357f76b96d10f80d32e98369bd76920f61638136d8925e1a"
+  },
+  "nonlinear": {
+    "target": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "probe_basis_sha256": "a5a3f7104b8a77c9d9709a9d4abd5123e14aedd4fa31f2d3763cc0101677034f",
+    "restore_five_repairs_sha256": "572d0ed16d6811d2cc0b93c26d2610ac480a56f56ac2225572510749ee96d739"
+  }
+}

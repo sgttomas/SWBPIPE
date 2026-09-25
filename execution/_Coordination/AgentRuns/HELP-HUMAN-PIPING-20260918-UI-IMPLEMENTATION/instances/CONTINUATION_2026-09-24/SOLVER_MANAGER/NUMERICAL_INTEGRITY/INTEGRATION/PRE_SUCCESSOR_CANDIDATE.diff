@@ -1,0 +1,2905 @@
+diff --git a/projects/chirality-piping/core/product_physics/src/lib.rs b/projects/chirality-piping/core/product_physics/src/lib.rs
+index 80ca3a88a..ea0fe89fb 100644
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -8,6 +8,7 @@
+ pub mod self_weight;
+ 
+ use open_pipe_stress_curved_bend::CurvedBendMacroElement;
++use open_pipe_stress_frame_kernel::structural::{SolveQuality, StructuralError, StructuralReport};
+ use open_pipe_stress_frame_kernel::{
+     assemble_global_stiffness_with_user_elements, element_dof_map, reduce_system, solve_dense,
+     FrameElement, FrameKernelError, FrameNode, Matrix12, UserStiffnessElement, DOF_PER_NODE,
+@@ -22,6 +23,7 @@ use open_pipe_stress_load_case_algebra::{
+     AlgebraOperand, AlgebraQuantity, AlgebraResult, AnalysisStatus as AlgebraAnalysisStatus,
+     CombinationTerm, FindingCode, RangeMode,
+ };
++use open_pipe_stress_nonlinear_integration::structural_adapter::AssemblyEvidence;
+ use open_pipe_stress_nonlinear_integration::{
+     eligible_contact_dofs, solve_active_set_frame_with_mode_and_springs, ConvergenceControl,
+     ConvergencePolicyStatus, CurvedBendStiffnessElement, DerivedFrictionNormalReaction,
+@@ -643,6 +645,9 @@ impl Default for PreviewSolverMode {
+ #[derive(Debug, Clone, Serialize)]
+ pub struct MechanicsEnvelope {
+     pub schema_version: String,
++    pub producer: MechanicsProducer,
++    pub numerical_quality: NumericalQuality,
++    pub formulation_basis: FormulationBasis,
+     pub document_kind: String,
+     pub run_id: String,
+     pub model_ref: String,
+@@ -654,6 +659,264 @@ pub struct MechanicsEnvelope {
+     pub accepted_model_state_mutated: bool,
+ }
+ 
++/// Prospective source semantics; historical raw 0.1 carriers retain their identity.
++pub const MECHANICS_SCHEMA_VERSION: &str = "0.2.0";
++pub const PRECISION_SEMANTIC_CONTRACT_ID: &str =
++    "openpipestress.result_semantics/0.3.0/precision-1";
++
++#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
++pub struct MechanicsProducer {
++    pub component_name: String,
++    pub component_version: String,
++    pub semantic_contract_id: String,
++}
++
++#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
++#[serde(rename_all = "snake_case")]
++pub enum NumericalQualityStatus {
++    NotAssessed,
++    ChecksPassed,
++    Sensitive,
++    Unresolved,
++    Failed,
++}
++
++#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
++#[serde(rename_all = "snake_case")]
++pub enum StructuralStatus {
++    PassiveModelBasis,
++    PhysicalMechanismWitnessed,
++    NegativeEnergyWitnessed,
++    NumericallyUnresolved,
++}
++
++#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
++#[serde(rename_all = "snake_case")]
++pub enum ModelMatrixFidelity {
++    RepresentedEquationsRetained,
++    AssemblyLossDetected,
++    AssemblyUncertainty,
++    NotAssessed,
++}
++
++#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
++#[serde(rename_all = "snake_case")]
++pub enum AccuracyEvidence {
++    NotClaimed,
++    ReferenceVerified,
++    Unresolved,
++}
++
++#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
++pub struct NumericalCaseQuality {
++    pub basis_ref: ResultBasisRef,
++    pub structural_status: StructuralStatus,
++    pub solve_quality: NumericalQualityStatus,
++    pub model_matrix_fidelity: ModelMatrixFidelity,
++    pub accuracy_evidence: AccuracyEvidence,
++    pub evidence_refs: Vec<String>,
++}
++
++#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
++pub struct NumericalQuality {
++    pub value_representation: String,
++    pub publication_quantization: String,
++    pub integrity_policy: String,
++    pub status: NumericalQualityStatus,
++    pub cases: Vec<NumericalCaseQuality>,
++}
++
++#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
++pub struct FormulationBasis {
++    pub profile_id: String,
++    pub limitations: Vec<String>,
++}
++
++pub fn mechanics_producer() -> MechanicsProducer {
++    MechanicsProducer {
++        component_name: solver_component_name().to_string(),
++        component_version: solver_component_version().to_string(),
++        semantic_contract_id: PRECISION_SEMANTIC_CONTRACT_ID.to_string(),
++    }
++}
++
++/// Precision preservation alone supplies no structural integrity assessment.
++fn integrity_dof_map(model: &PreviewModel) -> Vec<String> {
++    model
++        .nodes
++        .iter()
++        .flat_map(|node| {
++            ["UX", "UY", "UZ", "RX", "RY", "RZ"].map(|dof| format!("{}:{dof}", node.id))
++        })
++        .collect()
++}
++
++// Byte lengths delimit exact source identities without lossy punctuation folding.
++fn exact_source_identity(parts: &[&str]) -> String {
++    parts
++        .iter()
++        .map(|part| format!("{}:{part}", part.len()))
++        .collect()
++}
++
++fn integrity_diagnostic_id(case_id: &str) -> String {
++    format!("diagnostic:numerical-integrity:{case_id}")
++}
++
++fn append_integrity_report(
++    diagnostics: &mut Vec<Diagnostic>,
++    case_id: &str,
++    report: &StructuralReport,
++    model: &PreviewModel,
++    nonlinear: bool,
++) {
++    let code = if nonlinear {
++        "NUMERICAL_INTEGRITY_NONLINEAR_POLICY_UNRESOLVED"
++    } else if report.quality == SolveQuality::Sensitive {
++        "NUMERICAL_INTEGRITY_SENSITIVE"
++    } else {
++        "NUMERICAL_INTEGRITY_CHECKS_PASSED"
++    };
++    diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, if nonlinear || report.quality == SolveQuality::Sensitive { "warning" } else { "info" },
++        format!("{} represented original-equation structural evidence for load case {}: {:?}; global_dof_map={:?}. {} No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.", report.policy, case_id, report, integrity_dof_map(model),
++            if nonlinear { "Structural subsolves passed; protected nonlinear force/moment/work/count/cap and admissibility policy remains independently applicable, and Current qualification is unresolved pending its successor disposition." } else { "The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable." }),
++        vec![case_id.to_string()]));
++}
++
++fn append_integrity_failure(
++    diagnostics: &mut Vec<Diagnostic>,
++    case_id: &str,
++    error: &StructuralError,
++    model: &PreviewModel,
++) {
++    let code = match error {
++        StructuralError::Mechanism { .. } => "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM",
++        StructuralError::NegativeEnergy { .. } => "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY",
++        StructuralError::Asymmetric { .. } | StructuralError::InvalidInput(_) => {
++            "NUMERICAL_INTEGRITY_FAILED"
++        }
++        StructuralError::NumericallyUnresolved { reason, .. }
++            if reason.contains("contribution") || reason.contains("assembly") =>
++        {
++            "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED"
++        }
++        _ => "NUMERICAL_INTEGRITY_UNRESOLVED",
++    };
++    diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, "blocking", format!("Load case {case_id}: {error}; global_dof_map={:?}; no structural rejection is bypassed by generic LU or output quantization", integrity_dof_map(model)), vec![case_id.to_string()]));
++}
++
++fn assessed_numerical_quality(
++    model: &PreviewModel,
++    diagnostics: &[Diagnostic],
++) -> NumericalQuality {
++    let mut quality = unassessed_numerical_quality();
++    for case in &model.load_cases {
++        let evidence = diagnostics
++            .iter()
++            .find(|d| d.id == integrity_diagnostic_id(&case.id));
++        let (structural_status, solve_quality, model_matrix_fidelity, accuracy_evidence) =
++            match evidence.map(|d| d.code.as_str()) {
++                Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") => (
++                    StructuralStatus::PassiveModelBasis,
++                    NumericalQualityStatus::ChecksPassed,
++                    ModelMatrixFidelity::RepresentedEquationsRetained,
++                    AccuracyEvidence::NotClaimed,
++                ),
++                Some("NUMERICAL_INTEGRITY_SENSITIVE") => (
++                    StructuralStatus::PassiveModelBasis,
++                    NumericalQualityStatus::Sensitive,
++                    ModelMatrixFidelity::RepresentedEquationsRetained,
++                    AccuracyEvidence::NotClaimed,
++                ),
++                Some("NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM") => (
++                    StructuralStatus::PhysicalMechanismWitnessed,
++                    NumericalQualityStatus::Failed,
++                    ModelMatrixFidelity::NotAssessed,
++                    AccuracyEvidence::NotClaimed,
++                ),
++                Some("NUMERICAL_INTEGRITY_NEGATIVE_ENERGY") => (
++                    StructuralStatus::NegativeEnergyWitnessed,
++                    NumericalQualityStatus::Failed,
++                    ModelMatrixFidelity::NotAssessed,
++                    AccuracyEvidence::NotClaimed,
++                ),
++                Some("NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED") => (
++                    StructuralStatus::NumericallyUnresolved,
++                    NumericalQualityStatus::Unresolved,
++                    ModelMatrixFidelity::AssemblyLossDetected,
++                    AccuracyEvidence::Unresolved,
++                ),
++                Some("NUMERICAL_INTEGRITY_FAILED") => (
++                    StructuralStatus::NumericallyUnresolved,
++                    NumericalQualityStatus::Failed,
++                    ModelMatrixFidelity::AssemblyUncertainty,
++                    AccuracyEvidence::Unresolved,
++                ),
++                Some(_) => (
++                    StructuralStatus::NumericallyUnresolved,
++                    NumericalQualityStatus::Unresolved,
++                    ModelMatrixFidelity::AssemblyUncertainty,
++                    AccuracyEvidence::Unresolved,
++                ),
++                None => (
++                    StructuralStatus::NumericallyUnresolved,
++                    NumericalQualityStatus::NotAssessed,
++                    ModelMatrixFidelity::NotAssessed,
++                    AccuracyEvidence::NotClaimed,
++                ),
++            };
++        quality.cases.push(NumericalCaseQuality {
++            basis_ref: ResultBasisRef {
++                ref_type: "load_case".into(),
++                ref_id: case.id.clone(),
++            },
++            structural_status,
++            solve_quality,
++            model_matrix_fidelity,
++            accuracy_evidence,
++            evidence_refs: evidence.map(|d| vec![d.id.clone()]).unwrap_or_default(),
++        });
++    }
++    let rank = |status: NumericalQualityStatus| match status {
++        NumericalQualityStatus::ChecksPassed => 0,
++        NumericalQualityStatus::Sensitive => 1,
++        NumericalQualityStatus::NotAssessed => 2,
++        NumericalQualityStatus::Unresolved => 3,
++        NumericalQualityStatus::Failed => 4,
++    };
++    quality.status = quality
++        .cases
++        .iter()
++        .map(|case| case.solve_quality)
++        .max_by_key(|&status| rank(status))
++        .unwrap_or(NumericalQualityStatus::NotAssessed);
++    quality
++}
++
++pub fn unassessed_numerical_quality() -> NumericalQuality {
++    NumericalQuality {
++        value_representation: "finite_binary64".to_string(),
++        publication_quantization: "none".to_string(),
++        integrity_policy: "M03-INTEGRITY-v1".to_string(),
++        status: NumericalQualityStatus::NotAssessed,
++        cases: Vec::new(),
++    }
++}
++
++pub fn preview_formulation_basis() -> FormulationBasis {
++    FormulationBasis {
++        profile_id: "product_preview_mechanics_v1".to_string(),
++        limitations: vec![
++            "Small-displacement product-preview mechanics; numerical integrity does not establish physical formulation correctness.".to_string(),
++            "Pressure thrust and pressure stress retain the existing preview formulation and capability qualifications; pressure formulation qualification remains open.".to_string(),
++            "Component stiffness, flexibility and stress modifiers depend on declared user inputs and supported component families; no general component qualification is provided.".to_string(),
++            "Open-formula stress recovery retains its existing section, station and load-basis limitations; no code compliance result is produced.".to_string(),
++            "Support, spring-hanger and nonlinear active-state behavior retain their existing capability and convergence qualifications; numerical precision does not qualify their constitutive models.".to_string(),
++            "Protected rule inputs and professional acceptance are not provided; human review remains required.".to_string(),
++        ],
++    }
++}
++
+ #[derive(Debug, Clone, Serialize)]
+ pub struct Summary {
+     pub node_count: usize,
+@@ -670,6 +933,7 @@ pub struct Summary {
+ 
+ #[derive(Debug, Clone, Serialize)]
+ pub struct LocatedQuantity {
++    #[serde(serialize_with = "serialize_finite_f64")]
+     pub value: f64,
+     pub unit: String,
+     pub location_ref: String,
+@@ -680,6 +944,7 @@ pub struct LocatedQuantity {
+ pub struct ResultItem {
+     pub id: String,
+     pub kind: String,
++    #[serde(serialize_with = "serialize_finite_f64")]
+     pub value: f64,
+     pub unit: String,
+     pub entity_ref: String,
+@@ -691,6 +956,20 @@ pub struct ResultItem {
+     pub metadata: Option<ResultMetadata>,
+ }
+ 
++// serde_json otherwise converts nonfinite f64s to null. Even independently
++// constructed public quantity rows must retain the finite scientific-value contract.
++fn serialize_finite_f64<S: serde::Serializer>(
++    value: &f64,
++    serializer: S,
++) -> Result<S::Ok, S::Error> {
++    if !value.is_finite() {
++        return Err(serde::ser::Error::custom(
++            "mechanics quantity must be finite",
++        ));
++    }
++    serializer.serialize_f64(*value)
++}
++
+ #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+ pub struct ResultBasisRef {
+     pub ref_type: String,
+@@ -1055,10 +1334,10 @@ pub fn run_linear_static_preview_with_mode(
+     }
+     let built = &basis_solve_states[0].2;
+ 
+-    let mut max_displacement = load_case_solves
++    let max_displacement = load_case_solves
+         .first()
+         .and_then(|solve| solve.max_displacement.clone());
+-    let mut max_stress = load_case_solves
++    let max_stress = load_case_solves
+         .first()
+         .and_then(|solve| solve.max_stress.clone());
+     let component_stress_modifier_count = load_case_solves
+@@ -1153,16 +1432,12 @@ pub fn run_linear_static_preview_with_mode(
+     ) {
+         return solver_blocked(model, diagnostics, error);
+     }
+-    // Publication is the sole numerical rounding boundary. Algebra and decisions above
+-    // consume full precision, including selected nonlinear results and summaries.
+-    for result in &mut results {
+-        result.value = round6(result.value);
+-    }
+-    for quantity in max_displacement.iter_mut().chain(max_stress.iter_mut()) {
+-        quantity.value = round6(quantity.value);
+-    }
++    // Publish finite computed binary64 quantities without an absolute decimal quantum.
+     MechanicsEnvelope {
+-        schema_version: "0.1.0".to_string(),
++        schema_version: MECHANICS_SCHEMA_VERSION.to_string(),
++        producer: mechanics_producer(),
++        numerical_quality: assessed_numerical_quality(&model, &diagnostics),
++        formulation_basis: preview_formulation_basis(),
+         document_kind: "openpipestress.product_preview.mechanics_result".to_string(),
+         run_id: "run:preview-linear-static-001".to_string(),
+         model_ref: model.project.id,
+@@ -1312,7 +1587,7 @@ fn solve_load_case(
+     let mut preliminary_diagnostics = Vec::new();
+     let attempted_linear = solve_preview_reduced_system(
+         solver_mode,
+-        &reduced.stiffness,
++        stiffness,
+         &reduced.force,
+         built,
+         spring_entries,
+@@ -1326,8 +1601,8 @@ fn solve_load_case(
+             diagnostics.extend(preliminary_diagnostics);
+             Some(solve)
+         }
+-        Err(FrameKernelError::SingularSystem { .. })
+-            if eligible_contact_dofs(
++        Err(error)
++            if open_pipe_stress_nonlinear_integration::structural_adapter::permits_contact_seed_trial(&error, built.user_stiffness_elements.is_empty() && built.curved_bend_elements.is_empty()) && eligible_contact_dofs(
+                 built.nodes.len(),
+                 restrained_dofs,
+                 &built.nonlinear_supports,
+@@ -1340,7 +1615,18 @@ fn solve_load_case(
+         // The staged solver diagnostics currently contain only the warning
+         // advertising a completed dense fallback. A failed attempt has no
+         // solution basis to advertise; propagate its actual error alone.
+-        Err(error) => return Err(error),
++        Err(error) => {
++            append_integrity_failure(diagnostics, &load_case.id, &error, model);
++            return Ok(LoadCaseSolve {
++                load_case_id: load_case.id.clone(),
++                results: Vec::new(),
++                max_displacement: None,
++                max_stress: None,
++                component_stress_modifier_count: 0,
++                component_pressure_thrust_load_count: 0,
++                support_force_vectors: HashMap::new(),
++            });
++        }
+     };
+ 
+     let mut displacements = vec![0.0; built.nodes.len() * DOF_PER_NODE];
+@@ -1352,21 +1638,26 @@ fn solve_load_case(
+         }
+         append_linear_solver_mode_evidence(&mut results, &load_case.id, solver_mode, linear_solve);
+         if solver_mode == PreviewSolverMode::DenseScrutiny {
+-            append_sparse_live_path_evidence(
+-                &mut results,
+-                diagnostics,
+-                &load_case.id,
+-                built,
+-                spring_entries,
+-                &force,
+-                restrained_dofs,
+-                &linear_solve.solution,
+-            );
++            // Protected DEC050/053 comparison retains the legacy unscaled LU
++            // reference. This observation never selects a published solution.
++            if let Ok(legacy_dense) = solve_dense(&reduced.stiffness, &reduced.force) {
++                append_sparse_live_path_evidence(
++                    &mut results,
++                    diagnostics,
++                    &load_case.id,
++                    built,
++                    spring_entries,
++                    &force,
++                    restrained_dofs,
++                    &legacy_dense,
++                );
++            }
+         }
+     }
+     let selected_nonlinear = append_nonlinear_support_loop_results(
+         &mut results,
+         diagnostics,
++        model,
+         built,
+         restrained_dofs,
+         &force,
+@@ -1397,6 +1688,23 @@ fn solve_load_case(
+             }
+         }
+     }
++    if built.nonlinear_supports.is_empty() {
++        if let Some(linear) = &linear_solve {
++            append_integrity_report(
++                diagnostics,
++                &load_case.id,
++                &linear.structural_report,
++                model,
++                false,
++            );
++        }
++    } else if let Some(report) = selected_nonlinear
++        .as_ref()
++        .and_then(|solve| solve.iterations.last())
++        .map(|iteration| &iteration.structural_report)
++    {
++        append_integrity_report(diagnostics, &load_case.id, report, model, true);
++    }
+     require_finite_mechanics(displacements.iter().copied())?;
+     let component_pressure_thrust_load_count = append_expansion_joint_pressure_thrust_results(
+         &mut results,
+@@ -1927,6 +2235,7 @@ fn solve_load_case(
+             &mut results,
+             diagnostics,
+             model,
++            &load_case.id,
+             &pipe.element_id,
+             &end_i_stress,
+             &end_j_stress,
+@@ -1957,6 +2266,7 @@ struct NonlinearSupportBuild {
+ fn append_nonlinear_support_loop_results(
+     results: &mut Vec<ResultItem>,
+     diagnostics: &mut Vec<Diagnostic>,
++    model: &PreviewModel,
+     built: &BuiltModel,
+     restrained_dofs: &[usize],
+     force: &[f64],
+@@ -1975,11 +2285,9 @@ fn append_nonlinear_support_loop_results(
+     // fallback exists on this path.
+     let mut curved_bend_stiffness_elements = Vec::with_capacity(built.curved_bend_elements.len());
+     for element in &built.curved_bend_elements {
+-        match CurvedBendStiffnessElement::new(
++        match CurvedBendStiffnessElement::from_macro_element(
+             element.component_id.clone(),
+-            element.node_i,
+-            element.node_j,
+-            element.global_stiffness,
++            &element.macro_element,
+         ) {
+             Ok(slot) => curved_bend_stiffness_elements.push(slot),
+             Err(error) => {
+@@ -2227,6 +2535,9 @@ fn append_nonlinear_support_loop_results(
+             Some(solve)
+         }
+         Err(error) => {
++            if let NonlinearIntegrationError::Structural(structural) = &error {
++                append_integrity_failure(diagnostics, &load_case.id, structural, model);
++            }
+             diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error));
+             None
+         }
+@@ -2261,6 +2572,7 @@ fn product_preview_policy_support_classes(supports: &[NonlinearSupport]) -> Vec<
+ 
+ #[derive(Debug, Clone)]
+ struct PreviewLinearSolve {
++    structural_report: StructuralReport,
+     solution: Vec<f64>,
+     solution_basis: &'static str,
+     sparse_entry_count: Option<usize>,
+@@ -2276,107 +2588,86 @@ struct PreviewLinearSolve {
+ 
+ fn solve_preview_reduced_system(
+     solver_mode: PreviewSolverMode,
+-    reduced_stiffness: &[Vec<f64>],
+-    reduced_force: &[f64],
++    original_stiffness: &[Vec<f64>],
++    _reduced_force: &[f64],
+     built: &BuiltModel,
+     spring_entries: &[SpringEntry],
+     global_force: &[f64],
+     restrained_dofs: &[usize],
+-    load_case: &PreviewLoadCase,
+-    diagnostics: &mut Vec<Diagnostic>,
+-) -> Result<PreviewLinearSolve, FrameKernelError> {
+-    match solver_mode {
+-        PreviewSolverMode::SparseInteractive => {
+-            let direct_system = match assemble_reduced_sparse_entry_system(
+-                built.nodes.len(),
+-                &built.frame_elements,
+-                &built.user_stiffness_elements,
+-                &built.curved_bend_elements,
+-                spring_entries,
+-                global_force,
+-                restrained_dofs,
+-            ) {
+-                Ok(system) => system,
+-                Err(error) => {
+-                    let message = error.to_string();
+-                    diagnostics.push(sparse_interactive_fallback_diag(&load_case.id, &message));
+-                    let solution = solve_dense(reduced_stiffness, reduced_force)?;
+-                    return Ok(PreviewLinearSolve {
+-                        solution,
+-                        solution_basis: "dense_fallback_after_sparse_failure",
+-                        sparse_entry_count: None,
+-                        original_profile_entry_count: None,
+-                        ordered_profile_entry_count: None,
+-                        original_max_half_bandwidth: None,
+-                        ordered_max_half_bandwidth: None,
+-                        nonpositive_pivot_count: None,
+-                        pivot_condition_ratio_estimate: None,
+-                        sparse_residual: None,
+-                        dense_fallback_message: Some(message),
+-                    });
+-                }
+-            };
+-            match solve_symmetric_system_from_entries(
+-                direct_system.dimension,
+-                &direct_system.entries,
+-                &direct_system.force,
+-            ) {
+-                Ok(sparse) => {
+-                    let sparse_residual = max_abs_entry_residual(
+-                        direct_system.dimension,
+-                        &direct_system.entries,
+-                        &sparse.solution,
+-                        &direct_system.force,
+-                    );
+-                    Ok(PreviewLinearSolve {
+-                        solution: sparse.solution,
+-                        solution_basis: "sparse_profile_direct_primary",
+-                        sparse_entry_count: Some(direct_system.entries.len()),
+-                        original_profile_entry_count: Some(sparse.original_profile_entry_count),
+-                        ordered_profile_entry_count: Some(sparse.ordered_profile_entry_count),
+-                        original_max_half_bandwidth: Some(sparse.original_max_half_bandwidth),
+-                        ordered_max_half_bandwidth: Some(sparse.ordered_max_half_bandwidth),
+-                        nonpositive_pivot_count: Some(sparse.factorization.nonpositive_pivot_count),
+-                        pivot_condition_ratio_estimate: sparse
+-                            .factorization
+-                            .pivot_condition_ratio_estimate,
+-                        sparse_residual: Some(sparse_residual),
+-                        dense_fallback_message: None,
+-                    })
+-                }
+-                Err(error) => {
+-                    let message = error.to_string();
+-                    diagnostics.push(sparse_interactive_fallback_diag(&load_case.id, &message));
+-                    Ok(PreviewLinearSolve {
+-                        solution: solve_dense(reduced_stiffness, reduced_force)?,
+-                        solution_basis: "dense_fallback_after_sparse_failure",
+-                        sparse_entry_count: Some(direct_system.entries.len()),
+-                        original_profile_entry_count: None,
+-                        ordered_profile_entry_count: None,
+-                        original_max_half_bandwidth: None,
+-                        ordered_max_half_bandwidth: None,
+-                        nonpositive_pivot_count: None,
+-                        pivot_condition_ratio_estimate: None,
+-                        sparse_residual: None,
+-                        dense_fallback_message: Some(message),
+-                    })
+-                }
+-            }
+-        }
+-        PreviewSolverMode::DenseScrutiny => Ok(PreviewLinearSolve {
+-            solution: solve_dense(reduced_stiffness, reduced_force)?,
+-            solution_basis: "dense_scrutiny_primary",
+-            sparse_entry_count: None,
+-            original_profile_entry_count: None,
+-            ordered_profile_entry_count: None,
+-            original_max_half_bandwidth: None,
+-            ordered_max_half_bandwidth: None,
+-            nonpositive_pivot_count: None,
+-            pivot_condition_ratio_estimate: None,
+-            sparse_residual: None,
+-            dense_fallback_message: None,
+-        }),
+-    }
++    _load_case: &PreviewLoadCase,
++    _diagnostics: &mut Vec<Diagnostic>,
++) -> Result<PreviewLinearSolve, StructuralError> {
++    let curved = built
++        .curved_bend_elements
++        .iter()
++        .map(|e| {
++            CurvedBendStiffnessElement::from_macro_element(e.component_id.clone(), &e.macro_element)
++        })
++        .collect::<Result<Vec<_>, _>>()
++        .map_err(|_| StructuralError::InvalidInput("curved formation evidence"))?;
++    let springs = spring_entries
++        .iter()
++        .map(|e| (e.node_dof.global_index(), e.stiffness.value))
++        .collect::<Vec<_>>();
++    let assembly = AssemblyEvidence::new(
++        built.nodes.len(),
++        &built.frame_elements,
++        &built.user_stiffness_elements,
++        &curved,
++        &springs,
++    )?;
++    let free = (0..global_force.len())
++        .filter(|i| !restrained_dofs.contains(i))
++        .collect::<Vec<_>>();
++    let prescribed = restrained_dofs
++        .iter()
++        .map(|&i| (i, 0.0))
++        .collect::<Vec<_>>();
++    let mode = match solver_mode {
++        PreviewSolverMode::DenseScrutiny => LinearSolveMode::DenseScrutiny,
++        PreviewSolverMode::SparseInteractive => LinearSolveMode::SparseInteractive,
++    };
++    let checked = assembly.solve(original_stiffness, global_force, &free, &prescribed, mode)?;
++    // Legacy raw DEC050/053 observations retain their own unscaled algorithm.
++    // They neither select the solution nor rescue a rejected structural gate.
++    let direct = assemble_reduced_sparse_entry_system(
++        built.nodes.len(),
++        &built.frame_elements,
++        &built.user_stiffness_elements,
++        &built.curved_bend_elements,
++        spring_entries,
++        global_force,
++        restrained_dofs,
++    )
++    .ok();
++    let legacy = direct
++        .as_ref()
++        .and_then(|d| solve_symmetric_system_from_entries(d.dimension, &d.entries, &d.force).ok());
++    let residual = direct
++        .as_ref()
++        .zip(legacy.as_ref())
++        .map(|(d, l)| max_abs_entry_residual(d.dimension, &d.entries, &l.solution, &d.force));
++    Ok(PreviewLinearSolve {
++        solution: free.iter().map(|&i| checked.displacements[i]).collect(),
++        structural_report: checked.report,
++        solution_basis: match solver_mode {
++            PreviewSolverMode::DenseScrutiny => "dense_structural_integrity_primary",
++            PreviewSolverMode::SparseInteractive => "sparse_structural_integrity_primary",
++        },
++        sparse_entry_count: direct.as_ref().map(|d| d.entries.len()),
++        original_profile_entry_count: legacy.as_ref().map(|l| l.original_profile_entry_count),
++        ordered_profile_entry_count: legacy.as_ref().map(|l| l.ordered_profile_entry_count),
++        original_max_half_bandwidth: legacy.as_ref().map(|l| l.original_max_half_bandwidth),
++        ordered_max_half_bandwidth: legacy.as_ref().map(|l| l.ordered_max_half_bandwidth),
++        nonpositive_pivot_count: legacy
++            .as_ref()
++            .map(|l| l.factorization.nonpositive_pivot_count),
++        pivot_condition_ratio_estimate: legacy
++            .as_ref()
++            .and_then(|l| l.factorization.pivot_condition_ratio_estimate),
++        sparse_residual: residual,
++        dense_fallback_message: None,
++    })
+ }
+ 
+ fn append_linear_solver_mode_evidence(
+@@ -2387,7 +2678,7 @@ fn append_linear_solver_mode_evidence(
+ ) {
+     let fallback = linear_solve.dense_fallback_message.is_some();
+     let basis = format!(
+-        "DEC-053 sparse_default_promotion; solver_mode={}; solution_basis={}; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count={}; original_profile_entries={}; ordered_profile_entries={}; original_half_bandwidth={}; ordered_half_bandwidth={}; nonpositive_pivots={}; pivot_condition_ratio_proxy={}; max_abs_sparse_residual={}; dense_fallback={}; dense_fallback_message={}",
++        "DEC-053 sparse_default_promotion; solver_mode={}; solution_basis={}; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count={}; original_profile_entries={}; ordered_profile_entries={}; original_half_bandwidth={}; ordered_half_bandwidth={}; nonpositive_pivots={}; pivot_condition_ratio_proxy={}; max_abs_sparse_residual={}; dense_fallback={}; dense_fallback_message={}",
+         solver_mode.as_str(),
+         linear_solve.solution_basis,
+         optional_usize(linear_solve.sparse_entry_count),
+@@ -2425,21 +2716,6 @@ fn append_linear_solver_mode_evidence(
+     });
+ }
+ 
+-fn sparse_interactive_fallback_diag(load_case_id: &str, message: &str) -> Diagnostic {
+-    diag(
+-        &format!(
+-            "diagnostic:sparse-interactive:{}:dense-fallback",
+-            stable_suffix(load_case_id)
+-        ),
+-        "SPARSE_INTERACTIVE_DENSE_FALLBACK",
+-        "warning",
+-        format!(
+-            "DEC-053 sparse interactive solve could not complete for load case {load_case_id}; dense fallback was used and the result basis is explicit: {message}"
+-        ),
+-        vec![load_case_id.to_string(), "DEC-053".to_string()],
+-    )
+-}
+-
+ fn optional_usize(value: Option<usize>) -> String {
+     value
+         .map(|value| value.to_string())
+@@ -2449,7 +2725,7 @@ fn optional_usize(value: Option<usize>) -> String {
+ fn optional_f64(value: Option<f64>) -> String {
+     value
+         .filter(|value| value.is_finite())
+-        .map(|value| round6(value).to_string())
++        .map(|value| value.to_string())
+         .unwrap_or_else(|| "not_observed".to_string())
+ }
+ 
+@@ -2571,8 +2847,8 @@ fn append_sparse_live_path_evidence(
+                 sparse.ordered_profile_entry_count,
+                 sparse.original_max_half_bandwidth,
+                 sparse.ordered_max_half_bandwidth,
+-                round6(max_abs_dense_sparse_solution_delta),
+-                round6(sparse_residual),
++                max_abs_dense_sparse_solution_delta,
++                sparse_residual,
+                 sparse.factorization.nonpositive_pivot_count
+             ),
+             sign_convention:
+@@ -3950,8 +4226,8 @@ fn build_curved_bend_macro_elements(
+                 pipe_ref,
+                 &format!(
+                     "user-entered bend radius {} m cannot span the {} m chord; the arc included angle would reach or exceed pi",
+-                    rounded_scalar(bend_radius),
+-                    rounded_scalar(chord_length)
++                    scalar_string(bend_radius),
++                    scalar_string(chord_length)
+                 ),
+             ));
+             continue;
+@@ -3967,8 +4243,8 @@ fn build_curved_bend_macro_elements(
+                     pipe_ref,
+                     &format!(
+                         "user-entered bend angle {} rad disagrees with the included angle {} rad implied by the user chord and bend radius; make the chord, radius, and angle arc-consistent",
+-                        rounded_scalar(user_angle),
+-                        rounded_scalar(implied_included_angle)
++                        scalar_string(user_angle),
++                        scalar_string(implied_included_angle)
+                     ),
+                 ));
+                 continue;
+@@ -7257,7 +7533,7 @@ fn append_expansion_joint_pressure_thrust_results(
+                 location: aggregate.input.pipe_id.clone(),
+                 basis: format!(
+                     "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area={};source={};pressure_thrust={};solver_consumption={}",
+-                    rounded_scalar(aggregate.input.effective_area),
++                    scalar_string(aggregate.input.effective_area),
+                     aggregate.input.source_reference,
+                     aggregate.input.pressure_thrust_reference,
+                     aggregate.input.solver_consumption
+@@ -7286,7 +7562,7 @@ fn append_expansion_joint_pressure_thrust_results(
+             format!(
+                 "expansion joint {} pressure thrust uses explicit effective area {} m^2 and pressure primitive(s) from load case {}; applied on load side along {}; no protected/default manufacturer value is supplied",
+                 aggregate.input.component_id,
+-                rounded_scalar(aggregate.input.effective_area),
++                scalar_string(aggregate.input.effective_area),
+                 load_case.id,
+                 aggregate.input.pipe_id
+             ),
+@@ -7662,6 +7938,7 @@ fn append_component_stress_multiplier_results(
+     results: &mut Vec<ResultItem>,
+     diagnostics: &mut Vec<Diagnostic>,
+     model: &PreviewModel,
++    load_case_id: &str,
+     pipe_id: &str,
+     end_i_stress: &open_pipe_stress_stress_recovery::StressRecoveryResult,
+     end_j_stress: &open_pipe_stress_stress_recovery::StressRecoveryResult,
+@@ -7696,6 +7973,11 @@ fn append_component_stress_multiplier_results(
+                 results,
+                 diagnostics,
+                 component,
++                load_case_id,
++                model
++                    .load_cases
++                    .first()
++                    .is_some_and(|case| case.id == load_case_id),
+                 pipe_id,
+                 location,
+                 base_value_mpa,
+@@ -7828,6 +8110,8 @@ fn append_component_stress_multiplier_result(
+     results: &mut Vec<ResultItem>,
+     diagnostics: &mut Vec<Diagnostic>,
+     component: &PreviewComponent,
++    load_case_id: &str,
++    is_default_case: bool,
+     pipe_id: &str,
+     location: &str,
+     base_value_mpa: f64,
+@@ -7852,8 +8136,8 @@ fn append_component_stress_multiplier_result(
+         "component_family={};component_side={};user_entered_sif={};user_entered_flexibility={};source={};solver_consumption={}",
+         modifier.family,
+         modifier.side,
+-        rounded_scalar(modifier.sif),
+-        rounded_scalar(modifier.flexibility),
++        scalar_string(modifier.sif),
++        scalar_string(modifier.flexibility),
+         modifier.source_reference,
+         modifier.solver_consumption
+     );
+@@ -7887,9 +8171,9 @@ fn append_component_stress_multiplier_result(
+             modifier.family,
+             component.id,
+             modifier.side,
+-            rounded_scalar(modifier.sif),
++            scalar_string(modifier.sif),
+             pipe_id,
+-            rounded_scalar(modifier.flexibility),
++            scalar_string(modifier.flexibility),
+             modifier.solver_consumption
+         )
+     } else {
+@@ -7898,16 +8182,16 @@ fn append_component_stress_multiplier_result(
+             modifier.family,
+             component.id,
+             modifier.side,
+-            rounded_scalar(modifier.sif),
+-            rounded_scalar(modifier.flexibility),
++            scalar_string(modifier.sif),
++            scalar_string(modifier.flexibility),
+             pipe_id,
+             modifier.solver_consumption
+         )
+     };
+     diagnostics.push(diag(
+         &format!(
+-            "diagnostic:component-stress-multiplier:{}:{}:{}",
+-            component_suffix, pipe_suffix, endpoint
++            "diagnostic:component-stress-multiplier:{}",
++            exact_source_identity(&[load_case_id, &component.id, pipe_id, location])
+         ),
+         "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+         "info",
+@@ -7915,8 +8199,13 @@ fn append_component_stress_multiplier_result(
+         vec![
+             component.id.clone(),
+             pipe_id.to_string(),
+-            result_id,
++            if is_default_case {
++                result_id
++            } else {
++                qualified_load_case_result_id(load_case_id, &result_id)
++            },
+             modifier.source_reference.to_string(),
++            load_case_id.to_string(),
+         ],
+     ));
+ }
+@@ -8046,10 +8335,10 @@ fn append_curved_bend_macro_element_results(
+                 location: element.pipe_id.clone(),
+                 basis: format!(
+                     "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment=arc_end_cap_tangent_pair_plus_consistent_radial_wall_load;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
+-                    rounded_scalar(element.flexibility_factor),
+-                    rounded_scalar(element.bend_radius),
+-                    rounded_scalar(element.included_angle),
+-                    rounded_scalar(element.arc_length),
++                    scalar_string(element.flexibility_factor),
++                    scalar_string(element.bend_radius),
++                    scalar_string(element.included_angle),
++                    scalar_string(element.arc_length),
+                     element.source_reference,
+                     DEC_070_CURVED_BEND_SOLVER_CONSUMPTION
+                 ),
+@@ -8544,9 +8833,9 @@ fn append_constant_effort_support_results(
+                     "warning",
+                     format!(
+                         "computed displacement magnitude {} m at node {} along {acting_dof} exceeds the user-entered hanger.{field_label} value {} m in load case {}; this compares user-entered values only and introduces no software threshold, tolerance, or acceptance criterion",
+-                        round6(computed.abs()),
++                        computed.abs(),
+                         support.node,
+-                        round6(limit.value),
++                        limit.value,
+                         load_case.id
+                     ),
+                     vec![
+@@ -8560,13 +8849,9 @@ fn append_constant_effort_support_results(
+     }
+ }
+ 
+-fn rounded_scalar(value: f64) -> String {
+-    let rounded = round6(value);
+-    if (rounded.fract()).abs() < 1.0e-9 {
+-        format!("{rounded:.0}")
+-    } else {
+-        format!("{rounded}")
+-    }
++// Machine-consumed basis strings use the same finite round-trip decimal contract.
++fn scalar_string(value: f64) -> String {
++    optional_f64(Some(value))
+ }
+ 
+ fn append_endpoint_stress_results(
+@@ -9372,7 +9657,10 @@ fn result_tail(base_id: &str) -> &str {
+ 
+ fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
+     MechanicsEnvelope {
+-        schema_version: "0.1.0".to_string(),
++        schema_version: MECHANICS_SCHEMA_VERSION.to_string(),
++        producer: mechanics_producer(),
++        numerical_quality: assessed_numerical_quality(&model, &diagnostics),
++        formulation_basis: preview_formulation_basis(),
+         document_kind: "openpipestress.product_preview.mechanics_result".to_string(),
+         run_id: "run:preview-linear-static-blocked".to_string(),
+         model_ref: model.project.id,
+@@ -9749,6 +10037,8 @@ fn stable_suffix(id: &str) -> String {
+     id.replace(':', "-")
+ }
+ 
++// Historical quantization, retained only to demonstrate the superseded carrier loss.
++#[cfg(test)]
+ fn round6(value: f64) -> f64 {
+     let scaled = value * 1_000_000.0;
+     let rounded = if value.is_finite() && !scaled.is_finite() {
+@@ -9836,6 +10126,516 @@ mod nonlinear_context_passthrough_tests {
+ mod tests {
+     use super::*;
+ 
++    // Analytic seed policy: relative 1e-9, no publication-rounding allowance.
++    macro_rules! analytic_close {
++        ($actual:expr, $expected:expr $(, $context:expr)? $(,)?) => {{
++            let actual: f64 = $actual;
++            let expected: f64 = $expected;
++            assert!(actual.is_finite() && expected.is_finite());
++            assert!(
++                (actual - expected).abs() <= 1.0e-9 * expected.abs(),
++                "actual={actual:.17e}, expected={expected:.17e}"
++            );
++        }};
++    }
++
++    /// Numerical admissibility of the Coulomb force relation in N for these
++    /// nonzero SI fixtures, using the existing analytic 1e-9 relative criterion.
++    /// This is not an active-set tolerance or a new nonlinear acceptance tier.
++    fn assert_coulomb_force_balance_n(actual_n: f64, signed_mu_normal_n: f64) {
++        assert_ne!(signed_mu_normal_n, 0.0);
++        assert_eq!(
++            actual_n.is_sign_negative(),
++            signed_mu_normal_n.is_sign_negative()
++        );
++        analytic_close!(actual_n, signed_mu_normal_n);
++    }
++
++    fn precision_request(length: f64, torque: f64) -> LinearStaticPreviewRequest {
++        // Reuse authored shape/provenance only; independent annulus/TL/GJ is below.
++        let mut input = dec092_temperature_g_request();
++        input.model.schema_version = "0.2.0".to_string();
++        input.model.nodes[1].position.x = length;
++        input.model.pipe_segments[0].section.outside_diameter.value = 0.20;
++        input.model.load_cases.truncate(1);
++        input.model.load_cases[0].modulus_basis_ref = None;
++        input.model.load_cases[0].primitive_loads[0].magnitude.value = torque;
++        input.model.combinations.clear();
++        input
++    }
++
++    #[test]
++    fn integrity_oblique_torsion_requires_actual_rotational_ground_in_both_modes() {
++        for mode in [
++            PreviewSolverMode::DenseScrutiny,
++            PreviewSolverMode::SparseInteractive,
++        ] {
++            for torque in [0.0, 1.0] {
++                for rotation in [None, Some("RZ"), Some("RX")] {
++                    let mut input = precision_request(2.0, torque);
++                    input.model.nodes[1].position.y = 2.0;
++                    input.model.supports.truncate(1);
++                    input.model.supports[0].family = Some("anchor".into());
++                    input.model.supports[0].restraints =
++                        vec!["UX".into(), "UY".into(), "UZ".into()];
++                    if let Some(rotation) = rotation {
++                        input.model.supports[0].restraints.push(rotation.into());
++                    }
++                    let mut tip = input.model.supports[0].clone();
++                    tip.id = "support:integrity-tip-translations".into();
++                    tip.node = input.model.nodes[1].id.clone();
++                    tip.restraints = vec!["UX".into(), "UY".into(), "UZ".into()];
++                    input.model.supports.push(tip);
++                    let output = run_linear_static_preview_with_mode(input, mode);
++                    let case = &output.numerical_quality.cases[0];
++                    if rotation == Some("RX") {
++                        assert_eq!(
++                            output.status.mechanics, "MECHANICS_SOLVED",
++                            "{:?}",
++                            output.diagnostics
++                        );
++                        assert!(matches!(
++                            case.solve_quality,
++                            NumericalQualityStatus::ChecksPassed
++                                | NumericalQualityStatus::Sensitive
++                        ));
++                    } else {
++                        assert_ne!(output.status.mechanics, "MECHANICS_SOLVED");
++                        assert_eq!(
++                            case.structural_status,
++                            StructuralStatus::PhysicalMechanismWitnessed,
++                            "{:?}",
++                            output.diagnostics
++                        );
++                        assert_eq!(case.solve_quality, NumericalQualityStatus::Failed);
++                    }
++                    assert_eq!(case.evidence_refs.len(), 1);
++                    assert!(output
++                        .diagnostics
++                        .iter()
++                        .any(|d| d.id == case.evidence_refs[0]));
++                }
++            }
++        }
++    }
++
++    #[test]
++    fn integrity_disconnected_body_is_not_restrained_by_another_bodys_anchor() {
++        for mode in [
++            PreviewSolverMode::DenseScrutiny,
++            PreviewSolverMode::SparseInteractive,
++        ] {
++            let mut input = precision_request(2.0, 0.0);
++            let mut a = input.model.nodes[0].clone();
++            let mut b = input.model.nodes[1].clone();
++            a.id = "node:integrity-disconnected-a".into();
++            b.id = "node:integrity-disconnected-b".into();
++            a.position.y = 5.0;
++            b.position.y = 5.0;
++            let mut pipe = input.model.pipe_segments[0].clone();
++            pipe.id = "pipe:integrity-disconnected".into();
++            pipe.from = a.id.clone();
++            pipe.to = b.id.clone();
++            input.model.nodes.extend([a, b]);
++            input.model.pipe_segments.push(pipe);
++            let output = run_linear_static_preview_with_mode(input, mode);
++            assert_ne!(output.status.mechanics, "MECHANICS_SOLVED");
++            assert_eq!(
++                output.numerical_quality.cases[0].structural_status,
++                StructuralStatus::PhysicalMechanismWitnessed,
++                "{:?}",
++                output.diagnostics
++            );
++        }
++    }
++
++    #[test]
++    fn integrity_exact_case_ids_do_not_alias_passing_and_unassessed_cases() {
++        for mode in [
++            PreviewSolverMode::DenseScrutiny,
++            PreviewSolverMode::SparseInteractive,
++        ] {
++            let mut input = precision_request(2.0, 1.0);
++            input.model.load_cases[0].id = "load:a-b".into();
++            let mut second = input.model.load_cases[0].clone();
++            second.id = "load-a:b".into();
++            for load in &mut second.primitive_loads {
++                load.id.push_str(":second");
++            }
++            second.modulus_basis_ref = Some("temperature-point:intentionally-missing".into());
++            input.model.load_cases.push(second);
++            let output = run_linear_static_preview_with_mode(input, mode);
++            assert_ne!(output.status.mechanics, "MECHANICS_SOLVED");
++            let first = &output.numerical_quality.cases[0];
++            let second = &output.numerical_quality.cases[1];
++            assert_eq!(first.basis_ref.ref_id, "load:a-b");
++            assert_eq!(
++                first.solve_quality,
++                NumericalQualityStatus::ChecksPassed,
++                "{:?}",
++                output.diagnostics
++            );
++            assert_eq!(second.basis_ref.ref_id, "load-a:b");
++            assert_eq!(
++                second.solve_quality,
++                NumericalQualityStatus::NotAssessed,
++                "{:?}",
++                output.diagnostics
++            );
++            assert!(second.evidence_refs.is_empty());
++            assert_ne!(
++                integrity_diagnostic_id(&first.basis_ref.ref_id),
++                integrity_diagnostic_id(&second.basis_ref.ref_id)
++            );
++            assert_eq!(
++                output.numerical_quality.status,
++                NumericalQualityStatus::NotAssessed
++            );
++        }
++    }
++
++    #[test]
++    fn integrity_exact_case_ids_keep_actual_linear_passes_and_component_warnings_distinct() {
++        let mut input = request();
++        input.model.load_cases.truncate(2);
++        assert_eq!(input.model.load_cases.len(), 2);
++        input.model.load_cases[0].id = "load:a-b".into();
++        input.model.load_cases[1].id = "load-a:b".into();
++        input.model.combinations.clear();
++        // A new explicit linear-only companion; the retained nonlinear fixture
++        // remains separately checked as unresolved under its protected policy.
++        input
++            .model
++            .supports
++            .retain(|support| support.nonlinear.is_none());
++        let output = run_linear_static_preview(input);
++        assert_eq!(
++            output.status.mechanics, "MECHANICS_SOLVED",
++            "{:?}",
++            output.diagnostics
++        );
++        let cases = &output.numerical_quality.cases;
++        assert_eq!(cases.len(), 2);
++        assert!(cases.iter().all(|case| matches!(
++            case.solve_quality,
++            NumericalQualityStatus::ChecksPassed | NumericalQualityStatus::Sensitive
++        )));
++        assert_ne!(cases[0].evidence_refs, cases[1].evidence_refs);
++        let warnings = output
++            .diagnostics
++            .iter()
++            .filter(|d| d.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED")
++            .collect::<Vec<_>>();
++        assert!(!warnings.is_empty());
++        assert_eq!(
++            warnings.len(),
++            warnings.iter().map(|d| &d.id).collect::<HashSet<_>>().len()
++        );
++        for case in cases {
++            assert!(warnings
++                .iter()
++                .any(|warning| warning.affected_refs.contains(&case.basis_ref.ref_id)));
++        }
++        assert_ne!(
++            exact_source_identity(&["a:b", "c"]),
++            exact_source_identity(&["a", "b:c"])
++        );
++        assert_ne!(
++            exact_source_identity(&["é", ":"]),
++            exact_source_identity(&["é:", ""])
++        );
++    }
++
++    #[test]
++    fn integrity_multicase_evidence_and_component_diagnostics_have_unique_real_case_identity() {
++        let input = request();
++        let cases = input
++            .model
++            .load_cases
++            .iter()
++            .map(|c| c.id.clone())
++            .collect::<Vec<_>>();
++        let output = run_linear_static_preview(input);
++        assert_eq!(
++            output.status.mechanics, "MECHANICS_SOLVED",
++            "{:?}",
++            output.diagnostics
++        );
++        assert_eq!(output.numerical_quality.cases.len(), cases.len());
++        let diagnostics = output
++            .diagnostics
++            .iter()
++            .filter(|d| d.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED")
++            .collect::<Vec<_>>();
++        assert!(!diagnostics.is_empty());
++        assert_eq!(
++            diagnostics
++                .iter()
++                .map(|d| &d.id)
++                .collect::<HashSet<_>>()
++                .len(),
++            diagnostics.len()
++        );
++        for case in cases {
++            assert!(diagnostics.iter().any(|d| d.affected_refs.contains(&case)));
++            let quality = output
++                .numerical_quality
++                .cases
++                .iter()
++                .find(|q| q.basis_ref.ref_id == case)
++                .unwrap();
++            assert_eq!(
++                quality.structural_status,
++                StructuralStatus::NumericallyUnresolved,
++                "{:?}",
++                output.diagnostics
++            );
++            assert_eq!(quality.solve_quality, NumericalQualityStatus::Unresolved);
++            assert!(output
++                .diagnostics
++                .iter()
++                .any(|d| d.id == quality.evidence_refs[0]
++                    && d.code == "NUMERICAL_INTEGRITY_NONLINEAR_POLICY_UNRESOLVED"));
++            assert_eq!(quality.evidence_refs.len(), 1);
++            assert!(output
++                .diagnostics
++                .iter()
++                .any(|d| d.id == quality.evidence_refs[0] && d.affected_refs.contains(&case)));
++        }
++    }
++
++    #[test]
++    fn precision_signed_subquantum_torsion_both_modes_matches_independent_annulus() {
++        // Reviewed N08/N09: J=0.000017195*pi m^4, G=80e9 Pa.
++        // No production section, stiffness or solver supplies the expected value.
++        for mode in [
++            PreviewSolverMode::DenseScrutiny,
++            PreviewSolverMode::SparseInteractive,
++        ] {
++            for length in [2.0, 10.0] {
++                for torque in [-1.0, -0.1, 0.1, 1.0] {
++                    let output = run_linear_static_preview_with_mode(
++                        precision_request(length, torque),
++                        mode,
++                    );
++                    assert_eq!(output.status.mechanics, "MECHANICS_SOLVED");
++                    let actual = result_value(&output, "result:disp:node-N-DEC092-TIP:rx");
++                    let expected = torque * length / (80e9 * 0.000017195 * PI);
++                    assert_ne!(actual, 0.0);
++                    assert_eq!(actual.is_sign_negative(), torque.is_sign_negative());
++                    analytic_close!(actual, expected);
++                    let encoded = serde_json::to_string(&output).unwrap();
++                    let parsed: serde_json::Value = serde_json::from_str(&encoded).unwrap();
++                    let transported = find_result(&parsed, "result:disp:node-N-DEC092-TIP:rx")
++                        ["value"]
++                        .as_f64()
++                        .unwrap();
++                    assert_eq!(transported.to_bits(), actual.to_bits());
++                }
++            }
++        }
++    }
++
++    #[test]
++    fn precision_n01_bending_and_summary_match_independent_eb_reference() {
++        for mode in [
++            PreviewSolverMode::DenseScrutiny,
++            PreviewSolverMode::SparseInteractive,
++        ] {
++            let mut input = precision_request(2.0, 0.0);
++            let load = &mut input.model.load_cases[0].primitive_loads[0];
++            load.category = "concentrated_force".to_string();
++            load.direction = "UY".to_string();
++            load.magnitude = Quantity {
++                value: 1000.0,
++                unit: "N".to_string(),
++            };
++            load.dimension = "force".to_string();
++            let output = run_linear_static_preview_with_mode(input, mode);
++            assert_eq!(output.status.mechanics, "MECHANICS_SOLVED");
++            let uy = result_value(&output, "result:disp:node-N-DEC092-TIP:uy");
++            analytic_close!(uy, 8_000_000.0 / (5_158_500.0 * PI)); // mm
++            analytic_close!(
++                result_value(&output, "result:disp:node-N-DEC092-TIP:rz"),
++                2000.0 / (1_719_500.0 * PI)
++            );
++            let maximum = output.summary.max_displacement.as_ref().unwrap();
++            assert_eq!(maximum.value.to_bits(), uy.to_bits());
++            let parsed: serde_json::Value =
++                serde_json::from_str(&serde_json::to_string(&output).unwrap()).unwrap();
++            assert_eq!(
++                parsed["summary"]["max_displacement"]["value"]
++                    .as_f64()
++                    .unwrap()
++                    .to_bits(),
++                maximum.value.to_bits()
++            );
++        }
++    }
++
++    #[test]
++    fn precision_same_unit_raw_quantity_bits_and_numeric_strings_roundtrip() {
++        // Raw serde transport scope only. I-JSON derivative export has a separate
++        // unsafe-integer guard; these values do not assert universal exportability.
++        let quantum = (0.5e-6_f64).to_bits();
++        for bits in [
++            1,
++            0x000f_ffff_ffff_ffff,
++            0x0010_0000_0000_0000,
++            0x3fb9_9999_9999_999a,
++            0x3ff0_0000_0000_0001,
++            0x4340_0000_0000_0001,
++            0x7fef_ffff_ffff_ffff,
++            quantum - 1,
++            quantum,
++            quantum + 1,
++            (1e-12_f64).to_bits(),
++            (1e-6_f64).to_bits(),
++            (1e6_f64).to_bits(),
++        ] {
++            for sign in [0, 1_u64 << 63] {
++                let value = f64::from_bits(bits | sign);
++                let quantity = LocatedQuantity {
++                    value,
++                    unit: "rad".to_string(),
++                    location_ref: "node:test".to_string(),
++                    result_ref: "result:test".to_string(),
++                };
++                let row = ResultItem {
++                    id: "result:test".to_string(),
++                    kind: "global_nodal_rotation_x".to_string(),
++                    value,
++                    unit: "rad".to_string(),
++                    entity_ref: "node:test".to_string(),
++                    basis_ref: None,
++                    source_result_refs: vec![],
++                    metadata: None,
++                };
++                for encoded in [
++                    serde_json::to_string(&quantity).unwrap(),
++                    serde_json::to_string(&row).unwrap(),
++                ] {
++                    let parsed: serde_json::Value = serde_json::from_str(&encoded).unwrap();
++                    assert_eq!(parsed["value"].as_f64().unwrap().to_bits(), value.to_bits());
++                    assert_eq!(parsed["unit"], "rad");
++                }
++                for text in [optional_f64(Some(value)), scalar_string(value)] {
++                    assert_eq!(text.parse::<f64>().unwrap().to_bits(), value.to_bits());
++                }
++            }
++        }
++    }
++
++    #[test]
++    fn precision_nonfinite_values_are_rejected_not_serialized_as_null() {
++        for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
++            assert!(require_finite_mechanics([value]).is_err());
++            assert_eq!(optional_f64(Some(value)), "not_observed");
++            let quantity = LocatedQuantity {
++                value,
++                unit: "rad".to_string(),
++                location_ref: "node:test".to_string(),
++                result_ref: "result:test".to_string(),
++            };
++            let row = ResultItem {
++                id: "result:test".to_string(),
++                kind: "global_nodal_rotation_x".to_string(),
++                value,
++                unit: "rad".to_string(),
++                entity_ref: "node:test".to_string(),
++                basis_ref: None,
++                source_result_refs: vec![],
++                metadata: None,
++            };
++            assert!(serde_json::to_string(&quantity).is_err());
++            assert!(serde_json::to_string(&row).is_err());
++        }
++        assert_eq!(optional_f64(None), "not_observed");
++    }
++
++    #[test]
++    fn precision_solved_and_blocked_headers_bind_actual_producer_without_assessment() {
++        let solved = run_linear_static_preview(precision_request(2.0, 1.0));
++        let mut input = precision_request(2.0, 1.0);
++        input.materials.clear();
++        let blocked = run_linear_static_preview(input);
++        assert_eq!(solved.status.mechanics, "MECHANICS_SOLVED");
++        assert_ne!(blocked.status.mechanics, "MECHANICS_SOLVED");
++        for output in [solved, blocked] {
++            let encoded = serde_json::to_value(&output).unwrap();
++            assert_eq!(encoded["schema_version"], "0.2.0");
++            assert_eq!(
++                encoded["producer"]["component_name"],
++                env!("CARGO_PKG_NAME")
++            );
++            assert_eq!(
++                encoded["producer"]["component_version"],
++                env!("CARGO_PKG_VERSION")
++            );
++            assert_eq!(env!("CARGO_PKG_VERSION"), "0.2.0");
++            assert_eq!(
++                encoded["producer"]["semantic_contract_id"],
++                "openpipestress.result_semantics/0.3.0/precision-1"
++            );
++            assert_eq!(
++                encoded["numerical_quality"]["value_representation"],
++                "finite_binary64"
++            );
++            assert_eq!(
++                encoded["numerical_quality"]["publication_quantization"],
++                "none"
++            );
++            assert_eq!(
++                encoded["numerical_quality"]["integrity_policy"],
++                "M03-INTEGRITY-v1"
++            );
++            assert!(!output.numerical_quality.cases.is_empty());
++            if output.status.mechanics == "MECHANICS_SOLVED" {
++                assert!(matches!(
++                    output.numerical_quality.status,
++                    NumericalQualityStatus::ChecksPassed | NumericalQualityStatus::Sensitive
++                ));
++            } else {
++                assert_ne!(
++                    output.numerical_quality.status,
++                    NumericalQualityStatus::ChecksPassed
++                );
++            }
++            assert_eq!(
++                encoded["formulation_basis"]["profile_id"],
++                "product_preview_mechanics_v1"
++            );
++            assert!(output
++                .formulation_basis
++                .limitations
++                .iter()
++                .any(|s| s.contains("Pressure")));
++            assert!(output
++                .formulation_basis
++                .limitations
++                .iter()
++                .any(|s| s.contains("Component")));
++            assert!(output
++                .formulation_basis
++                .limitations
++                .iter()
++                .any(|s| s.contains("stress")));
++            assert!(output
++                .formulation_basis
++                .limitations
++                .iter()
++                .any(|s| s.contains("Support")));
++        }
++    }
++
++    #[test]
++    fn historical_round6_demonstrates_subquantum_information_loss() {
++        for value in [-4.63e-7, -4.63e-8, 4.63e-8, 4.63e-7] {
++            assert_ne!(value, 0.0);
++            assert_eq!(round6(value), 0.0);
++        }
++    }
++
+     fn rigid_preview_support(family: &str, restraints: &[&str]) -> PreviewSupport {
+         PreviewSupport {
+             id: format!("support:{family}"),
+@@ -10639,7 +11439,10 @@ mod tests {
+         assert!(metadata.basis.contains("solver_mode=sparse_interactive"));
+         assert!(metadata
+             .basis
+-            .contains("solution_basis=sparse_profile_direct_primary"));
++            .contains("solution_basis=sparse_structural_integrity_primary"));
++        assert!(metadata
++            .basis
++            .contains("profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053"));
+         assert!(metadata
+             .basis
+             .contains("default_sparse_promotion=interactive_default"));
+@@ -10845,9 +11648,12 @@ mod tests {
+                 normal_evidence.kind,
+                 "nonlinear_support_friction_normal_reaction_derived"
+             );
+-            assert_eq!(friction_reaction, 0.489527);
+-            assert_eq!(normal_evidence.value, 48.952719);
+-            assert_eq!(friction_reaction, round6(0.01 * normal_evidence.value));
++            // Historical carrier regression only: these constants recorded six-decimal values.
++            assert_eq!(round6(friction_reaction), 0.489527);
++            assert_eq!(round6(normal_evidence.value), 48.952719);
++            // SI force-balance admissibility, not bit identity between separately
++            // recovered force components; preserves the analytic 1e-9 criterion.
++            assert_coulomb_force_balance_n(friction_reaction, 0.01 * normal_evidence.value);
+             let normal_metadata = normal_evidence.metadata.as_ref().unwrap();
+             assert!(normal_metadata.basis.contains("derived_support_reaction"));
+             assert!(normal_metadata.basis.contains("source_ref=support:S-130"));
+@@ -11193,12 +11999,12 @@ mod tests {
+         // DEC-067: the sliding support carries the bounded -mu*N tangential
+         // reaction opposing motion (0.3 * 10 N normal evidence), not a full
+         // DOF release with zero reaction.
+-        assert_eq!(
++        assert_coulomb_force_balance_n(
+             result_value(
+                 &result,
+-                "result:nonlinear-support:support-NL-MIX-FRIC-110:uz-reaction"
++                "result:nonlinear-support:support-NL-MIX-FRIC-110:uz-reaction",
+             ),
+-            -3.0
++            -0.3 * 10.0,
+         );
+         let max_translation_delta =
+             result_value(&result, "result:nonlinear-support:max-translation-delta");
+@@ -12142,7 +12948,7 @@ mod tests {
+         }));
+ 
+         // Translation components reassemble the published magnitude row within
+-        // round6 tolerance.
++        // the existing magnitude comparison tolerance.
+         let ux = result_value(&result, "result:disp:node-N-140:ux");
+         let uy = result_value(&result, "result:disp:node-N-140:uy");
+         let uz = result_value(&result, "result:disp:node-N-140:uz");
+@@ -12158,7 +12964,7 @@ mod tests {
+             .iter()
+             .find(|item| item.id == "result:combination:combination-C-OPER-ALT:disp:node-N-140:uy")
+             .expect("combination displacement component row should be emitted");
+-        assert_eq!(combined_uy.value, round6(default_uy + 0.5 * alternate_uy));
++        assert_eq!(combined_uy.value, default_uy + 0.5 * alternate_uy);
+         assert_eq!(
+             combined_uy
+                 .metadata
+@@ -13380,9 +14186,9 @@ mod tests {
+             .unwrap();
+ 
+         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+-        assert!((axial_i.value - round6(expected_force)).abs() < 1.0e-6);
+-        assert!((axial_j.value + round6(expected_force)).abs() < 1.0e-6);
+-        assert!((stress_i.value + round6(expected_force / area / 1_000_000.0)).abs() < 1.0e-6);
++        assert!((axial_i.value - expected_force).abs() < 1.0e-6);
++        assert!((axial_j.value + expected_force).abs() < 1.0e-6);
++        assert!((stress_i.value + expected_force / area / 1_000_000.0).abs() < 1.0e-6);
+     }
+ 
+     fn mill_tolerance_section(mill_tolerance: Option<f64>) -> PipeSectionInput {
+@@ -14292,7 +15098,7 @@ mod tests {
+             .iter()
+             .find(|item| item.id == "result:force:pipe-P-100:axial")
+             .unwrap();
+-        assert!((axial.value - round6(expected_force)).abs() < 1.0e-6);
++        assert!((axial.value - expected_force).abs() < 1.0e-6);
+ 
+         let record = result
+             .results
+@@ -14332,7 +15138,7 @@ mod tests {
+             .iter()
+             .find(|item| item.id == "result:force:pipe-P-100:axial")
+             .unwrap();
+-        assert!((axial.value - round6(expected_force)).abs() < 1.0e-6);
++        assert!((axial.value - expected_force).abs() < 1.0e-6);
+ 
+         let record = result
+             .results
+@@ -14356,23 +15162,23 @@ mod tests {
+         let result = run_linear_static_preview(dec092_temperature_g_request());
+ 
+         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+-        assert_eq!(
++        analytic_close!(
+             result_value(&result, "result:disp:node-N-DEC092-TIP:rx"),
+-            round6(dec092_tip_rotation(50.0e9))
++            dec092_tip_rotation(50.0e9)
+         );
+-        assert_eq!(
++        analytic_close!(
+             result_value(
+                 &result,
+                 "result:loadcase:load-L-DEC092-INTERPOLATED:disp:node-N-DEC092-TIP:rx"
+             ),
+-            round6(dec092_tip_rotation(47.5e9))
++            dec092_tip_rotation(47.5e9)
+         );
+-        assert_eq!(
++        analytic_close!(
+             result_value(
+                 &result,
+                 "result:loadcase:load-L-DEC092-BASE:disp:node-N-DEC092-TIP:rx"
+             ),
+-            round6(dec092_tip_rotation(80.0e9))
++            dec092_tip_rotation(80.0e9)
+         );
+ 
+         let exact_record = result
+@@ -14447,12 +15253,12 @@ mod tests {
+                 "selected basis result {id} must not consume base G"
+             );
+         }
+-        assert_eq!(
++        analytic_close!(
+             result_value(
+                 &changed_base,
+                 "result:loadcase:load-L-DEC092-BASE:disp:node-N-DEC092-TIP:rx"
+             ),
+-            round6(dec092_tip_rotation(20.0e9)),
++            dec092_tip_rotation(20.0e9),
+             "no-basis load case must continue to consume explicit base G"
+         );
+ 
+@@ -14464,9 +15270,9 @@ mod tests {
+             .value = 25_000.0;
+         let changed_exact = run_linear_static_preview(changed_exact);
+         assert_eq!(changed_exact.status.mechanics, "MECHANICS_SOLVED");
+-        assert_eq!(
++        analytic_close!(
+             result_value(&changed_exact, "result:disp:node-N-DEC092-TIP:rx"),
+-            round6(dec092_tip_rotation(25.0e9))
++            dec092_tip_rotation(25.0e9)
+         );
+         assert_ne!(
+             result_value(&changed_exact, "result:disp:node-N-DEC092-TIP:rx"),
+@@ -14588,12 +15394,12 @@ mod tests {
+             });
+         let result = run_linear_static_preview(adjacent);
+         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+-        assert_eq!(
++        analytic_close!(
+             result_value(
+                 &result,
+                 "result:loadcase:load-L-DEC092-INTERPOLATED:disp:node-N-DEC092-TIP:rx"
+             ),
+-            round6(dec092_tip_rotation(85.0e9))
++            dec092_tip_rotation(85.0e9)
+         );
+         let basis = &result
+             .results
+@@ -14692,7 +15498,7 @@ mod tests {
+             .iter()
+             .find(|item| item.id == "result:force:pipe-P-100:axial")
+             .unwrap();
+-        assert!((axial.value - round6(expected_force)).abs() < 1.0e-6);
++        assert!((axial.value - expected_force).abs() < 1.0e-6);
+         assert!(!result
+             .results
+             .iter()
+@@ -14839,11 +15645,9 @@ mod tests {
+             .unwrap();
+ 
+         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+-        assert!((axial_i.value - round6(expected_force)).abs() < 1.0e-6);
+-        assert!((axial_j.value + round6(expected_force)).abs() < 1.0e-6);
+-        assert!(
+-            (stress_i.value + round6(expected_force / section.area / 1_000_000.0)).abs() < 1.0e-6
+-        );
++        assert!((axial_i.value - expected_force).abs() < 1.0e-6);
++        assert!((axial_j.value + expected_force).abs() < 1.0e-6);
++        assert!((stress_i.value + expected_force / section.area / 1_000_000.0).abs() < 1.0e-6);
+         assert!(result_ids.contains("result:stress:pipe-P-100:end-i:pressure-hoop"));
+         assert!(!result_ids.contains("result:stress:pipe-P-100:end-i:pressure-longitudinal"));
+         assert!(result_ids.contains("result:stress:pipe-P-100"));
+@@ -14891,7 +15695,7 @@ mod tests {
+     }
+ 
+     #[test]
+-    fn generated_result_surface_matches_fallback_fixture_force_metadata() {
++    fn generated_result_metadata_and_historical_quantization_match_legacy_fixture() {
+         let generated = serde_json::to_value(run_linear_static_preview(request())).unwrap();
+         let fixture: serde_json::Value = serde_json::from_str(include_str!(
+             "../../../fixtures/product_preview/invented_mechanics_result.json"
+@@ -14941,7 +15745,11 @@ mod tests {
+         let fixture_disp_uy = find_result(&fixture, "result:disp:node-N-140:uy");
+         assert_eq!(generated_disp_uy["kind"], fixture_disp_uy["kind"]);
+         assert_eq!(generated_disp_uy["unit"], fixture_disp_uy["unit"]);
+-        assert_eq!(generated_disp_uy["value"], fixture_disp_uy["value"]);
++        // This is explicitly a legacy carrier check, not a current physics oracle.
++        assert_eq!(
++            round6(generated_disp_uy["value"].as_f64().unwrap()),
++            fixture_disp_uy["value"].as_f64().unwrap()
++        );
+         assert_eq!(generated_disp_uy["metadata"], fixture_disp_uy["metadata"]);
+         assert_eq!(fixture_disp_uy["metadata"]["coordinate_system"], "global");
+         let fixture_disp_rz = find_result(&fixture, "result:disp:node-N-140:rz");
+@@ -16218,7 +17026,13 @@ mod tests {
+                     }
+                     mode_rows.push(values);
+                 }
+-                assert_eq!(mode_rows[0], mode_rows[1]);
++                // Different factorization paths recover the same nonzero MPa
++                // stresses under the existing relative 1e-9 numerical criterion.
++                // This is cross-mode parity, not a repeat-determinism assertion.
++                assert_eq!(mode_rows[0].len(), mode_rows[1].len());
++                for (dense_mpa, sparse_mpa) in mode_rows[0].iter().zip(&mode_rows[1]) {
++                    analytic_close!(*sparse_mpa, *dense_mpa);
++                }
+             }
+         }
+     }
+@@ -16325,13 +17139,13 @@ mod tests {
+         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+         p5_close(
+             result_value(&result, "result:force:pipe-P-100:axial"),
+-            round6(thrust),
++            thrust,
+         );
+         p5_close(
+             result_value(&result, "result:force:pipe-P-100:axial:end-j"),
+-            -round6(thrust),
++            -thrust,
+         );
+-        let expected_axial = -round6(thrust / section.area / 1.0e6);
++        let expected_axial = -thrust / section.area / 1.0e6;
+         for location in ["end-i", "end-j", "quarter-1", "midspan", "quarter-3"] {
+             p5_close(
+                 result_value(
+@@ -16341,8 +17155,7 @@ mod tests {
+                 expected_axial,
+             );
+         }
+-        let expected_hoop =
+-            round6(1_000_000.0 * section.membrane_radius / section.wall_thickness / 1.0e6);
++        let expected_hoop = 1_000_000.0 * section.membrane_radius / section.wall_thickness / 1.0e6;
+         p5_close(
+             result_value(&result, "result:stress:pipe-P-100:end-i:pressure-hoop"),
+             expected_hoop,
+@@ -16882,7 +17695,9 @@ mod tests {
+                 );
+                 // Independent global equilibrium: the sole Y ground spring
+                 // carries the full 350 N, regardless of the beam's flexibility.
+-                assert_eq!(
++                // Compare the independently balanced force in N using the
++                // analytic seed criterion; publication no longer quantizes it.
++                analytic_close!(
+                     result_value(&output, "result:reaction:support-spring-UY"),
+                     350.0
+                 );
+@@ -17136,9 +17951,9 @@ mod tests {
+         let expected_tip = curved_bend_direct_tip_displacements(UY, 1000.0);
+         let uy_mm = result_value(&result, "result:disp:node-N-110:uy");
+         assert!(
+-            (uy_mm - round6(expected_tip[UY] * 1000.0)).abs() <= 1.0e-6,
++            (uy_mm - expected_tip[UY] * 1000.0).abs() <= 1.0e-6,
+             "assembled arc tip displacement {uy_mm} mm must match the direct macro-element solve {} mm",
+-            round6(expected_tip[UY] * 1000.0)
++            expected_tip[UY] * 1000.0
+         );
+         // The straight chord of the same span is much stiffer; if the chord
+         // element were (also) assembled the tip displacement would shrink.
+@@ -17196,7 +18011,8 @@ mod tests {
+             "result:disp:node-N-110:uz",
+             "result:force:pipe-P-100:midspan:shear-z",
+         ] {
+-            assert_eq!(result_value(&sparse, row), result_value(&dense, row));
++            // Full-precision lane comparison under the existing DEC-053 relative criterion.
++            analytic_close!(result_value(&sparse, row), result_value(&dense, row));
+         }
+     }
+ 
+@@ -17362,7 +18178,7 @@ mod tests {
+         for (row_id, slot) in midspan_rows {
+             let value = result_value(&result, row_id);
+             assert!(
+-                (value - round6(expected[slot])).abs() <= 1.0e-3,
++                (value - expected[slot]).abs() <= 1.0e-3,
+                 "midspan station row {row_id} value {value} must match the direct arc segment equilibrium {}",
+                 expected[slot]
+             );
+@@ -17517,7 +18333,7 @@ mod tests {
+         for (row_id, dof) in rows {
+             let end_i = result_value(&result, row_id);
+             assert!(
+-                (end_i - round6(expected_forces[dof])).abs() <= 1.0e-3,
++                (end_i - expected_forces[dof]).abs() <= 1.0e-3,
+                 "end-i row {row_id} value {end_i} must match the direct oracle {}",
+                 expected_forces[dof]
+             );
+@@ -17536,7 +18352,7 @@ mod tests {
+         // The solved tip displacement matches the direct consistent-load solve.
+         let uz_mm = result_value(&result, "result:disp:node-N-110:uz");
+         assert!(
+-            (uz_mm - round6(displacements[DOF_PER_NODE + UZ] * 1000.0)).abs() <= 1.0e-6,
++            (uz_mm - displacements[DOF_PER_NODE + UZ] * 1000.0).abs() <= 1.0e-6,
+             "tip displacement {uz_mm} mm must match the direct consistent-load solve"
+         );
+     }
+@@ -17701,7 +18517,7 @@ mod tests {
+         );
+         let expected_tip = curved_bend_direct_tip_displacements(UY, 1000.0);
+         assert!(
+-            (nonlinear_uy_mm - round6(expected_tip[UY] * 1000.0)).abs() <= 1.0e-6,
++            (nonlinear_uy_mm - expected_tip[UY] * 1000.0).abs() <= 1.0e-6,
+             "nonlinear loop tip displacement {nonlinear_uy_mm} mm must match the direct macro-element solve"
+         );
+     }
+@@ -17833,10 +18649,10 @@ mod tests {
+             }
+             expected_raw[row] -= uniform_equivalent[row] + radial_equivalent[row];
+             assert!(
+-                (corrected[row] - round6(expected_raw[row])).abs() <= 1.1e-6,
++                (corrected[row] - expected_raw[row]).abs() <= 1.1e-6,
+                 "raw chord-frame action slot {row}: {} != {}",
+                 corrected[row],
+-                round6(expected_raw[row])
++                expected_raw[row]
+             );
+         }
+         for row_id in &row_ids {
+@@ -17949,9 +18765,9 @@ mod tests {
+                     &format!("result:{family}:pipe-P-100:{station}:{tail}"),
+                 );
+                 assert!(
+-                    (actual - round6(expected[slot])).abs() <= 1.1e-6,
++                    (actual - expected[slot]).abs() <= 1.1e-6,
+                     "{station} resultant slot {slot}: {actual} != {}",
+-                    round6(expected[slot])
++                    expected[slot]
+                 );
+             }
+             let metadata = result
+@@ -18133,7 +18949,7 @@ mod tests {
+         for (row_id, expected) in force_rows {
+             let value = result_value(&result, row_id);
+             assert!(
+-                (value - round6(expected)).abs() <= 1.0e-9 * thrust.max(1.0),
++                (value - expected).abs() <= 1.0e-9 * thrust.max(1.0),
+                 "end-force row {row_id} value {value} must match the membrane cap force {expected}"
+             );
+         }
+@@ -18143,7 +18959,7 @@ mod tests {
+         for station in ["quarter-1", "midspan", "quarter-3"] {
+             let axial = result_value(&result, &format!("result:force:pipe-P-100:{station}:axial"));
+             assert!(
+-                (axial - round6(thrust)).abs() <= 1.0e-9 * thrust,
++                (axial - thrust).abs() <= 1.0e-9 * thrust,
+                 "station {station} axial {axial} must equal the wall tension {thrust}"
+             );
+             for row_id in [
+@@ -18163,13 +18979,13 @@ mod tests {
+                 &result,
+                 &format!("result:stress:pipe-P-100:{station}:axial-normal"),
+             );
+-            let expected_stress = round6(thrust / section.area / 1_000_000.0);
++            let expected_stress = thrust / section.area / 1_000_000.0;
+             assert!(
+                 (station_stress - expected_stress).abs() <= 1.0e-6,
+                 "station {station} axial stress {station_stress} must equal pA / A_s = {expected_stress}"
+             );
+         }
+-        let expected_stress = round6(thrust / section.area / 1_000_000.0);
++        let expected_stress = thrust / section.area / 1_000_000.0;
+         for location in ["end-i", "end-j"] {
+             let row_id = format!("result:stress:pipe-P-100:{location}:axial-normal");
+             p5_close(result_value(&result, &row_id), expected_stress);
+@@ -18192,7 +19008,7 @@ mod tests {
+         // same complete load system agree with the assembled solve.
+         let material = &invented_materials()[0];
+         let stretch = thrust / (material.elastic_modulus.value * section.area);
+-        let expected_ux_mm = round6(stretch * CURVED_BEND_TEST_CHORD_M * 1000.0);
++        let expected_ux_mm = stretch * CURVED_BEND_TEST_CHORD_M * 1000.0;
+         let ux_mm = result_value(&result, "result:disp:node-N-110:ux");
+         let uy_mm = result_value(&result, "result:disp:node-N-110:uy");
+         assert!(
+@@ -18213,7 +19029,7 @@ mod tests {
+         }
+         let oracle = curved_bend_direct_solution(&complete);
+         assert!(
+-            (ux_mm - round6(oracle[DOF_PER_NODE + UX] * 1000.0)).abs() <= 1.0e-6,
++            (ux_mm - oracle[DOF_PER_NODE + UX] * 1000.0).abs() <= 1.0e-6,
+             "assembled tip displacement must match the direct oracle under the complete system"
+         );
+ 
+@@ -18304,7 +19120,7 @@ mod tests {
+         complete[DOF_PER_NODE + UY] += 1000.0;
+         let oracle = curved_bend_direct_solution(&complete);
+         assert!(
+-            (linear_uy_mm - round6(oracle[DOF_PER_NODE + UY] * 1000.0)).abs() <= 1.0e-6,
++            (linear_uy_mm - oracle[DOF_PER_NODE + UY] * 1000.0).abs() <= 1.0e-6,
+             "pressurized macro-span solve must match the direct oracle"
+         );
+     }
+diff --git a/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs b/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+index d40e336c0..fe582a0b0 100644
+--- a/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
++++ b/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+@@ -6,6 +6,12 @@
+ //! standards content, public support defaults, catalog values, or professional
+ //! approval claims.
+ 
++pub mod structural_adapter;
++use open_pipe_stress_frame_kernel::structural::{
++    StructuralError, StructuralReport, StructuralSystem,
++};
++use structural_adapter::AssemblyEvidence;
++
+ use open_pipe_stress_curved_bend::CurvedBendMacroElement;
+ use open_pipe_stress_frame_kernel::{
+     assemble_global_stiffness_with_user_elements, node_dof_index,
+@@ -161,6 +167,8 @@ pub struct CurvedBendStiffnessElement {
+     pub node_i: usize,
+     pub node_j: usize,
+     pub global_stiffness: Matrix12,
++    /// Formation estimate supplied only by the traced macro-element constructor.
++    pub symmetry_formation: Option<(Matrix12, [[usize; 12]; 12])>,
+ }
+ 
+ impl CurvedBendStiffnessElement {
+@@ -194,6 +202,7 @@ impl CurvedBendStiffnessElement {
+             node_i,
+             node_j,
+             global_stiffness,
++            symmetry_formation: None,
+         })
+     }
+ 
+@@ -211,12 +220,14 @@ impl CurvedBendStiffnessElement {
+                 ),
+             }
+         })?;
+-        Self::new(
++        let mut slot = Self::new(
+             element_id,
+             element.node_i.index,
+             element.node_j.index,
+             global_stiffness,
+-        )
++        )?;
++        slot.symmetry_formation = Some(structural_adapter::curved_formation(element)?);
++        Ok(slot)
+     }
+ }
+ 
+@@ -237,6 +248,11 @@ pub struct NonlinearFrameSolveInput {
+ 
+ #[derive(Debug, Clone, PartialEq)]
+ pub struct NonlinearFrameIteration {
++    /// Gates this iteration's retained original equations and the actual
++    /// active_restrained_dofs/active_prescribed_displacements below. It does
++    /// not certify the newly classified active_set states: a caller's nonzero
++    /// count tolerance can accept a state change under its separate policy.
++    pub structural_report: StructuralReport,
+     pub iteration: usize,
+     pub active_restrained_dofs: Vec<usize>,
+     pub active_prescribed_displacements: DenseVector,
+@@ -277,6 +293,9 @@ pub struct SparseLinearSolveEvidence {
+     pub status: SparseEvidenceStatus,
+     pub policy_ref: String,
+     pub solver_mode: LinearSolveMode,
++    /// Legacy unscaled DEC050/053 observer identity. Historical `*_primary`
++    /// labels describe that observation's algorithm, not the selected M03
++    /// structural solve; the iteration's structural_report identifies its gate.
+     pub solution_basis: String,
+     pub assembly_basis: String,
+     pub reduced_dof_count: usize,
+@@ -323,6 +342,7 @@ impl NonlinearFrameSolveResult {
+ #[derive(Debug, Clone, PartialEq)]
+ pub enum NonlinearIntegrationError {
+     FrameKernel(FrameKernelError),
++    Structural(StructuralError),
+     NonlinearSupport(NonlinearSupportError),
+     InvalidInput { detail: String },
+ }
+@@ -330,6 +350,7 @@ pub enum NonlinearIntegrationError {
+ impl fmt::Display for NonlinearIntegrationError {
+     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+         match self {
++            Self::Structural(error) => write!(f, "{error}"),
+             Self::FrameKernel(error) => write!(f, "frame-kernel integration failed: {error}"),
+             Self::NonlinearSupport(error) => {
+                 write!(f, "nonlinear support classification failed: {error}")
+@@ -345,12 +366,19 @@ impl Error for NonlinearIntegrationError {
+     fn source(&self) -> Option<&(dyn Error + 'static)> {
+         match self {
+             Self::FrameKernel(error) => Some(error),
++            Self::Structural(error) => Some(error),
+             Self::NonlinearSupport(error) => Some(error),
+             Self::InvalidInput { .. } => None,
+         }
+     }
+ }
+ 
++impl From<StructuralError> for NonlinearIntegrationError {
++    fn from(error: StructuralError) -> Self {
++        Self::Structural(error)
++    }
++}
++
+ impl From<FrameKernelError> for NonlinearIntegrationError {
+     fn from(error: FrameKernelError) -> Self {
+         Self::FrameKernel(error)
+@@ -461,6 +489,13 @@ pub fn solve_active_set_frame_with_mode_and_springs(
+         validate_finite("assembled stiffness", *value)?;
+     }
+ 
++    let assembly = AssemblyEvidence::new(
++        input.node_count,
++        &input.elements,
++        &input.user_stiffness_elements,
++        &input.curved_bend_elements,
++        springs,
++    )?;
+     let mut current_states = normalized_initial_states(input)?;
+     let recovery_eligible = eligible_contact_dofs(
+         input.node_count,
+@@ -489,7 +524,8 @@ pub fn solve_active_set_frame_with_mode_and_springs(
+         // depend on whether sliding was seeded or reached by transition.
+         let sliding_force_deferred = iterations.is_empty()
+             && sliding_friction_support_present(&input.nonlinear_supports, &current_states);
+-        let attempted_solve = solve_iteration_with_sliding_friction(
++        let attempted_solve = solve_iteration_with_sliding_friction_evidence(
++            &assembly,
+             input,
+             &stiffness,
+             &boundary,
+@@ -500,14 +536,15 @@ pub fn solve_active_set_frame_with_mode_and_springs(
+             linear_solve_mode,
+         );
+         let sliding_solve = match attempted_solve {
+-            Err(NonlinearIntegrationError::FrameKernel(FrameKernelError::SingularSystem {
+-                pivot,
+-            })) if iteration_index == 1
+-                && recovery_eligible
+-                && current_states
+-                    .iter()
+-                    .any(|state| state.state == ActiveSetState::Inactive) =>
++            Err(error)
++                if matches!(&error, NonlinearIntegrationError::Structural(error) if structural_adapter::permits_contact_seed_trial(error, assembly.qualified_passive_family()))
++                    && iteration_index == 1
++                    && recovery_eligible
++                    && current_states
++                        .iter()
++                        .any(|state| state.state == ActiveSetState::Inactive) =>
+             {
++                let pivot = error.to_string();
+                 let original_states = current_states
+                     .iter()
+                     .map(|state| format!("{}={}", state.support_id, state.state.as_str()))
+@@ -524,7 +561,8 @@ pub fn solve_active_set_frame_with_mode_and_springs(
+                     &input.nonlinear_supports,
+                     &all_active,
+                 )?;
+-                let trial = solve_iteration_with_sliding_friction(
++                let trial = solve_iteration_with_sliding_friction_evidence(
++                    &assembly,
+                     input,
+                     &stiffness,
+                     &boundary,
+@@ -543,7 +581,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
+                 recovered_path = true;
+                 final_diagnostics.push(SolverDiagnostic::new(
+                     SolverDiagnosticCode::SingularSystem, DiagnosticSeverity::Warning, DiagnosticSource::SolverIteration,
+-                    format!("Exact first-iteration singular inactive contact seed recovered by one all-active trial in {} mode; original_singular_pivot={pivot}; original_states=[{original_states}]; original_ground_dofs={original_ground_dofs:?}; recovery_states=[{recovery_states}]; recovery_ground_dofs={:?}; authored signed boundaries, forces and stiffness preserved; successful trial counts as iteration 1; later singularity remains failure and no second recovery is permitted.", linear_solve_mode.as_str(), boundary.dofs),
++                    format!("The first-iteration structurally rejected inactive contact seed recovered by one all-active trial in {} mode; original_singular_pivot={pivot}; original_states=[{original_states}]; original_ground_dofs={original_ground_dofs:?}; recovery_states=[{recovery_states}]; recovery_ground_dofs={:?}; authored signed boundaries, forces and stiffness preserved; successful trial counts as iteration 1; later singularity remains failure and no second recovery is permitted.", linear_solve_mode.as_str(), boundary.dofs),
+                 ));
+                 trial
+             }
+@@ -594,6 +632,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
+         );
+ 
+         let iteration = NonlinearFrameIteration {
++            structural_report: linearized.structural_report,
+             iteration: iteration_index,
+             active_restrained_dofs: boundary.dofs.clone(),
+             active_prescribed_displacements: boundary.displacements.clone(),
+@@ -692,6 +731,7 @@ struct BoundaryState {
+ 
+ #[derive(Debug, Clone, PartialEq)]
+ struct LinearizedSolve {
++    structural_report: StructuralReport,
+     displacements: DenseVector,
+     reactions: DenseVector,
+     max_abs_free_dof_force_residual: f64,
+@@ -840,6 +880,7 @@ struct ResolvedSlidingFrictionStates {
+ /// Explicit normals remain constant loads. Active derived normals are solved
+ /// simultaneously from the affine base response and unit-load reaction
+ /// influences, so every applied force uses its current-iterate normal.
++#[cfg(test)]
+ fn solve_iteration_with_sliding_friction(
+     input: &NonlinearFrameSolveInput,
+     stiffness: &DenseMatrix,
+@@ -849,6 +890,37 @@ fn solve_iteration_with_sliding_friction(
+     friction_normals: &HashMap<&str, f64>,
+     derived_friction_normals: &HashMap<&str, &DerivedFrictionNormalReaction>,
+     linear_solve_mode: LinearSolveMode,
++) -> Result<SlidingIterationSolve, NonlinearIntegrationError> {
++    let assembly = AssemblyEvidence::new(
++        input.node_count,
++        &input.elements,
++        &input.user_stiffness_elements,
++        &input.curved_bend_elements,
++        &[],
++    )?;
++    solve_iteration_with_sliding_friction_evidence(
++        &assembly,
++        input,
++        stiffness,
++        boundary,
++        states,
++        previous,
++        friction_normals,
++        derived_friction_normals,
++        linear_solve_mode,
++    )
++}
++
++fn solve_iteration_with_sliding_friction_evidence(
++    assembly: &AssemblyEvidence,
++    input: &NonlinearFrameSolveInput,
++    stiffness: &DenseMatrix,
++    boundary: &BoundaryState,
++    states: &[SupportStateRecord],
++    previous: Option<&NonlinearFrameIteration>,
++    friction_normals: &HashMap<&str, f64>,
++    derived_friction_normals: &HashMap<&str, &DerivedFrictionNormalReaction>,
++    linear_solve_mode: LinearSolveMode,
+ ) -> Result<SlidingIterationSolve, NonlinearIntegrationError> {
+     let candidates = sliding_friction_candidates(
+         input,
+@@ -888,7 +960,8 @@ fn solve_iteration_with_sliding_friction(
+     let mut solved_derived_forces = HashMap::new();
+     let mut assumed_branches = HashMap::new();
+     if !derived_candidates.is_empty() {
+-        let base = solve_linearized_system(
++        let base = solve_linearized_system_evidence(
++            Some(assembly),
+             stiffness,
+             &base_force,
+             boundary,
+@@ -920,7 +993,8 @@ fn solve_iteration_with_sliding_friction(
+             let load_candidate = &candidates[load_candidate_index];
+             let mut unit_force = base_force.clone();
+             unit_force[load_candidate.global_dof] += 1.0;
+-            let unit = solve_linearized_system(
++            let unit = solve_linearized_system_evidence(
++                Some(assembly),
+                 stiffness,
+                 &unit_force,
+                 boundary,
+@@ -1002,7 +1076,13 @@ fn solve_iteration_with_sliding_friction(
+ 
+     let mut final_force = input.force.clone();
+     add_applied_forces(&mut final_force, &applied_forces);
+-    let linearized = solve_linearized_system(stiffness, &final_force, boundary, linear_solve_mode)?;
++    let linearized = solve_linearized_system_evidence(
++        Some(assembly),
++        stiffness,
++        &final_force,
++        boundary,
++        linear_solve_mode,
++    )?;
+     let reactions = reported_reactions(&linearized.reactions, &applied_forces)?;
+ 
+     let mut derived_branch_admissibility = HashMap::new();
+@@ -1464,11 +1544,22 @@ fn prescribed_displacement_for_state(
+     }
+ }
+ 
++#[cfg(test)]
+ fn solve_linearized_system(
+     stiffness: &DenseMatrix,
+     force: &DenseVector,
+     boundary: &BoundaryState,
+     linear_solve_mode: LinearSolveMode,
++) -> Result<LinearizedSolve, NonlinearIntegrationError> {
++    solve_linearized_system_evidence(None, stiffness, force, boundary, linear_solve_mode)
++}
++
++fn solve_linearized_system_evidence(
++    assembly: Option<&AssemblyEvidence>,
++    stiffness: &DenseMatrix,
++    force: &DenseVector,
++    boundary: &BoundaryState,
++    linear_solve_mode: LinearSolveMode,
+ ) -> Result<LinearizedSolve, NonlinearIntegrationError> {
+     let reduced = reduce_system_with_prescribed_displacements(
+         stiffness,
+@@ -1476,34 +1567,65 @@ fn solve_linearized_system(
+         &boundary.dofs,
+         &boundary.displacements,
+     )?;
+-    let (reduced_solution, sparse_evidence) = match linear_solve_mode {
+-        LinearSolveMode::SparseInteractive => solve_sparse_interactive_linearized_system(
++    let prescribed = boundary
++        .dofs
++        .iter()
++        .copied()
++        .zip(boundary.displacements.iter().copied())
++        .collect::<Vec<_>>();
++    let checked = if let Some(assembly) = assembly {
++        assembly.solve(
++            stiffness,
++            force,
++            &reduced.free_dofs,
++            &prescribed,
++            linear_solve_mode,
++        )?
++    } else {
++        let original = StructuralSystem {
++            stiffness,
++            force,
++            free_dofs: &reduced.free_dofs,
++            prescribed: &prescribed,
++            contributions: None,
++            symmetry: None,
++        };
++        match linear_solve_mode {
++            LinearSolveMode::DenseScrutiny => {
++                open_pipe_stress_frame_kernel::structural::solve_structural_dense(&original)?
++            }
++            LinearSolveMode::SparseInteractive => {
++                open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&original)?
++            }
++        }
++    };
++    let displacements = checked.displacements;
++    // DEC050/053 retains the legacy unscaled sparse factor/report basis as an
++    // observation only; it never selects or rescues the structural solution.
++    let sparse_evidence = match linear_solve_mode {
++        LinearSolveMode::SparseInteractive => observe_sparse_linearized_solve(
+             stiffness,
+-            &reduced.stiffness,
+             &reduced.free_dofs,
+             &reduced.force,
+-        )?,
+-        LinearSolveMode::DenseScrutiny => {
+-            let reduced_solution = solve_dense(&reduced.stiffness, &reduced.force)?;
+-            let sparse_evidence = observe_sparse_linearized_solve(
++            None,
++            linear_solve_mode,
++        ),
++        LinearSolveMode::DenseScrutiny => match solve_dense(&reduced.stiffness, &reduced.force) {
++            Ok(legacy_dense) => observe_sparse_linearized_solve(
+                 stiffness,
+                 &reduced.free_dofs,
+                 &reduced.force,
+-                &reduced_solution,
+-                LinearSolveMode::DenseScrutiny,
+-            );
+-            (reduced_solution, sparse_evidence)
+-        }
++                Some(&legacy_dense),
++                linear_solve_mode,
++            ),
++            Err(error) => sparse_evidence_unavailable(
++                reduced.force.len(),
++                format!("legacy DEC050/053 dense reference unavailable: {error}"),
++                linear_solve_mode,
++            ),
++        },
+     };
+ 
+-    let mut displacements = vec![0.0; force.len()];
+-    for (&dof, &value) in boundary.dofs.iter().zip(boundary.displacements.iter()) {
+-        displacements[dof] = value;
+-    }
+-    for (&global_dof, &value) in reduced.free_dofs.iter().zip(reduced_solution.iter()) {
+-        displacements[global_dof] = value;
+-    }
+-
+     let reactions: DenseVector = multiply_matrix_vector(stiffness, &displacements)?
+         .into_iter()
+         .zip(force.iter())
+@@ -1521,6 +1643,7 @@ fn solve_linearized_system(
+ 
+     validate_finite("free DOF work residual", max_abs_free_dof_work_residual)?;
+     Ok(LinearizedSolve {
++        structural_report: checked.report,
+         displacements,
+         reactions,
+         max_abs_free_dof_force_residual,
+@@ -1530,52 +1653,11 @@ fn solve_linearized_system(
+     })
+ }
+ 
+-fn solve_sparse_interactive_linearized_system(
+-    global_stiffness: &DenseMatrix,
+-    reduced_stiffness: &DenseMatrix,
+-    free_dofs: &[usize],
+-    reduced_force: &[f64],
+-) -> Result<(DenseVector, SparseLinearSolveEvidence), NonlinearIntegrationError> {
+-    let entries = match direct_reduced_profile_entries(global_stiffness, free_dofs) {
+-        Ok(entries) => entries,
+-        Err(error) => {
+-            let dense_solution = solve_dense(reduced_stiffness, reduced_force)?;
+-            return Ok((
+-                dense_solution,
+-                sparse_evidence_dense_fallback(reduced_force.len(), error),
+-            ));
+-        }
+-    };
+-
+-    match solve_symmetric_system_from_entries(reduced_force.len(), &entries, reduced_force) {
+-        Ok(sparse) => {
+-            let evidence = sparse_linear_solve_evidence(
+-                reduced_force.len(),
+-                &entries,
+-                reduced_force,
+-                &sparse.solution,
+-                &sparse,
+-                None,
+-                LinearSolveMode::SparseInteractive,
+-            );
+-            Ok((sparse.solution, evidence))
+-        }
+-        Err(error) => {
+-            let reduced_dense = dense_from_entries(reduced_force.len(), &entries)?;
+-            let dense_solution = solve_dense(&reduced_dense, reduced_force)?;
+-            Ok((
+-                dense_solution,
+-                sparse_evidence_dense_fallback(reduced_force.len(), error.to_string()),
+-            ))
+-        }
+-    }
+-}
+-
+ fn observe_sparse_linearized_solve(
+     global_stiffness: &DenseMatrix,
+     free_dofs: &[usize],
+     reduced_force: &[f64],
+-    dense_solution: &[f64],
++    dense_solution: Option<&[f64]>,
+     linear_solve_mode: LinearSolveMode,
+ ) -> SparseLinearSolveEvidence {
+     let entries = match direct_reduced_profile_entries(global_stiffness, free_dofs) {
+@@ -1592,7 +1674,7 @@ fn observe_sparse_linearized_solve(
+             reduced_force,
+             &sparse.solution,
+             &sparse,
+-            Some(dense_solution),
++            dense_solution,
+             linear_solve_mode,
+         ),
+         Err(error) => {
+@@ -1698,28 +1780,6 @@ fn direct_reduced_profile_entries(
+     Ok(entries)
+ }
+ 
+-fn dense_from_entries(
+-    dimension: usize,
+-    entries: &[SymmetricMatrixEntry],
+-) -> Result<DenseMatrix, NonlinearIntegrationError> {
+-    let mut dense = vec![vec![0.0; dimension]; dimension];
+-    for entry in entries {
+-        if entry.row >= dimension || entry.col >= dimension {
+-            return Err(NonlinearIntegrationError::InvalidInput {
+-                detail: format!(
+-                    "sparse fallback entry ({}, {}) is outside reduced dimension {dimension}",
+-                    entry.row, entry.col
+-                ),
+-            });
+-        }
+-        dense[entry.row][entry.col] += entry.value;
+-        if entry.row != entry.col {
+-            dense[entry.col][entry.row] += entry.value;
+-        }
+-    }
+-    Ok(dense)
+-}
+-
+ fn sparse_evidence_unavailable(
+     reduced_dof_count: usize,
+     failure_message: String,
+@@ -1745,32 +1805,6 @@ fn sparse_evidence_unavailable(
+     }
+ }
+ 
+-fn sparse_evidence_dense_fallback(
+-    reduced_dof_count: usize,
+-    failure_message: String,
+-) -> SparseLinearSolveEvidence {
+-    SparseLinearSolveEvidence {
+-        status: SparseEvidenceStatus::DenseFallbackAfterSparseFailure,
+-        policy_ref: "DEC-053".to_string(),
+-        solver_mode: LinearSolveMode::SparseInteractive,
+-        solution_basis: LinearSolveMode::SparseInteractive
+-            .solution_basis(true)
+-            .to_string(),
+-        assembly_basis: DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS.to_string(),
+-        reduced_dof_count,
+-        original_max_half_bandwidth: None,
+-        ordered_max_half_bandwidth: None,
+-        original_profile_entry_count: None,
+-        ordered_profile_entry_count: None,
+-        nonpositive_pivot_count: None,
+-        pivot_condition_ratio_estimate: None,
+-        max_abs_dense_sparse_solution_delta: None,
+-        relative_dense_sparse_solution_delta: None,
+-        max_abs_sparse_residual: None,
+-        failure_message: Some(failure_message),
+-    }
+-}
+-
+ fn residual_observation(
+     linearized: &LinearizedSolve,
+     reactions: &[f64],
+@@ -2241,6 +2275,73 @@ mod tests {
+     }
+     // CONTACT_CLASS_FROZEN_END
+ 
++    #[test]
++    fn integrity_contact_seed_cannot_hide_arbitrary_zero_diagonal_negative_energy() {
++        for mode in [
++            LinearSolveMode::DenseScrutiny,
++            LinearSolveMode::SparseInteractive,
++        ] {
++            let mut input = contact_recovery_problem(
++                ActiveSetState::Inactive,
++                ActiveSetState::Inactive,
++                false,
++                4,
++            );
++            input.elements.clear();
++            let mut matrix = [[0.0; 12]; 12];
++            for i in 0..12 {
++                matrix[i][i] = 1.0;
++            }
++            matrix[0][0] = 0.0;
++            matrix[6][6] = 0.0;
++            matrix[0][6] = 1.0;
++            matrix[6][0] = 1.0;
++            // Along [u0,u6]=[1,-1], exact quadratic energy is -2.
++            // Activating both contacts could conceal that free subproblem.
++            input.curved_bend_elements =
++                vec![CurvedBendStiffnessElement::new("explicit-indefinite", 0, 1, matrix).unwrap()];
++            let result = solve_active_set_frame_with_mode(&input, mode);
++            assert!(
++                matches!(result, Err(NonlinearIntegrationError::Structural(_))),
++                "{result:?}"
++            );
++        }
++    }
++
++    #[test]
++    fn integrity_contact_seed_rejects_nonrank_and_unqualified_failure_causes() {
++        use structural_adapter::permits_contact_seed_trial;
++        let zero = StructuralError::NumericallyUnresolved {
++            reason: "zero original diagonal; no physical nullity inferred",
++            global_dof: Some(0),
++        };
++        assert!(!permits_contact_seed_trial(&zero, false));
++        for error in [
++            StructuralError::Range("product overflow or underflow"),
++            StructuralError::Asymmetric {
++                row: 0,
++                col: 1,
++                relative_skew: 1.0,
++            },
++            StructuralError::NegativeEnergy {
++                direction: vec![1.0, -1.0],
++                energy: -2.0,
++                allowance: 0.0,
++            },
++            StructuralError::NumericallyUnresolved {
++                reason:
++                    "positive diagonal contribution absorbed by assembly; stabilization unresolved",
++                global_dof: Some(0),
++            },
++            StructuralError::NumericallyUnresolved {
++                reason: "contribution-preserved intended free action failed",
++                global_dof: None,
++            },
++        ] {
++            assert!(!permits_contact_seed_trial(&error, true));
++        }
++    }
++
+     // CONTACT_RECOVERY_FROZEN_BEGIN
+     fn contact_recovery_problem(
+         root: ActiveSetState,
+@@ -2376,14 +2477,14 @@ mod tests {
+                     ),
+                     mode
+                 ),
+-                Err(NonlinearIntegrationError::FrameKernel(
+-                    FrameKernelError::SingularSystem { .. }
++                Err(NonlinearIntegrationError::Structural(
++                    StructuralError::Mechanism { .. }
+                 ))
+             ));
+             assert!(matches!(
+                 solve_active_set_frame_with_mode(&reverse, mode),
+-                Err(NonlinearIntegrationError::FrameKernel(
+-                    FrameKernelError::SingularSystem { .. }
++                Err(NonlinearIntegrationError::Structural(
++                    StructuralError::Mechanism { .. }
+                 ))
+             ));
+             let mut reverse_cap = reverse.clone();
+
+diff --git a/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs b/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs
+new file mode 100644
+index 000000000..90cdcb20d
+--- /dev/null
++++ b/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs
+@@ -0,0 +1,422 @@
++//! Caller-side provenance for the M03 passive structural gate.
++//! Formation allowances are arithmetic estimates, never physical accuracy proofs.
++use crate::{CurvedBendStiffnessElement, LinearSolveMode};
++use open_pipe_stress_frame_kernel::rigid_body::{
++    assess_rigid_body, ObjectiveFamily, RigidBodyStatus,
++};
++use open_pipe_stress_frame_kernel::structural::{
++    self, StiffnessContribution, StructuralError, StructuralSolution, StructuralSystem,
++    SymmetryEvidence,
++};
++use open_pipe_stress_frame_kernel::{
++    element_dof_map, FrameElement, Matrix12, UserStiffnessElement,
++};
++
++#[derive(Debug, Clone)]
++pub struct AssemblyEvidence {
++    pub contributions: Vec<StiffnessContribution>,
++    pub absolute_roundoff: Vec<Vec<f64>>,
++    pub operation_counts: Vec<Vec<usize>>,
++    coordinates: Vec<Option<[f64; 3]>>,
++    edges: Vec<(usize, usize, bool)>,
++    spring_ground: Vec<usize>,
++}
++impl AssemblyEvidence {
++    pub fn new(
++        node_count: usize,
++        frames: &[FrameElement],
++        users: &[UserStiffnessElement],
++        curved: &[CurvedBendStiffnessElement],
++        springs: &[(usize, f64)],
++    ) -> Result<Self, StructuralError> {
++        let n = node_count * 6;
++        let mut result = Self {
++            contributions: Vec::new(),
++            absolute_roundoff: vec![vec![0.0; n]; n],
++            operation_counts: vec![vec![0; n]; n],
++            coordinates: vec![None; node_count],
++            edges: Vec::new(),
++            spring_ground: Vec::new(),
++        };
++        for element in frames {
++            let local = element
++                .local_stiffness()
++                .map_err(|_| StructuralError::InvalidInput("frame local stiffness"))?;
++            let t = element
++                .orientation()
++                .map_err(|_| StructuralError::InvalidInput("frame orientation"))?
++                .transformation_matrix();
++            let evidence = structural::transform_roundoff(&local, &t)?;
++            result.node(element.node_i.index, element.node_i.coordinates)?;
++            result.node(element.node_j.index, element.node_j.coordinates)?;
++            result.element(
++                element.node_i.index,
++                element.node_j.index,
++                &element
++                    .global_stiffness()
++                    .map_err(|_| StructuralError::InvalidInput("frame stiffness"))?,
++                &evidence.absolute_roundoff,
++                &evidence.operation_counts,
++                true,
++            )?;
++        }
++        for element in users {
++            let local = element.local_stiffness();
++            let t = element
++                .orientation()
++                .map_err(|_| StructuralError::InvalidInput("user orientation"))?
++                .transformation_matrix();
++            let evidence = structural::transform_roundoff(&local, &t)?;
++            result.node(element.node_i.index, element.node_i.coordinates)?;
++            result.node(element.node_j.index, element.node_j.coordinates)?;
++            // Relative translation/rotation springs are not objective frame energy.
++            result.element(
++                element.node_i.index,
++                element.node_j.index,
++                &element
++                    .global_stiffness()
++                    .map_err(|_| StructuralError::InvalidInput("user stiffness"))?,
++                &evidence.absolute_roundoff,
++                &evidence.operation_counts,
++                false,
++            )?;
++        }
++        for element in curved {
++            let zero = [[0.0; 12]; 12];
++            let counts = [[0; 12]; 12];
++            let (bounds, operations) = element
++                .symmetry_formation
++                .as_ref()
++                .map(|e| (&e.0, &e.1))
++                .unwrap_or((&zero, &counts));
++            // Explicit slots have no silently inferred objective/nullspace contract.
++            result.element(
++                element.node_i,
++                element.node_j,
++                &element.global_stiffness,
++                bounds,
++                operations,
++                false,
++            )?;
++        }
++        for &(dof, value) in springs {
++            if dof >= n || !value.is_finite() || value < 0.0 {
++                return Err(StructuralError::InvalidInput("ground spring"));
++            }
++            result.contributions.push(StiffnessContribution {
++                row: dof,
++                col: dof,
++                value,
++            });
++            result.operation_counts[dof][dof] += 1;
++            if value > 0.0 {
++                result.spring_ground.push(dof);
++            }
++        }
++        // Sequential scatter adds are independent of transformation formation.
++        let mut magnitudes = vec![vec![0.0; n]; n];
++        let mut scatter_counts = vec![vec![0usize; n]; n];
++        for c in &result.contributions {
++            magnitudes[c.row][c.col] += c.value.abs();
++            scatter_counts[c.row][c.col] += 1;
++        }
++        for i in 0..n {
++            for j in 0..n {
++                result.absolute_roundoff[i][j] +=
++                    structural::gamma(scatter_counts[i][j]) * magnitudes[i][j];
++                if !result.absolute_roundoff[i][j].is_finite() {
++                    return Err(StructuralError::Range("assembly allowance"));
++                }
++            }
++        }
++        Ok(result)
++    }
++    fn node(&mut self, index: usize, point: [f64; 3]) -> Result<(), StructuralError> {
++        let slot = self
++            .coordinates
++            .get_mut(index)
++            .ok_or(StructuralError::InvalidInput("node index"))?;
++        if slot.is_some_and(|old| old != point) {
++            return Err(StructuralError::InvalidInput(
++                "inconsistent node coordinates",
++            ));
++        }
++        *slot = Some(point);
++        Ok(())
++    }
++    fn element(
++        &mut self,
++        a: usize,
++        b: usize,
++        k: &Matrix12,
++        bounds: &Matrix12,
++        counts: &[[usize; 12]; 12],
++        objective: bool,
++    ) -> Result<(), StructuralError> {
++        if a >= self.coordinates.len() || b >= self.coordinates.len() {
++            return Err(StructuralError::InvalidInput("element endpoint"));
++        }
++        self.edges.push((a, b, objective));
++        let map = element_dof_map(a, b);
++        for i in 0..12 {
++            for j in 0..12 {
++                self.contributions.push(StiffnessContribution {
++                    row: map[i],
++                    col: map[j],
++                    value: k[i][j],
++                });
++                self.absolute_roundoff[map[i]][map[j]] += bounds[i][j];
++                self.operation_counts[map[i]][map[j]] += counts[i][j] + 1;
++            }
++        }
++        Ok(())
++    }
++    /// Screen each actual connected body using only selected ground constraints.
++    pub fn qualified_passive_family(&self) -> bool {
++        !self.edges.is_empty() && self.edges.iter().all(|(_, _, qualified)| *qualified)
++    }
++
++    pub fn geometry(&self, prescribed: &[(usize, f64)]) -> Result<(), StructuralError> {
++        let n = self.coordinates.len();
++        let mut seen = vec![false; n];
++        for seed in 0..n {
++            if seen[seed] {
++                continue;
++            }
++            let mut body = vec![seed];
++            seen[seed] = true;
++            let mut index = 0;
++            while index < body.len() {
++                let node = body[index];
++                index += 1;
++                for &(a, b, _) in &self.edges {
++                    let other = if a == node {
++                        Some(b)
++                    } else if b == node {
++                        Some(a)
++                    } else {
++                        None
++                    };
++                    if let Some(other) = other {
++                        if !seen[other] {
++                            seen[other] = true;
++                            body.push(other);
++                        }
++                    }
++                }
++            }
++            let qualified = self
++                .edges
++                .iter()
++                .filter(|(a, _, _)| body.contains(a))
++                .all(|(_, _, q)| *q);
++            // An unqualified family is still checked by the matrix gate, but cannot
++            // turn a geometric null vector into a physical mechanism assertion.
++            if !qualified || body.iter().any(|&i| self.coordinates[i].is_none()) {
++                continue;
++            }
++            let coordinates = body
++                .iter()
++                .map(|&i| self.coordinates[i].unwrap())
++                .collect::<Vec<_>>();
++            let ground = prescribed
++                .iter()
++                .map(|&(d, _)| d)
++                .chain(self.spring_ground.iter().copied())
++                .filter_map(|d| body.iter().position(|&i| i == d / 6).map(|i| 6 * i + d % 6))
++                .collect::<Vec<_>>();
++            let assessment = assess_rigid_body(
++                &coordinates,
++                &ground,
++                ObjectiveFamily::WeldedUnreleasedElasticFrames,
++            )?;
++            match assessment.status {
++                RigidBodyStatus::Restrained => {}
++                RigidBodyStatus::MechanismWitnessed => {
++                    let mut direction = vec![0.0; 6 * n];
++                    for (&global, motion) in body.iter().zip(assessment.node_motion.unwrap()) {
++                        direction[6 * global..6 * global + 6].copy_from_slice(&motion);
++                    }
++                    return Err(StructuralError::Mechanism { direction });
++                }
++                _ => {
++                    return Err(StructuralError::NumericallyUnresolved {
++                        reason: "rigid-restraint rank unresolved",
++                        global_dof: None,
++                    })
++                }
++            }
++        }
++        Ok(())
++    }
++    pub fn solve(
++        &self,
++        k: &[Vec<f64>],
++        f: &[f64],
++        free: &[usize],
++        prescribed: &[(usize, f64)],
++        mode: LinearSolveMode,
++    ) -> Result<StructuralSolution, StructuralError> {
++        self.geometry(prescribed)?;
++        let family_basis = if self.edges.iter().all(|(_, _, qualified)| *qualified) {
++            "objective welded unreleased straight-frame family"
++        } else {
++            "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing user/curved elements; matrix positivity remains mandatory"
++        };
++        let symmetry_basis = format!("represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; {family_basis}");
++        let system = StructuralSystem {
++            stiffness: k,
++            force: f,
++            free_dofs: free,
++            prescribed,
++            contributions: Some(&self.contributions),
++            symmetry: Some(SymmetryEvidence {
++                absolute_roundoff: &self.absolute_roundoff,
++                operation_counts: &self.operation_counts,
++                basis: &symmetry_basis,
++            }),
++        };
++        match mode {
++            LinearSolveMode::DenseScrutiny => structural::solve_structural_dense(&system),
++            LinearSolveMode::SparseInteractive => {
++                open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&system)
++            }
++        }
++    }
++}
++
++/// Trace the curved source's *symmetry* formation: the explicitly symmetrized
++/// represented tip inverse, H*K and (H*K)*H^T six-term dots, then T^T*K*T.
++/// This does not bound inverse accuracy or qualify the curved physical nullspace.
++pub fn curved_formation(
++    element: &open_pipe_stress_curved_bend::CurvedBendMacroElement,
++) -> Result<(Matrix12, [[usize; 12]; 12]), crate::NonlinearIntegrationError> {
++    let invalid = |error: open_pipe_stress_curved_bend::CurvedBendError| {
++        crate::NonlinearIntegrationError::InvalidInput {
++            detail: format!("curved symmetry formation: {error}"),
++        }
++    };
++    let local = element.local_stiffness().map_err(invalid)?;
++    let t = element
++        .orientation()
++        .map_err(invalid)?
++        .transformation_matrix();
++    let geometry = element.geometry().map_err(invalid)?;
++    let chord = [
++        geometry.radius * (geometry.included_angle.cos() - 1.0),
++        geometry.radius * geometry.included_angle.sin(),
++        0.0,
++    ];
++    let mut h = [[0.0; 6]; 6];
++    for i in 0..6 {
++        h[i][i] = 1.0;
++    }
++    h[3][1] = -chord[2];
++    h[3][2] = chord[1];
++    h[4][0] = chord[2];
++    h[4][2] = -chord[0];
++    h[5][0] = -chord[1];
++    h[5][1] = chord[0];
++    let mut coupled = [[0.0; 6]; 6];
++    let mut magnitude = [[0.0; 6]; 6];
++    for i in 0..6 {
++        for j in 0..6 {
++            for k in 0..6 {
++                let term = structural::checked_product(h[i][k], local[k + 6][j + 6])?;
++                coupled[i][j] = structural::checked_value(coupled[i][j] + term)?;
++                magnitude[i][j] = structural::checked_value(magnitude[i][j] + term.abs())?;
++            }
++        }
++    }
++    let g = structural::gamma(12);
++    let mut local_bounds = [[0.0; 12]; 12];
++    for i in 0..6 {
++        for j in 0..6 {
++            let first = structural::checked_quotient(
++                structural::checked_product(g, magnitude[i][j])?,
++                1.0 - g,
++            )?;
++            local_bounds[i][j + 6] = first;
++            local_bounds[j + 6][i] = first;
++            let mut inherited = 0.0;
++            let mut second = 0.0;
++            for k in 0..6 {
++                let first_bound = structural::checked_quotient(
++                    structural::checked_product(g, magnitude[i][k])?,
++                    1.0 - g,
++                )?;
++                inherited = structural::checked_value(
++                    inherited + structural::checked_product(h[j][k].abs(), first_bound)?,
++                )?;
++                second = structural::checked_value(
++                    second + structural::checked_product(coupled[i][k], h[j][k])?.abs(),
++                )?;
++            }
++            local_bounds[i][j] = structural::checked_product(
++                structural::checked_value(inherited + structural::checked_product(g, second)?)?,
++                1.0 + 64.0 * f64::EPSILON,
++            )?;
++        }
++    }
++    let mut bounds = structural::transform_roundoff(&local, &t)?.absolute_roundoff;
++    for i in 0..12 {
++        for j in 0..12 {
++            let mut inherited = 0.0;
++            for a in 0..12 {
++                for b in 0..12 {
++                    let term = structural::checked_product(
++                        structural::checked_product(t[a][i].abs(), local_bounds[a][b])?,
++                        t[b][j].abs(),
++                    )?;
++                    inherited = structural::checked_value(inherited + term)?;
++                }
++            }
++            bounds[i][j] = structural::checked_value(
++                bounds[i][j] + inherited / (1.0 - structural::gamma(432)),
++            )?;
++        }
++    }
++    // Longest formation-error path contributing to each global entry:
++    // local anchor block 24, cross block 12, tip block 0; global stages 48.
++    let counts = std::array::from_fn(|i| {
++        std::array::from_fn(|j| {
++            let mut longest = 48;
++            for a in 0..12 {
++                for b in 0..12 {
++                    if t[a][i] != 0.0 && t[b][j] != 0.0 {
++                        let local_count = if a < 6 && b < 6 {
++                            24
++                        } else if a < 6 || b < 6 {
++                            12
++                        } else {
++                            0
++                        };
++                        longest = longest.max(48 + local_count);
++                    }
++                }
++            }
++            longest
++        })
++    });
++    Ok((bounds, counts))
++}
++
++/// A first inactive-contact seed may lack rank before its bounded all-active
++/// trial. This permits initialization only; the trial and final state still
++/// pass the full gate. Assembly loss, skew, range and negative energy cannot
++/// be rescued by changing contact state.
++pub fn permits_contact_seed_trial(error: &StructuralError, qualified_passive_family: bool) -> bool {
++    match error {
++        StructuralError::Mechanism { .. } => true,
++        StructuralError::NumericallyUnresolved { reason, .. } if qualified_passive_family => {
++            matches!(
++                *reason,
++                "rigid-restraint rank unresolved"
++                    | "zero original diagonal; no physical nullity inferred"
++                    | "nonpositive or cancellation-unresolved structural pivot"
++                    | "scaled condition estimate at working-precision boundary"
++            )
++        }
++        _ => false,
++    }
++}

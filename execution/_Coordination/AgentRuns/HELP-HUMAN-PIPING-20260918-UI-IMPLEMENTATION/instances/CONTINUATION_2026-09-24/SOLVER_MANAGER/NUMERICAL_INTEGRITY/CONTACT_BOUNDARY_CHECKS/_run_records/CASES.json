@@ -1,0 +1,279 @@
+{
+  "cases": [
+    {
+      "family": "AFFINE",
+      "case": "sign=1 seed=Sticking mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Sliding"
+      ],
+      "observations": "u6=0.051851851851851864 u6_bits=4587633460417505479 r6=-2.222222222222222 r6_bits=13835558455240760433 r7=7.407407407407408 r7_bits=4620026017737333268"
+    },
+    {
+      "family": "AFFINE",
+      "case": "sign=1 seed=Sticking mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Sliding"
+      ],
+      "observations": "u6=0.05185185185185187 u6_bits=4587633460417505480 r6=-2.222222222222221 r6_bits=13835558455240760431 r7=7.407407407407408 r7_bits=4620026017737333268"
+    },
+    {
+      "family": "AFFINE",
+      "case": "sign=1 seed=Sliding mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Sliding"
+      ],
+      "observations": "u6=0.051851851851851864 u6_bits=4587633460417505479 r6=-2.222222222222222 r6_bits=13835558455240760433 r7=7.407407407407408 r7_bits=4620026017737333268"
+    },
+    {
+      "family": "AFFINE",
+      "case": "sign=1 seed=Sliding mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Sliding"
+      ],
+      "observations": "u6=0.05185185185185187 u6_bits=4587633460417505480 r6=-2.222222222222221 r6_bits=13835558455240760431 r7=7.407407407407408 r7_bits=4620026017737333268"
+    },
+    {
+      "family": "AFFINE",
+      "case": "sign=-1 seed=Sticking mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Sliding"
+      ],
+      "observations": "u6=-0.042424242424242434 u6_bits=13809646835566515642 r6=3.636363636363636 r6_bits=4615370781758872854 r7=12.121212121212121 r7_bits=4623013253853804606"
+    },
+    {
+      "family": "AFFINE",
+      "case": "sign=-1 seed=Sticking mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Sliding"
+      ],
+      "observations": "u6=-0.04242424242424244 u6_bits=13809646835566515643 r6=3.636363636363635 r6_bits=4615370781758872852 r7=12.121212121212121 r7_bits=4623013253853804606"
+    },
+    {
+      "family": "AFFINE",
+      "case": "sign=-1 seed=Sliding mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Sliding"
+      ],
+      "observations": "u6=-0.042424242424242434 u6_bits=13809646835566515642 r6=3.636363636363636 r6_bits=4615370781758872854 r7=12.121212121212121 r7_bits=4623013253853804606"
+    },
+    {
+      "family": "AFFINE",
+      "case": "sign=-1 seed=Sliding mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Sliding"
+      ],
+      "observations": "u6=-0.04242424242424244 u6_bits=13809646835566515643 r6=3.636363636363635 r6_bits=4615370781758872852 r7=12.121212121212121 r7_bits=4623013253853804606"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=1 seed1=Active seed2=Active mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=0.125 u6_bits=4593671619917905920 u12=0.25 u12_bits=4598175219545276416 r6=0.0 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=1 seed1=Active seed2=Active mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=0.125 u6_bits=4593671619917905920 u12=0.25 u12_bits=4598175219545276416 r6=0.0 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=1 seed1=Active seed2=Inactive mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=0.125 u6_bits=4593671619917905920 u12=0.25 u12_bits=4598175219545276416 r6=0.0 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=1 seed1=Active seed2=Inactive mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=0.125 u6_bits=4593671619917905920 u12=0.25 u12_bits=4598175219545276416 r6=0.0 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=1 seed1=Inactive seed2=Active mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Inactive",
+        "Inactive"
+      ],
+      "observations": "u6=0.12499999999999997 u6_bits=4593671619917905918 u12=0.24999999999999997 u12_bits=4598175219545276415 r6=-3.552713678800501e-15 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=1 seed1=Inactive seed2=Active mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=0.125 u6_bits=4593671619917905920 u12=0.25 u12_bits=4598175219545276416 r6=0.0 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=1 seed1=Inactive seed2=Inactive mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Inactive",
+        "Inactive"
+      ],
+      "observations": "u6=0.12499999999999997 u6_bits=4593671619917905918 u12=0.24999999999999997 u12_bits=4598175219545276415 r6=-3.552713678800501e-15 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=1 seed1=Inactive seed2=Inactive mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=0.125 u6_bits=4593671619917905920 u12=0.25 u12_bits=4598175219545276416 r6=0.0 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=-1 seed1=Active seed2=Active mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=-0.125 u6_bits=13817043656772681728 u12=-0.25 u12_bits=13821547256400052224 r6=0.0 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=-1 seed1=Active seed2=Active mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=-0.125 u6_bits=13817043656772681728 u12=-0.25 u12_bits=13821547256400052224 r6=0.0 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=-1 seed1=Active seed2=Inactive mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=-0.125 u6_bits=13817043656772681728 u12=-0.25 u12_bits=13821547256400052224 r6=0.0 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=-1 seed1=Active seed2=Inactive mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=-0.125 u6_bits=13817043656772681728 u12=-0.25 u12_bits=13821547256400052224 r6=0.0 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=-1 seed1=Inactive seed2=Active mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Inactive",
+        "Inactive"
+      ],
+      "observations": "u6=-0.12499999999999997 u6_bits=13817043656772681726 u12=-0.24999999999999997 u12_bits=13821547256400052223 r6=3.552713678800501e-15 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=-1 seed1=Inactive seed2=Active mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=-0.125 u6_bits=13817043656772681728 u12=-0.25 u12_bits=13821547256400052224 r6=0.0 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=-1 seed1=Inactive seed2=Inactive mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Inactive",
+        "Inactive"
+      ],
+      "observations": "u6=-0.12499999999999997 u6_bits=13817043656772681726 u12=-0.24999999999999997 u12_bits=13821547256400052223 r6=3.552713678800501e-15 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=-1 seed1=Inactive seed2=Inactive mode=SparseInteractive",
+      "converged": true,
+      "states": [
+        "Active",
+        "Active"
+      ],
+      "observations": "u6=-0.125 u6_bits=13817043656772681728 u12=-0.25 u12_bits=13821547256400052224 r6=0.0 r12=0.0"
+    }
+  ],
+  "exact_closed_gap_state_mismatches": [
+    {
+      "family": "GAP",
+      "case": "sign=1 seed1=Inactive seed2=Active mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Inactive",
+        "Inactive"
+      ],
+      "observations": "u6=0.12499999999999997 u6_bits=4593671619917905918 u12=0.24999999999999997 u12_bits=4598175219545276415 r6=-3.552713678800501e-15 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=1 seed1=Inactive seed2=Inactive mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Inactive",
+        "Inactive"
+      ],
+      "observations": "u6=0.12499999999999997 u6_bits=4593671619917905918 u12=0.24999999999999997 u12_bits=4598175219545276415 r6=-3.552713678800501e-15 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=-1 seed1=Inactive seed2=Active mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Inactive",
+        "Inactive"
+      ],
+      "observations": "u6=-0.12499999999999997 u6_bits=13817043656772681726 u12=-0.24999999999999997 u12_bits=13821547256400052223 r6=3.552713678800501e-15 r12=0.0"
+    },
+    {
+      "family": "GAP",
+      "case": "sign=-1 seed1=Inactive seed2=Inactive mode=DenseScrutiny",
+      "converged": true,
+      "states": [
+        "Inactive",
+        "Inactive"
+      ],
+      "observations": "u6=-0.12499999999999997 u6_bits=13817043656772681726 u12=-0.24999999999999997 u12_bits=13821547256400052223 r6=3.552713678800501e-15 r12=0.0"
+    }
+  ],
+  "note": "Diagnostic tests collect observations; test exit0 is not acceptance of every physical state"
+}

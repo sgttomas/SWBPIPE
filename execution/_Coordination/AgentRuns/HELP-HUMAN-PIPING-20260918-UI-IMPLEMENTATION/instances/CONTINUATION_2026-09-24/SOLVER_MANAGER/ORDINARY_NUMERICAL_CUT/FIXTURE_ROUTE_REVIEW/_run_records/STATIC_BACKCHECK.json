@@ -1,0 +1,188 @@
+{
+  "performed_utc": "2026-09-25T01:27:21.539445+00:00",
+  "scope": "read-only frozen fixture route; Python data backcheck only; no application or solver execution",
+  "checks": [
+    {
+      "check": "consumer frozen before/after/current: projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "consumer frozen before/after/current: projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "consumer frozen before/after/current: projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "complete consumer diff equals before/after reconstruction",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "generator exact supplied original/after/diff hashes",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "generator supplied diff covers complete before/after",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "all generation source/input/lock hashes still match",
+      "passed": true,
+      "details": {
+        "file_count": 54,
+        "mismatches": []
+      }
+    },
+    {
+      "check": "maintained source list equals executed input snapshot",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "input snapshot identity",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "input_model immutable actual bytes",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "historical_fixture_preserved immutable actual bytes",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "exact two successful recorded mode executions",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "sparse_interactive fixture is exact recorded producer stdout",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "sparse_interactive exact requested command and successful executable stderr",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "sparse_interactive actual per-case mode evidence",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "sparse_interactive no source row unit/component/dimension contradictions",
+      "passed": true,
+      "details": []
+    },
+    {
+      "check": "sparse_interactive claimed checks_passed has complete local case/ref evidence",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "dense_scrutiny fixture is exact recorded producer stdout",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "dense_scrutiny exact requested command and successful executable stderr",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "dense_scrutiny actual per-case mode evidence",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "dense_scrutiny no source row unit/component/dimension contradictions",
+      "passed": true,
+      "details": []
+    },
+    {
+      "check": "dense_scrutiny claimed checks_passed has complete local case/ref evidence",
+      "passed": true,
+      "details": null
+    },
+    {
+      "check": "scope helper explicit-path mode; no Git discovery",
+      "passed": true,
+      "details": null
+    }
+  ],
+  "inventory": [
+    {
+      "mode": "sparse_interactive",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6",
+      "rows": 830,
+      "mechanics": "MECHANICS_SOLVED",
+      "numerical_status": "checks_passed",
+      "cases": [
+        "load:L-100",
+        "load:L-200"
+      ],
+      "mode_rows": 2
+    },
+    {
+      "mode": "dense_scrutiny",
+      "sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155",
+      "rows": 832,
+      "mechanics": "MECHANICS_SOLVED",
+      "numerical_status": "checks_passed",
+      "cases": [
+        "load:L-100",
+        "load:L-200"
+      ],
+      "mode_rows": 2
+    }
+  ],
+  "scope_command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/private/tmp/piping-numerical-corrections-20260924/tools/software_workflow/validate_change_scope.py",
+    "/private/tmp/piping-numerical-corrections-20260924",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "--allowed",
+    "projects/chirality-piping/core/product_physics/examples/preview_result.rs",
+    "--path",
+    "projects/chirality-piping/core/product_physics/examples/preview_result.rs",
+    "--allowed",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+    "--path",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+    "--allowed",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+    "--path",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+    "--allowed",
+    "projects/chirality-piping/fixtures/product_preview/precision_fixture_generation.json",
+    "--path",
+    "projects/chirality-piping/fixtures/product_preview/precision_fixture_generation.json",
+    "--allowed",
+    "projects/chirality-piping/fixtures/product_preview/PRECISION_FIXTURES.md",
+    "--path",
+    "projects/chirality-piping/fixtures/product_preview/PRECISION_FIXTURES.md"
+  ],
+  "all_passed": true
+}

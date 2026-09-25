@@ -1,0 +1,101 @@
+--- a/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts
+@@ -31,6 +31,14 @@
+ async function checksum(value:unknown,payload_ref:JsonObject){return {algorithm:'sha256',canonicalization,payload_ref,value:await resultDigest(value)};}
+ export const derivativeProvenance = {source_name:'local qualified result derivative',source_location:'apps/desktop/src/features/result-export/resultExportAdapter.ts',source_license:'project-local',contributor:'SWBPIPE',contributor_certification:'local desktop session; human review required',redistribution_status:'private_only',review_status:'pending'};
+ 
++// Match the Rust legacy derivative gate: presence is contradictory even when
++// the field is null or falsy. Never silently strip a claimed precision field.
++function rejectLegacyDerivativeMetadata(envelope: JsonObject): void {
++  if (['producer', 'numerical_quality', 'formulation_basis', 'semantic_contract_ref'].some(key => Object.hasOwn(envelope, key))) {
++    throw new Error('LEGACY_DERIVATIVE_METADATA_CONTRADICTION');
++  }
++}
++
+ /** Pure projection for already qualified evidence. It does not mint Current or
+  * authentic producer proof and is not the product's canonical export entrypoint. */
+ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,source:MechanicsResult,origin:JsonObject,request:unknown=null):Promise<JsonObject>{
+@@ -40,6 +48,7 @@
+   if(origin.received_carrier_checksum.value!==await resultDigest(source))throw new Error('SOURCE_CARRIER_HASH_MISMATCH');
+   if(!origin.authentic_producer_available&&origin.original_producer_checksum!==null)throw new Error('UNAVAILABLE_PRODUCER_HASH');
+   const route=sourceContract(source);if(route==='unsupported')throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');const version=route==='precision'?'0.3.0':'0.2.0';
++  if(route==='legacy')rejectLegacyDerivativeMetadata(base.result_envelope);
+   const doc=structuredClone(base);doc.schema_version=version;const e=doc.result_envelope;
+   if(route==='precision'){e.producer=structuredClone(source.producer);e.numerical_quality=structuredClone(source.numerical_quality);e.formulation_basis=structuredClone(source.formulation_basis);e.semantic_contract_ref=ref('semantic_contract',PRECISION_CONTRACT_ID);}
+   e.result_sets=[e.result_sets[0]];
+@@ -91,7 +100,7 @@
+ /** Validates source accounting and scoped references; it does not authenticate
+  * the origin. Only the Current/source-solve entrypoints supply that evidence. */
+ export async function validateResultDocument(doc:JsonObject,source:MechanicsResult):Promise<void>{
+-  guardResultJson(doc);guardResultJson(source);const route=sourceContract(source);if(route==='unsupported')throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");if(resultSchemaVersion(doc)!==(route==='precision'?"0.3.0":"0.2.0"))throw new Error("DERIVATIVE_VERSION_MISMATCH");
++  guardResultJson(doc);guardResultJson(source);const route=sourceContract(source);if(route==='unsupported')throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");if(route==='legacy')rejectLegacyDerivativeMetadata(doc.result_envelope);if(resultSchemaVersion(doc)!==(route==='precision'?"0.3.0":"0.2.0"))throw new Error("DERIVATIVE_VERSION_MISMATCH");
+   if(route==='precision'){for(const key of ['producer','numerical_quality','formulation_basis'] as const)requireEqual(doc.result_envelope[key],source[key],'SOURCE_NUMERICAL_METADATA_MISMATCH');requireEqual(doc.result_envelope.semantic_contract_ref,ref('semantic_contract',PRECISION_CONTRACT_ID),'SEMANTIC_CONTRACT_MISMATCH');}
+   const e=doc.result_envelope,accounts=e.row_accounting,annotations=e.source_annotations,witnesses=e.unit_preservation_witnesses;
+   if(!Array.isArray(accounts)||!Array.isArray(annotations)||accounts.length!==source.results.length||annotations.length!==source.results.length)throw new Error("ROW_ACCOUNTING_CARDINALITY");
+--- a/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts
+@@ -36,10 +36,14 @@
+  precision(result,model);
+  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});return {model,result,inputManifest,analysisRun};
+ }
+-async function projection(row:any){
++async function projectionBasis(row:any){
+  const model={project:{id:'project:synthetic'}} as PreviewModel,source={schema_version:'0.1.0',run_id:'synthetic',model_ref:'project:synthetic',status:{mechanics:'MECHANICS_SOLVED'},results:[row]} as MechanicsResult;
+  const origin={origin_id:'synthetic-projection-unattested',origin_class:'received_current_dimension_absent',qualification_ref:ref('synthetic_fixture','not-Current'),authentic_producer_available:false,received_carrier_checksum:{algorithm:'sha256',canonicalization:'openpipestress_jcs_ijson_v1',payload_scope:'received_current_dimension_absent_carrier',payload_ref:ref('synthetic_received_carrier','fixture'),value:await resultDigest(source)},original_producer_checksum:null,origin_limit:'pure projection not authenticated Current',actual_model_ref:ref('model_payload','project:synthetic'),mechanics_run_ref:ref('mechanics_run','synthetic'),request_model_ref:null,request_run_ref:null,request_alias_disclosure:null};
+  const base={schema_version:'0.2.0',result_envelope:{schema_version:'0.2.0',envelope_id:'synthetic',run_ref:ref('analysis_run','synthetic'),provenance:derivativeProvenance,unit_system_ref:ref('unit_system','fixture'),result_sets:[{values:[]}],reproducibility:{}}};
++ return {base,model,source,origin};
++}
++async function projection(row:any){
++ const {base,model,source,origin}=await projectionBasis(row);
+  return deriveResultDocument(base,model,source,origin);
+ }
+ async function legacyCurrent(){
+@@ -104,6 +108,48 @@
+   for(const kind of ['modulus_basis_record','linear_solver_mode_basis','nonlinear_support_free_dof_work_residual']){const fixture=metadataFixtures.fixtures.find(f=>f.input_row.kind===kind)!;for(const [field,replacement] of [['unit',fixture.negative_unit.replacement],['component',fixture.negative_component!.replacement]] as const){const row=structuredClone(fixture.input_row) as any;if(field==='unit')row.unit=replacement;else row.metadata.component=replacement;await expect(projection(row)).rejects.toThrow('CONTRADICTION');}}
+  });
+ });
++describe('legacy derivative precision metadata exclusion', () => {
++ const row = {id:'result:legacy:ux',kind:'global_nodal_displacement_x',value:0.125,unit:'mm',entity_ref:'node:legacy'};
++ const fields = ['producer','numerical_quality','formulation_basis','semantic_contract_ref'] as const;
++ const claims = [null, false, 0, '', [], {}, {claimed:'precision'}];
++ it('preserves an unannotated legacy derivative and source without a Current claim', async () => {
++  const basis = await projectionBasis(row), before = JSON.stringify(basis);
++  const doc = await deriveResultDocument(basis.base,basis.model,basis.source,basis.origin);
++  expect(doc.schema_version).toBe('0.2.0');
++  for (const field of fields) expect(Object.hasOwn(doc.result_envelope,field)).toBe(false);
++  await expect(validateResultDocument(doc,basis.source)).resolves.toBeUndefined();
++  expect(JSON.stringify(basis)).toBe(before);
++ });
++ it.each(fields)('rejects any present %s in the constructor without deleting evidence', async field => {
++  const basis = await projectionBasis(row);
++  for (const value of claims) {
++   const base: JsonObject = structuredClone(basis.base);base.result_envelope[field] = value;
++   const before = JSON.stringify({base,source:basis.source,origin:basis.origin});
++   await expect(deriveResultDocument(base,basis.model,basis.source,basis.origin)).rejects.toThrow('LEGACY_DERIVATIVE_METADATA_CONTRADICTION');
++   expect(JSON.stringify({base,source:basis.source,origin:basis.origin})).toBe(before);
++  }
++ });
++ it.each(fields)('rejects independently rehashed legacy documents carrying %s', async field => {
++  const basis = await projectionBasis(row);
++  const valid = await deriveResultDocument(basis.base,basis.model,basis.source,basis.origin);
++  const sourceBefore = JSON.stringify(basis.source);
++  for (const value of claims) {
++   const bad = structuredClone(valid);bad.result_envelope[field] = value;
++   const claim = bad.result_envelope.reproducibility.derivative_hash;
++   delete bad.result_envelope.reproducibility.derivative_hash;
++   // Real checked hash helper, not a fabricated digest or a validator stub.
++   const digest = await canonicalSha256HexCheckedV1(bad);
++   bad.result_envelope.reproducibility.derivative_hash = {...claim,value:digest};
++   const projected = structuredClone(bad);delete projected.result_envelope.reproducibility.derivative_hash;
++   expect(await resultDigest(projected)).toBe(digest);
++   const before = JSON.stringify(bad);
++   await expect(validateResultDocument(bad,basis.source)).rejects.toThrow('LEGACY_DERIVATIVE_METADATA_CONTRADICTION');
++   expect(JSON.stringify(bad)).toBe(before);
++  }
++  expect(JSON.stringify(basis.source)).toBe(sourceBefore);
++ });
++});
++
+ describe('portable independent projection fixtures and strict serializer',()=>{
+  it('all60 semantic expectations and all28 exact annotations agree before any origin claim',async()=>{
+   for(const f of metadataFixtures.fixtures){const doc=await projection(f.input_row);expect(doc.result_envelope.row_accounting[0].disposition).toBe(f.expected.disposition);expect(doc.result_envelope.source_annotations[0].metadata).toEqual(f.input_row.metadata??null);}

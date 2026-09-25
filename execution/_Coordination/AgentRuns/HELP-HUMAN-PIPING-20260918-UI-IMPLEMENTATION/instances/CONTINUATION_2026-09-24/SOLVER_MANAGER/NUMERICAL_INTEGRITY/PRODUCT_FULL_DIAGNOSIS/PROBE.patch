@@ -1,0 +1,81 @@
+--- projects/chirality-piping/core/product_physics/src/lib.rs
++++ projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -2375,6 +2375,28 @@
+                 ) {
+                     Ok(true) => {}
+                     outcome => {
++                        // DIAGNOSIS_PRODUCT_FULL_OBSERVATION_BEGIN
++                        #[cfg(test)]
++                        if load_case.id == "load:L-MIXED-NONLINEAR" {
++                            eprintln!("DIAGPROBE FINAL_QUALIFICATION case={} mode={} outcome={outcome:?} converged={} strict_gap_unqualified_reason={:?} final_states={:#?} selected_u={:#?} selected_reactions={:#?}",
++                                load_case.id, solver_mode.as_str(), solve.converged,
++                                solve.strict_gap_unqualified_reason(), solve.final_states,
++                                solve.displacements, solve.reactions);
++                            for iteration in &solve.iterations {
++                                let strict_gap = match &iteration.strict_gap {
++                                    StrictGapEvidence::NotApplicable => ("not_applicable", None),
++                                    StrictGapEvidence::Qualified(_) => ("qualified", None),
++                                    StrictGapEvidence::Unsupported { reason, .. } => ("unsupported", Some(reason.as_str())),
++                                };
++                                eprintln!("DIAGPROBE ITERATION index={} strict_gap={strict_gap:?} contact_branches_admissible={} active_set={:#?} active_dofs={:#?} prescribed={:#?} selected_u={:#?} selected_reactions={:#?} sliding_forces={:#?} residual_observations={:#?} ordinary_structural_report={:#?} selected_product_equilibrium={:#?}",
++                                    iteration.iteration, iteration.contact_branches_admissible,
++                                    iteration.active_set, iteration.active_restrained_dofs,
++                                    iteration.active_prescribed_displacements, iteration.displacements,
++                                    iteration.reactions, iteration.applied_sliding_friction_forces,
++                                    iteration.residuals, iteration.structural_report, iteration.product_equilibrium);
++                            }
++                        }
++                        // DIAGNOSIS_PRODUCT_FULL_OBSERVATION_END
+                         let error=StructuralError::NumericallyUnresolved{reason:"M03 product final same-state equilibrium/contact qualification failed",global_dof:None};
+                         append_integrity_failure(diagnostics, &load_case.id, &error, model);
+                         if let Err(error) = outcome {
+@@ -12504,6 +12526,49 @@
+         assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
+     }
+ 
++    // DIAGNOSIS_PRODUCT_FULL_PROBE_BEGIN — temporary observation only.
++    #[test]
++    fn diagnosis_probe_product_full_five_failures() {
++        fn observe(label: &str, mode: PreviewSolverMode, input: LinearStaticPreviewRequest) {
++            eprintln!("DIAGPROBE INPUT label={label} mode={} {}", mode.as_str(),
++                serde_json::to_string(&input).expect("original probe inputs are finite"));
++            let output = run_linear_static_preview_with_mode(input, mode);
++            eprintln!("DIAGPROBE OUTPUT label={label} mode={} status={:#?} quality={:#?} diagnostics={:#?} rows={:#?}",
++                mode.as_str(), output.status, output.numerical_quality,
++                output.diagnostics, output.results);
++        }
++        for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
++            // Exact original nonfinite-computation test setup (finite huge input).
++            let mut input = friction_preview_request();
++            input.model.supports.truncate(1);
++            input.model.load_cases[0].primitive_loads[0].magnitude.value = 1e308;
++            observe("audit_nonfinite_computed_mechanics", mode, input);
++
++            // Exact original failed-recovery setup; extend observation to both
++            // modes without altering the existing test or its expectations.
++            let mut input = gap_closure_preview_request();
++            input.model.supports[0].restraints.retain(|dof| dof != "UX");
++            input.model.supports[1].nonlinear = None;
++            input.model.supports[1].family = Some("guide".into());
++            input.model.supports[1].restraints = vec!["UY".into()];
++            observe("contact_failed_attempt", mode, input);
++
++            for seed in ["active", "inactive"] {
++                // Exact original forward/reverse setup, including both seeds.
++                let mut input = gap_closure_preview_request();
++                input.model.supports[0].restraints.retain(|dof| dof != "UX");
++                input.model.supports[1].node = "node:N-100".into();
++                input.model.supports[1].nonlinear.as_mut().unwrap().initial_state = Some(seed.into());
++                observe(&format!("contact_forward_control seed={seed}"), mode, input.clone());
++                input.model.load_cases[0].primitive_loads[0].magnitude.value = -100000.0;
++                observe(&format!("contact_reversed seed={seed}"), mode, input);
++            }
++            // Both mixed failures use this exact helper. No substitute source.
++            observe("mixed_original_fixture", mode, mixed_nonlinear_preview_request());
++        }
++    }
++    // DIAGNOSIS_PRODUCT_FULL_PROBE_END
++
+     // CONTACT_REPAIR_V2_EXPECTATIONS_BEGIN
+     #[test]
+     fn contact_recovery_failed_sparse_and_dense_attempt_emits_no_success_fallback() {

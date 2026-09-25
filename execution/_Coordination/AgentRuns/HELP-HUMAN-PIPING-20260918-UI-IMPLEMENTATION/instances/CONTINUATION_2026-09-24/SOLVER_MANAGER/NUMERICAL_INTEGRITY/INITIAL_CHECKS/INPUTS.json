@@ -1,0 +1,27 @@
+{
+  "stage": "Initialfrozen kernel+producer checks",
+  "source_sha256": {
+    "projects/chirality-piping/core/product_physics/Cargo.lock": "171e1e5d459bdafc671926616712a414625afb43dfb4bf33f174892fe7eecbb2",
+    "projects/chirality-piping/core/product_physics/Cargo.toml": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542",
+    "projects/chirality-piping/core/product_physics/examples/preview_result.rs": "6cb68ea97330ee541d80318a5bcd69469957bfd39edcbf71d4313faae85e8241",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "c389b896b00c996b1da8d3b006f51f7d35c20089bc7c4af7657253123c43b5ea",
+    "projects/chirality-piping/core/product_physics/src/pressure_exact.rs": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+    "projects/chirality-piping/core/product_physics/src/self_weight.rs": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml": "c124ff5534616207027d932d561b810fed824ee7a095b4a06f738ff9d226c317",
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "03f82e343c7aee8f9f38d4b983091d0b71faebb904fb4dc7b59692a0c9cc4ad9",
+    "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs": "72f61eed89161acf67e5d4a9eabceac71520304e9275280ae4ca265704baed1e",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "59ae284541a066beca79e7812ac02083296bbe80851d629bd622b6933d0c4408",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "51e010af1ef62c95faf854c6308aec7a0f0be7123546083be993f6090b257b12",
+    "projects/chirality-piping/core/solver/sparse_direct/src/structural.rs": "4f42e3c039d6efcea3698660f69ba4f793a1011be036df2ab9dbde8ef51c49bd"
+  },
+  "resource_authority": "ROOT explicit sequential CPU slot; jobs2 offline isolated target; no concurrent heavyweight task",
+  "writer_boundary": "kernel andproducer sourcefrozen; backendconsumer scope disjoint from these participatingRustdependencies",
+  "known_precheck_findings": [
+    "Kernel geometry characteristic-length nonfinite guard and public low-level fabricated-system hardening queued after initialtests; no finalpass implied"
+  ],
+  "command_basis": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR={NUMERICAL_TARGET} cargo test --offline --manifest-path <ownedmanifest> [filter]",
+  "runtime_context_ref": "../_run_records/EXECUTION_CONTEXT.json",
+  "target_basis": "run-local isolated numerical Cargo target"
+}

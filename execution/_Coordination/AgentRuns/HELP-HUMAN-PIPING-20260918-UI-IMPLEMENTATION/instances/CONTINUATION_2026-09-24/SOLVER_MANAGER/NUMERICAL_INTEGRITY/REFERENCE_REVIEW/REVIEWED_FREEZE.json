@@ -1,0 +1,9 @@
+{
+  "projects/chirality-piping/validation/benchmarks/numerical_integrity/COVERAGE.md": "114b34619dc33515199deeacfa81a757f0feecbac7238b3264f688ca071ea1a2",
+  "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.toml": "0bfd8671bfd12b8929712aec5b7e3143dd5775f366c6aba4346e6c59efd0902e",
+  "projects/chirality-piping/validation/benchmarks/numerical_integrity/README.md": "0cb44d1f5fbc1ee0d3138c645b646b74d80346a1099e557a132dba79e5251505",
+  "projects/chirality-piping/validation/benchmarks/numerical_integrity/fixtures.json": "c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e",
+  "projects/chirality-piping/validation/benchmarks/numerical_integrity/generate.py": "b491529a4bff8ed0e25de1f85c2488192a8e55677413571da6c260932b1a71a2",
+  "projects/chirality-piping/validation/benchmarks/numerical_integrity/src/main.rs": "f61f115b7c1e22490c204660ad505e2219bf67684add9c24511b4419b3a38037",
+  "projects/chirality-piping/validation/benchmarks/numerical_integrity/test_reference.py": "35b1b81895af8ec42e24fbb03dbec5c0233e5a2a57d1cccbc394cacee1a0c496"
+}

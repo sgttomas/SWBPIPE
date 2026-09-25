@@ -1,0 +1,33 @@
+[
+  {
+    "stage": "vitest",
+    "command": [
+      "npm",
+      "test",
+      "--workspace",
+      "apps/desktop",
+      "--",
+      "src/features/result-export/resultExportAdapter.test.ts",
+      "--maxWorkers=2",
+      "--minWorkers=1"
+    ],
+    "cwd_repository_relative": "projects/chirality-piping",
+    "exit_code": 1,
+    "started_unix": 1790305227.350156,
+    "ended_unix": 1790305227.5825632,
+    "log_sha256": "67f8f4f18b7fc9553749a59717ac03d28e04945dff7317898be473eeb8a0cced"
+  },
+  {
+    "stage": "tsc",
+    "command": [
+      "./node_modules/.bin/tsc",
+      "-b",
+      "apps/desktop/tsconfig.json"
+    ],
+    "cwd_repository_relative": "projects/chirality-piping",
+    "exit_code": 0,
+    "started_unix": 1790305227.5832078,
+    "ended_unix": 1790305233.132757,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

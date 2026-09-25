@@ -1,0 +1,61 @@
+[
+  {
+    "stage": "canonical-build",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "-j2",
+      "--manifest-path",
+      "core/serialization/canonical_json/Cargo.toml",
+      "--features",
+      "checked-cli",
+      "--bin",
+      "openpipestress_jcs_ijson"
+    ],
+    "cwd_repository_relative": "projects/chirality-piping",
+    "exit_code": 0,
+    "started_unix": 1790305082.491967,
+    "ended_unix": 1790305088.1647701,
+    "log": "canonical-build.log",
+    "log_sha256": "90d3b9ff22770872b2cd64d5d051f0faf717dd0852c5887660f02b5862c8973a",
+    "binary_sha256": "bc1343ef45704c0ec65c1c7ac244c50e349af49de3a9b850dc11578bb2fc6c54"
+  },
+  {
+    "stage": "python",
+    "command": [
+      "/private/tmp/chirality-piping-dec025-venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_analysis_run_compatibility.py",
+      "tests/test_precision_consumer_contract.py"
+    ],
+    "cwd_repository_relative": "projects/chirality-piping",
+    "exit_code": 0,
+    "started_unix": 1790305088.166465,
+    "ended_unix": 1790305095.558273,
+    "log": "python.log",
+    "log_sha256": "77589c0b9eee671c1bd2524fbefd3b3466a13117d72d234d2690262ea3b3303b"
+  },
+  {
+    "stage": "vitest",
+    "command": [
+      "./node_modules/.bin/vitest",
+      "run",
+      "src/features/result-export/resultExportAdapter.test.ts",
+      "--maxWorkers=2",
+      "--minWorkers=1"
+    ],
+    "cwd_repository_relative": "projects/chirality-piping/apps/desktop",
+    "status": "not_started",
+    "exception": "FileNotFoundError: local workspace node_modules/.bin/vitest absent; maintained executable lives under project node_modules",
+    "exit_code": null
+  },
+  {
+    "stage": "tsc",
+    "status": "not_started_after_prior_launch_exception",
+    "exit_code": null
+  }
+]

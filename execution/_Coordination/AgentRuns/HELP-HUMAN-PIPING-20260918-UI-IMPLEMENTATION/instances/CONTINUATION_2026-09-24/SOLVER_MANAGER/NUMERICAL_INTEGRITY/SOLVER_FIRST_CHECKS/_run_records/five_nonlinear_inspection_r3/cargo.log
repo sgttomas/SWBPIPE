@@ -1,0 +1,11 @@
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.92s
+     Running unittests src/lib.rs (/private/tmp/piping-nonlinear-integration-exact-gap-target/debug/deps/open_pipe_stress_nonlinear_integration-dd17f20a628b76ea)
+
+running 3 tests
+test tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification ... ok
+test tests::unsupported_gap_inspection_rejects_source_or_receipt_mutations ... ok
+test tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 58 filtered out; finished in 0.01s
+

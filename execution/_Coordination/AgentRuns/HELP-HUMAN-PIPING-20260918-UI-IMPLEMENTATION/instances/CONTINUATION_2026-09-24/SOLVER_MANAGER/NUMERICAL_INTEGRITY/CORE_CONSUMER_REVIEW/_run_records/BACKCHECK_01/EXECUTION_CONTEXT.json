@@ -1,0 +1,54 @@
+{
+  "actor": "/root/solver_manager/core_consumer_review",
+  "parent": "/root/solver_manager",
+  "mechanism": "resumed delegated-harness-native TASK Type 2 child; same filesystem",
+  "prior_instruction_origins": "../EXECUTION_CONTEXT.json",
+  "backcheck_instructions": "parent follow-up request; four-file frozen repair review, source-only tests, no source writes/heavy/Git/delegation",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "repository": "/private/tmp/piping-numerical-integrity-20260924",
+  "report_sha256": "11fddcc1a28e14764a4e37635eec8c0b81a396da16ee2636b9e5f8a62cfd3d98",
+  "production_jcs_executed": false,
+  "source_only_probe_result_count": 60,
+  "artifacts": [
+    {
+      "path": "SNAPSHOT_ORIGINS.json",
+      "sha256": "82f0a2ef6e5ee02d7f96314347cc1df40db81dea3fe2f594107d87c0d7e21309"
+    },
+    {
+      "path": "SOURCE_CHANGED_DURING_BACKCHECK.json",
+      "sha256": "a237ff5097b04f1abbb0c5cd43d73f443a47dc87b1daf075e97257d29ba7f880"
+    },
+    {
+      "path": "START_HASHES.json",
+      "sha256": "3b66065a12b8f9ea3856a304a8109be526a93e4958f2efa0ca1a52461f319e82"
+    },
+    {
+      "path": "backcheck_probe.json",
+      "sha256": "cda68964494aa004eaf72347c913043e704d504a10a26b5e6ce24702a9243c84"
+    },
+    {
+      "path": "backcheck_probe.py",
+      "sha256": "9be421f40791e6ba633980ebf7a954232239ad42bf85c860564f81d8824605d8"
+    },
+    {
+      "path": "backcheck_probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "frozen/compatibility.py",
+      "sha256": "246289f7e6489ff9025f801734e8283b356e9fde6b1e740ad8ad3cb87537ca6d"
+    },
+    {
+      "path": "frozen/package_v0_3.py",
+      "sha256": "6b3261f32ee75ed2c3ba33b548b2a4de59c1790638ca76062817bd46c3f16aa4"
+    },
+    {
+      "path": "frozen/test_precision_consumer_contract.py",
+      "sha256": "271ebd9e34cbd42e1897eced84190b50e65ba6442b3acf371a6dc95b17465d4b"
+    },
+    {
+      "path": "frozen/test_stress_neutral_precision.py",
+      "sha256": "9cfb2cc4a1a8ef452c789d614c9b8abaf6876423cfd9de28f4b7bf7dea0b2c50"
+    }
+  ]
+}

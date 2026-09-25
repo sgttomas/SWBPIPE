@@ -1,0 +1,35 @@
+{
+  "node": "v24.18.0",
+  "validator_sha256": "c88a2399b08e7289627b9104557c5a7ce983ee127b18b9fd7bb0f529b0a6377c",
+  "scope": "Actual current TS historical packet builder plus validator; each added top-level precision header independently rehashed. No Current/source authenticity claim.",
+  "results": [
+    {
+      "key": "baseline",
+      "accepted": true
+    },
+    {
+      "key": "producer",
+      "accepted": true
+    },
+    {
+      "key": "numerical_quality",
+      "accepted": true
+    },
+    {
+      "key": "formulation_basis",
+      "accepted": true
+    },
+    {
+      "key": "semantic_contract_ref",
+      "accepted": true
+    },
+    {
+      "key": "semantic_contract",
+      "accepted": true
+    },
+    {
+      "key": "source_carrier_checksum",
+      "accepted": true
+    }
+  ]
+}

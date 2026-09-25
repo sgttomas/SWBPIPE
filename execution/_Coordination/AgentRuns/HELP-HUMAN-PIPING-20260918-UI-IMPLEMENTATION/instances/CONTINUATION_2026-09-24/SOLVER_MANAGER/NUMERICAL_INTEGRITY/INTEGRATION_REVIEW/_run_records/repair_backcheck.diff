@@ -1,0 +1,356 @@
+--- initial/projects/chirality-piping/core/product_physics/src/lib.rs
++++ repaired/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -751,8 +751,16 @@
+         .collect()
+ }
+ 
++// Byte lengths delimit exact source identities without lossy punctuation folding.
++fn exact_source_identity(parts: &[&str]) -> String {
++    parts
++        .iter()
++        .map(|part| format!("{}:{part}", part.len()))
++        .collect()
++}
++
+ fn integrity_diagnostic_id(case_id: &str) -> String {
+-    format!("diagnostic:numerical-integrity:{}", stable_suffix(case_id))
++    format!("diagnostic:numerical-integrity:{case_id}")
+ }
+ 
+ fn append_integrity_report(
+@@ -2706,21 +2714,6 @@
+                     .to_string(),
+         }),
+     });
+-}
+-
+-fn sparse_interactive_fallback_diag(load_case_id: &str, message: &str) -> Diagnostic {
+-    diag(
+-        &format!(
+-            "diagnostic:sparse-interactive:{}:dense-fallback",
+-            stable_suffix(load_case_id)
+-        ),
+-        "SPARSE_INTERACTIVE_DENSE_FALLBACK",
+-        "warning",
+-        format!(
+-            "DEC-053 sparse interactive solve could not complete for load case {load_case_id}; dense fallback was used and the result basis is explicit: {message}"
+-        ),
+-        vec![load_case_id.to_string(), "DEC-053".to_string()],
+-    )
+ }
+ 
+ fn optional_usize(value: Option<usize>) -> String {
+@@ -8197,11 +8190,8 @@
+     };
+     diagnostics.push(diag(
+         &format!(
+-            "diagnostic:component-stress-multiplier:{}:{}:{}:{}",
+-            stable_suffix(load_case_id),
+-            component_suffix,
+-            pipe_suffix,
+-            endpoint
++            "diagnostic:component-stress-multiplier:{}",
++            exact_source_identity(&[load_case_id, &component.id, pipe_id, location])
+         ),
+         "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+         "info",
+@@ -10260,6 +10250,103 @@
+     }
+ 
+     #[test]
++    fn integrity_exact_case_ids_do_not_alias_passing_and_unassessed_cases() {
++        for mode in [
++            PreviewSolverMode::DenseScrutiny,
++            PreviewSolverMode::SparseInteractive,
++        ] {
++            let mut input = precision_request(2.0, 1.0);
++            input.model.load_cases[0].id = "load:a-b".into();
++            let mut second = input.model.load_cases[0].clone();
++            second.id = "load-a:b".into();
++            for load in &mut second.primitive_loads {
++                load.id.push_str(":second");
++            }
++            second.modulus_basis_ref = Some("temperature-point:intentionally-missing".into());
++            input.model.load_cases.push(second);
++            let output = run_linear_static_preview_with_mode(input, mode);
++            assert_ne!(output.status.mechanics, "MECHANICS_SOLVED");
++            let first = &output.numerical_quality.cases[0];
++            let second = &output.numerical_quality.cases[1];
++            assert_eq!(first.basis_ref.ref_id, "load:a-b");
++            assert_eq!(
++                first.solve_quality,
++                NumericalQualityStatus::ChecksPassed,
++                "{:?}",
++                output.diagnostics
++            );
++            assert_eq!(second.basis_ref.ref_id, "load-a:b");
++            assert_eq!(
++                second.solve_quality,
++                NumericalQualityStatus::NotAssessed,
++                "{:?}",
++                output.diagnostics
++            );
++            assert!(second.evidence_refs.is_empty());
++            assert_ne!(
++                integrity_diagnostic_id(&first.basis_ref.ref_id),
++                integrity_diagnostic_id(&second.basis_ref.ref_id)
++            );
++            assert_eq!(
++                output.numerical_quality.status,
++                NumericalQualityStatus::NotAssessed
++            );
++        }
++    }
++
++    #[test]
++    fn integrity_exact_case_ids_keep_actual_linear_passes_and_component_warnings_distinct() {
++        let mut input = request();
++        input.model.load_cases.truncate(2);
++        assert_eq!(input.model.load_cases.len(), 2);
++        input.model.load_cases[0].id = "load:a-b".into();
++        input.model.load_cases[1].id = "load-a:b".into();
++        input.model.combinations.clear();
++        // A new explicit linear-only companion; the retained nonlinear fixture
++        // remains separately checked as unresolved under its protected policy.
++        input
++            .model
++            .supports
++            .retain(|support| support.nonlinear.is_none());
++        let output = run_linear_static_preview(input);
++        assert_eq!(
++            output.status.mechanics, "MECHANICS_SOLVED",
++            "{:?}",
++            output.diagnostics
++        );
++        let cases = &output.numerical_quality.cases;
++        assert_eq!(cases.len(), 2);
++        assert!(cases.iter().all(|case| matches!(
++            case.solve_quality,
++            NumericalQualityStatus::ChecksPassed | NumericalQualityStatus::Sensitive
++        )));
++        assert_ne!(cases[0].evidence_refs, cases[1].evidence_refs);
++        let warnings = output
++            .diagnostics
++            .iter()
++            .filter(|d| d.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED")
++            .collect::<Vec<_>>();
++        assert!(!warnings.is_empty());
++        assert_eq!(
++            warnings.len(),
++            warnings.iter().map(|d| &d.id).collect::<HashSet<_>>().len()
++        );
++        for case in cases {
++            assert!(warnings
++                .iter()
++                .any(|warning| warning.affected_refs.contains(&case.basis_ref.ref_id)));
++        }
++        assert_ne!(
++            exact_source_identity(&["a:b", "c"]),
++            exact_source_identity(&["a", "b:c"])
++        );
++        assert_ne!(
++            exact_source_identity(&["é", ":"]),
++            exact_source_identity(&["é:", ""])
++        );
++    }
++
++    #[test]
+     fn integrity_multicase_evidence_and_component_diagnostics_have_unique_real_case_identity() {
+         let input = request();
+         let cases = input
+@@ -10299,8 +10386,16 @@
+                 .unwrap();
+             assert_eq!(
+                 quality.structural_status,
+-                StructuralStatus::PassiveModelBasis
++                StructuralStatus::NumericallyUnresolved,
++                "{:?}",
++                output.diagnostics
+             );
++            assert_eq!(quality.solve_quality, NumericalQualityStatus::Unresolved);
++            assert!(output
++                .diagnostics
++                .iter()
++                .any(|d| d.id == quality.evidence_refs[0]
++                    && d.code == "NUMERICAL_INTEGRITY_NONLINEAR_POLICY_UNRESOLVED"));
+             assert_eq!(quality.evidence_refs.len(), 1);
+             assert!(output
+                 .diagnostics
+--- initial/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
++++ repaired/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+@@ -248,6 +248,10 @@
+ 
+ #[derive(Debug, Clone, PartialEq)]
+ pub struct NonlinearFrameIteration {
++    /// Gates this iteration's retained original equations and the actual
++    /// active_restrained_dofs/active_prescribed_displacements below. It does
++    /// not certify the newly classified active_set states: a caller's nonzero
++    /// count tolerance can accept a state change under its separate policy.
+     pub structural_report: StructuralReport,
+     pub iteration: usize,
+     pub active_restrained_dofs: Vec<usize>,
+@@ -574,7 +578,7 @@
+                 recovered_path = true;
+                 final_diagnostics.push(SolverDiagnostic::new(
+                     SolverDiagnosticCode::SingularSystem, DiagnosticSeverity::Warning, DiagnosticSource::SolverIteration,
+-                    format!("First-iteration structurally rejected inactive contact seed recovered by one all-active trial in {} mode; original_singular_pivot={pivot}; original_states=[{original_states}]; original_ground_dofs={original_ground_dofs:?}; recovery_states=[{recovery_states}]; recovery_ground_dofs={:?}; authored signed boundaries, forces and stiffness preserved; successful trial counts as iteration 1; later singularity remains failure and no second recovery is permitted.", linear_solve_mode.as_str(), boundary.dofs),
++                    format!("The first-iteration structurally rejected inactive contact seed recovered by one all-active trial in {} mode; original_singular_pivot={pivot}; original_states=[{original_states}]; original_ground_dofs={original_ground_dofs:?}; recovery_states=[{recovery_states}]; recovery_ground_dofs={:?}; authored signed boundaries, forces and stiffness preserved; successful trial counts as iteration 1; later singularity remains failure and no second recovery is permitted.", linear_solve_mode.as_str(), boundary.dofs),
+                 ));
+                 trial
+             }
+@@ -873,6 +877,7 @@
+ /// Explicit normals remain constant loads. Active derived normals are solved
+ /// simultaneously from the affine base response and unit-load reaction
+ /// influences, so every applied force uses its current-iterate normal.
++#[cfg(test)]
+ fn solve_iteration_with_sliding_friction(
+     input: &NonlinearFrameSolveInput,
+     stiffness: &DenseMatrix,
+@@ -1536,6 +1541,7 @@
+     }
+ }
+ 
++#[cfg(test)]
+ fn solve_linearized_system(
+     stiffness: &DenseMatrix,
+     force: &DenseVector,
+@@ -1593,19 +1599,28 @@
+     let displacements = checked.displacements;
+     // DEC050/053 retains the legacy unscaled sparse factor/report basis as an
+     // observation only; it never selects or rescues the structural solution.
+-    let sparse_evidence = match solve_dense(&reduced.stiffness, &reduced.force) {
+-        Ok(legacy_dense) => observe_sparse_linearized_solve(
++    let sparse_evidence = match linear_solve_mode {
++        LinearSolveMode::SparseInteractive => observe_sparse_linearized_solve(
+             stiffness,
+             &reduced.free_dofs,
+             &reduced.force,
+-            &legacy_dense,
++            None,
+             linear_solve_mode,
+         ),
+-        Err(error) => sparse_evidence_unavailable(
+-            reduced.force.len(),
+-            format!("legacy DEC050/053 dense reference unavailable: {error}"),
+-            linear_solve_mode,
+-        ),
++        LinearSolveMode::DenseScrutiny => match solve_dense(&reduced.stiffness, &reduced.force) {
++            Ok(legacy_dense) => observe_sparse_linearized_solve(
++                stiffness,
++                &reduced.free_dofs,
++                &reduced.force,
++                Some(&legacy_dense),
++                linear_solve_mode,
++            ),
++            Err(error) => sparse_evidence_unavailable(
++                reduced.force.len(),
++                format!("legacy DEC050/053 dense reference unavailable: {error}"),
++                linear_solve_mode,
++            ),
++        },
+     };
+ 
+     let reactions: DenseVector = multiply_matrix_vector(stiffness, &displacements)?
+@@ -1639,7 +1654,7 @@
+     global_stiffness: &DenseMatrix,
+     free_dofs: &[usize],
+     reduced_force: &[f64],
+-    dense_solution: &[f64],
++    dense_solution: Option<&[f64]>,
+     linear_solve_mode: LinearSolveMode,
+ ) -> SparseLinearSolveEvidence {
+     let entries = match direct_reduced_profile_entries(global_stiffness, free_dofs) {
+@@ -1656,11 +1671,7 @@
+             reduced_force,
+             &sparse.solution,
+             &sparse,
+-            if linear_solve_mode == LinearSolveMode::DenseScrutiny {
+-                Some(dense_solution)
+-            } else {
+-                None
+-            },
++            dense_solution,
+             linear_solve_mode,
+         ),
+         Err(error) => {
+@@ -1766,28 +1777,6 @@
+     Ok(entries)
+ }
+ 
+-fn dense_from_entries(
+-    dimension: usize,
+-    entries: &[SymmetricMatrixEntry],
+-) -> Result<DenseMatrix, NonlinearIntegrationError> {
+-    let mut dense = vec![vec![0.0; dimension]; dimension];
+-    for entry in entries {
+-        if entry.row >= dimension || entry.col >= dimension {
+-            return Err(NonlinearIntegrationError::InvalidInput {
+-                detail: format!(
+-                    "sparse fallback entry ({}, {}) is outside reduced dimension {dimension}",
+-                    entry.row, entry.col
+-                ),
+-            });
+-        }
+-        dense[entry.row][entry.col] += entry.value;
+-        if entry.row != entry.col {
+-            dense[entry.col][entry.row] += entry.value;
+-        }
+-    }
+-    Ok(dense)
+-}
+-
+ fn sparse_evidence_unavailable(
+     reduced_dof_count: usize,
+     failure_message: String,
+@@ -1798,32 +1787,6 @@
+         policy_ref: "DEC-053".to_string(),
+         solver_mode: linear_solve_mode,
+         solution_basis: linear_solve_mode.solution_basis(false).to_string(),
+-        assembly_basis: DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS.to_string(),
+-        reduced_dof_count,
+-        original_max_half_bandwidth: None,
+-        ordered_max_half_bandwidth: None,
+-        original_profile_entry_count: None,
+-        ordered_profile_entry_count: None,
+-        nonpositive_pivot_count: None,
+-        pivot_condition_ratio_estimate: None,
+-        max_abs_dense_sparse_solution_delta: None,
+-        relative_dense_sparse_solution_delta: None,
+-        max_abs_sparse_residual: None,
+-        failure_message: Some(failure_message),
+-    }
+-}
+-
+-fn sparse_evidence_dense_fallback(
+-    reduced_dof_count: usize,
+-    failure_message: String,
+-) -> SparseLinearSolveEvidence {
+-    SparseLinearSolveEvidence {
+-        status: SparseEvidenceStatus::DenseFallbackAfterSparseFailure,
+-        policy_ref: "DEC-053".to_string(),
+-        solver_mode: LinearSolveMode::SparseInteractive,
+-        solution_basis: LinearSolveMode::SparseInteractive
+-            .solution_basis(true)
+-            .to_string(),
+         assembly_basis: DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS.to_string(),
+         reduced_dof_count,
+         original_max_half_bandwidth: None,
+@@ -2511,14 +2474,14 @@
+                     ),
+                     mode
+                 ),
+-                Err(NonlinearIntegrationError::FrameKernel(
+-                    FrameKernelError::SingularSystem { .. }
++                Err(NonlinearIntegrationError::Structural(
++                    StructuralError::Mechanism { .. }
+                 ))
+             ));
+             assert!(matches!(
+                 solve_active_set_frame_with_mode(&reverse, mode),
+-                Err(NonlinearIntegrationError::FrameKernel(
+-                    FrameKernelError::SingularSystem { .. }
++                Err(NonlinearIntegrationError::Structural(
++                    StructuralError::Mechanism { .. }
+                 ))
+             ));
+             let mut reverse_cap = reverse.clone();

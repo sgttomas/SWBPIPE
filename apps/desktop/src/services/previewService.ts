@@ -1,3 +1,4 @@
+import { sourceContract } from '../features/results/numericalResultQuality';
 import { invoke } from "@tauri-apps/api/core";
 import type {
   AgentProposal,
@@ -14,7 +15,7 @@ import {
   verifyCurrentSessionInputManifest,
   type CurrentSessionInputManifestEvidence,
 } from "./inputManifestService";
-import { buildAnalysisRunV02 } from "./analysisRunCompatibility";
+import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibility";
 
 async function invokeOrFixture<T>(
   command: string,
@@ -43,9 +44,10 @@ export async function runPreviewMechanics(
   model?: PreviewModel | null,
   solverMode: PreviewSolverMode = "sparse_interactive",
 ): Promise<MechanicsResult> {
+  assertPreviewSolverMode(solverMode);
   const result =
     typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)
-      ? await runBrowserPreviewMechanics(model)
+      ? await runBrowserPreviewMechanics(model, solverMode)
       : await invoke<MechanicsResult>(
           "run_preview_mechanics_with_solver_mode",
           model ? { model, solverMode } : { solverMode },
@@ -54,6 +56,12 @@ export async function runPreviewMechanics(
 }
 
 export type PreviewSolverMode = "sparse_interactive" | "dense_scrutiny";
+
+function assertPreviewSolverMode(value: unknown): asserts value is PreviewSolverMode {
+  if (value !== "sparse_interactive" && value !== "dense_scrutiny") {
+    throw new Error(`PREVIEW_SOLVER_MODE_UNSUPPORTED: ${String(value)}`);
+  }
+}
 
 export type SolveJobStartReceipt =
   | {
@@ -88,6 +96,7 @@ export async function startPreviewMechanicsJob(
   model?: PreviewModel | null,
   solverMode: PreviewSolverMode = "sparse_interactive",
 ): Promise<SolveJobStartReceipt> {
+  assertPreviewSolverMode(solverMode);
   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
     return { mode: "browser_fixture_no_backend_job" };
   }
@@ -162,12 +171,16 @@ export async function buildAnalysisRunPreview(
 ): Promise<AnalysisRunEnvelope> {
   await verifyCurrentSessionInputManifest(inputManifest);
   const effective = appliedRuleCheckStatus(result.status.rule_check, ruleCheckAggregate);
-  return buildAnalysisRunV02(result, inputManifest, effective, loadBasisRefsFor(result));
+  const route = sourceContract(result);
+  if (route !== "precision") throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+  return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload));
 }
 
 export function bindSourceResultDimensions(
   result: MechanicsResult,
 ): MechanicsResult {
+  // Precision carriers and unsupported historical headers retain exact received bytes.
+  if (sourceContract(result) !== "legacy") return result;
   return {
     ...result,
     results: result.results.map((item) => {
@@ -415,21 +428,6 @@ export function buildPreviewComparison({
   };
 }
 
-function loadBasisRefsFor(result: MechanicsResult): ObjectRef[] {
-  const seen = new Set<string>();
-  const refs: ObjectRef[] = [];
-  for (const item of result.results) {
-    const basis = item.basis_ref;
-    if (!basis) continue;
-    const objectType =
-      basis.ref_type === "combination" ? "Combination" : "LoadCase";
-    const key = `${objectType}:${basis.ref_id}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    refs.push(ref(objectType, basis.ref_id));
-  }
-  return refs;
-}
 
 function comparisonDiagnostics({
   unmatchedLeftRefs,
@@ -494,9 +492,9 @@ export async function loadSampleProposal(
 }
 
 async function loadModelFixture(): Promise<PreviewModel> {
-  return (
+  return structuredClone((
     await import("../../../../fixtures/product_preview/invented_preview_model.json")
-  ).default as PreviewModel;
+  ).default) as PreviewModel;
 }
 
 async function loadKnowledgeFixture(): Promise<DesignKnowledge> {
@@ -505,54 +503,69 @@ async function loadKnowledgeFixture(): Promise<DesignKnowledge> {
   ).default as DesignKnowledge;
 }
 
-async function loadMechanicsFixture(): Promise<MechanicsResult> {
-  return (
-    await import("../../../../fixtures/product_preview/invented_mechanics_result.json")
-  ).default as MechanicsResult;
+async function loadMechanicsFixture(
+  solverMode: PreviewSolverMode = "sparse_interactive",
+): Promise<MechanicsResult> {
+  assertPreviewSolverMode(solverMode);
+  const fixture = solverMode === "sparse_interactive"
+    ? (await import("../../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json")).default
+    : (await import("../../../../fixtures/product_preview/invented_mechanics_result_precision_1_dense.json")).default;
+  // Return a copy so one caller cannot change the imported producer evidence for
+  // subsequent invocations. No header, row, dimension or quality is manufactured.
+  return structuredClone(fixture) as MechanicsResult;
+}
+
+/** Validate mode evidence of a selected bundled producer result, not authenticate
+ * an arbitrary caller's source/build or upgrade its numerical quality. */
+export function validateBrowserMechanicsFixture(
+  result: MechanicsResult,
+  solverMode: PreviewSolverMode,
+  fixtureModel: PreviewModel,
+): MechanicsResult {
+  assertPreviewSolverMode(solverMode);
+  if (sourceContract(result) !== "precision") {
+    throw new Error("BROWSER_FIXTURE_PRODUCER_CONTRACT_UNSUPPORTED");
+  }
+  if (result.model_ref !== fixtureModel.project.id) {
+    throw new Error("BROWSER_FIXTURE_MODEL_BINDING_MISMATCH");
+  }
+  // A genuine blocked producer return can have no execution rows. Preserve that
+  // failure as received; it supplies no completed mode/solve evidence to promote.
+  if (result.status.mechanics !== "MECHANICS_SOLVED" && result.results.length === 0) return result;
+  const cases = fixtureModel.load_cases.map(item => item.id);
+  const rows = result.results.filter(item => item.kind === "linear_solver_mode_basis");
+  const expectedValue = solverMode === "sparse_interactive" ? 1 : 2;
+  const expectedBasis = solverMode === "sparse_interactive"
+    ? "sparse_structural_integrity_primary" : "dense_structural_integrity_primary";
+  const field = (basis: string, key: string) => basis.split(";")
+    .map(part => part.trim()).filter(part => part.startsWith(`${key}=`));
+  if (!cases.length || new Set(cases).size !== cases.length || rows.length !== cases.length
+    || cases.some(id => rows.filter(row => row.basis_ref?.ref_type === "load_case" && row.basis_ref.ref_id === id).length !== 1)
+    || rows.some(row => row.value !== expectedValue || row.unit !== "mode_code"
+      || row.metadata?.component !== "linear_solver_mode"
+      || row.metadata.coordinate_system !== "reduced_system"
+      || row.metadata.location !== row.basis_ref?.ref_id
+      || typeof row.metadata.basis !== "string"
+      || field(row.metadata.basis, "solver_mode").join() !== `solver_mode=${solverMode}`
+      || field(row.metadata.basis, "solution_basis").join() !== `solution_basis=${expectedBasis}`)) {
+    throw new Error(`BROWSER_FIXTURE_SOLVER_MODE_BINDING_MISMATCH: ${solverMode}`);
+  }
+  return result;
 }
 
 async function runBrowserPreviewMechanics(
-  model?: PreviewModel | null,
+  model: PreviewModel | null | undefined,
+  solverMode: PreviewSolverMode,
 ): Promise<MechanicsResult> {
-  if (!model) return loadMechanicsFixture();
   const fixtureModel = await loadModelFixture();
-  if (canonicalJson(model) === canonicalJson(fixtureModel))
-    return loadMechanicsFixture();
-  return blockedBrowserEditedModelResult(model);
-}
-
-function blockedBrowserEditedModelResult(model: PreviewModel): MechanicsResult {
-  return {
-    schema_version: "0.1.0",
-    document_kind: "openpipestress.product_preview.mechanics_result",
-    run_id: `run:preview-linear-static-browser-blocked:${safeComparisonToken(model.project.id)}`,
-    model_ref: model.project.id,
-    status: {
-      mechanics: "MODEL_INCOMPLETE",
-      rule_check: "RULE_INPUTS_INCOMPLETE",
-      professional_acceptance: "NOT_PROVIDED",
-    },
-    summary: {
-      node_count: model.nodes.length,
-      segment_count: model.pipe_segments.length,
-      support_count: model.supports.length,
-      load_case_count: model.load_cases.length,
-      max_displacement: null,
-      max_open_formula_stress: null,
-    },
-    results: [],
-    diagnostics: [
-      {
-        id: "diagnostic:browser-solve:edited-model-backend-required",
-        code: "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL",
-        severity: "blocking",
-        source: "apps/desktop/src/services/previewService.ts",
-        affected_refs: [model.project.id],
-        message:
-          "Browser fixture mode will not reuse bundled solved-result rows for an edited model; run through the Tauri backend solve path for model-bound mechanics results.",
-      },
-    ],
-  };
+  if (model && canonicalJson(model) !== canonicalJson(fixtureModel)) {
+    // Throw before any raw result/manifest/run builder. This is a backend
+    // availability failure, not a fabricated producer invocation or raw envelope.
+    throw new Error(
+      "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL: Browser fixture mode cannot solve an edited model; use the native backend for model-bound mechanics results.",
+    );
+  }
+  return validateBrowserMechanicsFixture(await loadMechanicsFixture(solverMode), solverMode, fixtureModel);
 }
 
 async function loadAgentProposalFixture(): Promise<AgentProposal> {

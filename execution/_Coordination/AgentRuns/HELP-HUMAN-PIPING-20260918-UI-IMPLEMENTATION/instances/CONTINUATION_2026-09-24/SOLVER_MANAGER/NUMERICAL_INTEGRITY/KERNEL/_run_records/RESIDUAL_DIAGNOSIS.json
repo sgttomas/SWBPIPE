@@ -1,0 +1,61 @@
+{
+  "method": "pure Python scalar transcription of binary64 diagonal Cholesky/recovery and original physical dot, not a Rust test",
+  "rows": [
+    {
+      "scale": 1e-300,
+      "diagonal": 2e-300,
+      "displacement": 1.9999999999999996,
+      "physical_residual": -6.63123685e-316,
+      "subnormal": true
+    },
+    {
+      "scale": 1e-300,
+      "diagonal": 3e-300,
+      "displacement": -2.9999999999999996,
+      "physical_residual": 1.32624737e-315,
+      "subnormal": true
+    },
+    {
+      "scale": 1e-20,
+      "diagonal": 2e-20,
+      "displacement": 2.0,
+      "physical_residual": 0.0,
+      "subnormal": false
+    },
+    {
+      "scale": 1e-20,
+      "diagonal": 2.9999999999999997e-20,
+      "displacement": -2.9999999999999996,
+      "physical_residual": 1.2037062152420224e-35,
+      "subnormal": false
+    },
+    {
+      "scale": 1.0,
+      "diagonal": 2.0,
+      "displacement": 1.9999999999999998,
+      "physical_residual": -4.440892098500626e-16,
+      "subnormal": false
+    },
+    {
+      "scale": 1.0,
+      "diagonal": 3.0,
+      "displacement": -3.0000000000000004,
+      "physical_residual": -1.7763568394002505e-15,
+      "subnormal": false
+    },
+    {
+      "scale": 1e+200,
+      "diagonal": 2e+200,
+      "displacement": 2.0,
+      "physical_residual": 0.0,
+      "subnormal": false
+    },
+    {
+      "scale": 1e+200,
+      "diagonal": 3e+200,
+      "displacement": -3.0,
+      "physical_residual": 0.0,
+      "subnormal": false
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+warning: function `solve_iteration_with_sliding_friction` is never used
+   --> /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs:876:4
+    |
+876 | fn solve_iteration_with_sliding_friction(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `solve_linearized_system` is never used
+    --> /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs:1539:4
+     |
+1539 | fn solve_linearized_system(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `dense_from_entries` is never used
+    --> /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs:1769:4
+     |
+1769 | fn dense_from_entries(
+     |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `sparse_evidence_dense_fallback` is never used
+    --> /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs:1816:4
+     |
+1816 | fn sparse_evidence_dense_fallback(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_nonlinear_integration` (lib) generated 4 warnings
+warning: function `sparse_interactive_fallback_diag` is never used
+    --> src/lib.rs:2711:4
+     |
+2711 | fn sparse_interactive_fallback_diag(load_case_id: &str, message: &str) -> Diagnostic {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/private/tmp/piping-numerical-integrity-target/debug/deps/open_pipe_stress_product_physics-1cdcd32cde0104b5)
+
+running 13 tests
+test tests::subspan_wind_on_curved_bend_macro_span_is_blocking ... ok
+test tests::curved_bend_macro_element_anchored_thermal_produces_reactions ... ok
+test tests::endpoint_section_cut_curved_bend_pressure_shows_membrane_end_and_station_state ... ok
+test tests::curved_bend_macro_element_consumes_arc_consistent_uniform_weight ... ok
+test tests::curved_bend_macro_element_blocks_on_missing_or_inconsistent_geometry ... ok
+test tests::curved_bend_macro_element_thermal_free_expansion_is_stress_free ... ok
+test tests::curved_bend_macro_element_multiplier_applies_sif_only ... ok
+test tests::curved_bend_macro_element_review_row_states_assembled_consumption ... ok
+test tests::curved_bend_macro_element_assembles_arc_stiffness_without_straight_chord ... ok
+test tests::curved_bend_macro_element_solves_assembled_nonlinear_loop ... ok
+test tests::curved_bend_macro_element_keeps_dense_sparse_parity ... ok
+test tests::curved_bend_macro_span_pressure_reaches_nonlinear_loop_with_same_vector ... ok
+test tests::curved_bend_macro_element_emits_arc_interior_station_results ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 180 filtered out; finished in 0.02s
+

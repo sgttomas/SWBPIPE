@@ -1,0 +1,34 @@
+# Independent integration review and repair backcheck
+
+**Disposition: suitable for manager source fan-in, with no unresolved actionable finding in this bounded final source diff. Runtime validation and programme gates remain outstanding.** This does not accept the protected nonlinear successor policy, close NP-A, establish engineering correctness, or authorize merge/release independently of the governing gates.
+
+The complete initial review is preserved in [INITIAL_REVIEW.md](INITIAL_REVIEW.md), including the two confirmed P2 findings, source reasoning, independent probes, parent-run evidence and limits. This return covers that complete reviewed diff plus every subsequent repair. The final exact source identities are:
+
+| Source | SHA-256 |
+|---|---|
+| core/product_physics/src/lib.rs | 1e44318df4d1a469ad0ecf3fbeeeecd2a3744ba83505782a129b36ed136c0f41 |
+| core/solver/nonlinear_integration/src/lib.rs | 9e77ac64387274b924a054fe3aedb1e6854b517cdd8bc693d0acc68d6dad27c3 |
+| core/solver/nonlinear_integration/src/structural_adapter.rs | 594377d0e6f5057f2e98961ce45baac3f8e8720c300856f7fdc17a30aad6baac |
+
+Paths in the table are relative to projects/chirality-piping. Cargo manifest/lock changes were also reviewed: producer 0.2.0, explicit existing serde_json float_roundtrip feature, and sparse-to-frame dependency resolution. The actual checkout HEAD remains the specified base 63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9, with concurrent working changes. Review covers the scoped working candidate, not other writers' changes.
+
+## Repairs independently backchecked
+
+- **IREV-01 closed in source.** The numerical diagnostic prefix now includes the exact case ID; component diagnostics encode exact UTF-8 byte lengths and tuple members. The lossy colon-to-hyphen collision cannot merge these new identities. The actual producer controls cover an initial passing load:a-b followed by unassessed load-a:b due to a missing later modulus basis, plus an actual two-case linear companion with distinct numerical references and component warnings. Exact punctuation/Unicode tuple controls are included. Independent Python source transcriptions confirm the original failure and repaired missing-case behavior. The new Rust controls still require execution.
+- **IREV-02 closed in source.** SparseInteractive obtains the legacy sparse observation with no dense reference. Only DenseScrutiny runs legacy dense LU for parity. Both modes continue selecting the common structurally checked displacement and never select an observational result as fallback. The removed helpers were unused remnants of the deleted generic-LU rescue.
+- **Metadata expectation correction backchecked.** The ordinary deterministic product test now expects sparse_structural_integrity_primary and separately checks legacy_unscaled_DEC050_DEC053 observation provenance. It preserves sparse-default and all numeric assertions. The nonlinear public observer field documents that historical primary labels identify the legacy observation, while structural_report identifies the selected M03 solve.
+- **Protected-contact representation corrections backchecked.** The two later-mechanism tests now require the precise Structural(Mechanism) rejection instead of obsolete FrameKernel(SingularSystem). Fixtures, force/displacement values, iteration caps, changed-state assertions and numerical limits are unchanged. The recovery message again contains lowercase first for its retained text assertion; no recovery rule changes accompany that edit.
+- **Nonlinear hold-specific test correction backchecked.** The retained multicase fixture includes nonlinear supports. Its new test now explicitly requires NumericallyUnresolved/Unresolved and the NONLINEAR_POLICY_UNRESOLVED diagnostic, matching the intentionally held Current status. A separately authored linear companion checks passed cases. This does not relax a structural check or disguise the protected exact-zero failure.
+- The per-iteration structural_report documentation now explicitly binds the retained actual active boundary and warns that a separately permitted nonzero classifier tolerance can accept newly classified states. The general classifier behavior was not changed. Product zero-count and unresolved Current safeguards remain.
+
+All source repair deltas were compared with immutable initial/repaired copies. The final metadata delta contains only the expectation and documentation described above; the adapter is unchanged throughout. Records are in _run_records/repair_backcheck.diff, REPAIR_BACKCHECK.json, final_metadata_backcheck.diff, FINAL_SOURCE_CHECK.json, and the source snapshots.
+
+## Evidence and scope limits
+
+This independent TASK did not implement source, run Cargo/build/npm/native/browser tools, delegate, or mutate Git. It read the actual Root/TASK/Piping/LOOP_INIT and software-code-review skill origins and selected policy/consumer records; ORIGINS.json and ADDITIONAL_READS.json retain their hashes and runtime paths. The role is TASK Type 2, actual parent /root/solver_manager, mechanism delegated-harness-native. No OS isolation or model diversity is claimed. Six declared changed paths pass the scope helper.
+
+The complete review traces original K/f and Kfc*uc, contribution provenance, per-body geometry and actual contacts, same-state affine/sliding loads, typed rejection without LU rescue, finite full-precision publication, raw/producer 0.2.0 and precision-1 headers, per-requested-case evidence and retained physical limitations. No mandatory comparison-inverse certificate was imposed. Exact Fraction formation checks support the three explicitly recorded curved symmetry samples; they neither execute Rust nor establish inverse accuracy or a universal theorem.
+
+Parent's earlier focused logs report seed 2/2, precision 5/5 and curved 13/13 passes; contact recovery 4/6 and product integrity 2/3 remain historical failures on the previous candidate. The source causes of the listed representation/test failures are repaired, but this reviewer does not call an unexecuted rerun passing. The final candidate needs the parent's focused/full affected suites and regression controls. Kernel repair review/validation, N/R/NP and DEC050/053 witnesses, native/consumer behavior, clean DEC025 and actual-head CI remain separate gates.
+
+NP-A/N05 contribution-preserving intended-answer solve and action recovery remain required. Ordinary gate containment does not complete that repair. The old product nonlinear exact-zero witness remains a failed protected criterion until its actual repair or recorded prospective disposition; the current source still marks nonlinear Current unresolved. The adjacent historical result-ID suffix surface still uses pre-existing lossy encoding outside these newly corrected diagnostics; this review does not certify universal identity correctness of unrelated historical carriers.

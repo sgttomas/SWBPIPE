@@ -10,6 +10,8 @@
 //! numerical-mechanics routines only. It does not encode design code
 //! compliance checks, protected standards content, or private project data.
 
+pub mod structural;
+
 use std::collections::VecDeque;
 use std::error::Error;
 use std::fmt;

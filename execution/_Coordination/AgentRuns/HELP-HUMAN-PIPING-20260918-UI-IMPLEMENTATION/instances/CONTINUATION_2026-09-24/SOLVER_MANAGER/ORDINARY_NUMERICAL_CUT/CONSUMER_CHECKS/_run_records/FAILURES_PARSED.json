@@ -1,0 +1,135 @@
+[
+  {
+    "test": "src/App.test.tsx > SWBPIPE desktop preview > routes both File-menu report-package attempts through App-owned intent and the honest browser no-effect result",
+    "failure": [
+      "Error: expect(element).toHaveTextContent()",
+      "Expected element to have text content:",
+      "  REPORT-PACKAGE-REDACTION-BLOCKED",
+      "Received:",
+      "  REPORT-PACKAGE-HASH-BINDING-INCOMPLETE: current model/input/run hashes are required."
+    ],
+    "location": [
+      "\u276f src/App.test.tsx:4483:64"
+    ]
+  },
+  {
+    "test": "src/App.test.tsx > SWBPIPE desktop preview > carries queued editor intents into the report packet as review-only operation context",
+    "failure": [
+      "AssertionError: expected 'Deformation \u00b7 normalizedavailable; no\u2026' to contain 'available; nodes=5; max=4.927112 mm'"
+    ],
+    "location": [
+      "\u276f src/App.test.tsx:7216:9"
+    ]
+  },
+  {
+    "test": "src/App.test.tsx > SWBPIPE desktop preview > shows computed mechanics diagnostics in results, knowledge, and review-only proposal context",
+    "failure": [
+      "AssertionError: expected 'Diagnostics34 diagnostics; 12 warning\u2026' to contain '32 diagnostics'",
+      "Expected: \"32 diagnostics\"",
+      "Received: \"Diagnostics34 diagnostics; 12 warnings; 0 blocking/error\"",
+      " \u276f src/App.test.tsx:10021:7",
+      "    10019|     expect(",
+      "    10020|       within(solvedReadiness).getByTestId(\"readiness-diagnostics\").tex\u2026",
+      "    10021|     ).toContain(\"32 diagnostics\");",
+      "       |       ^",
+      "    10022|     expect(",
+      "    10023|       within(solvedReadiness).getByTestId(\"readiness-diagnostics\").tex\u2026",
+      "\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[3/11]\u23af"
+    ],
+    "location": [
+      "\u276f src/App.test.tsx:10021:7"
+    ]
+  },
+  {
+    "test": "src/App.test.tsx > SWBPIPE desktop preview > links selected diagnostics to affected result and model context",
+    "failure": [
+      "AssertionError: expected '36 of 36 diagnostics visible' to contain '34 of 34 diagnostics visible'",
+      "Expected: \"34 of 34 diagnostics visible\"",
+      "Received: \"36 of 36 diagnostics visible\"",
+      " \u276f src/App.test.tsx:13574:7",
+      "    13572|     expect(",
+      "    13573|       within(diagnostics).getByTestId(\"diagnostic-filter-summary\").tex\u2026",
+      "    13574|     ).toContain(\"34 of 34 diagnostics visible\");",
+      "       |       ^",
+      "    13575|     expect(",
+      "    13576|       within(diagnostics).getByTestId(\"diagnostic-severity-warning\")",
+      "\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[4/11]\u23af"
+    ],
+    "location": [
+      "\u276f src/App.test.tsx:13574:7"
+    ]
+  },
+  {
+    "test": "src/App.test.tsx > Tier3 display in the actual application > passes the current result to comparison readouts and preserves the source result rows",
+    "failure": [
+      "AssertionError: expected null not to be null"
+    ],
+    "location": [
+      "\u276f src/App.test.tsx:16660:95"
+    ]
+  },
+  {
+    "test": "src/App.test.tsx > workflow current and historical result boundaries > preserves the specific backend-required failure after a real browser model edit",
+    "failure": [
+      "SyntaxError: \"undefined\" is not valid JSON",
+      " \u276f src/App.test.tsx:17043:25",
+      "    17041|     expect(screen.queryByTestId(\"status-pill-solve-proof\")).not.toBeIn\u2026",
+      "    17042|     const href = screen.getByTestId(\"solve-job-export-link\").getAttrib\u2026",
+      "    17043|     const packet = JSON.parse(decodeURIComponent(href.split(\",\", 2)[1]\u2026",
+      "       |                         ^",
+      "    17044|     expect(packet.error_message).toContain(\"BROWSER_SOLVE_BACKEND_REQU\u2026",
+      "    17045|     expect(packet.error_message).not.toContain(\"SOLVE-PRODUCER-CONTRAC\u2026",
+      "\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[6/11]\u23af"
+    ],
+    "location": [
+      "\u276f src/App.test.tsx:17043:25"
+    ]
+  },
+  {
+    "test": "src/App.test.tsx > workflow current and historical result boundaries > rejects a delayed rule-check aggregate from a replaced same-ID session basis",
+    "failure": [
+      "AssertionError: expected null not to be null"
+    ],
+    "location": [
+      "\u276f src/App.test.tsx:17193:61"
+    ]
+  },
+  {
+    "test": "src/App.test.tsx > workflow current and historical result boundaries > does not start an obsolete report-package save or publish stale build state",
+    "failure": [
+      "Error: REPORT-PACKAGE-HASH-BINDING-INCOMPLETE: current model/input/run hashes are required.",
+      " \u276f Module.buildReportPackageRequest src/features/report/reportPackageRequest.ts:139:11",
+      "    137|     !inputHash?.value",
+      "    138|   ) {",
+      "    139|     throw new Error(\"REPORT-PACKAGE-HASH-BINDING-INCOMPLETE: current m\u2026",
+      "       |           ^",
+      "    140|   }",
+      "    141|   for (const hash of run.hashes) {",
+      "\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[8/11]\u23af"
+    ],
+    "location": []
+  },
+  {
+    "test": "src/App.test.tsx > workflow current and historical result boundaries > keeps a newer report-package save busy and rejects stale success completion state",
+    "failure": [],
+    "location": []
+  },
+  {
+    "test": "src/App.test.tsx > workflow current and historical result boundaries > keeps a newer report-package save busy and rejects stale error completion state",
+    "failure": [
+      "AssertionError: expected +0 to be 1 // Object.is equality"
+    ],
+    "location": [
+      "\u276f src/App.test.tsx:17312:45"
+    ]
+  },
+  {
+    "test": "src/App.test.tsx > historical lifecycle history transitions > lets a fresh same-model solve win against a delayed Historical refresh",
+    "failure": [
+      "TestingLibraryElementError: Unable to find an element by: [data-testid=\"status-pill-mechanics\"]"
+    ],
+    "location": [
+      "\u276f src/App.test.tsx:17862:11"
+    ]
+  }
+]

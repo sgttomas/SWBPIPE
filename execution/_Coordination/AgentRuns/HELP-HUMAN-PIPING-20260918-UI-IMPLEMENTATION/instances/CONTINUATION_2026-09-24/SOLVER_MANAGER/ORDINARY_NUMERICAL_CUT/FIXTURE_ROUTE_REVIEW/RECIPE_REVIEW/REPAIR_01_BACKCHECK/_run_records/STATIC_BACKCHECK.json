@@ -1,0 +1,33 @@
+{
+  "time_utc": "2026-09-25T02:02:21.513976+00:00",
+  "checks": {
+    "revised patch exact freeze": true,
+    "complete revised patch reconstructed": true,
+    "repair-only delta reconstructed": true,
+    "original proposed script preserved": true,
+    "original proposed patch preserved": true,
+    "revised proposed script exact freeze": true,
+    "package proposal unchanged and frozen": true,
+    "maintained package equals original preimage": true,
+    "maintained recipe still absent": true,
+    "original maintained freeze byte identities unchanged": true,
+    "raw output validator unchanged by safety repair": true,
+    "prior instruction origins unchanged": true,
+    "explicit-path proposed scope validation without Git": true
+  },
+  "all_passed": true,
+  "scope_command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/private/tmp/piping-numerical-corrections-20260924/tools/software_workflow/validate_change_scope.py",
+    "/private/tmp/piping-numerical-corrections-20260924",
+    "--allowed",
+    "projects/chirality-piping/package.json",
+    "--path",
+    "projects/chirality-piping/package.json",
+    "--allowed",
+    "projects/chirality-piping/tools/serialization/generate_product_preview_mechanics.mjs",
+    "--path",
+    "projects/chirality-piping/tools/serialization/generate_product_preview_mechanics.mjs"
+  ],
+  "limits": "Static identity/applicability checks only. No Node/Cargo/generator/build/test/Git execution; maintained files not applied by reviewer. No fixture freshness, numerical qualification or runtime outcome asserted."
+}

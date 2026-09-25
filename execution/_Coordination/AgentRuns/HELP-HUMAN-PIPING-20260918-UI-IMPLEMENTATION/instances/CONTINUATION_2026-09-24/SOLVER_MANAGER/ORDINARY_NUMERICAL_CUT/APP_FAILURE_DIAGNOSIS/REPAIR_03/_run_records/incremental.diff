@@ -1,0 +1,42 @@
+--- a/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts
+@@ -1,9 +1,9 @@
+ import { describe, expect, it } from "vitest";
+ import { buildAnalysisRunPreview, buildPreviewComparison, loadPreviewModel, runPreviewMechanics } from "../../services/previewService";
+-import { canonicalSha256Hex } from "../../services/hashService";
++import { canonicalSha256Hex, canonicalSha256HexCheckedV1 } from "../../services/hashService";
+ import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+ import historicalResult from "../../../../../fixtures/product_preview/invented_mechanics_result.json";
+-import { buildAnalysisRunV02 } from "../../services/analysisRunCompatibility";
++import { analysisRecordProjection, buildAnalysisRunV02, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
+ import type { MechanicsResult, PreviewModel } from "../../types";
+ import {resultSemantics} from "../results/resultSemantics";
+ import { buildReportPackageRequest } from "./reportPackageRequest";
+@@ -425,11 +425,26 @@
+ 
+   it.each(["solver_name", "solver_version"] as const)("rejects a hash-valid manifest and coherent record with the wrong producer %s", async field => {
+     const session = await currentSession();
++    const receivedSourceBefore = JSON.stringify(session.result);
+     const solver = { ...session.inputManifest.manifest.solver_basis, [field]: field === "solver_version" ? "0.1.0" : "different_solver" };
+     const inputManifest = await buildCurrentSessionInputManifest({ model: session.model, solver, active_rule_packs: [], external_assets: [] });
+-    const analysisRun = await buildAnalysisRunPreview(session.result, { inputManifest });
++    await expect(buildAnalysisRunPreview(session.result, { inputManifest })).rejects.toThrow("ANALYSIS_SOURCE_PRODUCER_MISMATCH");
++    // Deliberately adversarial, test-only record: do not bypass the strict
++    // builder by changing its validator or pretending this is admitted output.
++    const analysisRun = structuredClone(session.analysisRun);
++    const run = analysisRun.analysis_run;
++    run.solver_version = { solver_name: solver.solver_name, solver_version: solver.solver_version, build_ref: { object_type: "ExternalReference", ref: solver.solver_build_ref } };
++    run.settings_ref = { object_type: "SolverSettings", ref: `solver-settings:${inputManifest.manifest_ref.ref}:${inputManifest.manifest_sha256}` };
++    run.unit_system_ref = { object_type: "UnitSystem", ref: `unit-system:${session.result.model_ref}:${inputManifest.manifest_sha256}` };
++    run.reproducibility.input_manifest_refs = [structuredClone(inputManifest.manifest_ref)];
++    run.reproducibility.input_manifest_hashes = [{ ...run.reproducibility.input_manifest_hashes[0], payload_ref: structuredClone(inputManifest.manifest_ref), value: inputManifest.manifest_sha256 }];
++    run.hashes.find(hash => hash.payload_scope === "analysis_run_record")!.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(analysisRun));
++    expect(await verifyAnalysisRunRecord(analysisRun)).toBe("match");
++    expect(run.hashes.find(hash => hash.payload_scope === "received_result"))
++      .toEqual(session.analysisRun.analysis_run.hashes.find(hash => hash.payload_scope === "received_result"));
+     await expect(buildReportPackageRequest({ ...session, inputManifest, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
+       .rejects.toThrow("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH");
++    expect(JSON.stringify(session.result)).toBe(receivedSourceBefore);
+   });
+ 
+   it("preserves a consistent recorded build reference without inventing one from producer version", async () => {

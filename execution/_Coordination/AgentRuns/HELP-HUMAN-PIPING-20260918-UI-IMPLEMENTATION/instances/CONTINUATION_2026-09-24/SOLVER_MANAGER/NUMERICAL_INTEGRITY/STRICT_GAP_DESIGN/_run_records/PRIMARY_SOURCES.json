@@ -1,0 +1,32 @@
+{
+  "record_kind": "actual web-read qualification summaries; hashes bind these summaries, not full remote bytes",
+  "sources": [
+    {
+      "url": "https://www.cs.cmu.edu/~quake/robust.html",
+      "retrieved_utc_date": "2026-09-24",
+      "title": "Adaptive Precision Floating-Point Arithmetic and Fast Robust Predicates for Computational Geometry",
+      "primary": "Author research page with paper/code links",
+      "consulted": "Lines18-36 in web response: determinant sign rounding failure, exact/adaptive expansion method, hardware rounding assumptions",
+      "application": "General numerical predicate method only; no piping-law or Rust implementation qualification",
+      "qualification_record_sha256": "772094fc716e2905560d3fafe242feaeb41da21b6bf7707f4c6a3689a4c78267"
+    },
+    {
+      "url": "https://www.netlib.org/lapack/lug/node75.html",
+      "retrieved_utc_date": "2026-09-24",
+      "title": "How to Measure Errors",
+      "primary": "LAPACK Users Guide",
+      "consulted": "Condition/error definitions and RCOND approximation description; line57 approximate-bound caveat",
+      "application": "rcond is not a rigorous forward-sign bound",
+      "qualification_record_sha256": "e1d78461a9939693a6c8c72b1d556be4d2fa602dead196a75b4de1337549b930"
+    },
+    {
+      "url": "https://doc.rust-lang.org/std/primitive.f64.html#method.mul_add",
+      "retrieved_utc_date": "2026-09-24",
+      "title": "Rust f64 documentation",
+      "primary": "Official Rust standard library",
+      "consulted": "Binary64 definition lines218; mul_add one-rounding and rounded-infinite-precision semantics lines337-344",
+      "application": "Arithmetic interface facts; no target/runtime exact-expansion proof by documentation alone",
+      "qualification_record_sha256": "4afac7f7620c33a708c95b0ccda99d53e5f9963541eb2c26d662d941a495223f"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS/_run_records/BEFORE.json",
+    "sha256": "ac7eab14873ba40393e3e493b0e4bb601e077d427d36b12842972845bddbd1a8"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS/_run_records/AFTER.json",
+    "sha256": "5290e9254ac725e606506a626edc91b16e10947b153dcd5633e05d6edeb21236"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS/_run_records/PROBE_RESULT.json",
+    "sha256": "b07357da365f44ad9ce0e8afc865cc7173442b945a7c140cbff32123f893fd0f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS/_run_records/CASES.json",
+    "sha256": "ee309a08192616222072977a59871cf10c638e16e9286105af36e0d520757446"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS/_run_records/probe.log",
+    "sha256": "effff296947ad8ad3940b4f4c5268690af2b36cd90fac95dc657efbf363acea5"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "sha256": "3a016181fc49092d2775cc365dd2956b4c137c1f6bb64046a77b925ef5f9cce0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+    "sha256": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e"
+  }
+]

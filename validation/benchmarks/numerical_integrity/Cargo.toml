@@ -1,0 +1,11 @@
+[package]
+name = "piping_numerical_integrity_observer"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+open_pipe_stress_product_physics = { path = "../../../core/product_physics" }
+open_pipe_stress_frame_kernel = { path = "../../../core/solver/frame_kernel" }
+open_pipe_stress_sparse_direct = { path = "../../../core/solver/sparse_direct" }
+serde_json = { version = "1", features = ["float_roundtrip"] }

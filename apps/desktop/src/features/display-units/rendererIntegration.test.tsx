@@ -1,3 +1,4 @@
+import precisionResult from "../../../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DisplayUnitSelector, DisplayUnitsProvider } from "./index";
@@ -17,7 +18,7 @@ vi.mock("../../services/ruleCheckService", async (importOriginal) => ({
 }));
 
 const sourceResult: MechanicsResult = {
-  schema_version: "1", document_kind: "test", run_id: "run:display", model_ref: "model:display",
+  schema_version: "0.1.0", document_kind: "test", run_id: "run:display", model_ref: "model:display",
   status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" },
   summary: { max_displacement: { value: 0.0254, unit: "m", location_ref: "node:1", result_ref: "disp" } },
   results: [
@@ -127,6 +128,41 @@ describe("shared display preference in result renderers", () => {
     rendered.rerender(view(stale));
     expect(screen.getByTestId("comparison-delta-temperature:right")).toHaveTextContent("no SI catalog target for unknown");
     expect(JSON.stringify(compared)).toBe(before);
+  });
+
+  it("resolves current comparison dimensions from source semantics without altering absent declarations", async () => {
+    const result = structuredClone(precisionResult) as MechanicsResult;
+    const before = JSON.stringify(result);
+    const compared = comparison();
+    const kinds = ["element_local_axial_force", "element_local_bending_moment_z"];
+    compared.result_deltas = kinds.map((kind, index) => {
+      const right = result.results.find(row => row.kind === kind && row.basis_ref?.ref_type === "combination" && row.source_result_refs?.length)!;
+      const left = result.results.find(row => right.source_result_refs!.includes(row.id))!;
+      expect(right.dimension).toBeUndefined();
+      expect(left.dimension).toBeUndefined();
+      return { ...compared.result_deltas[0], mapping_id: `precision:${index}`, left_result_id: left.id, right_result_id: right.id, unit: right.unit, left_value: left.value, right_value: right.value, raw_delta: right.value - left.value, absolute_delta: Math.abs(right.value - left.value) };
+    });
+    const convert = converter();
+    const view = (source: MechanicsResult) => <DisplayUnitsProvider initialPreference="US" converter={convert}><ComparisonPanel comparison={compared} result={source} onSelectResult={() => {}} /></DisplayUnitsProvider>;
+    const rendered = render(view(result));
+    await waitFor(() => expect(convert.mock.calls.flatMap(call => call[0])).toEqual(expect.arrayContaining([
+      expect.objectContaining({ dimension_id: "force", from_unit: "N", to_unit: "lbf" }),
+      expect.objectContaining({ dimension_id: "moment", from_unit: "N*m", to_unit: "lbf*ft" })
+    ])));
+    expect(convert.mock.calls.flatMap(call => call[0]).some(item => item.dimension_id === "energy")).toBe(false);
+    expect(JSON.stringify(result)).toBe(before);
+    const contradictory = structuredClone(result);
+    contradictory.results.find(row => row.id === compared.result_deltas[0].right_result_id)!.metadata!.component = "bending_moment_z";
+    rendered.rerender(view(contradictory));
+    expect(screen.getByTestId(`comparison-delta-${compared.result_deltas[0].right_result_id}`)).toHaveTextContent("unknown");
+    const future = structuredClone(result);
+    future.schema_version = "0.4.0";
+    rendered.rerender(view(future));
+    expect(screen.getByTestId(`comparison-delta-${compared.result_deltas[1].right_result_id}`)).toHaveTextContent("unknown");
+    const unknown = structuredClone(result);
+    unknown.results.find(row => row.id === compared.result_deltas[0].right_result_id)!.kind = "unregistered_force_like_kind";
+    rendered.rerender(view(unknown));
+    expect(screen.getByTestId(`comparison-delta-${compared.result_deltas[0].right_result_id}`)).toHaveTextContent("unknown");
   });
 
   it("converts rule-check picker and reference preview values without changing selections or pack JSON", async () => {

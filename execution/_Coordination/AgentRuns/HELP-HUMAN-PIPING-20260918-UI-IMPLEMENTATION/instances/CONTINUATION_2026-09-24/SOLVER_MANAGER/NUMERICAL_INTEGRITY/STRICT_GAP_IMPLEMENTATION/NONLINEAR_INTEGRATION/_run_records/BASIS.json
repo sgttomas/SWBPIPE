@@ -1,0 +1,56 @@
+{
+  "actor": "/root/solver_manager/structural_integration",
+  "parent": "/root/solver_manager",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native",
+  "dispatch": "inherited parent reported gpt-6-astra low",
+  "origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/STRICT_GAP_DESIGN/RETURN.md",
+      "sha256": "8978228d17efad3abe0e91e70ef17577f33b5e1c32208fd7c9e1cb5d38687e29"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/STRICT_GAP_IMPLEMENTATION/PROJECTION_REVIEW/RETURN.md",
+      "sha256": "d63aba0f925e035585ee15b5dac0050fac61b3d8f870187bc5dfe52fa0de2b51"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONTACT_BOUNDARY_CHECKS/_run_records/CASES.json",
+      "sha256": "ee309a08192616222072977a59871cf10c638e16e9286105af36e0d520757446"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "sha256": "700338b91a54f9623ab479e5d0202f625a04810ebdce50e98196001da3675d9e"
+    }
+  ],
+  "before_sources": [
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "e21c812accb1ab2eb4cd2c9e4509cd25ba38982b3e649aafaeaa64ea9cb3f009"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+      "sha256": "594377d0e6f5057f2e98961ce45baac3f8e8720c300856f7fdc17a30aad6baac"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/product_equilibrium.rs",
+      "sha256": "d18ed7e007e22390105670c89a647c3ab06441b4d27ed685b01e9bba0a8bc53e"
+    }
+  ],
+  "limits": "Only nonlinear src/lib.rs, structural_adapter.rs, product_equilibrium.rs and this evidence; no children, Cargo/build/native, kernel/product/consumer edits or commits; assignment scope is not OS isolation"
+}

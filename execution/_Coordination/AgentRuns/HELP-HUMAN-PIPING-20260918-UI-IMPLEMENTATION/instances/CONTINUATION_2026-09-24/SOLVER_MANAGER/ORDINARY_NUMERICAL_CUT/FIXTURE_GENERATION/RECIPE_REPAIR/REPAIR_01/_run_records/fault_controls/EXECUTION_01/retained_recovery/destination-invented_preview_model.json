@@ -1,0 +1,10 @@
+{
+  "project": {
+    "id": "transaction-only:no-physics"
+  },
+  "load_cases": [
+    {
+      "id": "load:transaction-only"
+    }
+  ]
+}

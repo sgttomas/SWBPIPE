@@ -1,4 +1,4 @@
-//! Canonical 0.2 derivative assembly consumes opaque same-Value actual-solve evidence.
+//! Version-dispatched canonical derivative assembly consumes opaque same-Value actual-solve evidence.
 //! Raw MechanicsEnvelope/RunnerResult transport and legacy analysis hashes remain independent.
 //! Rows use the complete shared semantic contract; unsupported rows are retained in disclosures.
 
@@ -244,6 +244,15 @@ pub fn build_result_export_document_with_evidence(request: &RunnerRequest, runne
         }
         let model=&evidence.solve_payload["model"];
         if model["project"]["id"] != source["model_ref"] { return Err("SOURCE_MODEL_IDENTITY_MISMATCH".into()); }
+        // Authentic computation and numerical qualification are separate facts.
+        let cases = model["load_cases"].as_array().ok_or("REQUESTED_NUMERICAL_BASIS_UNAVAILABLE")?;
+        let requested: Vec<Value> = cases.iter().map(|case| {
+            case["id"].as_str().filter(|id| !id.is_empty())
+                .map(|id| reference("load_case", id)).ok_or("REQUESTED_NUMERICAL_BASIS_UNAVAILABLE")
+        }).collect::<Result<_, _>>()?;
+        if export::semantic_contract::numerical_use_standing(&source, &requested) != "numerically_eligible" {
+            return Err("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE".into());
+        }
         let payload_ref=reference("attested_headless_producer",envelope_id);
         let carrier=checksum(&source,"attested_headless_producer_carrier",payload_ref)?;
         let actual_ref=reference("model_payload",mechanics.model_ref.as_str());
@@ -442,7 +451,33 @@ mod tests {
        if case["case_id"]=="gap-chain-five-active"{assert!(mechanics.diagnostics.iter().any(|d|d.code=="NONLINEAR_SUPPORT_NONCONVERGENCE"));assert!(mechanics.results.is_empty());}
        continue;
      }
+     if matches!(case["case_id"].as_str(), Some("gap-chain-two-active-control" | "gap-chain-five-inactive-control")) {
+       assert_eq!(mechanics.numerical_quality.status, open_pipe_stress_product_physics::NumericalQualityStatus::Unresolved,
+         "the solved gap controls must exercise unqualified export refusal");
+     }
+     if mechanics.numerical_quality.status != open_pipe_stress_product_physics::NumericalQualityStatus::ChecksPassed {
+       assert!(!mechanics.results.is_empty(), "unqualified computation stays inspectable");
+       assert!(output.result_envelope_document.is_none());
+       assert!(output.qualified_preview_evidence.is_none());
+       assert!(output.canonical_export_unavailability.as_deref().unwrap().contains("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE"));
+       continue;
+     }
      let doc=output.result_envelope_document.as_ref().unwrap_or_else(||panic!("{} {:?}",case["case_id"],output.canonical_export_unavailability));
+     assert_eq!(doc["schema_version"], "0.3.0");
+     let raw = serde_json::to_value(mechanics).unwrap();
+     if let Ok(dir)=std::env::var("HEADLESS_PRECISION_OUTPUT_DIR") {
+         let dir=std::path::Path::new(&dir);std::fs::create_dir_all(dir).unwrap();
+         let name=case["case_id"].as_str().unwrap();
+         std::fs::write(dir.join(format!("{name}.raw.json")),serde_json::to_vec_pretty(&raw).unwrap()).unwrap();
+         std::fs::write(dir.join(format!("{name}.document.json")),serde_json::to_vec_pretty(doc).unwrap()).unwrap();
+     }
+     let read: Value = serde_json::from_slice(&serde_json::to_vec(&raw).unwrap()).unwrap();
+     assert_eq!(read, raw);
+     for key in ["producer", "numerical_quality", "formulation_basis"] { assert_eq!(doc["result_envelope"][key], raw[key]); }
+     for (original, parsed) in raw["results"].as_array().unwrap().iter().zip(read["results"].as_array().unwrap()) {
+         assert_eq!(original["value"].as_f64().unwrap().to_bits(), parsed["value"].as_f64().unwrap().to_bits());
+     }
+     export::derivative::validate_document(doc, &read).unwrap();
      let proof=output.qualified_preview_evidence.as_ref().unwrap();
      let explicit=build_result_export_document_with_evidence(&request(),&output.runner_result,mechanics,proof).unwrap();assert_eq!(doc,&explicit);
      assert_eq!(doc["result_envelope"]["model_ref"]["ref_id"],case["model"]["project"]["id"]);
@@ -453,6 +488,20 @@ mod tests {
      let mut changed=mechanics.clone();changed.results[0].value+=1.0;assert!(build_result_export_document_with_evidence(&request(),&output.runner_result,&changed,proof).is_err());
      let mut fake=proof.clone();fake.solve_payload["model"]["unknown_authored_metadata"]=serde_json::json!("same-id-substitution");assert!(build_result_export_document_with_evidence(&request(),&output.runner_result,mechanics,&fake).is_err());
      let serialized=serde_json::to_value(&output).unwrap();assert!(serialized.get("result_envelope_document").is_none());assert!(serialized.get("qualified_preview_evidence").is_none());assert!(serialized.get("canonical_export_unavailability").is_none());
+   }
+ }
+ #[test]
+ fn sensitive_actual_source_cannot_mint_qualified_canonical_export() {
+   let model: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/numerical_sensitive_torsion_model.json")).unwrap();
+   for mode in [open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny, open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive] {
+     let output = crate::run_preview_model_value_with_mode(request(), serde_json::json!({"model": model, "materials": []}), mode).unwrap();
+     let raw = output.mechanics_envelope.as_ref().unwrap();
+     assert_eq!(raw.status.mechanics, "MECHANICS_SOLVED");
+     assert_eq!(raw.numerical_quality.status, open_pipe_stress_product_physics::NumericalQualityStatus::Sensitive);
+     assert!(!raw.results.is_empty());
+     assert!(output.result_envelope_document.is_none());
+     assert!(output.qualified_preview_evidence.is_none());
+     assert!(output.canonical_export_unavailability.as_deref().unwrap().contains("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE"));
    }
  }
  #[test]fn typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes(){

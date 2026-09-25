@@ -1,0 +1,94 @@
+{
+  "exit_code": 0,
+  "restored": true,
+  "observations": [
+    {
+      "input": "mode=dense_scrutiny ux_force=100000",
+      "converged": true,
+      "iterations": [
+        {
+          "iteration": 1,
+          "deltas": {},
+          "contact_admissible": true
+        },
+        {
+          "iteration": 2,
+          "deltas": {
+            "max_abs_translation_delta_from_previous": 0.014450834577689567,
+            "max_abs_rotation_delta_from_previous": 0.021676251866534355,
+            "max_abs_force_reaction_delta_from_previous": 100000.0,
+            "max_abs_moment_reaction_delta_from_previous": 99655.1922599206
+          },
+          "contact_admissible": true
+        }
+      ],
+      "output_mechanics": "MODEL_INCOMPLETE"
+    },
+    {
+      "input": "mode=dense_scrutiny ux_force=120000",
+      "converged": true,
+      "iterations": [
+        {
+          "iteration": 1,
+          "deltas": {},
+          "contact_admissible": true
+        },
+        {
+          "iteration": 2,
+          "deltas": {
+            "max_abs_translation_delta_from_previous": 0.014450834577689567,
+            "max_abs_rotation_delta_from_previous": 0.021676251866534355,
+            "max_abs_force_reaction_delta_from_previous": 119999.99999999999,
+            "max_abs_moment_reaction_delta_from_previous": 99655.1922599206
+          },
+          "contact_admissible": true
+        }
+      ],
+      "output_mechanics": "MODEL_INCOMPLETE"
+    },
+    {
+      "input": "mode=sparse_interactive ux_force=100000",
+      "converged": true,
+      "iterations": [
+        {
+          "iteration": 1,
+          "deltas": {},
+          "contact_admissible": true
+        },
+        {
+          "iteration": 2,
+          "deltas": {
+            "max_abs_translation_delta_from_previous": 0.014450834577689546,
+            "max_abs_rotation_delta_from_previous": 0.02167625186653432,
+            "max_abs_force_reaction_delta_from_previous": 100000.0,
+            "max_abs_moment_reaction_delta_from_previous": 99655.19225992046
+          },
+          "contact_admissible": true
+        }
+      ],
+      "output_mechanics": "MODEL_INCOMPLETE"
+    },
+    {
+      "input": "mode=sparse_interactive ux_force=120000",
+      "converged": true,
+      "iterations": [
+        {
+          "iteration": 1,
+          "deltas": {},
+          "contact_admissible": true
+        },
+        {
+          "iteration": 2,
+          "deltas": {
+            "max_abs_translation_delta_from_previous": 0.014450834577689546,
+            "max_abs_rotation_delta_from_previous": 0.02167625186653432,
+            "max_abs_force_reaction_delta_from_previous": 119999.99999999999,
+            "max_abs_moment_reaction_delta_from_previous": 99655.19225992046
+          },
+          "contact_admissible": true
+        }
+      ],
+      "output_mechanics": "MODEL_INCOMPLETE"
+    }
+  ]
+}

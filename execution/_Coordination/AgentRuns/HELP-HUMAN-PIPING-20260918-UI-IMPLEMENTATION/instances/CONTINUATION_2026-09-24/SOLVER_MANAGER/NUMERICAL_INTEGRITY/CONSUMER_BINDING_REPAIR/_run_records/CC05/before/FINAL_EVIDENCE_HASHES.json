@@ -1,0 +1,22 @@
+[
+  {
+    "path": "RETURN.md",
+    "sha256": "1ab7d815f1fdbcc0a64ef7653d123a258cc9c4d701db7f33582959c99fbea177"
+  },
+  {
+    "path": "CANDIDATE_FILES.json",
+    "sha256": "07e07f324fd5c19af9f536be2694a6045401451a160fea5e419ad0e34042bbaa"
+  },
+  {
+    "path": "_run_records/repair.patch",
+    "sha256": "de4f439fc0e344325f7c266806133ed81c417a2910bec65e99abd84960be20e0"
+  },
+  {
+    "path": "_run_records/binding_probe_repair.py",
+    "sha256": "2e8a85747a14175a26efc23cedc3bdd701010d830bae3418f2ab0ed5502e0f76"
+  },
+  {
+    "path": "_run_records/binding_probe_repair.log",
+    "sha256": "1c6906c0ccfed579f3dfab51f79c8810d5e16bf544f63cdf65202d0d5a8593bf"
+  }
+]

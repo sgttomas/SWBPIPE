@@ -1,0 +1,42 @@
+diff --git a/projects/chirality-piping/core/product_physics/examples/preview_result.rs b/projects/chirality-piping/core/product_physics/examples/preview_result.rs
+index 36ab7d9ff5..32c475a8bd 100644
+--- a/projects/chirality-piping/core/product_physics/examples/preview_result.rs
++++ b/projects/chirality-piping/core/product_physics/examples/preview_result.rs
+@@ -1,16 +1,32 @@
+ use open_pipe_stress_product_physics::{
+-    run_linear_static_preview, LinearStaticPreviewRequest, PreviewModel,
++    run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewModel,
++    PreviewSolverMode,
+ };
+ 
+ fn main() {
++    let arguments = std::env::args().skip(1).collect::<Vec<_>>();
++    let mode = match arguments.as_slice() {
++        [] => PreviewSolverMode::default(),
++        [mode] => PreviewSolverMode::from_wire(mode).unwrap_or_else(|| {
++            eprintln!("unsupported preview solver mode: {mode}");
++            std::process::exit(2);
++        }),
++        _ => {
++            eprintln!("usage: preview_result [sparse_interactive|dense_scrutiny]");
++            std::process::exit(2);
++        }
++    };
+     let model: PreviewModel = serde_json::from_str(include_str!(
+         "../../../fixtures/product_preview/invented_preview_model.json"
+     ))
+     .expect("invented preview model fixture should parse");
+-    let result = run_linear_static_preview(LinearStaticPreviewRequest {
+-        model,
+-        materials: vec![],
+-    });
++    let result = run_linear_static_preview_with_mode(
++        LinearStaticPreviewRequest {
++            model,
++            materials: vec![],
++        },
++        mode,
++    );
+     println!(
+         "{}",
+         serde_json::to_string_pretty(&result).expect("result should serialize")

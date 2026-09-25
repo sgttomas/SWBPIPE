@@ -1,0 +1,28 @@
+{
+  "author": "/root/solver_manager",
+  "status": "test authored before production containment; not executed",
+  "source_path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+  "before_sha256": "10a8d2195e4cd3674261251fb6e97106ab16ccabd46df60d346e7f6cd42bb645",
+  "tests_only_sha256": "75c7ecd24d590f539fcbe3d9a16e3cffe31cacaee8e012c81ead7fdbce338f31",
+  "cases": 36,
+  "modes": [
+    "sparse_interactive",
+    "dense_scrutiny"
+  ],
+  "dofs": [
+    "rotation_x",
+    "RX",
+    "rotation_y",
+    "RY",
+    "rotation_z",
+    "RZ"
+  ],
+  "gap_units": [
+    "mm",
+    "m",
+    "rad"
+  ],
+  "criterion": "explicit unsupported rotational-gap diagnostic; no angular capability admitted",
+  "existing_positive_control": "gap_preview_closes_to_explicit_clearance_through_dense_loop",
+  "production_behavior_unchanged": true
+}

@@ -1,0 +1,17 @@
+{
+  "from": "FINAL_SOURCE_FREEZE_04.json",
+  "to": "FINAL_SOURCE_FREEZE_05.json",
+  "changes": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "previous_sha256": "c59154974556ccbd388ab21bb0e35273e23e722ff05e785d480b8c9371be3898",
+      "sha256": "c2890e7e0607aeb9558ec9ac72dad0a460a6675907d6bdea4fe276fa1b3eb7c6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "previous_sha256": "c88a2399b08e7289627b9104557c5a7ce983ee127b18b9fd7bb0f529b0a6377c",
+      "sha256": "b6f07e602fdac816d0c473676ef206dc9adea92f30ec518da19cae0877829e40"
+    }
+  ],
+  "reason": "Fresh whole reviewer reproduced six rehashed precision-only header downgrades through actual TS legacy builder. Reject own-property presence incl falsy; historical fixture and current precision1 schema unchanged."
+}

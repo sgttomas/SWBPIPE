@@ -1,0 +1,51 @@
+{
+  "role": "TASK Type 2",
+  "parent": "/root/authoring_manager",
+  "agent": "/root/authoring_manager/precision_desktop",
+  "mechanism": "delegated-harness-native collaboration child",
+  "harness": "Codex desktop tools/functions.exec",
+  "model_origin": "Inherited parent configuration; no independent exact model identifier supplied to this child; system identifies GPT-6 family",
+  "checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "containment": "Shared assigned checkout under writable /private/tmp; assignment boundaries are not an OS-isolated sandbox",
+  "delegation": "none",
+  "selected_skills": [],
+  "instruction_origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_CONSUMER_CONTRACT.md",
+      "sha256": "84e1c73239c0df953fcad85c2e2ced1221255d1741c4ad689b8b744ab867c21a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTERFACE_PLAN.md",
+      "sha256": "e0ade6a709467644a580d100fae922e6897bb7ff671810d631947d54dab0d965"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/_run_records/PRECISION_CONSUMER_CONTRACT_V1.md",
+      "sha256": "f57aac951ff65d304df8f1f2d4ac123bfd5279af48fe737926a68109b507e9ea",
+      "usage": "original supplied V1 read before prospective V2 adoption"
+    }
+  ],
+  "tests": "Not run: ROOT resource grant pending",
+  "git_mutations": "none",
+  "scope_extensions": [
+    "analysisRunCompatibility service and focused test",
+    "ruleCheckService and test",
+    "existing StressNeutralExportPanel and test"
+  ],
+  "source_freeze_manifest": "../SOURCE_HASHES.json"
+}

@@ -1,0 +1,23 @@
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.04s
+     Running unittests src/lib.rs (/private/tmp/piping-nonlinear-integration-exact-gap-target/debug/deps/open_pipe_stress_nonlinear_integration-dd17f20a628b76ea)
+
+running 3 tests
+
+thread 'tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification' (79515282) panicked at src/lib.rs:4707:13:
+assertion `left == right` failed
+  left: Inactive
+ right: Sliding
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification ... FAILED
+test tests::unsupported_gap_inspection_rejects_source_or_receipt_mutations ... ok
+test tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt ... ok
+
+failures:
+
+failures:
+    tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 58 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--lib`

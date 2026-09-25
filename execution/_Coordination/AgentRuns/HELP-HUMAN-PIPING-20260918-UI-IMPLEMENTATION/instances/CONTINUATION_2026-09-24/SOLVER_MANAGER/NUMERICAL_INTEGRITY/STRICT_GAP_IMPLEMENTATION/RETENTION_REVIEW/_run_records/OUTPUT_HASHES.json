@@ -1,0 +1,12 @@
+{
+  "RETURN.md": "83a0b37692ebaec452e7b76affd8b76d04edd02ff79a239d14920594e2bda29e",
+  "_run_records/RET01_WITNESS.md": "478cd98a047cb8832ca2ac9dbaeca619e1942513bf79af2ac464a6a328470efe",
+  "_run_records/scope_check.json": "29e34d0a72702d62c17639c055dd9b0c7ed013fea74c45869d2c1397f4c858b0",
+  "_run_records/check_reference.py": "692ba9006ce4d81d614bfa32960a95cf703c4cc23402cf620be1432b717a02b7",
+  "_run_records/SOURCE_CHECK.json": "d5f86824058fe33398332abd049344a837597cfd0cf777cbf14961a2595bb49f",
+  "_run_records/INPUT_HASHES.json": "38eadbd1ffb75ef43086995ddcb65680bde232529c726583504b4394bfac2a64",
+  "_run_records/ORIGINS.json": "6f154898d637656b88476be1ea9f3d03cfd05f3b09934c1e4cad0a4163d89a3b",
+  "_run_records/REFERENCE_CHECKS.json": "3a433b51597851839151dd8cfcc7ef7c555bb41804768069e70ee5b56959cf10",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs": "2328cabde725a61334bbba0b9d37469388e402ea6dd7acdd9ad6347e5ca895a6",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "6801610d0bb515eab33603163423812b81bf94946d8c23b99c127b655d996a7f"
+}

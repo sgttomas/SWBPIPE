@@ -1,0 +1,47 @@
+{
+  "status": "PATCH ONLY: not applied, no generation/replay/check executed",
+  "path_basis": "REPO_ROOT clean numerical checkout",
+  "files": [
+    {
+      "path": "projects/chirality-piping/package.json",
+      "before_sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656",
+      "proposed_sha256": "ae2274d2078a378387a82d99af3fd49d58232d62aa4c383d2511cff02bff2a63"
+    },
+    {
+      "path": "projects/chirality-piping/tools/serialization/generate_product_preview_mechanics.mjs",
+      "before": "absent",
+      "proposed_sha256": "be74fec9edce8106edecee5529ad87c67b4e3fd396bfadd8fe6674b990fab706"
+    }
+  ],
+  "patch_sha256": "c45f8613271a67c4b6adc180da90771d33aab6a325a82c32cd29923aa2fc11be",
+  "maintained_files_unchanged_at_seal": [
+    {
+      "path": "projects/chirality-piping/package.json",
+      "sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/examples/preview_result.rs",
+      "sha256": "1e725db3e61abb0e94cbc9db8a8a0f504bc4203ea7b3aa41aaebb6a8a88cd864"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+      "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+      "sha256": "264361d53b2de2041e68ddb3eabeabb2c10cb96b2666e499aeeb4e9476a820e6"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+      "sha256": "e2ca1909e15b4aff70238bae390db444291e3304f45b1501f8dabe64fe509155"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/precision_fixture_generation.json",
+      "sha256": "1db7cb2b2a88907f832a4012d1f0e0f0ee127d8e8d3db35394a6d081478ad238"
+    }
+  ]
+}

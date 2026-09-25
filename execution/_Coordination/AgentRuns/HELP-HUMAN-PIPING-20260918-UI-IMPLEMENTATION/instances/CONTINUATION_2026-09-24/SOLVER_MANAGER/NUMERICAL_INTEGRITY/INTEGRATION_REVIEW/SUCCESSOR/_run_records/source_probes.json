@@ -1,0 +1,111 @@
+{
+  "scope": "Source transcriptions, exact Fraction oracle; no production Rust execution or contact runtime observation",
+  "contact": [
+    {
+      "sign": 1.0,
+      "computed_u": [
+        0.12499999999999997,
+        0.24999999999999997
+      ],
+      "gap": [
+        0.125,
+        0.25
+      ],
+      "initial_states": [
+        "inactive",
+        "inactive"
+      ],
+      "classified_states": [
+        "inactive",
+        "inactive"
+      ],
+      "changed_support_count": 0,
+      "equilibrium_rows": [
+        {
+          "exact_residual": "-25/9007199254740992",
+          "exact_ratio": "1/18014398509481981",
+          "guarded_ratio": 7.371880883511062e-16,
+          "target": 4.263256414560604e-14,
+          "passed": true
+        },
+        {
+          "exact_residual": "0",
+          "exact_ratio": "0",
+          "guarded_ratio": 6.66133814775096e-16,
+          "target": 4.263256414560604e-14,
+          "passed": true
+        }
+      ],
+      "exact_closed_contact_u": [
+        "0.125",
+        "0.25"
+      ],
+      "exact_closed_reactions": [
+        0,
+        0
+      ]
+    },
+    {
+      "sign": -1.0,
+      "computed_u": [
+        -0.12499999999999997,
+        -0.24999999999999997
+      ],
+      "gap": [
+        0.125,
+        0.25
+      ],
+      "initial_states": [
+        "inactive",
+        "inactive"
+      ],
+      "classified_states": [
+        "inactive",
+        "inactive"
+      ],
+      "changed_support_count": 0,
+      "equilibrium_rows": [
+        {
+          "exact_residual": "25/9007199254740992",
+          "exact_ratio": "1/18014398509481981",
+          "guarded_ratio": 7.371880883511062e-16,
+          "target": 4.263256414560604e-14,
+          "passed": true
+        },
+        {
+          "exact_residual": "0",
+          "exact_ratio": "0",
+          "guarded_ratio": 6.66133814775096e-16,
+          "target": 4.263256414560604e-14,
+          "passed": true
+        }
+      ],
+      "exact_closed_contact_u": [
+        "-0.125",
+        "-0.25"
+      ],
+      "exact_closed_reactions": [
+        0,
+        0
+      ]
+    }
+  ],
+  "qualification_mutations": [
+    {
+      "mutation": "missing_rows",
+      "qualifier_conjunction_result": true
+    },
+    {
+      "mutation": "missing_work",
+      "qualifier_conjunction_result": true
+    },
+    {
+      "mutation": "unknown_structural_policy",
+      "qualifier_conjunction_result": true
+    },
+    {
+      "mutation": "changed_input_force",
+      "qualifier_conjunction_result": true
+    }
+  ]
+}

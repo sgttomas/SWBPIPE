@@ -1,0 +1,7 @@
+{
+  "cwd": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping",
+  "python": "/private/tmp/chirality-piping-dec025-venv/bin/python",
+  "PYTHONDONTWRITEBYTECODE": "1",
+  "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-canonical-precision-target/debug/openpipestress_jcs_ijson",
+  "HEADLESS_PRECISION_OUTPUT_DIR": "/private/tmp/piping-precision-headless-documents"
+}

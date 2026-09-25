@@ -1,0 +1,50 @@
+{
+  "scope": "Pure Python source transcriptions plus exact Fraction formation oracle, not production Rust execution; no universal bound proof",
+  "identity": {
+    "cases": [
+      "load:a-b",
+      "load-a:b"
+    ],
+    "distinct_nonempty_ids": true,
+    "emitted_ids": [
+      "diagnostic:numerical-integrity:load-a-b",
+      "diagnostic:numerical-integrity:load-a-b"
+    ],
+    "passed_sensitive_actual": [
+      "checks_passed",
+      "checks_passed"
+    ],
+    "passed_sensitive_expected": [
+      "checks_passed",
+      "sensitive"
+    ],
+    "unassessed_actual": [
+      "checks_passed",
+      "checks_passed"
+    ],
+    "unassessed_expected": [
+      "checks_passed",
+      "not_assessed"
+    ]
+  },
+  "curved_formation_samples": [
+    {
+      "tip_scale": 1.0,
+      "entries_checked": 144,
+      "max_skew": 8.881784197001252e-16,
+      "formation_bound_checks": "passed for this finite represented H/K/T sample"
+    },
+    {
+      "tip_scale": 1000000000000.0,
+      "entries_checked": 144,
+      "max_skew": 0.002197265625,
+      "formation_bound_checks": "passed for this finite represented H/K/T sample"
+    },
+    {
+      "tip_scale": 1e-12,
+      "entries_checked": 144,
+      "max_skew": 8.077935669463161e-28,
+      "formation_bound_checks": "passed for this finite represented H/K/T sample"
+    }
+  ]
+}

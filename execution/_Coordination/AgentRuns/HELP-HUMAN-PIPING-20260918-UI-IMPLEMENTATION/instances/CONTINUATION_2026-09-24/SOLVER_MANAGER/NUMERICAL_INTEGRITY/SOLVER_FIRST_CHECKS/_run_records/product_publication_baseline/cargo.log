@@ -1,0 +1,1407 @@
+   Compiling open_pipe_stress_product_physics v0.2.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.83s
+     Running tests/represented_gap_publication.rs (/private/tmp/piping-product-rotational-gap-target/debug/deps/represented_gap_publication-cb48fce8c34df1bf)
+
+running 17 tests
+
+thread 'dense_negative_active_contact' (79421316) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=dense_scrutiny sense=negative_displacement seed=active load=-100000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in active state for load case load-case:axial-publication; dense_scrutiny preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "dense_scrutiny nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive dense Cholesky\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [], work_rows: [], observed_governing_work_dof: None, passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=79
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'dense_negative_active_open' (79421317) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=dense_scrutiny sense=negative_displacement seed=active load=-25000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in inactive state for load case load-case:axial-publication; dense_scrutiny preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "dense_scrutiny nonlinear support active-set preview completed 2 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive dense Cholesky\", scale_exponents: [-14], pivots: [PivotEvidence { ordered_index: 0, global_dof: 6, pivot: 1.1118177402430418, cancellation_scale: 1.1118177402430418, operation_count: 2, screen: 1.579988037637807e-14 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 6, residual: -1.3799469794249303e-12, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: -4.2112639752958076e-17, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 4.404571325722387e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 1.4432899320127118e-10, guarded_ratio: 2.9141788036139333e-15, target: 1.8474111129762658e-13, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], work_rows: [WorkRow { global_dof: 6, observed_work: 0.0, evaluation_allowance: 2.7899602468978246e-15, derived_target: 1.7855745580146052e-13, normalized_work: 0.0, normalized_allowance: 1.3949801234489123e-15, normalized_target: 8.927872790073026e-14, scale_exponent: 1, passed: true }], observed_governing_work_dof: Some(6), passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=83
+test dense_negative_active_contact ... FAILED
+test dense_negative_active_open ... FAILED
+
+thread 'dense_negative_inactive_open' (79421319) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=dense_scrutiny sense=negative_displacement seed=inactive load=-25000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in inactive state for load case load-case:axial-publication; dense_scrutiny preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "dense_scrutiny nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive dense Cholesky\", scale_exponents: [-14], pivots: [PivotEvidence { ordered_index: 0, global_dof: 6, pivot: 1.1118177402430418, cancellation_scale: 1.1118177402430418, operation_count: 2, screen: 1.579988037637807e-14 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 6, residual: -1.3799469794249303e-12, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: -4.2112639752958076e-17, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 4.404571325722387e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 1.4432899320127118e-10, guarded_ratio: 2.9141788036139333e-15, target: 1.8474111129762658e-13, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], work_rows: [WorkRow { global_dof: 6, observed_work: 0.0, evaluation_allowance: 2.7899602468978246e-15, derived_target: 1.7855745580146052e-13, normalized_work: 0.0, normalized_allowance: 1.3949801234489123e-15, normalized_target: 8.927872790073026e-14, scale_exponent: 1, passed: true }], observed_governing_work_dof: Some(6), passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=79
+test dense_negative_inactive_open ... FAILED
+
+thread 'dense_negative_inactive_contact' (79421318) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=dense_scrutiny sense=negative_displacement seed=inactive load=-100000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in active state for load case load-case:axial-publication; dense_scrutiny preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "dense_scrutiny nonlinear support active-set preview completed 2 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive dense Cholesky\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [], work_rows: [], observed_governing_work_dof: None, passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=83
+test dense_negative_inactive_contact ... FAILED
+
+thread 'dense_positive_active_contact' (79421320) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=dense_scrutiny sense=positive_displacement seed=active load=100000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in active state for load case load-case:axial-publication; dense_scrutiny preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "dense_scrutiny nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive dense Cholesky\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [], work_rows: [], observed_governing_work_dof: None, passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=79
+test dense_positive_active_contact ... FAILED
+
+thread 'dense_positive_active_open' (79421321) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=dense_scrutiny sense=positive_displacement seed=active load=25000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in inactive state for load case load-case:axial-publication; dense_scrutiny preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "dense_scrutiny nonlinear support active-set preview completed 2 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive dense Cholesky\", scale_exponents: [-14], pivots: [PivotEvidence { ordered_index: 0, global_dof: 6, pivot: 1.1118177402430418, cancellation_scale: 1.1118177402430418, operation_count: 2, screen: 1.579988037637807e-14 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 6, residual: 1.3799469794249303e-12, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 4.2112639752958076e-17, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 4.404571325722387e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 1.4432899320127118e-10, guarded_ratio: 2.9141788036139333e-15, target: 1.8474111129762658e-13, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], work_rows: [WorkRow { global_dof: 6, observed_work: 0.0, evaluation_allowance: 2.7899602468978246e-15, derived_target: 1.7855745580146052e-13, normalized_work: 0.0, normalized_allowance: 1.3949801234489123e-15, normalized_target: 8.927872790073026e-14, scale_exponent: 1, passed: true }], observed_governing_work_dof: Some(6), passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=83
+test dense_positive_active_open ... FAILED
+
+thread 'dense_positive_inactive_contact' (79421322) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=dense_scrutiny sense=positive_displacement seed=inactive load=100000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in active state for load case load-case:axial-publication; dense_scrutiny preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "dense_scrutiny nonlinear support active-set preview completed 2 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive dense Cholesky\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [], work_rows: [], observed_governing_work_dof: None, passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=83
+test dense_positive_inactive_contact ... FAILED
+
+thread 'dense_positive_inactive_open' (79421323) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=dense_scrutiny sense=positive_displacement seed=inactive load=25000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in inactive state for load case load-case:axial-publication; dense_scrutiny preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "dense_scrutiny nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive dense Cholesky\", scale_exponents: [-14], pivots: [PivotEvidence { ordered_index: 0, global_dof: 6, pivot: 1.1118177402430418, cancellation_scale: 1.1118177402430418, operation_count: 2, screen: 1.579988037637807e-14 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 6, residual: 1.3799469794249303e-12, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 4.2112639752958076e-17, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 4.404571325722387e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 1.4432899320127118e-10, guarded_ratio: 2.9141788036139333e-15, target: 1.8474111129762658e-13, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], work_rows: [WorkRow { global_dof: 6, observed_work: 0.0, evaluation_allowance: 2.7899602468978246e-15, derived_target: 1.7855745580146052e-13, normalized_work: 0.0, normalized_allowance: 1.3949801234489123e-15, normalized_target: 8.927872790073026e-14, scale_exponent: 1, passed: true }], observed_governing_work_dof: Some(6), passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=79
+test dense_positive_inactive_open ... FAILED
+
+thread 'sparse_negative_active_contact' (79421325) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=sparse_interactive sense=negative_displacement seed=active load=-100000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in active state for load case load-case:axial-publication; sparse_interactive preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "sparse_interactive nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [], work_rows: [], observed_governing_work_dof: None, passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=78
+test sparse_negative_active_contact ... FAILED
+
+thread 'sparse_negative_active_open' (79421326) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=sparse_interactive sense=negative_displacement seed=active load=-25000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in inactive state for load case load-case:axial-publication; sparse_interactive preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "sparse_interactive nonlinear support active-set preview completed 2 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [-14], pivots: [PivotEvidence { ordered_index: 0, global_dof: 6, pivot: 1.1118177402430418, cancellation_scale: 1.1118177402430418, operation_count: 2, screen: 1.579988037637807e-14 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 6, residual: -1.3799469794249303e-12, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: -4.2112639752958076e-17, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 4.404571325722387e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 1.4432899320127118e-10, guarded_ratio: 2.9141788036139333e-15, target: 1.8474111129762658e-13, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], work_rows: [WorkRow { global_dof: 6, observed_work: 0.0, evaluation_allowance: 2.7899602468978246e-15, derived_target: 1.7855745580146052e-13, normalized_work: 0.0, normalized_allowance: 1.3949801234489123e-15, normalized_target: 8.927872790073026e-14, scale_exponent: 1, passed: true }], observed_governing_work_dof: Some(6), passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=82
+test sparse_negative_active_open ... FAILED
+test ordinary_no_gap_companion_remains_qualified_and_matches_small_strain_axial_law ... ok
+
+thread 'sparse_negative_inactive_contact' (79421327) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=sparse_interactive sense=negative_displacement seed=inactive load=-100000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in active state for load case load-case:axial-publication; sparse_interactive preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "sparse_interactive nonlinear support active-set preview completed 2 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [], work_rows: [], observed_governing_work_dof: None, passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=82
+test sparse_negative_inactive_contact ... FAILED
+
+thread 'sparse_negative_inactive_open' (79421328) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=sparse_interactive sense=negative_displacement seed=inactive load=-25000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in inactive state for load case load-case:axial-publication; sparse_interactive preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "sparse_interactive nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [-14], pivots: [PivotEvidence { ordered_index: 0, global_dof: 6, pivot: 1.1118177402430418, cancellation_scale: 1.1118177402430418, operation_count: 2, screen: 1.579988037637807e-14 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 6, residual: -1.3799469794249303e-12, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: -4.2112639752958076e-17, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 4.404571325722387e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 1.4432899320127118e-10, guarded_ratio: 2.9141788036139333e-15, target: 1.8474111129762658e-13, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], work_rows: [WorkRow { global_dof: 6, observed_work: 0.0, evaluation_allowance: 2.7899602468978246e-15, derived_target: 1.7855745580146052e-13, normalized_work: 0.0, normalized_allowance: 1.3949801234489123e-15, normalized_target: 8.927872790073026e-14, scale_exponent: 1, passed: true }], observed_governing_work_dof: Some(6), passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=78
+test sparse_negative_inactive_open ... FAILED
+
+thread 'sparse_positive_active_contact' (79421329) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=sparse_interactive sense=positive_displacement seed=active load=100000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in active state for load case load-case:axial-publication; sparse_interactive preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "sparse_interactive nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [], work_rows: [], observed_governing_work_dof: None, passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=78
+test sparse_positive_active_contact ... FAILED
+
+thread 'sparse_positive_active_open' (79421330) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=sparse_interactive sense=positive_displacement seed=active load=25000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in inactive state for load case load-case:axial-publication; sparse_interactive preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "sparse_interactive nonlinear support active-set preview completed 2 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [-14], pivots: [PivotEvidence { ordered_index: 0, global_dof: 6, pivot: 1.1118177402430418, cancellation_scale: 1.1118177402430418, operation_count: 2, screen: 1.579988037637807e-14 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 6, residual: 1.3799469794249303e-12, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 4.2112639752958076e-17, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 4.404571325722387e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 1.4432899320127118e-10, guarded_ratio: 2.9141788036139333e-15, target: 1.8474111129762658e-13, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], work_rows: [WorkRow { global_dof: 6, observed_work: 0.0, evaluation_allowance: 2.7899602468978246e-15, derived_target: 1.7855745580146052e-13, normalized_work: 0.0, normalized_allowance: 1.3949801234489123e-15, normalized_target: 8.927872790073026e-14, scale_exponent: 1, passed: true }], observed_governing_work_dof: Some(6), passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=82
+test sparse_positive_active_open ... FAILED
+
+thread 'sparse_positive_inactive_contact' (79421331) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=sparse_interactive sense=positive_displacement seed=inactive load=100000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in active state for load case load-case:axial-publication; sparse_interactive preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "sparse_interactive nonlinear support active-set preview completed 2 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [], work_rows: [], observed_governing_work_dof: None, passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=82
+test sparse_positive_inactive_contact ... FAILED
+
+thread 'sparse_positive_inactive_open' (79421332) panicked at tests/represented_gap_publication.rs:119:28:
+missing specific mixed-recovery containment (not an input or numerical fallback error); mode=sparse_interactive sense=positive_displacement seed=inactive load=25000N; mechanics=MECHANICS_SOLVED; quality=NumericalQuality {
+    value_representation: "finite_binary64",
+    publication_quantization: "none",
+    integrity_policy: "M03-INTEGRITY-v1",
+    status: ChecksPassed,
+    cases: [
+        NumericalCaseQuality {
+            basis_ref: ResultBasisRef {
+                ref_type: "load_case",
+                ref_id: "load-case:axial-publication",
+            },
+            structural_status: PassiveModelBasis,
+            solve_quality: ChecksPassed,
+            model_matrix_fidelity: RepresentedEquationsRetained,
+            accuracy_evidence: NotClaimed,
+            evidence_refs: [
+                "diagnostic:numerical-integrity:load-case:axial-publication",
+            ],
+        },
+    ],
+}; diagnostics=[
+    Diagnostic {
+        id: "diagnostic:load:load-axial-publication:category-mapping",
+        code: "LOAD_CATEGORY_PREVIEW_MAPPED",
+        severity: "warning",
+        message: "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load:axial-publication",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:support-axial-gap:state",
+        code: "NONLINEAR_SUPPORT_STATE_REVIEW",
+        severity: "info",
+        message: "nonlinear support support:axial-gap ended in inactive state for load case load-case:axial-publication; sparse_interactive preview loop evidence only",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "support:axial-gap",
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:nonlinear:load-case-axial-publication:loop",
+        code: "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        severity: "info",
+        message: "sparse_interactive nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; prospective evaluated force/moment equilibrium policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; derived per-row residual-work policy_ref=M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1; historical general-energy alias is residual work, not total energy balance; historical policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+            "DEC-046",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:numerical-integrity:load-case:axial-publication",
+        code: "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+        severity: "info",
+        message: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load-case:axial-publication: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [-14], pivots: [PivotEvidence { ordered_index: 0, global_dof: 6, pivot: 1.1118177402430418, cancellation_scale: 1.1118177402430418, operation_count: 2, screen: 1.579988037637807e-14 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 6, residual: 1.3799469794249303e-12, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 4.2112639752958076e-17, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 4.404571325722387e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 1.4432899320127118e-10, guarded_ratio: 2.9141788036139333e-15, target: 1.8474111129762658e-13, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:axial-root:UX\", \"node:axial-root:UY\", \"node:axial-root:UZ\", \"node:axial-root:RX\", \"node:axial-root:RY\", \"node:axial-root:RZ\", \"node:axial-tip:UX\", \"node:axial-tip:UY\", \"node:axial-tip:UZ\", \"node:axial-tip:RX\", \"node:axial-tip:RY\", \"node:axial-tip:RZ\"]. M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1 final same-state evaluated equilibrium and derived residual-work evidence: ProductEquilibriumReport { policy: \"M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1\", rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 50000.0, row_scale_exponent: 15, normalized_residual: 0.0, normalized_denominator: 1.52587890625, normalized_evaluation_allowance: 1.0164395367051618e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 3.330669073875474e-11, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }], work_rows: [WorkRow { global_dof: 6, observed_work: 0.0, evaluation_allowance: 2.7899602468978246e-15, derived_target: 1.7855745580146052e-13, normalized_work: 0.0, normalized_allowance: 1.3949801234489123e-15, normalized_target: 8.927872790073026e-14, scale_exponent: 1, passed: true }], observed_governing_work_dof: Some(6), passed: true }; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [
+            "load-case:axial-publication",
+        ],
+    },
+    Diagnostic {
+        id: "diagnostic:physics:rule-inputs-missing",
+        code: "RULE_CHECK_INPUTS_MISSING",
+        severity: "warning",
+        message: "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        source: Some(
+            "core/product_physics",
+        ),
+        affected_refs: [],
+    },
+]; row_count=78
+test sparse_positive_inactive_open ... FAILED
+
+failures:
+
+failures:
+    dense_negative_active_contact
+    dense_negative_active_open
+    dense_negative_inactive_contact
+    dense_negative_inactive_open
+    dense_positive_active_contact
+    dense_positive_active_open
+    dense_positive_inactive_contact
+    dense_positive_inactive_open
+    sparse_negative_active_contact
+    sparse_negative_active_open
+    sparse_negative_inactive_contact
+    sparse_negative_inactive_open
+    sparse_positive_active_contact
+    sparse_positive_active_open
+    sparse_positive_inactive_contact
+    sparse_positive_inactive_open
+
+test result: FAILED. 1 passed; 16 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `--test represented_gap_publication`

@@ -1,0 +1,69 @@
+{
+  "python_version": "3.9.6",
+  "records": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "sha256": "4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "sha256": "3a016181fc49092d2775cc365dd2956b4c137c1f6bb64046a77b925ef5f9cce0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "03f82e343c7aee8f9f38d4b983091d0b71faebb904fb4dc7b59692a0c9cc4ad9"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/curved_bend/src/lib.rs",
+      "sha256": "6bfead4091998117612e0a4cebc9807280e2eef60f970acbd6e366e3f0c8dd4b"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "sha256": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "4f945e571a7d289de9ad87f0fcf2407faf5a169fbe150ffdd5ba206aecad16c5"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "f17bbe9dd97aa6aff468543330f413691e5eef02d4ae11a6c1217ca80905efbf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_INTEGRATION_CHECKS/_run_records/FOCUSED_RESULTS.json",
+      "sha256": "55a1779942a5bc89955b99afaf521e263a40f06995c502944d4c1110503e246c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_INTEGRATION_CHECKS/_run_records/nonlinear_compile.log",
+      "sha256": "a129fca8ad4867a848b18bc5262b2c196fec03685c3db0e74ee76aad7858325f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_INTEGRATION_CHECKS/_run_records/nonlinear_compile_repaired.log",
+      "sha256": "87021c45752eeeeed27e0cf18be2ea692c1a8e85da2325ad646e37b4c8df0f57"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_INTEGRATION_CHECKS/_run_records/product_compile.log",
+      "sha256": "1a8610768609f68e2a0bcd30b537655de9e365d47f840be7686f0870e09a129f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_INTEGRATION_CHECKS/_run_records/nonlinear_seed.log",
+      "sha256": "3b19fffc526c8c83228a43c693117bcade7f4bcc724d190bed1f0cfc41a5e013"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_INTEGRATION_CHECKS/_run_records/nonlinear_recovery.log",
+      "sha256": "5afa020bb8942fc65faf7037d88c7b57ad92e982c9a9061e9df5a18cc75e08a6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_INTEGRATION_CHECKS/_run_records/product_integrity.log",
+      "sha256": "4eac3eb58244739004869f99e55b3e2ac2b5879d921e4ba3b4d22435817b56cb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_INTEGRATION_CHECKS/_run_records/product_precision.log",
+      "sha256": "2579949833b0fd593d896028f0dcb0b85b58f8e32b7cf5fd54d7902c804e64c6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_INTEGRATION_CHECKS/_run_records/product_curved.log",
+      "sha256": "d870f6b62ce3b420d26372681aee90fed9e89a211e469d267929c7fbfb076b9a"
+    }
+  ]
+}

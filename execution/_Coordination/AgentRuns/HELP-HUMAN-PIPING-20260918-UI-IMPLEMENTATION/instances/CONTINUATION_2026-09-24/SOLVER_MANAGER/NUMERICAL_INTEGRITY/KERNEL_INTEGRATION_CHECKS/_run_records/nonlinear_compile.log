@@ -1,0 +1,41 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/nonlinear_integration)
+error[E0425]: cannot find value `linearized` in this scope
+   --> src/lib.rs:598:32
+    |
+598 |             structural_report: linearized.structural_report,
+    |                                ^^^^^^^^^^ not found in this scope
+
+error[E0560]: struct `ActiveSetIterationInput` has no field named `structural_report`
+   --> src/lib.rs:598:13
+    |
+598 |             structural_report: linearized.structural_report,
+    |             ^^^^^^^^^^^^^^^^^ `ActiveSetIterationInput` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error[E0063]: missing field `structural_report` in initializer of `NonlinearFrameIteration`
+   --> src/lib.rs:628:25
+    |
+628 |         let iteration = NonlinearFrameIteration {
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^ missing `structural_report`
+
+Some errors have detailed explanations: E0063, E0425, E0560.
+For more information about an error, try `rustc --explain E0063`.
+error: could not compile `open_pipe_stress_nonlinear_integration` (lib) due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+error[E0560]: struct `open_pipe_stress_nonlinear_supports::ActiveSetIterationInput` has no field named `structural_report`
+   --> src/lib.rs:598:13
+    |
+598 |             structural_report: linearized.structural_report,
+    |             ^^^^^^^^^^^^^^^^^ `open_pipe_stress_nonlinear_supports::ActiveSetIterationInput` does not have this field
+    |
+    = note: all struct fields are already assigned
+
+error: could not compile `open_pipe_stress_nonlinear_integration` (lib test) due to 3 previous errors

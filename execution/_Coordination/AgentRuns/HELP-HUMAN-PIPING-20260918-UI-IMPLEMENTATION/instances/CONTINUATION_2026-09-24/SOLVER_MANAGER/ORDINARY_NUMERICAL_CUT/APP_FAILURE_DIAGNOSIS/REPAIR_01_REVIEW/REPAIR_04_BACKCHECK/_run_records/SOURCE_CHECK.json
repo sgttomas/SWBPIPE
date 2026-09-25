@@ -1,0 +1,124 @@
+{
+  "combined_diff_sha256": "995fe7ef1194c86fbb684b0947809b48aefd9d6126156aa12bc2d784601b538e",
+  "expected_combined_sha256": "995fe7ef1194c86fbb684b0947809b48aefd9d6126156aa12bc2d784601b538e",
+  "incremental_diff_sha256": "312f681bf79b2da96997a77d16031da70a9ce683b63076986870abae2df7d172",
+  "reconstructed_combined_exact": true,
+  "reconstructed_incremental_exact": true,
+  "suffix_after_case_unchanged": true,
+  "prefix_diff": "--- \n+++ \n@@ -1,7 +1,8 @@\n import { solverDisplayWithToken } from \"./features/workspace/statusLabels\";\n import { statusChipInputsFromCells, statusChips, statusChipText } from \"./features/workspace/shellLayout\";\n import historicalMechanicsFixture from \"../../../fixtures/product_preview/invented_mechanics_result.json\";\n-import { buildAnalysisRunV02 } from \"./services/analysisRunCompatibility\";\n+import { PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from \"./features/results/numericalResultQuality\";\n+import { analysisRowSemantics, buildAnalysisRunV02 } from \"./services/analysisRunCompatibility\";\n import { changeFormControl, expectFormControlValue, compactOptionRecords } from \"./test-support/workspaceTestControls\";\n import type { ViewportViewCommand } from \"./features/viewport/viewportSelection\";\n import {\n@@ -43,7 +44,7 @@\n   loadDesignKnowledge,\n   runPreviewMechanics,\n } from \"./services/previewService\";\n-import { canonicalSha256Hex, computeModelHash, computeProjectEnvelopeHash } from \"./services/hashService\";\n+import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from \"./services/hashService\";\n import { buildCurrentSessionInputManifest } from \"./services/inputManifestService\";\n import { applyModelOperation } from \"./services/operationService\";\n import { applyOperationBatch, type OperationBatchOutcome } from \"./services/operationBatchService\";\n",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "repair03_sha256": "f440763e98e07254aa916e8103148ace1cd9742e39d27cd815b2156fd9cda435",
+      "after_sha256": "5374f136a93132cfbcac349375293db3dc98e6bbb2160dd1e428de7843aebb5a",
+      "actual_sha256": "5374f136a93132cfbcac349375293db3dc98e6bbb2160dd1e428de7843aebb5a",
+      "changed_in_repair04": true,
+      "matches": true,
+      "incremental_images_match": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "repair03_sha256": "ec2abbffeb468615592f5a28d4de01a61759847b5538a78b24b693612445b08a",
+      "after_sha256": "ec2abbffeb468615592f5a28d4de01a61759847b5538a78b24b693612445b08a",
+      "actual_sha256": "ec2abbffeb468615592f5a28d4de01a61759847b5538a78b24b693612445b08a",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "repair03_sha256": "2c5c9c448d115540b79cd4127b23a276b83c8eee223ae1e6ea2bb6330f3ebd87",
+      "after_sha256": "2c5c9c448d115540b79cd4127b23a276b83c8eee223ae1e6ea2bb6330f3ebd87",
+      "actual_sha256": "2c5c9c448d115540b79cd4127b23a276b83c8eee223ae1e6ea2bb6330f3ebd87",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+      "repair03_sha256": "1e18cb8fa6a7f59a31a4da780c037cd6fa3f50877c61cc8306f491e7fe2dfede",
+      "after_sha256": "1e18cb8fa6a7f59a31a4da780c037cd6fa3f50877c61cc8306f491e7fe2dfede",
+      "actual_sha256": "1e18cb8fa6a7f59a31a4da780c037cd6fa3f50877c61cc8306f491e7fe2dfede",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "repair03_sha256": "aa9d6f0cf50e98136489915c827d659f944173eba6cb11a872b2ed7b206350ad",
+      "after_sha256": "aa9d6f0cf50e98136489915c827d659f944173eba6cb11a872b2ed7b206350ad",
+      "actual_sha256": "aa9d6f0cf50e98136489915c827d659f944173eba6cb11a872b2ed7b206350ad",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
+      "repair03_sha256": "b13146287f0031a04cb21805041735d9b56df867797053dae6101ec72915ebda",
+      "after_sha256": "b13146287f0031a04cb21805041735d9b56df867797053dae6101ec72915ebda",
+      "actual_sha256": "b13146287f0031a04cb21805041735d9b56df867797053dae6101ec72915ebda",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "repair03_sha256": "09a5246e9bc5d3469a09e7ab08b2ba557b9592294680614f83652b8c50e09a7c",
+      "after_sha256": "09a5246e9bc5d3469a09e7ab08b2ba557b9592294680614f83652b8c50e09a7c",
+      "actual_sha256": "09a5246e9bc5d3469a09e7ab08b2ba557b9592294680614f83652b8c50e09a7c",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+      "repair03_sha256": "ee39515972d32fe4f527ee76aa3a6b3021dfe17fcb45fcc83aae166f27e62e72",
+      "after_sha256": "ee39515972d32fe4f527ee76aa3a6b3021dfe17fcb45fcc83aae166f27e62e72",
+      "actual_sha256": "ee39515972d32fe4f527ee76aa3a6b3021dfe17fcb45fcc83aae166f27e62e72",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts",
+      "repair03_sha256": "5f315485b9eb4befd89d45cfa18e1f470d19195fa735c665b71ba1590a00b141",
+      "after_sha256": "5f315485b9eb4befd89d45cfa18e1f470d19195fa735c665b71ba1590a00b141",
+      "actual_sha256": "5f315485b9eb4befd89d45cfa18e1f470d19195fa735c665b71ba1590a00b141",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/renderedReport.test.tsx",
+      "repair03_sha256": "2df633be14bc95d72d978f9c06f90f27ba4ec1ce5f039356cc37796a14faba29",
+      "after_sha256": "2df633be14bc95d72d978f9c06f90f27ba4ec1ce5f039356cc37796a14faba29",
+      "actual_sha256": "2df633be14bc95d72d978f9c06f90f27ba4ec1ce5f039356cc37796a14faba29",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "repair03_sha256": "298c3c82dec6a7d3a996aa3ca22bbaa71e2398565e7faf9eceb40507f5ac4a97",
+      "after_sha256": "298c3c82dec6a7d3a996aa3ca22bbaa71e2398565e7faf9eceb40507f5ac4a97",
+      "actual_sha256": "298c3c82dec6a7d3a996aa3ca22bbaa71e2398565e7faf9eceb40507f5ac4a97",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "repair03_sha256": "c578188d59d457bd31a5f169ebcec39acc530841bace94df0824415cf0b41d94",
+      "after_sha256": "c578188d59d457bd31a5f169ebcec39acc530841bace94df0824415cf0b41d94",
+      "actual_sha256": "c578188d59d457bd31a5f169ebcec39acc530841bace94df0824415cf0b41d94",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/analysisResultHashScope.test.ts",
+      "repair03_sha256": "06395b2c5af166745c7d29a943a90333d2e0392bed39758f765cd96f462f050d",
+      "after_sha256": "06395b2c5af166745c7d29a943a90333d2e0392bed39758f765cd96f462f050d",
+      "actual_sha256": "06395b2c5af166745c7d29a943a90333d2e0392bed39758f765cd96f462f050d",
+      "changed_in_repair04": false,
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/analysisResultHashScope.ts",
+      "repair03_sha256": "58e20af6798a607711ce4989fd1a40b32c597e7e530e03eb61f043b376e2791a",
+      "after_sha256": "58e20af6798a607711ce4989fd1a40b32c597e7e530e03eb61f043b376e2791a",
+      "actual_sha256": "58e20af6798a607711ce4989fd1a40b32c597e7e530e03eb61f043b376e2791a",
+      "changed_in_repair04": false,
+      "matches": true
+    }
+  ]
+}

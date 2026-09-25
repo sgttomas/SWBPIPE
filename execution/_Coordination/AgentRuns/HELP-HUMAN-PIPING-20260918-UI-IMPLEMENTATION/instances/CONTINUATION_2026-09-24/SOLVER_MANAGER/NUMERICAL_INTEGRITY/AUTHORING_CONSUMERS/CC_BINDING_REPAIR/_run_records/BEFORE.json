@@ -1,0 +1,56 @@
+{
+  "reason": "Preserve prior checked uncommitted consumer bytes before bounded new delta; no Git mutation permitted",
+  "runtime_checkout": "/private/tmp/piping-numerical-integrity-20260924",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "a03889b5525015b108adcf4523a39740f35f3b303ebdc246fd049ec8cf5f002a",
+      "preserved_bytes": "_run_records/before/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+      "sha256": "ddfafa76bfcfa2b32519cdfdef698dea6e7cc4223db3fb87434f423a3293d78f",
+      "preserved_bytes": "_run_records/before/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "2c1c25ad96f8bcf939ead2db9fb399d1727ae5d784f58bd1be87cdca367532e7",
+      "preserved_bytes": "_run_records/before/projects/chirality-piping/apps/desktop/src/services/previewService.ts"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "5feaa97565438c3a690169383357ce66a80f0cc45e2d92db731b4c7ada26cb75",
+      "preserved_bytes": "_run_records/before/projects/chirality-piping/apps/desktop/src/services/previewService.test.ts"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "7902030bbda2b84c80774b22b78030d80f1bdb65f074f7fc5a69a31864f712f4",
+      "preserved_bytes": "_run_records/before/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "7e26ee642bdabe4ce7353b1b188838084c2a81f40805ba30012e421382f847b2",
+      "preserved_bytes": "_run_records/before/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "275947ea8e6f3c52d401da109e69410716267225f602e7d094ae302b34d7e165",
+      "preserved_bytes": "_run_records/before/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "sha256": "05dd482a55eddbd007ada6ca529818134442b216d76b6dc109ed646d5e7ad660",
+      "preserved_bytes": "_run_records/before/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "4f945e571a7d289de9ad87f0fcf2407faf5a169fbe150ffdd5ba206aecad16c5",
+      "preserved_bytes": "_run_records/before/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts",
+      "sha256": "81702a9b255defe92c1d7d39432706f7c49a49f61ae195c654fd13524b0863be",
+      "preserved_bytes": "_run_records/before/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts"
+    }
+  ]
+}

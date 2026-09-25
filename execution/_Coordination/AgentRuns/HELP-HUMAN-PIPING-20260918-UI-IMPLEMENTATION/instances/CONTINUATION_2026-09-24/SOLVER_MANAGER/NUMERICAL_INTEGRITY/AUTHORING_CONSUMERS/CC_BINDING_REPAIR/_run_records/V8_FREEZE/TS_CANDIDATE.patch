@@ -1,0 +1,811 @@
+--- before/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts
++++ after/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts
+@@ -1,6 +1,6 @@
+ import { semanticContractForSource } from "../features/results/resultSemantics";
+ import { sourceContract, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../features/results/numericalResultQuality";
+-import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef } from "../types";
++import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
+ import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
+ 
+ export const ANALYSIS_RUN_V02 = "0.2.0";
+@@ -10,7 +10,7 @@
+ type ManifestEvidence = { manifest_ref: ObjectRef; manifest_sha256: string; manifest: { model_basis: { model_ref: string }; solver_basis: { solver_name: string; solver_version: string; solver_build_ref: string } } };
+ const provenance = { source_name: "OpenPipeStress analysis record 0.2", source_location: "analysis_run.compatibility.v0.2", source_license: "project-governed", review_status: "pending", professional_claim: false };
+ 
+-function semantics(row: MechanicsResult["results"][number], source?: MechanicsResult) {
++export function analysisRowSemantics(row: MechanicsResult["results"][number], source?: MechanicsResult) {
+   const contract = semanticContractForSource(source);
+   const byKind = contract.rows.filter((entry) => entry.kind === row.kind);
+   if (!byKind.length) return { semantic: null, findings: ["SOURCE_SIGNATURE_UNKNOWN"] };
+@@ -25,10 +25,34 @@
+   const generic = byUnit.find((entry) => entry.component === null);
+   if (generic) {
+     if (row.dimension && generic.legacy_declared_dimension && row.dimension !== generic.legacy_declared_dimension) throw new Error(`ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH: ${row.id}`);
+-    return { semantic: generic, findings: component ? [] : ["OPTIONAL_SOURCE_METADATA_MISSING"] };
++    return { semantic: generic, findings: (source ? component !== null : !!component) ? [] : ["OPTIONAL_SOURCE_METADATA_MISSING"] };
+   }
+-  if (component) throw new Error(`SOURCE_COMPONENT_CONTRADICTION: ${row.kind} / ${component}`);
++  if (source ? component !== null : !!component) throw new Error(`SOURCE_COMPONENT_CONTRADICTION: ${row.kind} / ${component}`);
+   return { semantic: null, findings: ["SOURCE_COMPONENT_MISSING_SEMANTICS_UNAVAILABLE"] };
++}
++
++const RULE_STATUSES = ["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"];
++export function sourceBasisReference(basis: unknown): ObjectRef | null {
++  if (basis === undefined || basis === null) return null;
++  const b = basis as Record<string, unknown>;
++  if (typeof b !== "object" || Array.isArray(b) || Object.keys(b).length !== 2 || typeof b.ref_type !== "string" || !b.ref_type || typeof b.ref_id !== "string" || !b.ref_id) throw new Error("ANALYSIS_SOURCE_REFERENCE_INVALID");
++  return { object_type: b.ref_type === "load_case" ? "LoadCase" : b.ref_type === "combination" ? "Combination" : "ResultBasis", ref: b.ref_id };
++}
++export function modelLoadBasisRefs(model: Pick<PreviewModel, "load_cases" | "combinations">): ObjectRef[] {
++  return [...model.load_cases.map(c => ({ object_type: "LoadCase", ref: c.id })), ...(model.combinations ?? []).map(c => ({ object_type: "Combination", ref: c.id }))];
++}
++function validateSourceRuleStatus(source: MechanicsResult): void {
++  const rule = source.status.rule_check;
++  if (rule !== undefined && rule !== null && !RULE_STATUSES.includes(rule)) throw new Error("ANALYSIS_SOURCE_RULE_STATUS_INVALID");
++}
++function expectedLoadBasis(source: MechanicsResult, expected?: ObjectRef[]): ObjectRef[] {
++  for (const value of [source.run_id, source.model_ref, ...source.results.map(r => r.id)]) if (typeof value !== "string" || !value) throw new Error("ANALYSIS_SOURCE_REFERENCE_INVALID");
++  const rows = source.results.map(r => sourceBasisReference(r.basis_ref)).filter((r): r is ObjectRef => r !== null);
++  if (expected === undefined) return rows.filter((r, i) => rows.findIndex(x => x.object_type === r.object_type && x.ref === r.ref) === i);
++  if (!Array.isArray(expected) || expected.some((r, i) => !r || Object.keys(r).length !== 2 || !["LoadCase", "Combination", "ResultBasis"].includes(r.object_type) || typeof r.ref !== "string" || !r.ref || expected.slice(0, i).some(x => x.object_type === r.object_type && x.ref === r.ref))) throw new Error("ANALYSIS_LOAD_BASIS_INVALID");
++  const required = [...rows, ...(source.numerical_quality?.cases ?? []).map(c => sourceBasisReference(c.basis_ref)).filter((r): r is ObjectRef => r !== null)];
++  if (required.some(r => !expected.some(x => x.object_type === r.object_type && x.ref === r.ref))) throw new Error("ANALYSIS_LOAD_BASIS_SOURCE_SCOPE_MISMATCH");
++  return structuredClone(expected);
+ }
+ 
+ export function analysisRecordProjection(record: AnalysisRunEnvelope): AnalysisRunEnvelope {
+@@ -44,16 +68,17 @@
+   if (!["0.1.0", "0.2.0"].includes(result.schema_version) || ["producer", "numerical_quality", "formulation_basis"].some(key => Object.hasOwn(result, key))) throw new Error("HISTORICAL_ANALYSIS_SOURCE_UNSUPPORTED");
+   return buildAnalysisRecord(result, inputManifest, "legacy", ruleCheckStatus, loadBasisRefs);
+ }
+-export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest: ManifestEvidence, ruleCheckStatus?: string | null, loadBasisRefs: ObjectRef[] = []): Promise<AnalysisRunEnvelope> {
++export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest: ManifestEvidence, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
+   if (sourceContract(result) !== "precision") throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+   return buildAnalysisRecord(result, inputManifest, "precision", ruleCheckStatus, loadBasisRefs);
+ }
+-async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: "legacy" | "precision", ruleCheckStatus?: string | null, loadBasisRefs: ObjectRef[] = []): Promise<AnalysisRunEnvelope> {
++async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: "legacy" | "precision", ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
++  if (route === "precision") { validateSourceRuleStatus(result); expectedLoadBasis(result, loadBasisRefs); }
+   if (inputManifest.manifest.model_basis.model_ref !== result.model_ref) throw new Error("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH");
+   const semanticBinding = route === "precision" ? { id: PRECISION_CONTRACT_ID, sha256: PRECISION_CONTRACT_SHA256 } : { id: "openpipestress_result_semantics_v0_2", sha256: SEMANTIC_CONTRACT_SHA256 };
+   const rawResult = structuredClone(result);
+   const resultRefs = await Promise.all(rawResult.results.map(async (row, sourceRowIndex) => {
+-    const { semantic, findings } = semantics(row, route === "precision" ? result : undefined);
++    const { semantic, findings } = analysisRowSemantics(row, route === "precision" ? result : undefined);
+     return {
+       result_ref: { object_type: "Result" as const, ref: row.id }, source_row_index: sourceRowIndex,
+       category: semantic?.category ?? "unknown", source_dimension: (semantic?.source_physical_semantic_dimension ?? null) as CanonicalResultDimension | null,
+@@ -66,8 +91,9 @@
+       provenance,
+     };
+   }));
+-  const effectiveRule = ruleCheckStatus ?? rawResult.status.rule_check;
+-  const effectiveLoadBasisRefs = loadBasisRefs.length ? loadBasisRefs : Array.from(new Map(rawResult.results.flatMap((row) => row.basis_ref ? [[`${row.basis_ref.ref_type}:${row.basis_ref.ref_id}`, { object_type: row.basis_ref.ref_type === "combination" ? "Combination" : "LoadCase", ref: row.basis_ref.ref_id } as ObjectRef]] : [])).values());
++  const effectiveRule = ruleCheckStatus ?? rawResult.status.rule_check ?? (route === "precision" ? "RULE_INPUTS_INCOMPLETE" : undefined);
++  if (route === "precision" && !RULE_STATUSES.includes(effectiveRule!)) throw new Error("ANALYSIS_RULE_STATUS_INVALID");
++  const effectiveLoadBasisRefs = route === "precision" ? expectedLoadBasis(result, loadBasisRefs) : loadBasisRefs?.length ? loadBasisRefs : Array.from(new Map(rawResult.results.flatMap((row) => row.basis_ref ? [[`${row.basis_ref.ref_type}:${row.basis_ref.ref_id}`, { object_type: row.basis_ref.ref_type === "combination" ? "Combination" : "LoadCase", ref: row.basis_ref.ref_id } as ObjectRef]] : [])).values());
+   const statuses = Array.from(new Set(["HUMAN_REVIEW_REQUIRED", rawResult.status.mechanics, effectiveRule].filter(Boolean))).sort();
+   const runRef = { object_type: "AnalysisRun", ref: rawResult.run_id } as ObjectRef;
+   const record: AnalysisRunEnvelope = {
+@@ -93,7 +119,7 @@
+     },
+   };
+   record.analysis_run.hashes.unshift({ algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: runRef, payload_scope: "analysis_run_record", value: await canonicalSha256HexCheckedV1(analysisRecordProjection(record)) });
+-  if (route === "precision") await validateAnalysisRunV03(record, result);
++  if (route === "precision") await validateAnalysisRunV03(record, result, loadBasisRefs);
+   return record;
+ }
+ 
+@@ -108,14 +134,20 @@
+ }
+ 
+ /** Source interpretation validation is distinct from checksum verification and producer authentication. */
+-export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source: MechanicsResult): Promise<void> {
++export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source: MechanicsResult, expectedBasisRefs?: ObjectRef[]): Promise<void> {
+   const same = (a: unknown, b: unknown): boolean => {
+     if (a === undefined || b === undefined) return a === b;
+     const order = (v: any): any => Array.isArray(v) ? v.map(order) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map(k => [k, order(v[k])])) : v;
+     return JSON.stringify(order(JSON.parse(checkedJsonText(a)))) === JSON.stringify(order(JSON.parse(checkedJsonText(b))));
+   };
+   if (sourceContract(source) !== "precision" || record.schema_version !== ANALYSIS_RUN_V03 || record.run_contract_status.record_contract !== "strict_analysis_run_v0_3") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
++  validateSourceRuleStatus(source);
+   const run = record.analysis_run;
++  if (!same(run.diagnostics, source.diagnostics.map(source_annotation => ({ source_annotation })))) throw new Error("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
++  if (!["MECHANICS_SOLVED", "MODEL_INCOMPLETE"].includes(source.status.mechanics)) throw new Error("ANALYSIS_SOURCE_MECHANICS_STATUS_INVALID");
++  const statuses = run.analysis_status;
++  if (!Array.isArray(statuses) || statuses.length !== 3 || new Set(statuses).size !== 3 || !statuses.includes(source.status.mechanics) || !statuses.includes("HUMAN_REVIEW_REQUIRED") || statuses.filter(s => RULE_STATUSES.includes(s)).length !== 1) throw new Error("ANALYSIS_SOURCE_STATUS_MISMATCH");
++  if (!same(run.load_basis_refs, expectedLoadBasis(source, expectedBasisRefs))) throw new Error("ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH");
+   if (run.solver_version?.solver_name !== source.producer!.component_name || run.solver_version?.solver_version !== source.producer!.component_version) throw new Error("ANALYSIS_SOURCE_PRODUCER_MISMATCH");
+   if (run.run_id !== source.run_id) throw new Error("ANALYSIS_SOURCE_RUN_MISMATCH");
+   if (!same(run.model_state_ref, {object_type:"ModelState",ref:`state:${source.model_ref}:preview`})) throw new Error("ANALYSIS_SOURCE_MODEL_STATE_MISMATCH");
+@@ -125,7 +157,7 @@
+   if (!same(run.hashes.filter(h => h.payload_scope === "received_result"), [await checksum("received_result", {object_type:"ResultEnvelope",ref:`result-envelope:${source.run_id}`}, source)])) throw new Error("ANALYSIS_RECEIVED_SOURCE_MISMATCH");
+   if (source.results.length !== run.result_refs.length || new Set(source.results.map(r => r.id)).size !== source.results.length) throw new Error("ANALYSIS_ROW_ACCOUNTING_MISMATCH");
+   for (const [index, row] of source.results.entries()) {
+-    const actual = run.result_refs[index], {semantic, findings} = semantics(row, source), ref = {object_type:"Result",ref:row.id};
++    const actual = run.result_refs[index], {semantic, findings} = analysisRowSemantics(row, source), ref = {object_type:"Result",ref:row.id};
+     if (actual.source_row_index !== index || !same(actual.result_ref, ref) || !same(actual.semantic_contract, {...contract,signature_id:semantic?.signature_id ?? null})
+       || !same(actual.hash_refs, [await checksum("result_row",ref,row)])) throw new Error("ANALYSIS_ROW_SOURCE_BINDING_MISMATCH");
+     if (actual.category !== (semantic?.category ?? "unknown") || actual.source_dimension !== (semantic?.source_physical_semantic_dimension ?? null) || actual.result_family !== (semantic?.family ?? null)
+--- before/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts
++++ after/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts
+@@ -2,7 +2,7 @@
+ import type { MechanicsResult } from "../types";
+ import { buildAnalysisRunV02, buildAnalysisRunV03, verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRecordProjection } from "./analysisRunCompatibility";
+ import { checkedJsonText, canonicalSha256HexCheckedV1 } from "./hashService";
+-import { PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../features/results/numericalResultQuality";
++import { sourceContract, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../features/results/numericalResultQuality";
+ import expectedRecord from "../../../../fixtures/analysis_runs/invented/analysis_run_v0_2.json";
+ 
+ const result: MechanicsResult = {
+@@ -102,3 +102,95 @@
+     }
+   }
+ });
++
++function syntheticPrecision() {
++  const raw = structuredClone(result);
++  raw.producer = { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: PRECISION_CONTRACT_ID };
++  raw.numerical_quality = { value_representation: "finite_binary64", publication_quantization: "none", integrity_policy: "M03-INTEGRITY-v1", status: "not_assessed", cases: [] };
++  raw.formulation_basis = { profile_id: "product_preview_mechanics_v1", limitations: ["Synthetic consumer fixture only"] };
++  raw.results[0].basis_ref = { ref_type: "load_case", ref_id: "load:test" };
++  const input = structuredClone(manifest);
++  input.manifest.solver_basis.solver_name = raw.producer.component_name;
++  input.manifest.solver_basis.solver_version = raw.producer.component_version;
++  return { raw, input };
++}
++it("rejects rehashed source diagnostics, mechanics and basis substitutions while preserving rule-only revisions", async () => {
++  const { raw, input } = syntheticPrecision(); const before = structuredClone(raw);
++  const record = await buildAnalysisRunV03(raw, input);
++  for (const mutate of [
++    (r: typeof record) => { r.analysis_run.diagnostics = [{ source_annotation: { code: "fabricated" } }] as never; },
++    (r: typeof record) => { r.analysis_run.analysis_status[1] = "MODEL_INCOMPLETE"; },
++    (r: typeof record) => { r.analysis_run.analysis_status.push("USER_RULE_FAILED"); },
++    (r: typeof record) => { r.analysis_run.load_basis_refs = [{ object_type: "LoadCase", ref: "other" }]; },
++  ]) {
++    const bad = structuredClone(record); mutate(bad);
++    bad.analysis_run.hashes.find(h => h.payload_scope === "analysis_run_record")!.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(bad));
++    expect(await verifyAnalysisRunRecord(bad)).toBe("match");
++    await expect(validateAnalysisRunV03(bad, raw)).rejects.toThrow("ANALYSIS_SOURCE_");
++  }
++  const revised = await buildAnalysisRunV03(raw, input, "USER_RULE_CHECKED");
++  await expect(validateAnalysisRunV03(revised, raw)).resolves.toBeUndefined();
++  expect(raw).toEqual(before);
++  for (const invalid of ["", false, 0, "unknown"]) await expect(buildAnalysisRunV03(raw, input, invalid as never)).rejects.toThrow("ANALYSIS_RULE_STATUS_INVALID");
++  delete (raw.status as any).rule_check;
++  expect((await buildAnalysisRunV03(raw, input)).analysis_run.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
++});
++it("distinguishes independent explicit basis from source available scope, including empty and malformed bases", async () => {
++  const { raw, input } = syntheticPrecision();
++  const refs = [{ object_type: "LoadCase", ref: "load:test" }, { object_type: "Combination", ref: "comb:requested" }];
++  const broad = await buildAnalysisRunV03(raw, input, undefined, refs);
++  await expect(validateAnalysisRunV03(broad, raw, refs)).resolves.toBeUndefined();
++  await expect(validateAnalysisRunV03(broad, raw)).rejects.toThrow("LOAD_BASIS_MISMATCH");
++  await expect(buildAnalysisRunV03(raw, input, undefined, [])).rejects.toThrow("SOURCE_SCOPE_MISMATCH");
++  for (const basis of [{}, { ref_type: "", ref_id: "x" }, { ref_type: 3, ref_id: "x" }, { ref_type: "load_case", ref_id: "" }]) {
++    const bad = structuredClone(raw); bad.results[0].basis_ref = basis as never;
++    await expect(buildAnalysisRunV03(bad, input)).rejects.toThrow("SOURCE_REFERENCE_INVALID");
++  }
++  raw.results[0].basis_ref = { ref_type: "generic", ref_id: "basis:generic" };
++  expect((await buildAnalysisRunV03(raw, input)).analysis_run.load_basis_refs).toEqual([{ object_type: "ResultBasis", ref: "basis:generic" }]);
++  for (const basis of [null, undefined]) {
++    if (basis === undefined) delete raw.results[0].basis_ref;
++    else raw.results[0].basis_ref = basis as never;
++    expect((await buildAnalysisRunV03(raw, input, undefined, [])).analysis_run.load_basis_refs).toEqual([]);
++  }
++  raw.results[0].basis_ref = undefined;
++  await expect(buildAnalysisRunV03(raw, input, undefined, [])).rejects.toThrow("CHECKED-JSON-UNSUPPORTED-TYPE: undefined");
++});
++it("accepts the shared generic numerical case basis shape", () => {
++  const { raw } = syntheticPrecision();
++  raw.numerical_quality!.cases = [{ basis_ref: { ref_type: "generic", ref_id: "basis:generic" }, structural_status: "numerically_unresolved", solve_quality: "unresolved", model_matrix_fidelity: "not_assessed", accuracy_evidence: "unresolved", evidence_refs: [] }];
++  expect(sourceContract(raw)).toBe("precision");
++});
++
++it("validates source identities and requires explicit basis to cover emitted numerical cases", async () => {
++  const { raw, input } = syntheticPrecision();
++  for (const key of ["run_id", "model_ref", "row_id"]) for (const value of ["", 0, null]) {
++    const bad = structuredClone(raw);
++    if (key === "row_id") bad.results[0].id = value as never; else (bad as any)[key] = value;
++    await expect(buildAnalysisRunV03(bad, input)).rejects.toThrow("ANALYSIS_SOURCE_REFERENCE_INVALID");
++  }
++  raw.numerical_quality!.cases = [{ basis_ref: { ref_type: "load_case", ref_id: "load:without-row" }, structural_status: "numerically_unresolved", solve_quality: "unresolved", model_matrix_fidelity: "not_assessed", accuracy_evidence: "unresolved", evidence_refs: [] }];
++  const available = await buildAnalysisRunV03(raw, input);
++  expect(available.analysis_run.load_basis_refs).toEqual([{ object_type: "LoadCase", ref: "load:test" }]);
++  await expect(buildAnalysisRunV03(raw, input, undefined, available.analysis_run.load_basis_refs)).rejects.toThrow("ANALYSIS_LOAD_BASIS_SOURCE_SCOPE_MISMATCH");
++  const refs = [...available.analysis_run.load_basis_refs, { object_type: "LoadCase", ref: "load:without-row" }];
++  await expect(buildAnalysisRunV03(raw, input, undefined, refs)).resolves.toHaveProperty("schema_version", "0.3.0");
++});
++
++it("rejects invalid source rule statuses independently of a valid record override", async () => {
++  const { raw, input } = syntheticPrecision();
++  const record = await buildAnalysisRunV03(raw, input, "USER_RULE_CHECKED");
++  for (const rule of ["", false, 0, "unknown"]) {
++    const invalid = structuredClone(raw); invalid.status.rule_check = rule as never;
++    await expect(buildAnalysisRunV03(invalid, input, "USER_RULE_CHECKED")).rejects.toThrow("ANALYSIS_SOURCE_RULE_STATUS_INVALID");
++    await expect(validateAnalysisRunV03(record, invalid)).rejects.toThrow("ANALYSIS_SOURCE_RULE_STATUS_INVALID");
++  }
++  for (const rule of [null, undefined]) {
++    const absent = structuredClone(raw);
++    if (rule === undefined) delete (absent.status as any).rule_check;
++    else absent.status.rule_check = rule as never;
++    const revised = await buildAnalysisRunV03(absent, input, "USER_RULE_CHECKED");
++    await expect(validateAnalysisRunV03(revised, absent)).resolves.toBeUndefined();
++    expect((await buildAnalysisRunV03(absent, input)).analysis_run.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
++  }
++});
+--- before/projects/chirality-piping/apps/desktop/src/services/previewService.ts
++++ after/projects/chirality-piping/apps/desktop/src/services/previewService.ts
+@@ -15,7 +15,7 @@
+   verifyCurrentSessionInputManifest,
+   type CurrentSessionInputManifestEvidence,
+ } from "./inputManifestService";
+-import { buildAnalysisRunV03 } from "./analysisRunCompatibility";
++import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibility";
+ 
+ async function invokeOrFixture<T>(
+   command: string,
+@@ -165,7 +165,7 @@
+   const effective = appliedRuleCheckStatus(result.status.rule_check, ruleCheckAggregate);
+   const route = sourceContract(result);
+   if (route !== "precision") throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+-  return buildAnalysisRunV03(result, inputManifest, effective, loadBasisRefsFor(result));
++  return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload));
+ }
+ 
+ export function bindSourceResultDimensions(
+@@ -420,21 +420,6 @@
+   };
+ }
+ 
+-function loadBasisRefsFor(result: MechanicsResult): ObjectRef[] {
+-  const seen = new Set<string>();
+-  const refs: ObjectRef[] = [];
+-  for (const item of result.results) {
+-    const basis = item.basis_ref;
+-    if (!basis) continue;
+-    const objectType =
+-      basis.ref_type === "combination" ? "Combination" : "LoadCase";
+-    const key = `${objectType}:${basis.ref_id}`;
+-    if (seen.has(key)) continue;
+-    seen.add(key);
+-    refs.push(ref(objectType, basis.ref_id));
+-  }
+-  return refs;
+-}
+ 
+ function comparisonDiagnostics({
+   unmatchedLeftRefs,
+--- before/projects/chirality-piping/apps/desktop/src/services/previewService.test.ts
++++ after/projects/chirality-piping/apps/desktop/src/services/previewService.test.ts
+@@ -479,3 +479,15 @@
+  await expect(buildAnalysisRunPreview(unknown,{inputManifest:await manifestFor(unknown)})).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+  expect(JSON.stringify(legacy)).toBe(before);
+ });
++
++it("uses verified model requested bases even when result rows have no basis", async () => {
++  const raw = structuredClone(solvedResultStub);
++  const inputManifest = await manifestFor(raw);
++  const model = inputManifest.manifest.model_basis.model_payload;
++  const record = await buildAnalysisRunPreview(raw, { inputManifest });
++  expect(record.analysis_run.load_basis_refs).toEqual([
++    ...model.load_cases.map(c => ({ object_type: "LoadCase", ref: c.id })),
++    ...(model.combinations ?? []).map(c => ({ object_type: "Combination", ref: c.id })),
++  ]);
++  expect(record.analysis_run.load_basis_refs.length).toBeGreaterThan(0);
++});
+--- before/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts
++++ after/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts
+@@ -1,7 +1,7 @@
+ import { sourceContract, numericalResultStanding, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from '../results/numericalResultQuality';
+ import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from '../../types';
+ import { canonicalJsonString, canonicalSha256Hex, canonicalSha256HexCheckedV1 } from '../../services/hashService';
+-import { verifyAnalysisRunRecord, validateAnalysisRunV03 } from '../../services/analysisRunCompatibility';
++import { verifyAnalysisRunRecord, validateAnalysisRunV03, modelLoadBasisRefs } from '../../services/analysisRunCompatibility';
+ import { bindSourceResultDimensions } from '../../services/previewService';
+ import { verifyCurrentSessionInputManifest, type CurrentSessionInputManifestEvidence } from '../../services/inputManifestService';
+ import { canonicalResultMetadata, completeSourceMetadata, resultSemantics } from '../results/resultSemantics';
+@@ -173,7 +173,7 @@
+   const ruleStatus=run.analysis_status.find(s=>['RULE_INPUTS_INCOMPLETE','USER_RULE_CHECKED','USER_RULE_FAILED'].includes(s));if(!ruleStatus||JSON.stringify([...run.analysis_status].sort())!==JSON.stringify(['HUMAN_REVIEW_REQUIRED','MECHANICS_SOLVED',ruleStatus].sort()))throw new Error('CURRENT_STATUS_BINDING_MISMATCH');
+   if(isV2){if(await verifyAnalysisRunRecord(analysisRun)!=='match')throw new Error('CURRENT_ANALYSIS_RECORD_MISMATCH');}
+   else {const recordPayload={run_id:result.run_id,model_ref:result.model_ref,status:{...result.status,rule_check:ruleStatus},load_basis_refs:run.load_basis_refs,result_ids:result.results.map(x=>x.id).sort(),diagnostic_ids:result.diagnostics.map(x=>x.id??'diagnostic:unknown').sort(),input_manifest_ref:inputManifest.manifest_ref,input_manifest_sha256:inputManifest.manifest_sha256,result_dimensions:legacy!.results.map(x=>({result_id:x.id,dimension:x.dimension})).sort((a,b)=>a.result_id.localeCompare(b.result_id))};const recordHashes=run.hashes.filter(h=>h.payload_scope==='analysis_run_record');if(recordHashes.length!==1||!proofChecksum(recordHashes[0],'analysis_run_record','AnalysisRun',run.run_id)||recordHashes[0].value!==await legacyDigest(recordPayload))throw new Error('CURRENT_ANALYSIS_RECORD_MISMATCH');}
+-  await validateAnalysisRunV03(analysisRun,result);
++  await validateAnalysisRunV03(analysisRun,result,modelLoadBasisRefs(model));
+   if(run.professional_boundary.human_review_required!==true||Object.entries(run.professional_boundary).some(([k,v])=>k!=='human_review_required'&&v!==false))throw new Error('CURRENT_BOUNDARY_MISMATCH');
+   const enriched=presence.every(Boolean),scope=enriched?'received_current_legacy_enriched_carrier':'received_current_dimension_absent_carrier';
+   const origin={origin_id:'source-origin:current-received',origin_class:enriched?'received_current_qualified_legacy_enriched':'received_current_dimension_absent',qualification_ref:ref('current_manifest',inputManifest.manifest_ref.ref),authentic_producer_available:false,received_carrier_checksum:await scopedChecksum(result,scope,ref('received_current_carrier',result.run_id)),original_producer_checksum:null,origin_limit:'Qualified Current received carrier; independent authentic original producer bytes unavailable; dimension absence is not producer attestation',actual_model_ref:ref('model_payload',model.project.id),mechanics_run_ref:ref('mechanics_run',result.run_id),request_model_ref:null,request_run_ref:null,request_alias_disclosure:null};
+--- before/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts
++++ after/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts
+@@ -135,3 +135,16 @@
+  await validateResultDocument(decoded,args.result);
+  decoded.result_envelope.numerical_quality.status='not_assessed';await expect(validateResultDocument(decoded,args.result)).rejects.toThrow('SOURCE_NUMERICAL_METADATA_MISMATCH');
+ });
++
++it('rejects rehashed Current analysis diagnostics and claimed basis using independent model evidence',async()=>{
++ const args=await current();
++ for(const mutate of [
++  (run:typeof args.analysisRun.analysis_run)=>{run.diagnostics=[];},
++  (run:typeof args.analysisRun.analysis_run)=>{run.load_basis_refs=[{object_type:'LoadCase',ref:'fabricated'}];},
++ ]) {
++  const bad=structuredClone(args);mutate(bad.analysisRun.analysis_run);
++  bad.analysisRun.analysis_run.hashes.find(h=>h.payload_scope==='analysis_run_record')!.value=await canonicalSha256HexCheckedV1(analysisRecordProjection(bad.analysisRun));
++  expect(await verifyAnalysisRunRecord(bad.analysisRun)).toBe('match');
++  await expect(buildCurrentResultExport(bad)).rejects.toThrow('ANALYSIS_SOURCE_');
++ }
++});
+--- before/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
++++ after/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
+@@ -1,10 +1,10 @@
+ import { sourceContract, numericalResultStanding, PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "../results/numericalResultQuality";
+-import { verifyAnalysisRunRecord, validateAnalysisRunV03 } from "../../services/analysisRunCompatibility";
++import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
+ import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
+ import { Download, FileJson } from "lucide-react";
+ import { useEffect, useState } from "react";
+-import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
+-import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ResultBasisRef } from "../../types";
++import { canonicalSha256HexCheckedV1, canonicalJsonCheckedV1 } from "../../services/hashService";
++import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ResultBasisRef, ObjectRef } from "../../types";
+ import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
+ 
+ const STRESS_NEUTRAL_EXPORT_VERSION = "0.2.0";
+@@ -80,7 +80,7 @@
+   analysisRun: AnalysisRunEnvelope | null;
+ }) {
+   const [packet, setPacket] = useState<Awaited<ReturnType<typeof buildStressNeutralExportPacket>> | null>(null);
+-  const [binding, setBinding] = useState<object[] | null>(null);
++  const [binding, setBinding] = useState<[PreviewModel, MechanicsResult, AnalysisRunEnvelope] | null>(null);
+   const currentPacket = binding?.[0] === model && binding?.[1] === result && binding?.[2] === analysisRun
+     ? packet
+     : null;
+@@ -115,7 +115,7 @@
+               nativeCurrentBinding={binding}
+               download={`openpipestress-preview-stress-neutral-${safeFileToken(currentPacket.source_result_ref.ref)}.json`}
+               href={jsonDataHref(currentPacket)}
+-              validateDecodedPayload={validateStressNeutralExportPacket}
++              validateDecodedPayload={(payload) => validateStressNeutralExportPacket(payload, currentPacket.schema_version === "0.3.0" ? binding?.[1] : undefined, currentPacket.schema_version === "0.3.0" ? binding?.[2] : undefined, binding && currentPacket.schema_version === "0.3.0" ? modelLoadBasisRefs(binding[0]) : undefined)}
+             >
+               <Download size={14} aria-hidden="true" />
+               Package JSON
+@@ -209,7 +209,7 @@
+   const resultRows = result.results
+     .slice()
+     .sort((left, right) => left.id.localeCompare(right.id))
+-    .map((item) => stressNeutralRow(item, run.run_id, result));
++    .map((item) => sourceContract(result) === "precision" ? precisionStressRow(item, result) : stressNeutralRow(item, run.run_id, result));
+   const csvText = renderCsv(resultRows);
+   const unitPreservationWitnesses = stressNeutralUnitPreservationWitnesses(resultRows, result.results);
+   const unitSystemDisclosure = buildExportUnitSystemDisclosure({
+@@ -222,9 +222,9 @@
+     sourceLocation: "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
+   });
+   const stableIdMap = resultRows.map((row, index) => ({
+-    map_id: `stress-neutral-map:${safeFileToken(row.result_id)}`,
++    map_id: `stress-neutral-map:${sourceContract(result) === "precision" ? index : safeFileToken(row.result_id)}`,
+     canonical_ref: row.canonical_ref,
+-    export_ref: reference("StressNeutralResultRow", `stress-neutral-row:${safeFileToken(row.result_id)}`),
++    export_ref: reference("StressNeutralResultRow", `stress-neutral-row:${sourceContract(result) === "precision" ? index : safeFileToken(row.result_id)}`),
+     mapping_status: "mapped",
+     loss_category: "exported",
+     row_index: index,
+@@ -404,7 +404,7 @@
+ 
+ function strictWitnessDisposition(source: MechanicsResult["results"][number], carrier: MechanicsResult): { disposition: StrictWitnessDisposition; dimension: string | null } {
+   try {
+-    const semantic = resultSemantics(source, carrier);
++    const semantic = sourceContract(carrier) === "precision" ? analysisRowSemantics(source, carrier).semantic : resultSemantics(source, carrier);
+     if (!semantic) return { disposition: "unknown_semantic", dimension: null };
+     if (semantic.category === "diagnostic_work") return { disposition: "diagnostic_work", dimension: semantic.derivative_target_dimension };
+     if (semantic.component !== null && (!source.metadata || typeof source.metadata.component !== "string" || source.metadata.component.length === 0)) {
+@@ -417,7 +417,7 @@
+   }
+ }
+ 
+-function strictWithholdingDiagnostic(disposition: Exclude<StrictWitnessDisposition, "eligible">, row: StressNeutralRow, rowIndex: number) {
++function strictWithholdingDiagnostic(disposition: Exclude<StrictWitnessDisposition, "eligible">, row: StressNeutralRow, rowIndex: number, packetProvenance = previewProvenance(), precision = false) {
+   const diagnosticWork = disposition === "diagnostic_work";
+   return {
+     code: WITHHOLDING_CODES[disposition], class: "unit_preservation_witness", severity: diagnosticWork ? "info" : "blocking",
+@@ -427,8 +427,8 @@
+       : `${disposition.replaceAll("_", " ")} prevents a unit-preservation witness; the received row remains retained without a physical interpretation claim.`,
+     remediation: diagnosticWork
+       ? "Review diagnostic work separately from physical quantity witnesses."
+-      : "Resolve the source kind, unit, component and semantic-contract evidence before downstream physical interpretation.",
+-    provenance: previewProvenance()
++      : precision ? "Resolve the source family, unit, dimension and correlation evidence before downstream physical interpretation." : "Resolve the source kind, unit, component and semantic-contract evidence before downstream physical interpretation.",
++    provenance: structuredClone(packetProvenance)
+   };
+ }
+ 
+@@ -452,7 +452,7 @@
+     if (hashes.length !== 1 || hashes[0].algorithm !== "sha256" || hashes[0].canonicalization !== "openpipestress_jcs_ijson_v1"
+       || hashes[0].payload_ref.object_type !== "ResultEnvelope" || hashes[0].payload_ref.ref !== `result-envelope:${args.result.run_id}`
+       || hashes[0].value !== await canonicalSha256HexCheckedV1(args.result)) throw new Error("SN-SOURCE-CARRIER-HASH-MISMATCH");
+-    await validateAnalysisRunV03(args.analysisRun, args.result);
++    await validateAnalysisRunV03(args.analysisRun, args.result, modelLoadBasisRefs(args.model));
+     sourceCarrierChecksum = structuredClone(hashes[0]);
+   }
+   const legacy = buildStressNeutralExportPacketV01(args);
+@@ -466,7 +466,7 @@
+     return { row, rowIndex, source, ...interpreted };
+   });
+   const strictWitnesses = dispositions.filter((item) => item.disposition === "eligible").map(({ row, rowIndex }) => ({
+-    witness_id: `stress-neutral-unit:${safeFileToken(row.result_id)}`,
++    witness_id: precision ? `unit-witness:${rowIndex}` : `stress-neutral-unit:${safeFileToken(row.result_id)}`,
+     source_row_index: rowIndex,
+     result_id: row.result_id,
+     source_quantity: { value: row.value, unit: row.unit, dimension: row.dimension },
+@@ -475,7 +475,7 @@
+     policy: "preserve_received_value_and_unit"
+   }));
+   const withheld = dispositions.filter((item): item is typeof item & { disposition: Exclude<StrictWitnessDisposition, "eligible"> } => item.disposition !== "eligible");
+-  const withheldDiagnostics = withheld.map(({ disposition, row, rowIndex }) => strictWithholdingDiagnostic(disposition, row, rowIndex));
++  const withheldDiagnostics = withheld.map(({ disposition, row, rowIndex }) => strictWithholdingDiagnostic(disposition, row, rowIndex, legacy.provenance, precision));
+   const aggregateWithholdingDiagnostic = withheld.length ? [{
+     code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", class: "export_blocking", severity: "blocking",
+     source: reference("ExportConsumer", "DEL-17-06"), affected_object: reference("StressNeutralResultRows", "stress-neutral:result-rows"),
+@@ -545,12 +545,47 @@
+   packet.manifest.checksums = [...checksums, manifestChecksum];
+   packet.manifest.package_members = STRICT_MEMBER_NAMES.map((filename) => ({ filename, checksum: packet.manifest.checksums.find((item: any) => item.payload_ref.ref === filename) }));
+   packet.package_checksum = { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "complete_package_excluding_self_checksum", payload_ref: { object_type: "StressNeutralExportPackage", ref: packet.export_id }, value: await canonicalSha256HexCheckedV1(packet) };
+-  await validateStressNeutralExportPacket(packet);
++  await validateStressNeutralExportPacket(packet, precision ? args.result : undefined, precision ? args.analysisRun : undefined, precision ? modelLoadBasisRefs(args.model) : undefined);
+   return packet;
+ }
+ 
+-export async function validateStressNeutralExportPacket(packet: any): Promise<void> {
++export async function validateStressNeutralExportPacket(packet: any, source?: MechanicsResult, analysisRun?: AnalysisRunEnvelope, expectedBasisRefs?: ObjectRef[]): Promise<void> {
+   const precision = packet.schema_version === "0.3.0";
++  if (precision && analysisRun !== undefined && source === undefined) throw new Error("SN-PRECISION-ANALYSIS-SOURCE-REQUIRED");
++  if (source !== undefined) {
++    if (!precision || sourceContract(source) !== "precision") throw new Error("SN-PRECISION-SOURCE-BINDING-REQUIRED");
++    for (const value of [source.run_id, source.model_ref, ...source.results.map(r => r.id)]) if (typeof value !== "string" || !value) throw new Error("ANALYSIS_SOURCE_REFERENCE_INVALID");
++    if (analysisRun !== undefined) await validateAnalysisRunV03(analysisRun, source, expectedBasisRefs);
++    const same = async (a: unknown, b: unknown) => a !== undefined && b !== undefined && await canonicalSha256HexCheckedV1(a) === await canonicalSha256HexCheckedV1(b);
++    for (const key of ["producer", "numerical_quality", "formulation_basis"] as const) if (!await same(packet[key], source[key])) throw new Error("SN-PRECISION-SOURCE-METADATA-MISMATCH");
++    const received = { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_result", payload_ref: reference("ResultEnvelope", `result-envelope:${source.run_id}`), value: await canonicalSha256HexCheckedV1(source) };
++    if (!await same(packet.source_model_ref, reference("Model", source.model_ref)) || !await same(packet.source_run_ref, reference("AnalysisRun", source.run_id)) || !await same(packet.source_result_ref, received.payload_ref) || !await same(packet.source_carrier_checksum, received) || !await same(packet.received_source_checksums?.filter((h: any) => h.payload_scope === "received_result"), [received])) throw new Error("SN-PRECISION-SOURCE-IDENTITY-MISMATCH");
++    const rawById = new Map(source.results.map(row => [row.id, row]));
++    const rows = packet.result_rows;
++    if (!Array.isArray(rows) || rows.length !== source.results.length || rawById.size !== source.results.length || new Set(rows.map((r: any) => r?.result_id)).size !== rows.length) throw new Error("SN-PRECISION-ROW-SOURCE-MISMATCH");
++    const expectedWitnesses = [], expectedFindings = [];
++    for (const [index, row] of rows.entries()) {
++      const raw = rawById.get(row?.result_id);
++      if (!raw) throw new Error("SN-PRECISION-ROW-SOURCE-MISMATCH");
++      // Provenance belongs to the exporting package, not the source mechanics row.
++      const { provenance: _provenance, ...expected } = precisionStressRow(raw, source);
++      if (Object.keys(expected).some(key => !Object.hasOwn(row, key))) throw new Error("SN-PRECISION-ROW-SOURCE-MISMATCH");
++      const actual = Object.fromEntries(Object.keys(expected).map(key => [key, row[key]]));
++      if (!await same(actual, expected)) throw new Error("SN-PRECISION-ROW-SOURCE-MISMATCH");
++      const { disposition } = strictWitnessDisposition(raw, source);
++      const quantity = { value: row.value, unit: row.unit, dimension: row.dimension };
++      if (disposition === "eligible") expectedWitnesses.push({ witness_id: `unit-witness:${index}`, source_row_index: index, result_id: row.result_id, source_quantity: quantity, target_quantity: quantity, conversion_performed: false, policy: "preserve_received_value_and_unit" });
++      else expectedFindings.push(strictWithholdingDiagnostic(disposition, row, index, packet.provenance, true));
++    }
++    if (expectedFindings.length) expectedFindings.push({
++      code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", class: "export_blocking", severity: "blocking",
++      source: reference("ExportConsumer", "DEL-17-06"), affected_object: reference("StressNeutralResultRows", "stress-neutral:result-rows"),
++      message: `${expectedFindings.length} retained rows are explicitly categorized as ineligible for unit-preservation witnesses; ${expectedWitnesses.length} rows have accepted semantic-contract interpretations and exact value/unit witnesses.`,
++      remediation: "Review every explicit witness-withholding finding before downstream use.", provenance: structuredClone(packet.provenance)
++    });
++    const codes = [...Object.values(WITHHOLDING_CODES), "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE"];
++    if (!await same(packet.unit_preservation_witnesses, expectedWitnesses) || !await same(packet.diagnostics.filter((d: any) => codes.includes(d.code)), expectedFindings)) throw new Error("SN-PRECISION-WITNESS-BINDING-MISMATCH");
++  }
+   const version = precision ? "0.3.0" : STRESS_NEUTRAL_EXPORT_VERSION;
+   const profile = precision ? "ops.stress_neutral.v3" : STRESS_NEUTRAL_EXPORT_PROFILE;
+   const semanticPath = precision ? "fixtures/results/semantic_contract_v0_3_precision_1.json" : "fixtures/results/semantic_contract_v0_2.json";
+@@ -597,18 +632,29 @@
+   const rows = packet.result_rows;
+   if (!Array.isArray(rows) || new Set(rows.map((row: any) => row?.result_id)).size !== rows.length
+     || rows.some((row: any) => typeof row?.result_id !== "string" || row?.canonical_ref?.ref !== row.result_id || row?.source_result_ref?.ref !== row.result_id)) throw new Error("SN-RESULT-ROW-IDENTITY-MISMATCH");
+-  if (packet.csv_text !== renderCsv(rows)) throw new Error("SN-CSV-ROW-BINDING-MISMATCH");
++  if (precision && rows.some((row: any) => typeof row.value !== "number" || !Number.isFinite(row.value))) throw new Error("SN-PRECISION-ROW-VALUE-INVALID");
++  if (precision) validatePrecisionCsv(packet.csv_text, rows);
++  else if (packet.csv_text !== renderCsv(rows)) throw new Error("SN-CSV-ROW-BINDING-MISMATCH");
+   if (!Array.isArray(packet.stable_id_map) || packet.stable_id_map.length !== rows.length
+     || new Set(packet.stable_id_map.map((item: any) => item?.canonical_ref?.ref)).size !== rows.length
+-    || new Set(packet.stable_id_map.map((item: any) => item?.export_ref?.ref)).size !== rows.length
++    || new Set(packet.stable_id_map.map((item: any) => precision ? JSON.stringify([item?.export_ref?.object_type, item?.export_ref?.ref]) : item?.export_ref?.ref)).size !== rows.length
+     || packet.stable_id_map.some((item: any) => !rows.some((row: any) => row.result_id === item?.canonical_ref?.ref)
+       || item?.mapping_status !== "mapped" || item?.loss_category !== "exported")) throw new Error("SN-STABLE-ID-MAP-BINDING-MISMATCH");
++  if (precision && packet.stable_id_map.some((item: any) => item.canonical_ref?.object_type !== "Result" || Object.keys(item.canonical_ref).length !== 2 || !item.export_ref || typeof item.export_ref !== "object" || Array.isArray(item.export_ref) || Object.keys(item.export_ref).length !== 2 || typeof item.export_ref.object_type !== "string" || !item.export_ref.object_type || typeof item.export_ref.ref !== "string" || !item.export_ref.ref)) throw new Error("SN-STABLE-ID-MAP-BINDING-MISMATCH");
+   if (!packet.received_source_checksums.some((item: any) => JSON.stringify(item.payload_ref) === JSON.stringify(packet.source_result_ref))) throw new Error("SN-SOURCE-RESULT-REF-UNBOUND");
+   if (!packet.reproducibility_refs.some((item: any) => JSON.stringify(item) === JSON.stringify(packet.source_run_ref))) throw new Error("SN-SOURCE-RUN-REF-UNBOUND");
+   const seenWitnesses = new Set<string>();
++  const seenWitnessIds = new Set<string>();
+   for (const witness of packet.unit_preservation_witnesses) {
++    if (precision && (!Number.isSafeInteger(witness.source_row_index) || witness.source_row_index < 0 || witness.witness_id !== `unit-witness:${witness.source_row_index}` || seenWitnessIds.has(witness.witness_id))) throw new Error("SN-UNIT-WITNESS-BINDING-MISMATCH");
++    seenWitnessIds.add(witness.witness_id);
+     const row = rows[witness.source_row_index];
+-    if (!row || seenWitnesses.has(witness.result_id) || witness.result_id !== row.result_id || JSON.stringify(witness.source_quantity) !== JSON.stringify({ value: row.value, unit: row.unit, dimension: row.dimension }) || JSON.stringify(witness.target_quantity) !== JSON.stringify(witness.source_quantity) || witness.conversion_performed !== false || witness.policy !== "preserve_received_value_and_unit") throw new Error("SN-UNIT-WITNESS-BINDING-MISMATCH");
++    if (!row || seenWitnesses.has(witness.result_id) || witness.result_id !== row.result_id || witness.conversion_performed !== false || witness.policy !== "preserve_received_value_and_unit") throw new Error("SN-UNIT-WITNESS-BINDING-MISMATCH");
++    const expectedQuantity = { value: row.value, unit: row.unit, dimension: row.dimension };
++    const quantityMatches = precision
++      ? witness.source_quantity !== undefined && witness.target_quantity !== undefined && await canonicalJsonCheckedV1(witness.source_quantity) === await canonicalJsonCheckedV1(expectedQuantity) && await canonicalJsonCheckedV1(witness.target_quantity) === await canonicalJsonCheckedV1(expectedQuantity)
++      : JSON.stringify(witness.source_quantity) === JSON.stringify(expectedQuantity) && JSON.stringify(witness.target_quantity) === JSON.stringify(witness.source_quantity);
++    if (!quantityMatches) throw new Error("SN-UNIT-WITNESS-BINDING-MISMATCH");
+     seenWitnesses.add(witness.result_id);
+   }
+   for (const entry of packet.loss_report) if (entry.target_artifact_ref?.ref !== packet.export_id || entry.human_review_required !== true) throw new Error("SN-LOSS-REPORT-BINDING-MISMATCH");
+@@ -650,6 +696,61 @@
+   ].some((key) => boundary[key] !== false)) throw new Error("SN-PROFESSIONAL-BOUNDARY-VIOLATION");
+   const projection = structuredClone(packet); delete projection.package_checksum;
+   if (packet.package_checksum.value !== await canonicalSha256HexCheckedV1(projection)) throw new Error("SN-PACKAGE-CHECKSUM-MISMATCH");
++}
++
++/** Validate received spelling without replacing independently hashed CSV bytes. */
++function validatePrecisionCsv(text: unknown, rows: StressNeutralRow[]): void {
++  const fail = (): never => { throw new Error("SN-CSV-ROW-BINDING-MISMATCH"); };
++  if (typeof text !== "string" || /[^\x00-\x7f]/.test(text)) fail();
++  const csv = text as string;
++  const lines = csv.replace(/\r\n?/g, "\n").split("\n").map(line => line.replace(/[\t\v\f\r\x1c-\x20]+$/g, ""));
++  while (lines.length && lines[lines.length - 1] === "") lines.pop();
++  if (csv !== lines.join("\n") + "\n") fail();
++  const records: string[][] = []; let record: string[] = [], field = "", mode: "start" | "plain" | "quoted" | "closed" = "start";
++  for (let i = 0; i < csv.length; i++) {
++    const char = csv[i];
++    if (mode === "quoted") {
++      if (char === '"') { if (csv[i + 1] === '"') { field += '"'; i++; } else mode = "closed"; }
++      else field += char;
++      continue;
++    }
++    if (char === "," || char === "\n") {
++      record.push(field); field = ""; mode = "start";
++      if (char === "\n") { records.push(record); record = []; }
++    } else if (mode === "closed") fail();
++    else if (mode === "start" && char === '"') mode = "quoted";
++    else { field += char; mode = "plain"; }
++  }
++  if (mode === "quoted" || field || record.length || records.length !== rows.length + 1 || JSON.stringify(records[0]) !== JSON.stringify(CSV_COLUMNS) || records.some(r => r.length !== CSV_COLUMNS.length)) fail();
++  const ids = new Set<string>();
++  for (const [index, row] of rows.entries()) {
++    const received = records[index + 1];
++    if (!received[0] || ids.has(received[0])) fail(); ids.add(received[0]);
++    for (const [columnIndex, column] of CSV_COLUMNS.entries()) {
++      const scalar = received[columnIndex];
++      if (column === "value") {
++        if (!/^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?(?![\s\S])/.test(scalar)) fail();
++        const parsed = Number(scalar), significand = scalar.split(/[eE]/)[0];
++        if (!Number.isFinite(parsed) || (parsed === 0 && /[1-9]/.test(significand)) || (Number.isInteger(parsed) && !Number.isSafeInteger(parsed)) || typeof row.value !== "number" || !Number.isFinite(row.value) || parsed !== row.value) fail();
++      } else {
++        const value = row[column as keyof StressNeutralRow];
++        const expected = ["canonical_ref", "load_case_ref", "station_ref", "component_ref"].includes(column) ? (value as StressNeutralRef)?.ref ?? "" : value ?? "";
++        if (typeof expected !== "string" || scalar !== expected) fail();
++      }
++    }
++  }
++}
++
++export function precisionStressRow(item: MechanicsResult["results"][number], source: MechanicsResult): StressNeutralRow {
++  if (typeof item.value !== "number" || !Number.isFinite(item.value)) throw new Error("SN-PRECISION-ROW-VALUE-INVALID");
++  const { semantic } = analysisRowSemantics(item, source);
++  const location = item.metadata?.location;
++  if (location !== undefined && location !== null && (typeof location !== "string" || !location)) throw new Error("SN-PRECISION-ROW-LOCATION-INVALID");
++  if (typeof item.entity_ref !== "string" || !item.entity_ref) throw new Error("SN-PRECISION-ROW-ENTITY-MISSING");
++  const dimension = semantic?.derivative_target_dimension ?? "TBD";
++  return { result_id: item.id, canonical_ref: reference("Result", item.id), row_kind: "result_value", result_family: semantic?.category === "physical_quantity" ? semantic.family ?? "other" : "other",
++    load_case_ref: sourceBasisReference(item.basis_ref) ?? reference("AnalysisRun", source.run_id), station_ref: reference("Station", location ?? "summary"), component_ref: entityReference(item.entity_ref), value: item.value, unit: item.unit, dimension,
++    correlation_status: item.unit && dimension !== "TBD" ? "canonical_id_map" : "unit_or_dimension_blocking_review_required", source_result_ref: reference("Result", item.id), provenance: previewProvenance() };
+ }
+ 
+ function stressNeutralRow(item: MechanicsResult["results"][number], runId: string, source: MechanicsResult): StressNeutralRow {
+--- before/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
++++ after/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
+@@ -1,4 +1,4 @@
+-import { buildAnalysisRunV02, analysisRecordProjection, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
++import { buildAnalysisRunV02, modelLoadBasisRefs, analysisRecordProjection, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
+ import transport from "../../../../../fixtures/results/precision_transport_v0_3.json";
+ import { PRECISION_CONTRACT_ID } from "../results/numericalResultQuality";
+ import {resultSemantics} from '../results/resultSemantics';
+@@ -10,9 +10,9 @@
+ import resultJson from '../../../../../fixtures/product_preview/invented_mechanics_result.json';
+ import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
+ import {buildAnalysisRunPreview,bindSourceResultDimensions} from '../../services/previewService';
+-import {buildStressNeutralExportPacket,validateStressNeutralExportPacket} from './StressNeutralExportPanel';
++import {buildStressNeutralExportPacket,validateStressNeutralExportPacket,precisionStressRow} from './StressNeutralExportPanel';
+ import {StressNeutralExportPanel} from './StressNeutralExportPanel';
+-import {canonicalSha256HexCheckedV1} from '../../services/hashService';
++import {canonicalSha256HexCheckedV1,canonicalJsonCheckedV1} from '../../services/hashService';
+ import type {PreviewModel,MechanicsResult} from '../../types';
+ import {isNativeResultSaveRuntime,saveNativeResultJson} from '../result-export/nativeResultSave';
+ vi.mock('../result-export/nativeResultSave',()=>({isNativeResultSaveRuntime:vi.fn(()=>false),saveNativeResultJson:vi.fn()}));
+@@ -111,7 +111,8 @@
+  const model=structuredClone(modelJson) as PreviewModel,result=structuredClone(resultJson) as unknown as MechanicsResult;
+  result.schema_version='0.2.0';result.producer={component_name:'open_pipe_stress_product_physics',component_version:'0.2.0',semantic_contract_id:PRECISION_CONTRACT_ID};
+  result.formulation_basis={profile_id:'product_preview_mechanics_v1',limitations:['pressure/component/stress/support preview limitations retained']};
+- result.results=transport.vectors.map(v=>({id:v.id,kind:'global_nodal_rotation_x',entity_ref:'node:transport',value:JSON.parse(v.decimal),unit:'rad'}));
++ // Explicit synthetic consumer semantics for transport vectors; no physical producer qualification.
++ result.results=transport.vectors.map(v=>({id:v.id,kind:'global_nodal_rotation_x',entity_ref:'node:transport',value:JSON.parse(v.decimal),unit:'rad',metadata:{component:'nodal_rotation_x',coordinate_system:'global',location:'summary',basis:'synthetic consumer transport fixture',sign_convention:'synthetic signed scalar'}}));
+  result.diagnostics=[{id:'gate:test',code:'SYNTHETIC_GATE',severity:'info',message:'Consumer fixture only'}];
+  result.numerical_quality={value_representation:'finite_binary64',publication_quantization:'none',integrity_policy:'M03-INTEGRITY-v1',status:'checks_passed',cases:model.load_cases.map(c=>({basis_ref:{ref_type:'load_case',ref_id:c.id},structural_status:'passive_model_basis',solve_quality:'checks_passed',model_matrix_fidelity:'represented_equations_retained',accuracy_evidence:'not_claimed',evidence_refs:['gate:test']}))};
+  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer.component_name,solver_version:'0.2.0',solver_build_ref:'test',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
+@@ -123,10 +124,160 @@
+  const bits=(value:number)=>{const bytes=new DataView(new ArrayBuffer(8));bytes.setFloat64(0,value,false);return bytes.getBigUint64(0,false).toString(16).padStart(16,'0');};
+  for(const vector of transport.vectors){const row=decoded.result_rows.find((r:any)=>r.result_id===vector.id);expect(bits(row.value)).toBe(vector.bits_hex);const csv=decoded.csv_text.split('\n').find((r:string)=>r.startsWith(`${vector.id},`));expect(bits(Number(csv.split(',')[7]))).toBe(vector.bits_hex);}
+  expect(JSON.stringify(result)).toBe(before);await validateStressNeutralExportPacket(decoded);
++ await validateStressNeutralExportPacket(decoded,result,analysisRun,modelLoadBasisRefs(model));
++ await expect(validateStressNeutralExportPacket(decoded,result)).resolves.toBeUndefined();
++ if(process.env.RESULTS_CONTRACT_OUTPUT_DIR){
++   const dir=process.env.RESULTS_CONTRACT_OUTPUT_DIR;mkdirSync(dir,{recursive:true});
++   for(const [name,value] of Object.entries({'precision.source.json':result,'precision.analysis.json':analysisRun,'precision.model.json':model}))writeFileSync(path.join(dir,name),JSON.stringify(value,null,2));
++   writeFileSync(path.join(dir,'precision.packet.json'),await canonicalJsonCheckedV1(packet));
++ }
++ const csvSpellingPacket=async(value:number,spelling:string)=>{
++   const candidate=structuredClone(packet);candidate.result_rows[0].value=value;
++   for(const w of candidate.unit_preservation_witnesses)if(w.result_id===candidate.result_rows[0].result_id){w.source_quantity.value=value;w.target_quantity.value=value;}
++   const encode=(v:any)=>{const text=typeof v==='object'?v.ref:String(v);return /[",\n\r]/.test(text)?`"${text.replaceAll('"','""')}"`:text;};
++   candidate.csv_text=candidate.export_profile.csv_columns.join(',')+'\n'+candidate.result_rows.map((r:any,i:number)=>candidate.export_profile.csv_columns.map((c:string)=>i===0&&c==='value'?spelling:encode(r[c])).join(',')).join('\n')+'\n';
++   await rehash(candidate);return candidate;
++ };
++ for(const [value,spelling] of [[1e-7,'1e-07'],[1e-7,'1e-7'],[1e-7,'0.0000001'],[-3.308659368829149e-05,'-3.308659368829149e-05'],[-3.308659368829149e-05,'-0.00003308659368829149'],[0,'0e-999'],[0,'-0'],[Number.MIN_VALUE,'5e-324'],[1e-7,'"1e-07"']] as const){
++   const candidate=await csvSpellingPacket(value,spelling),before=candidate.csv_text;
++   await expect(validateStressNeutralExportPacket(candidate)).resolves.toBeUndefined();expect(candidate.csv_text).toBe(before);
++ }
++ for(const spelling of ['+0','00','0.',' .0','NaN','Infinity','-Inf','1e-999','1e999','9007199254740992','"0"junk','"0']) {
++   const candidate=await csvSpellingPacket(0,spelling);
++   await expect(validateStressNeutralExportPacket(candidate)).rejects.toThrow('SN-CSV-ROW-BINDING-MISMATCH');
++ }
++ for(const mutate of [(p:any)=>{p.csv_text+=p.csv_text.split('\n')[1]+'\n';},(p:any)=>{p.csv_text=p.csv_text.replace('result_id,','wrong_id,');},(p:any)=>{p.csv_text=p.csv_text.replace('\n',',extra\n');},(p:any)=>{p.csv_text=p.csv_text.replaceAll('\n','\r\n');},(p:any)=>{p.csv_text+='\n';},(p:any)=>{p.csv_text=p.csv_text.replace('node:transport','node:wrong');},(p:any)=>{p.csv_text=p.csv_text.replace('node:transport','node:é');}]) {
++   const candidate=await csvSpellingPacket(0,'0');mutate(candidate);await rehash(candidate);
++   await expect(validateStressNeutralExportPacket(candidate)).rejects.toThrow('SN-CSV-ROW-BINDING-MISMATCH');
++ }
++ const canonicalDecoded=JSON.parse(await canonicalJsonCheckedV1(packet));
++ await expect(validateStressNeutralExportPacket(canonicalDecoded)).resolves.toBeUndefined();
++ const wrongQuantity=structuredClone(canonicalDecoded);wrongQuantity.unit_preservation_witnesses[0].target_quantity.unit='wrong';await rehash(wrongQuantity);
++ await expect(validateStressNeutralExportPacket(wrongQuantity)).rejects.toThrow('SN-UNIT-WITNESS-BINDING-MISMATCH');
++ for(const value of [true,'1',null]) {
++   const invalidSource=structuredClone(result);invalidSource.results[0].value=value as never;
++   const invalidAnalysis=await buildAnalysisRunPreview(invalidSource,{inputManifest});
++   await expect(buildStressNeutralExportPacket({model,result:invalidSource,analysisRun:invalidAnalysis})).rejects.toThrow('SN-PRECISION-ROW-VALUE-INVALID');
++   const invalidPacket=structuredClone(packet);invalidPacket.result_rows[0].value=value;
++   for(const witness of invalidPacket.unit_preservation_witnesses)if(witness.result_id===invalidPacket.result_rows[0].result_id){witness.source_quantity.value=value;witness.target_quantity.value=value;}
++   const encode=(v:any)=>{const text=v!==null&&typeof v==='object'?v.ref:String(v);return /[",\n\r]/.test(text)?`"${text.replaceAll('"','""')}"`:text;};
++   invalidPacket.csv_text=invalidPacket.export_profile.csv_columns.join(',')+'\n'+invalidPacket.result_rows.map((r:any)=>invalidPacket.export_profile.csv_columns.map((c:string)=>encode(r[c])).join(',')).join('\n')+'\n';
++   await rehash(invalidPacket);
++   await expect(validateStressNeutralExportPacket(invalidPacket)).rejects.toThrow('SN-PRECISION-ROW-VALUE-INVALID');
++ }
++
++ await expect(validateStressNeutralExportPacket(decoded,undefined,analysisRun)).rejects.toThrow('SN-PRECISION-ANALYSIS-SOURCE-REQUIRED');
++ const imported=structuredClone(packet);
++ imported.provenance={source_name:'Python style fixture exporter',source_location:'interop-fixture',source_license:'project-governed',review_status:'pending',professional_claim:false};
++ imported.result_rows.reverse();
++ imported.result_rows.forEach((r:any)=>{r.provenance=structuredClone(imported.provenance);});
++ imported.unit_preservation_witnesses=imported.result_rows.map((r:any,index:number)=>({witness_id:`unit-witness:${index}`,source_row_index:index,result_id:r.result_id,source_quantity:{value:r.value,unit:r.unit,dimension:r.dimension},target_quantity:{value:r.value,unit:r.unit,dimension:r.dimension},conversion_performed:false,policy:'preserve_received_value_and_unit'}));
++ imported.stable_id_map.reverse();
++ imported.stable_id_map.forEach((m:any,index:number)=>{m.export_ref={object_type:"StressNeutralResultRow",ref:`python:export:${index}`};});
++ const importedEncode=(v:any)=>{const text=typeof v==='object'?v.ref:String(v);return /[",\n\r]/.test(text)?`"${text.replaceAll('"','""')}"`:text;};
++ imported.csv_text=imported.export_profile.csv_columns.join(',')+'\n'+imported.result_rows.map((r:any)=>imported.export_profile.csv_columns.map((c:string)=>importedEncode(r[c])).join(',')).join('\n')+'\n';
++ await rehash(imported);
++ await expect(validateStressNeutralExportPacket(imported,result)).resolves.toBeUndefined();
++ await expect(validateStressNeutralExportPacket(imported,result,analysisRun,modelLoadBasisRefs(model))).resolves.toBeUndefined();
++ const typedTargets=structuredClone(imported);
++ typedTargets.stable_id_map[0].export_ref={object_type:'ImporterRow',ref:'shared-text'};
++ typedTargets.stable_id_map[1].export_ref={object_type:'AnotherImporterRow',ref:'shared-text'};
++ await rehash(typedTargets);
++ await expect(validateStressNeutralExportPacket(typedTargets)).resolves.toBeUndefined();
++ await expect(validateStressNeutralExportPacket(typedTargets,result)).resolves.toBeUndefined();
++ const extraClaim=structuredClone(imported);
++ extraClaim.received_source_checksums.push({algorithm:'sha256',canonicalization:'openpipestress_jcs_ijson_v1',payload_scope:'external_evidence',payload_ref:{object_type:'ExternalReference',ref:'opaque:retained'},value:'a'.repeat(64)});
++ await rehash(extraClaim);
++ await expect(validateStressNeutralExportPacket(extraClaim,result)).resolves.toBeUndefined();
++ await expect(validateStressNeutralExportPacket(extraClaim,result,analysisRun,modelLoadBasisRefs(model))).resolves.toBeUndefined();
++ for(const mutate of [(p:any)=>{p.received_source_checksums.push(structuredClone(p.source_carrier_checksum));},(p:any)=>{p.received_source_checksums.find((h:any)=>h.payload_scope==='received_result').value='b'.repeat(64);}]) {
++   const badClaim=structuredClone(imported);mutate(badClaim);await rehash(badClaim);
++   await expect(validateStressNeutralExportPacket(badClaim,result)).rejects.toThrow('SN-PRECISION-SOURCE-IDENTITY-MISMATCH');
++ }
++
++ for(const mutate of [(p:any)=>{p.unit_preservation_witnesses[0].witness_id='wrong';},(p:any)=>{p.unit_preservation_witnesses[1].witness_id=p.unit_preservation_witnesses[0].witness_id;}]) {
++   const badWitness=structuredClone(imported);mutate(badWitness);await rehash(badWitness);
++   await expect(validateStressNeutralExportPacket(badWitness)).rejects.toThrow('SN-UNIT-WITNESS-BINDING-MISMATCH');
++ }
++
++ for(const mutate of [(p:any)=>{p.stable_id_map[0].canonical_ref={...p.stable_id_map[0].canonical_ref,object_type:'Wrong'};},(p:any)=>{p.stable_id_map[0].export_ref.ref='';},(p:any)=>{p.stable_id_map[0].export_ref.object_type='';},(p:any)=>{p.stable_id_map[0].export_ref.extra=true;},(p:any)=>{delete p.stable_id_map[0].export_ref.ref;},(p:any)=>{p.stable_id_map[0].export_ref=null;},(p:any)=>{delete p.stable_id_map[0].export_ref.object_type;},(p:any)=>{p.stable_id_map[0].export_ref.ref=null;}]) {
++   const badMap=structuredClone(imported),rowsBefore=structuredClone(badMap.result_rows);mutate(badMap);
++   expect(badMap.result_rows).toEqual(rowsBefore);
++   await rehash(badMap);
++   await expect(validateStressNeutralExportPacket(badMap,result)).rejects.toThrow('SN-STABLE-ID-MAP-BINDING-MISMATCH');
++ }
++
++
++ for (const mutate of [
++   (p:any)=>{p.source_model_ref.ref='wrong';},
++   (p:any)=>{p.source_run_ref.ref='wrong';p.reproducibility_refs=[p.source_run_ref];},
++   (p:any)=>{p.source_result_ref.ref='wrong';p.source_carrier_checksum.payload_ref.ref='wrong';p.received_source_checksums.find((h:any)=>h.payload_scope==='received_result').payload_ref.ref='wrong';},
++   (p:any)=>{p.result_rows[0].load_case_ref={object_type:'LoadCase',ref:'wrong'};},
++   (p:any)=>{p.result_rows[0].component_ref={object_type:'Node',ref:'node:wrong'};},
++   (p:any)=>{p.result_rows[0].station_ref={object_type:'Station',ref:'wrong'};},
++   (p:any)=>{p.result_rows[0].result_family='other';},
++   (p:any)=>{p.result_rows[0].row_kind='diagnostic_work';},
++   (p:any)=>{delete p.result_rows[0].station_ref;},
++   (p:any)=>{p.result_rows[0].station_ref=null;},
++   (p:any)=>{p.unit_preservation_witnesses[0].witness_id='wrong';},
++ ]) {
++   const tampered=structuredClone(packet);mutate(tampered);
++   // Regenerate CSV safely even for intentionally malformed JSON references.
++   const encode=(v:any)=>{const text=typeof v==='object'?(typeof v?.ref==='string'?v.ref:''):String(v??'');return /[",\n\r]/.test(text)?`"${text.replaceAll('"','""')}"`:text;};
++   tampered.csv_text=packet.export_profile.csv_columns.join(',')+'\n'+tampered.result_rows.map((r:any)=>packet.export_profile.csv_columns.map((c:string)=>encode(r[c])).join(',')).join('\n')+'\n';
++   await rehash(tampered);
++   await expect(validateStressNeutralExportPacket(tampered,result,analysisRun,modelLoadBasisRefs(model))).rejects.toThrow('SN-PRECISION-');
++ }
++ // Case/punctuation IDs collide under filename sanitizing but never under .3 indexed map/witness IDs.
++ const collisions=structuredClone(result);collisions.results=collisions.results.slice(0,4);collisions.results.forEach((row,i)=>row.id=['ROW:A','row:a','row/a','row?a'][i]);
++ const collisionAnalysis=await buildAnalysisRunPreview(collisions,{inputManifest});
++ const collisionPacket=await buildStressNeutralExportPacket({model,result:collisions,analysisRun:collisionAnalysis});
++ expect(new Set(collisionPacket.unit_preservation_witnesses.map((w:any)=>w.witness_id)).size).toBe(4);
++ expect(new Set(collisionPacket.stable_id_map.map((m:any)=>m.export_ref.ref)).size).toBe(4);
++
+  const wrongModelRun=structuredClone(analysisRun);wrongModelRun.analysis_run.model_state_ref={object_type:'ModelState',ref:'state:other:preview'};
+  wrongModelRun.analysis_run.hashes.find(h=>h.payload_scope==='analysis_run_record')!.value=await canonicalSha256HexCheckedV1(analysisRecordProjection(wrongModelRun));
+  expect(await verifyAnalysisRunRecord(wrongModelRun)).toBe('match');
+  await expect(buildStressNeutralExportPacket({model,result,analysisRun:wrongModelRun})).rejects.toThrow('ANALYSIS_SOURCE_MODEL_STATE_MISMATCH');
+  const bad=structuredClone(packet);bad.producer.semantic_contract_id='unknown';await expect(validateStressNeutralExportPacket(bad)).rejects.toThrow('SN-PRECISION-CONTRACT-MISMATCH');
++ const withheldSource=structuredClone(result);
++ withheldSource.results=[{id:'unknown:interop',entity_ref:'node:interop',kind:'unknown_quantity',value:1,unit:'mm'}];
++ const withheldAnalysis=await buildAnalysisRunPreview(withheldSource,{inputManifest});
++ const withheldPacket=await buildStressNeutralExportPacket({model,result:withheldSource,analysisRun:withheldAnalysis});
++ withheldPacket.provenance=structuredClone(imported.provenance);
++ withheldPacket.result_rows[0].provenance=structuredClone(imported.provenance);
++ for(const d of withheldPacket.diagnostics)if(d.code.startsWith('SN-UNIT-WITNESS-WITHHELD')||d.code==='SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE')d.provenance=structuredClone(imported.provenance);
++ expect(withheldPacket.diagnostics.find((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC').remediation).toBe('Resolve the source family, unit, dimension and correlation evidence before downstream physical interpretation.');
++ await rehash(withheldPacket);
++ await expect(validateStressNeutralExportPacket(withheldPacket,withheldSource)).resolves.toBeUndefined();
++ const missingAggregate=structuredClone(withheldPacket);
++ missingAggregate.diagnostics=missingAggregate.diagnostics.filter((d:any)=>d.code!=='SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE');
++ await rehash(missingAggregate);
++ await expect(validateStressNeutralExportPacket(missingAggregate,withheldSource)).rejects.toThrow('SN-PRECISION-WITNESS-BINDING-MISMATCH');
++ withheldPacket.diagnostics.find((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC').provenance={...imported.provenance,source_name:'unbound'};
++ await rehash(withheldPacket);
++ await expect(validateStressNeutralExportPacket(withheldPacket,withheldSource)).rejects.toThrow('SN-PRECISION-WITNESS-BINDING-MISMATCH');
+  result.numerical_quality.status='not_assessed';await expect(buildStressNeutralExportPacket({model,result,analysisRun})).rejects.toThrow('SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE');
+ });
++
++it('projects precision location and missing component without guessed semantics',()=>{
++ const source=structuredClone(resultJson) as unknown as MechanicsResult;
++ source.schema_version='0.2.0';source.producer={component_name:'open_pipe_stress_product_physics',component_version:'0.2.0',semantic_contract_id:PRECISION_CONTRACT_ID};
++ source.formulation_basis={profile_id:'product_preview_mechanics_v1',limitations:['Synthetic consumer fixture']};source.numerical_quality={value_representation:'finite_binary64',publication_quantization:'none',integrity_policy:'M03-INTEGRITY-v1',status:'not_assessed',cases:[]};
++ const row=structuredClone(source.results.find(r=>r.kind==='element_local_axial_force')!);
++ for(const value of [0,-0,Number.MIN_VALUE,-Number.MIN_VALUE,1.0000000000000002])expect(precisionStressRow({...row,value},source).value).toBe(value);
++ for(const value of [true,'1',null,NaN,Infinity,-Infinity])expect(()=>precisionStressRow({...row,value} as never,source)).toThrow('SN-PRECISION-ROW-VALUE-INVALID');
++
++ for(const location of [undefined,null,'midspan','  ']) {
++   row.metadata={...row.metadata,location} as never;
++   expect(precisionStressRow(row,source).station_ref.ref).toBe(location??'summary');
++ }
++ for(const location of ['',0,false,{},[]]) {
++   row.metadata={...row.metadata,location} as never;
++   expect(()=>precisionStressRow(row,source)).toThrow('SN-PRECISION-ROW-LOCATION-INVALID');
++ }
++ row.metadata={...row.metadata,location:'summary'} as never;
++ delete (row.metadata as any).component;
++ expect(precisionStressRow(row,source)).toMatchObject({result_family:'other',dimension:'TBD',correlation_status:'unit_or_dimension_blocking_review_required'});
++ row.metadata!.component='invalid';expect(()=>precisionStressRow(row,source)).toThrow('SOURCE_COMPONENT_CONTRADICTION');
++});
+--- before/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts
++++ after/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts
+@@ -20,7 +20,7 @@
+     && q.integrity_policy === "M03-INTEGRITY-v1" && Array.isArray(q.cases)
+     && statuses.includes(q.status)
+     && q.cases.every(c => keys(c, ["basis_ref", "structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence", "evidence_refs"])
+-      && keys(c.basis_ref, ["ref_type", "ref_id"]) && ["load_case", "combination"].includes(c.basis_ref.ref_type) && typeof c.basis_ref.ref_id === "string" && !!c.basis_ref.ref_id
++      && keys(c.basis_ref, ["ref_type", "ref_id"]) && typeof c.basis_ref.ref_type === "string" && !!c.basis_ref.ref_type && typeof c.basis_ref.ref_id === "string" && !!c.basis_ref.ref_id
+       && ["passive_model_basis", "physical_mechanism_witnessed", "negative_energy_witnessed", "numerically_unresolved"].includes(c.structural_status)
+       && statuses.includes(c.solve_quality) && ["represented_equations_retained", "assembly_loss_detected", "assembly_uncertainty", "not_assessed"].includes(c.model_matrix_fidelity)
+       && ["not_claimed", "reference_verified", "unresolved"].includes(c.accuracy_evidence)
+--- before/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts
++++ after/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.test.ts
+@@ -58,3 +58,15 @@
+     }
+   }
+ });
++
++it("accepts general nonempty source basis shapes without granting Current load-case coverage", () => {
++  const raw = source();
++  raw.numerical_quality!.cases[0].basis_ref.ref_type = "custom-basis";
++  expect(sourceContract(raw)).toBe("precision");
++  expect(numericalResultStanding(raw, model).eligible).toBe(false);
++  expect(numericalResultStanding(raw, model).findings).toContain("NUMERICAL_CASE_COVERAGE_INCOMPLETE");
++  for (const key of ["ref_type", "ref_id"]) for (const value of ["", null, false, 0, {}, []]) {
++    const bad = source(); (bad.numerical_quality!.cases[0].basis_ref as any)[key] = value;
++    expect(sourceContract(bad)).toBe("unsupported");
++  }
++});

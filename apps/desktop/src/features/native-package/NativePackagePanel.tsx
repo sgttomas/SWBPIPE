@@ -1,3 +1,4 @@
+import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download } from "lucide-react";
 import { usePackageHash } from "../../services/usePackageHash";
 import type {
@@ -255,7 +256,7 @@ export function buildNativePackageReview({
       "results/result_envelope_ref.json",
       "result_envelope_ref",
       "result-envelope reference, status, and hash scope",
-      runHashStatus(runHashRefs, analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope")
+      runHashStatus(runHashRefs, analysisResultHashScope(analysisRun.schema_version))
     ),
     member(
       "maps/unit_preservation_witnesses.json",
@@ -954,7 +955,8 @@ function quantityRecord(value: unknown): QuantityRecord | null {
   return { value: candidate.value, unit: candidate.unit };
 }
 
-function runHashStatus(runHashRefs: Array<{ payload_scope: string; value: string }>, scope?: string): string {
+function runHashStatus(runHashRefs: Array<{ payload_scope: string; value: string }>, scope?: string | null): string {
+  if (scope === null) return "TBD_analysis_record_version_unsupported";
   if (!scope) return `${runHashRefs.length}_analysis_run_hash_refs_available`;
   const hash = runHashRefs.find((item) => item.payload_scope === scope);
   return hash ? `sha256:${hash.value}` : "TBD_hash_ref_not_available";

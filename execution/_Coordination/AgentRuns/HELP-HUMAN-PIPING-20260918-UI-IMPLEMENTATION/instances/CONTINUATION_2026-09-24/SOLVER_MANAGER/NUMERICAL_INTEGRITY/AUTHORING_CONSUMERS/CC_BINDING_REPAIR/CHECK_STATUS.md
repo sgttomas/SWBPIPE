@@ -1,0 +1,14 @@
+# CC binding repair check status
+
+This is a new delta against the preserved 33-file consumer handoff. Current source hashes and the exact delta are in implementation/TS_FILES.json and implementation/TS_CANDIDATE.patch. Historical candidate snapshots and execution records remain under _run_records.
+
+- V4: five focused Vitest files, 64 passed and 2 failed. The failures were own-undefined JSON test data and missing semantic component in a positive synthetic transport fixture.
+- V5: the two affected files, 19 passed and 1 failed. The remaining map mutation also changed the row through a shared reference; V6 isolates the map mutation and asserts rows unchanged.
+- V6: no runtime run. Before execution, fresh independent review found missing numeric type rejection and property-order-dependent witness comparison on the precision route. Both are being repaired in the existing stress source/test scope. The granted CPU lane was returned before launching a process.
+- Typecheck and final runtime review remain outstanding. Prior unaffected passing suites are retained with their exact source hashes, not represented as a full current pass.
+
+Raw commands, runtime paths, source manifests, exit codes and logs: _run_records/checks/vitest_v4.result.json and vitest_v5.result.json. Synthetic consumer tests do not establish producer integrity, native application behavior, source authenticity or engineering qualification. No Git mutation by this manager.
+
+V7 closes the two fresh source defects: precision source and standalone packet rows must contain finite numbers, and precision witness quantities use exact canonical object equality. Old .2 validation is unchanged. Independent static backcheck is in review/BACKCHECK_V7.md. V8 was canceled without edits because the existing TypeScript builder deliberately rejects not_assessed sources; that admission rule is preserved. The genuine interoperability route is Python construction from an actual retained not_assessed producer artifact into TypeScript reader/validator/canonical serializer, with optional relay back to Python. This is neither new Current qualification nor TypeScript builder proof. The independent reviewer identified a possible CSV numeric-spelling mismatch for the genuine-artifact check; no runtime claim or repair is inferred from that concern alone.
+
+Final V9: V8 genuine Python→TypeScript artifact check and stress10 tests passed; V9 tsc passed after two equivalent typing fixes. Independent review/FINAL_DISPOSITION.md verifies the final10-file freeze, the66 distinct maintained tests across carried affected runs, actual interop1, typecheck and V9 equivalence. No unresolved actionable findings remain in this bounded consumer slice. Python relay revalidation and parent integration/native/CI/DEC-025 gates remain separate.

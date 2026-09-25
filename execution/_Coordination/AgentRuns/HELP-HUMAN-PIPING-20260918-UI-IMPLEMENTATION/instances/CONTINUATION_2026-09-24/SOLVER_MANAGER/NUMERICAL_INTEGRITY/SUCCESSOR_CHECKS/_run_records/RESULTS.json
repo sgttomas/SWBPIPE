@@ -1,0 +1,85 @@
+[
+  {
+    "name": "nonlinear_compile",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "--no-run"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "product_compile",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "--no-run"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "nonlinear_successor",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "successor_"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "product_successor",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "successor_"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "product_mixed",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "mixed_nonlinear_preview_bundle"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "product_integrity",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "integrity_"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "nonlinear_full",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml"
+    ],
+    "exit": 101
+  }
+]

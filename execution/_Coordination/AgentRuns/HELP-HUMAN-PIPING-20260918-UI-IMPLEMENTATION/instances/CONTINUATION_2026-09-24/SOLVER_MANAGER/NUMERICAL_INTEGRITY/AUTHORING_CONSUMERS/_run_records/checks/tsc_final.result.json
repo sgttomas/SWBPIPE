@@ -1,0 +1,8 @@
+{
+  "command": [
+    "../../node_modules/.bin/tsc",
+    "--noEmit"
+  ],
+  "cwd": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop",
+  "exit_code": 0
+}

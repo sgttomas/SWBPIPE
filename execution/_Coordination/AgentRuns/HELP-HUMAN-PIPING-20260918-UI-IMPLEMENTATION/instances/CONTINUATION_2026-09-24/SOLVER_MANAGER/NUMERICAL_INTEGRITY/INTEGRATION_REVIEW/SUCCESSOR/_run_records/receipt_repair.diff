@@ -1,0 +1,327 @@
+--- initial/projects/chirality-piping/core/product_physics/src/lib.rs
++++ repair/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -2340,7 +2340,7 @@
+         Ok(solve) => {
+             if solve.converged {
+                 match open_pipe_stress_nonlinear_integration::product_selected_state_is_qualified(
+-                    &input, &solve,
++                    &input, &springs, &solve,
+                 ) {
+                     Ok(true) => {}
+                     outcome => {
+--- initial/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
++++ repair/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+@@ -323,6 +323,8 @@
+ 
+ #[derive(Debug, Clone, PartialEq)]
+ pub struct NonlinearFrameSolveResult {
++    // Issued only by the actual gated solve; public report edits cannot update it.
++    completion: Option<Box<ProductCompletion>>,
+     pub converged: bool,
+     pub policy_ref: String,
+     pub final_states: Vec<SupportStateRecord>,
+@@ -332,6 +334,20 @@
+     pub diagnostics: Vec<SolverDiagnostic>,
+     pub assumptions: Vec<String>,
+     pub limitations: Vec<String>,
++}
++
++/// Private completion provenance, not a new contact-sign correctness claim.
++/// The nested output snapshot has no receipt, preventing recursive issuance.
++#[derive(Debug, Clone, PartialEq)]
++struct ProductCompletion {
++    input: NonlinearFrameSolveInput,
++    springs: Vec<(usize, f64)>,
++    mode: LinearSolveMode,
++    original_stiffness: DenseMatrix,
++    final_force: DenseVector,
++    free_dofs: Vec<usize>,
++    prescribed: Vec<(usize, f64)>,
++    output: Box<NonlinearFrameSolveResult>,
+ }
+ 
+ impl NonlinearFrameSolveResult {
+@@ -677,7 +693,8 @@
+                     &current_states,
+                 ));
+             }
+-            return Ok(NonlinearFrameSolveResult {
++            let mut result = NonlinearFrameSolveResult {
++                completion: None,
+                 converged,
+                 policy_ref: input.convergence.policy_ref.clone(),
+                 final_states: current_states,
+@@ -687,7 +704,33 @@
+                 diagnostics: final_diagnostics,
+                 assumptions: assembled_loop_assumptions(),
+                 limitations: assembled_loop_limitations(),
+-            });
++            };
++            let last = result
++                .iterations
++                .last()
++                .expect("actual completed iteration");
++            let prescribed = last
++                .active_restrained_dofs
++                .iter()
++                .copied()
++                .zip(last.active_prescribed_displacements.iter().copied())
++                .collect::<Vec<_>>();
++            let free_dofs = (0..input.force.len())
++                .filter(|dof| !last.active_restrained_dofs.contains(dof))
++                .collect();
++            let mut final_force = input.force.clone();
++            add_applied_forces(&mut final_force, &last.applied_sliding_friction_forces);
++            result.completion = Some(Box::new(ProductCompletion {
++                input: input.clone(),
++                springs: springs.to_vec(),
++                mode: linear_solve_mode,
++                original_stiffness: stiffness.clone(),
++                final_force,
++                free_dofs,
++                prescribed,
++                output: Box::new(result.clone()),
++            }));
++            return Ok(result);
+         }
+     }
+ 
+@@ -698,6 +741,84 @@
+ /// the actual retained-boundary equilibrium report. Generic count tolerances
+ /// and convergence policies are not changed by this product-only check.
+ pub fn product_selected_state_is_qualified(
++    input: &NonlinearFrameSolveInput,
++    springs: &[(usize, f64)],
++    solve: &NonlinearFrameSolveResult,
++) -> Result<bool, NonlinearIntegrationError> {
++    validate_input(input)?;
++    let Some(receipt) = &solve.completion else {
++        return Ok(false);
++    };
++    // Ordered spring equality preserves the actual floating-point assembly
++    // order, not just physical equivalence of an unordered set.
++    if receipt.input != *input || receipt.springs.as_slice() != springs {
++        return Ok(false);
++    }
++    let recorded = &receipt.output;
++    if recorded.completion.is_some()
++        || recorded.converged != solve.converged
++        || recorded.policy_ref != solve.policy_ref
++        || recorded.final_states != solve.final_states
++        || recorded.displacements != solve.displacements
++        || recorded.reactions != solve.reactions
++        || recorded.iterations != solve.iterations
++        || recorded.diagnostics != solve.diagnostics
++        || recorded.assumptions != solve.assumptions
++        || recorded.limitations != solve.limitations
++    {
++        return Ok(false);
++    }
++    let Some(last) = solve.iterations.last() else {
++        return Ok(false);
++    };
++    let expected = &receipt.free_dofs;
++    if last.structural_report.policy != open_pipe_stress_frame_kernel::structural::POLICY
++        || last.product_equilibrium.policy != product_equilibrium::POLICY
++        || last.sparse_evidence.solver_mode != receipt.mode
++        || last
++            .structural_report
++            .residual_rows
++            .iter()
++            .map(|r| r.global_dof)
++            .collect::<Vec<_>>()
++            != *expected
++        || last
++            .product_equilibrium
++            .rows
++            .iter()
++            .map(|r| r.global_dof)
++            .collect::<Vec<_>>()
++            != *expected
++        || last
++            .product_equilibrium
++            .work_rows
++            .iter()
++            .map(|r| r.global_dof)
++            .collect::<Vec<_>>()
++            != *expected
++    {
++        return Ok(false);
++    }
++    let actual_prescribed = last
++        .active_restrained_dofs
++        .iter()
++        .copied()
++        .zip(last.active_prescribed_displacements.iter().copied())
++        .collect::<Vec<_>>();
++    let mut actual_force = input.force.clone();
++    add_applied_forces(&mut actual_force, &last.applied_sliding_friction_forces);
++    if actual_prescribed != receipt.prescribed
++        || actual_force != receipt.final_force
++        || receipt.original_stiffness.len() != input.force.len()
++    {
++        return Ok(false);
++    }
++    product_selected_state_conditions(input, solve)
++}
++
++// Independent contact/selected-state conditions remain testable separately:
++// receipt rejection alone is not evidence that a contact-law mutation is caught.
++fn product_selected_state_conditions(
+     input: &NonlinearFrameSolveInput,
+     solve: &NonlinearFrameSolveResult,
+ ) -> Result<bool, NonlinearIntegrationError> {
+@@ -2379,6 +2500,112 @@
+     // CONTACT_CLASS_FROZEN_END
+ 
+     #[test]
++    fn successor_completion_receipt_rejects_public_report_and_source_mutations() {
++        for mode in [
++            LinearSolveMode::DenseScrutiny,
++            LinearSolveMode::SparseInteractive,
++        ] {
++            let input = two_node_axial_problem(vec![], vec![], 4);
++            let springs = vec![(6, 25.0), (6, 75.0)];
++            let solved =
++                solve_active_set_frame_with_mode_and_springs(&input, mode, &springs).unwrap();
++            assert!(product_selected_state_is_qualified(&input, &springs, &solved).unwrap());
++            let mut empty = solved.clone();
++            let last = empty.iterations.last_mut().unwrap();
++            last.structural_report.residual_rows.clear();
++            last.product_equilibrium.rows.clear();
++            last.product_equilibrium.work_rows.clear();
++            assert!(!product_selected_state_is_qualified(&input, &springs, &empty).unwrap());
++            let mut work = solved.clone();
++            work.iterations
++                .last_mut()
++                .unwrap()
++                .product_equilibrium
++                .work_rows
++                .clear();
++            assert!(!product_selected_state_is_qualified(&input, &springs, &work).unwrap());
++            let mut unknown = solved.clone();
++            unknown
++                .iterations
++                .last_mut()
++                .unwrap()
++                .structural_report
++                .policy = "unknown-structural-policy";
++            assert!(!product_selected_state_is_qualified(&input, &springs, &unknown).unwrap());
++            let mut unknown = solved.clone();
++            unknown
++                .iterations
++                .last_mut()
++                .unwrap()
++                .product_equilibrium
++                .policy = "unknown-equilibrium-policy";
++            assert!(!product_selected_state_is_qualified(&input, &springs, &unknown).unwrap());
++            let mut coverage = solved.clone();
++            let last = coverage.iterations.last_mut().unwrap();
++            last.structural_report.residual_rows[0].global_dof = 7;
++            last.product_equilibrium.rows[0].global_dof = 7;
++            last.product_equilibrium.work_rows[0].global_dof = 7;
++            assert!(!product_selected_state_is_qualified(&input, &springs, &coverage).unwrap());
++            let mut force = input.clone();
++            force.force[6] += 1.0;
++            assert!(!product_selected_state_is_qualified(&force, &springs, &solved).unwrap());
++            let mut source = input.clone();
++            source.elements[0].section.elastic_modulus *= 2.0;
++            assert!(!product_selected_state_is_qualified(&source, &springs, &solved).unwrap());
++            let mut boundary = input.clone();
++            boundary.base_restrained_dofs.push(6);
++            assert!(!product_selected_state_is_qualified(&boundary, &springs, &solved).unwrap());
++            assert!(
++                !product_selected_state_is_qualified(&input, &[(6, 26.0), (6, 75.0)], &solved)
++                    .unwrap()
++            );
++            assert!(
++                !product_selected_state_is_qualified(&input, &[(6, 75.0), (6, 25.0)], &solved)
++                    .unwrap()
++            );
++            let mut applied = solved.clone();
++            applied
++                .iterations
++                .last_mut()
++                .unwrap()
++                .applied_sliding_friction_forces
++                .push(AppliedSlidingFrictionForce {
++                    support_id: "forged".into(),
++                    global_dof: 6,
++                    force: 1.0,
++                });
++            assert!(!product_selected_state_is_qualified(&input, &springs, &applied).unwrap());
++            let mut state = solved.clone();
++            state.displacements[6] = 0.0;
++            state.iterations.last_mut().unwrap().displacements[6] = 0.0;
++            assert!(!product_selected_state_is_qualified(&input, &springs, &state).unwrap());
++            // Public edits of a clone cannot alter the original opaque receipt.
++            assert!(product_selected_state_is_qualified(&input, &springs, &solved).unwrap());
++        }
++    }
++
++    #[test]
++    fn successor_completion_receipt_accepts_legitimate_empty_free_partition() {
++        for mode in [
++            LinearSolveMode::DenseScrutiny,
++            LinearSolveMode::SparseInteractive,
++        ] {
++            let mut input = two_node_axial_problem(vec![], vec![], 4);
++            input.base_restrained_dofs.push(6);
++            let springs = vec![(6, 25.0)];
++            let solved =
++                solve_active_set_frame_with_mode_and_springs(&input, mode, &springs).unwrap();
++            let final_iteration = solved.iterations.last().unwrap();
++            assert!(final_iteration.product_equilibrium.rows.is_empty());
++            assert!(final_iteration.product_equilibrium.work_rows.is_empty());
++            assert!(product_selected_state_is_qualified(&input, &springs, &solved).unwrap());
++            let mut force = input.clone();
++            force.force[6] += 1.0;
++            assert!(!product_selected_state_is_qualified(&force, &springs, &solved).unwrap());
++        }
++    }
++
++    #[test]
+     fn successor_rechecks_contact_admissibility_even_when_equations_and_count_flags_pass() {
+         for mode in [
+             LinearSolveMode::DenseScrutiny,
+@@ -2402,7 +2629,8 @@
+             trial.iterations[0].active_set.changed_supports.clear();
+             trial.iterations[0].active_set.residual_norm = 0.0;
+             trial.iterations[0].active_set.states = trial.final_states.clone();
+-            assert!(!product_selected_state_is_qualified(&input, &trial).unwrap());
++            assert!(!product_selected_state_conditions(&input, &trial).unwrap());
++            assert!(!product_selected_state_is_qualified(&input, &[], &trial).unwrap());
+         }
+     }
+ 
+@@ -3347,11 +3575,29 @@
+                     assert!((friction - expected_friction).abs() <= 1.0e-12);
+                     assert!((applied[0].force - expected_friction).abs() <= 1.0e-12);
+                     assert!((friction.abs() - 0.30 * normal.abs()).abs() <= 1.0e-12);
++                    // ROOT prospective disposition: exact repeated execution
++                    // and seed equivalence within each algorithm; independent
++                    // existing physical criterion across different algorithms.
++                    let repeated = solve_active_set_frame_with_mode(&input, mode).unwrap();
++                    assert_eq!(
++                        (
++                            repeated.displacements[node_dof_index(1, FrameDof::Ux)],
++                            repeated.reactions[node_dof_index(1, FrameDof::Uy)],
++                            repeated.reactions[node_dof_index(1, FrameDof::Ux)]
++                        ),
++                        (displacement, normal, friction)
++                    );
++                    assert_eq!(repeated.final_states, result.final_states);
++                    assert_eq!(repeated.converged, result.converged);
+                     physical_results.push((displacement, normal, friction));
+                 }
+             }
++            assert_eq!(physical_results[0], physical_results[2]); // sparse seeds
++            assert_eq!(physical_results[1], physical_results[3]); // dense seeds
+             for result in &physical_results[1..] {
+-                assert_eq!(*result, physical_results[0]);
++                assert!((result.0 - physical_results[0].0).abs() <= 1.0e-12);
++                assert!((result.1 - physical_results[0].1).abs() <= 1.0e-12);
++                assert!((result.2 - physical_results[0].2).abs() <= 1.0e-12);
+             }
+         }
+     }

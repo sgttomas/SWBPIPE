@@ -1,0 +1,656 @@
+[
+  {
+    "manifest": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+    "evidence": "4f3572b10b451a3a",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "be0edb2bfc9e3c97cc0a85df4bcf63ee276785be22f689657a2d3730bd551b49",
+    "after_sha256": "be0edb2bfc9e3c97cc0a85df4bcf63ee276785be22f689657a2d3730bd551b49",
+    "changed": false,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+    "evidence": "24ac9e455907468e",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "18d729de26a4ee9c040af8732fea24bf7492d178ab83fbe2092660ec31527b7e",
+    "after_sha256": "a5be934e8ca1db4655e5139f6b5b0bb66e8673911ec2a0a1d4d1b1474b7e3ece",
+    "changed": true,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+    "evidence": "daef87561eb8f2f7",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "ea31afc93ac9e721234a0d6843777ff4caa240545f108208d3f550c447efe116",
+    "after_sha256": "ea31afc93ac9e721234a0d6843777ff4caa240545f108208d3f550c447efe116",
+    "changed": false,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "evidence": "98193783347bc41a",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/product_physics/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/product_physics/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "36b1eb6477d894b642e615d49c77a7f2b4bc00ba5569ddc80fbc66593356b58a",
+    "after_sha256": "39843130aa97195bf011fc6abf728c56f1f57c8af2164549d7e03352a9a0b6c7",
+    "changed": true,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/reporting/report_package/Cargo.toml",
+    "evidence": "4b2f12d6e3dae143",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/reporting/report_package/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "946819d8c31b2227afa8e46ce552d3211483faea0c163becf41abc95b0e2836a",
+    "after_sha256": "946819d8c31b2227afa8e46ce552d3211483faea0c163becf41abc95b0e2836a",
+    "changed": false,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/reporting/result_export/Cargo.toml",
+    "evidence": "ccc017ea49f3da7e",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/reporting/result_export/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "963573b91a229f41472bbd3100e2cf48e5dad8a2b2009dc85017c41ef3bdb4f1",
+    "after_sha256": "963573b91a229f41472bbd3100e2cf48e5dad8a2b2009dc85017c41ef3bdb4f1",
+    "changed": false,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/rules/rule_check_runner/Cargo.toml",
+    "evidence": "389a49bcefc16d69",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/rules/rule_check_runner/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "f2c88c161a6529ca4bef3f28916ff2354810f6cf1d613322bc308c6acb3aa13a",
+    "after_sha256": "f2c88c161a6529ca4bef3f28916ff2354810f6cf1d613322bc308c6acb3aa13a",
+    "changed": false,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/rules/rule_pack_document/Cargo.toml",
+    "evidence": "2f7dc80494cfbe5b",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/rules/rule_pack_document/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "08d421f4d82eab267177bc0c8f30f874a14b20ee4b610dd8e2c2e39a5384d61a",
+    "after_sha256": "08d421f4d82eab267177bc0c8f30f874a14b20ee4b610dd8e2c2e39a5384d61a",
+    "changed": false,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/runner/headless/Cargo.toml",
+    "evidence": "4334481d8009b15b",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/runner/headless/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/runner/headless/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "661095df4a112a8884d8b39709eac134d8b95cdb5cb8d346f835c1851debe544",
+    "after_sha256": "9ded0fc4d057dc01549cbf924b17fc5485e2b482ed5cf82f4dc303d82dff7da4",
+    "changed": true,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+    "evidence": "2d23935217c53311",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "dc4edf682da807a0240eb20770d8292380aeb9e181b184875ab0ed97d12db2e8",
+    "after_sha256": "dc4edf682da807a0240eb20770d8292380aeb9e181b184875ab0ed97d12db2e8",
+    "changed": false,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/solver/diagnostics/Cargo.toml",
+    "evidence": "966d0aea70f8dcce",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/solver/diagnostics/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/solver/diagnostics/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "e80edc2f981aa904e2146072db14d31eed2680cf5975eea0ea3b8b5a4175ee64",
+    "after_sha256": "7dbfc5100df8ce1cd1488d00a5fa1dded65cd86776b7519cec1b2b45c7662c75",
+    "changed": true,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+    "evidence": "a6cc0da53603a142",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "c52dbeacafd93946cd1121643d01d0774d3ec3f2dddb3604b7e02aae400a0f57",
+    "after_sha256": "c6cad1e1f8ebbc88cb6d29b4eb8ad0ad06fe8c5837e3a1735688fe30cb428426",
+    "changed": true,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml",
+    "evidence": "ea34c13aac30210f",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "8bf2ad74a9b4d415e825c60fbc45bdb2b62b673fc2914e561ffa85c992bc2657",
+    "after_sha256": "7f4a6815308c5d05053935109d03be8141a348ce612988aefaa3563dab97751a",
+    "changed": true,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+    "evidence": "e8fe6d82b064c68b",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/solver/performance_harness/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "c191d3f5d2ca8cdc6c6237effbc18d5e477cf1362d79bf45c62821486f94ab8b",
+    "after_sha256": "e29c2fdc87556d11cb9c9d970f645f713d02123436f03f2ff603fcda2981a9bb",
+    "changed": true,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+    "evidence": "7e54cb6e80ab8c46",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "86a316b6f076f21b01531b16c1336abeccfb484d8425ad44fc560831d1c34b36",
+    "after_sha256": "86a316b6f076f21b01531b16c1336abeccfb484d8425ad44fc560831d1c34b36",
+    "changed": false,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.toml",
+    "evidence": "a5d8449f430f9fae",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "feab70abe260c80cd1597b9592334a11e4ba421f5e27306efa3630dbe2428882",
+    "after_sha256": "861988783df65a036d4e20bf706477cd0ff9eefeade8718188fe6edc3e444eef",
+    "changed": true,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/validation/benchmarks/nonlinear/Cargo.toml",
+    "evidence": "844e78bfc796b28d",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/validation/benchmarks/nonlinear/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/validation/benchmarks/nonlinear/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "5ee3e1f71a489cbc1c6ff3af0ba77253714d5132f925c716788fa57bf27546f7",
+    "after_sha256": "1c91681b34610827ce4cdf2b1f5c8118ee074557b55a7d2f6fa8198c3fd61415",
+    "changed": true,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.toml",
+    "evidence": "6a72de3a4e6c7ef2",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": null,
+    "after_sha256": "4e1e251620fde4e2168b7323389f8516f527c45c48391a07fc624955684cc29c",
+    "changed": true,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml",
+    "evidence": "9f70b3c4e4c787ee",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 101
+      },
+      {
+        "phase": "reconcile",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "9e05f6cc80383de85adf3c430c430ad7fde424791d7120d6f9e31d344a3b31d7",
+    "after_sha256": "2eadf853203e982b77048683e102366ba9b58cda1eb659f276e4c6de2caacc71",
+    "changed": true,
+    "registry_version_changes": []
+  },
+  {
+    "manifest": "projects/chirality-piping/validation/benchmarks/stress/Cargo.toml",
+    "evidence": "6b020b51cf3f030d",
+    "commands": [
+      {
+        "phase": "locked",
+        "command": [
+          "cargo",
+          "metadata",
+          "--offline",
+          "--format-version=1",
+          "--filter-platform",
+          "aarch64-apple-darwin",
+          "--manifest-path",
+          "projects/chirality-piping/validation/benchmarks/stress/Cargo.toml",
+          "--locked"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "before_sha256": "f4b8438615cdc66a4f85e8ddefd2e48cb9bd6851a02b85fb4f242a5dd8ef70cc",
+    "after_sha256": "f4b8438615cdc66a4f85e8ddefd2e48cb9bd6851a02b85fb4f242a5dd8ef70cc",
+    "changed": false,
+    "registry_version_changes": []
+  }
+]

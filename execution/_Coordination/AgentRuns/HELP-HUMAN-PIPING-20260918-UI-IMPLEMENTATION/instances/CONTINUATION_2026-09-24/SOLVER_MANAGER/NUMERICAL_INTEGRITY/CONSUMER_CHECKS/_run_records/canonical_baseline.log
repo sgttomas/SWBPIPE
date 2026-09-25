@@ -1,0 +1,33 @@
+   Compiling proc-macro2 v1.0.106
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling syn v2.0.117
+   Compiling serde_json v1.0.150
+   Compiling serde v1.0.228
+   Compiling serde_derive v1.0.228
+   Compiling memchr v2.8.2
+   Compiling itoa v1.0.18
+   Compiling ryu v1.0.23
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/serialization/canonical_json)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.25s
+     Running tests/precision_transport.rs (/private/tmp/piping-canonical-precision-target/debug/deps/precision_transport-81cd7a5a17e3be45)
+
+running 1 test
+
+thread 'checked_text_preserves_same_unit_nonzero_binary64_bits' (78369460) panicked at tests/precision_transport.rs:13:13:
+assertion `left == right` failed: 3e9fffffffffffff
+  left: "{\"value\":4.76837158203125e-7}"
+ right: "{\"value\":4.7683715820312495e-7}"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test checked_text_preserves_same_unit_nonzero_binary64_bits ... FAILED
+
+failures:
+
+failures:
+    checked_text_preserves_same_unit_nonzero_binary64_bits
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test precision_transport`

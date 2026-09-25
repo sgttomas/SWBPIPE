@@ -1,0 +1,29 @@
+{
+  "base": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "c389b896b00c996b1da8d3b006f51f7d35c20089bc7c4af7657253123c43b5ea"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "sha256": "3147b377b88b4d2f401082a6479b5f8eee877aa68ef0c1527924d541c3fc5542"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.lock",
+      "sha256": "171e1e5d459bdafc671926616712a414625afb43dfb4bf33f174892fe7eecbb2"
+    }
+  ],
+  "diff_sha256": "918869cd7fc4cc18bf16e0c9734a9f0c709a6c9f2e058236db7e8f8ae4a8836b",
+  "checks": {
+    "rustfmt": "passed scoped rustfmt --edition 2021",
+    "git_diff_check": "passed",
+    "cargo": "not run; shared resource hold"
+  },
+  "expected_lock_resolution_changes": [
+    "product package 0.1.0 to 0.2.0 (already authored)",
+    "serde_json float_roundtrip feature does not add package/dependency entries for locked serde_json 1.0.149; manifest change only",
+    "sibling sparse_direct now depends on frame_kernel; Cargo offline resolution should add that edge to product lock (not authored here before execution)",
+    "downstream crate locks must record product 0.2.0 through their owning consumer lane"
+  ]
+}

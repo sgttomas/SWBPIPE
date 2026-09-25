@@ -3,7 +3,14 @@
   "$id": "https://openpipestress.org/schemas/stress_neutral_export.schema.json",
   "title": "OpenPipeStress stress-neutral export version dispatcher",
   "oneOf": [
-    {"$ref": "stress_neutral_export.v0.1.schema.json"},
-    {"$ref": "stress_neutral_export.v0.2.schema.json"}
+    {
+      "$ref": "stress_neutral_export.v0.1.schema.json"
+    },
+    {
+      "$ref": "stress_neutral_export.v0.2.schema.json"
+    },
+    {
+      "$ref": "stress_neutral_export.v0.3.schema.json"
+    }
   ]
 }

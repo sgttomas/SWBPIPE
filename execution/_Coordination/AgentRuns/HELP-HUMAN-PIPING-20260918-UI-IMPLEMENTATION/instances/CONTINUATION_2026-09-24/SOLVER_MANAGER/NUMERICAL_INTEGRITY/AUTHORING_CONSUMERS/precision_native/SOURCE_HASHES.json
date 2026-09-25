@@ -1,0 +1,62 @@
+[
+  {
+    "origin": "AGENTS.md",
+    "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "capture": "read basis or current candidate after native edits"
+  },
+  {
+    "origin": "agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "capture": "read basis or current candidate after native edits"
+  },
+  {
+    "origin": "projects/chirality-piping/AGENTS.md",
+    "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "capture": "read basis or current candidate after native edits"
+  },
+  {
+    "origin": "projects/chirality-piping/loop/LOOP_INIT.md",
+    "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+    "capture": "read basis or current candidate after native edits"
+  },
+  {
+    "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_CONSUMER_CONTRACT.md",
+    "sha256": "84e1c73239c0df953fcad85c2e2ced1221255d1741c4ad689b8b744ab867c21a",
+    "capture": "read basis or current candidate after native edits"
+  },
+  {
+    "origin": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+    "sha256": "2c93be28d06b15c95fc5cb895e25e3a58fb51a2762e5f4997ad70dab0e3193fc",
+    "capture": "current candidate after manager mechanics-gate repair"
+  },
+  {
+    "origin": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+    "sha256": "ae8eb2d1193fb96d742820614eebb6b69eaefa2256d23d79193c3b4b3dcb0b16",
+    "capture": "read basis or current candidate after native edits"
+  },
+  {
+    "origin": "projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs",
+    "sha256": "e885f42b01509ea13fbab3dfa89d83ecf8a6446891ef27035729a7f6cf29a43c",
+    "capture": "read basis or current candidate after native edits"
+  },
+  {
+    "origin": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+    "sha256": "ada8bdb36a094149dc8c22fe0636dd2f159f68b477fb8afc844821a4e0acb72c",
+    "capture": "read basis or current candidate after native edits"
+  },
+  {
+    "origin": "projects/chirality-piping/fixtures/product_preview/r2_from_blank_rehearsal.json",
+    "sha256": "71c0dd71c9b95b2d0c466bc16e51d7e80d62b357ff24514b520e4120fd9e4490",
+    "capture": "read basis or current candidate after native edits"
+  },
+  {
+    "origin": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+    "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c",
+    "capture": "read basis or current candidate after native edits"
+  },
+  {
+    "origin": "projects/chirality-piping/fixtures/results/precision_transport_v0_3.json",
+    "sha256": "fc06b4a54073bbbdf933128360fc29454a0844ee0129d6b41728f60176b62897",
+    "capture": "shared maintained fixture read for repair"
+  }
+]

@@ -1,0 +1,43 @@
+--- a/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
++++ b/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+@@ -3849,6 +3849,40 @@
+     }
+ 
+     #[test]
++    fn diagnostic_boundary_probe_affine_all_seeds_modes() {
++        for sign in [1.0,-1.0] { for seed in [ActiveSetState::Sticking,ActiveSetState::Sliding] { for mode in [LinearSolveMode::SparseInteractive,LinearSolveMode::DenseScrutiny] {
++            let input=coupled_normal_friction_problem(sign*10.0,-10.0,seed,4);
++            let k=assemble_global_stiffness_with_user_elements(input.node_count,&input.elements,&input.user_stiffness_elements).unwrap();
++            eprintln!("AFFINE_INPUT sign={sign} seed={seed:?} mode={mode:?} Kxx={:?} Kxy={:?} Kxx_bits={} Kxy_bits={} force={:?}",k[6][6],k[7][6],k[6][6].to_bits(),k[7][6].to_bits(),input.force);
++            match solve_active_set_frame_with_mode(&input,mode) {
++                Ok(result)=> { eprintln!("AFFINE_FINAL sign={sign} seed={seed:?} mode={mode:?} converged={} states={:?} u6={:?} u6_bits={} r6={:?} r6_bits={} r7={:?} r7_bits={}",result.converged,result.final_states,result.displacements[6],result.displacements[6].to_bits(),result.reactions[6],result.reactions[6].to_bits(),result.reactions[7],result.reactions[7].to_bits());
++                    for i in &result.iterations {eprintln!("AFFINE_ITER iteration={} boundary={:?} prescribed={:?} states={:?} u6={:?} r6={:?} r7={:?} applied={:?} factor={} rows={:?}",i.iteration,i.active_restrained_dofs,i.active_prescribed_displacements,i.active_set.states,i.displacements[6],i.reactions[6],i.reactions[7],i.applied_sliding_friction_forces,i.structural_report.factorization,i.product_equilibrium.rows);}
++                },Err(error)=>eprintln!("AFFINE_ERROR {error:?}"),
++            }
++        }}}
++    }
++
++    #[test]
++    fn diagnostic_boundary_probe_gap_all_seeds_modes() {
++        for sign in [1.0,-1.0] {for seed1 in [ActiveSetState::Active,ActiveSetState::Inactive] {for seed2 in [ActiveSetState::Active,ActiveSetState::Inactive] {for mode in [LinearSolveMode::DenseScrutiny,LinearSolveMode::SparseInteractive] {
++            let mut input=two_node_axial_problem(vec![],vec![],8);
++            input.node_count=3;
++            input.elements.push(FrameElement::new(FrameNode::new(1,[1.0,0.0,0.0]).unwrap(),FrameNode::new(2,[2.0,0.0,0.0]).unwrap(),FrameSection::new(100.0,40.0,1.0,1.0,1.0,1.0).unwrap(),[0.0,1.0,0.0]).unwrap());
++            input.force=vec![0.0;18];input.force[12]=sign*12.5;input.base_restrained_dofs.extend(13..18);
++            let direction=if sign>0.0 {GapDirection::PositiveDisplacement} else {GapDirection::NegativeDisplacement};
++            input.nonlinear_supports=vec![NonlinearSupport::gap("g1",1,FrameDof::Ux,0.125,direction).unwrap(),NonlinearSupport::gap("g2",2,FrameDof::Ux,0.25,direction).unwrap()];
++            input.initial_states=vec![SupportStateRecord::new("g1",seed1),SupportStateRecord::new("g2",seed2)];
++            let k=assemble_global_stiffness_with_user_elements(input.node_count,&input.elements,&input.user_stiffness_elements).unwrap();
++            eprintln!("GAP_INPUT sign={sign} seed1={seed1:?} seed2={seed2:?} mode={mode:?} axial_K={:?}",[k[6][6],k[6][12],k[12][6],k[12][12]]);
++            match solve_active_set_frame_with_mode(&input,mode) {
++                Ok(result)=> {eprintln!("GAP_FINAL sign={sign} seed1={seed1:?} seed2={seed2:?} mode={mode:?} converged={} states={:?} u6={:?} u6_bits={} u12={:?} u12_bits={} r6={:?} r12={:?}",result.converged,result.final_states,result.displacements[6],result.displacements[6].to_bits(),result.displacements[12],result.displacements[12].to_bits(),result.reactions[6],result.reactions[12]);
++                    for i in &result.iterations {eprintln!("GAP_ITER iteration={} boundary={:?} prescribed={:?} states={:?} u6={:?} u12={:?} r6={:?} r12={:?} factor={} rows={:?}",i.iteration,i.active_restrained_dofs,i.active_prescribed_displacements,i.active_set.states,i.displacements[6],i.displacements[12],i.reactions[6],i.reactions[12],i.structural_report.factorization,i.product_equilibrium.rows);}
++                },Err(error)=>eprintln!("GAP_ERROR {error:?}"),
++            }
++        }}}}
++    }
++
++    #[test]
+     fn audit_coupled_exact_contacts_converge_from_all_seeds() {
+         for sign in [1.0, -1.0] {
+             for seed1 in [ActiveSetState::Active, ActiveSetState::Inactive] {

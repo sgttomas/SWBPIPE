@@ -1,0 +1,130 @@
+--- a/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts
+@@ -78,6 +78,10 @@
+       comparison: null,
+       ruleCheckAggregate: null
+     });
++    const historicalIdentity = { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0" };
++    expect(request.result_envelopes[0]).toMatchObject(historicalIdentity);
++    expect(request.audit_manifest.solver_version).toEqual(historicalIdentity);
++    expect(result).toEqual(historicalResult);
+     const sections = request.report.report_sections;
+     const presentId = componentProvenanceProjection.present_component.value.value_id;
+     const missingId = componentProvenanceProjection.missing_component.value.value_id;
+@@ -125,6 +129,10 @@
+       ruleCheckAggregate: null
+     });
+ 
++    const sourceIdentity = { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: inputManifest.manifest.solver_basis.solver_build_ref };
++    expect(sourceIdentity).toEqual({ solver_name: "open_pipe_stress_product_physics", solver_version: "0.2.0", solver_build_ref: "open_pipe_stress_product_physics@0.2.0" });
++    expect(request.result_envelopes[0]).toMatchObject(sourceIdentity);
++    expect(request.audit_manifest.solver_version).toEqual(sourceIdentity);
+     expect(result.schema_version).toBe("0.2.0");
+     expect(analysisRun.schema_version).toBe("0.3.0");
+     expect(result.results.every(row => row.dimension === undefined)).toBe(true);
+@@ -405,4 +413,34 @@
+     expect(JSON.stringify(annotated)).toBe(before);
+   });
+ 
++  it.each(["solver_name", "solver_version", "build_ref"] as const)("rejects recorded %s that differs from the verified manifest", async field => {
++    const session = await currentSession();
++    const analysisRun = structuredClone(session.analysisRun);
++    const solver = analysisRun.analysis_run.solver_version!;
++    if (field === "build_ref") solver.build_ref.ref = "build:conflicting-record";
++    else solver[field] = "conflicting-record";
++    await expect(buildReportPackageRequest({ ...session, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
++      .rejects.toThrow("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH");
++  });
++
++  it.each(["solver_name", "solver_version"] as const)("rejects a hash-valid manifest and coherent record with the wrong producer %s", async field => {
++    const session = await currentSession();
++    const solver = { ...session.inputManifest.manifest.solver_basis, [field]: field === "solver_version" ? "0.1.0" : "different_solver" };
++    const inputManifest = await buildCurrentSessionInputManifest({ model: session.model, solver, active_rule_packs: [], external_assets: [] });
++    const analysisRun = await buildAnalysisRunPreview(session.result, { inputManifest });
++    await expect(buildReportPackageRequest({ ...session, inputManifest, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
++      .rejects.toThrow("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH");
++  });
++
++  it("preserves a consistent recorded build reference without inventing one from producer version", async () => {
++    const session = await currentSession();
++    const recordedBuild = "build:captured-current-product-physics";
++    const inputManifest = await buildCurrentSessionInputManifest({ model: session.model, solver: { ...session.inputManifest.manifest.solver_basis, solver_build_ref: recordedBuild }, active_rule_packs: [], external_assets: [] });
++    const analysisRun = await buildAnalysisRunPreview(session.result, { inputManifest });
++    const request = await buildReportPackageRequest({ ...session, inputManifest, analysisRun, projectSummary: null, comparison: null, ruleCheckAggregate: null });
++    expect(request.result_envelopes[0].solver_build_ref).toBe(recordedBuild);
++    expect(request.audit_manifest.solver_version.solver_build_ref).toBe(recordedBuild);
++    expect(request.audit_manifest.solver_version.solver_version).toBe(session.result.producer!.component_version);
++  });
++
+ });
+--- a/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts
+@@ -74,6 +74,36 @@
+       `REPORT-PACKAGE-SHA256-INVALID: ${label} must be bare lowercase 64-hex.`
+     );
+   }
++}
++
++// Called only after the manifest bytes and the run's manifest binding are checked.
++// Source producer identity and recorded build identity are different evidence.
++function reportSolverIdentity(result: MechanicsResult, analysisRun: AnalysisRunEnvelope, inputManifest: CurrentSessionInputManifestEvidence) {
++  const manifestSolver = inputManifest.manifest.solver_basis;
++  const recordedSolver = analysisRun.analysis_run.solver_version;
++  const precision = analysisRun.schema_version === "0.3.0";
++  if (!precision && (!(result.schema_version === "0.1.0" || result.schema_version === "0.2.0") ||
++    ["producer", "numerical_quality", "formulation_basis"].some(key => Object.hasOwn(result, key)))) {
++    throw new Error("REPORT-PACKAGE-SOURCE-CONTRACT-MISMATCH");
++  }
++  // Legacy 0.1 records may lack a solver-version field; the verified manifest
++  // still supplies recorded identity. Strict records must carry both records.
++  if ((!recordedSolver && analysisRun.schema_version !== "0.1.0") ||
++    (recordedSolver && (recordedSolver.solver_name !== manifestSolver.solver_name ||
++      recordedSolver.solver_version !== manifestSolver.solver_version ||
++      recordedSolver.build_ref?.ref !== manifestSolver.solver_build_ref))) {
++    throw new Error("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: analysis record and verified manifest differ.");
++  }
++  if (precision && (sourceContract(result) !== "precision" ||
++    result.producer!.component_name !== manifestSolver.solver_name ||
++    result.producer!.component_version !== manifestSolver.solver_version)) {
++    throw new Error("REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: recorded identity differs from the received producer.");
++  }
++  return {
++    solver_name: precision ? result.producer!.component_name : manifestSolver.solver_name,
++    solver_version: precision ? result.producer!.component_version : manifestSolver.solver_version,
++    solver_build_ref: manifestSolver.solver_build_ref
++  };
+ }
+ 
+ export async function buildReportPackageRequest({
+@@ -182,6 +212,7 @@
+     );
+   }
+ 
++  const solverIdentity = reportSolverIdentity(result, analysisRun, inputManifest);
+   const provenance = privateProvenance(model);
+   const resultDimensions = new Map(
+     run.result_refs.map((item) => [
+@@ -261,9 +292,7 @@
+     schema_version: "1.0.0",
+     model_ref: reference("model", result.model_ref),
+     run_ref: reference("analysis_run", result.run_id),
+-    solver_name: "open_pipe_stress_product_physics",
+-    solver_version: "0.1.0",
+-    solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
++    ...solverIdentity,
+     unit_system_ref: reference("unit_system", UNIT_SYSTEM_REF),
+     load_basis_refs: run.load_basis_refs.map((item) => reference(item.object_type, item.ref)),
+     result_sets: resultSets,
+@@ -318,11 +347,7 @@
+         payload_ref: inputManifestRef.ref,
+         value: inputHash.value
+       },
+-      solver_version: {
+-        solver_name: "open_pipe_stress_product_physics",
+-        solver_version: "0.1.0",
+-        solver_build_ref: "open_pipe_stress_product_physics@0.1.0"
+-      },
++      solver_version: { ...solverIdentity },
+       unit_system_ref: UNIT_SYSTEM_REF,
+       rule_pack_refs: [],
+       assets: [],

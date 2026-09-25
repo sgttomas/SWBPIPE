@@ -1,0 +1,9 @@
+...........................................................              [100%]
+=============================== warnings summary ===============================
+tests/test_precision_consumer_contract.py: 6 warnings
+tests/test_stress_neutral_precision.py: 10 warnings
+  /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/tests/schema_validation.py:54: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import RefResolver
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+59 passed, 16 warnings in 28.73s

@@ -3,6 +3,9 @@
 //! This crate contains open mechanics routines only. It does not encode design
 //! code compliance checks, protected standards content, or private project data.
 
+pub mod structural;
+pub mod rigid_body;
+
 use std::error::Error;
 use std::fmt;
 

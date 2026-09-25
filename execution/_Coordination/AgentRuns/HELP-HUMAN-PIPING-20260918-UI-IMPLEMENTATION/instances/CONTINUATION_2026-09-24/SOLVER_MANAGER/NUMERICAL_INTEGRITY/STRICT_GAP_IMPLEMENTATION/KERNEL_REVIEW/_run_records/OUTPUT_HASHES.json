@@ -1,0 +1,12 @@
+{
+  "RETURN.md": "19a574fd693c56e02f977146d386ddcd370d9bbd6512ca891bdb02d6dd7676c4",
+  "PROJECTION_PROPOSAL.md": "ded6ddc492fcd29a7d0b49bde4781f81ee0dad85c1950a34250e74a0751719e8",
+  "_run_records/scope_check.json": "e4febabcd2b6cab9990ce76490cbf11559cf41365d309d0685644e142bb532b2",
+  "_run_records/SOURCE_CHECK.json": "a81e27b27c96ebb7bba3129d11df600ba892f6be93fad3d0ac76ef7528415365",
+  "_run_records/independent_review.py": "730f4f796ba937c26c4d9dfd2ebf538d1174fde5bf6dfe58c2551742ad2adb71",
+  "_run_records/independent_review.json": "32564785c3f9d2c8cb670b508419532097f68427a717ce8d1c4794ad53abbb43",
+  "_run_records/INPUT_HASHES.json": "d7ddada43dd0bab3402da1368121051901855e54e871466c865200dacf08ec1b",
+  "_run_records/ORIGINS.json": "2e18d3d5fbabbe76ad270149bfd56915fc3440ac96dd3f02f832eb283ce71fa4",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+  "_run_records/reviewed_sources/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs": "9e12fe8c3f284116815bb7a7820fb761539f5dd8736c88a325cdad0cdcf6e4c7"
+}

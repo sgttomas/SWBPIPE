@@ -1,0 +1,21 @@
+{
+  "stage": "frozen stable-map and nullish-rule follow-up; production checks and independent backcheck pending",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "ea2ae439ce6ac827e41e7cc3ea3c86e23d0267de80b67478b9005cc936390bb1"
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+      "sha256": "d2248bc6c9a82a9c76ad2df1783c1412970c3b242340844964235ea154831683"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_precision_consumer_contract.py",
+      "sha256": "20569a31f5364e69d66d44946badaffc14145579a6a3072c19dbe68e492f71af"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_stress_neutral_precision.py",
+      "sha256": "da5095b9a7e182925a6185955a692a02317c469209e953dffe15efe4e9662782"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "scope": "selected numerical manager authored evidence only; runtime raw excluded",
+  "files": 212,
+  "findings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/FIXTURE_ROUTE_REVIEW/RECIPE_REVIEW/RUNTIME_BACKCHECK/SOURCE_CLEARANCE.md",
+      "line": 7,
+      "match": "/private/tmp",
+      "text": "The harness copies that exact recipe into disposable projects under canonical `/private/tmp`, supplies explicit stub Cargo/rustc executables, removes inherited NODE_OPTIONS for the recipe child, and injects rename failures only through an external Node preload. It changes no production recipe or source. Producer-shaped inputs are clearly marked transaction-only scaffolds with unresolved numerical quality; they do not stand in for real producer replay or numerical proof."
+    }
+  ],
+  "validator_sha256": "9981b426b6d9c8bb760ab35ee66b1bb0c91bc6427fde282b33506ec99879e07d"
+}

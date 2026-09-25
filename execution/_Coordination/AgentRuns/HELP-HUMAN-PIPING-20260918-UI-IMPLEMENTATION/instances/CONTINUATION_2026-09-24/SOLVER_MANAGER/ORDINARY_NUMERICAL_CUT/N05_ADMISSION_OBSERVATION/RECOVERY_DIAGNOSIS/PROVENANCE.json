@@ -1,0 +1,212 @@
+{
+  "created_utc": "2026-09-25T03:05:40.277416+00:00",
+  "mechanism": "delegated-harness-native child",
+  "task": "/root/numerical_resume/n05_admission",
+  "parent": "/root/numerical_resume",
+  "root": "/root",
+  "role": "TASK",
+  "descendants": [],
+  "model": "not independently reported by execution tool; no model-diversity claim",
+  "checkout": "/private/tmp/piping-numerical-corrections-20260924",
+  "write_boundary": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS",
+  "authority": "Parent bounded read-only diagnosis brief; evidence writes only; no source changes, no original record changes, no Git operations beyond read-only status/root inspection.",
+  "enforcement_limits": "Host filesystem permits broader /private/tmp writes; disjoint evidence scope is instruction/brief enforced. No extra child delegation. No cargo, build, native or browser execution.",
+  "selected_workflow": null,
+  "selected_skill": ".agents/skills/software-defect-diagnosis/SKILL.md from this checkout",
+  "supplied_context_note": "Root/user AGENTS context and bounded parent brief were inherited; full Root, Piping, LOOP_INIT and TASK bodies explicitly read from assigned checkout. No other full role body intentionally loaded.",
+  "runtime_release": "Parent explicitly released both prepared lightweight probes after ROOT native build released. Commands below ran afterward.",
+  "commands": [
+    {
+      "command": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/audit.py",
+      "exit_code": 0,
+      "result": "PYTHON_COMPARISON_ADMISSION.json"
+    },
+    {
+      "command": "node projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/audit.mjs",
+      "exit_code": 0,
+      "result": "TS_ADMISSION.json",
+      "stderr": "Only Node ExperimentalWarning for stripTypeScriptTypes."
+    },
+    {
+      "command": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/decompose.py",
+      "exit_code": 0,
+      "result": "ARITHMETIC_DECOMPOSITION.json"
+    },
+    {
+      "command": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/audit.py --frozen",
+      "exit_code": 0,
+      "result": "PYTHON_FROZEN_REPLAY.json",
+      "matches_original": true
+    },
+    {
+      "command": "node projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/audit.mjs --frozen",
+      "exit_code": 0,
+      "result": "TS_FROZEN_REPLAY.json",
+      "matches_original": true
+    }
+  ],
+  "basis": [
+    {
+      "repository_path": "AGENTS.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "repository_path": "projects/chirality-piping/AGENTS.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "repository_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "repository_path": "agents/AGENT_TASK.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "repository_path": ".agents/skills/software-defect-diagnosis/SKILL.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/.agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "repository_path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "sha256": "c62ed9adb496ca81e83f376190f93bad4ffedb9c8323833d5362b12e7a29381c"
+    },
+    {
+      "repository_path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "46d06f416a260a2cb7dbc5ee11be49f2da118a2ea528fc6b64ca147ad32f1abc"
+    },
+    {
+      "repository_path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/README.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/validation/benchmarks/numerical_integrity/README.md",
+      "sha256": "0cb44d1f5fbc1ee0d3138c645b646b74d80346a1099e557a132dba79e5251505",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/COVERAGE.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/validation/benchmarks/numerical_integrity/COVERAGE.md",
+      "sha256": "114b34619dc33515199deeacfa81a757f0feecbac7238b3264f688ca071ea1a2",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/generate.py",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/validation/benchmarks/numerical_integrity/generate.py",
+      "sha256": "b491529a4bff8ed0e25de1f85c2488192a8e55677413571da6c260932b1a71a2",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/fixtures.json",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/validation/benchmarks/numerical_integrity/fixtures.json",
+      "sha256": "c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/test_reference.py",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/validation/benchmarks/numerical_integrity/test_reference.py",
+      "sha256": "35b1b81895af8ec42e24fbb03dbec5c0233e5a2a57d1cccbc394cacee1a0c496",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/src/main.rs",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/validation/benchmarks/numerical_integrity/src/main.rs",
+      "sha256": "f61f115b7c1e22490c204660ad505e2219bf67684add9c24511b4419b3a38037",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "sha256": "c92030018f057c8e826d0486db33a5c78246114d220fa0a062d87a3e21a94ac8",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "742d66ed8c969a7ef9290c7a0a24005ffc19342d20cfea4f7886147508a0b9f4",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "15c0211f6e87d62437324c90235ef3baf9f4be24264f64f6fc6ee41935964edf",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/apps/desktop/package.json",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/apps/desktop/package.json",
+      "sha256": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "3671265eca3f9b0ca1793bf020cb2e768834a25e8c2827d73251a674271140c6",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "03f82e343c7aee8f9f38d4b983091d0b71faebb904fb4dc7b59692a0c9cc4ad9",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "sha256": "bb3923fbc75ee4810ece2aba11e332f69b3e95a4f9637adee3313573ad10f85a",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "sha256": "6801610d0bb515eab33603163423812b81bf94946d8c23b99c127b655d996a7f",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/REFERENCE_REVIEW/RETURN.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/REFERENCE_REVIEW/RETURN.md",
+      "sha256": "b08827847a3d675effa6b36dadd6e65c75049e21f71a103cebe3bb1171c6144c",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL/RETURN.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL/RETURN.md",
+      "sha256": "c0111b4600d8a9bb9a2d2582db3ff1d081ee49ab0ec51693e9667821e14bc4e1",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_REVIEW/BACKCHECK/RETURN.md",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_REVIEW/BACKCHECK/RETURN.md",
+      "sha256": "75c0890c5b05441a70895a1b91c68b5d89ce167914441596be6fb59000cefa96",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/_run_records/EXECUTION.json",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/_run_records/EXECUTION.json",
+      "sha256": "19497a8da74305fe1fab267a191c104e03b051904526bc2fc17fb16b9ba15e5c",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/_run_records/SELECTED.json",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/_run_records/SELECTED.json",
+      "sha256": "3899bf508b924688ee6a408fe26fd88120af30243d940155af1c3ffdc3850b44",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    },
+    {
+      "repository_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/_run_records/stdout.jsonl",
+      "actual_origin": "/private/tmp/piping-numerical-corrections-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/_run_records/stdout.jsonl",
+      "sha256": "36d717a2e3eff94f6d60092ddee19a5c12b52469aa951e3464e97a7839f2e61c",
+      "timing": "diagnosis closeout snapshot; only two admission sources above were explicitly frozen immediately after direct original probes"
+    }
+  ],
+  "checks": {
+    "original_stdout_hash_matches_execution": true,
+    "selected_product_records_equal_raw_jsonl_records": true,
+    "frozen_python_replay_matches_original": true,
+    "frozen_typescript_replay_matches_original": true
+  },
+  "nonmaterial_probe_correction": "Initial auxiliary decomposition compared the i-end torque to +T; corrected to -T based on retained end_i metadata before final artifact. No product value/reference/source was changed."
+}
