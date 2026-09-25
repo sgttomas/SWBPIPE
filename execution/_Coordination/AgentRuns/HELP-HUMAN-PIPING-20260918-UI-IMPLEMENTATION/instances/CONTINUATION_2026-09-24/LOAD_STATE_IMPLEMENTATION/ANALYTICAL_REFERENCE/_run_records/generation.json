@@ -1,0 +1,44 @@
+{
+  "actor": "/root/physics_resume/membrane_backcheck",
+  "parent": "/root/physics_resume",
+  "utc": "2026-09-25T13:27:16.077046+00:00",
+  "checkout": "/private/tmp/piping-load-states-20260925",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "method": "Independent Fraction closed forms and Decimal exp; existing reviewed design translated; no product imports or observed result oracle.",
+  "read_only_Git_authorization": "Parent clarified read-only show/rev-parse/hash/diff authorized; no Git mutation.",
+  "source_hashes_verified": {
+    "DESIGN.md": {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/DESIGN.md",
+      "sha256": "2839c65ae56c4ff4674da12848eda4b60f1385663b4c0b5e556099eae7fe4f64"
+    },
+    "INTERFACE.md": {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/INTERFACE.md",
+      "sha256": "18587811735a262187cf4a26bb934d6c3ef03ceb37c78228bb39b7f8afe073bf"
+    },
+    "VERIFICATION.md": {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/VERIFICATION.md",
+      "sha256": "061f1f8fa53d426e3af9db58bf684bdfca790b13f3df780935e9353d5402fc57"
+    },
+    "REFERENCES.md": {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/REFERENCES.md",
+      "sha256": "ad3147c69a14ee16d5e4cbbcf8300b94dc092802dfb8b5775beb62e690a1b5fa"
+    },
+    "HYDROSTATIC_CONTROL.md": {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/HYDROSTATIC_CONTROL.md",
+      "sha256": "30041992674e22115722d688a2d8cb2b589febf20425a1bd56434c7fdf3486ef"
+    },
+    "RETURN.md": {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/RETURN.md",
+      "sha256": "49e8b8d12a1352c9d8ff182dce9c77f51bbea3dca03524ddcc489773e0b9f554"
+    }
+  },
+  "case_count": 11,
+  "checks": "Annulus identity, serial/parallel force balance, beam moment balance, thermal43/25009, split log composition, cold40000/hot-89976 assert passed.",
+  "output": "/private/tmp/piping-load-states-20260925/projects/chirality-piping/core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
+  "output_sha256": "5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891",
+  "limitations": [
+    "M21 full hydrostatic head/mass-state and support lock/device closure remain unfinished.",
+    "Nonlinear predecessor/internal-history qualification is not supplied by independent cold/hot/return states.",
+    "Actual public/native/source-recovery/persistence checks remain implementation obligations."
+  ]
+}

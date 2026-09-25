@@ -1,0 +1,18 @@
+{
+  "authority": "ROOT technical implementation selection under owner engineering authorization; not a fabricated owner-specific schema ruling",
+  "model_schema": "0.4.0",
+  "analysis_state_contract": "openpipestress.load_reference_state/1.0.0",
+  "result_profile": "resolved_straight_load_state_v1",
+  "semantic_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "new_evidence_namespace": "contract_evidence.load_reference_states",
+  "retained_carriers": {
+    "raw": "0.2.0",
+    "producer": "0.2.0",
+    "canonical_results": "0.3.0",
+    "analysis_run": "0.3.0",
+    "stress_neutral": "0.3.0"
+  },
+  "carrier_condition": "Closed new-method branches must fully describe/validate additions; prior meanings/hashes unchanged. Return concrete incompatible-version proposal if needed.",
+  "required_work": "Ordinary nonzero prescriptions/per-element thermal+fit/source inclusion, followed by checked retained-source recovery join for this undertaken input family; unsupported guards do not close or drop that required join.",
+  "not_claimed": "Whole M10/M16/M29, M21 hydrostatic/head/mass state or nonlinear predecessor-history closure without connected implementation/witnesses."
+}

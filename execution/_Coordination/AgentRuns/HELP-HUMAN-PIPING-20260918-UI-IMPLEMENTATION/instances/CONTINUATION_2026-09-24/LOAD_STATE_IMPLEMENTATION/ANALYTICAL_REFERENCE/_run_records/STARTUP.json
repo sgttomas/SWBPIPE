@@ -1,0 +1,20 @@
+{
+  "actor": "/root/physics_resume/membrane_backcheck",
+  "parent": "/root/physics_resume",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native reused handle with new bounded brief",
+  "started_utc": "2026-09-25T13:21:29.066474+00:00",
+  "checkout": "/private/tmp/piping-load-states-20260925",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "basis": "parent-confirmed branch codex/piping-load-states-20260925 at c278f64ba122eb8b848b9f14e58a0e533e94439a; no child Git operation",
+  "instructions": {
+    "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/BRIEF.md": "121a2c9d0c08f6d34b507f0fb255cf55b9d57f1b8e5b9cbde96949200ba37216",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/OWNERSHIP.md": "a8938bd7a6ae192e038ec6ecf5c0e3a38ed6176e14489d622a5eb65754b19c4a",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/BRIEF.md": "8cd830c8f325d0430a46cd1cb204775ebd5b8f63e8c62b628db7e604d396ddb5",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/_run_records/STARTUP.json": "bece1c8e94dec81857d57c97730efacd2acf781b52feffa22912ffdf1913b8d7"
+  },
+  "limits": "Only maintained reference fixture directory and this ANALYTICAL_REFERENCE evidence; no product/kernel imports or execution, no Git/build/native/delegation/external research."
+}

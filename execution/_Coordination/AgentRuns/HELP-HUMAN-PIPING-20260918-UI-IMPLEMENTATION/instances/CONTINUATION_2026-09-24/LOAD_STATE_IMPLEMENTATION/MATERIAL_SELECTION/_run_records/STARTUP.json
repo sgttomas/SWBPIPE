@@ -1,0 +1,104 @@
+{
+  "actor": "/root/physics_resume/exact_authoring",
+  "parent": "/root/physics_resume",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native reused handle, new bounded task",
+  "descendants": [],
+  "timestamp_utc": "2026-09-25T13:27:05.919223+00:00",
+  "checkout": "/private/tmp/piping-load-states-20260925",
+  "branch": "codex/piping-load-states-20260925",
+  "head": "c278f64ba122eb8b848b9f14e58a0e533e94439a",
+  "permissions": "Sole production write core/product_physics/src/case_state/material.rs; evidence only MATERIAL_SELECTION; no old engine/primary writes, public facade/schema edits, builds, native, delegation or Git mutation.",
+  "origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "read_full": true
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "read_full": true
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "read_full": true
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "read_full": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/BRIEF.md",
+      "sha256": "121a2c9d0c08f6d34b507f0fb255cf55b9d57f1b8e5b9cbde96949200ba37216",
+      "read_full": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/OWNERSHIP.md",
+      "sha256": "a8938bd7a6ae192e038ec6ecf5c0e3a38ed6176e14489d622a5eb65754b19c4a",
+      "read_full": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/MATERIAL_SELECTION/BRIEF.md",
+      "sha256": "fa3f484921f457eb0d99a5a5cc18ae5fb35c428794e80d87dca5f00a136599c8",
+      "read_full": true
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/DESIGN.md",
+      "sha256": "2839c65ae56c4ff4674da12848eda4b60f1385663b4c0b5e556099eae7fe4f64",
+      "read_full": true
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/INTERFACE.md",
+      "sha256": "18587811735a262187cf4a26bb934d6c3ef03ceb37c78228bb39b7f8afe073bf",
+      "read_full": true
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/VERIFICATION.md",
+      "sha256": "061f1f8fa53d426e3af9db58bf684bdfca790b13f3df780935e9353d5402fc57",
+      "read_full": true
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/REFERENCES.md",
+      "sha256": "ad3147c69a14ee16d5e4cbbcf8300b94dc092802dfb8b5775beb62e690a1b5fa",
+      "read_full": true
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/HYDROSTATIC_CONTROL.md",
+      "sha256": "30041992674e22115722d688a2d8cb2b589febf20425a1bd56434c7fdf3486ef",
+      "read_full": true
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/RETURN.md",
+      "sha256": "49e8b8d12a1352c9d8ff182dce9c77f51bbea3dca03524ddcc489773e0b9f554",
+      "read_full": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_material.rs",
+      "sha256": "a7d63cedda6040e03c0583f9c3a7114cf9aff40144ea6a5748252898789de7b2",
+      "read_full": false,
+      "context": "Relevant typed input/domain/normalization sections only; parent may concurrently edit facade."
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "b85630992db2e3a8be9c87f395dee09b0d27c68cf80ea9765cddb57b69768fa0",
+      "read_full": false,
+      "context": "Relevant typed input/domain/normalization sections only; parent may concurrently edit facade."
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "e68d1f702064da9fbf58e3a026fd7fde94b8a119ae2396013e71eb504f6fa396",
+      "read_full": false,
+      "context": "Relevant typed input/domain/normalization sections only; parent may concurrently edit facade."
+    },
+    {
+      "path": "projects/chirality-piping/core/units/src/lib.rs",
+      "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c",
+      "read_full": false,
+      "context": "Relevant typed input/domain/normalization sections only; parent may concurrently edit facade."
+    }
+  ],
+  "alignment": "Parent accepted API; undated point remains explicit undated basis without requiring override solely for unknown point T. Known point/interpolation T mismatch still requires override."
+}
