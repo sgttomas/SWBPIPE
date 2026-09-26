@@ -44,3 +44,8 @@ The manager's expectation is C1 (or C2) before T1's merge for nodal loads, if D1
 ## References
 
 R1 needs an RF-CANCEL family: cancelling contributions on one DOF, at realistic and extreme ratios, from nodal loads and from element-load equivalents at a shared node. Each case states the exact response, a stated scale, and the binary64-fold answers (in authored order and reversed) as negative controls.
+
+## Later corrections
+
+- D1 (`S11_CONTAINMENT.md`) and V1 (`REVIEW/S11_CHECK.md`) add reach that this map missed: recovery-side binary64 folds of element loads (end forces, stations, stress extrema, curved intensity), the nonlinear loop, restrained-DOF reactions, and pre-summing producers.
+- Only a DOF with three or more contributions can go wrong. Such DOFs are normal in real models, so exposure is governed by the gross-to-net ratio and the order of addition, not the count (ROOT's restated ruling in `ROOT_RULINGS_V1.md`).
