@@ -1,0 +1,137 @@
+{
+ "file": "core/product_physics/src/lib.rs",
+ "non_test_lines": 11169,
+ "functions_with_matches": 31,
+ "total_matching_lines": 59,
+ "functions_with_more_than_one_match": 16,
+ "e15_function": {
+  "fn": "pressure_for_pipe",
+  "line": 10780,
+  "length": 25,
+  "matches": 1
+ },
+ "top_by_matches": [
+  {
+   "fn": "recover_curved_bend_local_forces",
+   "line": 8143,
+   "length": 83,
+   "matches": 6
+  },
+  {
+   "fn": "run_linear_static_preview_captured",
+   "line": 1257,
+   "length": 428,
+   "matches": 4
+  },
+  {
+   "fn": "solve_load_case",
+   "line": 1736,
+   "length": 1208,
+   "matches": 3
+  },
+  {
+   "fn": "max_abs_entry_residual",
+   "line": 3804,
+   "length": 20,
+   "matches": 3
+  },
+  {
+   "fn": "append_nonlinear_residual_observation_results",
+   "line": 3854,
+   "length": 121,
+   "matches": 3
+  },
+  {
+   "fn": "add_curved_bend_pressure_thrust_load",
+   "line": 8018,
+   "length": 26,
+   "matches": 3
+  },
+  {
+   "fn": "corrected_local_forces_for_axial_effects",
+   "line": 8109,
+   "length": 34,
+   "matches": 3
+  },
+  {
+   "fn": "append_spring_hanger_user_input_results",
+   "line": 9415,
+   "length": 141,
+   "matches": 3
+  },
+  {
+   "fn": "reserve_publication",
+   "line": 717,
+   "length": 9,
+   "matches": 2
+  },
+  {
+   "fn": "debit",
+   "line": 726,
+   "length": 85,
+   "matches": 2
+  },
+  {
+   "fn": "compute_pipe_mass_per_length",
+   "line": 6396,
+   "length": 135,
+   "matches": 2
+  },
+  {
+   "fn": "add_uniform_element_loads",
+   "line": 7696,
+   "length": 118,
+   "matches": 2
+  }
+ ],
+ "top_by_length": [
+  {
+   "fn": "solve_load_case",
+   "line": 1736,
+   "length": 1208,
+   "matches": 3
+  },
+  {
+   "fn": "run_linear_static_preview_captured",
+   "line": 1257,
+   "length": 428,
+   "matches": 4
+  },
+  {
+   "fn": "append_spring_hanger_user_input_results",
+   "line": 9415,
+   "length": 141,
+   "matches": 3
+  },
+  {
+   "fn": "compute_pipe_mass_per_length",
+   "line": 6396,
+   "length": 135,
+   "matches": 2
+  },
+  {
+   "fn": "append_nonlinear_residual_observation_results",
+   "line": 3854,
+   "length": 121,
+   "matches": 3
+  },
+  {
+   "fn": "add_uniform_element_loads",
+   "line": 7696,
+   "length": 118,
+   "matches": 2
+  },
+  {
+   "fn": "append_expansion_joint_user_stiffness_results",
+   "line": 9273,
+   "length": 104,
+   "matches": 1
+  },
+  {
+   "fn": "append_expansion_joint_pressure_thrust_results",
+   "line": 8362,
+   "length": 91,
+   "matches": 2
+  }
+ ]
+}

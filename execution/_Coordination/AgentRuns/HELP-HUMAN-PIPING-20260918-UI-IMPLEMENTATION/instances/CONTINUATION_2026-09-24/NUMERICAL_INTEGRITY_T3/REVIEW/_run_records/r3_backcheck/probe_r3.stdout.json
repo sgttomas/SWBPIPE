@@ -1,0 +1,174 @@
+{
+ "R": {
+  "bits_2^-34": "0x3DD0000000000000",
+  "bits_1e9*2^-64": "0x3DCDCD6500000000",
+  "1e9*2^-64_exact": true,
+  "1e9*2^-64_equals_1953125*2^-55": true,
+  "margin_2^30/1e9": 1.073741824,
+  "rel_bound_at_threshold_2^-30": 9.313225746154785e-10,
+  "samples_normal_S": 200000,
+  "inexact_when_S_at_least_2^-988": 0,
+  "inexact_when_S_below_2^-988_(product_subnormal)": 3247
+ },
+ "S": {
+  "max_normal_stress": [
+   {
+    "fo": 1000.0,
+    "mo": 1000.0,
+    "A": 0.01,
+    "Z": 0.0001,
+    "share_of_row_from_N": 0.0,
+    "worst_rel_error_at_threshold": 1.3132695462491024e-09
+   },
+   {
+    "fo": 1000.0,
+    "mo": 1000.0,
+    "A": 0.01,
+    "Z": 0.0001,
+    "share_of_row_from_N": 0.5,
+    "worst_rel_error_at_threshold": 1.3132695462491024e-09
+   },
+   {
+    "fo": 1000.0,
+    "mo": 1000.0,
+    "A": 0.01,
+    "Z": 0.0001,
+    "share_of_row_from_N": 1.0,
+    "worst_rel_error_at_threshold": 9.221015590252263e-12
+   },
+   {
+    "fo": 1.0,
+    "mo": 1000000.0,
+    "A": 0.005,
+    "Z": 0.0002,
+    "share_of_row_from_N": 0.0,
+    "worst_rel_error_at_threshold": 1.3170890005347815e-09
+   },
+   {
+    "fo": 1.0,
+    "mo": 1000000.0,
+    "A": 0.005,
+    "Z": 0.0002,
+    "share_of_row_from_N": 0.5,
+    "worst_rel_error_at_threshold": 1.3170890005347815e-09
+   },
+   {
+    "fo": 1.0,
+    "mo": 1000000.0,
+    "A": 0.005,
+    "Z": 0.0002,
+    "share_of_row_from_N": 1.0,
+    "worst_rel_error_at_threshold": 3.7252901494503083e-17
+   }
+  ],
+  "max_normal_worst_over_cases": 1.3170890005347815e-09,
+  "intensified_measure": [
+   {
+    "i": 1.0,
+    "worst_rel_error_at_threshold": 1.3170890159654386e-09,
+    "exceeds_1e-9": true
+   },
+   {
+    "i": 1.15,
+    "worst_rel_error_at_threshold": 1.5146523683602542e-09,
+    "exceeds_1e-9": true
+   },
+   {
+    "i": 2.0,
+    "worst_rel_error_at_threshold": 2.634178031930877e-09,
+    "exceeds_1e-9": true
+   },
+   {
+    "i": 5.0,
+    "worst_rel_error_at_threshold": 6.585445079827193e-09,
+    "exceeds_1e-9": true
+   }
+  ],
+  "criterion": 1e-09,
+  "band_note": "the excess applies only for |q| between R*S*_sigma and about k*R*S*_sigma, k = sqrt2*i"
+ },
+ "F": {
+  "V2_A_scale_below": 348,
+  "V2_A_twist_extension": 314,
+  "V2_A_twist_extension_outside_RF_WEAK": 295,
+  "V2_A_twist_extension_in_RF_WEAK": 19,
+  "V2_B": 43,
+  "D1_B": 43,
+  "B_sets_identical": true,
+  "D1_F_by_family": {
+   "RF-WEAK": 46,
+   "RF-SKEW": 2
+  },
+  "D1_F_rec_RF_CANCEL": [
+   [
+    "RF-CANCEL-F-G1e80-GnG-INPLANE",
+    "Mb.M2.mid",
+    "moment"
+   ],
+   [
+    "RF-CANCEL-F-G1e80-GnG-ORTHO",
+    "u.N1.UY",
+    "translation"
+   ],
+   [
+    "RF-CANCEL-M-G1e80-GnG-ORTHO",
+    "u.N1.UY",
+    "translation"
+   ]
+  ],
+  "F_contains_B": true,
+  "F_minus_B": [
+   [
+    "RF-SKEW-T-CANT-AX-122-r1e-12",
+    "tw.M1",
+    "twist"
+   ],
+   [
+    "RF-SKEW-T-CANT-AX-345-r1e-12",
+    "tw.M1",
+    "twist"
+   ],
+   [
+    "RF-WEAK-W-3D-rho1e-08",
+    "tw.C",
+    "twist@coupling"
+   ],
+   [
+    "RF-WEAK-W-AX-rho1e-12",
+    "ext.C",
+    "extension@coupling"
+   ],
+   [
+    "RF-WEAK-W-AX-rho1e-12",
+    "tw.C",
+    "twist@coupling"
+   ]
+  ],
+  "F_minus_B_that_were_V2_A_flags": [
+   [
+    "RF-SKEW-T-CANT-AX-122-r1e-12",
+    "tw.M1",
+    "twist"
+   ],
+   [
+    "RF-SKEW-T-CANT-AX-345-r1e-12",
+    "tw.M1",
+    "twist"
+   ]
+  ],
+  "A_twist_extension_cleared_by_F": 303,
+  "A_twist_extension_remaining_in_F": 11,
+  "A_twist_extension_outside_RF_WEAK_remaining_in_F": [
+   [
+    "RF-SKEW-T-CANT-AX-122-r1e-12",
+    "tw.M1",
+    "twist"
+   ],
+   [
+    "RF-SKEW-T-CANT-AX-345-r1e-12",
+    "tw.M1",
+    "twist"
+   ]
+  ]
+ }
+}

@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+"""V1 BACKCHECK_R3 probe (standard library only, single-threaded).
+
+Usage: python3 probe_r3.py <T3 folder>
+  check R  the floor constant: bits of 2^-34 and of 1e9*2^-64, exactness, the margin, and
+           that fl(2^-34*S*) is exact for normal S* (sampled).
+  check S  propagation of the 2^-64*S* action bound into DESIGN r3's derived stress rows, which are
+           formed from once-rounded actions (DESIGN r3 s4.1.5): the circular maximum
+           |N|/A + hypot(My,Mz)/Z (PP:2753) and the equal-factor intensified measure
+           i*hypot(sigma_by, sigma_bz) (PP:15344-15363), classified against S*_sigma = fo/A + mo/Z.
+           Reports the worst relative error of a relative_verified row at the threshold.
+  check F  the enumerated not-covered list: D1's floor_kinds.json (variant F, variant B) against
+           V2's v2_floor.json (variants A and B), row by row.
+"""
+import json, struct, sys, os, random, collections
+from fractions import Fraction as Fr
+
+T = sys.argv[1]
+out = {}
+
+def bits(x):
+    return '0x%016X' % struct.unpack('>Q', struct.pack('>d', x))[0]
+
+# ---- check R
+R = 2.0 ** -34
+r_alt = 1e9 * 2.0 ** -64
+rng = random.Random(20260926)
+inexact_normal_product = 0
+inexact_subnormal_product = 0
+for _ in range(200000):
+    s = rng.uniform(1.0, 2.0) * 2.0 ** rng.randint(-1022, 1023)
+    if Fr(R * s) != Fr(R) * Fr(s):
+        if s >= 2.0 ** -988:
+            inexact_normal_product += 1
+        else:
+            inexact_subnormal_product += 1
+out['R'] = {
+    'bits_2^-34': bits(R),
+    'bits_1e9*2^-64': bits(r_alt),
+    '1e9*2^-64_exact': Fr(r_alt) == Fr(10 ** 9, 2 ** 64),
+    '1e9*2^-64_equals_1953125*2^-55': Fr(r_alt) == Fr(1953125, 2 ** 55),
+    'margin_2^30/1e9': float(Fr(2 ** 30, 10 ** 9)),
+    'rel_bound_at_threshold_2^-30': 2.0 ** -30,
+    'samples_normal_S': 200000,
+    'inexact_when_S_at_least_2^-988': inexact_normal_product,
+    'inexact_when_S_below_2^-988_(product_subnormal)': inexact_subnormal_product,
+}
+
+# ---- check S (exact rational arithmetic; worst case with both moment errors adding)
+e64 = Fr(1, 2 ** 64)
+Rf = Fr(1, 2 ** 34)
+def worst_max_normal(fo, mo, A, Z, split):
+    """Row q = |N|/A + hypot(My,Mz)/Z sitting exactly at the threshold q = R*S*_sigma,
+    S*_sigma = fo/A + mo/Z; 'split' is the share of q carried by |N|/A.
+    Action errors |dN| <= 2^-64*fo and |dMy|, |dMz| <= 2^-64*mo, aligned to increase q, so
+    |d hypot| = sqrt(dMy^2 + dMz^2) = sqrt2 * 2^-64 * mo whenever the moment part is nonzero."""
+    Ssig = fo / A + mo / Z
+    q = Rf * Ssig
+    dq = e64 * fo / A
+    if split < 1:
+        dq_m = float(e64 * mo / Z) * 2 ** 0.5
+    else:
+        dq_m = 0.0
+    return (float(dq) + dq_m) / float(q)
+cases = []
+for fo, mo, A, Z in ((Fr(1000), Fr(1000), Fr(1, 100), Fr(1, 10000)),
+                     (Fr(1), Fr(10 ** 6), Fr(5, 1000), Fr(2, 10000))):
+    for split in (Fr(0), Fr(1, 2), Fr(1)):
+        cases.append({'fo': float(fo), 'mo': float(mo), 'A': float(A), 'Z': float(Z),
+                      'share_of_row_from_N': float(split),
+                      'worst_rel_error_at_threshold': worst_max_normal(fo, mo, A, Z, split)})
+intens = []
+for i in (1.0, 1.15, 2.0, 5.0):
+    # q = i*hypot(My,Mz)/Z, S*_sigma >= mo/Z; worst case S*_sigma = mo/Z (no axial scale)
+    worst = i * (2 ** 0.5) * 2.0 ** -30
+    intens.append({'i': i, 'worst_rel_error_at_threshold': worst, 'exceeds_1e-9': worst > 1e-9})
+out['S'] = {
+    'max_normal_stress': cases,
+    'max_normal_worst_over_cases': max(c['worst_rel_error_at_threshold'] for c in cases),
+    'intensified_measure': intens,
+    'criterion': 1e-9,
+    'band_note': 'the excess applies only for |q| between R*S*_sigma and about k*R*S*_sigma, k = sqrt2*i',
+}
+
+# ---- check F
+v = json.load(open(os.path.join(T, 'REFERENCE_CHECK/_run_records/v2_floor.json')))['cases']
+f = json.load(open(os.path.join(T, 'DESIGN_NUMERICS/_run_records/floor_kinds.json')))['cases']
+ref = json.load(open(os.path.join(T, 'REFERENCES/references.json')))['cases']
+def rows(d, cid, key):
+    return {(cid, r[0], r[1]) for r in d.get(cid, {}).get(key, [])}
+A = set(); B2 = set(); B1 = set(); F = set(); Frec = set()
+for cid in ref:
+    A |= rows(v, cid, 'A_scale_below'); B2 |= rows(v, cid, 'B_scale_below')
+    B1 |= rows(f, cid, 'B_scale_below'); F |= rows(f, cid, 'F_scale_below'); Frec |= rows(f, cid, 'F_rec_scale_below')
+fam = lambda cid: ref[cid]['family']
+kind = lambda cls: cls.split('@')[0]
+tw = lambda s: {x for x in s if kind(x[2]) in ('twist', 'extension')}
+Atw = tw(A); Ftw = tw(F)
+out['F'] = {
+    'V2_A_scale_below': len(A),
+    'V2_A_twist_extension': len(Atw),
+    'V2_A_twist_extension_outside_RF_WEAK': len([x for x in Atw if fam(x[0]) != 'RF-WEAK']),
+    'V2_A_twist_extension_in_RF_WEAK': len([x for x in Atw if fam(x[0]) == 'RF-WEAK']),
+    'V2_B': len(B2), 'D1_B': len(B1), 'B_sets_identical': B1 == B2,
+    'D1_F_by_family': dict(collections.Counter(fam(c) for c, _, _ in F)),
+    'D1_F_rec_RF_CANCEL': sorted([list(x) for x in Frec]),
+    'F_contains_B': B1 <= F,
+    'F_minus_B': sorted([list(x) for x in F - B1]),
+    'F_minus_B_that_were_V2_A_flags': sorted([list(x) for x in (F - B1) & A]),
+    'A_twist_extension_cleared_by_F': len(Atw - F),
+    'A_twist_extension_remaining_in_F': len(Atw & F),
+    'A_twist_extension_outside_RF_WEAK_remaining_in_F': sorted([list(x) for x in (Atw & F) if fam(x[0]) != 'RF-WEAK']),
+}
+print(json.dumps(out, indent=1))
