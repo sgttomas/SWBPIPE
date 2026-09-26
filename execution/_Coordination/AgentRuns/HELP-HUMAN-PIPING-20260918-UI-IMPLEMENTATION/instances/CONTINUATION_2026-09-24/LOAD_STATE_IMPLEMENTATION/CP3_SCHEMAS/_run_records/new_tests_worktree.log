@@ -1,0 +1,22 @@
+640fd4477ac2c84f3c02268cfccc3958f51ee6508b3a67e5538b52d84899af65  schemas/load_reference_state.schema.json
+2045d3651709ec32c53b17a16f504c4818c9f14d7898bdfacf7dbc4068477410  schemas/analysis_run.v0.3.schema.json
+c303219b89c63f41bdda71b49af1ed15175c106b035ff4f5b50e2eaf2cdc57ed  schemas/results.v0.3.schema.yaml
+80acc90bcf7170c7f07da2f1569a258fc56c4de455c8e936bf8da476e6478e60  schemas/stress_neutral_export.v0.3.schema.json
+9c02dbba8a909c51b124e07de88bc50114e25eb987cbfe705bc23879f4e6c51d  tests/test_load_reference_schema.py
+333515b39d15e1fc270b40f267d6ff47c5de24acd733ee52660d4488a3c31c11  fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json
+6c1dd176e5600bdbec08066345372a26459746ed34d665fa4767569594dd03bf  fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json
+ff0ce8724d7734c2cd8d10ce866085d80741adadc0da529521084dc8382453a2  fixtures/product_preview/load_reference/connected.request.json
+8215cad29a51e0e9d59f90b5db014256787592cf514b82ccef56fd814ce94be3  fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json
+20802f97f3e00fe7043d3adf5d78e926270f0e0f9c80f4b724ef4d122fc9ab75  fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json
+52375ad60d05074ed6064b72d78d9c24d19b1a53915bcc46c2b424be7c39ef69  fixtures/product_preview/load_reference/pressure.request.json
+44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d  fixtures/results/semantic_contract_v0_3_load_reference_1.json
+........................................................................ [ 13%]
+........................................................................ [ 27%]
+........................................................................ [ 40%]
+........................................................................ [ 54%]
+........................................................................ [ 68%]
+........................................................................ [ 81%]
+........................................................................ [ 95%]
+.......................                                                  [100%]
+527 passed in 124.25s (0:02:04)
+exit=0

@@ -1,4 +1,5 @@
 import { semanticFamily, semanticDimension, semanticCategory } from "../results/resultSemantics";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { Download, Terminal } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, PreviewModel, SolveJobAuditState } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
@@ -27,6 +28,7 @@ export function HeadlessRunnerPanel({
         Headless Runner
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="headless-runner">
         <ControlledExportLink
           className="report-export-link"
           data-testid="headless-runner-export-link"
@@ -36,6 +38,7 @@ export function HeadlessRunnerPanel({
           <Download size={14} aria-hidden="true" />
           Runner JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="headless-runner-summary">
           available; job={packet.result.job.state}; outputs={packet.request.requested_outputs.length}; result_refs=
           {packet.result.result_refs.length}

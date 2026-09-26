@@ -1,0 +1,13 @@
+# checkout at b9deaeae4
+$ PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -p test_qualification_gate.py
+...............................
+----------------------------------------------------------------------
+Ran 31 tests in 29.258s
+
+OK
+$ PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -p "test_qualification_physics*.py"
+..........................................
+----------------------------------------------------------------------
+Ran 42 tests in 7.697s
+
+OK

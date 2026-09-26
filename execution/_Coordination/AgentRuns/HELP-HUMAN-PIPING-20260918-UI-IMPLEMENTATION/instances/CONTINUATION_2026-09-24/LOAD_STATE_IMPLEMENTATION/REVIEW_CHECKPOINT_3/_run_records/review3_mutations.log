@@ -1,0 +1,229 @@
+K1_replay_builds_with_base_materials committed_killed= True 4 probes_killed= True 4 compile_error= False
+K2_replay_prescribed_zero committed_killed= True 3 probes_killed= True 3 compile_error= False
+K3_replay_omits_eigen_loads committed_killed= True 3 probes_killed= True 3 compile_error= False
+K4_live_eigen_fold_sign_flipped committed_killed= True 5 probes_killed= True 3 compile_error= False
+K5_identity_omits_resolver_evidence committed_killed= False 0 probes_killed= True 1 compile_error= False
+K6_pressure_region_check_removed committed_killed= True 1 probes_killed= True 1 compile_error= False
+K7_prescribed_ownership_loop_removed committed_killed= False 0 probes_killed= True 1 compile_error= False
+K8_eigen_id_collision_check_removed committed_killed= False 0 probes_killed= False 0 compile_error= False
+K9_ordinary_case_record_not_bound_in_joined_envelope committed_killed= False 0 probes_killed= False 0 compile_error= False
+K10_identity_omits_member_strain_split committed_killed= False 0 probes_killed= True 1 compile_error= False
+K11_identity_omits_eigen_local_axis committed_killed= False 0 probes_killed= False 0 compile_error= False
+K12_frame_area_check_removed committed_killed= False 0 probes_killed= False 0 compile_error= False
+{
+ "K1_replay_builds_with_base_materials": {
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_tests::a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay ... FAILED",
+    "test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... FAILED",
+    "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED",
+    "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED"
+   ]
+  },
+  "probes": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::review3_probes::review3_p1_selected_case_with_member_pair_other_than_base_qualifies ... FAILED",
+    "test source_receipt::review3_probes::review3_p2_two_selected_cases_with_distinct_state_each_bind ... FAILED",
+    "test source_receipt::review3_probes::review3_p3_selected_case_beside_unavailable_sensitive_case ... FAILED",
+    "test source_receipt::review3_probes::review3_p5_additional_post_capture_perturbations_are_refused ... FAILED"
+   ]
+  },
+  "killed_by_committed": true,
+  "killed_by_probes": true
+ },
+ "K2_replay_prescribed_zero": {
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... FAILED",
+    "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED",
+    "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED"
+   ]
+  },
+  "probes": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::review3_probes::review3_p1_selected_case_with_member_pair_other_than_base_qualifies ... FAILED",
+    "test source_receipt::review3_probes::review3_p5_additional_post_capture_perturbations_are_refused ... FAILED",
+    "test source_receipt::review3_probes::review3_p2_two_selected_cases_with_distinct_state_each_bind ... FAILED"
+   ]
+  },
+  "killed_by_committed": true,
+  "killed_by_probes": true
+ },
+ "K3_replay_omits_eigen_loads": {
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... FAILED",
+    "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED",
+    "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED"
+   ]
+  },
+  "probes": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::review3_probes::review3_p2_two_selected_cases_with_distinct_state_each_bind ... FAILED",
+    "test source_receipt::review3_probes::review3_p1_selected_case_with_member_pair_other_than_base_qualifies ... FAILED",
+    "test source_receipt::review3_probes::review3_p5_additional_post_capture_perturbations_are_refused ... FAILED"
+   ]
+  },
+  "killed_by_committed": true,
+  "killed_by_probes": true
+ },
+ "K4_live_eigen_fold_sign_flipped": {
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... FAILED",
+    "test source_receipt::load_state_tests::a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay ... FAILED",
+    "test source_receipt::load_state_tests::source_closure_refuses_live_resolved_operands_that_did_not_reach_formation ... FAILED",
+    "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED",
+    "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED"
+   ]
+  },
+  "probes": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::review3_probes::review3_p1_selected_case_with_member_pair_other_than_base_qualifies ... FAILED",
+    "test source_receipt::review3_probes::review3_p2_two_selected_cases_with_distinct_state_each_bind ... FAILED",
+    "test source_receipt::review3_probes::review3_p5_additional_post_capture_perturbations_are_refused ... FAILED"
+   ]
+  },
+  "killed_by_committed": true,
+  "killed_by_probes": true
+ },
+ "K5_identity_omits_resolver_evidence": {
+  "committed": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": []
+  },
+  "probes": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::review3_probes::review3_p5_additional_post_capture_perturbations_are_refused ... FAILED"
+   ]
+  },
+  "killed_by_committed": false,
+  "killed_by_probes": true
+ },
+ "K6_pressure_region_check_removed": {
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::tests::composite_adapter_refuses_missing_zero_and_nonzero_regions ... FAILED"
+   ]
+  },
+  "probes": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::review3_probes::review3_p4_zero_valued_pressure_region_is_not_joined ... FAILED"
+   ]
+  },
+  "killed_by_committed": true,
+  "killed_by_probes": true
+ },
+ "K7_prescribed_ownership_loop_removed": {
+  "committed": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": []
+  },
+  "probes": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::review3_probes::review3_p5_additional_post_capture_perturbations_are_refused ... FAILED"
+   ]
+  },
+  "killed_by_committed": false,
+  "killed_by_probes": true
+ },
+ "K8_eigen_id_collision_check_removed": {
+  "committed": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": []
+  },
+  "probes": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": []
+  },
+  "killed_by_committed": false,
+  "killed_by_probes": false
+ },
+ "K9_ordinary_case_record_not_bound_in_joined_envelope": {
+  "committed": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": []
+  },
+  "probes": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": []
+  },
+  "killed_by_committed": false,
+  "killed_by_probes": false
+ },
+ "K10_identity_omits_member_strain_split": {
+  "committed": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": []
+  },
+  "probes": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::review3_probes::review3_p5_additional_post_capture_perturbations_are_refused ... FAILED"
+   ]
+  },
+  "killed_by_committed": false,
+  "killed_by_probes": true
+ },
+ "K11_identity_omits_eigen_local_axis": {
+  "committed": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": []
+  },
+  "probes": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": []
+  },
+  "killed_by_committed": false,
+  "killed_by_probes": false
+ },
+ "K12_frame_area_check_removed": {
+  "committed": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": []
+  },
+  "probes": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": []
+  },
+  "killed_by_committed": false,
+  "killed_by_probes": false
+ }
+}
+exit 0

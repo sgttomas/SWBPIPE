@@ -1,0 +1,200 @@
+[
+ {
+  "id": "M01-envelope",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M02-schema-version",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M03-model-target",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M04-before-value",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M05-explicit-null",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M06-typed-parse-reference-configurations",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused",
+   "typed_refusals_match_the_product_typed_boundary"
+  ]
+ },
+ {
+  "id": "M07-typed-parse-expansion-laws",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused",
+   "typed_refusals_match_the_product_typed_boundary"
+  ]
+ },
+ {
+  "id": "M08-typed-parse-analysis-state",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused",
+   "typed_refusals_match_the_product_typed_boundary",
+   "load_state_operations_apply_as_one_atomic_batch_or_not_at_all"
+  ]
+ },
+ {
+  "id": "M09-typed-parse-from-value-not-text",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "typed_refusals_match_the_product_typed_boundary"
+  ]
+ },
+ {
+  "id": "M10-unique-configuration-ids",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M11-unique-law-ids",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M12-member-pipe-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M13-reference-configuration-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M14-element-pipe-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M15-material-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M16-point-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M17-law-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M18-law-ref-any-material",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M19-support-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M20-source-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M21-source-ref-any-case",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M22-model-hash-required",
+  "file": "src/lib.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M23-inverse-restores-absence",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "expansion_laws_apply_undo_redo_and_resolve_as_closed_form_predicts",
+   "reference_configurations_apply_undo_redo_and_resolve_as_closed_form_predicts",
+   "analysis_state_apply_undo_redo_and_boundary_motion_moves_the_tip_rigidly"
+  ]
+ },
+ {
+  "id": "M24-entity-target",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ }
+]

@@ -1,4 +1,5 @@
 import { Download, ShieldCheck } from "lucide-react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import type {
   AgentProposal,
@@ -63,6 +64,7 @@ export function ExportReviewPanel({
         Export Safety Review
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="export-review">
         <ControlledExportLink
           className="report-export-link"
           data-testid="export-review-link"
@@ -72,6 +74,7 @@ export function ExportReviewPanel({
           <Download size={14} aria-hidden="true" />
           Local manifest JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="export-review-summary">
           {manifest.summary.available_count} of {manifest.summary.export_count} local exports ready; no private/protected
           payloads

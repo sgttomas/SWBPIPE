@@ -1,17 +1,19 @@
 /** Frozen T0R notices, gate reasons and standing reasons (S1_INTERFACE §10).
  * Text only. N-A: these strings are UI labels and reasons; they are never
  * written into an exported results or stress-neutral document or its manifest. */
-import { sourceContract, currentSemanticContract, PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID } from "./numericalResultQuality";
+import { sourceContract, currentSemanticContract, PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID } from "./numericalResultQuality";
 import { SOURCE_BLOCKS_CONTRACT_ID, sourceBlocksOrdinaryCaseLegacy } from "./sourceBlockRecovery";
 import type { MechanicsResult } from "../../types";
 
 /** Static fresh-identity set: the same constant in each language, no route
- * predicate. T1 adds its identities when it activates them. */
+ * predicate. T1 added its load/reference-state identities on activation. */
 export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
   PREVIEW_PHYSICS_CONTRACT_ID,
   SOURCE_BLOCKS_CONTRACT_ID,
   PHYSICS_CONTRACT_ID,
   PHYSICS_SOURCE_CONTRACT_ID,
+  LOAD_REFERENCE_CONTRACT_ID,
+  LOAD_REFERENCE_SOURCE_CONTRACT_ID,
 ]);
 
 export const N_HEADLINE = "maximum elastic normal stress; nominal; no component intensification; not a code stress";

@@ -1,0 +1,28 @@
+# Chromium Playwright (chromium-1194 via PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH, PLAYWRIGHT_BROWSERS_PATH=<PW_BROWSERS>, CI=1)
+# run 1: first draft of the spec (node tool toggle), both projects failed at the second node
+  ✘  1 [chromium-desktop] › e2e/load-state-inputs.spec.ts:53:1 › blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes (2.0m)
+  ✘  2 [chromium-compact] › e2e/load-state-inputs.spec.ts:53:1 › blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes (2.0m)
+  2 failed
+exit=1
+# run 2: chromium-desktop only
+  ✓  1 [chromium-desktop] › e2e/load-state-inputs.spec.ts:56:1 › blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes (1.1m)
+  1 passed (1.2m)
+exit=0
+# run 3: live worktree, both projects (the live tree then also held manager edits outside this change)
+  ✓  1 [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.7m)
+  ✓  2 [chromium-desktop] › e2e/load-state-inputs.spec.ts:56:1 › blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes (1.3m)
+  ✓  3 [chromium-desktop] › e2e/result-compatibility.spec.ts:7:1 › browser references remain inspectable and cannot publish qualified result or stress-neutral exports (13.9s)
+  ✓  4 [chromium-compact] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.8m)
+  ✓  5 [chromium-compact] › e2e/load-state-inputs.spec.ts:56:1 › blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes (1.2m)
+  ✓  6 [chromium-compact] › e2e/result-compatibility.spec.ts:7:1 › browser references remain inspectable and cannot publish qualified result or stress-neutral exports (16.0s)
+  6 passed (6.6m)
+exit=0
+# run 4 (evidence run): scratch copy = base 1b95d0b66 + this change only; both projects
+  ✓  1 [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.3m)
+  ✓  2 [chromium-desktop] › e2e/load-state-inputs.spec.ts:56:1 › blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes (54.9s)
+  ✓  3 [chromium-desktop] › e2e/result-compatibility.spec.ts:7:1 › browser references remain inspectable and cannot publish qualified result or stress-neutral exports (11.4s)
+  ✓  4 [chromium-compact] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.4m)
+  ✓  5 [chromium-compact] › e2e/load-state-inputs.spec.ts:56:1 › blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes (53.0s)
+  ✓  6 [chromium-compact] › e2e/result-compatibility.spec.ts:7:1 › browser references remain inspectable and cannot publish qualified result or stress-neutral exports (11.3s)
+  6 passed (5.0m)
+exit=0

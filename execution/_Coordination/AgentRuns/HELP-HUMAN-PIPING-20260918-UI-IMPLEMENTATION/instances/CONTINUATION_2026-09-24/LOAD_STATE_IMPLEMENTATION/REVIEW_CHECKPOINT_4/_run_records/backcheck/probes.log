@@ -1,0 +1,178 @@
+   Compiling open_pipe_stress_product_physics v0.2.0 (<scratch>/projects/chirality-piping/core/product_physics)
+warning: unused import: `ELEMENT_DOF`
+  --> src/source_recovery.rs:12:39
+   |
+12 |     ThermalElementLoad, DOF_PER_NODE, ELEMENT_DOF,
+   |                                       ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:8163:4
+     |
+8163 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:69:9
+   |
+68 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+69 |     pub support_id: String,
+   |         ^^^^^^^^^^
+70 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+71 |     pub value: f64,
+   |         ^^^^^
+72 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:94:9
+    |
+ 93 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+ 94 |     pub dofs: usize,
+    |         ^^^^
+ 95 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+ 96 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 97 |     pub blocks: usize,
+    |         ^^^^^^
+ 98 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+ 99 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+100 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+101 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+102 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+103 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+104 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+105 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+106 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+107 |     pub max_relative_projection_error: f64,
+108 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:121:5
+    |
+115 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+121 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:147:12
+    |
+130 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+147 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:512:19
+    |
+447 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+512 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 8 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.10s
+     Running unittests src/lib.rs (<target>/debug/deps/open_pipe_stress_product_physics-fbac0974bf55454c)
+
+running 3 tests
+B4PROBE {"attempts":1,"blocking":0,"charged":2995528,"failed":2995528,"fallback":null,"invocation":3000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"witness@inv3000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:unprojected affine recovery"],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":3360029,"failed":3360029,"fallback":null,"invocation":3360029,"label":"load-reference-1","mode":"dense_scrutiny","name":"witness@inv3360029","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation"],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":3360029,"failed":3360029,"fallback":null,"invocation":4000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"witness@inv4000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":6718254,"failed":6718254,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":6720058,"label":"load-reference-1","mode":"dense_scrutiny","name":"witness@inv6720058","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":6996328,"failed":6996328,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":7000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"witness@inv7000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":7293716,"failed":7293716,"fallback":"case case:join: composite current source: RecoveryFailure { stage: \"current source binding","invocation":7300000,"label":"load-reference-1","mode":"dense_scrutiny","name":"witness@inv7300000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure"],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":7617107,"failed":0,"fallback":null,"invocation":64000000,"label":"load-reference-source-1","mode":"sparse_interactive","name":"copies1","per_case":8000000,"receipt":true,"rows":89,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":7388672,"failed":42641,"fallback":"invocation receipt: invocation publication reservation","invocation":7400000,"label":"load-reference-1","mode":"dense_scrutiny","name":"witness@inv7400000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure"],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":7619283,"failed":0,"fallback":null,"invocation":64000000,"label":"load-reference-source-1","mode":"dense_scrutiny","name":"copies1","per_case":8000000,"receipt":true,"rows":90,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":7619283,"failed":0,"fallback":null,"invocation":8000000,"label":"load-reference-source-1","mode":"dense_scrutiny","name":"witness@inv8000000","per_case":8000000,"receipt":true,"rows":90,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":7619283,"failed":0,"fallback":null,"invocation":10000000,"label":"load-reference-source-1","mode":"dense_scrutiny","name":"witness@inv10000000","per_case":8000000,"receipt":true,"rows":90,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":15309356,"failed":0,"fallback":null,"invocation":64000000,"label":"load-reference-source-1","mode":"sparse_interactive","name":"copies2","per_case":8000000,"receipt":true,"rows":178,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":7619283,"failed":0,"fallback":null,"invocation":11000000,"label":"load-reference-source-1","mode":"dense_scrutiny","name":"witness@inv11000000","per_case":8000000,"receipt":true,"rows":90,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":7619283,"failed":0,"fallback":null,"invocation":14000000,"label":"load-reference-source-1","mode":"dense_scrutiny","name":"witness@inv14000000","per_case":8000000,"receipt":true,"rows":90,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":15314260,"failed":0,"fallback":null,"invocation":64000000,"label":"load-reference-source-1","mode":"dense_scrutiny","name":"copies2","per_case":8000000,"receipt":true,"rows":180,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":7619283,"failed":0,"fallback":null,"invocation":15000000,"label":"load-reference-source-1","mode":"dense_scrutiny","name":"witness@inv15000000","per_case":8000000,"receipt":true,"rows":90,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":7619283,"failed":0,"fallback":null,"invocation":16000000,"label":"load-reference-source-1","mode":"dense_scrutiny","name":"witness@inv16000000","per_case":8000000,"receipt":true,"rows":90,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":2995592,"failed":2995592,"fallback":null,"invocation":3000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv3000000","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:unprojected affine recovery","case:copy1:source closure"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":3360029,"failed":3360029,"fallback":null,"invocation":3360029,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv3360029","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation","case:copy1:source closure"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":3965544,"failed":3965544,"fallback":null,"invocation":4000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv4000000","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation","case:copy1:exact source solve"],"within_invocation":true}
+B4PROBE {"attempts":3,"blocking":0,"charged":6713894,"failed":6713894,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":6720058,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv6720058","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure"],"within_invocation":true}
+B4PROBE {"attempts":3,"blocking":0,"charged":6991664,"failed":6991664,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":7000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv7000000","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure"],"within_invocation":true}
+B4PROBE {"attempts":3,"blocking":0,"charged":7264831,"failed":7264831,"fallback":"case case:join: composite current source: RecoveryFailure { stage: \"current source binding","invocation":7300000,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv7300000","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure"],"within_invocation":true}
+B4PROBE {"attempts":4,"blocking":0,"charged":7390159,"failed":192,"fallback":"invocation receipt: invocation publication reservation","invocation":7400000,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv7400000","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure"],"within_invocation":true}
+B4PROBE {"attempts":4,"blocking":0,"charged":7995610,"failed":605643,"fallback":"invocation receipt: invocation publication reservation","invocation":8000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv8000000","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure"],"within_invocation":true}
+B4PROBE {"attempts":4,"blocking":0,"charged":9989451,"failed":2599484,"fallback":"invocation receipt: invocation publication reservation","invocation":10000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv10000000","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure"],"within_invocation":true}
+B4PROBE {"attempts":6,"blocking":0,"charged":47351952,"failed":0,"fallback":null,"invocation":64000000,"label":"load-reference-source-1","mode":"sparse_interactive","name":"copies6","per_case":8000000,"receipt":true,"rows":534,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":4,"blocking":0,"charged":10981043,"failed":3362212,"fallback":"invocation receipt: composite publication reservation","invocation":11000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv11000000","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure"],"within_invocation":true}
+B4PROBE {"attempts":4,"blocking":0,"charged":13978942,"failed":6060343,"fallback":"invocation receipt: composite requires source selection and complete case qualification","invocation":14000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv14000000","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:unprojected affine recovery","case:copy1:source closure"],"within_invocation":true}
+B4PROBE {"attempts":4,"blocking":0,"charged":14997712,"failed":213804,"fallback":"invocation receipt: invocation publication reservation","invocation":15000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"two@inv15000000","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:exact source solve","case:copy1:source closure"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":15314260,"failed":0,"fallback":null,"invocation":16000000,"label":"load-reference-source-1","mode":"dense_scrutiny","name":"two@inv16000000","per_case":8000000,"receipt":true,"rows":180,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":2999624,"failed":2999624,"fallback":null,"invocation":3000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv3000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:unprojected affine recovery"],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":3351139,"failed":3351139,"fallback":null,"invocation":3360029,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv3360029","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:unprojected affine recovery"],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":3992968,"failed":3992968,"fallback":null,"invocation":4000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv4000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation"],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":3992968,"failed":3992968,"fallback":null,"invocation":6720058,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv6720058","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation"],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":3992968,"failed":3992968,"fallback":null,"invocation":7000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv7000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation"],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":3992968,"failed":3992968,"fallback":null,"invocation":7300000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv7300000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation"],"within_invocation":true}
+B4PROBE {"attempts":1,"blocking":0,"charged":3992968,"failed":3992968,"fallback":null,"invocation":7400000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv7400000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":7982724,"failed":7982724,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":8000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv8000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure"],"within_invocation":true}
+B4PROBE {"attempts":6,"blocking":0,"charged":47372888,"failed":0,"fallback":null,"invocation":64000000,"label":"load-reference-source-1","mode":"dense_scrutiny","name":"copies6","per_case":8000000,"receipt":true,"rows":540,"rows_equal_ordinary":false,"status":"MECHANICS_SOLVED","unavailable":[],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":9997231,"failed":9997231,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":10000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv10000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:unprojected affine recovery"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":10998371,"failed":10998371,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":11000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv11000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:unprojected affine recovery"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":11975628,"failed":11975628,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":14000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv14000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":11975628,"failed":11975628,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":15000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv15000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":11975628,"failed":11975628,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":16000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry@inv16000000","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:invocation join withheld"],"within_invocation":true}
+test source_receipt::backcheck4_probes::b4_invocation_limit_sweep ... ok
+B4PROBE {"attempts":4,"blocking":0,"charged":19424892,"failed":11486761,"fallback":"invocation receipt: composite requires source selection and complete case qualification","invocation":64000000,"label":"load-reference-1","mode":"sparse_interactive","name":"mixed","per_case":8000000,"receipt":false,"rows":180,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:invocation join withheld","case:heavy:captured replay reservation"],"within_invocation":true}
+B4PROBE {"attempts":4,"blocking":0,"charged":19427916,"failed":11486761,"fallback":"invocation receipt: composite requires source selection and complete case qualification","invocation":64000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"mixed","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:invocation join withheld","case:heavy:captured replay reservation"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":11973812,"failed":11973812,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":64000000,"label":"load-reference-1","mode":"sparse_interactive","name":"ry","per_case":8000000,"receipt":false,"rows":90,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:invocation join withheld"],"within_invocation":true}
+B4PROBE {"attempts":2,"blocking":0,"charged":11975628,"failed":11975628,"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation repl","invocation":64000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"ry","per_case":8000000,"receipt":false,"rows":91,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:invocation join withheld"],"within_invocation":true}
+B4PROBE {"attempts":4,"blocking":0,"charged":19433871,"failed":11484706,"fallback":"invocation receipt: composite requires source selection and complete case qualification","invocation":64000000,"label":"load-reference-1","mode":"sparse_interactive","name":"heavy_first","per_case":8000000,"receipt":false,"rows":180,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation","case:light:invocation join withheld"],"within_invocation":true}
+B4PROBE {"attempts":4,"blocking":0,"charged":19436935,"failed":11484706,"fallback":"invocation receipt: composite requires source selection and complete case qualification","invocation":64000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"heavy_first","per_case":8000000,"receipt":false,"rows":182,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:captured replay reservation","case:light:invocation join withheld"],"within_invocation":true}
+test source_receipt::backcheck4_probes::b4_mixed_and_ry_public ... ok
+B4PROBE {"attempts":16,"blocking":0,"charged":63999360,"failed":1966134,"fallback":"invocation receipt: composite publication reservation","invocation":64000000,"label":"load-reference-1","mode":"sparse_interactive","name":"copies8","per_case":8000000,"receipt":false,"rows":720,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:unprojected affine recovery","case:copy1:source closure","case:copy2:source closure","case:copy3:source closure","case:copy4:source closure","case:copy5:source closure","case:copy6:source closure","case:copy7:source closure"],"within_invocation":true}
+B4PROBE {"attempts":16,"blocking":0,"charged":63995348,"failed":1946482,"fallback":"invocation receipt: composite publication reservation","invocation":64000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"copies8","per_case":8000000,"receipt":false,"rows":728,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:unprojected affine recovery","case:copy1:source closure","case:copy2:source closure","case:copy3:source closure","case:copy4:source closure","case:copy5:source closure","case:copy6:source closure","case:copy7:source closure"],"within_invocation":true}
+B4PROBE {"attempts":18,"blocking":0,"charged":63984161,"failed":2567863,"fallback":"invocation receipt: invocation publication reservation","invocation":64000000,"label":"load-reference-1","mode":"sparse_interactive","name":"copies9","per_case":8000000,"receipt":false,"rows":810,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure","case:copy2:source closure","case:copy3:source closure","case:copy4:source closure","case:copy5:source closure","case:copy6:source closure","case:copy7:source closure","case:copy8:source closure"],"within_invocation":true}
+B4PROBE {"attempts":18,"blocking":0,"charged":63998969,"failed":2567863,"fallback":"invocation receipt: invocation publication reservation","invocation":64000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"copies9","per_case":8000000,"receipt":false,"rows":819,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure","case:copy2:source closure","case:copy3:source closure","case:copy4:source closure","case:copy5:source closure","case:copy6:source closure","case:copy7:source closure","case:copy8:source closure"],"within_invocation":true}
+B4PROBE {"attempts":20,"blocking":0,"charged":63995328,"failed":2251862,"fallback":"invocation receipt: invocation publication reservation","invocation":64000000,"label":"load-reference-1","mode":"sparse_interactive","name":"copies10","per_case":8000000,"receipt":false,"rows":900,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure","case:copy2:source closure","case:copy3:source closure","case:copy4:source closure","case:copy5:source closure","case:copy6:source closure","case:copy7:source closure","case:copy8:source closure","case:copy9:source closure"],"within_invocation":true}
+B4PROBE {"attempts":20,"blocking":0,"charged":63994067,"failed":2235793,"fallback":"invocation receipt: invocation publication reservation","invocation":64000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"copies10","per_case":8000000,"receipt":false,"rows":910,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure","case:copy2:source closure","case:copy3:source closure","case:copy4:source closure","case:copy5:source closure","case:copy6:source closure","case:copy7:source closure","case:copy8:source closure","case:copy9:source closure"],"within_invocation":true}
+B4PROBE {"attempts":24,"blocking":0,"charged":63998186,"failed":1599232,"fallback":"invocation receipt: invocation publication reservation","invocation":64000000,"label":"load-reference-1","mode":"sparse_interactive","name":"copies12","per_case":8000000,"receipt":false,"rows":1080,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure","case:copy2:source closure","case:copy3:source closure","case:copy4:source closure","case:copy5:source closure","case:copy6:source closure","case:copy7:source closure","case:copy8:source closure","case:copy9:source closure","case:copy10:source closure","case:copy11:source closure"],"within_invocation":true}
+B4PROBE {"attempts":24,"blocking":0,"charged":63999196,"failed":1585434,"fallback":"invocation receipt: invocation publication reservation","invocation":64000000,"label":"load-reference-1","mode":"dense_scrutiny","name":"copies12","per_case":8000000,"receipt":false,"rows":1092,"rows_equal_ordinary":true,"status":"MECHANICS_SOLVED","unavailable":["case:join:source closure","case:copy1:source closure","case:copy2:source closure","case:copy3:source closure","case:copy4:source closure","case:copy5:source closure","case:copy6:source closure","case:copy7:source closure","case:copy8:source closure","case:copy9:source closure","case:copy10:source closure","case:copy11:source closure"],"within_invocation":true}
+test source_receipt::backcheck4_probes::b4_copy_scan_public_limits ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 328 filtered out; finished in 7.57s
+

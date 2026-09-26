@@ -1,0 +1,33 @@
+group A: 241 checks passed
+group B: 140 checks passed
+group C: 29 checks passed
+group D: 4051 checks passed
+FAIL D: prescribed_translation_two_bar: draft
+FAIL D: prescribed_translation_two_bar: pending reference
+FAIL D: prescribed_translation_all_fixed: draft
+FAIL D: prescribed_translation_all_fixed: pending reference
+FAIL D: prescribed_rotation_all_fixed: draft
+FAIL D: prescribed_rotation_all_fixed: pending reference
+FAIL D: prescribed_rotation_free_tip: draft
+FAIL D: prescribed_rotation_free_tip: pending reference
+FAIL D: shared_material_serial_companion: draft
+FAIL D: shared_material_serial_companion: pending reference
+FAIL D: thermal_datum_ratio.fixed: draft
+FAIL D: thermal_datum_ratio.fixed: pending reference
+FAIL D: thermal_datum_ratio.free: draft
+FAIL D: thermal_datum_ratio.free: pending reference
+FAIL D: coefficient_definition: draft
+FAIL D: coefficient_definition: pending reference
+FAIL D: constant_alpha_interval: draft
+FAIL D: constant_alpha_interval: pending reference
+FAIL D: multi_segment_free_length: draft
+FAIL D: multi_segment_free_length: pending reference
+FAIL D: temperature_unit_identity: draft
+FAIL D: temperature_unit_identity: pending reference
+FAIL D: signed_fit_states.fixed: draft
+FAIL D: signed_fit_states.fixed: pending reference
+FAIL D: signed_fit_states.released: draft
+FAIL D: signed_fit_states.released: pending reference
+FAIL D: persistent_source_once: draft
+FAIL D: persistent_source_once: pending reference
+total passed 4461, failed 28

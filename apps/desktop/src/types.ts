@@ -115,6 +115,184 @@ export type PressureRegionInput = {
   provenance: string;
 };
 
+/* ---------------------------------------------------------------------------
+ * Load/reference-state namespace, model 0.4.0 (T1). Shapes of record:
+ * core/product_physics/src/case_state/input.rs (closed, tagged DTOs) and
+ * schemas/load_reference_state.schema.json. Every union is tagged by its
+ * `kind` (or `definition`) discriminant. A key that Rust reads as
+ * `Authored<T>` or `Option<T>` is `?: T | null` here: absent and explicit null
+ * are different authored facts and both are carried unchanged. The desktop
+ * never projects these records: models and results pass through session state,
+ * persistence, IPC and the browser-fixture path as whole JSON values.
+ * ------------------------------------------------------------------------ */
+/** Closed quantity: exactly `value` and `unit` in this namespace. */
+export type LoadStateQuantity = { value: number; unit: string };
+export type GeometryRefInput = { kind: "authored_model_geometry" };
+export type ReferenceBasisInput =
+  | { kind: "temperature_reference"; installation_temperature: LoadStateQuantity }
+  | { kind: "direct_strain_reference" };
+/** Absence of fit is the explicit `none` selection, never an inferred default. */
+export type FitReferenceInput =
+  | { kind: "none" }
+  | { kind: "natural_length_change"; length_change: LoadStateQuantity }
+  | { kind: "fit_strain"; strain: LoadStateQuantity };
+export type MemberReferenceInput = {
+  pipe_ref: string;
+  basis: ReferenceBasisInput;
+  fit: FitReferenceInput;
+  provenance: string;
+};
+/** Model-level reference configuration: the stress-free installed state. */
+export type ReferenceConfigurationInput = {
+  id: string;
+  label?: string | null;
+  geometry_ref: GeometryRefInput;
+  member_references: MemberReferenceInput[];
+  provenance: string;
+};
+export type CoefficientPointInput = { temperature: LoadStateQuantity; coefficient: LoadStateQuantity };
+export type DilationPointInput = { temperature: LoadStateQuantity; dilation: LoadStateQuantity };
+export type SecantDataInput =
+  | { kind: "constant"; coefficient: LoadStateQuantity }
+  | { kind: "table"; interpolation: "linear_coefficient"; points: CoefficientPointInput[] };
+export type DilationDataInput = { kind: "table"; interpolation: "linear_dilation"; points: DilationPointInput[] };
+export type CoefficientTableInput = { kind: "table"; interpolation: "linear_coefficient"; points: CoefficientPointInput[] };
+/** User-owned expansion definition carried by its material record. */
+export type ExpansionLawInput =
+  | { definition: "engineering_secant"; id: string; datum_temperature: LoadStateQuantity; data: SecantDataInput; provenance: string }
+  | { definition: "engineering_dilation"; id: string; datum_temperature: LoadStateQuantity; data: DilationDataInput; provenance: string }
+  | { definition: "differential_per_datum_length"; id: string; datum_temperature: LoadStateQuantity; data: CoefficientTableInput; provenance: string }
+  | { definition: "logarithmic_per_current_length"; id: string; datum_temperature: LoadStateQuantity; data: CoefficientTableInput; provenance: string };
+export type MaterialSelectionInput =
+  | { kind: "explicit_base_properties"; material_ref: string; applicability_reference: string }
+  | { kind: "exact_point"; material_ref: string; point_ref: string }
+  | { kind: "temperature_interpolation"; material_ref: string; temperature: LoadStateQuantity; interpolation: "piecewise_linear"; extrapolation: "forbidden" };
+export type ThermalStateInput =
+  | { kind: "unchanged_reference"; provenance: string }
+  | { kind: "explicit_interval_strain"; strain: LoadStateQuantity; interval_reference: string; provenance: string }
+  | { kind: "constant_alpha_interval"; coefficient: LoadStateQuantity; temperature_change: LoadStateQuantity; coefficient_meaning: "engineering_interval"; provenance: string }
+  | { kind: "free_length_state"; expansion_law_ref: string };
+export type AnalysisBasisOverrideInput = { reason: string; provenance: string };
+export type ElementStateInput = {
+  pipe_ref: string;
+  /** Actual physical temperature; never inferred from a property point. */
+  operating_temperature?: LoadStateQuantity | null;
+  material_selection: MaterialSelectionInput;
+  thermal_state: ThermalStateInput;
+  analysis_basis_override?: AnalysisBasisOverrideInput | null;
+  /** Reviewed M21 mass-state seam; parsed so it can be refused explicitly. */
+  mass_state_ref?: string | null;
+};
+export type PositionSourceInput =
+  | { kind: "entered"; value: LoadStateQuantity }
+  | { kind: "predecessor_value"; case_ref: string; state_hash: string; support_ref: string; dof: string };
+export type LockedComponentInput = { dof: string; position_source: PositionSourceInput };
+export type ParticipationInput =
+  | { kind: "active_model_device" }
+  | { kind: "inactive" }
+  | { kind: "locked_equivalent_support"; components: LockedComponentInput[] };
+export type MotionInput = { dof: string; value: LoadStateQuantity; meaning: "absolute_reference_displacement" };
+export type DeviceReferenceInput =
+  | { kind: "force_at_reference"; reference_position: LoadStateQuantity; force: LoadStateQuantity }
+  | { kind: "unloaded_reference"; reference_position: LoadStateQuantity };
+export type SupportStateInput = {
+  support_ref: string;
+  participation: ParticipationInput;
+  boundary_motion?: MotionInput[] | null;
+  base_motion?: MotionInput[] | null;
+  device_reference?: DeviceReferenceInput | null;
+};
+/** Complete inclusion entry for one stored ordinary primitive. */
+export type LoadSourceInput = { source_ref: string; factor: number };
+export type HistoryInput = { kind: "independent_equilibrium" };
+/** Case-owned resolved-state request (`openpipestress.load_reference_state/1.0.0`). */
+export type AnalysisStateInput = {
+  contract: string;
+  reference_configuration_ref: string;
+  element_states: ElementStateInput[];
+  support_states: SupportStateInput[];
+  load_sources: LoadSourceInput[];
+  history: HistoryInput;
+  provenance: string;
+};
+
+/* Published result evidence: `contract_evidence` of load-reference-1 and
+ * load-reference-source-1 (schemas/load_reference_state.schema.json
+ * LoadReferenceContractEvidence and LoadReferenceStateRecord). Readers:
+ * features/results/loadReferenceEvidence.ts, loadReferenceSourceEvidence.ts. */
+export type LoadReferenceConsumedMaterialPoint = { point_id: string; temperature_k: number | null; E_pa: number; nu: number; retained_G_ignored: boolean };
+export type LoadReferenceLawSegment = { use: "interpolation_sample" | "integration_interval"; lower_index: number; upper_index: number; start_k: number; end_k: number };
+export type LoadReferenceMember = {
+  pipe_id: string;
+  material_id: string;
+  material_selection_kind: "explicit_base_properties" | "exact_point" | "temperature_interpolation";
+  consumed_material_points: LoadReferenceConsumedMaterialPoint[];
+  interpolation_fraction: number | null;
+  applicability_reference: string | null;
+  analysis_basis_override: AnalysisBasisOverrideInput | null;
+  selected_E_pa: number;
+  selected_nu: number;
+  derived_G_pa: number;
+  G_basis: string;
+  retained_G_ignored: boolean;
+  operating_temperature_k: number | null;
+  material_selection_temperature_k: number | null;
+  reference_basis: "temperature_reference" | "direct_strain_reference";
+  installation_temperature_k: number | null;
+  thermal_definition: string;
+  expansion_law_id: string | null;
+  coefficient_datum_k: number | null;
+  consumed_law_point_indices: number[];
+  consumed_law_segments: LoadReferenceLawSegment[];
+  consulted_law_point_indices: number[];
+  consulted_law_segments: LoadReferenceLawSegment[];
+  installation_datum_stretch: number | null;
+  operating_datum_stretch: number | null;
+  thermal_strain: number;
+  thermal_stretch: number;
+  fit_strain: number;
+  fit_stretch: number;
+  total_eigenstrain: number;
+  eigenstrain_composition: string;
+  fit_kind: "none" | "natural_length_change" | "fit_strain";
+  fit_input: { length_change_m: number } | { strain: number } | null;
+  reference_length_m: number;
+};
+export type LoadReferenceSupportComponent = {
+  support_id: string; node_id: string; dof: "UX" | "UY" | "UZ" | "RX" | "RY" | "RZ"; global_dof: number;
+  law_kind: "rigid_prescribed"; prescribed_value: number; unit: "m" | "rad";
+  meaning: "absolute_reference_displacement"; physical_state_source: "support_state.boundary_motion";
+};
+export type LoadReferenceContribution =
+  | { source_id: string; owner_kind: "stored_primitive"; classification: "ordinary_applied"; factor: number; category: string; dimension: string; authored_normalized_magnitude: number; applied_magnitude: number }
+  | { source_id: string; owner_kind: "resolved_member_state"; classification: "eigenstrain"; consumed_input_refs: string[]; value: number }
+  | { source_id: string; owner_kind: "support_state"; classification: "prescribed_boundary"; value: number }
+  | { source_id: string; owner_kind: "pressure_region"; classification: "pressure_eigen_and_closure"; factor: null };
+export type LoadReferenceExcludedSource = { source_id: string; owner_kind: "stored_primitive"; classification: "excluded"; category: string; reason: string };
+export type LoadReferenceStateRecord = {
+  load_case_id: string;
+  contract: "openpipestress.load_reference_state/1.0.0";
+  profile: "resolved_straight_load_state_v1";
+  reference_configuration_id: string;
+  provenance: string;
+  reference_geometry: { kind: "authored_model_geometry"; projection_sha256: string };
+  history: { kind: "independent_equilibrium" };
+  solve: { requested_mode: "sparse_interactive" | "dense_scrutiny"; recovery_method: string; boundary: string; eigenload: string };
+  source_recovery: { status: "not_joined"; code: "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED" } | { status: "selected"; method: "retained_source_blocks_exact_v1" };
+  members: LoadReferenceMember[];
+  support_components: LoadReferenceSupportComponent[];
+  contributions: LoadReferenceContribution[];
+  excluded_sources: LoadReferenceExcludedSource[];
+};
+/** Closed evidence namespace; `pressure` and `exact_cases` are the inherited
+ * physics-1 statements with the resolved member pair. */
+export type LoadReferenceContractEvidence = {
+  pressure: Array<Record<string, unknown>>;
+  connector: [];
+  exact_cases: Array<Record<string, unknown>>;
+  load_reference_states: LoadReferenceStateRecord[];
+};
+
 export type PreviewModel = {
   pressure_contract?: { version: string; mode: string };
   schema_version: string;
@@ -148,6 +326,8 @@ export type PreviewModel = {
       thermal_expansion_coefficient?: QuantityValue;
       provenance?: string;
     }>;
+    /** Model 0.4.0: user-owned expansion laws of this material. */
+    expansion_laws?: ExpansionLawInput[] | null;
     provenance: string;
   }>;
   sections?: Array<{
@@ -253,6 +433,8 @@ export type PreviewModel = {
      * inputs (DEC-068 item 2). Starts absent; every value is user-entered;
      * no code coefficient, catalog value, or physical-constant default. */
     equivalent_static?: EquivalentStaticGenerationInput;
+    /** Model 0.4.0: the case-owned resolved-state request. */
+    analysis_state?: AnalysisStateInput | null;
   }>;
   combinations?: Array<{
     id: string;
@@ -268,6 +450,8 @@ export type PreviewModel = {
     provenance: string;
   }>;
   diagnostics: Diagnostic[];
+  /** Model 0.4.0: reference configurations (stress-free installed states). */
+  reference_configurations?: ReferenceConfigurationInput[] | null;
 };
 
 export type Diagnostic = {

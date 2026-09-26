@@ -1,0 +1,10 @@
+{
+  "os": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "python": "Python 3.11.15",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "runner_build": "cargo +1.97.1 build --locked --offline -j 2 --bin openpipestress-runner (core/runner/headless), dev profile, from the clean candidate tree",
+  "candidate_commit": "d58baad57959f8fda282746708e1c996b145069b",
+  "executable_sha256": "6bedade8f54923956a2301195d3d8ed46b6c42be9756ca3b0b3ad697b045d3d4"
+}

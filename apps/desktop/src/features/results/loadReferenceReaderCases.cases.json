@@ -1,0 +1,390 @@
+[
+ {
+  "id": "NUMERICAL_CASE_DUPLICATE",
+  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/numerical_quality/cases",
+    "value": {
+     "basis_ref": {
+      "ref_type": "load_case",
+      "ref_id": "case:cold"
+     },
+     "structural_status": "passive_model_basis",
+     "solve_quality": "checks_passed",
+     "model_matrix_fidelity": "represented_equations_retained",
+     "accuracy_evidence": "not_claimed",
+     "evidence_refs": [
+      "diagnostic:numerical-integrity:case:cold"
+     ]
+    }
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_NUMERICAL_CASE_DUPLICATE"
+ },
+ {
+  "id": "MATERIAL_DUPLICATE",
+  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/contract_evidence/exact_cases/0/pipe_materials",
+    "value": {
+     "E_pa": 200000000000.0,
+     "G_pa": 76923076923.07692,
+     "alpha_per_kelvin": null,
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "material_id": "material:shared",
+     "material_selection_kind": "exact_point",
+     "nu": 0.3,
+     "pipe_id": "pipe:first",
+     "provenance": "invented_load_reference_fixture_not_library_data",
+     "resolved_eigenstrain": 0.0,
+     "thermal_consumed": false
+    }
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_MATERIAL_DUPLICATE"
+ },
+ {
+  "id": "SECTION_DUPLICATE",
+  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/contract_evidence/exact_cases/0/pipe_sections",
+    "value": {
+     "Ai_m2": 0.02544690049407733,
+     "As_m2": 0.005969026041820607,
+     "I_m4": 2.7009842839238257e-05,
+     "J_m4": 5.4019685678476514e-05,
+     "Z_m3": 0.0002700984283923826,
+     "effective_wall_thickness_m": 0.01,
+     "geometry_basis": "authored_normalized_od_wall_v1",
+     "outside_diameter_m": 0.2,
+     "pipe_id": "pipe:first",
+     "ri_m": 0.09000000000000001,
+     "ro_m": 0.1
+    }
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_SECTION_DUPLICATE"
+ },
+ {
+  "id": "MEMBER_MATERIAL_COVERAGE",
+  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/contract_evidence/exact_cases/0/pipe_materials",
+    "value": {
+     "E_pa": 200000000000.0,
+     "G_pa": 76923076923.07692,
+     "alpha_per_kelvin": null,
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "material_id": "material:shared",
+     "material_selection_kind": "exact_point",
+     "nu": 0.3,
+     "pipe_id": "pipe:invented",
+     "provenance": "invented_load_reference_fixture_not_library_data",
+     "resolved_eigenstrain": 0.0,
+     "thermal_consumed": false
+    }
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_COVERAGE"
+ },
+ {
+  "id": "MEMBER_CONTRIBUTION_COVERAGE",
+  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/contract_evidence/load_reference_states/0/contributions",
+    "value": {
+     "classification": "eigenstrain",
+     "consumed_input_refs": [
+      "reference:installed:pipe:first",
+      "case:cold:element_state:pipe:first"
+     ],
+     "owner_kind": "resolved_member_state",
+     "source_id": "member_state:pipe:invented",
+     "value": 0.0
+    }
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_COVERAGE"
+ },
+ {
+  "id": "SUPPORT_CONTRIBUTION_COVERAGE",
+  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/contract_evidence/load_reference_states/0/contributions",
+    "value": {
+     "classification": "prescribed_boundary",
+     "owner_kind": "support_state",
+     "source_id": "support_state:support:invented:UX",
+     "value": 0.0005
+    }
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_COVERAGE"
+ },
+ {
+  "id": "POINT_TEMPERATURE_RANGE",
+  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/temperature_k",
+    "value": -1.0
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE"
+ },
+ {
+  "id": "MATERIAL_POINT_RANGE",
+  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/E_pa",
+    "value": -1.0
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_RANGE"
+ },
+ {
+  "id": "DIRECT_THERMAL_LAW_BINDING",
+  "source": "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/contract_evidence/load_reference_states/0/members/0/expansion_law_id",
+    "value": "law:invented"
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING"
+ },
+ {
+  "id": "REFERENCE_LENGTH",
+  "source": "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/contract_evidence/load_reference_states/0/members/0/reference_length_m",
+    "value": -1.0
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_REFERENCE_LENGTH"
+ },
+ {
+  "id": "CONNECTOR_NOT_ARRAY",
+  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/contract_evidence/connector",
+    "value": {}
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_ARRAY_INVALID"
+ },
+ {
+  "id": "REGION_CASE_UNRESOLVED",
+  "source": "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/contract_evidence/pressure",
+    "value": {
+     "applied_loads": [
+      {
+       "eigenload_pair_local_n": [
+        30536.280592892796,
+        -30536.280592892796
+       ],
+       "local_x_global": [
+        1.0,
+        0.0,
+        0.0
+       ],
+       "mathematical_cap_pair_local_n": [
+        -50893.80098815466,
+        50893.80098815466
+       ],
+       "pipe_id": "pipe:first",
+       "thermal_included": false
+      }
+     ],
+     "approximation": "long_straight_annulus_small_strain_v2",
+     "external_pressure_increment_pa": 0.0,
+     "geometry": [
+      {
+       "Ai_m2": 0.02544690049407733,
+       "As_m2": 0.005969026041820607,
+       "I_m4": 2.7009842839238257e-05,
+       "J_m4": 5.4019685678476514e-05,
+       "Z_m3": 0.0002700984283923826,
+       "effective_wall_thickness_m": 0.01,
+       "geometry_basis": "authored_normalized_od_wall_v1",
+       "outside_diameter_m": 0.2,
+       "pipe_id": "pipe:first",
+       "ri_m": 0.09000000000000001,
+       "ro_m": 0.1,
+       "traversal_forward": true
+      }
+     ],
+     "geometry_representation_guard": {
+      "epsilon_multiplier": 64,
+      "meaning": "arithmetic_representation_only"
+     },
+     "load_case_id": "case:invented",
+     "materials": [
+      {
+       "E_pa": 200000000000.0,
+       "G_pa": 76923076923.07692,
+       "alpha_per_kelvin": null,
+       "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+       "material_id": "material:shared",
+       "nu": 0.3,
+       "pipe_id": "pipe:first",
+       "provenance": "invented_load_reference_fixture_not_library_data",
+       "temperature_basis": "resolved_member_state",
+       "thermal_consumed": false
+      }
+     ],
+     "member_pipe_ids": [
+      "pipe:first"
+     ],
+     "p_pa": 2000000.0,
+     "pressure_basis": "internal_differential_zero_external_v1",
+     "profile_mode": "exact_straight_pressure_v2",
+     "profile_version": "2.0.0",
+     "provenance": "invented_load_reference_fixture_not_library_data",
+     "region_id": "region:invented",
+     "result_ids": [
+      "result:elastic-maximum:18:case:cold-pressure:10:pipe:first",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:wall_axial_end_action",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:wall_axial_end_action",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:wall_axial_force",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:effective_axial_force",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:axial_membrane_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_radial_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_radial_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_hoop_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_hoop_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:wall_axial_force",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:effective_axial_force",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:axial_membrane_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_radial_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_radial_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_hoop_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_hoop_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:wall_axial_force",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:effective_axial_force",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:axial_membrane_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:wall_axial_force",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:effective_axial_force",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:axial_membrane_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_radial_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_radial_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_hoop_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_hoop_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:wall_axial_force",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:effective_axial_force",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:axial_membrane_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress",
+      "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress"
+     ],
+     "terminals": [
+      {
+       "closure_pressure_load_global_n": [
+        -50893.80098815466,
+        -0.0,
+        -0.0
+       ],
+       "closure_transfer": "transfers_to_wall",
+       "node_ref": "node:root",
+       "pipe_cap_transfer_global_n": [
+        -50893.80098815466,
+        -0.0,
+        -0.0
+       ],
+       "provenance": "invented_load_reference_fixture_not_library_data",
+       "remote_closure_excluded_from_pipe_solve": false,
+       "remote_closure_support_reaction_global_n": null
+      },
+      {
+       "closure_pressure_load_global_n": [
+        50893.80098815466,
+        0.0,
+        0.0
+       ],
+       "closure_transfer": "transfers_to_wall",
+       "node_ref": "node:middle",
+       "pipe_cap_transfer_global_n": [
+        50893.80098815466,
+        0.0,
+        0.0
+       ],
+       "provenance": "invented_load_reference_fixture_not_library_data",
+       "remote_closure_excluded_from_pipe_solve": false,
+       "remote_closure_support_reaction_global_n": null
+      }
+     ]
+    }
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_REGION_CASE_UNRESOLVED"
+ },
+ {
+  "id": "REGION_MATERIAL_UNBOUND_PIPE",
+  "source": "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/contract_evidence/pressure/0/materials",
+    "value": {
+     "E_pa": 200000000000.0,
+     "G_pa": 76923076923.07692,
+     "alpha_per_kelvin": null,
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "material_id": "material:shared",
+     "nu": 0.3,
+     "pipe_id": "pipe:invented",
+     "provenance": "invented_load_reference_fixture_not_library_data",
+     "temperature_basis": "resolved_member_state",
+     "thermal_consumed": false
+    }
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING"
+ },
+ {
+  "id": "SUPPORT_COMPONENT_DOF_NAME",
+  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/contract_evidence/load_reference_states/0/support_components/0/dof",
+    "value": "invented"
+   },
+   {
+    "op": "set",
+    "path": "/contract_evidence/load_reference_states/0/support_components/0/global_dof",
+    "value": -1
+   }
+  ],
+  "python": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DOF"
+ }
+]

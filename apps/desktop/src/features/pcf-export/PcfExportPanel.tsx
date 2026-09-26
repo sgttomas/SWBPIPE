@@ -1,4 +1,5 @@
 import { Download, FileText } from "lucide-react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
@@ -86,6 +87,7 @@ export function PcfExportPanel({
         Conservative PCF Export
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="pcf-export">
         <ControlledExportLink
           className="report-export-link"
           data-testid="pcf-export-link"
@@ -104,6 +106,7 @@ export function PcfExportPanel({
           <Download size={14} aria-hidden="true" />
           PCF text
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="pcf-export-summary">
           available; segments={packet.pcf_payload.pipe_segments.length}; nodes={packet.pcf_payload.nodes.length};
           validation={packet.validation_report.validation_status}; losses={packet.loss_report.length}

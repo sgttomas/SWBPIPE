@@ -1,0 +1,18 @@
+BASELINE (unmutated scratch copy): pass
+R1 binding builds documents for non-eligible standing [core/runner/headless/src/result_envelope_binding.rs]: KILLED by ['test load_reference_route_tests::sf1_budget_cliff_publishes_the_ordinary_route_through_the_runner_not_a_blocked_result ... FAILED', 'test load_reference_route_tests::joined_actual_solve_retains_invocation_bound_receipt_without_canonical_export_both_modes ... FAILED']
+P1 0.4.0 formulation basis not routed to load-reference [core/product_physics/src/lib.rs]: KILLED
+P1b blocked 0.4.0 envelope leaves the exact namespace [core/product_physics/src/lib.rs]: KILLED by ['test load_reference_route_tests::blocked_0_4_0_envelopes_keep_the_load_reference_identity_through_the_runner ... FAILED']
+P2 joined publication labelled load-reference-1 [core/product_physics/src/lib.rs]: KILLED by ['test load_reference_route_tests::joined_actual_solve_retains_invocation_bound_receipt_without_canonical_export_both_modes ... FAILED']
+R2 runner solves in the other mode [core/runner/headless/src/lib.rs]: KILLED
+R3 runner forwards a payload other than the retained one [core/runner/headless/src/lib.rs]: KILLED
+R4 runner captures the wrong mode label [core/runner/headless/src/lib.rs]: KILLED
+R5 binding drops invocation-request equals payload [core/runner/headless/src/result_envelope_binding.rs]: KILLED by ['test load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes ... FAILED']
+R6 binding drops the closed solver-mode set [core/runner/headless/src/result_envelope_binding.rs]: KILLED by ['test load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes ... FAILED']
+R6b binding drops the invocation digest check [core/runner/headless/src/result_envelope_binding.rs]: KILLED by ['test load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes ... FAILED']
+R7 CLI typed input gate bypassed [core/runner/headless/src/bin/openpipestress-runner.rs]: KILLED by ['test cli_refusals_have_targeted_codes_and_publish_nothing_as_solved ... FAILED']
+R8 runner reports MECHANICS_SOLVED for blocked envelopes [core/runner/headless/src/lib.rs]: KILLED
+R9 runner drops the SOURCE_NOT_SOLVED gate [core/runner/headless/src/lib.rs]: KILLED
+R10 CLI exit ignores result validation [core/runner/headless/src/bin/openpipestress-runner.rs]: KILLED by ['test cli_blocked_0_4_0_documents_stay_on_load_reference_one ... FAILED', 'test cli_refusals_have_targeted_codes_and_publish_nothing_as_solved ... FAILED']
+P3 explicit-null refusal not emitted [core/product_physics/src/case_state/resolve.rs]: KILLED by ['test load_reference_route_tests::explicit_null_on_a_load_state_key_is_a_targeted_blocked_load_reference_envelope ... FAILED']
+P4 pre-0.4 version-mismatch refusal not emitted [core/product_physics/src/case_state/resolve.rs]: KILLED by ['test load_reference_route_tests::pre_0_4_documents_carrying_load_state_keys_block_on_their_own_route ... FAILED']
+P5 unknown analysis_state fields accepted [core/product_physics/src/case_state/input.rs]: KILLED by ['test load_reference_route_tests::unknown_load_state_field_is_refused_at_the_request_boundary_before_any_publication ... FAILED']

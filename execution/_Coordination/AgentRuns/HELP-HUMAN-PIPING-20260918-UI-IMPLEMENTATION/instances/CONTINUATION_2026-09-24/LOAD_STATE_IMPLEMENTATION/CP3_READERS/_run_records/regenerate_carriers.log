@@ -1,0 +1,22 @@
+{"cases": 186, "table_cases": 4, "transport_cases": 11, "path": "core/reporting/result_export/tests/fixtures/load_reference_mutations.json"}
+warning: function `derived` is never used
+   --> src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+   Compiling open_pipe_stress_result_export v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/reporting/result_export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+     Running tests/load_reference_contract.rs (/home/user/cargo-targets/lscp3readers/result_export/debug/deps/load_reference_contract-ab5348546603c731)
+
+running 1 test
+test canonical_documents_preserve_source_metadata_and_evidence_verbatim ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 7.06s
+
+....                                                                     [100%]
+4 passed, 209 deselected in 9.24s
+exit=0

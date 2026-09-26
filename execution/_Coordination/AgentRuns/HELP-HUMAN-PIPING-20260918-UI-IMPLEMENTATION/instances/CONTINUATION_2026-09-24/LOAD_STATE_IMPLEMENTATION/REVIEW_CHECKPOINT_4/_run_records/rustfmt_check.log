@@ -1,0 +1,7 @@
+core/reporting/result_export/src/load_reference.rs diff_hunks=0
+core/reporting/result_export/src/semantic_contract.rs diff_hunks=0
+core/reporting/result_export/tests/load_reference_contract.rs diff_hunks=0
+core/product_physics/src/source_recovery.rs diff_hunks=0
+core/product_physics/src/source_receipt/load_state_fallback_tests.rs diff_hunks=0
+core/product_physics/src/source_receipt/load_state_join_tests.rs diff_hunks=0
+src/lib.rs own hunks (candidate)=48, (base a68326039)=47; rustfmt 1.8.0-stable

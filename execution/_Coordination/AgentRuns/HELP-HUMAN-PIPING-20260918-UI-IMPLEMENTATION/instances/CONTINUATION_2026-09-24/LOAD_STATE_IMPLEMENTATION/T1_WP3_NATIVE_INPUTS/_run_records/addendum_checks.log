@@ -1,0 +1,31 @@
+# Addendum checks. Scratch = git archive of 583f5d9fa (identical to HEAD 24e45a3e5 outside execution/) + this change.
+## full desktop vitest run A (before container restart)
+ 16:08:22 up 12:34,  0 user,  load average: 0.39, 0.51, 1.09
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > qualifies only a matching captured native unit replay and retires it on reference inspection
+ Test Files  1 failed | 133 passed (134)
+      Tests  1 failed | 2821 passed (2822)
+exit=1
+## run A failure rerun in isolation x3: passed 1/1 each (App.test.tsx 'qualifies only a matching captured native unit replay')
+## full desktop vitest run B (before restart)
+ 16:18:12 up 12:43,  0 user,  load average: 1.13, 2.35, 1.96
+ Test Files  134 passed (134)
+      Tests  2822 passed (2822)
+exit=0
+## full desktop vitest run C (after container restart)
+ 16:38:21 up 13:04,  0 user,  load average: 1.25, 1.50, 1.90
+ Test Files  134 passed (134)
+      Tests  2822 passed (2822)
+exit=0
+## npm run build --workspace apps/desktop
+✓ built in 8.83s
+exit=0
+## Chromium e2e (the first attempt was killed by the container restart, exit 137; rerun below)
+ 16:33:08 up 12:58,  0 user,  load average: 0.71, 1.65, 2.09
+  ✓  1 [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.4m)
+  ✓  2 [chromium-desktop] › e2e/load-state-inputs.spec.ts:56:1 › blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes (54.6s)
+  ✓  3 [chromium-desktop] › e2e/result-compatibility.spec.ts:7:1 › browser references remain inspectable and cannot publish qualified result or stress-neutral exports (12.7s)
+  ✓  4 [chromium-compact] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.3m)
+  ✓  5 [chromium-compact] › e2e/load-state-inputs.spec.ts:56:1 › blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes (54.1s)
+  ✓  6 [chromium-compact] › e2e/result-compatibility.spec.ts:7:1 › browser references remain inspectable and cannot publish qualified result or stress-neutral exports (11.2s)
+  6 passed (5.0m)
+exit=0

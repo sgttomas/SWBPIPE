@@ -1,0 +1,365 @@
+K1_replay_builds_with_base_materials prior_killed= True 7 join_killed= True 4 compile_error= False
+   join: test source_receipt::load_state_join_tests::a_selected_case_whose_member_pair_differs_from_the_base_qualifies_with_its_own_pair ... FAILED
+   join: test source_receipt::load_state_join_tests::joined_rows_agree_with_the_ordinary_route_and_closed_forms ... FAILED
+   join: test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED
+   join: test source_receipt::load_state_join_tests::two_selected_cases_with_different_pairs_and_motions_each_bind_their_own_state ... FAILED
+K2_replay_prescribed_zero prior_killed= True 5 join_killed= True 4 compile_error= False
+   join: test source_receipt::load_state_join_tests::a_selected_case_whose_member_pair_differs_from_the_base_qualifies_with_its_own_pair ... FAILED
+   join: test source_receipt::load_state_join_tests::joined_rows_agree_with_the_ordinary_route_and_closed_forms ... FAILED
+   join: test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED
+   join: test source_receipt::load_state_join_tests::two_selected_cases_with_different_pairs_and_motions_each_bind_their_own_state ... FAILED
+K3_replay_omits_eigen_loads prior_killed= True 5 join_killed= True 4 compile_error= False
+   join: test source_receipt::load_state_join_tests::a_selected_case_whose_member_pair_differs_from_the_base_qualifies_with_its_own_pair ... FAILED
+   join: test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED
+   join: test source_receipt::load_state_join_tests::joined_rows_agree_with_the_ordinary_route_and_closed_forms ... FAILED
+   join: test source_receipt::load_state_join_tests::two_selected_cases_with_different_pairs_and_motions_each_bind_their_own_state ... FAILED
+K4_live_eigen_fold_sign_flipped prior_killed= True 9 join_killed= True 5 compile_error= False
+   join: test source_receipt::load_state_join_tests::a_selected_case_whose_member_pair_differs_from_the_base_qualifies_with_its_own_pair ... FAILED
+   join: test source_receipt::load_state_join_tests::a_resolved_motion_without_exactly_one_rigid_owner_is_refused_at_source_closure ... FAILED
+   join: test source_receipt::load_state_join_tests::joined_rows_agree_with_the_ordinary_route_and_closed_forms ... FAILED
+   join: test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED
+   join: test source_receipt::load_state_join_tests::two_selected_cases_with_different_pairs_and_motions_each_bind_their_own_state ... FAILED
+K5_identity_omits_resolver_evidence prior_killed= False 0 join_killed= True 1 compile_error= False
+   join: test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED
+K6_pressure_region_check_removed prior_killed= True 1 join_killed= True 1 compile_error= False
+   join: test source_receipt::load_state_join_tests::a_zero_valued_pressure_region_is_not_joined ... FAILED
+K7_prescribed_ownership_loop_removed prior_killed= False 0 join_killed= True 2 compile_error= False
+   join: test source_receipt::load_state_join_tests::a_resolved_motion_without_exactly_one_rigid_owner_is_refused_at_source_closure ... FAILED
+   join: test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED
+K8_eigen_id_collision_check_removed prior_killed= False 0 join_killed= True 1 compile_error= False
+   join: test source_receipt::load_state_join_tests::a_primitive_load_colliding_with_the_reserved_eigen_source_id_is_refused_at_closure ... FAILED
+K9_ordinary_case_record_not_bound_in_joined_envelope prior_killed= False 0 join_killed= True 1 compile_error= False
+   join: test source_receipt::load_state_join_tests::the_mixed_joined_envelope_binds_its_ordinary_pressure_case_record ... FAILED
+K10_identity_omits_member_strain_split prior_killed= False 0 join_killed= True 1 compile_error= False
+   join: test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED
+K11_identity_omits_eigen_local_axis prior_killed= False 0 join_killed= False 0 compile_error= False
+K12_frame_area_check_removed prior_killed= False 0 join_killed= False 0 compile_error= False
+{
+ "K1_replay_builds_with_base_materials": {
+  "prior": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back ... FAILED",
+    "test source_receipt::load_state_fallback_tests::the_committed_witness_still_selects_and_finalizes_within_the_public_limit ... FAILED",
+    "test source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route ... FAILED",
+    "test source_receipt::load_state_tests::a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay ... FAILED",
+    "test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... FAILED",
+    "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED",
+    "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 309 passed; 7 failed; 1 ignored; 0 measured; 8 filtered out; finished in 1.59s"
+   ],
+   "killed": true
+  },
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_join_tests::a_selected_case_whose_member_pair_differs_from_the_base_qualifies_with_its_own_pair ... FAILED",
+    "test source_receipt::load_state_join_tests::joined_rows_agree_with_the_ordinary_route_and_closed_forms ... FAILED",
+    "test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED",
+    "test source_receipt::load_state_join_tests::two_selected_cases_with_different_pairs_and_motions_each_bind_their_own_state ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 4 passed; 4 failed; 0 ignored; 0 measured; 317 filtered out; finished in 0.97s"
+   ],
+   "killed": true
+  }
+ },
+ "K2_replay_prescribed_zero": {
+  "prior": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route ... FAILED",
+    "test source_receipt::load_state_fallback_tests::the_committed_witness_still_selects_and_finalizes_within_the_public_limit ... FAILED",
+    "test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... FAILED",
+    "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED",
+    "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 311 passed; 5 failed; 1 ignored; 0 measured; 8 filtered out; finished in 1.89s"
+   ],
+   "killed": true
+  },
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_join_tests::a_selected_case_whose_member_pair_differs_from_the_base_qualifies_with_its_own_pair ... FAILED",
+    "test source_receipt::load_state_join_tests::joined_rows_agree_with_the_ordinary_route_and_closed_forms ... FAILED",
+    "test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED",
+    "test source_receipt::load_state_join_tests::two_selected_cases_with_different_pairs_and_motions_each_bind_their_own_state ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 4 passed; 4 failed; 0 ignored; 0 measured; 317 filtered out; finished in 0.95s"
+   ],
+   "killed": true
+  }
+ },
+ "K3_replay_omits_eigen_loads": {
+  "prior": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route ... FAILED",
+    "test source_receipt::load_state_fallback_tests::the_committed_witness_still_selects_and_finalizes_within_the_public_limit ... FAILED",
+    "test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... FAILED",
+    "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED",
+    "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 311 passed; 5 failed; 1 ignored; 0 measured; 8 filtered out; finished in 2.69s"
+   ],
+   "killed": true
+  },
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_join_tests::a_selected_case_whose_member_pair_differs_from_the_base_qualifies_with_its_own_pair ... FAILED",
+    "test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED",
+    "test source_receipt::load_state_join_tests::joined_rows_agree_with_the_ordinary_route_and_closed_forms ... FAILED",
+    "test source_receipt::load_state_join_tests::two_selected_cases_with_different_pairs_and_motions_each_bind_their_own_state ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 4 passed; 4 failed; 0 ignored; 0 measured; 317 filtered out; finished in 1.15s"
+   ],
+   "killed": true
+  }
+ },
+ "K4_live_eigen_fold_sign_flipped": {
+  "prior": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back ... FAILED",
+    "test source_receipt::load_state_fallback_tests::reviewer_scenario_a_budget_cliff_publishes_the_ordinary_route_instead_of_blocking ... FAILED",
+    "test source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route ... FAILED",
+    "test source_receipt::load_state_fallback_tests::the_committed_witness_still_selects_and_finalizes_within_the_public_limit ... FAILED",
+    "test source_receipt::load_state_tests::a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay ... FAILED",
+    "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED",
+    "test source_receipt::load_state_tests::source_closure_refuses_live_resolved_operands_that_did_not_reach_formation ... FAILED",
+    "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED",
+    "test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 307 passed; 9 failed; 1 ignored; 0 measured; 8 filtered out; finished in 2.26s"
+   ],
+   "killed": true
+  },
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_join_tests::a_selected_case_whose_member_pair_differs_from_the_base_qualifies_with_its_own_pair ... FAILED",
+    "test source_receipt::load_state_join_tests::a_resolved_motion_without_exactly_one_rigid_owner_is_refused_at_source_closure ... FAILED",
+    "test source_receipt::load_state_join_tests::joined_rows_agree_with_the_ordinary_route_and_closed_forms ... FAILED",
+    "test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED",
+    "test source_receipt::load_state_join_tests::two_selected_cases_with_different_pairs_and_motions_each_bind_their_own_state ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 3 passed; 5 failed; 0 ignored; 0 measured; 317 filtered out; finished in 1.11s"
+   ],
+   "killed": true
+  }
+ },
+ "K5_identity_omits_resolver_evidence": {
+  "prior": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": [],
+   "results": [
+    "test result: ok. 316 passed; 0 failed; 1 ignored; 0 measured; 8 filtered out; finished in 3.29s",
+    "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s"
+   ],
+   "killed": false
+  },
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 317 filtered out; finished in 2.17s"
+   ],
+   "killed": true
+  }
+ },
+ "K6_pressure_region_check_removed": {
+  "prior": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::tests::composite_adapter_refuses_missing_zero_and_nonzero_regions ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 315 passed; 1 failed; 1 ignored; 0 measured; 8 filtered out; finished in 2.47s"
+   ],
+   "killed": true
+  },
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_join_tests::a_zero_valued_pressure_region_is_not_joined ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 317 filtered out; finished in 2.01s"
+   ],
+   "killed": true
+  }
+ },
+ "K7_prescribed_ownership_loop_removed": {
+  "prior": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": [],
+   "results": [
+    "test result: ok. 316 passed; 0 failed; 1 ignored; 0 measured; 8 filtered out; finished in 2.46s",
+    "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.59s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.66s"
+   ],
+   "killed": false
+  },
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_join_tests::a_resolved_motion_without_exactly_one_rigid_owner_is_refused_at_source_closure ... FAILED",
+    "test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 317 filtered out; finished in 1.81s"
+   ],
+   "killed": true
+  }
+ },
+ "K8_eigen_id_collision_check_removed": {
+  "prior": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": [],
+   "results": [
+    "test result: ok. 316 passed; 0 failed; 1 ignored; 0 measured; 8 filtered out; finished in 2.10s",
+    "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.66s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.67s"
+   ],
+   "killed": false
+  },
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_join_tests::a_primitive_load_colliding_with_the_reserved_eigen_source_id_is_refused_at_closure ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 317 filtered out; finished in 1.77s"
+   ],
+   "killed": true
+  }
+ },
+ "K9_ordinary_case_record_not_bound_in_joined_envelope": {
+  "prior": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": [],
+   "results": [
+    "test result: ok. 316 passed; 0 failed; 1 ignored; 0 measured; 8 filtered out; finished in 1.71s",
+    "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s"
+   ],
+   "killed": false
+  },
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_join_tests::the_mixed_joined_envelope_binds_its_ordinary_pressure_case_record ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 317 filtered out; finished in 1.61s"
+   ],
+   "killed": true
+  }
+ },
+ "K10_identity_omits_member_strain_split": {
+  "prior": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": [],
+   "results": [
+    "test result: ok. 316 passed; 0 failed; 1 ignored; 0 measured; 8 filtered out; finished in 1.75s",
+    "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.48s"
+   ],
+   "killed": false
+  },
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "failed_tests": [
+    "test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... FAILED"
+   ],
+   "results": [
+    "test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 317 filtered out; finished in 1.85s"
+   ],
+   "killed": true
+  }
+ },
+ "K11_identity_omits_eigen_local_axis": {
+  "prior": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": [],
+   "results": [
+    "test result: ok. 316 passed; 0 failed; 1 ignored; 0 measured; 8 filtered out; finished in 1.66s",
+    "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s"
+   ],
+   "killed": false
+  },
+  "join": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": [],
+   "results": [
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 317 filtered out; finished in 1.69s"
+   ],
+   "killed": false
+  }
+ },
+ "K12_frame_area_check_removed": {
+  "prior": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": [],
+   "results": [
+    "test result: ok. 316 passed; 0 failed; 1 ignored; 0 measured; 8 filtered out; finished in 1.89s",
+    "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.56s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s"
+   ],
+   "killed": false
+  },
+  "join": {
+   "exit": 0,
+   "compile_error": false,
+   "failed_tests": [],
+   "results": [
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 317 filtered out; finished in 1.59s"
+   ],
+   "killed": false
+  }
+ }
+}

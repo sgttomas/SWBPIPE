@@ -1,0 +1,11 @@
+test header_only_dispatch_is_bound_to_one_profile_and_never_qualifies_raw_output ... ok
+test frozen_inputs_table_and_schema_are_pinned ... ok
+test table_bytes_and_transport_cases_match_in_rust ... ok
+test canonical_documents_preserve_source_metadata_and_evidence_verbatim ... ok
+test shared_adversarial_cases_match_in_rust ... ok
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.26s
+    Finished `release` profile [optimized] target(s) in 0.02s
+    Finished `release` profile [optimized] target(s) in 0.01s
+.............                                                            [100%]
+13 passed, 235 deselected in 3.29s
+FIXTURE_RESTORED

@@ -1,0 +1,2 @@
+rustfmt 1.8.0-stable (e408947bfd 2026-03-25)
+rustfmt --check clean: src/load_reference.rs src/load_reference_source.rs src/semantic_contract.rs src/derivative.rs src/lib.rs tests/load_reference_source_contract.rs

@@ -1,0 +1,9 @@
+REVIEW_B backcheck: the committed WP5 bytes at ab5919133 equal the WP5 author's final bytes (RETURN section 11)
+plus only the manager's integration re-pin to 1ccca8b87.
+Method: in the committed files, replace the re-pin lines with their bfef71b19 forms, then hash.
+- tools/validation/qualification_load_reference.py: comment "# Reader bytes as integrated with WP1 at bfef71b19
+  (re-pinned from the WP5 start commit d8f0dc4f7);\n# re-pin deliberately whenever the reader changes." and
+  MODULE_SHA256 'eff1fb3b...' -> sha256 prefix ea79022f (= RETURN section 11 final)
+- tests/test_qualification_load_reference.py: git revision bfef71b19 and its message -> sha256 prefix 6613e9f0 (= RETURN section 11 final)
+Committed: adapter ea40ad64..., test f7040597..., helper a7d88418... (= RETURN section 11).
+Reader at ab5919133: 14e1750e... = git show 1ccca8b87:core/analysis_runs/load_reference_evidence.py; top-level imports unchanged (inside helper allowlist).

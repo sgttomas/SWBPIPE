@@ -1,0 +1,12 @@
+     Running unittests src/lib.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/open_pipe_stress_product_physics-f6a14ff10cb528f4)
+test result: ok. 299 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 3.09s
+     Running tests/load_reference_state_runtime.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/load_reference_state_runtime-6e7854afb5d7f6af)
+test signed_fit_baselines_cut_long_and_direct_fit_strain ... FAILED
+test signed_fit_cold_hot_return_fixed_and_released ... FAILED
+test result: FAILED. 18 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+error: test failed, to rerun pass `--test load_reference_state_runtime`
+     Running tests/review2_probes.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/review2_probes-9bee1ca8a08c1be6)
+test p02_two_cases_rebuild_stiffness_and_do_not_share_state ... FAILED
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+error: test failed, to rerun pass `--test review2_probes`
+error: 2 targets failed:

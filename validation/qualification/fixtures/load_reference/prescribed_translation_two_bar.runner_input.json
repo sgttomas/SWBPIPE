@@ -1,0 +1,347 @@
+{
+  "request": {
+    "input_manifest_ref": {
+      "ref_type": "audit_manifest",
+      "ref_id": "manifest:lr-prescribed-translation-two-bar-v1"
+    },
+    "load_basis_refs": [
+      {
+        "ref_type": "load_case",
+        "ref_id": "case:prescribed-root-translation"
+      }
+    ],
+    "model_ref": {
+      "ref_type": "model",
+      "ref_id": "project:lr-prescribed-translation-two-bar"
+    },
+    "operation": "solve",
+    "operation_ref": {
+      "ref_id": "solve",
+      "ref_type": "api_operation"
+    },
+    "privacy": {
+      "classification": "public_metadata",
+      "local_only": true,
+      "private_payload_redacted": true,
+      "telemetry_allowed": false
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "project_ref": {
+      "ref_type": "project",
+      "ref_id": "project:lr-prescribed-translation-two-bar"
+    },
+    "provenance": {
+      "source_name": "VP-STATIC load/reference-state case prescribed_translation_two_bar",
+      "source_location": "LOAD_STATE_IMPLEMENTATION/T1_WP6_STATIC_CASES",
+      "source_license": "project-original-public-content",
+      "contributor": "T1_WP6_STATIC_CASES TASK (Type 2)",
+      "contributor_certification": "Explicitly invented mathematical test inputs built from reference_cases.json; no external project, material library or code data",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "prepared_for_independent_freeze_check"
+    },
+    "request_id": "lr-prescribed-translation-two-bar-v1",
+    "requested_outputs": [
+      "result_envelope",
+      "audit_manifest",
+      "diagnostics"
+    ],
+    "tbd_decisions": {
+      "ci_provider": "TBD",
+      "external_adapter_formats": "TBD",
+      "filesystem_mutation_policy": "SETTLED_DEC_065",
+      "final_cli_command_syntax": "SETTLED_DEC_065",
+      "network_access": "SETTLED_DEC_065",
+      "package_scripts": "SETTLED_DEC_065",
+      "physical_project_container": "TBD",
+      "process_invocation": "SETTLED_DEC_065",
+      "public_transport_protocol": "TBD",
+      "release_matrix": "TBD"
+    },
+    "unit_system_ref": {
+      "ref_id": "invented-si",
+      "ref_type": "unit_system"
+    }
+  },
+  "solve": {
+    "preview_model": {
+      "model": {
+        "schema_version": "0.4.0",
+        "document_kind": "openpipestress.product_preview.model",
+        "pressure_contract": {
+          "version": "2.0.0",
+          "mode": "exact_straight_pressure_v2"
+        },
+        "project": {
+          "id": "project:lr-prescribed-translation-two-bar",
+          "name": "Prescribed translation, two bars",
+          "description": "Invented VP-STATIC load/reference-state qualification request built from reference_cases.json; no libraries or code rules.",
+          "units": {
+            "length": "m",
+            "force": "N",
+            "angle": "rad",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "rule_check": "not_performed_user_rule_inputs_missing",
+          "professional_acceptance": "not_provided"
+        },
+        "nodes": [
+          {
+            "id": "node:root",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; coordinates from the reference lengths"
+          },
+          {
+            "id": "node:middle",
+            "position": {
+              "x": 1.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; coordinates from the reference lengths"
+          },
+          {
+            "id": "node:far",
+            "position": {
+              "x": 2.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; coordinates from the reference lengths"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "id": "pipe:1",
+            "from": "node:root",
+            "to": "node:middle",
+            "section": {
+              "outside_diameter": {
+                "value": 0.2,
+                "unit": "m"
+              },
+              "wall_thickness": {
+                "value": 0.01,
+                "unit": "m"
+              }
+            },
+            "material": "material:bar-1",
+            "y_reference": {
+              "x": 0.0,
+              "y": 1.0,
+              "z": 0.0
+            },
+            "provenance": "section from reference_cases.json geometry annulus_od_0p20_wall_0p01; y_reference is an authoring convention"
+          },
+          {
+            "id": "pipe:2",
+            "from": "node:middle",
+            "to": "node:far",
+            "section": {
+              "outside_diameter": {
+                "value": 0.2,
+                "unit": "m"
+              },
+              "wall_thickness": {
+                "value": 0.01,
+                "unit": "m"
+              }
+            },
+            "material": "material:bar-2",
+            "y_reference": {
+              "x": 0.0,
+              "y": 1.0,
+              "z": 0.0
+            },
+            "provenance": "section from reference_cases.json geometry annulus_od_0p20_wall_0p01; y_reference is an authoring convention"
+          }
+        ],
+        "supports": [
+          {
+            "id": "support:root",
+            "node": "node:root",
+            "family": "anchor",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ],
+            "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; rigid anchor representing the reference topology"
+          },
+          {
+            "id": "support:far",
+            "node": "node:far",
+            "family": "anchor",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ],
+            "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; rigid anchor representing the reference topology"
+          }
+        ],
+        "components": [],
+        "materials": [
+          {
+            "id": "material:bar-1",
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {
+              "value": 200000000000.0,
+              "unit": "Pa"
+            },
+            "poisson_ratio": {
+              "value": 0.3,
+              "unit": "1"
+            },
+            "provenance": "E from /cases/prescribed_translation_two_bar/variants/annular_companion/inputs/E1; nu invented (enters no checked axial result)"
+          },
+          {
+            "id": "material:bar-2",
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {
+              "value": 100000000000.0,
+              "unit": "Pa"
+            },
+            "poisson_ratio": {
+              "value": 0.3,
+              "unit": "1"
+            },
+            "provenance": "E from /cases/prescribed_translation_two_bar/variants/annular_companion/inputs/E2; nu invented (enters no checked axial result)"
+          }
+        ],
+        "reference_configurations": [
+          {
+            "id": "reference:installed",
+            "label": "Installed reference",
+            "geometry_ref": {
+              "kind": "authored_model_geometry"
+            },
+            "member_references": [
+              {
+                "pipe_ref": "pipe:1",
+                "basis": {
+                  "kind": "direct_strain_reference"
+                },
+                "fit": {
+                  "kind": "none"
+                },
+                "provenance": "member reference from the reference case inputs"
+              },
+              {
+                "pipe_ref": "pipe:2",
+                "basis": {
+                  "kind": "direct_strain_reference"
+                },
+                "fit": {
+                  "kind": "none"
+                },
+                "provenance": "member reference from the reference case inputs"
+              }
+            ],
+            "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+          }
+        ],
+        "load_cases": [
+          {
+            "id": "case:prescribed-root-translation",
+            "pressure_regions": [],
+            "primitive_loads": [],
+            "analysis_state": {
+              "contract": "openpipestress.load_reference_state/1.0.0",
+              "reference_configuration_ref": "reference:installed",
+              "element_states": [
+                {
+                  "pipe_ref": "pipe:1",
+                  "material_selection": {
+                    "kind": "explicit_base_properties",
+                    "material_ref": "material:bar-1",
+                    "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+                  },
+                  "thermal_state": {
+                    "kind": "unchanged_reference",
+                    "provenance": "reference state unchanged (reference strain zero)"
+                  }
+                },
+                {
+                  "pipe_ref": "pipe:2",
+                  "material_selection": {
+                    "kind": "explicit_base_properties",
+                    "material_ref": "material:bar-2",
+                    "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+                  },
+                  "thermal_state": {
+                    "kind": "unchanged_reference",
+                    "provenance": "reference state unchanged (reference strain zero)"
+                  }
+                }
+              ],
+              "support_states": [
+                {
+                  "support_ref": "support:root",
+                  "participation": {
+                    "kind": "active_model_device"
+                  },
+                  "boundary_motion": [
+                    {
+                      "dof": "UX",
+                      "value": {
+                        "value": 0.0001,
+                        "unit": "m"
+                      },
+                      "meaning": "absolute_reference_displacement"
+                    }
+                  ]
+                },
+                {
+                  "support_ref": "support:far",
+                  "participation": {
+                    "kind": "active_model_device"
+                  },
+                  "boundary_motion": [
+                    {
+                      "dof": "UX",
+                      "value": {
+                        "value": 0.0,
+                        "unit": "m"
+                      },
+                      "meaning": "absolute_reference_displacement"
+                    }
+                  ]
+                }
+              ],
+              "load_sources": [],
+              "history": {
+                "kind": "independent_equilibrium"
+              },
+              "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+            },
+            "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+          }
+        ],
+        "combinations": []
+      },
+      "materials": []
+    }
+  }
+}

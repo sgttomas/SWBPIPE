@@ -1,3 +1,4 @@
+import { refuseLoadReferenceOutput } from '../results/loadReferenceOutputAvailability';
 import { physicsSourceModeMatches } from "../results/physicsSourceRecovery";
 import { validateRetainedRecoverySource } from "../../services/analysisRunCompatibility";
 import { sourceBlockModeMatches } from "../results/sourceBlockRecovery";
@@ -54,7 +55,7 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
   if(model.project.id!==source.model_ref)throw new Error('SOURCE_MODEL_IDENTITY_MISMATCH');
   if(origin.received_carrier_checksum.value!==await resultDigest(source))throw new Error('SOURCE_CARRIER_HASH_MISMATCH');
   if(!origin.authentic_producer_available&&origin.original_producer_checksum!==null)throw new Error('UNAVAILABLE_PRODUCER_HASH');
-  const route=sourceContract(source);if(route==='unsupported')throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');const version=route!=='legacy'?'0.3.0':'0.2.0';
+  const route=sourceContract(source);if(route==='unsupported')throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');refuseLoadReferenceOutput(source);const version=route!=='legacy'?'0.3.0':'0.2.0';
   if(route==='physics')validatePhysicsEvidence(source,model);
   if(route==='preview_physics')validatePreviewPhysicsEvidence(source,model);
   if(route==='source_blocks'||route==='physics_source')await validateRetainedRecoverySource(source);
@@ -114,7 +115,7 @@ function targetAt(doc:JsonObject,path:unknown):JsonObject {
 /** Validates source accounting and scoped references; it does not authenticate
  * the origin. Only the Current/source-solve entrypoints supply that evidence. */
 export async function validateResultDocument(doc:JsonObject,source:MechanicsResult):Promise<void>{
-  guardResultJson(doc);guardResultJson(source);if(Object.hasOwn(doc.result_envelope,'carrier_evidence'))throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');const route=sourceContract(source);if(route==='unsupported')throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");if(route==='legacy')rejectLegacyDerivativeMetadata(doc.result_envelope);if(resultSchemaVersion(doc)!==(route!=='legacy'?"0.3.0":"0.2.0"))throw new Error("DERIVATIVE_VERSION_MISMATCH");
+  guardResultJson(doc);guardResultJson(source);if(Object.hasOwn(doc.result_envelope,'carrier_evidence'))throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');const route=sourceContract(source);if(route==='unsupported')throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");refuseLoadReferenceOutput(source);if(route==='legacy')rejectLegacyDerivativeMetadata(doc.result_envelope);if(resultSchemaVersion(doc)!==(route!=='legacy'?"0.3.0":"0.2.0"))throw new Error("DERIVATIVE_VERSION_MISMATCH");
   if(route!=='legacy'){for(const key of ['producer','numerical_quality','formulation_basis'] as const)requireEqual(doc.result_envelope[key],source[key],'SOURCE_NUMERICAL_METADATA_MISMATCH');requireEqual(doc.result_envelope.semantic_contract_ref,ref('semantic_contract',sourceSemanticBinding(source).id),'SEMANTIC_CONTRACT_MISMATCH');}
   if(route==='source_blocks'||route==='physics_source'){await validateRetainedRecoverySource(source);requireEqual(doc.result_envelope.source_block_recovery,source.source_block_recovery,'SOURCE_RECOVERY_METADATA_MISMATCH');}else if(Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
   if(route==='physics'||route==='physics_source'||route==='preview_physics'){if(route==='physics')validatePhysicsEvidence(source);if(route==='preview_physics')validatePreviewPhysicsEvidence(source);requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');}
@@ -167,6 +168,8 @@ function legacyJson(value:any):string {
 async function legacyDigest(value:unknown):Promise<string>{guardResultJson(value);const bytes=new TextEncoder().encode(legacyJson(value));const hash=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(hash)].map(x=>x.toString(16).padStart(2,'0')).join('');}
 export async function buildCurrentResultExport({model,result,analysisRun,inputManifest}:{model:PreviewModel;result:MechanicsResult;analysisRun:AnalysisRunEnvelope;inputManifest:CurrentSessionInputManifestEvidence|null|undefined}):Promise<JsonObject>{
   guardResultJson(model);guardResultJson(result);guardResultJson(analysisRun);
+  // T1: not yet available on the desktop for load/reference-state results (T6).
+  refuseLoadReferenceOutput(result);
   if(!numericalResultStanding(result,model).eligible)throw new Error('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');
   if(!isFreshSemanticResult(result))throw new Error('CURRENT_SOURCE_IDENTITY_NOT_FRESH');
   if(!inputManifest)throw new Error('CURRENT_INPUT_MANIFEST_UNAVAILABLE');guardResultJson(inputManifest);

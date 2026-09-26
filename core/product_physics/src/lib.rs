@@ -7,6 +7,17 @@
 //! private datasets, or professional acceptance are bundled by this crate.
 
 mod annulus_geometry;
+// Resolved load/reference-state case (model 0.4.0); one resolved case per load
+// case drives assembly, recovery and published evidence.
+mod case_state;
+pub use case_state::input::{
+    AnalysisStateInput, Authored, ExpansionLawInput, ReferenceConfigurationInput,
+};
+pub use case_state::{
+    LOAD_REFERENCE_SEMANTIC_CONTRACT_ID, LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID,
+    LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LOAD_STATE_PROFILE_ID,
+    LOAD_STATE_SOURCE_PROFILE_ID,
+};
 mod pressure_sum;
 pub mod self_weight;
 mod source_recovery;
@@ -17,7 +28,8 @@ mod source_budget_tests;
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::structural::{SolveQuality, StructuralError, StructuralReport};
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness_with_user_elements, element_dof_map, reduce_system, solve_dense,
+    assemble_global_stiffness_with_user_elements, element_dof_map, reduce_system,
+    reduce_system_with_prescribed_displacements, solve_dense,
     FrameElement, FrameKernelError, FrameNode, Matrix12, UserStiffnessElement, DOF_PER_NODE,
     ELEMENT_DOF, RX, RY, RZ, UX, UY, UZ,
 };
@@ -118,9 +130,8 @@ const DEC_070_CURVED_BEND_ANGLE_MATCH_TOLERANCE: f64 = 1.0e-6;
 // chord before the user bend plane is treated as undefined.
 const DEC_070_CURVED_BEND_PLANE_TOLERANCE: f64 = 1.0e-9;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct PreviewModel {
-    #[serde(default)]
     pub pressure_contract: Option<PressureContractInput>,
     pub schema_version: String,
     pub document_kind: String,
@@ -128,17 +139,89 @@ pub struct PreviewModel {
     pub analysis_status: StatusEnvelope,
     pub nodes: Vec<PreviewNode>,
     pub pipe_segments: Vec<PreviewPipe>,
-    #[serde(default)]
     pub sections: Vec<PreviewSection>,
     pub supports: Vec<PreviewSupport>,
-    #[serde(default)]
     pub components: Vec<PreviewComponent>,
-    #[serde(default)]
     pub materials: Vec<MaterialInput>,
-    #[serde(default)]
     pub load_cases: Vec<PreviewLoadCase>,
-    #[serde(default)]
     pub combinations: Vec<PreviewCombination>,
+    /// Load/reference-state owner (model 0.4.0); presence elsewhere blocks.
+    pub reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
+    /// Material-owned `expansion_laws`, parallel to `materials` by index. The
+    /// authored key lives on each material record; `MaterialInput` is unchanged.
+    pub material_expansion_laws: Vec<Authored<Vec<ExpansionLawInput>>>,
+    /// Indices of request-level material records that authored an
+    /// `expansion_laws` key (any value, including null). Request materials
+    /// never own expansion laws; the resolver blocks rather than ignores them.
+    pub(crate) request_material_expansion_laws: Vec<usize>,
+}
+
+/// One material record as authored: the unchanged `MaterialInput` fields
+/// (typed, so duplicate keys and positions keep their serde errors) and the
+/// material-owned `expansion_laws` key.
+#[derive(Deserialize)]
+struct MaterialRecordWire<L> {
+    #[serde(flatten)]
+    material: MaterialInput,
+    #[serde(default)]
+    expansion_laws: Authored<L>,
+}
+
+/// Wire form of `PreviewModel`; identical fields and defaults, except that each
+/// material record is split into its unchanged `MaterialInput` and its optional
+/// `expansion_laws`, so the new key is never silently discarded.
+#[derive(Deserialize)]
+struct PreviewModelWire {
+    #[serde(default)]
+    pressure_contract: Option<PressureContractInput>,
+    schema_version: String,
+    document_kind: String,
+    project: Project,
+    analysis_status: StatusEnvelope,
+    nodes: Vec<PreviewNode>,
+    pipe_segments: Vec<PreviewPipe>,
+    #[serde(default)]
+    sections: Vec<PreviewSection>,
+    supports: Vec<PreviewSupport>,
+    #[serde(default)]
+    components: Vec<PreviewComponent>,
+    #[serde(default)]
+    materials: Vec<MaterialRecordWire<Vec<ExpansionLawInput>>>,
+    #[serde(default)]
+    load_cases: Vec<PreviewLoadCase>,
+    #[serde(default)]
+    combinations: Vec<PreviewCombination>,
+    #[serde(default)]
+    reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
+}
+
+impl<'de> Deserialize<'de> for PreviewModel {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let wire = PreviewModelWire::deserialize(deserializer)?;
+        let (materials, material_expansion_laws) = wire
+            .materials
+            .into_iter()
+            .map(|record| (record.material, record.expansion_laws))
+            .unzip();
+        Ok(Self {
+            pressure_contract: wire.pressure_contract,
+            schema_version: wire.schema_version,
+            document_kind: wire.document_kind,
+            project: wire.project,
+            analysis_status: wire.analysis_status,
+            nodes: wire.nodes,
+            pipe_segments: wire.pipe_segments,
+            sections: wire.sections,
+            supports: wire.supports,
+            components: wire.components,
+            materials,
+            load_cases: wire.load_cases,
+            combinations: wire.combinations,
+            reference_configurations: wire.reference_configurations,
+            material_expansion_laws,
+            request_material_expansion_laws: Vec::new(),
+        })
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -466,6 +549,10 @@ pub struct PreviewLoadCase {
     pub modulus_basis_temperature: Option<Quantity>,
     #[serde(default)]
     pub provenance: Option<String>,
+    /// Closed `openpipestress.load_reference_state/1.0.0` case state (model
+    /// 0.4.0). It is the complete resolved-state and ordinary-source request.
+    #[serde(default)]
+    pub analysis_state: Authored<AnalysisStateInput>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -622,11 +709,32 @@ pub struct MaterialTemperaturePointInput {
     pub provenance: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct LinearStaticPreviewRequest {
     pub model: PreviewModel,
-    #[serde(default)]
     pub materials: Vec<MaterialInput>,
+}
+
+#[derive(Deserialize)]
+struct LinearStaticPreviewRequestWire {
+    model: PreviewModel,
+    #[serde(default)]
+    materials: Vec<MaterialRecordWire<serde::de::IgnoredAny>>,
+}
+
+impl<'de> Deserialize<'de> for LinearStaticPreviewRequest {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let wire = LinearStaticPreviewRequestWire::deserialize(deserializer)?;
+        let mut model = wire.model;
+        let mut materials = Vec::with_capacity(wire.materials.len());
+        for (index, record) in wire.materials.into_iter().enumerate() {
+            if record.expansion_laws.is_authored() {
+                model.request_material_expansion_laws.push(index);
+            }
+            materials.push(record.material);
+        }
+        Ok(Self { model, materials })
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -708,11 +816,38 @@ struct SourceRecoveryBudget {
     publication_charged: usize,
     rejected: usize,
     attempts: usize,
+    /// 0.4.0 only (ROOT CP3 SF-1): when set, this invocation publishes every
+    /// case on its ordinary route; a successful retained-source attempt is
+    /// declined with this cause instead of being selected.
+    load_state_join_withheld: Option<String>,
+    /// 0.4.0 only: the first cause for which a selected join could not
+    /// finalize. The captured route then republishes ordinarily.
+    load_state_join_failure: Option<String>,
 }
 impl Default for SourceRecoveryBudget {
-    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0 } }
+    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None } }
 }
 impl SourceRecoveryBudget {
+    /// The republication continues this same ledger (CP4 review N-2, ROOT's
+    /// preference): every successful, failed, reserved and publication charge
+    /// of the first run stays charged, so the whole captured invocation,
+    /// including its fallback, stays within the one invocation limit.
+    fn withholding_load_state_join(&self, cause: String) -> Self {
+        Self {
+            per_case_limit: self.per_case_limit,
+            invocation_limit: self.invocation_limit,
+            charged: self.charged,
+            failed_charged: self.failed_charged,
+            publication_charged: self.publication_charged,
+            rejected: self.rejected,
+            attempts: self.attempts,
+            load_state_join_withheld: Some(cause),
+            load_state_join_failure: self.load_state_join_failure.clone(),
+        }
+    }
+    fn record_load_state_join_failure(&mut self, cause: String) {
+        self.load_state_join_failure.get_or_insert(cause);
+    }
     fn case_limit(&self) -> usize { self.per_case_limit.min(self.invocation_limit.saturating_sub(self.charged)) }
     fn reserve_publication(&mut self, amount: usize) -> Result<(), open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport> {
         if amount > self.invocation_limit.saturating_sub(self.charged) {
@@ -818,16 +953,55 @@ pub fn mechanics_producer() -> MechanicsProducer {
 
 fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
     let mut producer = mechanics_producer();
-    if pressure_runtime::is_exact(model) {
+    if case_state::is_load_state(model) {
+        producer.semantic_contract_id = LOAD_REFERENCE_SEMANTIC_CONTRACT_ID.to_string();
+    } else if pressure_runtime::is_exact(model) {
         producer.semantic_contract_id = PHYSICS_SEMANTIC_CONTRACT_ID.to_string();
     }
     producer
 }
 
 fn formulation_basis_for_model(model: &PreviewModel) -> FormulationBasis {
+    // T1 (DESIGN 10.3): 0.4.0 is exact-route only. A 0.4.0 document without
+    // the exact contract never solves (pressure_runtime blocks it), and its
+    // blocked envelope stays on the load/reference-state identity and profile.
+    if case_state::is_load_state(model) {
+        return load_state_formulation_basis();
+    }
     if !pressure_runtime::is_exact(model) {
         return preview_formulation_basis();
     }
+    exact_straight_pressure_formulation_basis()
+}
+
+fn load_state_formulation_basis() -> FormulationBasis {
+    {
+        FormulationBasis {
+            profile_id: LOAD_STATE_PROFILE_ID.to_string(),
+            limitations: vec![
+                "Independently solved linear small-displacement straight circular members on the exact straight-pressure route; one resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition.".to_string(),
+                "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints.".to_string(),
+                "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.".to_string(),
+                "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.".to_string(),
+                "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented. Combinations remain unsupported.".to_string(),
+                "Retained-source recovery is not joined for these inputs; only ordinary structural recovery is published. No code compliance or professional acceptance is produced.".to_string(),
+            ],
+        }
+    }
+}
+
+/// The joined load/reference-state envelope: the ordinary profile's physics
+/// with the selected retained-source response published for sensitive or
+/// rejected ordinary cases.
+fn joined_load_state_formulation_basis() -> FormulationBasis {
+    let mut basis = load_state_formulation_basis();
+    basis.profile_id = LOAD_STATE_SOURCE_PROFILE_ID.to_string();
+    let last = basis.limitations.len() - 1;
+    basis.limitations[last] = "A case whose ordinary attempt is sensitive or rejected publishes its selected retained-source exact response when the resolved case closes on the retained source (eigen element loads, member pairs and prescribed motions included) and no pressure region is present; every other case publishes checked ordinary structural recovery. A finalized receipt binds every case. No code compliance or professional acceptance is produced.".to_string();
+    basis
+}
+
+fn exact_straight_pressure_formulation_basis() -> FormulationBasis {
     FormulationBasis {
         profile_id: "exact_straight_pressure_v2".to_string(),
         limitations: vec![
@@ -1132,6 +1306,7 @@ struct BuiltModel {
 
 #[derive(Debug)]
 struct LoadCaseSolve {
+    load_state_evidence: Option<serde_json::Value>,
     exact_case_evidence: Option<serde_json::Value>,
     pressure_evidence: Vec<serde_json::Value>,
     source_case: Option<source_receipt::FinalizedSourceBlockCase>,
@@ -1246,7 +1421,7 @@ pub fn run_linear_static_preview_value_with_mode(
         budget.per_case_limit = PHYSICS_SOURCE_WORK_LIMIT;
     }
     let result = run_linear_static_preview_captured(request, solver_mode, Some(&capture), &mut budget);
-    if matches!(result.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID)
+    if matches!(result.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID)
         && result.source_block_recovery.is_none()
     {
         return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
@@ -1260,7 +1435,46 @@ fn run_linear_static_preview_captured(
     capture: Option<&source_receipt::CapturedInvocation>,
     source_budget: &mut SourceRecoveryBudget,
 ) -> MechanicsEnvelope {
+    // ROOT CP3 SF-1 (0.4.0 only): an invocation whose selected join cannot
+    // finalize never loses its ordinary results. It is republished with every
+    // case on its ordinary route (`load-reference-1`, no receipt); each
+    // successful retained-source attempt is declined with the recorded cause.
+    // The republication continues the same ledger, so the invocation limit
+    // bounds all executed work. Pre-0.4 invocations keep their existing
+    // behaviour and bytes.
+    let fallback_request = (capture.is_some()
+        && case_state::is_load_state(&request.model)
+        && source_budget.load_state_join_withheld.is_none())
+    .then(|| request.clone());
+    let envelope =
+        run_linear_static_preview_captured_once(request, solver_mode, capture, source_budget);
+    match (
+        fallback_request,
+        source_budget.load_state_join_failure.clone(),
+    ) {
+        (Some(request), Some(cause)) => {
+            let mut fallback = source_budget.withholding_load_state_join(cause);
+            let envelope = run_linear_static_preview_captured_once(
+                request,
+                solver_mode,
+                capture,
+                &mut fallback,
+            );
+            *source_budget = fallback;
+            envelope
+        }
+        _ => envelope,
+    }
+}
+
+fn run_linear_static_preview_captured_once(
+    request: LinearStaticPreviewRequest,
+    solver_mode: PreviewSolverMode,
+    capture: Option<&source_receipt::CapturedInvocation>,
+    source_budget: &mut SourceRecoveryBudget,
+) -> MechanicsEnvelope {
     let mut model = request.model;
+    let request_materials_supplied = !request.materials.is_empty();
     let mut materials = if request.materials.is_empty() {
         model.materials.clone()
     } else {
@@ -1269,6 +1483,7 @@ fn run_linear_static_preview_captured(
     let mut diagnostics = Vec::new();
 
     pressure_runtime::validate_profile(&model, &mut diagnostics);
+    case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
     validate_model_inputs(&model, &materials, &mut diagnostics);
     validate_support_family_tokens(&model, &mut diagnostics);
     if model.document_kind != "openpipestress.product_preview.model" {
@@ -1308,12 +1523,39 @@ fn run_linear_static_preview_captured(
         return blocked_envelope(model, diagnostics);
     }
 
-    pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+    let load_state = case_state::is_load_state(&model);
+    // A 0.4.0 document never consumes a case-wide base pair: each member's
+    // pair comes from its own resolved selection, so only consumed data counts.
+    if !load_state {
+        pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+    }
+    // T0R (M07 routed to T4): the unqualified joint-coupling refusal applies
+    // to every route, the resolved load/reference-state route included.
     preview_physics::refuse_unqualified_joint_elements(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
-    let built = build_model(&model, &materials, &mut diagnostics);
+    let resolved_cases = if load_state {
+        let resolved = model
+            .load_cases
+            .iter()
+            .filter_map(|case| {
+                case_state::resolve::resolve_case(&model, &materials, case, &mut diagnostics)
+            })
+            .collect::<Vec<_>>();
+        if has_blocking(&diagnostics) || resolved.len() != model.load_cases.len() {
+            return blocked_envelope(model, diagnostics);
+        }
+        Some(resolved)
+    } else {
+        None
+    };
+    let built = build_model_for_members(
+        &model,
+        &materials,
+        resolved_cases.as_ref().map(|cases| &cases[0].pairs),
+        &mut diagnostics,
+    );
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
@@ -1403,7 +1645,63 @@ fn run_linear_static_preview_captured(
         Option<String>,
     )> = vec![(None, materials.clone(), built, stiffness, None)];
     let mut load_case_solves = Vec::new();
-    for load_case in &model.load_cases {
+    for (case_index, load_case) in model.load_cases.iter().enumerate() {
+        if let Some(resolved_cases) = &resolved_cases {
+            // Each resolved case rebuilds stiffness from its own member pairs;
+            // no matrix is reused under an unchanged label when inputs differ.
+            let resolved = &resolved_cases[case_index];
+            let state_index = if case_index == 0 {
+                0
+            } else {
+                let case_built = build_model_for_members(
+                    &model,
+                    &materials,
+                    Some(&resolved.pairs),
+                    &mut diagnostics,
+                );
+                if has_blocking(&diagnostics) {
+                    return blocked_envelope(model, diagnostics);
+                }
+                let case_built = case_built
+                    .expect("build_model returns Some when no blocking diagnostics were added");
+                let case_stiffness = match assemble_case_stiffness(&case_built, &boundary.springs) {
+                    Ok(stiffness) => stiffness,
+                    Err(error) => return solver_blocked(model, diagnostics, error),
+                };
+                basis_solve_states.push((
+                    Some(format!("load_state:{}", load_case.id)),
+                    materials.clone(),
+                    case_built,
+                    case_stiffness,
+                    None,
+                ));
+                basis_solve_states.len() - 1
+            };
+            let (_, basis_materials, basis_built, basis_stiffness, _) =
+                &basis_solve_states[state_index];
+            match solve_load_case(
+                &model,
+                basis_built,
+                basis_materials,
+                basis_stiffness,
+                &boundary.restrained_dofs,
+                &boundary.springs,
+                load_case,
+                None,
+                solver_mode,
+                capture,
+                source_budget,
+                Some(resolved),
+                &mut diagnostics,
+            ) {
+                Ok(solve) => load_case_solves.push(solve),
+                Err(error) => return solver_blocked(model, diagnostics, error),
+            }
+            if has_blocking(&diagnostics) {
+                return blocked_envelope(model, diagnostics);
+            }
+            continue;
+        }
         let Some(basis_key) = modulus_basis_key(load_case, &mut diagnostics) else {
             if has_blocking(&diagnostics) {
                 return blocked_envelope(model, diagnostics);
@@ -1422,6 +1720,7 @@ fn run_linear_static_preview_captured(
                 solver_mode,
                 capture,
                 source_budget,
+                None,
                 &mut diagnostics,
             ) {
                 Ok(solve) => load_case_solves.push(solve),
@@ -1489,6 +1788,7 @@ fn run_linear_static_preview_captured(
             solver_mode,
             capture,
             source_budget,
+            None,
             &mut diagnostics,
         ) {
             Ok(solve) => load_case_solves.push(solve),
@@ -1525,10 +1825,12 @@ fn run_linear_static_preview_captured(
     let mut results = Vec::new();
     let mut pressure_evidence = Vec::new();
     let mut exact_cases = Vec::new();
+    let mut load_reference_states = Vec::new();
     let mut rows_by_base_id: HashMap<String, HashMap<String, ResultItem>> = HashMap::new();
     let mut support_vectors_by_case = HashMap::new();
     for (index, solve) in load_case_solves.into_iter().enumerate() {
         pressure_evidence.extend(solve.pressure_evidence.iter().cloned());
+        load_reference_states.extend(solve.load_state_evidence.clone());
         if let Some(mut evidence) = solve.exact_case_evidence.clone() {
             if source_selected {
                 evidence["recovery_method"] = serde_json::json!(if solve.source_selected {
@@ -1627,9 +1929,15 @@ fn run_linear_static_preview_captured(
     }
     // Publish finite computed binary64 quantities without an absolute decimal quantum.
     let composite = source_selected && pressure_runtime::is_exact(&model);
+    let joined_load_state = composite && case_state::is_load_state(&model);
     let mut envelope = MechanicsEnvelope {
-        contract_evidence: pressure_runtime::is_exact(&model)
-            .then(|| serde_json::json!({"pressure": pressure_evidence, "connector": [], "exact_cases": exact_cases})),
+        contract_evidence: pressure_runtime::is_exact(&model).then(|| {
+            let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": [], "exact_cases": exact_cases});
+            if case_state::is_load_state(&model) {
+                evidence["load_reference_states"] = serde_json::json!(load_reference_states);
+            }
+            evidence
+        }),
         schema_version: MECHANICS_SCHEMA_VERSION.to_string(),
         producer: mechanics_producer_for_model(&model),
         numerical_quality: assessed_numerical_quality(&model, &diagnostics),
@@ -1666,7 +1974,11 @@ fn run_linear_static_preview_captured(
         envelope.contract_evidence = Some(rendered.evidence(preview_gates));
     }
     if source_selected {
-        envelope.producer.semantic_contract_id = if composite { PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID } else { SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID }.into();
+        envelope.producer.semantic_contract_id = if joined_load_state {
+            // The joined envelope has its own semantics and exclusive profile.
+            envelope.formulation_basis = joined_load_state_formulation_basis();
+            LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID
+        } else if composite { PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID } else { SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID }.into();
         if let Some(capture) = capture {
             let finalized = if composite {
                 source_receipt::FinalizedSourceBlockReceipt::finalize_composite(capture, &envelope, source_cases, source_budget)
@@ -1675,11 +1987,100 @@ fn run_linear_static_preview_captured(
             };
             match finalized {
                 Ok(receipt) => envelope.source_block_recovery = Some(receipt.into_wire()),
-                Err(error) => envelope.diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![])),
+                Err(error) => {
+                    if joined_load_state {
+                        source_budget.record_load_state_join_failure(format!(
+                            "invocation receipt: {}",
+                            error.0
+                        ));
+                    }
+                    envelope.diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![]))
+                }
             }
         }
     }
     envelope
+}
+
+/// Resolved thermal+fit eigenstrain with each member's own E and the exact
+/// annulus wall area; assembled once and removed once in recovery. The
+/// product route and captured-source replay share this one construction.
+/// A resolved member whose eigenload has no built section is refused, never
+/// dropped: the caller blocks the case (or refuses the replay).
+fn load_state_eigen_loads(
+    state: &case_state::resolve::ResolvedCase,
+    built: &BuiltModel,
+) -> Result<Vec<ThermalElementLoad>, String> {
+    state
+        .members
+        .iter()
+        .filter(|member| member.strain.total_eigenstrain != 0.0)
+        .map(|member| {
+            let section = built.sections.get(&member.pipe_id).ok_or_else(|| member.pipe_id.clone())?;
+            Ok(ThermalElementLoad {
+                element_index: member.pipe_index,
+                axial_load: member.material.pair.elastic_modulus_pa()
+                    * section.area
+                    * member.strain.total_eigenstrain,
+                thermal_strain: member.strain.total_eigenstrain,
+            })
+        })
+        .collect()
+}
+
+/// Per-member material evidence of one resolved case: the same pair that
+/// built stiffness and pressure recovery; the case-wide base is not consulted.
+fn load_state_pipe_materials(state: &case_state::resolve::ResolvedCase) -> serde_json::Value {
+    serde_json::json!(state.members.iter().map(|member| serde_json::json!({
+        "pipe_id":member.pipe_id,"material_id":member.material.material_id,
+        "E_pa":member.material.pair.elastic_modulus_pa(),"nu":member.material.pair.poisson_ratio(),
+        "G_pa":member.material.pair.shear_modulus_pa(),"constitutive_basis":"homogeneous_isotropic_E_nu_v1",
+        "material_selection_kind":member.material.selection_kind,
+        "thermal_consumed":false,"alpha_per_kelvin":serde_json::Value::Null,
+        "resolved_eigenstrain":member.strain.total_eigenstrain,
+        "provenance":member.material.material_provenance})).collect::<Vec<_>>())
+}
+
+/// The published `load_reference_states` record of one case. Only a selected
+/// retained-source response is joined; every other case states the ordinary
+/// route it actually published.
+fn load_state_case_record(
+    state: &case_state::resolve::ResolvedCase,
+    solver_mode: PreviewSolverMode,
+    source_selected: bool,
+) -> serde_json::Value {
+    let mut evidence = state.evidence.clone();
+    evidence["solve"] = serde_json::json!({
+        "requested_mode": solver_mode.as_str(),
+        "recovery_method": if source_selected { "retained_source_blocks_exact_v1" } else if solver_mode == PreviewSolverMode::DenseScrutiny { "ordinary_dense_structural_v1" } else { "ordinary_sparse_structural_v1" },
+        "boundary": "every restrained DOF prescribed; reduced K_ff u_f = f_f - K_fc g_c; complete u includes g; reactions from unreduced K u - f",
+        "eigenload": "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery",
+    });
+    evidence["source_recovery"] = if source_selected {
+        serde_json::json!({"status":"selected","method":"retained_source_blocks_exact_v1"})
+    } else {
+        serde_json::json!({"status":"not_joined","code":case_state::SOURCE_RECOVERY_NOT_JOINED})
+    };
+    evidence
+}
+
+/// Assemble one resolved case's global stiffness, with the same element,
+/// curved and spring contributions as the default basis assembly.
+fn assemble_case_stiffness(
+    built: &BuiltModel,
+    springs: &[SpringEntry],
+) -> Result<Vec<Vec<f64>>, FrameKernelError> {
+    let mut stiffness = assemble_global_stiffness_with_user_elements(
+        built.nodes.len(),
+        &built.frame_elements,
+        &built.user_stiffness_elements,
+    )?;
+    add_curved_bend_stiffness_contributions(&mut stiffness, &built.curved_bend_elements);
+    for spring in springs {
+        stiffness[spring.node_dof.global_index()][spring.node_dof.global_index()] +=
+            spring.stiffness.value;
+    }
+    Ok(stiffness)
 }
 
 fn maximum_across_cases(cases: &[LoadCaseSolve], stress: bool) -> Option<LocatedQuantity> {
@@ -1745,10 +2146,20 @@ fn solve_load_case(
     solver_mode: PreviewSolverMode,
     capture: Option<&source_receipt::CapturedInvocation>,
     source_budget: &mut SourceRecoveryBudget,
+    load_state: Option<&case_state::resolve::ResolvedCase>,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
-    let exact_pressure =
-        pressure_runtime::build_pressure_case(model, built, materials, load_case, diagnostics);
+    // A resolved case supplies the complete ordinary-source ledger: only its
+    // declared, factored primitives are applied, exactly once.
+    let load_case = load_state.map_or(load_case, |state| &state.effective_case);
+    let exact_pressure = pressure_runtime::build_pressure_case_with_members(
+        model,
+        built,
+        materials,
+        load_case,
+        load_state.map(|state| &state.pairs),
+        diagnostics,
+    );
     let loads = build_load_case_primitive_loads(model, load_case, diagnostics);
     let load_application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
     for finding in &load_application.findings {
@@ -1762,6 +2173,7 @@ fn solve_load_case(
     }
     if has_blocking(diagnostics) {
         return Ok(LoadCaseSolve {
+            load_state_evidence: None,
             exact_case_evidence: None,
             pressure_evidence: Vec::new(),
             source_case: None,
@@ -1787,14 +2199,40 @@ fn solve_load_case(
         .iter()
         .map(|m| (m.id.as_str(), m))
         .collect::<HashMap<_, _>>();
-    let thermal_loads = build_thermal_element_loads(
-        model,
-        load_case,
-        &material_map,
-        &pipe_map,
-        &built.sections,
-        diagnostics,
-    );
+    let thermal_loads = match load_state.map(|state| load_state_eigen_loads(state, built)) {
+        Some(Ok(loads)) => loads,
+        Some(Err(pipe_id)) => {
+            diagnostics.push(diag(
+                &format!("diagnostic:load-state:{}:{}:eigen-section", stable_suffix(&load_case.id), stable_suffix(&pipe_id)),
+                "LOAD_STATE_MEMBER_SECTION_MISSING", "blocking",
+                "the resolved member has a nonzero eigenstrain but no built section; its eigenload is not dropped",
+                vec![load_case.id.clone(), pipe_id],
+            ));
+            return Ok(LoadCaseSolve {
+                load_state_evidence: None,
+                exact_case_evidence: None,
+                pressure_evidence: Vec::new(),
+                source_case: None,
+                source_selected: false,
+                load_case_id: load_case.id.clone(),
+                results: Vec::new(),
+                max_displacement: None,
+                max_stress: None,
+                component_stress_modifier_count: 0,
+                component_pressure_thrust_load_count: 0,
+                support_force_vectors: HashMap::new(),
+                preview: None,
+            });
+        }
+        None => build_thermal_element_loads(
+            model,
+            load_case,
+            &material_map,
+            &pipe_map,
+            &built.sections,
+            diagnostics,
+        ),
+    };
     let pressure_thrust_loads =
         build_pressure_thrust_loads(model, load_case, &pipe_map, &built.sections);
 
@@ -1852,7 +2290,71 @@ fn solve_load_case(
             .copied()
             .chain(force.iter().copied()),
     )?;
-    let reduced = reduce_system(stiffness, &force, restrained_dofs)?;
+    // Every restrained DOF is prescribed: explicit zero unless the resolved case
+    // supplies an actual support-state motion for that rigid DOF.
+    let prescribed: Vec<(usize, f64)> = restrained_dofs
+        .iter()
+        .map(|&dof| {
+            (
+                dof,
+                load_state
+                    .and_then(|state| state.prescribed.get(&dof).copied())
+                    .unwrap_or(0.0),
+            )
+        })
+        .collect();
+    if let Some(state) = load_state {
+        for dof in state.prescribed.keys() {
+            if !restrained_dofs.contains(dof) {
+                diagnostics.push(diag(&format!("diagnostic:load-state:{}:prescribed-dof:{dof}", stable_suffix(&load_case.id)), "LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED", "blocking",
+                    "a prescribed support-state motion does not address a prepared rigid boundary DOF", vec![load_case.id.clone()]));
+            }
+        }
+        if has_blocking(diagnostics) {
+            return Ok(LoadCaseSolve {
+                load_state_evidence: None,
+                exact_case_evidence: None,
+                pressure_evidence: Vec::new(),
+                source_case: None,
+                source_selected: false,
+                load_case_id: load_case.id.clone(),
+                results: Vec::new(),
+                max_displacement: None,
+                max_stress: None,
+                component_stress_modifier_count: 0,
+                component_pressure_thrust_load_count: 0,
+                support_force_vectors: HashMap::new(),
+                preview: None,
+            });
+        }
+    }
+    let prescribed_values = prescribed.iter().map(|&(_, value)| value).collect::<Vec<_>>();
+    let reduced = if load_state.is_some() {
+        reduce_system_with_prescribed_displacements(
+            stiffness,
+            &force,
+            restrained_dofs,
+            &prescribed_values,
+        )?
+    } else {
+        reduce_system(stiffness, &force, restrained_dofs)?
+    };
+    // Legacy DEC050/053 observation lanes rebuild a reduced system from a
+    // global vector; they must observe K_ff u_f = f_f - K_fc g_c, never f_f.
+    let observation_force = if load_state.is_some() {
+        let mut coupled = force.clone();
+        for (row, value) in coupled.iter_mut().enumerate() {
+            if restrained_dofs.contains(&row) {
+                continue;
+            }
+            for &(column, displacement) in &prescribed {
+                *value -= stiffness[row][column] * displacement;
+            }
+        }
+        coupled
+    } else {
+        force.clone()
+    };
     // Preliminary linear evidence belongs only to an actual successful solve.
     let mut preliminary_diagnostics = Vec::new();
     let attempted_linear = solve_preview_reduced_system(
@@ -1862,7 +2364,8 @@ fn solve_load_case(
         built,
         spring_entries,
         &force,
-        restrained_dofs,
+        &observation_force,
+        &prescribed,
         load_case,
         &mut preliminary_diagnostics,
     );
@@ -1870,11 +2373,11 @@ fn solve_load_case(
         Ok(solve) => source_receipt::OrdinaryAttempt::passed(solver_mode, &solve.structural_report, integrity_diagnostic_id(&load_case.id)),
         Err(error) => source_receipt::OrdinaryAttempt::rejected(solver_mode, error, integrity_diagnostic_id(&load_case.id)),
     };
-    let prescribed: Vec<_> = restrained_dofs.iter().map(|&dof| (dof, 0.0)).collect();
     let recovery_input = || source_recovery::Input {
         model, built, stiffness, force: &force, free: &reduced.free_dofs,
         prescribed: &prescribed, spring_entries, load_case, load_application: &load_application,
         thermal_loads: &thermal_loads, pressure_thrust_loads: &pressure_thrust_loads,
+        load_state,
     };
     let needs_source_recovery = match &attempted_linear {
         Ok(solve) => solve.structural_report.quality == SolveQuality::Sensitive,
@@ -1882,21 +2385,74 @@ fn solve_load_case(
     };
     let mut selected_source = None;
     let mut source_failure = None;
-    if capture.is_some() && built.nonlinear_supports.is_empty() && model.combinations.is_empty() && needs_source_recovery {
+    // A resolved case enters retained-source recovery only through its own
+    // closed join: the recovery input carries the resolved case, and source
+    // closure refuses any eigen load, pair or motion it does not own.
+    let source_eligible = capture.is_some() && built.nonlinear_supports.is_empty() && model.combinations.is_empty();
+    if source_eligible && needs_source_recovery {
         source_budget.attempts += 1;
-        match source_recovery::solve(recovery_input(), open_pipe_stress_frame_kernel::structural::exact_boundary::Limits { operations: source_budget.case_limit(), ..Default::default() }) {
+        let case_limit = source_budget.case_limit();
+        let attempt = source_recovery::solve(
+            recovery_input(),
+            open_pipe_stress_frame_kernel::structural::exact_boundary::Limits {
+                operations: case_limit,
+                ..Default::default()
+            },
+        )
+        .and_then(|recovery| match load_state {
+            // Pre-0.4 selection is unchanged.
+            None => Ok(recovery),
+            // ROOT CP3 SF-1 screen: captured replay repeats the live
+            // attempt's source closure and exact solve in the same ledger, so
+            // selection first reserves an amount equal to the live charge.
+            // This screen does not guarantee finalization (other stages are
+            // charged before replay, and replay may cost slightly more); a
+            // selected join that still cannot finalize is republished on the
+            // ordinary route. The case's own refusal is checked first so
+            // that a republication still reports it.
+            Some(_) => recovery
+                .reserve_captured_replay(case_limit)
+                .and_then(|recovery| {
+                    if source_budget.load_state_join_withheld.is_some() {
+                        // ROOT CP3 SF-1: the invocation publishes ordinarily.
+                        Err(recovery.decline_withheld())
+                    } else {
+                        Ok(recovery)
+                    }
+                }),
+        });
+        match attempt {
             Ok(recovery) => selected_source = Some(recovery),
             Err(failure) => {
                 source_budget.debit(failure.work.charged, true);
+                let withheld = match (&load_state, &source_budget.load_state_join_withheld) {
+                    (Some(_), Some(cause)) => format!("; the invocation publishes every case on its ordinary route because its selected join could not finalize: {cause}"),
+                    _ => String::new(),
+                };
                 diagnostics.push(diag(
                     &format!("diagnostic:source-recovery:{}", load_case.id),
                     "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", "info",
-                    format!("The bounded retained-source method did not produce a selected response: {failure:?}"),
+                    format!("The bounded retained-source method did not produce a selected response: {failure:?}{withheld}"),
                     vec![load_case.id.clone()],
                 ));
                 source_failure = Some(failure);
             }
         }
+    }
+    if load_state.is_some() && selected_source.is_none() {
+        let attempt = if !needs_source_recovery {
+            "not_required_ordinary_checks_passed"
+        } else if source_failure.is_some() {
+            "unavailable"
+        } else {
+            "not_eligible"
+        };
+        diagnostics.push(diag(
+            &format!("diagnostic:load-state:{}:source-recovery-not-joined", stable_suffix(&load_case.id)),
+            case_state::SOURCE_RECOVERY_NOT_JOINED, "info",
+            format!("requested_mode={}; the published response for this case is the ordinary structural route; no retained-source response is joined into it; retained_source_attempt={attempt}", solver_mode.as_str()),
+            vec![load_case.id.clone()],
+        ));
     }
     let linear_solve = match attempted_linear {
         Ok(solve) => {
@@ -1930,6 +2486,7 @@ fn solve_load_case(
         Err(error) => {
             append_integrity_failure(diagnostics, &load_case.id, &error, model);
             return Ok(LoadCaseSolve {
+            load_state_evidence: None,
                 pressure_evidence: Vec::new(),
                 exact_case_evidence: None,
             source_case: None,
@@ -1953,6 +2510,10 @@ fn solve_load_case(
         for (index, dof) in reduced.free_dofs.iter().enumerate() {
             displacements[*dof] = linear_solve.solution[index];
         }
+        // Complete u includes the actual prescribed boundary values.
+        for &(dof, value) in &prescribed {
+            displacements[dof] = value;
+        }
         if selected_source.is_none() {
             append_linear_solver_mode_evidence(&mut results, &load_case.id, solver_mode, linear_solve);
         }
@@ -1966,7 +2527,7 @@ fn solve_load_case(
                     &load_case.id,
                     built,
                     spring_entries,
-                    &force,
+                    &observation_force,
                     restrained_dofs,
                     &legacy_dense,
                 );
@@ -2005,6 +2566,7 @@ fn solve_load_case(
                     vec![load_case.id.clone()],
                 ));
                 return Ok(LoadCaseSolve {
+            load_state_evidence: None,
                     exact_case_evidence: None,
                     pressure_evidence: Vec::new(),
             source_case: None,
@@ -2866,14 +3428,15 @@ fn solve_load_case(
     if pressure_runtime::is_exact(model) && !unavailable_stress_maximum_members.is_empty() {
         max_stress = None;
     }
-    let exact_case_evidence = pressure_runtime::is_exact(model).then(|| serde_json::json!({
+    let exact_case_evidence = pressure_runtime::is_exact(model).then(|| {
+        let mut evidence = serde_json::json!({
         "load_case_id":load_case.id,"profile_mode":"exact_straight_pressure_v2",
         "material_basis":modulus_basis_record.unwrap_or("base_material_common_E_nu"),
         "pressure_rhs_assembly":pressure_assembly_evidence,
         "pipe_sections":built.pipes.iter().map(|pipe| exact_section_evidence(&pipe.element_id,*built.exact_sections.get(&pipe.element_id).expect("every built exact member has source geometry"))).collect::<Vec<_>>(),
         "pipe_stress_extrema":pipe_stress_extrema,
         "stress_maximum_coverage":{"complete":unavailable_stress_maximum_members.is_empty(),"unavailable_pipe_ids":unavailable_stress_maximum_members},
-        "pipe_materials":model.pipe_segments.iter().map(|pipe| {
+        "pipe_materials":if load_state.is_some() { Vec::new() } else { model.pipe_segments.iter().map(|pipe| {
             let material=materials.iter().find(|m| m.id==pipe.material).expect("built exact member material is validated");
             let thermal_consumed=load_case.primitive_loads.iter().any(|load| load.category=="thermal" && is_temperature_change_dimension(&load.dimension) && matches!(&load.target,LoadTargetInput::Element{pipe:target} if target==&pipe.id));
             serde_json::json!({"pipe_id":pipe.id,"material_id":material.id,
@@ -2881,9 +3444,22 @@ fn solve_load_case(
                 "G_pa":material.shear_modulus.as_ref().expect("validated exact G").value,"constitutive_basis":material.constitutive_basis,
                 "thermal_consumed":thermal_consumed,"alpha_per_kelvin":if thermal_consumed {material.thermal_expansion_coefficient.as_ref().map(|a|a.value)} else {None},
                 "provenance":material.provenance})
-        }).collect::<Vec<_>>()
-    }));
+        }).collect::<Vec<_>>() }
+        });
+        if let Some(state) = load_state {
+            // The same resolved per-member pair that built stiffness and
+            // pressure recovery; the case-wide base record is not consulted.
+            evidence["material_basis"] = serde_json::json!("resolved_per_member_load_reference_state_v1");
+            evidence["pipe_materials"] = load_state_pipe_materials(state);
+        }
+        evidence
+    });
     let source_selected = selected_source.is_some();
+    let load_state_evidence =
+        load_state.map(|state| load_state_case_record(state, solver_mode, source_selected));
+    // Retained-source custody/finalization re-derives each case through the
+    // same pipeline that produced it: the resolver for 0.4.0, the case-wide
+    // material methods otherwise.
     let source_case = if let Some(capture) = capture {
         let qualified = qualify_source_case_rows(model, &load_case.id, &results);
         let finalized = if let Some(selected) = selected_source.take() {
@@ -2892,7 +3468,7 @@ fn solve_load_case(
                     if pressure_runtime::is_exact(model) {
                         let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
                         physical["recovery_method"] = serde_json::json!("retained_source_blocks_exact_v1");
-                        source_receipt::FinalizedSourceBlockCase::composite_exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings, &physical)
+                        source_receipt::FinalizedSourceBlockCase::composite_exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings, &physical, load_state_evidence.as_ref())
                     } else {
                         source_receipt::FinalizedSourceBlockCase::exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings)
                     }
@@ -2904,7 +3480,7 @@ fn solve_load_case(
         } else if pressure_runtime::is_exact(model) {
             let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
             physical["recovery_method"] = serde_json::json!(if solver_mode == PreviewSolverMode::DenseScrutiny { "ordinary_dense_structural_v1" } else { "ordinary_sparse_structural_v1" });
-            source_receipt::FinalizedSourceBlockCase::ordinary_physics(capture, &load_case.id, ordinary_attempt, &qualified, &physical, &pressure_evidence)
+            source_receipt::FinalizedSourceBlockCase::ordinary_physics(capture, &load_case.id, ordinary_attempt, &qualified, &physical, &pressure_evidence, load_state_evidence.as_ref())
         } else {
             source_receipt::FinalizedSourceBlockCase::ordinary(capture, &load_case.id, ordinary_attempt, &qualified)
         };
@@ -2918,6 +3494,12 @@ fn solve_load_case(
             }
             Err(error) => {
                 if source_selected {
+                    if load_state.is_some() {
+                        source_budget.record_load_state_join_failure(format!(
+                            "case {}: {}",
+                            load_case.id, error.0
+                        ));
+                    }
                     if let Some(work) = error.1 { source_budget.debit(work.charged, true); }
                     diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:finalization", load_case.id), "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![load_case.id.clone()]));
                 }
@@ -2926,6 +3508,7 @@ fn solve_load_case(
         }
     } else { None };
     Ok(LoadCaseSolve {
+        load_state_evidence,
         exact_case_evidence,
         pressure_evidence,
         source_case,
@@ -3335,6 +3918,10 @@ struct PreviewLinearSolve {
     dense_fallback_message: Option<String>,
 }
 
+/// `prescribed` lists every restrained DOF with its actual boundary value
+/// (explicit zero unless a resolved case prescribes motion). The structural
+/// solve applies K_fc g_c itself against the original `global_force`; the legacy
+/// observation lane consumes `observation_force`, which already carries it.
 fn solve_preview_reduced_system(
     solver_mode: PreviewSolverMode,
     original_stiffness: &[Vec<f64>],
@@ -3342,10 +3929,13 @@ fn solve_preview_reduced_system(
     built: &BuiltModel,
     spring_entries: &[SpringEntry],
     global_force: &[f64],
-    restrained_dofs: &[usize],
+    observation_force: &[f64],
+    prescribed: &[(usize, f64)],
     _load_case: &PreviewLoadCase,
     _diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<PreviewLinearSolve, StructuralError> {
+    let restrained_dofs = prescribed.iter().map(|&(dof, _)| dof).collect::<Vec<_>>();
+    let restrained_dofs = restrained_dofs.as_slice();
     let curved = built
         .curved_bend_elements
         .iter()
@@ -3368,15 +3958,11 @@ fn solve_preview_reduced_system(
     let free = (0..global_force.len())
         .filter(|i| !restrained_dofs.contains(i))
         .collect::<Vec<_>>();
-    let prescribed = restrained_dofs
-        .iter()
-        .map(|&i| (i, 0.0))
-        .collect::<Vec<_>>();
     let mode = match solver_mode {
         PreviewSolverMode::DenseScrutiny => LinearSolveMode::DenseScrutiny,
         PreviewSolverMode::SparseInteractive => LinearSolveMode::SparseInteractive,
     };
-    let checked = assembly.solve(original_stiffness, global_force, &free, &prescribed, mode)?;
+    let checked = assembly.solve(original_stiffness, global_force, &free, prescribed, mode)?;
     // Legacy raw DEC050/053 observations retain their own unscaled algorithm.
     // They neither select the solution nor rescue a rejected structural gate.
     let direct = assemble_reduced_sparse_entry_system(
@@ -3385,7 +3971,7 @@ fn solve_preview_reduced_system(
         &built.user_stiffness_elements,
         &built.curved_bend_elements,
         spring_entries,
-        global_force,
+        observation_force,
         restrained_dofs,
     )
     .ok();
@@ -4407,6 +4993,18 @@ fn build_model(
     materials: &[MaterialInput],
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Option<BuiltModel> {
+    build_model_for_members(model, materials, None, diagnostics)
+}
+
+/// Build with each pipe's constitutive pair from a resolved load/reference-state
+/// case when supplied (keyed by pipe ID; G derived from that pair). Without it,
+/// the historical material-ID lookup is used unchanged.
+fn build_model_for_members(
+    model: &PreviewModel,
+    materials: &[MaterialInput],
+    member_pairs: Option<&HashMap<String, pressure_exact::IsotropicENu>>,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Option<BuiltModel> {
     let material_map = materials
         .iter()
         .map(|m| (m.id.as_str(), m))
@@ -4492,13 +5090,27 @@ fn build_model(
             ));
             continue;
         };
+        let (elastic_modulus, shear_modulus) = match member_pairs {
+            Some(pairs) => {
+                let Some(pair) = pairs.get(&pipe.id) else {
+                    diagnostics.push(diag(&format!("diagnostic:load-state:{}:member-material", stable_suffix(&pipe.id)), "LOAD_STATE_MEMBER_MATERIAL_MISSING", "blocking",
+                        "the resolved case supplies no selected E/nu pair for this member; no material-ID fallback is used", vec![pipe.id.clone()]));
+                    continue;
+                };
+                (pair.elastic_modulus_pa(), pair.shear_modulus_pa())
+            }
+            None => (
+                material.elastic_modulus.value,
+                material
+                    .shear_modulus
+                    .as_ref()
+                    .expect("validated material G")
+                    .value,
+            ),
+        };
         let section = match StraightPipeSectionProperties::new(
-            material.elastic_modulus.value,
-            material
-                .shear_modulus
-                .as_ref()
-                .expect("validated material G")
-                .value,
+            elastic_modulus,
+            shear_modulus,
             derived.area,
             derived.second_moment,
             derived.second_moment,
@@ -10716,13 +11328,21 @@ fn result_tail(base_id: &str) -> &str {
 }
 
 fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
-    let preview = !pressure_runtime::is_exact(&model);
+    // T1 routes every blocked 0.4.0 envelope to load-reference-1 (0.4.0 is
+    // exact-route only); it never publishes preview-physics-1.
+    let exact_namespace = pressure_runtime::is_exact(&model) || case_state::is_load_state(&model);
+    let preview = !exact_namespace;
     let mut envelope = MechanicsEnvelope {
         // An admitted exact namespace with blocked inputs has no recovered
         // physical evidence. Retain the empty namespace for truthful inspection;
         // this does not invent case/material/region evidence or solved results.
-        contract_evidence: pressure_runtime::is_exact(&model)
-            .then(|| serde_json::json!({"pressure": [], "connector": [], "exact_cases": []})),
+        contract_evidence: exact_namespace.then(|| {
+            if case_state::is_load_state(&model) {
+                serde_json::json!({"pressure": [], "connector": [], "exact_cases": [], "load_reference_states": []})
+            } else {
+                serde_json::json!({"pressure": [], "connector": [], "exact_cases": []})
+            }
+        }),
         schema_version: MECHANICS_SCHEMA_VERSION.to_string(),
         producer: mechanics_producer_for_model(&model),
         numerical_quality: assessed_numerical_quality(&model, &diagnostics),

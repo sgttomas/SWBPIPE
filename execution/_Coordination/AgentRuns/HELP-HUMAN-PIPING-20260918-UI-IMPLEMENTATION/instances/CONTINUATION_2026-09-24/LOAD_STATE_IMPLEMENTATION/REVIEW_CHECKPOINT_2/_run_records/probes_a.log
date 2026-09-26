@@ -1,0 +1,201 @@
+   Compiling open_pipe_stress_product_physics v0.2.0 (/home/user/cargo-targets/lsreview2/scratch/core/product_physics)
+warning: unused import: `ELEMENT_DOF`
+  --> src/source_recovery.rs:11:5
+   |
+11 |     ELEMENT_DOF,
+   |     ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:7933:4
+     |
+7933 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:56:9
+   |
+55 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+56 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:64:9
+   |
+63 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+64 |     pub support_id: String,
+   |         ^^^^^^^^^^
+65 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+66 |     pub value: f64,
+   |         ^^^^^
+67 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:89:9
+    |
+ 88 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+ 89 |     pub dofs: usize,
+    |         ^^^^
+ 90 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+ 91 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 92 |     pub blocks: usize,
+    |         ^^^^^^
+ 93 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+ 94 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+ 95 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+ 96 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+ 97 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+ 98 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 99 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+100 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+101 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+102 |     pub max_relative_projection_error: f64,
+103 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:116:5
+    |
+110 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+116 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:142:12
+    |
+125 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+142 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+  --> src/source_receipt.rs:86:19
+   |
+64 | impl CapturedInvocation {
+   | ----------------------- method in this implementation
+...
+86 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+   |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:341:19
+    |
+276 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+341 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `expected_primary` is never used
+  --> src/source_receipt/rows.rs:55:15
+   |
+55 | pub(super) fn expected_primary(
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `derived` is never used
+   --> src/source_receipt/rows.rs:329:15
+    |
+329 | pub(super) fn derived(
+    |               ^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib) generated 11 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.46s
+     Running tests/review2_probes.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/review2_probes-9bee1ca8a08c1be6)
+
+running 5 tests
+test p01_prescribed_motion_eigenstrain_force_and_factor_against_own_derivation ... PROBE sparse_interactive u_a (complete u includes g): actual=2.99999999999999974e-4 expected=2.99999999999999974e-4 pass=true
+PROBE sparse_interactive u_b: actual=7.04389292238757317e-4 expected=7.04389292238757209e-4 pass=true
+PROBE sparse_interactive R_a: actual=1.55680721158109140e5 expected=1.55680721158109372e5 pass=true
+PROBE sparse_interactive R_c: actual=-1.68180721158109140e5 expected=-1.68180721158109314e5 pass=true
+PROBE sparse_interactive contributions=[{"classification":"eigenstrain","consumed_input_refs":["reference:installed:pipe:1","case:one:element_state:pipe:1"],"owner_kind":"resolved_member_state","source_id":"member_state:pipe:1","value":0.0004},{"classification":"eigenstrain","consumed_input_refs":["reference:installed:pipe:2","case:one:element_state:pipe:2"],"owner_kind":"resolved_member_state","source_id":"member_state:pipe:2","value":0.0},{"classification":"prescribed_boundary","owner_kind":"support_state","source_id":"support_state:support:root:UX","value":0.0003},{"applied_magnitude":12500.0,"authored_normalized_magnitude":5000.0,"category":"concentrated_force","classification":"ordinary_applied","dimension":"force","factor":2.5,"owner_kind":"stored_primitive","source_id":"load:p"}]
+PROBE sparse_interactive excluded=[{"category":"concentrated_force","classification":"excluded","owner_kind":"stored_primitive","reason":"not listed in analysis_state.load_sources","source_id":"load:unused"}]
+PROBE sparse_interactive N1=-155680.72115810937 N2=-168180.7211581093
+PROBE sparse_interactive axial rows=[("element_local_axial_force", "pipe:1", Some(("axial_force", "end_i")), 155680.72115810914), ("element_local_axial_force", "pipe:1", Some(("axial_force", "end_j")), -155680.72115810914), ("element_local_axial_force", "pipe:1", Some(("axial_force", "quarter_1")), -155680.72115810914), ("element_local_axial_force", "pipe:1", Some(("axial_force", "midspan")), -155680.72115810914), ("element_local_axial_force", "pipe:1", Some(("axial_force", "quarter_3")), -155680.72115810914), ("element_local_axial_normal_stress", "pipe:1", Some(("axial_normal_stress", "end_i")), -26.081427701499038), ("element_local_axial_normal_stress", "pipe:1", Some(("axial_normal_stress", "end_j")), -26.081427701499038), ("element_local_axial_normal_stress", "pipe:1", Some(("axial_normal_stress", "quarter_1")), -26.081427701499038), ("element_local_axial_normal_stress", "pipe:1", Some(("axial_normal_stress", "midspan")), -26.081427701499038), ("element_local_axial_normal_stress", "pipe:1", Some(("axial_normal_stress", "quarter_3")), -26.081427701499038), ("element_local_axial_force", "pipe:2", Some(("axial_force", "end_i")), 168180.72115810914), ("element_local_axial_force", "pipe:2", Some(("axial_force", "end_j")), -168180.72115810914), ("element_local_axial_force", "pipe:2", Some(("axial_force", "quarter_1")), -168180.72115810914), ("element_local_axial_force", "pipe:2", Some(("axial_force", "midspan")), -168180.72115810914), ("element_local_axial_force", "pipe:2", Some(("axial_force", "quarter_3")), -168180.72115810914), ("element_local_axial_normal_stress", "pipe:2", Some(("axial_normal_stress", "end_i")), -28.175571689550292), ("element_local_axial_normal_stress", "pipe:2", Some(("axial_normal_stress", "end_j")), -28.175571689550292), ("element_local_axial_normal_stress", "pipe:2", Some(("axial_normal_stress", "quarter_1")), -28.175571689550292), ("element_local_axial_normal_stress", "pipe:2", Some(("axial_normal_stress", "midspan")), -28.175571689550292), ("element_local_axial_normal_stress", "pipe:2", Some(("axial_normal_stress", "quarter_3")), -28.175571689550292)]
+PROBE dense_scrutiny u_a (complete u includes g): actual=2.99999999999999974e-4 expected=2.99999999999999974e-4 pass=true
+PROBE dense_scrutiny u_b: actual=7.04389292238757425e-4 expected=7.04389292238757209e-4 pass=true
+PROBE dense_scrutiny R_a: actual=1.55680721158109023e5 expected=1.55680721158109372e5 pass=true
+PROBE dense_scrutiny R_c: actual=-1.68180721158109169e5 expected=-1.68180721158109314e5 pass=true
+PROBE dense_scrutiny contributions=[{"classification":"eigenstrain","consumed_input_refs":["reference:installed:pipe:1","case:one:element_state:pipe:1"],"owner_kind":"resolved_member_state","source_id":"member_state:pipe:1","value":0.0004},{"classification":"eigenstrain","consumed_input_refs":["reference:installed:pipe:2","case:one:element_state:pipe:2"],"owner_kind":"resolved_member_state","source_id":"member_state:pipe:2","value":0.0},{"classification":"prescribed_boundary","owner_kind":"support_state","source_id":"support_state:support:root:UX","value":0.0003},{"applied_magnitude":12500.0,"authored_normalized_magnitude":5000.0,"category":"concentrated_force","classification":"ordinary_applied","dimension":"force","factor":2.5,"owner_kind":"stored_primitive","source_id":"load:p"}]
+PROBE dense_scrutiny excluded=[{"category":"concentrated_force","classification":"excluded","owner_kind":"stored_primitive","reason":"not listed in analysis_state.load_sources","source_id":"load:unused"}]
+PROBE dense_scrutiny N1=-155680.72115810937 N2=-168180.7211581093
+PROBE dense_scrutiny axial rows=[("element_local_axial_force", "pipe:1", Some(("axial_force", "end_i")), 155680.72115810902), ("element_local_axial_force", "pipe:1", Some(("axial_force", "end_j")), -155680.72115810902), ("element_local_axial_force", "pipe:1", Some(("axial_force", "quarter_1")), -155680.72115810902), ("element_local_axial_force", "pipe:1", Some(("axial_force", "midspan")), -155680.72115810902), ("element_local_axial_force", "pipe:1", Some(("axial_force", "quarter_3")), -155680.72115810902), ("element_local_axial_normal_stress", "pipe:1", Some(("axial_normal_stress", "end_i")), -26.08142770149902), ("element_local_axial_normal_stress", "pipe:1", Some(("axial_normal_stress", "end_j")), -26.08142770149902), ("element_local_axial_normal_stress", "pipe:1", Some(("axial_normal_stress", "quarter_1")), -26.08142770149902), ("element_local_axial_normal_stress", "pipe:1", Some(("axial_normal_stress", "midspan")), -26.08142770149902), ("element_local_axial_normal_stress", "pipe:1", Some(("axial_normal_stress", "quarter_3")), -26.08142770149902), ("element_local_axial_force", "pipe:2", Some(("axial_force", "end_i")), 168180.72115810917), ("element_local_axial_force", "pipe:2", Some(("axial_force", "end_j")), -168180.72115810917), ("element_local_axial_force", "pipe:2", Some(("axial_force", "quarter_1")), -168180.72115810917), ("element_local_axial_force", "pipe:2", Some(("axial_force", "midspan")), -168180.72115810917), ("element_local_axial_force", "pipe:2", Some(("axial_force", "quarter_3")), -168180.72115810917), ("element_local_axial_normal_stress", "pipe:2", Some(("axial_normal_stress", "end_i")), -28.175571689550296), ("element_local_axial_normal_stress", "pipe:2", Some(("axial_normal_stress", "end_j")), -28.175571689550296), ("element_local_axial_normal_stress", "pipe:2", Some(("axial_normal_stress", "quarter_1")), -28.175571689550296), ("element_local_axial_normal_stress", "pipe:2", Some(("axial_normal_stress", "midspan")), -28.175571689550296), ("element_local_axial_normal_stress", "pipe:2", Some(("axial_normal_stress", "quarter_3")), -28.175571689550296)]
+ok
+test p02_two_cases_rebuild_stiffness_and_do_not_share_state ... PROBE sparse_interactive case one u_b: actual=6.66666666666666699e-5 expected=6.66666666666666699e-5 pass=true
+PROBE sparse_interactive case one R_a: actual=3.97935069454707118e4 expected=3.97935069454707627e4 pass=true
+PROBE sparse_interactive case two u_b: actual=-6.66666666666666699e-5 expected=-6.66666666666666699e-5 pass=true
+PROBE sparse_interactive case two R_a: actual=-7.95870138909414236e4 expected=-7.95870138909415255e4 pass=true
+PROBE sparse_interactive diagnostics=5 unique_ids=5
+PROBE sparse_interactive linear-solve evidence rows=[("result:solver-mode:linear-solve-basis", "linear_solver_mode_basis", Some("case:one"), 1.0), ("result:loadcase:case-two:solver-mode:linear-solve-basis", "linear_solver_mode_basis", Some("case:two"), 1.0)]
+PROBE sparse_interactive diag info LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED diagnostic:load-state:case-one:source-recovery-not-joined
+PROBE sparse_interactive diag info NUMERICAL_INTEGRITY_CHECKS_PASSED diagnostic:numerical-integrity:case:one
+PROBE sparse_interactive diag info LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED diagnostic:load-state:case-two:source-recovery-not-joined
+PROBE sparse_interactive diag info NUMERICAL_INTEGRITY_CHECKS_PASSED diagnostic:numerical-integrity:case:two
+PROBE sparse_interactive diag warning RULE_CHECK_INPUTS_MISSING diagnostic:physics:rule-inputs-missing
+PROBE dense_scrutiny case one u_b: actual=6.66666666666666699e-5 expected=6.66666666666666699e-5 pass=true
+PROBE dense_scrutiny case one R_a: actual=3.97935069454707118e4 expected=3.97935069454707627e4 pass=true
+PROBE dense_scrutiny case two u_b: actual=-6.66666666666666699e-5 expected=-6.66666666666666699e-5 pass=true
+PROBE dense_scrutiny case two R_a: actual=-7.95870138909414236e4 expected=-7.95870138909415255e4 pass=true
+PROBE dense_scrutiny diagnostics=5 unique_ids=5
+PROBE dense_scrutiny linear-solve evidence rows=[("result:solver-mode:linear-solve-basis", "linear_solver_mode_basis", Some("case:one"), 2.0), ("result:sparse-live:dense-parity-relative-delta", "sparse_live_path_dense_parity_relative_delta", Some("case:one"), 0.0), ("result:loadcase:case-two:solver-mode:linear-solve-basis", "linear_solver_mode_basis", Some("case:two"), 2.0), ("result:loadcase:case-two:sparse-live:dense-parity-relative-delta", "sparse_live_path_dense_parity_relative_delta", Some("case:two"), 0.0)]
+PROBE dense_scrutiny diag info LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED diagnostic:load-state:case-one:source-recovery-not-joined
+PROBE dense_scrutiny diag info NUMERICAL_INTEGRITY_CHECKS_PASSED diagnostic:numerical-integrity:case:one
+PROBE dense_scrutiny diag info LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED diagnostic:load-state:case-two:source-recovery-not-joined
+PROBE dense_scrutiny diag info NUMERICAL_INTEGRITY_CHECKS_PASSED diagnostic:numerical-integrity:case:two
+PROBE dense_scrutiny diag warning RULE_CHECK_INPUTS_MISSING diagnostic:physics:rule-inputs-missing
+ok
+test p03_unit_variant_extra_fields_at_the_typed_boundary ... PROBE unit-variant [fit none + length_change] => Ok status=MECHANICS_SOLVED blocking=[] fit_kind="none" total_eigenstrain=0.0 history={"kind":"independent_equilibrium"}
+PROBE unit-variant [fit none + strain] => Ok status=MECHANICS_SOLVED blocking=[] fit_kind="none" total_eigenstrain=0.0 history={"kind":"independent_equilibrium"}
+PROBE unit-variant [basis direct_strain_reference + installation_temperature] => Ok status=MECHANICS_SOLVED blocking=[] fit_kind="none" total_eigenstrain=0.0 history={"kind":"independent_equilibrium"}
+PROBE unit-variant [history independent_equilibrium + predecessor] => Ok status=MECHANICS_SOLVED blocking=[] fit_kind="none" total_eigenstrain=0.0 history={"kind":"independent_equilibrium"}
+PROBE unit-variant [participation active_model_device + components] => Ok status=MECHANICS_SOLVED blocking=[] fit_kind="none" total_eigenstrain=0.0 history={"kind":"independent_equilibrium"}
+PROBE unit-variant [geometry_ref authored_model_geometry + hash] => Ok status=MECHANICS_SOLVED blocking=[] fit_kind="none" total_eigenstrain=0.0 history={"kind":"independent_equilibrium"}
+PROBE unit-variant [CONTROL fit_strain + length_change] => Err: request: unknown field `length_change`, expected `strain`
+PROBE unit-variant [Quantity with unknown field in new namespace] => Ok status=MECHANICS_SOLVED blocking=[] fit_kind="none" total_eigenstrain=0.0 history={"kind":"independent_equilibrium"}
+ok
+test p04_older_documents_with_null_or_malformed_new_keys ... PROBE old plain => Ok(("MECHANICS_SOLVED", []))
+PROBE old [0.3.0 reference_configurations: null] => Ok status=MECHANICS_SOLVED blocking=[]
+PROBE old [0.3.0 analysis_state: null] => Ok status=MECHANICS_SOLVED blocking=[]
+PROBE old [0.3.0 expansion_laws: null] => Err: request: materials[0].expansion_laws: invalid type: null, expected a sequence
+PROBE old [0.3.0 reference_configurations: other shape] => Err: request: invalid type: map, expected a sequence
+PROBE old [0.3.0 expansion_laws: []] => Ok status=MODEL_INCOMPLETE blocking=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"]
+ok
+test p05_duplicate_key_inside_material_record_on_the_text_path ... PROBE duplicate key inside materials[0] (text path) => Ok(1.0)
+PROBE duplicate key inside pipe_segments[0] (text path) => Err("duplicate field `material` at line 1 column 1181")
+ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+
+real	0m19.592s
+user	0m16.893s
+sys	0m2.087s

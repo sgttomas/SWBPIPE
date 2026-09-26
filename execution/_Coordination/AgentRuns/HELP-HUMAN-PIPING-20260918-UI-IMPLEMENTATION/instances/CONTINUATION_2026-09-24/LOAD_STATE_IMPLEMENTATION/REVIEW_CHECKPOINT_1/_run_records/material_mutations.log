@@ -1,0 +1,4 @@
+MM1_source_order_bracket_no_sort: 9 passed, 1 failed ['case_state::material::tests::duplicate_normalized_temperatures_missing_pairs_and_extrapolation_are_rejected'] => KILLED
+MM2_interpolation_skips_actual_T_check: 9 passed, 1 failed ['case_state::material::tests::actual_and_selected_temperature_remain_distinct_and_known_mismatch_needs_override'] => KILLED
+MM3_nu_not_interpolated: 9 passed, 1 failed ['case_state::material::tests::exact_endpoints_and_strict_adjacent_interpolation_use_common_e_nu_not_interpolated_g'] => KILLED
+MM4_exact_point_ignores_actual_T: 9 passed, 1 failed ['case_state::material::tests::actual_and_selected_temperature_remain_distinct_and_known_mismatch_needs_override'] => KILLED

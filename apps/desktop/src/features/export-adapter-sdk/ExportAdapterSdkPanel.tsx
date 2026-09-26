@@ -1,4 +1,5 @@
 import { Download, Puzzle } from "lucide-react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
@@ -62,6 +63,7 @@ export function ExportAdapterSdkPanel({
         Export Adapter SDK
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="export-adapter-sdk">
         <ControlledExportLink
           className="report-export-link"
           data-testid="export-adapter-sdk-export-link"
@@ -71,6 +73,7 @@ export function ExportAdapterSdkPanel({
           <Download size={14} aria-hidden="true" />
           Registry JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="export-adapter-sdk-summary">
           available; targets={packet.target_registry.targets.length}; capabilities=
           {packet.sdk_contract.capabilities.length}; validation={packet.validation_report.validation_status};

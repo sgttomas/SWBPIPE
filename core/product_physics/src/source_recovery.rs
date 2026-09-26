@@ -3,12 +3,13 @@
 //! The certificate concerns the declared binary64 element/load operands. It is
 //! neither a primitive-geometry certificate nor an ordinary factorization report.
 //! Selection and public admission belong to the product facade.
+use super::case_state::resolve::ResolvedCase;
 use super::{
     dof_index, is_constant_effort_support, parse_category, parse_direction, parse_dof,
     parse_load_dimension, support_stiffness_input, AssemblyEvidence, BuiltModel, LoadDimension,
     LoadTargetInput, Matrix12, PressureThrustLoad, PreviewLoadCase, PreviewModel,
-    PrimitiveLoadCategory, Quantity, SpringEntry, SupportFamily, ThermalElementLoad, DOF_PER_NODE,
-    ELEMENT_DOF,
+    PreviewPrimitiveLoad, PrimitiveLoadCategory, Quantity, SpringEntry, SupportFamily,
+    ThermalElementLoad, DOF_PER_NODE, ELEMENT_DOF,
 };
 use exact::functionals::{
     AffineTerm, AttemptBudget, AttemptStage, FunctionalConvention, FunctionalDescriptor,
@@ -38,6 +39,10 @@ pub(super) struct Input<'a> {
     pub load_application: &'a LoadApplication,
     pub thermal_loads: &'a [ThermalElementLoad],
     pub pressure_thrust_loads: &'a [PressureThrustLoad],
+    /// The one resolved case of a 0.4.0 load/reference-state invocation. It is
+    /// the only admitted owner of eigen element loads and nonzero prescribed
+    /// support motion; absent for every pre-0.4 invocation.
+    pub load_state: Option<&'a ResolvedCase>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -180,6 +185,47 @@ impl SelectedSourceRecovery {
         })().map_err(|error|failure("retained identity digest",error,&self.budget))?;
         self.retained_identity_digest = Some(result.clone());
         Ok(result)
+    }
+
+    /// ROOT CP3 SF-1 screen (resolved load/reference-state cases only).
+    /// Captured replay continues this attempt's own ledger and repeats its
+    /// source closure and exact solve, so its work is close to the live
+    /// charge. Selection first reserves an amount equal to that charge;
+    /// otherwise the attempt is declined as a budget refusal whose rejected
+    /// work is the unreserved replay. This is a screen, not a guarantee:
+    /// derived recipes and the finalization reservation are charged before
+    /// replay, and replay can cost slightly more than the live charge. A
+    /// selected join that still cannot finalize is published on the ordinary
+    /// route (CP4 review SF-1R).
+    pub fn reserve_captured_replay(self, limit: usize) -> Result<Self, RecoveryFailure> {
+        let charged = self.summary.work.charged;
+        if charged <= limit.saturating_sub(charged) {
+            return Ok(self);
+        }
+        Err(RecoveryFailure {
+            stage: "captured replay reservation",
+            helper_stage: AttemptStage::Replay,
+            error: RecoveryError::Exact(exact::Error::Budget),
+            work: exact::WorkReport {
+                charged,
+                rejected: charged,
+                limit,
+            },
+        })
+    }
+
+    /// ROOT CP3 SF-1: the invocation's selected join could not finalize, so
+    /// its republication declines every successful attempt. The executed work
+    /// stays charged; nothing is selected or published from this response.
+    pub fn decline_withheld(self) -> RecoveryFailure {
+        RecoveryFailure {
+            stage: "invocation join withheld",
+            helper_stage: AttemptStage::Replay,
+            error: RecoveryError::Unsupported(
+                "selected join could not finalize for this invocation",
+            ),
+            work: self.summary.work,
+        }
     }
 
     /// Final row binding and receipt hashing are part of the same bounded attempt.
@@ -396,6 +442,16 @@ fn prepare_sources(
     {
         return Err(mismatch("actual model/source dimensions"));
     }
+    // A resolved case is required for, and admitted only with, a 0.4.0 model:
+    // no pre-0.4 invocation inherits it and no 0.4.0 invocation omits it.
+    let load_state = match (
+        input.load_state,
+        super::case_state::is_load_state(input.model),
+    ) {
+        (None, false) => None,
+        (Some(state), true) => Some(state),
+        _ => return Err(mismatch("resolved load/reference-state ownership")),
+    };
     // Precharge formation, fixed-size matrix closure, maps, descriptor generation,
     // source copies and output construction before those operations allocate.
     charge(
@@ -460,7 +516,7 @@ fn prepare_sources(
     if input.load_case.equivalent_static.is_some()
         || !input.load_application.element_uniform_loads.is_empty()
         || !input.load_application.imposed_displacements.is_empty()
-        || !input.thermal_loads.is_empty()
+        || (load_state.is_none() && !input.thermal_loads.is_empty())
         || !input.pressure_thrust_loads.is_empty()
         || input.model.supports.iter().any(|s| {
             is_constant_effort_support(s)
@@ -587,6 +643,18 @@ fn prepare_sources(
             value: load.value,
         });
     }
+    let eigen_axial = match load_state {
+        Some(state) => close_load_state(
+            input,
+            state,
+            &authored_loads,
+            &mut folded_force,
+            &mut force_terms,
+            &mut identity,
+            budget,
+        )?,
+        None => vec![0.0; member_count],
+    };
     if seen_loads.len() != authored_loads.len()
         || folded_force
             .iter()
@@ -680,7 +748,15 @@ fn prepare_sources(
                         "ambiguous coincident ideal-constraint ownership",
                     ));
                 }
-                let imposed = if support.family == SupportFamily::ImposedDisplacement {
+                let imposed = if let Some(state) = load_state {
+                    // The resolved support state is the sole motion owner.
+                    if support.family == SupportFamily::ImposedDisplacement {
+                        return Err(unsupported(
+                            "legacy imposed-displacement support with resolved support state",
+                        ));
+                    }
+                    state.prescribed.get(&global).copied().unwrap_or(0.0)
+                } else if support.family == SupportFamily::ImposedDisplacement {
                     support
                         .imposed_displacement
                         .as_ref()
@@ -696,6 +772,20 @@ fn prepare_sources(
     }
     if support_seen.len() != authored_supports.len() {
         return Err(mismatch("authored support not represented"));
+    }
+    if let Some(state) = load_state {
+        for (&dof, &value) in &state.prescribed {
+            if dof >= n
+                || !value.is_finite()
+                || expected_prescribed[dof].is_none_or(|v| v.to_bits() != value.to_bits())
+            {
+                return Err(mismatch(
+                    "resolved support motion lacks one rigid boundary owner",
+                ));
+            }
+            identity.indices([dof]);
+            identity.scalars([value]);
+        }
     }
     let mut seen_partition = vec![false; n];
     for &(dof, value) in input.prescribed {
@@ -895,6 +985,14 @@ fn prepare_sources(
                     }
                 })
                 .collect();
+            // The resolved eigen axial load is removed once from the axial end
+            // actions, exactly as the ordinary route's axial-effect correction.
+            let eigen = eigen_axial[index];
+            let offset = match row {
+                0 if eigen != 0.0 => vec![vec![eigen]],
+                6 if eigen != 0.0 => vec![vec![-eigen]],
+                _ => vec![],
+            };
             rows.push(FunctionalDescriptor {
                 key: key(
                     &input.load_case.id,
@@ -906,7 +1004,7 @@ fn prepare_sources(
                     row,
                     END_CONVENTION,
                 ),
-                offset: vec![],
+                offset,
                 terms,
             });
         }
@@ -1044,6 +1142,156 @@ fn prepare_sources(
         spring_start,
         support_start,
     })
+}
+
+/// Force-contribution owner of one member's resolved eigen axial load.
+pub(super) fn eigen_source_id(pipe_id: &str) -> String {
+    format!("load_state_eigenstrain:{}:{pipe_id}", pipe_id.len())
+}
+
+/// Closes the resolved case against the actual invocation: every member's
+/// pair reached formation, every eigen element load is exactly
+/// `E_member*A_s*eps*` once, and its equivalent nodal action is folded in
+/// the product route's order. Returns each member's eigen axial load.
+fn close_load_state(
+    input: &Input<'_>,
+    state: &ResolvedCase,
+    authored_loads: &HashMap<&str, &PreviewPrimitiveLoad>,
+    folded_force: &mut [f64],
+    force_terms: &mut Vec<exact::ForceContribution>,
+    identity: &mut Identity,
+    budget: &mut AttemptBudget,
+) -> Result<Vec<f64>, RecoveryError> {
+    let member_count = input.built.pipes.len();
+    charge(
+        budget,
+        member_count
+            .saturating_mul(512)
+            .saturating_add(state.prescribed.len().saturating_mul(64)),
+    )?;
+    if state.members.len() != member_count
+        || state.pairs.len() != member_count
+        || input.thermal_loads.len() > member_count
+    {
+        return Err(mismatch("resolved member inventory"));
+    }
+    identity.name("load-reference-state-v1", budget)?;
+    let mut eigen_axial = vec![0.0; member_count];
+    let mut expected_loads = Vec::new();
+    for (index, ((member, pipe), frame)) in state
+        .members
+        .iter()
+        .zip(&input.built.pipes)
+        .zip(&input.built.frame_elements)
+        .enumerate()
+    {
+        let pair = member.material.pair;
+        let owned = state.pairs.get(&member.pipe_id);
+        let section = input.built.sections.get(&member.pipe_id);
+        let geometry = input.built.exact_sections.get(&member.pipe_id);
+        let (Some(owned), Some(section), Some(geometry)) = (owned, section, geometry) else {
+            return Err(mismatch("resolved member source ownership"));
+        };
+        let strain = &member.strain;
+        let bits = |a: f64, b: f64| a.to_bits() == b.to_bits();
+        if member.pipe_index != index
+            || member.pipe_id != pipe.element_id
+            || !bits(owned.elastic_modulus_pa(), pair.elastic_modulus_pa())
+            || !bits(owned.poisson_ratio(), pair.poisson_ratio())
+            || !bits(owned.shear_modulus_pa(), pair.shear_modulus_pa())
+            || !bits(frame.section.elastic_modulus, pair.elastic_modulus_pa())
+            || !bits(frame.section.shear_modulus, pair.shear_modulus_pa())
+            || !bits(frame.section.area, section.area)
+            || !bits(section.area, geometry.wall_area_m2())
+            || !strain.total_eigenstrain.is_finite()
+        {
+            return Err(mismatch(
+                "resolved member pair/section did not reach formation",
+            ));
+        }
+        identity.name(&member.pipe_id, budget)?;
+        identity.name(&member.material.material_id, budget)?;
+        identity.name(member.material.selection_kind, budget)?;
+        identity.name(strain.definition, budget)?;
+        identity.indices([index]);
+        identity.scalars([
+            pair.elastic_modulus_pa(),
+            pair.poisson_ratio(),
+            pair.shear_modulus_pa(),
+            strain.thermal_strain,
+            strain.thermal_stretch,
+            strain.fit_strain,
+            strain.fit_stretch,
+            strain.total_eigenstrain,
+        ]);
+        if strain.total_eigenstrain != 0.0 {
+            // Same operation order as the product route's eigen load.
+            let axial = pair.elastic_modulus_pa() * section.area * strain.total_eigenstrain;
+            if !axial.is_finite() {
+                return Err(mismatch("resolved eigen axial load range"));
+            }
+            eigen_axial[index] = axial;
+            expected_loads.push((index, axial, strain.total_eigenstrain));
+        }
+    }
+    if expected_loads.len() != input.thermal_loads.len()
+        || expected_loads
+            .iter()
+            .zip(input.thermal_loads)
+            .any(|(&(index, axial, strain), load)| {
+                load.element_index != index
+                    || load.axial_load.to_bits() != axial.to_bits()
+                    || load.thermal_strain.to_bits() != strain.to_bits()
+            })
+    {
+        return Err(mismatch(
+            "actual eigen element loads differ from the resolved case",
+        ));
+    }
+    for load in input.thermal_loads {
+        let pipe = &input.built.pipes[load.element_index];
+        let source = eigen_source_id(&pipe.element_id);
+        if authored_loads.contains_key(source.as_str()) {
+            return Err(mismatch(
+                "eigen source identity collides with a primitive load",
+            ));
+        }
+        let local_x = pipe
+            .frame_element()
+            .map_err(|_| mismatch("eigen member frame"))?
+            .orientation()
+            .map_err(|_| mismatch("eigen member orientation"))?
+            .local_axes[0];
+        let i_base = pipe.node_i.index * DOF_PER_NODE;
+        let j_base = pipe.node_j.index * DOF_PER_NODE;
+        identity.name(&source, budget)?;
+        identity.scalars([load.axial_load]);
+        identity.scalars(local_x);
+        // Mirror `add_thermal_equivalent_loads` exactly, after the nodal fold.
+        for axis in 0..3 {
+            let value = load.axial_load * local_x[axis];
+            folded_force[i_base + axis] -= value;
+            folded_force[j_base + axis] += value;
+            if value != 0.0 {
+                force_terms.push(exact::ForceContribution {
+                    source: source.clone(),
+                    dof: i_base + axis,
+                    value: -value,
+                });
+                force_terms.push(exact::ForceContribution {
+                    source: source.clone(),
+                    dof: j_base + axis,
+                    value,
+                });
+            }
+        }
+    }
+    // The published resolver ledger binds excluded sources, temperatures,
+    // selections and provenance that are not stiffness/load operands.
+    let evidence = serde_json::to_string(&state.evidence)
+        .map_err(|_| mismatch("resolved evidence encoding"))?;
+    identity.name(&evidence, budget)?;
+    Ok(eigen_axial)
 }
 
 fn scaled_row(row: &FunctionalDescriptor, factor: f64) -> FunctionalDescriptor {
@@ -1330,6 +1578,7 @@ mod tests {
                 load_application: &self.loads,
                 thermal_loads: &[],
                 pressure_thrust_loads: &[],
+                load_state: None,
             }
         }
     }

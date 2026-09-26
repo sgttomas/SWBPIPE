@@ -1,0 +1,11 @@
+     Running unittests src/lib.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/open_pipe_stress_product_physics-f6a14ff10cb528f4)
+test case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not ... FAILED
+test result: FAILED. 298 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 2.37s
+error: test failed, to rerun pass `--lib`
+     Running tests/load_reference_state_runtime.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/load_reference_state_runtime-6e7854afb5d7f6af)
+test duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply ... FAILED
+test result: FAILED. 19 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.58s
+error: test failed, to rerun pass `--test load_reference_state_runtime`
+     Running tests/review2_probes.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/review2_probes-9bee1ca8a08c1be6)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+error: 2 targets failed:

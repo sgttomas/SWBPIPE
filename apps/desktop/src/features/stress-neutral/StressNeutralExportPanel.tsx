@@ -6,6 +6,7 @@ import { validateRetainedRecoverySource } from "../../services/analysisRunCompat
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { validatePreviewPhysicsTransportMetadata } from "../results/previewPhysicsEvidence";
 import { sourceContract, numericalResultStanding, currentSemanticContract, hasCurrentSourceContract } from "../results/numericalResultQuality";
+import { isLoadReferenceRoute, refuseLoadReferenceOutput, LOAD_REFERENCE_OUTPUT_REFUSAL } from "../results/loadReferenceOutputAvailability";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
 import { Download, FileJson } from "lucide-react";
@@ -82,7 +83,7 @@ type StressNeutralUnitPreservationWitness = {
 function liveStressBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null): string | null {
   try {
     if (!result || !analysisRun || !hasNativeMechanicsInvocation(result, model)
-      || !hasCurrentSourceContract(result) || !numericalResultStanding(result, model).eligible) return null;
+      || !hasCurrentSourceContract(result) || isLoadReferenceRoute(result) || !numericalResultStanding(result, model).eligible) return null;
     return checkedJsonText({ model, result, analysisRun });
   } catch { return null; }
 }
@@ -203,6 +204,8 @@ export function StressNeutralExportPanel({
             />
           </div>
         </>
+      ) : isLoadReferenceRoute(result) ? (
+        <p className="muted" role="status" data-testid="stress-neutral-load-reference-output-unavailable">{LOAD_REFERENCE_OUTPUT_REFUSAL}</p>
       ) : (
         <p className="muted" data-testid="stress-neutral-empty">
           Run mechanics with the native backend to assemble a stress-neutral CSV/JSON package. Bundled references and restored history are unavailable for qualified export.
@@ -482,6 +485,8 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
   const route = sourceContract(args.result);
   const utf8 = usesUtf8Csv(args.result);
   if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
+  // T1: not yet available on the desktop for load/reference-state results (T6).
+  refuseLoadReferenceOutput(args.result);
   const precision = route !== "legacy";
   const semantics = precision ? currentSemanticContract(args.result) : null;
   const version = precision ? "0.3.0" : STRESS_NEUTRAL_EXPORT_VERSION;
@@ -612,6 +617,7 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     throw new Error("SN-LEGACY-PRECISION-METADATA-FORBIDDEN");
   }
   if (precision && analysisRun !== undefined && source === undefined) throw new Error("SN-PRECISION-ANALYSIS-SOURCE-REQUIRED");
+  refuseLoadReferenceOutput(source);
   if (source !== undefined) {
     if (!precision || !hasCurrentSourceContract(source)) throw new Error("SN-PRECISION-SOURCE-BINDING-REQUIRED");
     for (const value of [source.run_id, source.model_ref, ...source.results.map(r => r.id)]) if (typeof value !== "string" || !value) throw new Error("ANALYSIS_SOURCE_REFERENCE_INVALID");
@@ -1050,7 +1056,8 @@ function semanticTablePath(source: MechanicsResult): string {
   const route = sourceContract(source);
   const paths = { legacy: "semantic_contract_v0_2.json", precision: "semantic_contract_v0_3_precision_1.json", physics: "semantic_contract_v0_3_physics_1.json", source_blocks: "semantic_contract_v0_3_source_blocks_1.json", physics_source: "semantic_contract_v0_3_physics_source_1.json", preview_physics: "semantic_contract_v0_3_preview_physics_1.json" };
   if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
-  return `fixtures/results/${paths[route]}`;
+  refuseLoadReferenceOutput(source);
+  return `fixtures/results/${paths[route as keyof typeof paths]}`;
 }
 async function validateNeutralTransportEvidence(header: MechanicsResult): Promise<void> {
   const route = sourceContract(header);

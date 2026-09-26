@@ -1,0 +1,32 @@
+# product_physics mutants on a scratch git archive of f3270ea79 (RUSTUP_TOOLCHAIN=1.97.1, CARGO_INCREMENTAL=0, private target)
+# script: run_mutants.py <WORKING_ROOT> <LOG_DIR>
+# baseline
+test result: ok. 60 passed; 0 failed; 0 ignored; 0 measured; 272 filtered out; finished in 8.64s
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.92s
+M-SF1-no-fallback killed
+M-PRESCRIBED-writeback-removed killed
+M-OBSERVATION-uncoupled killed
+restored sha256 4cc5ec22ad5b1f5dfdb2328300d42ffb35472f057603ddc434b8b7898217e48d
+== M-OBSERVATION-uncoupled: killing tests
+# cargo test --locked --offline -j 2 --lib -- load_state case_state
+test result: FAILED. 59 passed; 1 failed; 0 ignored; 0 measured; 272 filtered out; finished in 4.01s
+# exit 101
+test case_state::tests::dense_observation_lanes_observe_the_prescribed_boundary_system ... FAILED
+== M-PRESCRIBED-writeback-removed: killing tests
+# cargo test --locked --offline -j 2 --lib -- load_state case_state
+test result: FAILED. 57 passed; 3 failed; 0 ignored; 0 measured; 272 filtered out; finished in 4.03s
+# exit 101
+test case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions ... FAILED
+test case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions ... FAILED
+test source_receipt::load_state_join_tests::joined_rows_agree_with_the_ordinary_route_and_closed_forms ... FAILED
+== M-SF1-no-fallback: killing tests
+# cargo test --locked --offline -j 2 --lib -- load_state case_state
+SparseInteractive: SOURCE_BLOCKS_FINALIZATION_FAILED
+SparseInteractive: SOURCE_BLOCKS_FINALIZATION_FAILED
+test result: FAILED. 55 passed; 5 failed; 0 ignored; 0 measured; 272 filtered out; finished in 6.07s
+# exit 101
+test source_receipt::load_state_fallback_tests::a_join_that_passes_the_replay_screen_but_cannot_finalize_falls_back_at_the_public_limit ... FAILED
+test source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back ... FAILED
+test source_receipt::load_state_fallback_tests::a_republication_reports_a_case_s_own_replay_screen_refusal ... FAILED
+test source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route ... FAILED
+test source_receipt::load_state_fallback_tests::a_fallback_after_invocation_limit_exhaustion_stays_within_the_invocation_limit ... FAILED

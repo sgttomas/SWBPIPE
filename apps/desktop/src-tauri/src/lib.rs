@@ -6040,6 +6040,194 @@ mod tests {
         }
     }
 
+    fn stored_json_column(connection: &Connection, column: &str, project_id: &str) -> String {
+        connection
+            .query_row(
+                &format!("SELECT {column} FROM local_projects WHERE project_id = ?1"),
+                params![project_id],
+                |row| row.get::<_, String>(0),
+            )
+            .unwrap()
+    }
+
+    /// T1 WP2: a 0.4.0 model is saved and reopened exactly as a 0.3.0 one is,
+    /// and a saved load-reference-1 result keeps its raw hash and its resolved
+    /// evidence bytes. The model and result are committed producer fixtures
+    /// (invented data). The open step mirrors `open_local_project`.
+    #[test]
+    fn load_reference_model_and_saved_result_round_trip_native_store_byte_exactly() {
+        let request: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/load_reference/connected.request.json"
+        )).unwrap();
+        let model = request["model"].clone();
+        assert_eq!(model["schema_version"], "0.4.0");
+        let result: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json"
+        )).unwrap();
+        assert_eq!(result["producer"]["semantic_contract_id"],
+            "openpipestress.result_semantics/0.3.0/load-reference-1");
+        let project = model["project"]["id"].as_str().unwrap().to_string();
+        let model_bytes = serde_json::to_string(&model).unwrap();
+        let result_bytes = serde_json::to_string(&result).unwrap();
+        let raw_result_hash = model_payload_hash(&result);
+        let evidence_bytes =
+            serde_json::to_string(&result["contract_evidence"]["load_reference_states"]).unwrap();
+        let mh = computed_model_hash(&model, &project);
+        let eh = computed_project_envelope_hash(
+            &project, &model, &json!([]), &Value::Null, &Value::Null, &result, &Value::Null, &mh,
+        );
+        let root = std::env::temp_dir().join(format!(
+            "ops-load-reference-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let db = root.join("isolated.sqlite");
+        let mut open_status = Value::Null;
+        let mut bridge = result.clone();
+        let mut current = model.clone();
+        for _ in 0..2 {
+            let mut connection = Connection::open(&db).unwrap();
+            apply_store_migrations(&connection).unwrap();
+            let (persisted, status, ledger, saved_mh, saved_eh) = prepare_project_persistence_tuple(
+                &connection, &project, current.clone(), &open_status, &json!([]), &Value::Null,
+                &Value::Null, &bridge, &Value::Null, mh.clone(), eh.clone(),
+            ).unwrap();
+            assert_eq!(persisted, model);
+            assert_eq!(status.status, "current");
+            assert_eq!(status.source_schema_version, "0.4.0");
+            assert_eq!(status.target_schema_version, "0.4.0");
+            assert_eq!(status.persistence_state, "stored_document_current");
+            assert!(status.applied_migration_ids.is_empty());
+            assert_eq!(ledger, json!([]));
+            assert_eq!(saved_mh, mh);
+            assert_eq!(saved_eh, eh);
+            upsert_project(
+                &mut connection, &project, "Invented load-reference witness", &persisted, &json!([]),
+                &Value::Null, &Value::Null, &bridge, &Value::Null, &saved_mh, &saved_eh, &ledger,
+            ).unwrap();
+            connection.close().unwrap();
+
+            let reopened = Connection::open(&db).unwrap();
+            assert_eq!(stored_json_column(&reopened, "model_json", &project), model_bytes);
+            assert_eq!(stored_json_column(&reopened, "mechanics_result_json", &project), result_bytes);
+            assert_eq!(stored_json_column(&reopened, "model_migration_ledger_json", &project), "[]");
+            let loaded = load_project(&reopened, Some(&project)).unwrap().unwrap();
+            let EvaluatedModelDocument { migrated_document, status } =
+                evaluate_model_document(&loaded.model, &model_document_migrations());
+            assert_eq!(status.status, "current");
+            assert_eq!(status.target_schema_version, "0.4.0");
+            assert!(migrated_document.is_none());
+            let opened = migrated_document.unwrap_or(loaded.model);
+            assert_eq!(opened, model);
+            assert_eq!(serde_json::to_string(&opened).unwrap(), model_bytes);
+            assert_eq!(model_payload_hash(&opened), hash_value_string(&mh));
+            assert_eq!(loaded.model_hash, mh);
+            assert_eq!(loaded.project_envelope_hash, eh);
+            assert_eq!(model_payload_hash(&loaded.mechanics_result), raw_result_hash);
+            assert_eq!(
+                serde_json::to_string(&loaded.mechanics_result["contract_evidence"]["load_reference_states"]).unwrap(),
+                evidence_bytes
+            );
+            assert_eq!(loaded.model_migration_ledger, json!([]));
+            open_status = serde_json::to_value(status).unwrap();
+            bridge = loaded.mechanics_result;
+            current = opened;
+            reopened.close().unwrap();
+        }
+        std::fs::remove_dir_all(root).unwrap();
+
+        // The reopened document is the product's own 0.4.0 input: it solves on
+        // the load-reference route and reproduces the saved evidence.
+        let solved = run_linear_static_preview_with_mode(
+            serde_json::from_value(json!({"model": current, "materials": []})).unwrap(),
+            PreviewSolverMode::SparseInteractive,
+        );
+        assert_eq!(solved.producer.semantic_contract_id,
+            "openpipestress.result_semantics/0.3.0/load-reference-1");
+        assert_eq!(
+            solved.contract_evidence.as_ref().unwrap()["load_reference_states"],
+            result["contract_evidence"]["load_reference_states"]
+        );
+    }
+
+    /// T1 WP2 (D3): pre-0.4 and 0.3.0 documents persist unchanged with no
+    /// 0.4.0 key added; an earlier document that carries 0.4.0 keys is kept as
+    /// authored (not stripped, not re-stamped) and the product blocks on solve.
+    #[test]
+    fn earlier_documents_persist_unchanged_and_carried_load_reference_keys_block_on_solve() {
+        fn round_trip(model: &Value) -> (Value, ModelDocumentMigrationStatus) {
+            let mut connection = Connection::open_in_memory().unwrap();
+            apply_store_migrations(&connection).unwrap();
+            let project = model["project"]["id"].as_str().unwrap().to_string();
+            let (persisted, status, ledger, transition) =
+                prepare_model_document_for_persist(&connection, &project, model.clone(), &Value::Null)
+                    .unwrap();
+            assert!(transition.is_none());
+            assert_eq!(ledger, json!([]));
+            upsert_project(
+                &mut connection, &project, "Invented earlier-version witness", &persisted, &json!([]),
+                &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null,
+                &ledger,
+            ).unwrap();
+            assert_eq!(
+                stored_json_column(&connection, "model_json", &project),
+                serde_json::to_string(model).unwrap()
+            );
+            let loaded = load_project(&connection, Some(&project)).unwrap().unwrap();
+            let reopened = evaluate_model_document(&loaded.model, &model_document_migrations());
+            assert_eq!(reopened.status.status, "current");
+            assert!(reopened.migrated_document.is_none());
+            (loaded.model, status)
+        }
+        fn carries_load_reference_keys(model: &Value) -> bool {
+            model.get("reference_configurations").is_some()
+                || model["materials"].as_array().is_some_and(|materials| {
+                    materials.iter().any(|material| material.get("expansion_laws").is_some())
+                })
+                || model["load_cases"].as_array().is_some_and(|cases| {
+                    cases.iter().any(|case| case.get("analysis_state").is_some())
+                })
+        }
+
+        let exact: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
+        )).unwrap();
+        assert_eq!(exact["schema_version"], "0.3.0");
+        let mut legacy = exact.clone();
+        legacy["schema_version"] = json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION);
+        legacy.as_object_mut().unwrap().remove("pressure_contract");
+        for model in [&exact, &legacy] {
+            assert!(!carries_load_reference_keys(model));
+            let (loaded, status) = round_trip(model);
+            assert_eq!(&loaded, model);
+            assert_eq!(status.target_schema_version, model["schema_version"].as_str().unwrap());
+            assert!(!carries_load_reference_keys(&loaded));
+        }
+
+        let request: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/load_reference/connected.request.json"
+        )).unwrap();
+        let mut carried = request["model"].clone();
+        carried["schema_version"] = json!("0.3.0");
+        assert!(carries_load_reference_keys(&carried));
+        let (loaded, status) = round_trip(&carried);
+        assert_eq!(loaded, carried);
+        assert_eq!(status.target_schema_version, "0.3.0");
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let solved = run_linear_static_preview_with_mode(
+                serde_json::from_value(json!({"model": loaded.clone(), "materials": []})).unwrap(),
+                mode,
+            );
+            assert!(
+                solved.diagnostics.iter().any(|diagnostic| diagnostic.severity == "blocking"
+                    && diagnostic.code == "LOAD_STATE_CONTRACT_VERSION_MISMATCH"),
+                "{:?}", solved.diagnostics
+            );
+            assert_ne!(solved.status.mechanics, "MECHANICS_SOLVED");
+        }
+    }
+
     #[test]
     fn local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot() {
         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");

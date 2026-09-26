@@ -1,0 +1,13 @@
+
+ RUN  v4.1.10 <SCRATCH>/cand/projects/chirality-piping/apps/desktop
+
+
+ Test Files  4 passed (4)
+      Tests  231 passed (231)
+   Start at  14:17:59
+   Duration  152.26s (transform 3.66s, setup 1.16s, import 4.80s, tests 157.76s, environment 4.10s)
+
+npx vitest run src/features/results/loadReferenceReaders.test.ts    2>&1  152.34s user 1.96s system 100% cpu 2:33.44 total
+tail -15  0.00s user 0.00s system 0% cpu 2:33.44 total
+
+[exited with code 0]

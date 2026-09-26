@@ -1,0 +1,14 @@
+260 mutants
+KILLED   loadReferenceSourceEvidence:318:unique:"MEMBER_IDENTITY"  unique(...) removed
+KILLED   loadReferenceSourceEvidence:319:unique:"SUPPORT_IDENTITY"  unique(...) removed
+KILLED   loadReferenceSourceEvidence:448:unique:"SUPPORT_TERM_DUPLICATE"  unique(...) removed
+KILLED   loadReferenceSourceEvidence:540:unique:"EVIDENCE_IDS"  unique(...) removed
+KILLED   loadReferenceSourceEvidence:551:unique:"CASE_IDS"  unique(...) removed
+KILLED   loadReferenceSourceEvidence:597:unique:"COMMITMENT_DOMAIN_SEPARATION"  unique(...) removed
+KILLED   loadReferenceSourceEvidence:601:unique:"PROJECTION_IDS"  unique(...) removed
+KILLED   loadReferenceSourceEvidence:602:unique:"FUNCTIONAL_IDS"  unique(...) removed
+KILLED   loadReferenceSourceEvidence:603:unique:"PROJECTION_RESULTS"  unique(...) removed
+KILLED   loadReferenceSourceEvidence:606:unique:"ROW_IDS"  unique(...) removed
+KILLED   loadReferenceSourceEvidence:618:unique:"ROW_INPUTS"  unique(...) removed
+KILLED   loadReferenceSourceEvidence:666:unique:"OBSERVATION_IDS"  unique(...) removed
+EXIT 0

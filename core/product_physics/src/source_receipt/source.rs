@@ -327,8 +327,25 @@ pub(super) fn commitment(
         prescribed
             .push(json!({"dof":dof,"value_bits":bits(*value),"support_id":owners[0].support_id}));
     }
+    // A resolved case owns one eigen axial load per member with nonzero
+    // eigenstrain; prepare_sources refused any primitive ID collision.
+    let eigen_sources: BTreeMap<String, &str> = if input.load_state.is_some() {
+        input
+            .thermal_loads
+            .iter()
+            .map(|l| {
+                let pipe = &input.built.pipes[l.element_index].element_id;
+                (source_recovery::eigen_source_id(pipe), pipe.as_str())
+            })
+            .collect()
+    } else {
+        BTreeMap::new()
+    };
     let mut supported_loads = Vec::new();
     for f in forces {
+        if eigen_sources.contains_key(&f.source) {
+            continue;
+        }
         let primitive = input
             .load_case
             .primitive_loads
@@ -338,7 +355,29 @@ pub(super) fn commitment(
         supported_loads.push(json!({"load_id":f.source,"node_id":input.model.nodes[f.dof/6].id,"dof":f.dof,"value_bits":bits(f.value),"source_primitive_index":primitive}));
     }
     let lowered:Vec<_>=retained.descriptors().iter().enumerate().map(|(i,d)|json!({"functional_index":i,"offset_bits":products(&d.offset),"terms":d.terms.iter().map(|t|json!({"dof":t.dof,"product_bits":products(&t.products)})).collect::<Vec<_>>()})).collect();
-    let payload = json!({"payload_version":"1.0.0","invocation_sha256":invocation,"case_id":input.load_case.id,"source_identity":response.source_identity(),"material_basis_record":material_basis_record,"dof_map":input.model.nodes.iter().flat_map(|n|(0..6).map(move |c|json!({"node_id":n.id,"component":(["UX","UY","UZ","RX","RY","RZ"][c]),"displacement_unit":if c<3{"m"}else{"rad"},"action_unit":if c<3{"N"}else{"N*m"}}))).collect::<Vec<_>>(),"stiffness_aggregate_bits":matrix(system.stiffness),"force_aggregate_bits":system.force.iter().copied().map(bits).collect::<Vec<_>>(),"stiffness_terms":stiffness,"force_terms":forces.iter().map(|f|json!({"owner":owner("load",&f.source),"dof":f.dof,"value_bits":bits(f.value)})).collect::<Vec<_>>(),"free_dofs":system.free_dofs,"prescribed":prescribed,"frames":frames,"springs":springs,"supported_loads":supported_loads,"observed_family_ids":{"frames":input.built.pipes.iter().map(|p|&p.element_id).collect::<Vec<_>>(),"supports":input.built.supports.iter().map(|s|&s.support_id).collect::<Vec<_>>(),"loads":input.load_case.primitive_loads.iter().map(|p|&p.id).collect::<Vec<_>>(),"modifiers":input.model.components.iter().map(|c|&c.id).collect::<Vec<_>>(),"nonlinear_supports":input.model.supports.iter().filter(|s|s.nonlinear.is_some()).map(|s|&s.id).collect::<Vec<_>>(),"user_elements":[],"curved_elements":[],"combinations":input.model.combinations.iter().map(|c|&c.id).collect::<Vec<_>>()},"lowered_recovery_operands":lowered});
+    let load_reference_state = match input.load_state {
+        Some(state) => json!({
+            "resolved_evidence_sha256": hash("load_reference_state_resolved_evidence_v1", &state.evidence)?,
+            "members": state.members.iter().map(|m| json!({"pipe_id":m.pipe_id,"material_id":m.material.material_id,
+                "selection_kind":m.material.selection_kind,"E_bits":bits(m.material.pair.elastic_modulus_pa()),
+                "nu_bits":bits(m.material.pair.poisson_ratio()),"G_bits":bits(m.material.pair.shear_modulus_pa()),
+                "thermal_strain_bits":bits(m.strain.thermal_strain),"fit_strain_bits":bits(m.strain.fit_strain),
+                "total_eigenstrain_bits":bits(m.strain.total_eigenstrain)})).collect::<Vec<_>>(),
+            "eigen_loads": input.thermal_loads.iter().map(|l| {
+                let pipe = &input.built.pipes[l.element_index].element_id;
+                json!({"pipe_id":pipe,"force_source":source_recovery::eigen_source_id(pipe),
+                    "axial_load_bits":bits(l.axial_load),"eigenstrain_bits":bits(l.thermal_strain),
+                    "recovery_offset":"end_i_axial_plus_end_j_axial_minus"})
+            }).collect::<Vec<_>>(),
+            "prescribed_motions": state.prescribed.iter().map(|(dof, v)| json!({"dof":dof,"value_bits":bits(*v)})).collect::<Vec<_>>(),
+        }),
+        None => Value::Null,
+    };
+    let mut payload = json!({"payload_version":"1.0.0","invocation_sha256":invocation,"case_id":input.load_case.id,"source_identity":response.source_identity(),"material_basis_record":material_basis_record,"dof_map":input.model.nodes.iter().flat_map(|n|(0..6).map(move |c|json!({"node_id":n.id,"component":(["UX","UY","UZ","RX","RY","RZ"][c]),"displacement_unit":if c<3{"m"}else{"rad"},"action_unit":if c<3{"N"}else{"N*m"}}))).collect::<Vec<_>>(),"stiffness_aggregate_bits":matrix(system.stiffness),"force_aggregate_bits":system.force.iter().copied().map(bits).collect::<Vec<_>>(),"stiffness_terms":stiffness,"force_terms":forces.iter().map(|f|json!({"owner":match eigen_sources.get(&f.source){Some(pipe)=>owner("member_eigenstrain",pipe),None=>owner("load",&f.source)},"dof":f.dof,"value_bits":bits(f.value)})).collect::<Vec<_>>(),"free_dofs":system.free_dofs,"prescribed":prescribed,"frames":frames,"springs":springs,"supported_loads":supported_loads,"observed_family_ids":{"frames":input.built.pipes.iter().map(|p|&p.element_id).collect::<Vec<_>>(),"supports":input.built.supports.iter().map(|s|&s.support_id).collect::<Vec<_>>(),"loads":input.load_case.primitive_loads.iter().map(|p|&p.id).collect::<Vec<_>>(),"modifiers":input.model.components.iter().map(|c|&c.id).collect::<Vec<_>>(),"nonlinear_supports":input.model.supports.iter().filter(|s|s.nonlinear.is_some()).map(|s|&s.id).collect::<Vec<_>>(),"user_elements":[],"curved_elements":[],"combinations":input.model.combinations.iter().map(|c|&c.id).collect::<Vec<_>>()},"lowered_recovery_operands":lowered});
+    // Pre-0.4 payload bytes are unchanged; only a resolved case adds its block.
+    if !load_reference_state.is_null() {
+        payload["load_reference_state"] = load_reference_state;
+    }
     let normalized = hash("source_blocks_normalized_source_v1", &payload)?;
     let functions: Vec<_> = retained
         .descriptors()

@@ -410,7 +410,28 @@ fn physical_source(
     pressure: &[Value],
     actual: &[ResultItem],
     source_selected: bool,
+    load_record: Option<&Value>,
 ) -> Result<(), ReceiptError> {
+    if case_state::is_load_state(&capture.requested()?.model) {
+        // The resolver pipeline, never the case-wide material methods.
+        let replay = capture.captured_load_state_case(case_id)?;
+        return physical_source_built(
+            capture,
+            &replay.model,
+            &replay.materials,
+            &replay.built,
+            None,
+            case_id,
+            evidence,
+            pressure,
+            actual,
+            source_selected,
+            Some((&replay.resolved, load_record)),
+        );
+    }
+    if load_record.is_some() {
+        return Err(bad("load/reference-state record on a pre-0.4 case"));
+    }
     let (model, materials, built, record) = normalized_case(capture, case_id)?;
     physical_source_built(
         capture,
@@ -423,6 +444,7 @@ fn physical_source(
         pressure,
         actual,
         source_selected,
+        None,
     )
 }
 #[allow(clippy::too_many_arguments)]
@@ -437,16 +459,27 @@ pub(super) fn physical_source_built(
     pressure: &[Value],
     actual: &[ResultItem],
     source_selected: bool,
+    load_state: Option<(&case_state::resolve::ResolvedCase, Option<&Value>)>,
 ) -> Result<(), ReceiptError> {
     if !pressure_runtime::is_exact(model) || built.exact_sections.len() != model.pipe_segments.len()
     {
         return Err(bad("physical source exact profile and geometry inventory"));
     }
-    let case = model
-        .load_cases
-        .iter()
-        .find(|c| c.id == case_id)
-        .ok_or_else(|| bad("physical case"))?;
+    if case_state::is_load_state(model) != load_state.is_some() {
+        return Err(bad("physical load/reference-state ownership"));
+    }
+    // A resolved case publishes its declared source ledger: the effective case.
+    let case = match load_state {
+        Some((state, _)) => Some(&state.effective_case).filter(|c| c.id == case_id),
+        None => model.load_cases.iter().find(|c| c.id == case_id),
+    }
+    .ok_or_else(|| bad("physical case"))?;
+    if let Some((state, record)) = load_state {
+        let expected = load_state_case_record(state, capture.mode, source_selected);
+        if record != Some(&expected) {
+            return Err(bad("physical load/reference-state case record binding"));
+        }
+    }
     let expected_method = if source_selected {
         "retained_source_blocks_exact_v1"
     } else if capture.mode == PreviewSolverMode::DenseScrutiny {
@@ -475,7 +508,12 @@ pub(super) fn physical_source_built(
         || evidence["load_case_id"] != case_id
         || evidence["profile_mode"] != "exact_straight_pressure_v2"
         || evidence["recovery_method"] != expected_method
-        || evidence["material_basis"] != json!(record.unwrap_or("base_material_common_E_nu"))
+        || evidence["material_basis"]
+            != if load_state.is_some() {
+                json!("resolved_per_member_load_reference_state_v1")
+            } else {
+                json!(record.unwrap_or("base_material_common_E_nu"))
+            }
         || evidence["stress_maximum_coverage"] != json!({"complete":true,"unavailable_pipe_ids":[]})
     {
         return Err(bad("physical case/method/material/coverage binding"));
@@ -488,18 +526,33 @@ pub(super) fn physical_source_built(
     if evidence["pipe_sections"] != json!(sections) {
         return Err(bad("physical source geometry binding"));
     }
-    let material_evidence:Vec<_>=model.pipe_segments.iter().map(|pipe| {
+    let material_evidence: Value = if let Some((state, _)) = load_state {
+        load_state_pipe_materials(state)
+    } else {
+        json!(model.pipe_segments.iter().map(|pipe| {
         let material=materials.iter().find(|m|m.id==pipe.material).expect("validated build material");
         let thermal=case.primitive_loads.iter().any(|l|l.category=="thermal" && is_temperature_change_dimension(&l.dimension) && matches!(&l.target,LoadTargetInput::Element{pipe:target} if target==&pipe.id));
         json!({"pipe_id":pipe.id,"material_id":material.id,"E_pa":material.elastic_modulus.value,"nu":material.poisson_ratio.as_ref().map(|q|q.value),"G_pa":material.shear_modulus.as_ref().map(|q|q.value),"constitutive_basis":material.constitutive_basis,"thermal_consumed":thermal,"alpha_per_kelvin":if thermal {material.thermal_expansion_coefficient.as_ref().map(|q|q.value)}else{None},"provenance":material.provenance})
-    }).collect();
-    if evidence["pipe_materials"] != json!(material_evidence) {
+    }).collect::<Vec<_>>())
+    };
+    if evidence["pipe_materials"] != material_evidence {
         return Err(bad("physical common E/nu material binding"));
     }
     let mut diagnostics = Vec::new();
-    let mut pressure_case =
-        pressure_runtime::build_pressure_case(&model, &built, &materials, case, &mut diagnostics)
-            .ok_or_else(|| bad("physical pressure source"))?;
+    let mut pressure_case = match load_state {
+        Some((state, _)) => pressure_runtime::build_pressure_case_with_members(
+            model,
+            built,
+            materials,
+            case,
+            Some(&state.pairs),
+            &mut diagnostics,
+        ),
+        None => {
+            pressure_runtime::build_pressure_case(model, built, materials, case, &mut diagnostics)
+        }
+    }
+    .ok_or_else(|| bad("physical pressure source"))?;
     if has_blocking(&diagnostics)
         || evidence["pressure_rhs_assembly"] != pressure_case.assembly_evidence
     {
@@ -673,6 +726,7 @@ impl FinalizedSourceBlockCase {
         actual: &[ResultItem],
         bindings: &[FunctionalRowBinding],
         evidence: &Value,
+        load_record: Option<&Value>,
     ) -> Result<Self, ReceiptError> {
         #[cfg(test)]
         trace("source_case_finalization_entry", &selected);
@@ -692,7 +746,7 @@ impl FinalizedSourceBlockCase {
             let material_record = capture.check_input_with_physical(
                 &input,
                 &mut selected,
-                Some((evidence, actual)),
+                Some((evidence, actual, load_record)),
             )?;
             #[cfg(test)]
             trace("captured_source_replay_complete", &selected);
@@ -709,6 +763,7 @@ impl FinalizedSourceBlockCase {
                     load_application: input.load_application,
                     thermal_loads: input.thermal_loads,
                     pressure_thrust_loads: input.pressure_thrust_loads,
+                    load_state: input.load_state,
                 })
                 .map_err(|e| bad(format!("composite current source: {e:?}")))?;
             #[cfg(test)]
@@ -879,7 +934,7 @@ impl FinalizedSourceBlockCase {
             actual_rows: serialized(&actual)?,
             qualified: true,
             exact: true,
-            physical_evidence: Some(json!({"exact_case":evidence,"pressure":[]})),
+            physical_evidence: Some(case_physical_evidence(evidence, &[], load_record)),
             derived_checks,
             section_stress_checks,
             _selected: Some(selected),
@@ -892,6 +947,7 @@ impl FinalizedSourceBlockCase {
         actual: &[ResultItem],
         evidence: &Value,
         pressure: &[Value],
+        load_record: Option<&Value>,
     ) -> Result<Self, ReceiptError> {
         if ordinary.mode != capture.mode || ordinary.outcome != "checks_passed" {
             return Err(bad(
@@ -927,7 +983,7 @@ impl FinalizedSourceBlockCase {
             actual_rows: serialized(&actual)?,
             qualified: true,
             exact: false,
-            physical_evidence: Some(json!({"exact_case":evidence,"pressure":pressure})),
+            physical_evidence: Some(case_physical_evidence(evidence, pressure, load_record)),
             derived_checks: vec![],
             section_stress_checks: vec![],
             _selected: None,
@@ -949,14 +1005,30 @@ pub(super) fn validate_publication(
         .contract_evidence
         .as_ref()
         .ok_or_else(|| bad("composite physical evidence missing"))?;
+    let load_state = case_state::is_load_state(&capture.requested()?.model);
+    let mut namespace = BTreeSet::from(["pressure", "connector", "exact_cases"]);
+    if load_state {
+        namespace.insert("load_reference_states");
+    }
     if evidence
         .as_object()
         .map(|o| o.keys().map(String::as_str).collect::<BTreeSet<_>>())
-        != Some(BTreeSet::from(["pressure", "connector", "exact_cases"]))
+        != Some(namespace)
         || evidence["connector"] != json!([])
     {
         return Err(bad("composite physical namespace"));
     }
+    let load_records = if load_state {
+        let records = evidence["load_reference_states"]
+            .as_array()
+            .ok_or_else(|| bad("composite load/reference-state cases"))?;
+        if records.len() != cases.len() {
+            return Err(bad("composite load/reference-state case coverage"));
+        }
+        Some(records)
+    } else {
+        None
+    };
     let physical = evidence["exact_cases"]
         .as_array()
         .ok_or_else(|| bad("composite exact cases"))?;
@@ -967,13 +1039,17 @@ pub(super) fn validate_publication(
         return Err(bad("composite exact case coverage"));
     }
     let mut observed_pressure = Vec::new();
-    for (case, physical) in cases.iter().zip(physical) {
+    for (index, (case, physical)) in cases.iter().zip(physical).enumerate() {
         let expected = case
             .physical_evidence
             .as_ref()
             .ok_or_else(|| bad("case physical proof absent"))?;
         if expected["exact_case"] != *physical {
             return Err(bad("case physical evidence changed"));
+        }
+        let load_record = expected.get("load_reference_state");
+        if load_record != load_records.map(|records| &records[index]) {
+            return Err(bad("case load/reference-state record changed"));
         }
         let pressure = expected["pressure"]
             .as_array()
@@ -990,13 +1066,34 @@ pub(super) fn validate_publication(
             .cloned()
             .collect();
         if !case.exact {
-            physical_source(capture, &case.case_id, physical, pressure, &actual, false)?;
+            physical_source(
+                capture,
+                &case.case_id,
+                physical,
+                pressure,
+                &actual,
+                false,
+                load_record,
+            )?;
         }
     }
     if observed_pressure != *pressure {
         return Err(bad("whole pressure case order/coverage"));
     }
     validate_composite_summary(envelope)
+}
+/// Per-case physical proof hashed into the receipt; a 0.4.0 case also binds
+/// its published load/reference-state record.
+fn case_physical_evidence(
+    evidence: &Value,
+    pressure: &[Value],
+    load_record: Option<&Value>,
+) -> Value {
+    let mut proof = json!({"exact_case":evidence,"pressure":pressure});
+    if let Some(record) = load_record {
+        proof["load_reference_state"] = record.clone();
+    }
+    proof
 }
 fn validate_composite_summary(envelope: &MechanicsEnvelope) -> Result<(), ReceiptError> {
     for (headline, kind) in [

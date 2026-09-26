@@ -1,0 +1,193 @@
+{
+  "format": "openpipestress.qualification_reference_values/1",
+  "case_id": "shared_material_serial_companion",
+  "readiness": "ready",
+  "basis": "generate_reference_values.py evaluating core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab) at the pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to binary64; no observed producer value",
+  "reference_kind": "analytical",
+  "independent_review_ref": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_FREEZE/RETURN.md#sha256=795b04214006160755fe39a427005022beecf94830c81e37110a8032d2574c49",
+  "values": [
+    {
+      "assertion_id": "case:shared-material.disp.node:middle.ux",
+      "value": -0.3333333333333333,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:shared-material.disp.node:root.ux",
+      "value": 0.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:shared-material.disp.node:far.ux",
+      "value": 0.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:shared-material.axial.pipe:1.end_i",
+      "value": 397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.axial.pipe:1.quarter_1",
+      "value": -397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.axial.pipe:1.midspan",
+      "value": -397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.axial.pipe:1.quarter_3",
+      "value": -397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.axial.pipe:1.end_j",
+      "value": -397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.axial.pipe:2.end_i",
+      "value": 397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.axial.pipe:2.quarter_1",
+      "value": -397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.axial.pipe:2.midspan",
+      "value": -397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.axial.pipe:2.quarter_3",
+      "value": -397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.axial.pipe:2.end_j",
+      "value": -397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:root.Fx",
+      "value": 397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:root.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:root.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:far.Fx",
+      "value": -397935.06945470715,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:far.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:far.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:far.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:far.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:shared-material.reaction.support:far.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:shared-material.evidence.member.pipe:1.selected_E_pa",
+      "value": 200000000000.0,
+      "unit": "Pa"
+    },
+    {
+      "assertion_id": "case:shared-material.evidence.member.pipe:1.selected_nu",
+      "value": 0.3,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:shared-material.evidence.member.pipe:1.derived_G_pa",
+      "value": 76923076923.07692,
+      "unit": "Pa"
+    },
+    {
+      "assertion_id": "case:shared-material.evidence.member.pipe:1.thermal_strain",
+      "value": 0.0,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:shared-material.evidence.member.pipe:1.total_eigenstrain",
+      "value": 0.0,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:shared-material.evidence.member.pipe:2.selected_E_pa",
+      "value": 100000000000.0,
+      "unit": "Pa"
+    },
+    {
+      "assertion_id": "case:shared-material.evidence.member.pipe:2.selected_nu",
+      "value": 0.25,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:shared-material.evidence.member.pipe:2.derived_G_pa",
+      "value": 40000000000.0,
+      "unit": "Pa"
+    },
+    {
+      "assertion_id": "case:shared-material.evidence.member.pipe:2.thermal_strain",
+      "value": 0.001,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:shared-material.evidence.member.pipe:2.total_eigenstrain",
+      "value": 0.001,
+      "unit": "1"
+    }
+  ],
+  "wrong_values": [
+    {
+      "assertion_id": "case:shared-material.disp.node:middle.ux.not.material_ID_only_E_override",
+      "value": -0.5,
+      "unit": "mm",
+      "discriminator": "/cases/shared_material_serial_companion/wrong_result_discriminators/material_ID_only_E_override/wrong_middle_UX"
+    }
+  ]
+}

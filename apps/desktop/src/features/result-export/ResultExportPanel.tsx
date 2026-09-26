@@ -2,6 +2,7 @@ import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { checkedJsonText } from "../../services/hashService";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { hasCurrentSourceContract, numericalResultStanding } from "../results/numericalResultQuality";
+import { isLoadReferenceRoute } from "../results/loadReferenceOutputAvailability";
 import { useEffect, useState } from "react";
 import { buildCurrentResultExport, type JsonObject } from "./resultExportAdapter";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
@@ -10,7 +11,7 @@ import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, Previ
 
 function liveResultBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null, inputManifest?: CurrentSessionInputManifestEvidence | null): string | null {
   try {
-    if (!result || !analysisRun || !inputManifest || !hasCurrentSourceContract(result)
+    if (!result || !analysisRun || !inputManifest || !hasCurrentSourceContract(result) || isLoadReferenceRoute(result)
       || !hasNativeMechanicsInvocation(result, model, inputManifest.manifest.solver_basis.solver_mode)
       || !numericalResultStanding(result, model).eligible) return null;
     return checkedJsonText({ model, result, analysisRun, inputManifest });

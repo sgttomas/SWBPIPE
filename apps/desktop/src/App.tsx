@@ -248,6 +248,7 @@ function AppSession() {
     projectBusy,
     handleCreateProject,
     handleCreateBlankProject,
+    handleCreateBlankLoadStateProject,
     handleOpenProject,
     handleSaveProject,
     handleListProjects
@@ -815,6 +816,10 @@ function AppSession() {
           <button type="button" onClick={handleCreateBlankProject} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
             New blank
+          </button>
+          <button type="button" data-testid="new-blank-040" onClick={handleCreateBlankLoadStateProject} disabled={projectBusy}>
+            <FilePlus size={15} aria-hidden="true" />
+            Blank 0.4.0 model
           </button>
           <button data-testid="open-local-project" type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />

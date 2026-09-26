@@ -1,0 +1,113 @@
+//! CP4 backcheck probes (scratch only). Invented inputs only.
+use super::*;
+
+fn witness() -> Value {
+    serde_json::from_str(include_str!(
+        "../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+    ))
+    .unwrap()
+}
+fn add_load(request: &mut Value, case: usize, id: &str, dir: &str, value: f64) {
+    let case = &mut request["model"]["load_cases"][case];
+    let mut load = case["primitive_loads"][0].clone();
+    load["id"] = json!(id);
+    load["direction"] = json!(dir);
+    load["target"] = json!({"type": "node", "node": "tip"});
+    if dir.starts_with('R') {
+        load["category"] = json!("concentrated_moment"); load["dimension"] = json!("moment");
+        load["magnitude"] = json!({"value": value, "unit": "N*m"});
+    } else {
+        load["category"] = json!("concentrated_force"); load["dimension"] = json!("force");
+        load["magnitude"] = json!({"value": value, "unit": "N"});
+    }
+    case["primitive_loads"].as_array_mut().unwrap().push(load);
+    case["analysis_state"]["load_sources"].as_array_mut().unwrap().push(json!({"source_ref": id, "factor": 1.0}));
+}
+fn copy_case(request: &mut Value, id: &str) {
+    let mut case = request["model"]["load_cases"][0].clone();
+    case["id"] = json!(id);
+    for load in case["primitive_loads"].as_array_mut().unwrap() {
+        let r = format!("{}:{id}", load["id"].as_str().unwrap()); load["id"] = json!(r);
+    }
+    for s in case["analysis_state"]["load_sources"].as_array_mut().unwrap() {
+        let r = format!("{}:{id}", s["source_ref"].as_str().unwrap()); s["source_ref"] = json!(r);
+    }
+    request["model"]["load_cases"].as_array_mut().unwrap().push(case);
+}
+fn bits(e: &MechanicsEnvelope) -> Vec<(String, u64)> { e.results.iter().map(|r| (r.id.clone(), r.value.to_bits())).collect() }
+
+fn run(name: &str, request: &Value, mode: PreviewSolverMode, per_case: usize, invocation: usize) {
+    let (typed, capture) = CapturedInvocation::parse(request.clone(), mode).unwrap();
+    let mut budget = SourceRecoveryBudget { per_case_limit: per_case, invocation_limit: invocation, ..Default::default() };
+    let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
+    let typed2: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+    let ordinary = run_linear_static_preview_with_mode(typed2, mode);
+    let label = envelope.producer.semantic_contract_id.rsplit('/').next().unwrap().to_string();
+    let blocking = envelope.diagnostics.iter().filter(|d| d.severity == "blocking").count();
+    let stages: Vec<String> = envelope.diagnostics.iter().filter(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE").map(|d| {
+        let m = &d.message;
+        let stage = m.find("stage: \"").map(|i| m[i+8..].split('"').next().unwrap().to_string()).unwrap_or_default();
+        format!("{}:{}", d.affected_refs[0], stage)
+    }).collect();
+    let rows_equal_ordinary = bits(&envelope) == bits(&ordinary);
+    eprintln!("B4PROBE {}", json!({"name": name, "mode": mode.as_str(), "per_case": per_case, "invocation": invocation,
+        "label": label, "status": envelope.status.mechanics, "blocking": blocking, "receipt": envelope.source_block_recovery.is_some(),
+        "rows": envelope.results.len(), "rows_equal_ordinary": rows_equal_ordinary,
+        "fallback": budget.load_state_join_withheld.as_ref().map(|c| c.chars().take(90).collect::<String>()),
+        "charged": budget.charged, "failed": budget.failed_charged, "attempts": budget.attempts,
+        "within_invocation": budget.charged <= budget.invocation_limit, "unavailable": stages}));
+    if label == "load-reference-1" {
+        assert_eq!(envelope.status.mechanics, "MECHANICS_SOLVED", "{name}");
+        assert_eq!(blocking, 0, "{name}");
+        assert!(rows_equal_ordinary, "{name}");
+    }
+    assert!(budget.charged <= budget.invocation_limit, "{name}");
+}
+
+#[test]
+fn b4_copy_scan_public_limits() {
+    for n in [1usize, 2, 6, 8, 9, 10, 12] {
+        let mut r = witness();
+        for i in 1..n { copy_case(&mut r, &format!("case:copy{i}")); }
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            run(&format!("copies{n}"), &r, mode, PHYSICS_SOURCE_WORK_LIMIT, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
+        }
+    }
+}
+
+/// Private invocation limits sweep the first run's exhaustion point so the
+/// republication starts with every remaining budget from ample to zero.
+#[test]
+fn b4_invocation_limit_sweep() {
+    let mut two = witness();
+    copy_case(&mut two, "case:copy1");
+    let mut ry = witness();
+    add_load(&mut ry, 0, "extra:ry", "RY", 1e-6);
+    for (name, r) in [("witness", witness()), ("two", two), ("ry", ry)] {
+        for inv in [3_000_000usize, 3_360_029, 4_000_000, 6_720_058, 7_000_000, 7_300_000, 7_400_000, 8_000_000, 10_000_000, 11_000_000, 14_000_000, 15_000_000, 16_000_000] {
+            run(&format!("{name}@inv{inv}"), &r, PreviewSolverMode::DenseScrutiny, PHYSICS_SOURCE_WORK_LIMIT, inv);
+        }
+    }
+}
+
+#[test]
+fn b4_mixed_and_ry_public() {
+    let mut mixed = witness();
+    copy_case(&mut mixed, "case:heavy");
+    add_load(&mut mixed, 1, "extra:heavy", "UZ", 1e-6);
+    let mut ry = witness();
+    add_load(&mut ry, 0, "extra:ry", "RY", 1e-6);
+    let mut heavy_first = witness();
+    add_load(&mut heavy_first, 0, "extra:heavy", "UZ", 1e-6);
+    let mut w = witness(); w["model"]["load_cases"][0]["id"] = json!("case:join"); 
+    copy_case(&mut heavy_first, "case:light");
+    // case:light is a copy of the heavy case 0; make it light by removing the extra load.
+    let light = &mut heavy_first["model"]["load_cases"][1];
+    light["primitive_loads"].as_array_mut().unwrap().pop();
+    light["analysis_state"]["load_sources"].as_array_mut().unwrap().pop();
+    for (name, r) in [("mixed", mixed), ("ry", ry), ("heavy_first", heavy_first)] {
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            run(name, &r, mode, PHYSICS_SOURCE_WORK_LIMIT, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
+        }
+    }
+}

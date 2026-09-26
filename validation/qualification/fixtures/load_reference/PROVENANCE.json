@@ -1,0 +1,503 @@
+{
+  "format": "openpipestress.load_reference_qualification_provenance/1",
+  "status": "admitted_after_independent_freeze",
+  "author": "T1_WP6_STATIC_CASES TASK (Type 2), requested by the T1 WORKING_ITEMS manager",
+  "date": "2026-09-26",
+  "base_commit": "d8f0dc4f7d95d2893078d335e11d7d31911e6e3b",
+  "data_boundary": "All inputs are invented test quantities; no material, component or code-rule library data.",
+  "analytical_reference": {
+    "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
+    "sha256": "4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab"
+  },
+  "analytical_reference_readme": {
+    "path": "core/product_physics/tests/fixtures/load_reference_states/README.md",
+    "sha256": "fe8149c0545453275e012af4276e7808bd9179c4accac866e0681d38da0979fb"
+  },
+  "producer_table": {
+    "path": "fixtures/results/semantic_contract_v0_3_load_reference_1.json",
+    "sha256": "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"
+  },
+  "runner_input_template": {
+    "path": "validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
+    "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74"
+  },
+  "wire_and_briefs": [
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/CP2_WIRE.md",
+      "sha256": "81a7adbaa212517c518a61c5ab54cd7d9444adaee6b7f0dbec8b7b6efd168996"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/CP2_WIRE_ADDENDUM_1.md",
+      "sha256": "c389f5e3878c6a32d8c72b80d1374ea6f30c4350c2870ab7ac653972df3dc760"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/CP2_WIRE_ADDENDUM_2.md",
+      "sha256": "ec66628ef8db1ac70500b80abbcc754b82133fb8d97d4cf0f41ecd4a32ab9133"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/CP3_WIRE_ADDENDUM.md",
+      "sha256": "f69043b682d027cc7f15e2173b932f016cd76f3a64d76b76d974cd0f0105f7d4"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/CP4_WIRE_ADDENDUM.md",
+      "sha256": "93a2c6786b5e213f115c3755f7ecb8c5d69c20612e1a5bd3023b9a622929699c"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/CP4_REVIEW_DISPOSITION.md",
+      "sha256": "82f142edae30b657b2c012c924a0ba552e1a658456b75b7f6ed5b3e3b85c3e83"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_PLAN.md",
+      "sha256": "a2b72d09964284d7d7b1a79e0fdad69c787a5d3d5b88e9a70a605f553b8fa68b"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/TASK_BRIEFS/_T1_COMMON.md",
+      "sha256": "0bc6a1bd95d88e904c4191606bc359039027df0a0237727f0d3b1bba0c5d2046"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/TASK_BRIEFS/T1_WP6_STATIC_CASES.md",
+      "sha256": "454621329a6fe48aebba2cb50e3451fdf46eebbcff957bf1b9b702e51ebdaab7"
+    }
+  ],
+  "generator": {
+    "path": "validation/qualification/fixtures/load_reference/generate_reference_values.py",
+    "sha256": "ead121195bd3149dbc3eed0a9bac1cc4e7e3ea22d6097d0162ef4e74e4effa67"
+  },
+  "generator_outputs": [
+    {
+      "path": "validation/qualification/fixtures/load_reference/coefficient_definition.reference.candidate.json",
+      "sha256": "575ae977c5e44954e1ea19eaccb0af6fb2ab44c2d1627ce76a32163210b74605"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/constant_alpha_interval.reference.candidate.json",
+      "sha256": "e335c0477ed89dda2193dcb850f8d1f4ca4697ee369fad807fd91096da8ab58d"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/multi_segment_free_length.reference.candidate.json",
+      "sha256": "47d7ee2c9fe41b985369f3b194cfab93af15811054b607e340d8c186d4235396"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/persistent_source_once.reference.candidate.json",
+      "sha256": "803b3df36542281c5b5948e493a0371c921274bb420cf81fb39b9904d6b88ece"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_all_fixed.reference.candidate.json",
+      "sha256": "7237fdd3d5d2504c70373e1d55867cdc622969bf5edf8d33449903e7919faaa7"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_free_tip.reference.candidate.json",
+      "sha256": "c3e1eee9419fafe35f1716d591c2a5e130a4bccc52c88f968cbafac7d90083c0"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/prescribed_translation_all_fixed.reference.candidate.json",
+      "sha256": "0b04b17a47625d12c45bb027663660627ba9792e872f734aa31f573679b29c67"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/prescribed_translation_two_bar.reference.candidate.json",
+      "sha256": "0f71dbbf452e837868eba9e3b215a6e014a9ff613d54bb03363daa8aaa38e340"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/shared_material_serial_companion.reference.candidate.json",
+      "sha256": "4c22c6b320a4acdc984be91c194638decfedaccd8e812fffee4696b891778b15"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/signed_fit_states.fixed.reference.candidate.json",
+      "sha256": "e989a45b4b87fa10f6867d18cb7d60d483e65457f95746d46db3b155bdee5465"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/signed_fit_states.released.reference.candidate.json",
+      "sha256": "062333fd77811a819d5726963e3c6ee0f621d0bfa63ee05fe3c3a3d4e6506a22"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/temperature_unit_identity.reference.candidate.json",
+      "sha256": "4346d986e474e5e1fbf9de98a4af9d70c1aa238880e5a158c0022c2cc8a57f9d"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.fixed.reference.candidate.json",
+      "sha256": "8f5c2db719f20f9d085eea62cd68628eeca65dbb194deaa5f3870935668d3fff"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.reference.candidate.json",
+      "sha256": "0e4b4b2a6cc904d0dde0d6f306bd13c2a645fccb98f72bc599338e1aa49647dc"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/coefficient_definition.criteria.candidate.json",
+      "sha256": "e1227dfb51850dc6b64295ff7c8c63954a723bea84c12d9427a58f848db66f71"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/constant_alpha_interval.criteria.candidate.json",
+      "sha256": "32be91b077bcc01d477d6a6f928ab532bad20ceb7ad7244372407a7b06506190"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/multi_segment_free_length.criteria.candidate.json",
+      "sha256": "80cb51a90eba843c2288298d2c1a918b17bfc8ffb8765e3ea6e4862dcbfbd94a"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/persistent_source_once.criteria.candidate.json",
+      "sha256": "7e9c5202347f3ac532178b1583482780787381d163e29b9953fa873d5d09228e"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_all_fixed.criteria.candidate.json",
+      "sha256": "ca6b8d7134ac6a7a8ec60c87796dd6e50322d84bb628f3b9939dff266aa11260"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_free_tip.criteria.candidate.json",
+      "sha256": "38fca18cdbb04bdb88d716587523b721dac0c33979e7c71127a9ff6eaf34c197"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/prescribed_translation_all_fixed.criteria.candidate.json",
+      "sha256": "b94f9e1d5d3164d15a58745e67880dbe6527a5768adb7a5320f6190c1568ac5e"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/prescribed_translation_two_bar.criteria.candidate.json",
+      "sha256": "48384a5c67dba10f9e6790fb8d4c850f5e417be9889121a4e1d447f070f6f18b"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/shared_material_serial_companion.criteria.candidate.json",
+      "sha256": "a671ec50feaad4213e5b79212fc6f2fe874893476cc93a719921596820b57b20"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/signed_fit_states.fixed.criteria.candidate.json",
+      "sha256": "9ab6e140fbe35981efa0aa850b3cb819fff46258b90b13918ea6b245821f6469"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/signed_fit_states.released.criteria.candidate.json",
+      "sha256": "672f8d6bcd7ee9b050ea05be9c8cbd41b00ba987dc48dde10b42f315f2c0c1cd"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/temperature_unit_identity.criteria.candidate.json",
+      "sha256": "2b1e75d37fc7b9b399bf1c53cd35faa0497c3cdf3fdf9ee0fec7816f58f181f8"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.fixed.criteria.candidate.json",
+      "sha256": "5d2fe828e2064fad33f42fa31c74a9671289dbcda95c14defd8a5950b3fe9c45"
+    },
+    {
+      "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.criteria.candidate.json",
+      "sha256": "73ed7c6d93100b9650762457342920ae43b99b3f4e758388f297a0544d236231"
+    }
+  ],
+  "authoring_records": [
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_STATIC_CASES/_run_records/author_package.py",
+      "sha256": "9907c22f3b565a98b7dd5d5e7afee69b054663a9f24a18c05fcc6df661227596"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_STATIC_CASES/_run_records/check_package.py",
+      "sha256": "ad7c6f6d53ed5c824c813c6d06348a8b3240acade25b1bbe5e90561cb42df054"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_STATIC_CASES/_run_records/mutations.py",
+      "sha256": "16a248beaab1ae291c07d155a05ae59db5904ec65964d3a26786036402d3c9b7"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_STATIC_CASES/_run_records/write_provenance.py",
+      "sha256": "36e6a9a664355f3b40a255ff836dd3e1846292a2f14c32a2a3a4483399af7883"
+    }
+  ],
+  "identification": {
+    "statement": "Row ids, kinds and metadata were identified by running core/product_physics examples/physics_source_connected (sparse and dense) on each request, and confirmed through the openpipestress-runner solve transport. No observed value is used as a reference or criterion, no comparison was run, and no producer output is committed.",
+    "producer_standing_observed": "every request solved in both modes with load-reference-1, profile resolved_straight_load_state_v1, numerical standing checks_passed for every case, no blocking diagnostic and the ordinary structural route (not_joined)"
+  },
+  "excluded_reference_cases": [
+    {
+      "case_key": "shared_material_parallel",
+      "reason": "Two coincident parallel bars: the reference marks this an analytical topology only whose public/native admissibility must be established separately.",
+      "practical_companion": "shared_material_serial_companion"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "prescribed_translation_two_bar",
+      "case_key": "prescribed_translation_two_bar",
+      "load_cases": [
+        "case:prescribed-root-translation"
+      ],
+      "load_state_decomposition": "one load case; one state",
+      "positive_assertions": 27,
+      "negative_assertions": 1,
+      "gaps": [
+        "free_rhs_after_prescribed_coupling"
+      ],
+      "invented_inputs": [
+        "Poisson ratio 0.3 invented where the reference gives none; it enters no checked result of the case",
+        "rigid six-DOF anchors at root and far (reference: all other DOFs prescribed zero)"
+      ]
+    },
+    {
+      "case_id": "prescribed_translation_all_fixed",
+      "case_key": "prescribed_translation_all_fixed",
+      "load_cases": [
+        "case:prescribed-root-translation"
+      ],
+      "load_state_decomposition": "one load case; one state; zero free DOFs",
+      "positive_assertions": 21,
+      "negative_assertions": 0,
+      "gaps": [
+        "zero_size_free_problem_discarded"
+      ],
+      "invented_inputs": [
+        "Poisson ratio 0.3 invented where the reference gives none; it enters no checked result of the case",
+        "rigid six-DOF anchors at root and far"
+      ]
+    },
+    {
+      "case_id": "prescribed_rotation_all_fixed",
+      "case_key": "prescribed_rotation_all_fixed",
+      "load_cases": [
+        "case:prescribed-root-rotation"
+      ],
+      "load_state_decomposition": "one load case; one state",
+      "positive_assertions": 24,
+      "negative_assertions": 0,
+      "gaps": [
+        "translation_substitution_or_length_normalized_angle"
+      ],
+      "invented_inputs": [
+        "Poisson ratio 0.3 invented where the reference gives none; it enters no checked result of the case",
+        "rigid six-DOF anchors at root and far"
+      ]
+    },
+    {
+      "case_id": "prescribed_rotation_free_tip",
+      "case_key": "prescribed_rotation_free_tip",
+      "load_cases": [
+        "case:prescribed-root-rotation"
+      ],
+      "load_state_decomposition": "one load case; one state",
+      "positive_assertions": 17,
+      "negative_assertions": 3,
+      "gaps": [],
+      "invented_inputs": [
+        "Poisson ratio 0.3 invented where the reference gives none; it enters no checked result of the case",
+        "rigid six-DOF anchor at root; free far end"
+      ]
+    },
+    {
+      "case_id": "shared_material_serial_companion",
+      "case_key": "shared_material_serial_companion",
+      "load_cases": [
+        "case:shared-material"
+      ],
+      "load_state_decomposition": "one load case; one state",
+      "positive_assertions": 35,
+      "negative_assertions": 1,
+      "gaps": [
+        "selected_point.pipe:1",
+        "selected_point.pipe:2"
+      ],
+      "invented_inputs": [
+        "shared material base E 170 GPa and nu 0.28 invented; selected by no member",
+        "property-point temperatures 20 degC (point:user-cold) and 300 degC (point:user-hot) invented; the reference gives E/nu and point ids only",
+        "rigid six-DOF anchors at root and far"
+      ]
+    },
+    {
+      "case_id": "thermal_datum_ratio.fixed",
+      "case_key": "thermal_datum_ratio",
+      "load_cases": [
+        "case:annular-three-point",
+        "case:verification-two-point",
+        "case:annular-three-point-kelvin"
+      ],
+      "load_state_decomposition": "three load cases in one request: the three-point annular table, the reviewed two-point table, and the three-point table with the operating temperature authored in K",
+      "positive_assertions": 75,
+      "negative_assertions": 6,
+      "gaps": [],
+      "invented_inputs": [
+        "Poisson ratio 0.3 invented where the reference gives none; it enters no checked result of the case",
+        "rigid six-DOF anchors at root and far",
+        "operating temperature of case:annular-three-point-kelvin authored as the reference operating_temperature_K"
+      ]
+    },
+    {
+      "case_id": "thermal_datum_ratio.free",
+      "case_key": "thermal_datum_ratio",
+      "load_cases": [
+        "case:annular-three-point",
+        "case:verification-two-point",
+        "case:annular-three-point-kelvin"
+      ],
+      "load_state_decomposition": "three load cases in one request: the three-point annular table, the reviewed two-point table, and the three-point table with the operating temperature authored in K",
+      "positive_assertions": 60,
+      "negative_assertions": 6,
+      "gaps": [],
+      "invented_inputs": [
+        "Poisson ratio 0.3 invented where the reference gives none; it enters no checked result of the case",
+        "rigid six-DOF anchor at root; free far end",
+        "operating temperature of case:annular-three-point-kelvin authored as the reference operating_temperature_K"
+      ]
+    },
+    {
+      "case_id": "coefficient_definition",
+      "case_key": "coefficient_definition",
+      "load_cases": [
+        "case:datum-length-a",
+        "case:datum-length-b",
+        "case:current-length-a",
+        "case:current-length-b"
+      ],
+      "load_state_decomposition": "four load cases in one request: each definition with (a) forward, reverse and second-half intervals and (b) the first-half interval; each interval is its own member",
+      "positive_assertions": 8,
+      "negative_assertions": 4,
+      "gaps": [],
+      "invented_inputs": [
+        "E 200 GPa and nu 0.3 invented (strain-only reference)",
+        "three 1 m cantilevers at y = 0, 1, 2 m invented as carriers",
+        "installation temperature 70 degC of pipe:install-mid is the midpoint implied by the reference first_half/second_half quantities"
+      ]
+    },
+    {
+      "case_id": "constant_alpha_interval",
+      "case_key": "constant_alpha_interval",
+      "load_cases": [
+        "case:kelvin-interval",
+        "case:celsius-interval"
+      ],
+      "load_state_decomposition": "two load cases in one request: the interval authored in K and in degC",
+      "positive_assertions": 4,
+      "negative_assertions": 0,
+      "gaps": [
+        "case:kelvin-interval.invented_ambient_temperature",
+        "case:celsius-interval.invented_ambient_temperature"
+      ],
+      "invented_inputs": [
+        "E 200 GPa and nu 0.3 invented (strain-only reference)",
+        "1 m cantilever invented as carrier",
+        "case:celsius-interval authors the same interval in 1/degC and degC"
+      ]
+    },
+    {
+      "case_id": "multi_segment_free_length",
+      "case_key": "multi_segment_free_length",
+      "load_cases": [
+        "case:datum-length-a",
+        "case:datum-length-b",
+        "case:current-length-a",
+        "case:current-length-b",
+        "case:dilation-a",
+        "case:dilation-b"
+      ],
+      "load_state_decomposition": "six load cases in one request: for each of the three definitions, (a) forward, reverse and split-to-operating and (b) install-to-split, operating-to-split and split-to-install; each installation temperature is its own member",
+      "positive_assertions": 42,
+      "negative_assertions": 12,
+      "gaps": [
+        "dilation.last_segment_only.datum_integral_form",
+        "segment_integrals_install_to_operating"
+      ],
+      "invented_inputs": [
+        "E 200 GPa and nu 0.3 invented (strain-only reference)",
+        "three 1 m cantilevers at y = 0, 1, 2 m invented as carriers"
+      ]
+    },
+    {
+      "case_id": "temperature_unit_identity",
+      "case_key": "temperature_unit_identity",
+      "load_cases": [
+        "case:minus-50-degC",
+        "case:242-degC",
+        "case:467p6-degF",
+        "case:20-degC-rankine",
+        "case:non-equal-control"
+      ],
+      "load_state_decomposition": "five load cases in one request: four exact-point selections whose operating temperature is authored in a different unit from the point, and the non-equal control on base properties",
+      "positive_assertions": 9,
+      "negative_assertions": 1,
+      "gaps": [
+        "case:minus-50-degC.selected_point",
+        "case:242-degC.selected_point",
+        "case:467p6-degF.selected_point",
+        "case:20-degC-rankine.selected_point",
+        "non_equal_control.refusal",
+        "binary64_affine_conversion"
+      ],
+      "invented_inputs": [
+        "E 200 GPa and nu 0.3 invented for the material and its three points (identity-only reference)",
+        "1 m cantilever invented as carrier",
+        "the three point temperatures are authored identity-group members; which member is the point is an authoring choice"
+      ]
+    },
+    {
+      "case_id": "signed_fit_states.fixed",
+      "case_key": "signed_fit_states",
+      "load_cases": [
+        "case:cold",
+        "case:hot",
+        "case:return"
+      ],
+      "load_state_decomposition": "three load cases in one request (cold, hot, return), each an independent equilibrium; the fixed and released topologies are separate requests",
+      "positive_assertions": 66,
+      "negative_assertions": 4,
+      "gaps": [
+        "misfit_plus_anchor_motion",
+        "baselines"
+      ],
+      "invented_inputs": [
+        "Poisson ratio 0.3 invented where the reference gives none; it enters no checked result of the case",
+        "material base E = reference cold_E (selected by no case)",
+        "point temperatures = reference installation (cold E) and hot (hot E) temperatures",
+        "rigid six-DOF anchors at root and far"
+      ]
+    },
+    {
+      "case_id": "signed_fit_states.released",
+      "case_key": "signed_fit_states",
+      "load_cases": [
+        "case:cold",
+        "case:hot",
+        "case:return"
+      ],
+      "load_state_decomposition": "three load cases in one request (cold, hot, return), each an independent equilibrium; the fixed and released topologies are separate requests",
+      "positive_assertions": 51,
+      "negative_assertions": 0,
+      "gaps": [
+        "baselines"
+      ],
+      "invented_inputs": [
+        "Poisson ratio 0.3 invented where the reference gives none; it enters no checked result of the case",
+        "material base E = reference cold_E (selected by no case)",
+        "point temperatures = reference installation (cold E) and hot (hot E) temperatures",
+        "rigid six-DOF anchor at root; free far end (released)"
+      ]
+    },
+    {
+      "case_id": "persistent_source_once",
+      "case_key": "persistent_source_once",
+      "load_cases": [
+        "case:combined",
+        "case:two-equal-actions"
+      ],
+      "load_state_decomposition": "two load cases in one request: the combined preload/weight/independent case and the two distinct equal actions of the numeric_deduplication discriminator",
+      "positive_assertions": 28,
+      "negative_assertions": 2,
+      "gaps": [
+        "implicit_case_array",
+        "duplicate_source_id",
+        "preload_classification",
+        "intermediate_rhs"
+      ],
+      "invented_inputs": [
+        "Poisson ratio 0.3 invented where the reference gives none; it enters no checked result of the case",
+        "rigid six-DOF anchor at root",
+        "preload authored as an ordinary stored primitive (reference: equivalent affine tip action)",
+        "source ids source:action-a/-b and their +200 N magnitude (the reference independent_action) from the numeric_deduplication discriminator"
+      ]
+    }
+  ],
+  "admission": {
+    "record": {
+      "path": "validation/qualification/fixtures/load_reference/ADMISSION.json",
+      "sha256": "f17f04f7399de4ece1b442c265588509e723ad37fcf342180ed964ef8102ca8d"
+    },
+    "independent_freeze": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_FREEZE/RETURN.md",
+      "sha256": "795b04214006160755fe39a427005022beecf94830c81e37110a8032d2574c49"
+    },
+    "freeze_change_R1_script": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_FREEZE/_run_records/apply_R1.py",
+      "sha256": "0652e00a22783531b4e550d528d1af14c8d78a43eb2d0fab486f17ed49d91e03"
+    },
+    "reproduction": "The admitted package is the authored candidate package (commit 91ec30630) with the freeze change R1 applied by apply_R1.py, the README corrections R2/R3, ADMISSION.json, and generate_reference_values.py --write; MANIFEST.json and this file are re-hashed accordingly.",
+    "superseded_authoring_records": "The authoring records listed under authoring_records reproduce the pre-freeze candidate package only. author_package.py still writes the pre-R1 signed-fit rule (hot_thermal_strain) at its line 1020 and is superseded for R1 by apply_R1.py; its provenance and hash are kept unchanged as the authoring record."
+  }
+}

@@ -1,0 +1,5 @@
+development_comparison sparse_interactive cases required 14 excluded []
+development_comparison dense_scrutiny cases required 14 excluded []
+harness_development sparse_interactive cases required 14 excluded []
+harness_development dense_scrutiny cases required 14 excluded []
+admitted cases 14 positive 467 negative 40

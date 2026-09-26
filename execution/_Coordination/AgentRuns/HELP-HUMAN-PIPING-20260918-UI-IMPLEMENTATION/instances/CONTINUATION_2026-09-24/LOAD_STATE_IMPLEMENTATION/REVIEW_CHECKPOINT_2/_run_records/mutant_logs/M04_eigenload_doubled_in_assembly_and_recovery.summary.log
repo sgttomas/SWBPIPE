@@ -1,0 +1,20 @@
+     Running unittests src/lib.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/open_pipe_stress_product_physics-f6a14ff10cb528f4)
+test case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once ... FAILED
+test case_state::tests::product_route_reproduces_single_and_multi_segment_free_length_references ... FAILED
+test result: FAILED. 297 passed; 2 failed; 1 ignored; 0 measured; 0 filtered out; finished in 2.21s
+error: test failed, to rerun pass `--lib`
+     Running tests/load_reference_state_runtime.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/load_reference_state_runtime-6e7854afb5d7f6af)
+test constant_alpha_interval_needs_no_absolute_temperature ... FAILED
+test negative_additional_wire_rules_block ... FAILED
+test negative_legacy_thermal_referenced_with_resolved_state_blocks ... FAILED
+test shared_material_serial_companion_selects_point_per_member ... FAILED
+test signed_fit_baselines_cut_long_and_direct_fit_strain ... FAILED
+test signed_fit_cold_hot_return_fixed_and_released ... FAILED
+test thermal_datum_ratio_secant_table_fixed_and_free ... FAILED
+test result: FAILED. 13 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+error: test failed, to rerun pass `--test load_reference_state_runtime`
+     Running tests/review2_probes.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/review2_probes-9bee1ca8a08c1be6)
+test p01_prescribed_motion_eigenstrain_force_and_factor_against_own_derivation ... FAILED
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+error: test failed, to rerun pass `--test review2_probes`
+error: 3 targets failed:

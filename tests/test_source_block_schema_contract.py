@@ -373,9 +373,17 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
     with pytest.raises(AssertionError): validate_instance(schema_for_definition(results, "ResultMetadata"), actual)
     # Validate the exact branch wiring; canonical packet positives remain the
     # separately supplied actual headless producer artifacts, never constructed here.
-    for index, branch in enumerate(results["$defs"]["ResultEnvelope"]["oneOf"]):
-        # T0R appends the preview-physics-1 branch (index 4) with its own result set.
-        target = {3: "PhysicsSourceResultSet", 4: "PreviewPhysicsResultSet"}.get(index, "ResultSet")
+    branches = results["$defs"]["ResultEnvelope"]["oneOf"]
+    assert len(branches) == 7
+    for branch in branches:
+        # Keyed by the branch's pinned producer identity, not by position: T0R
+        # appended preview-physics-1 and T1 appended load-reference-1 and
+        # load-reference-source-1; only the two retained-source methods and the
+        # preview method use their own result sets.
+        identity = branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
+        target = {"openpipestress.result_semantics/0.3.0/physics-source-1": "PhysicsSourceResultSet",
+                  "openpipestress.result_semantics/0.3.0/load-reference-source-1": "PhysicsSourceResultSet",
+                  "openpipestress.result_semantics/0.3.0/preview-physics-1": "PreviewPhysicsResultSet"}.get(identity, "ResultSet")
         assert branch["properties"]["result_sets"]["items"] == {"$ref": f"#/$defs/{target}"}
     assert results["$defs"]["ResultSet"]["properties"]["values"]["items"] == {"$ref": "#/$defs/QuantityResult"}
     assert results["$defs"]["QuantityResult"]["properties"]["metadata"] == {"$ref": "#/$defs/ResultMetadata"}

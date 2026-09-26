@@ -1,0 +1,3 @@
+{"id": "C10-row-value-integer-above-2p53.json", "dispatch": "CHECKED-JSON-UNSAFE-INTEGER", "validator": "CHECKED-JSON-UNSAFE-INTEGER", "transport": "accept", "standing": "unsupported"}
+{"id": "C11-diagnostic-extra-integer-above-2p53.json", "dispatch": "CHECKED-JSON-UNSAFE-INTEGER", "validator": "CHECKED-JSON-UNSAFE-INTEGER", "transport": "accept", "standing": "unsupported"}
+{"id": "PS-C10-row-value-integer-above-2p53.json", "dispatch": "CHECKED-JSON-UNSAFE-INTEGER", "validator": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY", "transport": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY", "standing": "unsupported"}

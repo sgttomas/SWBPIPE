@@ -1,0 +1,46 @@
+{
+  "format": "openpipestress.load_reference_consistency_binding/1",
+  "contract_id": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "entrypoint": "validate_load_reference_evidence",
+  "status": "reviewed_candidate",
+  "review_basis": [
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WAVE1_REVIEW_A/RETURN.md",
+      "sha256": "f0deb159c597a1c63393f2145eba31f9cf3d0485c8b4edb2190e11db37cdff3f"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WAVE1_REVIEW_A/BACKCHECK.md",
+      "sha256": "31ee99111d1907fc3dfbb3c9258e1ccc269753b713bc8d4b3acf6a62713261f3"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/REVIEW_CHECKPOINT_3/RETURN.md",
+      "sha256": "0834b1a5281cf71885ee1aec622b18d9da0507cd23428faeed3c025e86546382"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/REVIEW_CHECKPOINT_4/RETURN.md",
+      "sha256": "3e713809d33c63f06ce21309ec8fde81a220feb9d026fdbbdfd8afaa5afdb978"
+    }
+  ],
+  "files": [
+    {
+      "path": "core/analysis_runs/load_reference_evidence.py",
+      "sha256": "14e1750ebb96c8284d71b49e01e55455c9e42fa6197ac979f0118271503b57c7"
+    },
+    {
+      "path": "core/analysis_runs/physics_evidence.py",
+      "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_3_load_reference_1.json",
+      "sha256": "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    },
+    {
+      "path": "core/units/src/lib.rs",
+      "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+    }
+  ]
+}

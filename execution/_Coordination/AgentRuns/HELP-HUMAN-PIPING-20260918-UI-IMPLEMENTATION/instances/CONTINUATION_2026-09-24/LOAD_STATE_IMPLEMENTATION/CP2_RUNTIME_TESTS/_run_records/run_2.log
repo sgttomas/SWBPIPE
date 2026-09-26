@@ -1,0 +1,318 @@
+# run 2 2026-09-25T17:52:28Z
+# cwd=/home/user/wt/loadstate/projects/chirality-piping/core/product_physics
+# HEAD=5511596af66085ec1d70fab1277431b9023744ff
+# git status (product_physics):
+ M src/case_state/material.rs
+ M src/case_state/mod.rs
+ M src/case_state/thermal.rs
+ M src/lib.rs
+ M src/pressure_runtime.rs
+?? src/case_state/input.rs
+?? src/case_state/resolve.rs
+?? src/case_state/temperature.rs
+?? src/case_state/tests.rs
+?? tests/load_reference_state_runtime.rs
+# src_tree_sha256_before=5e6170edccfdcd2df03b5236d6a5c7c0fe8c9edef823a7335944ca851d77a7a1 (sha256 of HEAD + sorted sha256sum of src/**/*.rs)
+# src: 98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9  src/annulus_geometry.rs
+# src: 602725e42baaa9952d11138fab585c24ae280b7e4a2d634cc456c812528cf14f  src/case_state/input.rs
+# src: dc84e62e6cf205b8f24abaa550657fc87717813048d397f8e6379d753b9ae263  src/case_state/material.rs
+# src: f18701f680a9af0c55f0aad4a522965de58c5a00bc7dc0722509dcb9632bc6d5  src/case_state/mod.rs
+# src: 2a85c4903139b1d4d8e26620ff9338ce2c366d121bdfdf8645ecf2d08c003ce2  src/case_state/resolve.rs
+# src: 6f030d5aba0c2e0add8deec47f09098f91768af5236996741f79c85cbe3fa545  src/case_state/temperature.rs
+# src: 3c6f9498d436ab2e46d7897b6264c1105d6467da4a39eafcf59f2334c96db617  src/case_state/tests.rs
+# src: b78074dd96280dc489737208ca355ed23c0a596223a9c57ca01282b52da21600  src/case_state/thermal.rs
+# src: 086bbc7b789e839bf6eecfb9114c74cc1d654b0853cf76077d42b0ba1d281336  src/historical_pressure_reference.rs
+# src: aae666234396068903247ebec5d898f342b5d3b525043f95afbb5bd930e57faa  src/lib.rs
+# src: 0d0e68418c240a7ca7f4adcda81e928d2c3941e827a68838cf584b14ddd61d43  src/membrane_publication_range.rs
+# src: b85630992db2e3a8be9c87f395dee09b0d27c68cf80ea9765cddb57b69768fa0  src/pressure_exact.rs
+# src: a023170798a856506f90887df4b421c8979818ad8a8c029e6b334ac53d210143  src/pressure_exact/source_geometry.rs
+# src: a7d63cedda6040e03c0583f9c3a7114cf9aff40144ea6a5748252898789de7b2  src/pressure_material.rs
+# src: 00da089218ff901b6d0c9a80cb62aeecdd442bc6453cfc4fc5e8cb7ae9aff658  src/pressure_runtime.rs
+# src: 7231339e48cabe0f54122ac6253cb2ce936d025d1bb3a391e709030d8b617ef3  src/pressure_sum.rs
+# src: 6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261  src/self_weight.rs
+# src: 60153bd048a99807336fb53d932841224bd116eccd1d7d655baa66f29d467f18  src/source_budget_tests.rs
+# src: 94720720cbc0221af00e875faba5f77dfe6b35e791f248c589e87af10e6b8a65  src/source_receipt.rs
+# src: 775a18f8cdd9d94eb9a16677dd3070d65b0ff08b363ca63313bb2a1a1b26d757  src/source_receipt/composite.rs
+# src: abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6  src/source_receipt/endpoint_maximum.rs
+# src: 17b4570259da139e406a47229131b4a0a8a7640a5625a161af53f67ebe3e8262  src/source_receipt/rows.rs
+# src: cae846c609e9dfd2a650e91b85419d55b6b8b96137834a5ca9fbaf562bebf4ca  src/source_receipt/source.rs
+# src: cd45c7e14898951dc8500129bdd3273a6db2e0fff5351761b87af4e7728f1b18  src/source_receipt/tests.rs
+# src: 04b1083e0cc750a1e5b9335c31e27f2dccaca965c797bcfbaafff6b4f6056315  src/source_recovery.rs
+# src: a379d5262cccf2263e201dc1f18ec3ca1d207fc0b63231cf00112d2a6c19559c  src/validation.rs
+# test_sha256=eef0ddd53d03301e6d9db004b2ba683dd18e49c44c7e66eacd0758036af12402
+# fixture_sha256=5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891
+cargo 1.97.1 (c980f4866 2026-06-30)
+rustc 1.97.1 (8bab26f4f 2026-07-14)
+# cmd: CARGO_TARGET_DIR=/home/user/cargo-targets/loadstate/product_physics_tests cargo +1.97.1 test --locked --offline -j 1 --test load_reference_state_runtime -- --nocapture
+   Compiling open_pipe_stress_product_physics v0.2.0 (/home/user/wt/loadstate/projects/chirality-piping/core/product_physics)
+warning: unused import: `ELEMENT_DOF`
+  --> src/source_recovery.rs:11:5
+   |
+11 |     ELEMENT_DOF,
+   |     ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:7933:4
+     |
+7933 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `as_str` is never used
+  --> src/case_state/thermal.rs:82:19
+   |
+81 | impl SegmentUse {
+   | --------------- method in this implementation
+82 |     pub(crate) fn as_str(self) -> &'static str {
+   |                   ^^^^^^
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:56:9
+   |
+55 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+56 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:64:9
+   |
+63 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+64 |     pub support_id: String,
+   |         ^^^^^^^^^^
+65 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+66 |     pub value: f64,
+   |         ^^^^^
+67 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:89:9
+    |
+ 88 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+ 89 |     pub dofs: usize,
+    |         ^^^^
+ 90 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+ 91 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 92 |     pub blocks: usize,
+    |         ^^^^^^
+ 93 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+ 94 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+ 95 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+ 96 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+ 97 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+ 98 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 99 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+100 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+101 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+102 |     pub max_relative_projection_error: f64,
+103 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:116:5
+    |
+110 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+116 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:142:12
+    |
+125 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+142 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+  --> src/source_receipt.rs:86:19
+   |
+64 | impl CapturedInvocation {
+   | ----------------------- method in this implementation
+...
+86 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+   |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:341:19
+    |
+276 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+341 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `expected_primary` is never used
+  --> src/source_receipt/rows.rs:55:15
+   |
+55 | pub(super) fn expected_primary(
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `derived` is never used
+   --> src/source_receipt/rows.rs:329:15
+    |
+329 | pub(super) fn derived(
+    |               ^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib) generated 12 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.07s
+     Running tests/load_reference_state_runtime.rs (/home/user/cargo-targets/loadstate/product_physics_tests/debug/deps/load_reference_state_runtime-e90e401cd33a5472)
+
+running 20 tests
+OBSERVED_BLOCK control=boundary_motion_on_unrestrained_dof mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED"] details=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED: boundary motion applies only to a DOF this support already restrains rigidly; motion on a free or spring DOF requires its own explicit law"]
+OBSERVED_BLOCK control=boundary_motion_duplicate_dof mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_DUPLICATE"] details=["LOAD_STATE_BOUNDARY_MOTION_DUPLICATE: each support DOF may carry at most one boundary motion"]
+OBSERVED_BLOCK control=duplicate_source_ref factors=(1.0, 0.5) mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_DUPLICATE"] details=["LOAD_STATE_SOURCE_DUPLICATE: a physical source may be included once; equal IDs are rejected rather than guessed as intentional doubling, and an explicit factor requests scaling"]
+OBSERVED_BLOCK control=boundary_motion_on_unrestrained_dof mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED"] details=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED: boundary motion applies only to a DOF this support already restrains rigidly; motion on a free or spring DOF requires its own explicit law"]
+test negative_boundary_motion_on_unrestrained_dof_blocks ... ok
+OBSERVED_BLOCK control=duplicate_source_ref factors=(1.0, 0.5) mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_DUPLICATE"] details=["LOAD_STATE_SOURCE_DUPLICATE: a physical source may be included once; equal IDs are rejected rather than guessed as intentional doubling, and an explicit factor requests scaling"]
+OBSERVED_BLOCK control=duplicate_source_ref factors=(1.0, 1.0) mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_DUPLICATE"] details=["LOAD_STATE_SOURCE_DUPLICATE: a physical source may be included once; equal IDs are rejected rather than guessed as intentional doubling, and an explicit factor requests scaling"]
+OBSERVED_BLOCK control=free_length_state_without_operating_temperature mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_OPERATING_TEMPERATURE_REQUIRED"] details=["LOAD_STATE_OPERATING_TEMPERATURE_REQUIRED: a free-length thermal state requires the actual element operating_temperature; none is inferred from a property point or ambient value"]
+OBSERVED_BLOCK control=duplicate_source_ref factors=(1.0, 1.0) mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_DUPLICATE"] details=["LOAD_STATE_SOURCE_DUPLICATE: a physical source may be included once; equal IDs are rejected rather than guessed as intentional doubling, and an explicit factor requests scaling"]
+OBSERVED_BLOCK control=boundary_motion_duplicate_dof mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_DUPLICATE"] details=["LOAD_STATE_BOUNDARY_MOTION_DUPLICATE: each support DOF may carry at most one boundary motion"]
+OBSERVED_BLOCK control=free_length_state_without_operating_temperature mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_OPERATING_TEMPERATURE_REQUIRED"] details=["LOAD_STATE_OPERATING_TEMPERATURE_REQUIRED: a free-length thermal state requires the actual element operating_temperature; none is inferred from a property point or ambient value"]
+OBSERVED_BLOCK control=free_length_state_with_direct_strain_reference mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_FREE_LENGTH_REQUIRES_TEMPERATURE_REFERENCE"] details=["LOAD_STATE_FREE_LENGTH_REQUIRES_TEMPERATURE_REFERENCE: a free-length thermal state requires a temperature_reference member basis; a direct-strain reference supplies no installation temperature"]
+OBSERVED_BLOCK control=free_length_state_with_direct_strain_reference mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_FREE_LENGTH_REQUIRES_TEMPERATURE_REFERENCE"] details=["LOAD_STATE_FREE_LENGTH_REQUIRES_TEMPERATURE_REFERENCE: a free-length thermal state requires a temperature_reference member basis; a direct-strain reference supplies no installation temperature"]
+OBSERVED_BLOCK control=free_length_state_law_not_on_material mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_EXPANSION_LAW_UNRESOLVED"] details=["LOAD_STATE_EXPANSION_LAW_UNRESOLVED: the expansion law must be owned by this member's actual material record"]
+OBSERVED_BLOCK control=spring_boundary_motion mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED"] details=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED: boundary motion applies only to a DOF this support already restrains rigidly; motion on a free or spring DOF requires its own explicit law"]
+OBSERVED_BLOCK control=free_length_state_law_not_on_material mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_EXPANSION_LAW_UNRESOLVED"] details=["LOAD_STATE_EXPANSION_LAW_UNRESOLVED: the expansion law must be owned by this member's actual material record"]
+test negative_free_length_state_without_operating_temperature_blocks ... ok
+OBSERVED_BLOCK control=spring_boundary_motion mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED"] details=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED: boundary motion applies only to a DOF this support already restrains rigidly; motion on a free or spring DOF requires its own explicit law"]
+OBSERVED_BLOCK control=same_member_legacy_thermal_plus_resolved_thermal mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED"] details=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED: thermal strain is owned by the resolved element thermal_state; a legacy thermal primitive cannot also be consumed"]
+OBSERVED_BLOCK control=same_member_legacy_thermal_plus_resolved_thermal mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED"] details=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED: thermal strain is owned by the resolved element thermal_state; a legacy thermal primitive cannot also be consumed"]
+OBSERVED_BLOCK control=referenced_legacy_thermal_with_unchanged_reference mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED"] details=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED: thermal strain is owned by the resolved element thermal_state; a legacy thermal primitive cannot also be consumed"]
+OBSERVED_BLOCK control=material_ref_not_pipe_material mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_REFERENCE_MISMATCH"] details=["LOAD_STATE_MATERIAL_REFERENCE_MISMATCH: Selection must name this member's actual material record; point_refs=[]"]
+OBSERVED_BLOCK control=referenced_legacy_thermal_with_unchanged_reference mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED"] details=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED: thermal strain is owned by the resolved element thermal_state; a legacy thermal primitive cannot also be consumed"]
+test duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply ... ok
+test constant_alpha_interval_needs_no_absolute_temperature ... ok
+OBSERVED_BLOCK control=missing_element_state mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_ELEMENT_MISSING"] details=["LOAD_STATE_ELEMENT_MISSING: every pipe requires an explicit element state; no temperature, material basis or unchanged state is assumed"]
+OBSERVED_BLOCK control=missing_element_state mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_ELEMENT_MISSING"] details=["LOAD_STATE_ELEMENT_MISSING: every pipe requires an explicit element state; no temperature, material basis or unchanged state is assumed"]
+OBSERVED_BLOCK control=duplicate_element_state_and_missing_second mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_ELEMENT_DUPLICATE", "LOAD_STATE_ELEMENT_MISSING"] details=["LOAD_STATE_ELEMENT_DUPLICATE: a pipe may have only one element state per case; no array-order precedence is applied", "LOAD_STATE_ELEMENT_MISSING: every pipe requires an explicit element state; no temperature, material basis or unchanged state is assumed"]
+OBSERVED_BLOCK control=duplicate_element_state_and_missing_second mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_ELEMENT_DUPLICATE", "LOAD_STATE_ELEMENT_MISSING"] details=["LOAD_STATE_ELEMENT_DUPLICATE: a pipe may have only one element state per case; no array-order precedence is applied", "LOAD_STATE_ELEMENT_MISSING: every pipe requires an explicit element state; no temperature, material basis or unchanged state is assumed"]
+test negative_missing_element_state_blocks ... ok
+OBSERVED_BLOCK control=duplicate_temperature mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: TableNotStrictlyIncreasing { index: 2 }; no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=duplicate_temperature mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: TableNotStrictlyIncreasing { index: 2 }; no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=0.3.0_with_all_load_state_owners mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"] details=["LOAD_STATE_CONTRACT_VERSION_MISMATCH: reference_configurations, material expansion_laws and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document"]
+OBSERVED_BLOCK control=material_ref_not_pipe_material mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_REFERENCE_MISMATCH"] details=["LOAD_STATE_MATERIAL_REFERENCE_MISMATCH: Selection must name this member's actual material record; point_refs=[]"]
+OBSERVED_BLOCK control=missing_thermal_interval_bracket/operating_above_table mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: OutsideTableCoverage; no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=missing_thermal_interval_bracket/operating_above_table mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: OutsideTableCoverage; no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=missing_support_state mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_STATE_MISSING"] details=["LOAD_STATE_SUPPORT_STATE_MISSING: every model support requires an explicit support state; omission is not permission to keep, remove or lock it"]
+OBSERVED_BLOCK control=0.3.0_with_all_load_state_owners mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"] details=["LOAD_STATE_CONTRACT_VERSION_MISMATCH: reference_configurations, material expansion_laws and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document"]
+OBSERVED_BLOCK control=missing_thermal_interval_bracket/installation_below_table mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: OutsideTableCoverage; no extrapolation, fallback or default is applied"]
+test negative_legacy_thermal_referenced_with_resolved_state_blocks ... ok
+OBSERVED_BLOCK control=missing_support_state mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_STATE_MISSING"] details=["LOAD_STATE_SUPPORT_STATE_MISSING: every model support requires an explicit support state; omission is not permission to keep, remove or lock it"]
+OBSERVED_REJECT control=unknown_coefficient_definition mode=sparse_interactive error=request: materials[0].expansion_laws: unknown variant `engineering_unreviewed_coefficient`, expected one of `engineering_secant`, `engineering_dilation`, `differential_per_datum_length`, `logarithmic_per_current_length`
+OBSERVED_BLOCK control=0.3.0_with_analysis_state mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"] details=["LOAD_STATE_CONTRACT_VERSION_MISMATCH: reference_configurations, material expansion_laws and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document"]
+OBSERVED_BLOCK control=missing_thermal_interval_bracket/installation_below_table mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: OutsideTableCoverage; no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=0.3.0_with_analysis_state mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"] details=["LOAD_STATE_CONTRACT_VERSION_MISMATCH: reference_configurations, material expansion_laws and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document"]
+OBSERVED_BLOCK control=datum_outside_thermal_coverage mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: OutsideTableCoverage; no extrapolation, fallback or default is applied"]
+OBSERVED_REJECT control=unknown_coefficient_definition mode=dense_scrutiny error=request: materials[0].expansion_laws: unknown variant `engineering_unreviewed_coefficient`, expected one of `engineering_secant`, `engineering_dilation`, `differential_per_datum_length`, `logarithmic_per_current_length`
+OBSERVED_BLOCK control=duplicate_support_state mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_DUPLICATE"] details=["LOAD_STATE_SUPPORT_DUPLICATE: a support may have only one support state per case"]
+OBSERVED_BLOCK control=0.3.0_with_reference_configurations mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"] details=["LOAD_STATE_CONTRACT_VERSION_MISMATCH: reference_configurations, material expansion_laws and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document"]
+OBSERVED_BLOCK control=datum_outside_thermal_coverage mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: OutsideTableCoverage; no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=0.3.0_with_reference_configurations mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"] details=["LOAD_STATE_CONTRACT_VERSION_MISMATCH: reference_configurations, material expansion_laws and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document"]
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_both_without_kind mode=sparse_interactive error=request: missing field `kind`
+OBSERVED_BLOCK control=duplicate_support_state mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_DUPLICATE"] details=["LOAD_STATE_SUPPORT_DUPLICATE: a support may have only one support state per case"]
+OBSERVED_BLOCK control=0.3.0_with_expansion_laws mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"] details=["LOAD_STATE_CONTRACT_VERSION_MISMATCH: reference_configurations, material expansion_laws and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document"]
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_both_without_kind mode=dense_scrutiny error=request: missing field `kind`
+OBSERVED_BLOCK control=0.3.0_with_expansion_laws mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"] details=["LOAD_STATE_CONTRACT_VERSION_MISMATCH: reference_configurations, material expansion_laws and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document"]
+OBSERVED_BLOCK control=nonpositive_free_stretch/cut_equals_length mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit natural length\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit natural length\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit natural length\"); no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=unknown_source_ref mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_UNRESOLVED"] details=["LOAD_STATE_SOURCE_UNRESOLVED: load source names no primitive stored in this load case"]
+OBSERVED_BLOCK control=unknown_source_ref mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_UNRESOLVED"] details=["LOAD_STATE_SOURCE_UNRESOLVED: load source names no primitive stored in this load case"]
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_length_with_extra_strain mode=sparse_interactive error=request: unknown field `strain`, expected `length_change`
+OBSERVED_BLOCK control=0.2.0_with_analysis_state mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH", "LOAD_INPUT_MISSING", "MATERIAL_INPUT_MISSING"] details=["LOAD_STATE_CONTRACT_VERSION_MISMATCH: reference_configurations, material expansion_laws and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document", "LOAD_INPUT_MISSING: linear-static preview requires at least one explicit primitive load; no hidden loads are applied", "MATERIAL_INPUT_MISSING: legacy material requires explicit shear_modulus"]
+OBSERVED_BLOCK control=nonpositive_free_stretch/cut_equals_length mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit natural length\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit natural length\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit natural length\"); no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=0.2.0_with_analysis_state mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH", "LOAD_INPUT_MISSING", "MATERIAL_INPUT_MISSING"] details=["LOAD_STATE_CONTRACT_VERSION_MISMATCH: reference_configurations, material expansion_laws and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document", "LOAD_INPUT_MISSING: linear-static preview requires at least one explicit primitive load; no hidden loads are applied", "MATERIAL_INPUT_MISSING: legacy material requires explicit shear_modulus"]
+test negative_legacy_version_documents_carrying_load_state_block ... ok
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_length_with_extra_strain mode=dense_scrutiny error=request: unknown field `strain`, expected `length_change`
+OBSERVED_BLOCK control=zero_source_factor mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_FACTOR_INVALID"] details=["LOAD_STATE_SOURCE_FACTOR_INVALID: source factor must be finite and nonzero; omit the source to exclude it"]
+OBSERVED_BLOCK control=nonpositive_free_stretch/fit_strain_minus_one mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=rotation_with_length_units mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID"] details=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID: translations require a length unit and rotations an angle unit: m is not in the catalog for rotation"]
+OBSERVED_BLOCK control=zero_source_factor mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_FACTOR_INVALID"] details=["LOAD_STATE_SOURCE_FACTOR_INVALID: source factor must be finite and nonzero; omit the source to exclude it"]
+OBSERVED_BLOCK control=rotation_with_length_units mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID"] details=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID: translations require a length unit and rotations an angle unit: m is not in the catalog for rotation"]
+OBSERVED_BLOCK control=source_ref_from_other_case mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_UNRESOLVED"] details=["LOAD_STATE_SOURCE_UNRESOLVED: load source names no primitive stored in this load case"]
+OBSERVED_BLOCK control=translation_with_angle_units mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID"] details=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID: translations require a length unit and rotations an angle unit: rad is not in the catalog for displacement"]
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_strain_with_extra_length mode=sparse_interactive error=request: unknown field `length_change`, expected `strain`
+OBSERVED_BLOCK control=translation_with_angle_units mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID"] details=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID: translations require a length unit and rotations an angle unit: rad is not in the catalog for displacement"]
+test negative_unit_dimension_controls_block ... ok
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_strain_with_extra_length mode=dense_scrutiny error=request: unknown field `length_change`, expected `strain`
+OBSERVED_BLOCK control=nonpositive_free_stretch/fit_strain_minus_one mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=nonpositive_free_stretch/fit_strain_below_minus_one mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied"]
+OBSERVED_REJECT control=unknown_analysis_state_field mode=sparse_interactive error=request: unknown field `unreviewed_field`, expected one of `contract`, `reference_configuration_ref`, `element_states`, `support_states`, `load_sources`, `history`, `provenance`
+OBSERVED_BLOCK control=source_ref_from_other_case mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_UNRESOLVED"] details=["LOAD_STATE_SOURCE_UNRESOLVED: load source names no primitive stored in this load case"]
+OBSERVED_REJECT control=unknown_analysis_state_field mode=dense_scrutiny error=request: unknown field `unreviewed_field`, expected one of `contract`, `reference_configuration_ref`, `element_states`, `support_states`, `load_sources`, `history`, `provenance`
+OBSERVED_BLOCK control=modulus_basis_ref_present mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED"] details=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED: case-wide modulus_basis_ref/modulus_basis_temperature are superseded by per-element material_selection and cannot also be supplied"]
+test persistent_source_counted_once_and_unreferenced_excluded ... ok
+OBSERVED_BLOCK control=nonpositive_free_stretch/fit_strain_below_minus_one mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"] details=["LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied", "LOAD_STATE_STRAIN_UNRESOLVED: explicit thermal/fit definition cannot be resolved over the consumed interval: NonPositiveStretch(\"fit stretch\"); no extrapolation, fallback or default is applied"]
+OBSERVED_BLOCK control=modulus_basis_ref_present mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED"] details=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED: case-wide modulus_basis_ref/modulus_basis_temperature are superseded by per-element material_selection and cannot also be supplied"]
+OBSERVED_REJECT control=unknown_thermal_state_kind mode=sparse_interactive error=request: unknown variant `ambient_guess`, expected one of `unchanged_reference`, `explicit_interval_strain`, `constant_alpha_interval`, `free_length_state`
+OBSERVED_REJECT control=unknown_thermal_state_kind mode=dense_scrutiny error=request: unknown variant `ambient_guess`, expected one of `unchanged_reference`, `explicit_interval_strain`, `constant_alpha_interval`, `free_length_state`
+test negative_thermal_law_coverage_controls_block ... ok
+OBSERVED_REJECT control=unknown_member_basis_kind mode=sparse_interactive error=request: unknown variant `assumed_ambient_reference`, expected `temperature_reference` or `direct_strain_reference`
+OBSERVED_REJECT control=unknown_member_basis_kind mode=dense_scrutiny error=request: unknown variant `assumed_ambient_reference`, expected `temperature_reference` or `direct_strain_reference`
+test negative_typed_boundary_rejections_return_err ... ok
+OBSERVED_BLOCK control=modulus_basis_temperature_present mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED"] details=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED: case-wide modulus_basis_ref/modulus_basis_temperature are superseded by per-element material_selection and cannot also be supplied"]
+OBSERVED_BLOCK control=modulus_basis_temperature_present mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED"] details=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED: case-wide modulus_basis_ref/modulus_basis_temperature are superseded by per-element material_selection and cannot also be supplied"]
+test prescribed_rotation_all_fixed_reproduces_signed_end_actions ... ok
+OBSERVED_BLOCK control=request_level_materials_non_empty mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_REQUEST_MATERIALS_UNSUPPORTED"] details=["LOAD_STATE_REQUEST_MATERIALS_UNSUPPORTED: model document 0.4.0 resolves members from model materials and their expansion laws; a separate request material list is not merged"]
+test prescribed_rotation_free_tip_is_rigid_radian_rotation ... ok
+OBSERVED_BLOCK control=request_level_materials_non_empty mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_REQUEST_MATERIALS_UNSUPPORTED"] details=["LOAD_STATE_REQUEST_MATERIALS_UNSUPPORTED: model document 0.4.0 resolves members from model materials and their expansion laws; a separate request material list is not merged"]
+OBSERVED_BLOCK control=mass_state_ref_not_implemented mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_MASS_STATE_UNSUPPORTED"] details=["LOAD_STATE_MASS_STATE_UNSUPPORTED: per-case mass states are outside this capability; mass-state input is refused rather than ignored"]
+test prescribed_translation_all_fixed_single_bar_has_nonzero_reactions ... ok
+test shared_material_serial_companion_selects_point_per_member ... ok
+test prescribed_translation_two_bar_couples_prescribed_root_motion ... ok
+OBSERVED_BLOCK control=mass_state_ref_not_implemented mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_MASS_STATE_UNSUPPORTED"] details=["LOAD_STATE_MASS_STATE_UNSUPPORTED: per-case mass states are outside this capability; mass-state input is refused rather than ignored"]
+OBSERVED_BLOCK control=inactive_participation_not_implemented mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED"] details=["LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED: inactive and locked support states are outside this capability; the support is not silently kept, removed or locked"]
+OBSERVED_BLOCK control=inactive_participation_not_implemented mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED"] details=["LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED: inactive and locked support states are outside this capability; the support is not silently kept, removed or locked"]
+OBSERVED_BLOCK control=base_motion_not_implemented mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_REFERENCE_UNSUPPORTED"] details=["LOAD_STATE_SUPPORT_REFERENCE_UNSUPPORTED: spring base motion and device preload/reference laws are outside this capability; no rigid substitute is applied"]
+OBSERVED_BLOCK control=base_motion_not_implemented mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_REFERENCE_UNSUPPORTED"] details=["LOAD_STATE_SUPPORT_REFERENCE_UNSUPPORTED: spring base motion and device preload/reference laws are outside this capability; no rigid substitute is applied"]
+OBSERVED_BLOCK control=missing_member_reference mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_MEMBER_MISSING"] details=["LOAD_STATE_REFERENCE_MEMBER_MISSING: every pipe requires an explicit reference state; no installation temperature or fit is assumed"]
+OBSERVED_BLOCK control=missing_member_reference mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_MEMBER_MISSING"] details=["LOAD_STATE_REFERENCE_MEMBER_MISSING: every pipe requires an explicit reference state; no installation temperature or fit is assumed"]
+OBSERVED_BLOCK control=duplicate_member_reference mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_MEMBER_DUPLICATE"] details=["LOAD_STATE_REFERENCE_MEMBER_DUPLICATE: a pipe may have only one member reference per configuration; no precedence is inferred"]
+OBSERVED_BLOCK control=duplicate_member_reference mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_MEMBER_DUPLICATE"] details=["LOAD_STATE_REFERENCE_MEMBER_DUPLICATE: a pipe may have only one member reference per configuration; no precedence is inferred"]
+OBSERVED_BLOCK control=unknown_reference_configuration_ref mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_CONFIGURATION_UNRESOLVED"] details=["LOAD_STATE_REFERENCE_CONFIGURATION_UNRESOLVED: analysis_state names no model reference configuration"]
+OBSERVED_BLOCK control=unknown_reference_configuration_ref mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_CONFIGURATION_UNRESOLVED"] details=["LOAD_STATE_REFERENCE_CONFIGURATION_UNRESOLVED: analysis_state names no model reference configuration"]
+OBSERVED_REJECT control=history_not_independent_equilibrium mode=sparse_interactive error=request: unknown variant `continuation`, expected `independent_equilibrium`
+OBSERVED_REJECT control=history_not_independent_equilibrium mode=dense_scrutiny error=request: unknown variant `continuation`, expected `independent_equilibrium`
+OBSERVED_BLOCK control=analysis_state_missing_on_0.4.0_case mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_ANALYSIS_STATE_REQUIRED"] details=["LOAD_STATE_ANALYSIS_STATE_REQUIRED: every 0.4.0 load case requires an explicit analysis_state; case labels never imply temperatures, fit or support state"]
+OBSERVED_BLOCK control=analysis_state_missing_on_0.4.0_case mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_ANALYSIS_STATE_REQUIRED"] details=["LOAD_STATE_ANALYSIS_STATE_REQUIRED: every 0.4.0 load case requires an explicit analysis_state; case labels never imply temperatures, fit or support state"]
+OBSERVED_BLOCK control=unknown_load_state_contract mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_UNSUPPORTED"] details=["LOAD_STATE_CONTRACT_UNSUPPORTED: supported analysis_state contract is openpipestress.load_reference_state/1.0.0"]
+OBSERVED_BLOCK control=unknown_load_state_contract mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_UNSUPPORTED"] details=["LOAD_STATE_CONTRACT_UNSUPPORTED: supported analysis_state contract is openpipestress.load_reference_state/1.0.0"]
+test signed_fit_cold_hot_return_fixed_and_released ... ok
+OBSERVED_BLOCK control=selected_point_temperature_mismatch_without_override mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED: Selected property temperature differs from known operating temperature; enter an explicit analysis-basis reason and provenance; point_refs=[]"]
+test thermal_datum_ratio_secant_table_fixed_and_free ... ok
+OBSERVED_BLOCK control=selected_point_temperature_mismatch_without_override mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED"] details=["LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED: Selected property temperature differs from known operating temperature; enter an explicit analysis-basis reason and provenance; point_refs=[]"]
+test negative_additional_wire_rules_block ... ok
+test signed_fit_baselines_cut_long_and_direct_fit_strain ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+
+# exit=0
+# src_tree_sha256_after=d4c5aa3dcf29ae24940aab49bae356f85170235b1c04a01144d8ec92a0ed56ce

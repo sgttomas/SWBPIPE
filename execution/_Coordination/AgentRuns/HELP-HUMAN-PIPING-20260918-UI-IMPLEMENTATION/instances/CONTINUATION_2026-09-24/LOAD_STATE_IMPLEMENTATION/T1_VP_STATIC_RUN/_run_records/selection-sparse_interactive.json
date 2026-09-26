@@ -1,0 +1,20 @@
+{
+  "format": "openpipestress.load_reference_qualification_run/1",
+  "profile_id": "t1-vp-static-load-reference-1",
+  "purpose": "development_comparison",
+  "transport": "load_reference_1_cli_1.0_raw0.2",
+  "runner": {
+    "candidate_commit": "d58baad57959f8fda282746708e1c996b145069b",
+    "executable_sha256": "6bedade8f54923956a2301195d3d8ed46b6c42be9756ca3b0b3ad697b045d3d4",
+    "solver_mode": "sparse_interactive",
+    "explicit_local_private_intent": true
+  },
+  "case_manifest": {
+    "path": "<WORKING_ROOT>/validation/qualification/fixtures/load_reference/MANIFEST.json",
+    "sha256": "bbfdf3bd0f20e6b351f049f65accd76b468015ba7412c0654e9cf8ab39de26b6"
+  },
+  "reader_binding": {
+    "path": "reader_binding.json",
+    "sha256": "05d68075cca5bd4f16c6cb77a6e970d12a272b500dea70e8b65052736ebc5dbb"
+  }
+}

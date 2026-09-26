@@ -29,6 +29,7 @@ import {
 } from "../../services/previewService";
 import {
   buildBlankLocalModelDocument,
+  buildBlankLoadStateModelDocument,
   createLocalProject,
   getLocalStorageCapability,
   listLocalProjects,
@@ -1710,13 +1711,23 @@ export function useWorkspaceSession() {
   }
 
   async function handleCreateBlankProject() {
+    return createBlankProjectFrom(buildBlankLocalModelDocument, "Created blank local model document without fixture entities or external file copies.");
+  }
+
+  /** T1 WP3: a blank model 0.4.0 document (exact pressure contract, no
+   * engineering content) through the same create path as New Blank. */
+  async function handleCreateBlankLoadStateProject() {
+    return createBlankProjectFrom(buildBlankLoadStateModelDocument, "Created blank local model 0.4.0 document without fixture entities, engineering values or external file copies.");
+  }
+
+  async function createBlankProjectFrom(buildBlankModel: () => PreviewModel, createdMessage: string) {
     const owner = acquireProjectOperation();
     if (!owner) return;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
     try {
-      const blankModel = buildBlankLocalModelDocument();
+      const blankModel = buildBlankModel();
       const blankModelHash = await computeModelHash(blankModel);
       const envelopeHash = await computeProjectEnvelopeHash({
         model: blankModel,
@@ -1744,7 +1755,7 @@ export function useWorkspaceSession() {
         (returnedHash.value === blankModelHash.value || isSupportedChangedModelPersistenceResponse(created, blankModelHash, returnedHash, returnedEnvelopeHash, 0)));
       const createdSummary = {
         ...created.summary,
-        message: "Created blank local model document without fixture entities or external file copies."
+        message: createdMessage
       };
       // The create commits here. A create that fails leaves the open project's
       // rule revision gate and integrity cells as they were.
@@ -2730,6 +2741,7 @@ export function useWorkspaceSession() {
       projectBusy,
       handleCreateProject,
       handleCreateBlankProject,
+      handleCreateBlankLoadStateProject,
       handleOpenProject,
       handleSaveProject,
       handleListProjects

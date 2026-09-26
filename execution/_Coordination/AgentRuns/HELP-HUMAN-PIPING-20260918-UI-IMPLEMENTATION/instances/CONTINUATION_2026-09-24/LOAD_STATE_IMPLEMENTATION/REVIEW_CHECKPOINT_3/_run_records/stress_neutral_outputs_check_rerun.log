@@ -1,0 +1,25 @@
+{
+ "package_v0_3_sha256": "1ef2d85985169b8b02d8e3da26ea3597600b67538df9f830536ca867e8a1fd7f",
+ "outputs": {
+  "load_reference_connected_sparse.stress_neutral.json": {
+   "sha256": "e6a3be7581b09254a76c2a0f35ed7c417db484896d8c053b7caa537b20634d88",
+   "rows": 280,
+   "raw_sha256": "915965a446ff04c6c4b7f0209ffff34c4ac040a0d4b8243d875dc7217a9cb74c"
+  },
+  "load_reference_connected_dense.stress_neutral.json": {
+   "sha256": "0c67b95837005bdd1cdc1b6944c35621e50067dcdc6ea05fda2769f45ad9e772",
+   "rows": 282,
+   "raw_sha256": "3824035cabf2d2a151756e04b46112ccbdcf4ce8237f49e68b5d3b36b8dfb2bf"
+  },
+  "load_reference_pressure_sparse.stress_neutral.json": {
+   "sha256": "cf95c6090fb6aa8140e94b1b4df7da91b30f0850dca43c949c0f81b0ef5a1962",
+   "rows": 218,
+   "raw_sha256": "71be3e4fb1af54e962d5e4939a518fcab6f7896842ab4f08212a8212ae47f134"
+  },
+  "load_reference_pressure_dense.stress_neutral.json": {
+   "sha256": "a44f81160843fe4fa01c4fc6a9d8a3cb655c20913c3681092905c58e2076f653",
+   "rows": 220,
+   "raw_sha256": "b46eeb8a5dc82bb9e0398b8d58db07eb73906eb25110d68b0032fd12df1d0707"
+  }
+ }
+}

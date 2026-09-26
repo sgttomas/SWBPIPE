@@ -124,7 +124,7 @@ function LedgerLine({ label, value, testId }: { label: string; value: string; te
   );
 }
 
-function buildOperationReviewLedger({
+export function buildOperationReviewLedger({
   model,
   analysisRun,
   editorIntents,

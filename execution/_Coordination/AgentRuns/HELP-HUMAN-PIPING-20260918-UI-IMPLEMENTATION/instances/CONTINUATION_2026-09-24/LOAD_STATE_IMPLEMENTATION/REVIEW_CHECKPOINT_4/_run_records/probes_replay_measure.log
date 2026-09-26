@@ -1,0 +1,175 @@
+   Compiling open_pipe_stress_product_physics v0.2.0 (<scratch>/projects/chirality-piping/core/product_physics)
+warning: unused import: `ELEMENT_DOF`
+  --> src/source_recovery.rs:12:39
+   |
+12 |     ThermalElementLoad, DOF_PER_NODE, ELEMENT_DOF,
+   |                                       ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:8144:4
+     |
+8144 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:69:9
+   |
+68 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+69 |     pub support_id: String,
+   |         ^^^^^^^^^^
+70 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+71 |     pub value: f64,
+   |         ^^^^^
+72 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:94:9
+    |
+ 93 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+ 94 |     pub dofs: usize,
+    |         ^^^^
+ 95 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+ 96 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 97 |     pub blocks: usize,
+    |         ^^^^^^
+ 98 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+ 99 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+100 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+101 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+102 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+103 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+104 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+105 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+106 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+107 |     pub max_relative_projection_error: f64,
+108 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:121:5
+    |
+115 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+121 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:147:12
+    |
+130 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+147 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:512:19
+    |
+447 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+512 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: constant `CASE` is never used
+ --> src/source_receipt/review4_probes.rs:4:7
+  |
+4 | const CASE: &str = "case:join";
+  |       ^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 9 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.12s
+     Running unittests src/lib.rs (<target>/debug/deps/open_pipe_stress_product_physics-fbac0974bf55454c)
+
+running 1 test
+R4PROBE replay {"checks":[{"charged_after_replay":7221927,"live_c":3360029,"pre_replay":502070,"replay":3359828,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"sparse_interactive","name":"eigen_motion"}
+R4PROBE replay {"checks":[{"charged_after_replay":7221927,"live_c":3360029,"pre_replay":502070,"replay":3359828,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"eigen_motion"}
+R4PROBE replay {"checks":[{"charged_after_replay":7223743,"live_c":3360029,"pre_replay":503886,"replay":3359828,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"dense_scrutiny","name":"eigen_motion"}
+R4PROBE replay {"checks":[{"charged_after_replay":7223743,"live_c":3360029,"pre_replay":503886,"replay":3359828,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"eigen_motion"}
+R4PROBE replay {"checks":[{"charged_after_replay":6935249,"live_c":3196032,"pre_replay":543072,"replay":3196145,"replay_le_live":false,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"sparse_interactive","name":"fields"}
+R4PROBE replay {"checks":[{"charged_after_replay":6935249,"live_c":3196032,"pre_replay":543072,"replay":3196145,"replay_le_live":false,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"fields"}
+R4PROBE replay {"checks":[{"charged_after_replay":6937067,"live_c":3196032,"pre_replay":544890,"replay":3196145,"replay_le_live":false,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"dense_scrutiny","name":"fields"}
+R4PROBE replay {"checks":[{"charged_after_replay":6937067,"live_c":3196032,"pre_replay":544890,"replay":3196145,"replay_le_live":false,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"fields"}
+R4PROBE replay {"checks":[{"charged_after_replay":3171773,"live_c":1349970,"pre_replay":471972,"replay":1349831,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"sparse_interactive","name":"mixed"}
+R4PROBE replay {"checks":[{"charged_after_replay":3171773,"live_c":1349970,"pre_replay":471972,"replay":1349831,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"mixed"}
+R4PROBE replay {"checks":[{"charged_after_replay":3173591,"live_c":1349970,"pre_replay":473790,"replay":1349831,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"dense_scrutiny","name":"mixed"}
+R4PROBE replay {"checks":[{"charged_after_replay":3173591,"live_c":1349970,"pre_replay":473790,"replay":1349831,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"mixed"}
+R4PROBE replay {"checks":[{"charged_after_replay":3132013,"live_c":1349950,"pre_replay":432252,"replay":1349811,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"sparse_interactive","name":"n05"}
+R4PROBE replay {"checks":[{"charged_after_replay":3132013,"live_c":1349950,"pre_replay":432252,"replay":1349811,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"n05"}
+R4PROBE replay {"checks":[{"charged_after_replay":3133831,"live_c":1349950,"pre_replay":434070,"replay":1349811,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"dense_scrutiny","name":"n05"}
+R4PROBE replay {"checks":[{"charged_after_replay":3133831,"live_c":1349950,"pre_replay":434070,"replay":1349811,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"n05"}
+R4PROBE replay {"checks":[{"charged_after_replay":3005901,"live_c":1286872,"pre_replay":432324,"replay":1286705,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"sparse_interactive","name":"n06"}
+R4PROBE replay {"checks":[{"charged_after_replay":3005901,"live_c":1286872,"pre_replay":432324,"replay":1286705,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"n06"}
+R4PROBE replay {"checks":[{"charged_after_replay":3005901,"live_c":1286872,"pre_replay":432324,"replay":1286705,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"dense_scrutiny","name":"n06"}
+R4PROBE replay {"checks":[{"charged_after_replay":3005901,"live_c":1286872,"pre_replay":432324,"replay":1286705,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"n06"}
+R4PROBE replay {"checks":[{"charged_after_replay":7262751,"live_c":3360029,"pre_replay":542894,"replay":3359828,"replay_le_live":true,"reservation_passes_at_8M":true},{"charged_after_replay":7191649,"live_c":3322723,"pre_replay":546406,"replay":3322520,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"sparse_interactive","name":"two_cases"}
+R4PROBE replay {"checks":[{"charged_after_replay":7262751,"live_c":3360029,"pre_replay":542894,"replay":3359828,"replay_le_live":true,"reservation_passes_at_8M":true},{"charged_after_replay":7191649,"live_c":3322723,"pre_replay":546406,"replay":3322520,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"two_cases"}
+R4PROBE replay {"checks":[{"charged_after_replay":7264567,"live_c":3360029,"pre_replay":544710,"replay":3359828,"replay_le_live":true,"reservation_passes_at_8M":true},{"charged_after_replay":7193503,"live_c":3322723,"pre_replay":548260,"replay":3322520,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"dense_scrutiny","name":"two_cases"}
+R4PROBE replay {"checks":[{"charged_after_replay":7264567,"live_c":3360029,"pre_replay":544710,"replay":3359828,"replay_le_live":true,"reservation_passes_at_8M":true},{"charged_after_replay":7193503,"live_c":3322723,"pre_replay":548260,"replay":3322520,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"two_cases"}
+R4PROBE replay {"checks":[{"charged_after_replay":7260473,"live_c":3369704,"pre_replay":521258,"replay":3369511,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"sparse_interactive","name":"extra_UX_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7260473,"live_c":3369704,"pre_replay":521258,"replay":3369511,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"extra_UX_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7262289,"live_c":3369704,"pre_replay":523074,"replay":3369511,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"dense_scrutiny","name":"extra_UX_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7262289,"live_c":3369704,"pre_replay":523074,"replay":3369511,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"extra_UX_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7305352,"live_c":3392164,"pre_replay":521162,"replay":3392026,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"sparse_interactive","name":"extra_UY_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7305352,"live_c":3392164,"pre_replay":521162,"replay":3392026,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"extra_UY_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7307164,"live_c":3392164,"pre_replay":522974,"replay":3392026,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"dense_scrutiny","name":"extra_UY_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7307164,"live_c":3392164,"pre_replay":522974,"replay":3392026,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"extra_UY_tip"}
+R4PROBE replay {"checks":[],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":8000000,"mode":"sparse_interactive","name":"extra_UZ_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":8643359,"live_c":4061151,"pre_replay":521162,"replay":4061046,"replay_le_live":true,"reservation_passes_at_8M":false}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"extra_UZ_tip"}
+R4PROBE replay {"checks":[],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":8000000,"mode":"dense_scrutiny","name":"extra_UZ_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":8645175,"live_c":4061151,"pre_replay":522978,"replay":4061046,"replay_le_live":true,"reservation_passes_at_8M":false}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"extra_UZ_tip"}
+R4PROBE replay {"checks":[],"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation replay\", helper_stage: Replay, error: Exact(Budget), work: WorkReport { charged: 7999978, rejected: 43, limit: 8000000 } }","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":8000000,"mode":"sparse_interactive","name":"extra_RY_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":8507226,"live_c":3992928,"pre_replay":521510,"replay":3992788,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"extra_RY_tip"}
+R4PROBE replay {"checks":[],"fallback":"case case:join: captured source replay: RecoveryFailure { stage: \"expected invocation replay\", helper_stage: Replay, error: Exact(Budget), work: WorkReport { charged: 7982424, rejected: 19200, limit: 8000000 } }","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":8000000,"mode":"dense_scrutiny","name":"extra_RY_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":8509042,"live_c":3992928,"pre_replay":523326,"replay":3992788,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"extra_RY_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7162481,"live_c":3320578,"pre_replay":521510,"replay":3320393,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"sparse_interactive","name":"extra_RZ_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7162481,"live_c":3320578,"pre_replay":521510,"replay":3320393,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"extra_RZ_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7164297,"live_c":3320578,"pre_replay":523326,"replay":3320393,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"dense_scrutiny","name":"extra_RZ_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7164297,"live_c":3320578,"pre_replay":523326,"replay":3320393,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"extra_RZ_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7363130,"live_c":3421017,"pre_replay":521282,"replay":3420831,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"sparse_interactive","name":"extra_UZ_root"}
+R4PROBE replay {"checks":[{"charged_after_replay":7363130,"live_c":3421017,"pre_replay":521282,"replay":3420831,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"extra_UZ_root"}
+R4PROBE replay {"checks":[{"charged_after_replay":7364946,"live_c":3421017,"pre_replay":523098,"replay":3420831,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"dense_scrutiny","name":"extra_UZ_root"}
+R4PROBE replay {"checks":[{"charged_after_replay":7364946,"live_c":3421017,"pre_replay":523098,"replay":3420831,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"extra_UZ_root"}
+R4PROBE replay {"checks":[{"charged_after_replay":7457000,"live_c":3467859,"pre_replay":521474,"replay":3467667,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"sparse_interactive","name":"extra_RX_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7457000,"live_c":3467859,"pre_replay":521474,"replay":3467667,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"sparse_interactive","name":"extra_RX_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7458808,"live_c":3467859,"pre_replay":523282,"replay":3467667,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":null,"label":"openpipestress.result_semantics/0.3.0/load-reference-source-1","limit":8000000,"mode":"dense_scrutiny","name":"extra_RX_tip"}
+R4PROBE replay {"checks":[{"charged_after_replay":7458808,"live_c":3467859,"pre_replay":523282,"replay":3467667,"replay_le_live":true,"reservation_passes_at_8M":true}],"fallback":"invocation receipt: case budget exceeds selected receipt policy","label":"openpipestress.result_semantics/0.3.0/load-reference-1","limit":64000000,"mode":"dense_scrutiny","name":"extra_RX_tip"}
+test source_receipt::review4_probes::r4_replay_bounded_by_live_charge ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 329 filtered out; finished in 5.24s
+

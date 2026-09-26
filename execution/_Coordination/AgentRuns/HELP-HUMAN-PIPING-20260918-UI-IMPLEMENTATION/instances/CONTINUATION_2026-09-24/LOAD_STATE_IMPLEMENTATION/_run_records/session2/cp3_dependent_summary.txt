@@ -1,0 +1,3 @@
+headless exit=0
+operation_applier exit=0
+self_weight_wasm exit=0

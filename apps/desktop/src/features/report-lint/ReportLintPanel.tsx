@@ -1,4 +1,5 @@
 import { Download, FileWarning } from "lucide-react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 
 type LintTargetDraft = ReturnType<typeof target> & { text: string };
@@ -21,6 +22,7 @@ export function ReportLintPanel({
         Report Content Lint
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="report-lint">
         <ControlledExportLink
           className="report-export-link"
           data-testid="report-lint-export-link"
@@ -30,6 +32,7 @@ export function ReportLintPanel({
           <Download size={14} aria-hidden="true" />
           Lint JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="report-lint-summary">
           available; targets={packet.lint_run.summary.scanned_target_count}; findings=
           {packet.lint_run.summary.finding_count}; blocking={packet.lint_run.summary.blocking_finding_count}

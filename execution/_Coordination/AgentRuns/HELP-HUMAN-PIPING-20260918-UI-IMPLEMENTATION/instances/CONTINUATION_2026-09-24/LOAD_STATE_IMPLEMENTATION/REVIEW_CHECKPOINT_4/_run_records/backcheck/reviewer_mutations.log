@@ -1,0 +1,4 @@
+B1 ledger reset (=N2-M8), exhaustion test only SURVIVED []
+B2 charges reset, attempts kept, whole fallback module KILLED ['a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back']
+B3 withheld cause dropped from republication diagnostics KILLED ['a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back', 'a_join_that_passes_the_replay_screen_but_cannot_finalize_falls_back_at_the_public_limit', 'a_republication_reports_a_case_s_own_replay_screen_refusal', 'reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route']
+restored and sha256-verified

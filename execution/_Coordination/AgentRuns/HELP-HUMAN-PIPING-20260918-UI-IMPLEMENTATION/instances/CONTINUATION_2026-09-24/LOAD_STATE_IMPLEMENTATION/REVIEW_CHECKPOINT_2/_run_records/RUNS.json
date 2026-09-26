@@ -1,0 +1,28 @@
+{
+  "review": "independent non-author review of load-state checkpoint 2",
+  "reviewer": "Type 2 TASK spawned by ROOT (HELP_HUMAN) for WORKING_ITEMS manager a3675abb28ada0834; wrote none of the reviewed bytes; delegated nothing; no Git writes",
+  "role_text_sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+  "brief_sha256_verified": "3480b70df9f25ae244ea50778c175d869ad7c825732a094e42cc05c3c16e9388",
+  "snapshot": {"path": "/home/user/wt/ls-review2", "head": "404cd9c6b", "review_diff": "be1b9294a..404cd9c6b", "cp1_review_record_commit": "5511596af"},
+  "design_basis": {"git": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6", "sha256": {
+    "DESIGN.md": "2839c65ae56c4ff4674da12848eda4b60f1385663b4c0b5e556099eae7fe4f64",
+    "INTERFACE.md": "18587811735a262187cf4a26bb934d6c3ef03ceb37c78228bb39b7f8afe073bf",
+    "VERIFICATION.md": "061f1f8fa53d426e3af9db58bf684bdfca790b13f3df780935e9353d5402fc57",
+    "REFERENCES.md": "ad3147c69a14ee16d5e4cbbcf8300b94dc092802dfb8b5775beb62e690a1b5fa",
+    "HYDROSTATIC_CONTROL.md": "30041992674e22115722d688a2d8cb2b589febf20425a1bd56434c7fdf3486ef"}},
+  "toolchain": "cargo 1.97.1 (c980f4866 2026-06-30); rustc 1.97.1 (8bab26f4f 2026-07-14); python3.11 standard library",
+  "runs": [
+    {"what": "whole product_physics crate at snapshot", "command": "cargo +1.97.1 test --locked --offline -j 1", "target": "/home/user/cargo-targets/lsreview2/product_physics (deleted)", "log": "snapshot_all_tests.log", "hash_stability": "prehash_snapshot.txt == posthash_snapshot.txt (HASH_STABLE)", "result": "lib 299 passed/1 ignored; load_reference_state_runtime 20 passed; other integration 62 passed; exit 0"},
+    {"what": "independent fixture re-derivation + additivity", "command": "python3 review2_fixture_rederive.py <snapshot reference_cases.json> <git show be1b9294a:reference_cases.json (sha256 5478bba8...)>", "log": "fixture_rederive.log", "result": "2214 checks, 0 failures; 1816 CP1 leaf paths unchanged"},
+    {"what": "self-check of the fixture checker", "log": "fixture_rederive_mutations.log", "result": "5/5 fixture mutations detected"},
+    {"what": "reviewer public-API probes A (scratch copy of core/ only)", "source": "review2_probes.rs.txt", "command": "cargo +1.97.1 test --locked --offline -j 1 --test review2_probes -- --nocapture --test-threads 1", "log": "probes_a.log", "result": "5 passed; p03 shows unit-variant extra fields accepted; p04 null/malformed old-document keys; p05 duplicate key in material accepted on the text path"},
+    {"what": "reviewer public-API probes B (scratch)", "source": "review2_probes_b.rs.txt", "log": "probes_b.log", "result": "4 passed"},
+    {"what": "mutation run 1 (parser bug: stdout/stderr concatenated, so failures were not attributed; interrupted with SIGINT; scratch verified restored)", "log": "mutations_attempt1_parser_bug.log"},
+    {"what": "mutation run 2 (23 mutants, scratch copy, one at a time, sha256-verified restore)", "command": "python3 review2_mutations.py <scratch core/product_physics> <scratch target>", "log": "mutations.log", "per_mutant": "mutant_logs/*.summary.log", "result": "19 killed by reviewed tests; M02, M03, M14, M17 survive all suites"},
+    {"what": "mutation follow-up (M24 snapping + survivors against probes B as well)", "log": "mutations_followup.log", "result": "M24 survives reviewed tests, killed only by reviewer probe b01; M02/M03/M14/M17 survive"},
+    {"what": "M02 parity observation (manual scratch mutation, restored, sha256 verified)", "result": "published sparse_live_path_dense_parity_relative_delta = 1.0 for both cases under M02, 0.0 on the candidate (probes_a.log p02)"},
+    {"what": "dependent crate tests at snapshot (not only --no-run)", "logs": ["dependent_operation_applier_tests.log", "dependent_self_weight_wasm_tests.log", "dependent_headless_tests.log"], "result": "operation_applier 176 passed; self_weight_wasm 14 passed; headless 64 passed; all exit 0; each target deleted after its run"}
+  ],
+  "scratch": {"copy": "/home/user/cargo-targets/lsreview2/scratch (core/, fixtures/, schemas/, validation/benchmarks/numerical_integrity/fixtures.json)", "verified_identical_to_snapshot_after_mutations": true, "deleted_after_review": true},
+  "not_run": ["piping pytest", "evidence sweep", "numerical_integrity and physics_audit_regression dependents", "browser, native, desktop, UI, npm"]
+}

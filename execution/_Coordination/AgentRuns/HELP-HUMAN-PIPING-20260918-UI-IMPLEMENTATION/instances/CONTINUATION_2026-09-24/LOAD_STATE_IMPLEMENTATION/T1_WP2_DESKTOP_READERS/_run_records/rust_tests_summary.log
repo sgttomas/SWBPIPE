@@ -1,0 +1,4 @@
+     Running tests/load_reference_contract.rs (<SHARED_TARGET>/debug/deps/load_reference_contract-a7c353d79e0be3b8)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 36.13s
+     Running tests/load_reference_source_contract.rs (<SHARED_TARGET>/debug/deps/load_reference_source_contract-c705269581a1b734)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 73.80s

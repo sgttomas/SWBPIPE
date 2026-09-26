@@ -1,0 +1,15 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling generic-array v0.14.7
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.24
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/loads/primitive_loads)
+error: failed to build archive at `/home/user/cargo-targets/loadstate/self_weight_wasm/debug/deps/libopen_pipe_stress_frame_kernel-f19be03357e80f40.rlib`: No space left on device (os error 28)
+
+error: could not compile `open_pipe_stress_frame_kernel` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: failed to write query cache to `/home/user/cargo-targets/loadstate/self_weight_wasm/debug/incremental/open_pipe_stress_primitive_loads-04topvr0k9m68/s-hmmnkup03k-1t6m8x9-working/query-cache.bin`: No space left on device (os error 28)
+
+error: could not compile `open_pipe_stress_primitive_loads` (lib) due to 1 previous error

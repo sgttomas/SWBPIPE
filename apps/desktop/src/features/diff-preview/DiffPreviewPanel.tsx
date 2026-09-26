@@ -122,7 +122,7 @@ function DiffLine({ label, value, testId }: { label: string; value: string; test
   );
 }
 
-function buildDiffPreviewPacket({
+export function buildDiffPreviewPacket({
   model,
   analysisRun,
   editorIntents,

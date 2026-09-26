@@ -1,4 +1,5 @@
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download } from "lucide-react";
 import { usePackageHash } from "../../services/usePackageHash";
@@ -98,6 +99,7 @@ export function NativePackagePanel({
       {packet ? (
         <>
           <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="native-package">
         <ControlledExportLink
               className="report-export-link"
               data-testid="native-package-link"
@@ -107,6 +109,7 @@ export function NativePackagePanel({
               <Download size={14} aria-hidden="true" />
               Export JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
             <span data-testid="native-package-summary">
               ready; members={packet.manifest.package_members.length}; entities=
               {packet.stable_id_map.entity_ref_count}; results=

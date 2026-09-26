@@ -1,0 +1,7 @@
+SF1-M1 replay reservation removed: KILLED; failing=['reviewer_scenario_a_budget_cliff_publishes_the_ordinary_route_instead_of_blocking']
+SF1-M2 fallback republication removed: KILLED; failing=['a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back', 'reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route']
+SF1-M3 withheld attempt still selects: KILLED; failing=['a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back', 'reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route']
+SF1-M4 per-case finalization failure not recorded: KILLED; failing=['a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back']
+SF1-M5 invocation receipt failure not recorded: KILLED; failing=['reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route']
+SF1-M6 reservation off by the whole replay: KILLED; failing=['reviewer_scenario_a_budget_cliff_publishes_the_ordinary_route_instead_of_blocking']
+all restored and sha256-verified

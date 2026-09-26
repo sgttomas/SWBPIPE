@@ -23,6 +23,11 @@ use serde_json::{json, Value};
 pub const SUPPORTED_MODEL_SCHEMA_VERSION: &str = "0.2.0";
 /// Explicitly authored model namespace, supported without an automatic migration.
 pub const EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION: &str = "0.3.0";
+/// Explicitly authored load/reference-state model namespace (T1, owner D3):
+/// retained exactly as 0.3.0 is, without migration, upgrade or down-migration.
+/// No coefficient, datum, fit, predecessor or state is ever supplied here; the
+/// product validates the authored records when it solves.
+pub const LOAD_REFERENCE_MODEL_SCHEMA_VERSION: &str = "0.4.0";
 /// Framework label fixed by `schemas/project_persistence.schema.yaml` and
 /// accepted in DEC-019.
 pub const MODEL_MIGRATION_FRAMEWORK: &str = "application_service_separate_db_and_product_schema";
@@ -146,6 +151,21 @@ pub fn evaluate_model_document(
         };
     }
 
+    if document_version == parse_semver(LOAD_REFERENCE_MODEL_SCHEMA_VERSION).unwrap() {
+        let mut current = status(
+            "current",
+            &raw_version,
+            Vec::new(),
+            "stored_document_current",
+            "Explicit model 0.4.0 is retained without migration or upgrade; load/reference-state records, pressure-profile inputs and solve eligibility are validated separately.".to_string(),
+        );
+        current.target_schema_version = LOAD_REFERENCE_MODEL_SCHEMA_VERSION.to_string();
+        return EvaluatedModelDocument {
+            migrated_document: None,
+            status: current,
+        };
+    }
+
     if document_version == supported {
         return EvaluatedModelDocument {
             migrated_document: None,
@@ -168,7 +188,7 @@ pub fn evaluate_model_document(
                 Vec::new(),
                 "not_applicable_document_refused",
                 format!(
-                    "Model document schema_version {raw_version} is newer than the legacy migration target {SUPPORTED_MODEL_SCHEMA_VERSION} and does not match the separately supported explicit {EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION}; refusing to open for editing (no down-migration)."
+                    "Model document schema_version {raw_version} is newer than the legacy migration target {SUPPORTED_MODEL_SCHEMA_VERSION} and does not match the separately supported explicit {EXPLICIT_PRESSURE_MODEL_SCHEMA_VERSION} or {LOAD_REFERENCE_MODEL_SCHEMA_VERSION}; refusing to open for editing (no down-migration)."
                 ),
             ),
         };
@@ -391,6 +411,146 @@ mod tests {
         assert!(evaluated.migrated_document.is_none());
         assert!(draft.get("pressure_contract").is_none());
         assert!(evaluated.status.detail.contains("solve eligibility"));
+    }
+
+    /// Committed 0.4.0 producer fixture (invented data, not library values).
+    fn load_reference_model() -> Value {
+        let request: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/load_reference/connected.request.json"
+        ))
+        .unwrap();
+        request["model"].clone()
+    }
+
+    /// The 0.4.0 keys a pre-0.4 document never gains from this module.
+    fn load_reference_keys_absent(doc: &Value) -> bool {
+        doc.get("reference_configurations").is_none()
+            && doc["materials"].as_array().map_or(true, |materials| {
+                materials
+                    .iter()
+                    .all(|material| material.get("expansion_laws").is_none())
+            })
+            && doc["load_cases"].as_array().map_or(true, |cases| {
+                cases
+                    .iter()
+                    .all(|case| case.get("analysis_state").is_none())
+            })
+    }
+
+    #[test]
+    fn load_reference_model_is_retained_without_migration_or_invented_state() {
+        let model = load_reference_model();
+        assert_eq!(model["schema_version"], "0.4.0");
+        let bytes_before = serde_json::to_string(&model).unwrap();
+        let snapshot = model.clone();
+        let evaluated = evaluate_model_document(&model, &model_document_migrations());
+        assert_eq!(evaluated.status.status, "current");
+        assert_eq!(evaluated.status.source_schema_version, "0.4.0");
+        assert_eq!(evaluated.status.target_schema_version, "0.4.0");
+        assert_eq!(evaluated.status.product_schema_migration_status, "current");
+        assert_eq!(
+            evaluated.status.persistence_state,
+            "stored_document_current"
+        );
+        assert!(evaluated.status.applied_migration_ids.is_empty());
+        assert!(
+            evaluated.migrated_document.is_none(),
+            "0.4.0 is retained, never rewritten"
+        );
+        assert!(evaluated
+            .status
+            .detail
+            .contains("without migration or upgrade"));
+        assert!(evaluated.status.detail.contains("solve eligibility"));
+        assert_eq!(model, snapshot);
+        assert_eq!(serde_json::to_string(&model).unwrap(), bytes_before);
+
+        // A 0.4.0 draft with none of the load/reference records gains none.
+        let draft = document("0.4.0");
+        let evaluated = evaluate_model_document(&draft, &model_document_migrations());
+        assert_eq!(evaluated.status.status, "current");
+        assert_eq!(evaluated.status.target_schema_version, "0.4.0");
+        assert!(evaluated.migrated_document.is_none());
+        assert_eq!(draft, document("0.4.0"));
+
+        // The test chain (with its injected pre-0.1.0 steps) gives the same answer.
+        let evaluated = evaluate_model_document(&model, &test_chain());
+        assert_eq!(evaluated.status.status, "current");
+        assert!(evaluated.migrated_document.is_none());
+    }
+
+    #[test]
+    fn load_reference_neighbours_stay_refused_without_down_migration() {
+        for version in ["0.4.1", "0.5.0", "0.3.1", "1.0.0"] {
+            let mut doc = load_reference_model();
+            doc["schema_version"] = json!(version);
+            let evaluated = evaluate_model_document(&doc, &model_document_migrations());
+            assert_eq!(
+                evaluated.status.status, "newer_than_supported",
+                "version {version}"
+            );
+            assert!(evaluated.migrated_document.is_none());
+            assert!(evaluated.status.detail.contains("no down-migration"));
+            assert!(evaluated.status.detail.contains("0.4.0"));
+        }
+    }
+
+    #[test]
+    fn earlier_documents_open_unchanged_and_carried_load_reference_keys_are_not_normalized() {
+        // Without 0.4.0 keys: 0.2.0 and 0.3.0 stay current, 0.1.0 walks only
+        // the DEC-033 no-op; none gains a 0.4.0 key.
+        for version in ["0.2.0", "0.3.0"] {
+            let doc = document(version);
+            let evaluated = evaluate_model_document(&doc, &model_document_migrations());
+            assert_eq!(evaluated.status.status, "current", "version {version}");
+            assert_eq!(evaluated.status.target_schema_version, version);
+            assert!(evaluated.migrated_document.is_none());
+            assert!(load_reference_keys_absent(&doc));
+        }
+        let mut legacy = document("0.1.0");
+        legacy["materials"] =
+            json!([{"id":"material:m","elastic_modulus":{"value":200,"unit":"GPa"}}]);
+        legacy["load_cases"] = json!([{"id":"case:old","primitive_loads":[]}]);
+        let migrated = evaluate_model_document(&legacy, &model_document_migrations())
+            .migrated_document
+            .unwrap();
+        assert!(load_reference_keys_absent(&migrated));
+        let mut expected = legacy.clone();
+        expected["schema_version"] = json!(SUPPORTED_MODEL_SCHEMA_VERSION);
+        assert_eq!(migrated, expected);
+
+        // With 0.4.0 keys authored into an earlier document: retained as
+        // authored, never stripped, never re-stamped as 0.4.0. The product's
+        // LOAD_STATE_CONTRACT_VERSION_MISMATCH block is what solve reports.
+        let authored = load_reference_model();
+        for version in ["0.3.0", "0.2.0"] {
+            let mut doc = authored.clone();
+            doc["schema_version"] = json!(version);
+            let snapshot = doc.clone();
+            let evaluated = evaluate_model_document(&doc, &model_document_migrations());
+            assert_eq!(evaluated.status.status, "current", "version {version}");
+            assert_eq!(evaluated.status.target_schema_version, version);
+            assert!(evaluated.migrated_document.is_none());
+            assert_eq!(doc, snapshot);
+        }
+        let mut doc = authored.clone();
+        doc["schema_version"] = json!("0.1.0");
+        let evaluated = evaluate_model_document(&doc, &model_document_migrations());
+        assert_eq!(evaluated.status.status, "migrated");
+        assert_eq!(
+            evaluated.status.target_schema_version,
+            SUPPORTED_MODEL_SCHEMA_VERSION
+        );
+        let migrated = evaluated.migrated_document.unwrap();
+        let mut expected = authored.clone();
+        expected["schema_version"] = json!(SUPPORTED_MODEL_SCHEMA_VERSION);
+        assert_eq!(migrated, expected);
+        assert_eq!(
+            migrated["reference_configurations"],
+            authored["reference_configurations"]
+        );
+        assert_eq!(migrated["load_cases"], authored["load_cases"]);
+        assert_eq!(migrated["materials"], authored["materials"]);
     }
 
     #[test]

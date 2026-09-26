@@ -1,0 +1,121 @@
+//! Reviewer probes (not product tests). Expected values are exact rationals
+//! derived by hand/Python Fractions in the review record, not kernel output.
+use crate::thermal::*;
+use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
+
+fn table(points: &[(f64, f64)]) -> Vec<ThermalPoint> {
+    points
+        .iter()
+        .map(|&(temperature_kelvin, value)| ThermalPoint { temperature_kelvin, value })
+        .collect()
+}
+fn free(i: f64, o: f64, law: NormalizedExpansionLaw) -> Result<ResolvedStrain, StateMathError> {
+    resolve_strain(
+        &ThermalInput::FreeLengthState { installation_kelvin: i, operating_kelvin: o, law },
+        &FitInput::None,
+    )
+}
+fn rel(actual: f64, expected: f64) -> f64 {
+    ((actual - expected) / expected).abs()
+}
+// Piecewise coefficient table with four points / three segments, invented.
+fn coeff3() -> Vec<ThermalPoint> {
+    table(&[(300.0, 1e-5), (400.0, 2e-5), (500.0, 1e-5), (600.0, 3e-5)])
+}
+
+#[test]
+fn probe_multisegment_datum_integral() {
+    // integral 350->550 = 8.75e-4 + 1.5e-3 + 7.5e-4 = 3.125e-3; lambda(350)=1.000625
+    let r = free(350.0, 550.0, NormalizedExpansionLaw::DifferentialPerDatumLength { datum_kelvin: 300.0, points: coeff3() }).unwrap();
+    let expected = 5.0 / 1601.0;
+    println!("datum multiseg {:.17e} rel {:e} segments {:?}", r.thermal_strain, rel(r.thermal_strain, expected), r.consumed_segments);
+    assert!(rel(r.thermal_strain, expected) <= 1e-12);
+    let back = free(550.0, 350.0, NormalizedExpansionLaw::DifferentialPerDatumLength { datum_kelvin: 300.0, points: coeff3() }).unwrap();
+    assert!(rel(back.thermal_strain, -5.0 / 1606.0) <= 1e-12);
+}
+
+#[test]
+fn probe_multisegment_log_integral() {
+    let r = free(350.0, 550.0, NormalizedExpansionLaw::LogarithmicPerCurrentLength { datum_kelvin: 300.0, points: coeff3() }).unwrap();
+    println!("log multiseg {:.17e}", r.thermal_strain);
+    assert!(rel(r.thermal_strain, 0.0031298879027391487) <= 1e-12);
+    let back = free(550.0, 350.0, NormalizedExpansionLaw::LogarithmicPerCurrentLength { datum_kelvin: 300.0, points: coeff3() }).unwrap();
+    assert!(rel(back.thermal_strain, -0.00312012226979186) <= 1e-12);
+}
+
+#[test]
+fn probe_multisegment_dilation_difference() {
+    let pts = table(&[(300.0, 0.0), (400.0, 1e-3), (500.0, 1.5e-3), (600.0, 3.5e-3)]);
+    let r = free(350.0, 550.0, NormalizedExpansionLaw::EngineeringDilation { datum_kelvin: 300.0, points: pts }).unwrap();
+    println!("dilation multiseg {:.17e}", r.thermal_strain);
+    assert!(rel(r.thermal_strain, 4.0 / 2001.0) <= 1e-12);
+}
+
+#[test]
+fn probe_secant_table_interior_interpolation() {
+    // alpha(350)=1.5e-5, alpha(475)=1.25e-5; strain=(1.25e-5*175-1.5e-5*50)/(1+1.5e-5*50)=23/16012
+    let pts = table(&[(300.0, 1e-5), (400.0, 2e-5), (500.0, 1e-5)]);
+    let r = free(350.0, 475.0, NormalizedExpansionLaw::EngineeringSecant { datum_kelvin: 300.0, data: CoefficientData::Table(pts) }).unwrap();
+    println!("secant interior {:.17e} points {:?} segments {:?}", r.thermal_strain, r.consumed_point_indices, r.consumed_segments);
+    assert!(rel(r.thermal_strain, 23.0 / 16012.0) <= 1e-12);
+}
+
+#[test]
+fn probe_verification4_exact_inputs_without_datum_point() {
+    // VERIFICATION.md control 4 gives alpha only at 50 and 150 degC with datum 20 degC.
+    let k = |c: f64| c + 273.15;
+    let pts = table(&[(k(50.0), 12e-6), (k(150.0), 16e-6)]);
+    let r = free(k(50.0), k(150.0), NormalizedExpansionLaw::EngineeringSecant { datum_kelvin: k(20.0), data: CoefficientData::Table(pts) });
+    println!("verification4 two-point secant table: {r:?}");
+    assert_eq!(r, Err(StateMathError::OutsideTableCoverage));
+}
+
+#[test]
+fn probe_consumed_segments_record_degenerate_samples() {
+    let k = |c: f64| c + 273.15;
+    let pts = table(&[(k(20.0), 10e-6), (k(120.0), 20e-6)]);
+    let r = free(k(20.0), k(70.0), NormalizedExpansionLaw::DifferentialPerDatumLength { datum_kelvin: k(20.0), points: pts }).unwrap();
+    println!("split consumed points {:?} segments {:?}", r.consumed_point_indices, r.consumed_segments);
+}
+
+#[test]
+fn probe_temperature_units_exact_equality() {
+    let to_k = |v: f64, unit: &str| {
+        let from = unit_by_symbol(unit, Dimension::Temperature).unwrap();
+        convert_for_dimension(v, Dimension::Temperature, from, canonical_unit(Dimension::Temperature).unwrap()).unwrap()
+    };
+    let mut f_mismatch = Vec::new();
+    let mut k_mismatch = Vec::new();
+    for c in -50..=600 {
+        let c = c as f64;
+        let via_c = to_k(c, "degC");
+        let via_f = to_k(c * 9.0 / 5.0 + 32.0, "degF");
+        if via_c != via_f {
+            f_mismatch.push((c, via_c, via_f));
+        }
+        let lit: f64 = format!("{:.2}", c + 273.15).parse().unwrap();
+        if via_c != to_k(lit, "K") {
+            k_mismatch.push((c, via_c, lit));
+        }
+    }
+    println!("integer degC in [-50,600]: degF-equivalent mismatches {} e.g. {:?}", f_mismatch.len(), &f_mismatch[..f_mismatch.len().min(4)]);
+    println!("integer degC in [-50,600]: decimal-K-literal mismatches {} e.g. {:?}", k_mismatch.len(), &k_mismatch[..k_mismatch.len().min(4)]);
+    println!("68 degF -> {:.17e} K; 20 degC -> {:.17e} K", to_k(68.0, "degF"), to_k(20.0, "degC"));
+}
+
+#[test]
+fn probe_installation_below_datum_signs() {
+    // datum 300 K, install 250 K, operate 350 K, alpha 1e-5/K:
+    // lambda(250)=0.9995, lambda(350)=1.0005 -> strain = 0.001/0.9995 = 2/1999.
+    let secant = free(250.0, 350.0, NormalizedExpansionLaw::EngineeringSecant { datum_kelvin: 300.0, data: CoefficientData::Constant(1e-5) }).unwrap();
+    let datum = free(250.0, 350.0, NormalizedExpansionLaw::DifferentialPerDatumLength { datum_kelvin: 300.0, points: table(&[(200.0, 1e-5), (400.0, 1e-5)]) }).unwrap();
+    let dil = free(250.0, 350.0, NormalizedExpansionLaw::EngineeringDilation { datum_kelvin: 300.0, points: table(&[(200.0, -1e-3), (400.0, 1e-3)]) }).unwrap();
+    let log = free(250.0, 350.0, NormalizedExpansionLaw::LogarithmicPerCurrentLength { datum_kelvin: 300.0, points: table(&[(200.0, 1e-5), (400.0, 1e-5)]) }).unwrap();
+    for r in [&secant, &datum, &dil] {
+        println!("{} {:.17e} li {:?}", r.definition, r.thermal_strain, r.installation_datum_stretch);
+        assert!(rel(r.thermal_strain, 2.0 / 1999.0) <= 1e-12);
+        assert!(rel(r.installation_datum_stretch.unwrap(), 0.9995) <= 1e-12);
+    }
+    // log: exp(integral 250->350) - 1 = expm1(1e-3), independent of datum
+    assert!(rel(log.thermal_strain, 0.0010005001667083417) <= 1e-12);
+}

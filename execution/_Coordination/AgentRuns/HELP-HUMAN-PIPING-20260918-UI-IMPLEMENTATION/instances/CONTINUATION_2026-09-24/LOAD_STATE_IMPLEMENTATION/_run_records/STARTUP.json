@@ -1,0 +1,75 @@
+{
+  "started_utc": "2026-09-25T13:17:17.364591+00:00",
+  "actor": "/root/physics_resume",
+  "parent": "/root",
+  "role": "WORKING_ITEMS Type1",
+  "mechanism": "delegated-harness-native continuation with separately bounded TASK reuse",
+  "checkout": "/private/tmp/piping-load-states-20260925",
+  "branch": "codex/piping-load-states-20260925",
+  "base": "c278f64ba122eb8b848b9f14e58a0e533e94439a",
+  "instructions": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "read_full": true
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+      "read_full": true
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "read_full": true
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "read_full": true
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "read_full": true
+    }
+  ],
+  "design_sources": [
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/DESIGN.md",
+      "sha256": "2839c65ae56c4ff4674da12848eda4b60f1385663b4c0b5e556099eae7fe4f64"
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/INTERFACE.md",
+      "sha256": "18587811735a262187cf4a26bb934d6c3ef03ceb37c78228bb39b7f8afe073bf"
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/VERIFICATION.md",
+      "sha256": "061f1f8fa53d426e3af9db58bf684bdfca790b13f3df780935e9353d5402fc57"
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/REFERENCES.md",
+      "sha256": "ad3147c69a14ee16d5e4cbbcf8300b94dc092802dfb8b5775beb62e690a1b5fa"
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/HYDROSTATIC_CONTROL.md",
+      "sha256": "30041992674e22115722d688a2d8cb2b589febf20425a1bd56434c7fdf3486ef"
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/RETURN.md",
+      "sha256": "49e8b8d12a1352c9d8ff182dce9c77f51bbea3dca03524ddcc489773e0b9f554"
+    },
+    {
+      "git_blob": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/_run_records/INDEPENDENT_REVIEW/FINAL_HASHES.json",
+      "sha256": "28caf8b8603e354179a7228192bb2da9ec1be02aba5caba2a681d87f5147a331"
+    }
+  ],
+  "design_consultation": "Read from primary Git9e8a55; no reference search or repeated closed analytical/native gates. Independent final seven-file design receipt inspected.",
+  "planned_child_roles": [
+    "TASK thermal/fit kernel",
+    "TASK per-element material selector",
+    "TASK independent analytical reference translation"
+  ],
+  "child_execution": "Not started by this record; actual followup acknowledgments will be recorded separately",
+  "permissions": "Only relevant Piping/load-state source and this evidence subtree in the new checkout; ROOT graph/Git/native reserved; no engine/primary writes."
+}

@@ -1,0 +1,947 @@
+{
+  "model": {
+    "schema_version": "0.4.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "pressure_contract": {
+      "version": "2.0.0",
+      "mode": "exact_straight_pressure_v2"
+    },
+    "project": {
+      "id": "project:lr-multi-segment-free-length",
+      "name": "Multi-segment free length",
+      "description": "Invented VP-STATIC load/reference-state qualification request built from reference_cases.json; no libraries or code rules.",
+      "units": {
+        "length": "m",
+        "force": "N",
+        "angle": "rad",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "rule_check": "not_performed_user_rule_inputs_missing",
+      "professional_acceptance": "not_provided"
+    },
+    "nodes": [
+      {
+        "id": "node:install-root",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; separate 1 m cantilever per installation temperature (layout invented)"
+      },
+      {
+        "id": "node:install-tip",
+        "position": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; separate 1 m cantilever per installation temperature (layout invented)"
+      },
+      {
+        "id": "node:operating-root",
+        "position": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; separate 1 m cantilever per installation temperature (layout invented)"
+      },
+      {
+        "id": "node:operating-tip",
+        "position": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; separate 1 m cantilever per installation temperature (layout invented)"
+      },
+      {
+        "id": "node:split-root",
+        "position": {
+          "x": 0.0,
+          "y": 2.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; separate 1 m cantilever per installation temperature (layout invented)"
+      },
+      {
+        "id": "node:split-tip",
+        "position": {
+          "x": 1.0,
+          "y": 2.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; separate 1 m cantilever per installation temperature (layout invented)"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "id": "pipe:install",
+        "from": "node:install-root",
+        "to": "node:install-tip",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          }
+        },
+        "material": "material:multi",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "provenance": "section from reference_cases.json geometry annulus_od_0p20_wall_0p01; y_reference is an authoring convention; installation temperature = reference installation_temperature"
+      },
+      {
+        "id": "pipe:operating",
+        "from": "node:operating-root",
+        "to": "node:operating-tip",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          }
+        },
+        "material": "material:multi",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "provenance": "section from reference_cases.json geometry annulus_od_0p20_wall_0p01; y_reference is an authoring convention; installation temperature = reference operating_temperature"
+      },
+      {
+        "id": "pipe:split",
+        "from": "node:split-root",
+        "to": "node:split-tip",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          }
+        },
+        "material": "material:multi",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "provenance": "section from reference_cases.json geometry annulus_od_0p20_wall_0p01; y_reference is an authoring convention; installation temperature = reference split_temperature"
+      }
+    ],
+    "supports": [
+      {
+        "id": "support:install",
+        "node": "node:install-root",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; rigid anchor representing the reference topology"
+      },
+      {
+        "id": "support:operating",
+        "node": "node:operating-root",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; rigid anchor representing the reference topology"
+      },
+      {
+        "id": "support:split",
+        "node": "node:split-root",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; rigid anchor representing the reference topology"
+      }
+    ],
+    "components": [],
+    "materials": [
+      {
+        "id": "material:multi",
+        "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus": {
+          "value": 200000000000.0,
+          "unit": "Pa"
+        },
+        "poisson_ratio": {
+          "value": 0.3,
+          "unit": "1"
+        },
+        "provenance": "E/nu invented: this reference defines free-length strains only, no mechanics",
+        "expansion_laws": [
+          {
+            "id": "law:datum-length",
+            "definition": "differential_per_datum_length",
+            "datum_temperature": {
+              "value": 300.0,
+              "unit": "K"
+            },
+            "data": {
+              "kind": "table",
+              "interpolation": "linear_coefficient",
+              "points": [
+                {
+                  "temperature": {
+                    "value": 300.0,
+                    "unit": "K"
+                  },
+                  "coefficient": {
+                    "value": 1e-05,
+                    "unit": "1/K"
+                  }
+                },
+                {
+                  "temperature": {
+                    "value": 400.0,
+                    "unit": "K"
+                  },
+                  "coefficient": {
+                    "value": 2e-05,
+                    "unit": "1/K"
+                  }
+                },
+                {
+                  "temperature": {
+                    "value": 500.0,
+                    "unit": "K"
+                  },
+                  "coefficient": {
+                    "value": 1e-05,
+                    "unit": "1/K"
+                  }
+                },
+                {
+                  "temperature": {
+                    "value": 600.0,
+                    "unit": "K"
+                  },
+                  "coefficient": {
+                    "value": 3e-05,
+                    "unit": "1/K"
+                  }
+                }
+              ]
+            },
+            "provenance": "/cases/multi_segment_free_length/variants/linear_coefficient_table/inputs (reference-invented table)"
+          },
+          {
+            "id": "law:current-length",
+            "definition": "logarithmic_per_current_length",
+            "datum_temperature": {
+              "value": 300.0,
+              "unit": "K"
+            },
+            "data": {
+              "kind": "table",
+              "interpolation": "linear_coefficient",
+              "points": [
+                {
+                  "temperature": {
+                    "value": 300.0,
+                    "unit": "K"
+                  },
+                  "coefficient": {
+                    "value": 1e-05,
+                    "unit": "1/K"
+                  }
+                },
+                {
+                  "temperature": {
+                    "value": 400.0,
+                    "unit": "K"
+                  },
+                  "coefficient": {
+                    "value": 2e-05,
+                    "unit": "1/K"
+                  }
+                },
+                {
+                  "temperature": {
+                    "value": 500.0,
+                    "unit": "K"
+                  },
+                  "coefficient": {
+                    "value": 1e-05,
+                    "unit": "1/K"
+                  }
+                },
+                {
+                  "temperature": {
+                    "value": 600.0,
+                    "unit": "K"
+                  },
+                  "coefficient": {
+                    "value": 3e-05,
+                    "unit": "1/K"
+                  }
+                }
+              ]
+            },
+            "provenance": "/cases/multi_segment_free_length/variants/linear_coefficient_table/inputs (reference-invented table)"
+          },
+          {
+            "id": "law:dilation",
+            "definition": "engineering_dilation",
+            "datum_temperature": {
+              "value": 300.0,
+              "unit": "K"
+            },
+            "data": {
+              "kind": "table",
+              "interpolation": "linear_dilation",
+              "points": [
+                {
+                  "temperature": {
+                    "value": 300.0,
+                    "unit": "K"
+                  },
+                  "dilation": {
+                    "value": 0.0,
+                    "unit": "1"
+                  }
+                },
+                {
+                  "temperature": {
+                    "value": 400.0,
+                    "unit": "K"
+                  },
+                  "dilation": {
+                    "value": 0.001,
+                    "unit": "1"
+                  }
+                },
+                {
+                  "temperature": {
+                    "value": 500.0,
+                    "unit": "K"
+                  },
+                  "dilation": {
+                    "value": 0.0015,
+                    "unit": "1"
+                  }
+                },
+                {
+                  "temperature": {
+                    "value": 600.0,
+                    "unit": "K"
+                  },
+                  "dilation": {
+                    "value": 0.0035,
+                    "unit": "1"
+                  }
+                }
+              ]
+            },
+            "provenance": "/cases/multi_segment_free_length/variants/linear_dilation_table/inputs (reference-invented table)"
+          }
+        ]
+      }
+    ],
+    "reference_configurations": [
+      {
+        "id": "reference:installed",
+        "label": "Installed reference",
+        "geometry_ref": {
+          "kind": "authored_model_geometry"
+        },
+        "member_references": [
+          {
+            "pipe_ref": "pipe:install",
+            "basis": {
+              "kind": "temperature_reference",
+              "installation_temperature": {
+                "value": 350.0,
+                "unit": "K"
+              }
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "installation temperature = reference installation_temperature"
+          },
+          {
+            "pipe_ref": "pipe:operating",
+            "basis": {
+              "kind": "temperature_reference",
+              "installation_temperature": {
+                "value": 550.0,
+                "unit": "K"
+              }
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "installation temperature = reference operating_temperature"
+          },
+          {
+            "pipe_ref": "pipe:split",
+            "basis": {
+              "kind": "temperature_reference",
+              "installation_temperature": {
+                "value": 450.0,
+                "unit": "K"
+              }
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "installation temperature = reference split_temperature"
+          }
+        ],
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "case:datum-length-a",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:install",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:datum-length"
+              },
+              "operating_temperature": {
+                "value": 550.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:operating",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:datum-length"
+              },
+              "operating_temperature": {
+                "value": 350.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:split",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:datum-length"
+              },
+              "operating_temperature": {
+                "value": 550.0,
+                "unit": "K"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:install",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:operating",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:split",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      },
+      {
+        "id": "case:datum-length-b",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:install",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:datum-length"
+              },
+              "operating_temperature": {
+                "value": 450.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:operating",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:datum-length"
+              },
+              "operating_temperature": {
+                "value": 450.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:split",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:datum-length"
+              },
+              "operating_temperature": {
+                "value": 350.0,
+                "unit": "K"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:install",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:operating",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:split",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      },
+      {
+        "id": "case:current-length-a",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:install",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:current-length"
+              },
+              "operating_temperature": {
+                "value": 550.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:operating",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:current-length"
+              },
+              "operating_temperature": {
+                "value": 350.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:split",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:current-length"
+              },
+              "operating_temperature": {
+                "value": 550.0,
+                "unit": "K"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:install",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:operating",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:split",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      },
+      {
+        "id": "case:current-length-b",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:install",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:current-length"
+              },
+              "operating_temperature": {
+                "value": 450.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:operating",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:current-length"
+              },
+              "operating_temperature": {
+                "value": 450.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:split",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:current-length"
+              },
+              "operating_temperature": {
+                "value": 350.0,
+                "unit": "K"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:install",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:operating",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:split",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      },
+      {
+        "id": "case:dilation-a",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:install",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:dilation"
+              },
+              "operating_temperature": {
+                "value": 550.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:operating",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:dilation"
+              },
+              "operating_temperature": {
+                "value": 350.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:split",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:dilation"
+              },
+              "operating_temperature": {
+                "value": 550.0,
+                "unit": "K"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:install",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:operating",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:split",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      },
+      {
+        "id": "case:dilation-b",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:install",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:dilation"
+              },
+              "operating_temperature": {
+                "value": 450.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:operating",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:dilation"
+              },
+              "operating_temperature": {
+                "value": 450.0,
+                "unit": "K"
+              }
+            },
+            {
+              "pipe_ref": "pipe:split",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:multi",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "free_length_state",
+                "expansion_law_ref": "law:dilation"
+              },
+              "operating_temperature": {
+                "value": 350.0,
+                "unit": "K"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:install",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:operating",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            },
+            {
+              "support_ref": "support:split",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      }
+    ],
+    "combinations": []
+  },
+  "materials": []
+}

@@ -1,0 +1,105 @@
+{
+ "reviewer": "Type 2 TASK, fresh-context non-author CP3 reviewer (dispatched by HELP_HUMAN/ROOT with owner approval)",
+ "candidate": {
+  "commit": "485cc2ed0",
+  "branch": "codex/piping-load-states-20260925",
+  "diff": "404cd9c6b..485cc2ed0",
+  "snapshot": "/home/user/wt/ls-review3 (detached worktree)"
+ },
+ "environment": {
+  "cargo": "cargo 1.97.1 (+1.97.1), -j 1, --locked --offline",
+  "rustfmt": "stable rustfmt 1.8.0 (check mode only)",
+  "python": "/home/user/dec025-venv/bin/python (3.11)",
+  "helper_bins": "checked-json and units CLIs built with -j 1 into /home/user/cargo-targets/lsreview3/helpers (outside the snapshot); PYTHONDONTWRITEBYTECODE=1, -p no:cacheprovider"
+ },
+ "scratch": "/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3 (byte copy of core/fixtures/schemas at 485cc2ed0; reviewer probe module and reader probe added only there)",
+ "runs": [
+  {
+   "what": "snapshot prehash",
+   "log": "prehash_snapshot.txt",
+   "files": 828
+  },
+  {
+   "what": "cargo +1.97.1 test --locked --offline -j 1 (core/product_physics, snapshot, CARGO_TARGET_DIR=/home/user/cargo-targets/lsreview3/product_physics)",
+   "log": "snapshot_product_physics_tests.log",
+   "result": "402 passed, 0 failed, 1 ignored; lib 311; runtime 20; extension 9; warnings identical by name to cp2_gate2_all_tests.log"
+  },
+  {
+   "what": "cargo +1.97.1 test --locked --offline -j 1 (core/reporting/result_export, snapshot, CARGO_TARGET_DIR=/home/user/cargo-targets/lsreview3/result_export)",
+   "log": "snapshot_result_export_tests.log",
+   "result": "64 passed"
+  },
+  {
+   "what": "python -m pytest -q -p no:cacheprovider tests/test_load_reference_readers.py tests/test_load_reference_schema.py tests/test_stress_neutral_export_package.py tests/test_stress_neutral_precision.py (WORKING_ROOT)",
+   "log": "python_named_tests.log",
+   "result": "867 passed, 1 skipped (213+527+80+48 collected)"
+  },
+  {
+   "what": "reviewer probes P1-P12 (scratch, cargo test --lib review3_)",
+   "source": "review3_probes.rs.txt",
+   "log": "probes_final.log",
+   "result": "12 passed; P3/P9/P10/P12 document SF-1 behaviour"
+  },
+  {
+   "what": "reviewer mutants K1-K12 (scratch)",
+   "script": "review3_mutations.py",
+   "log": "review3_mutations.log",
+   "result": "K1-K4,K6 killed by committed tests; K5,K7,K10 killed only by probes; K8,K9,K11,K12 survive"
+  },
+  {
+   "what": "implementer 17 mutants rerun on frozen bytes (scratch; anchors verbatim)",
+   "script": "rerun_implementer_mutants.py",
+   "log": "rerun_implementer_mutants.log",
+   "result": "17/17 killed"
+  },
+  {
+   "what": "CP2 reviewer N-4 mutants vs EXTENSION_1 (scratch; M04/M19 re-anchored)",
+   "script": "rerun_cp2_n4_mutants.py",
+   "log": "rerun_cp2_n4_mutants.log",
+   "result": "10/10 killed by the extension binary alone"
+  },
+  {
+   "what": "examples/physics_source_connected regeneration of all 14 committed raw envelopes (scratch build of frozen bytes)",
+   "log": "regen_compare.log",
+   "result": "14/14 byte-identical"
+  },
+  {
+   "what": "cp3_regen_diff_check.py and cp3_join_companion_compare.py (manager scripts, read-only)",
+   "log": "manager_scripts_rerun.log", "result": "frozen hashes reproduced; ALL_MATCH"
+  },
+  {
+   "what": "cp3_stress_neutral_outputs.py --check (manager script, no writes)",
+   "log": "stress_neutral_outputs_check_rerun.log",
+   "result": "4 packages reproduced byte-exactly; schema, validator, roundtrip and relabel checks pass"
+  },
+  {
+   "what": "Python readers on real producer outputs + big-integer parity probe",
+   "script": "review3_python_reader_probe.py",
+   "input": "probe_unavailable.request.json (raw sha256 in probe_unavailable_raw.sha256)",
+   "log": "python_reader_probe.log"
+  },
+  {
+   "what": "Rust readers on the same outputs (scratch result_export + tests/review3_reader_probe.rs)",
+   "source": "review3_reader_probe.rs.txt",
+   "log": "rust_reader_probe.log",
+   "result": "same accept/reject as Python except bigint_temperature (Rust accepts, Python rejects): N-2"
+  },
+  {
+   "what": "static checks: carrier schema pointer diff, branch pins, semantic tables, record hashes",
+   "script": "review3_static_checks.py",
+   "log": "review3_static_checks.log"
+  },
+  {
+   "what": "rustfmt --edition 2021 --check on touched modules (stable 1.8.0, no writes)",
+   "result": "product_physics touched modules 0 diffs; result_export load_reference.rs 15, semantic_contract.rs 5 (base 1), tests/load_reference_contract.rs 18"
+  }
+ ],
+ "not_run": [
+  "dependent crates headless/operation_applier/self_weight_wasm (outside permitted commands; manager logs read: 64/176/14)",
+  "tests/test_stress_neutral_physics_source.py and wider pytest sweep",
+  "DEC-025 evidence sweep",
+  "desktop, native, browser"
+ ],
+ "first_probe_attempt": "probes_run1_duplicate_id_input_error.log: P2/P3 inputs initially reused primitive id 'torque' across cases (DUPLICATE_ID); fixed in the probe input, retained",
+ "cleanup": "scratch copy and all /home/user/cargo-targets/lsreview3/* targets deleted after the final runs; snapshot posthash in posthash_snapshot.txt"
+}

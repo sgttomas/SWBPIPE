@@ -1,4 +1,5 @@
 import { N_INTENSIFIED, PREVIEW_INTENSIFIED_KIND } from "../results/knownSemanticLimitations";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileText } from "lucide-react";
 import type {
@@ -97,6 +98,7 @@ export function ReportPanel({
       {result && controlledReport && !controlledReport.blocked ? (
         <>
           <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="report">
         <ControlledExportLink
               className="report-export-link"
               data-testid="report-export-link"
@@ -106,6 +108,7 @@ export function ReportPanel({
               <Download size={14} aria-hidden="true" />
               Local JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
             <span data-testid="report-export-summary">
               {exportPacket
                 ? `${exportPacket.selected_result_refs.length} refs; ${exportPacket.diagnostic_refs.length} diagnostics; no private payload`

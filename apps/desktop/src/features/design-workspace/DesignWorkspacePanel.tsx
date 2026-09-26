@@ -1,4 +1,5 @@
 import { Download, GitCompare } from "lucide-react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -48,6 +49,7 @@ export function DesignWorkspacePanel({
         Design Workspace
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="design-workspace">
         <ControlledExportLink
           className="report-export-link"
           data-testid="design-workspace-export-link"
@@ -57,6 +59,7 @@ export function DesignWorkspacePanel({
           <Download size={14} aria-hidden="true" />
           Workspace JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="design-workspace-summary">
           knowledge={packet.summary.current_design_knowledge_record_count}; states=
           {packet.summary.current_model_state_count}; runs={packet.summary.current_analysis_run_count}; comparisons=

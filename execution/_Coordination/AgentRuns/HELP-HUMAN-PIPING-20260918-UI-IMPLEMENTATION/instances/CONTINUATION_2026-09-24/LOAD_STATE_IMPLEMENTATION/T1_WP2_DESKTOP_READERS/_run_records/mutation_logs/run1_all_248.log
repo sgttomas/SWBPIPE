@@ -1,0 +1,250 @@
+248 mutants
+KILLED   loadReferenceEvidence:274:require_:"FOREIGN_METHOD_EVIDENCE"  require_(true, "FOREIGN_METHOD_EVIDENCE")
+KILLED   loadReferenceEvidence:275:require_:"JOIN_RECEIPT_REQUIRED"  require_(true, "JOIN_RECEIPT_REQUIRED")
+KILLED   loadReferenceEvidence:277:require_:"FOREIGN_METHOD_EVIDENCE"  require_(true, "FOREIGN_METHOD_EVIDENCE")
+KILLED   loadReferenceEvidence:282:require_:"TRANSPORT_SHAPE"  require_(true, "TRANSPORT_SHAPE")
+KILLED   loadReferenceEvidence:284:require_:"EVIDENCE_SHAPE"  require_(true, "EVIDENCE_SHAPE")
+KILLED   loadReferenceEvidence:285:require_:"CONNECTOR_UNSUPPORTED"  require_(true, "CONNECTOR_UNSUPPORTED")
+KILLED   loadReferenceEvidence:293:require_:"NUMERICAL_CASE_BASIS"  require_(true, "NUMERICAL_CASE_BASIS")
+SURVIVED loadReferenceEvidence:295:require_:"NUMERICAL_CASE_DUPLICATE"  require_(true, "NUMERICAL_CASE_DUPLICATE")
+KILLED   loadReferenceEvidence:302:require_:"CASE_SHAPE"  require_(true, "CASE_SHAPE")
+KILLED   loadReferenceEvidence:304:require_:"CASE_DUPLICATE"  require_(true, "CASE_DUPLICATE")
+KILLED   loadReferenceEvidence:305:require_:"MATERIAL_BASIS"  require_(true, "MATERIAL_BASIS")
+KILLED   loadReferenceEvidence:308:require_:"MATERIAL_SHAPE"  require_(true, "MATERIAL_SHAPE")
+SURVIVED loadReferenceEvidence:310:require_:"MATERIAL_DUPLICATE"  require_(true, "MATERIAL_DUPLICATE")
+SURVIVED loadReferenceEvidence:316:require_:"SECTION_DUPLICATE"  require_(true, "SECTION_DUPLICATE")
+KILLED   loadReferenceEvidence:324:require_:"RECORD_SHAPE"  require_(true, "RECORD_SHAPE")
+KILLED   loadReferenceEvidence:326:require_:"RECORD_DUPLICATE"  require_(true, "RECORD_DUPLICATE")
+KILLED   loadReferenceEvidence:332:require_:"CASE_COVERAGE"  require_(true, "CASE_COVERAGE")
+KILLED   loadReferenceEvidence:334:require_:"UNSOLVED_EVIDENCE"  require_(true, "UNSOLVED_EVIDENCE")
+KILLED   loadReferenceEvidence:344:require_:"JOIN_RECOVERY_METHOD"  require_(true, "JOIN_RECOVERY_METHOD")
+KILLED   loadReferenceEvidence:346:require_:"JOIN_SELECTION_REQUIRED"  require_(true, "JOIN_SELECTION_REQUIRED")
+KILLED   loadReferenceEvidence:352:require_:"REFERENCE_GEOMETRY_CONSISTENCY"  require_(true, "REFERENCE_GEOMETRY_CONSISTENCY")
+KILLED   loadReferenceEvidence:353:require_:"SOLVE_CONSISTENCY"  require_(true, "SOLVE_CONSISTENCY")
+KILLED   loadReferenceEvidence:358:require_:"REGION_SHAPE"  require_(true, "REGION_SHAPE")
+KILLED   loadReferenceEvidence:364:require_:"REGION_MATERIAL_SHAPE"  require_(true, "REGION_MATERIAL_SHAPE")
+KILLED   loadReferenceEvidence:365:require_:"REGION_TEMPERATURE_BASIS"  require_(true, "REGION_TEMPERATURE_BASIS")
+KILLED   loadReferenceEvidence:369:require_:"REGION_MATERIAL_BINDING"  require_(true, "REGION_MATERIAL_BINDING")
+KILLED   loadReferenceEvidence:389:require_:name  require_(true, name)
+KILLED   loadReferenceEvidence:391:require_:"NOT_JOINED_DIAGNOSTIC"  require_(true, "NOT_JOINED_DIAGNOSTIC")
+KILLED   loadReferenceEvidence:393:require_:"JOIN_SELECTED_DIAGNOSTIC"  require_(true, "JOIN_SELECTED_DIAGNOSTIC")
+KILLED   loadReferenceEvidence:396:require_:"JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC"  require_(true, "JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC")
+KILLED   loadReferenceEvidence:429:require_:"RECORD_CONTRACT"  require_(true, "RECORD_CONTRACT")
+KILLED   loadReferenceEvidence:430:require_:"RECORD_PROFILE"  require_(true, "RECORD_PROFILE")
+KILLED   loadReferenceEvidence:434:require_:"REFERENCE_GEOMETRY_SHAPE"  require_(true, "REFERENCE_GEOMETRY_SHAPE")
+KILLED   loadReferenceEvidence:435:require_:"REFERENCE_GEOMETRY"  require_(true, "REFERENCE_GEOMETRY")
+KILLED   loadReferenceEvidence:437:require_:"HISTORY_SHAPE"  require_(true, "HISTORY_SHAPE")
+KILLED   loadReferenceEvidence:438:require_:"HISTORY"  require_(true, "HISTORY")
+KILLED   loadReferenceEvidence:440:require_:"SOLVE_SHAPE"  require_(true, "SOLVE_SHAPE")
+KILLED   loadReferenceEvidence:446:require_:"SOLVE"  require_(true, "SOLVE")
+KILLED   loadReferenceEvidence:453:require_:"SOURCE_RECOVERY_SHAPE"  require_(true, "SOURCE_RECOVERY_SHAPE")
+KILLED   loadReferenceEvidence:454:require_:"SOURCE_RECOVERY"  require_(true, "SOURCE_RECOVERY")
+KILLED   loadReferenceEvidence:456:require_:"SOURCE_RECOVERY_SHAPE"  require_(true, "SOURCE_RECOVERY_SHAPE")
+KILLED   loadReferenceEvidence:457:require_:"SOURCE_RECOVERY"  require_(true, "SOURCE_RECOVERY")
+KILLED   loadReferenceEvidence:465:require_:"MEMBER_DUPLICATE"  require_(true, "MEMBER_DUPLICATE")
+KILLED   loadReferenceEvidence:475:require_:"SUPPORT_COMPONENT_DUPLICATE"  require_(true, "SUPPORT_COMPONENT_DUPLICATE")
+KILLED   loadReferenceEvidence:481:require_:"SUPPORT_COMPONENT_NODE"  require_(true, "SUPPORT_COMPONENT_NODE")
+KILLED   loadReferenceEvidence:489:require_:"CONTRIBUTION_DUPLICATE"  require_(true, "CONTRIBUTION_DUPLICATE")
+KILLED   loadReferenceEvidence:495:require_:"EXCLUDED_SHAPE"  require_(true, "EXCLUDED_SHAPE")
+KILLED   loadReferenceEvidence:496:require_:"EXCLUDED_CLASSIFICATION"  require_(true, "EXCLUDED_CLASSIFICATION")
+KILLED   loadReferenceEvidence:500:require_:"EXCLUDED_OVERLAP"  require_(true, "EXCLUDED_OVERLAP")
+KILLED   loadReferenceEvidence:508:require_:"MEMBER_COVERAGE"  require_(true, "MEMBER_COVERAGE")
+SURVIVED loadReferenceEvidence:510:require_:"MEMBER_MATERIAL_COVERAGE"  require_(true, "MEMBER_MATERIAL_COVERAGE")
+KILLED   loadReferenceEvidence:514:require_:"MEMBER_MATERIAL_BINDING"  require_(true, "MEMBER_MATERIAL_BINDING")
+SURVIVED loadReferenceEvidence:527:require_:"MEMBER_CONTRIBUTION_COVERAGE"  require_(true, "MEMBER_CONTRIBUTION_COVERAGE")
+KILLED   loadReferenceEvidence:532:require_:"MEMBER_CONTRIBUTION_BINDING"  require_(true, "MEMBER_CONTRIBUTION_BINDING")
+SURVIVED loadReferenceEvidence:535:require_:"SUPPORT_CONTRIBUTION_COVERAGE"  require_(true, "SUPPORT_CONTRIBUTION_COVERAGE")
+KILLED   loadReferenceEvidence:539:require_:"SUPPORT_CONTRIBUTION_BINDING"  require_(true, "SUPPORT_CONTRIBUTION_BINDING")
+KILLED   loadReferenceEvidence:545:require_:"PRESSURE_CONTRIBUTION_COVERAGE"  require_(true, "PRESSURE_CONTRIBUTION_COVERAGE")
+KILLED   loadReferenceEvidence:550:require_:"MEMBER_SHAPE"  require_(true, "MEMBER_SHAPE")
+KILLED   loadReferenceEvidence:553:require_:"MEMBER_BASIS"  require_(true, "MEMBER_BASIS")
+KILLED   loadReferenceEvidence:556:require_:"MEMBER_MATERIAL_RANGE"  require_(true, "MEMBER_MATERIAL_RANGE")
+KILLED   loadReferenceEvidence:559:require_:"MEMBER_G_BINDING"  require_(true, "MEMBER_G_BINDING")
+KILLED   loadReferenceEvidence:564:require_:"MATERIAL_POINT_SHAPE"  require_(true, "MATERIAL_POINT_SHAPE")
+SURVIVED loadReferenceEvidence:567:require_:"TEMPERATURE_RANGE"  require_(true, "TEMPERATURE_RANGE")
+SURVIVED loadReferenceEvidence:569:require_:"MATERIAL_POINT_RANGE"  require_(true, "MATERIAL_POINT_RANGE")
+KILLED   loadReferenceEvidence:577:require_:"OVERRIDE_SHAPE"  require_(true, "OVERRIDE_SHAPE")
+KILLED   loadReferenceEvidence:585:require_:"TEMPERATURE_RANGE"  require_(true, "TEMPERATURE_RANGE")
+KILLED   loadReferenceEvidence:602:require_:"MATERIAL_SELECTION"  require_(true, "MATERIAL_SELECTION")
+KILLED   loadReferenceEvidence:605:require_:"REFERENCE_BASIS"  require_(true, "REFERENCE_BASIS")
+KILLED   loadReferenceEvidence:609:require_:"STRETCH_BINDING"  require_(true, "STRETCH_BINDING")
+KILLED   loadReferenceEvidence:616:require_:"LAW_INDICES"  require_(true, "LAW_INDICES")
+KILLED   loadReferenceEvidence:626:require_:"LAW_SEGMENT_SHAPE"  require_(true, "LAW_SEGMENT_SHAPE")
+KILLED   loadReferenceEvidence:633:require_:"LAW_SEGMENT"  require_(true, "LAW_SEGMENT")
+KILLED   loadReferenceEvidence:635:require_:"LAW_SEGMENT_DUPLICATE"  require_(true, "LAW_SEGMENT_DUPLICATE")
+KILLED   loadReferenceEvidence:646:require_:"THERMAL_LAW_BINDING"  require_(true, "THERMAL_LAW_BINDING")
+SURVIVED loadReferenceEvidence:651:require_:"THERMAL_LAW_BINDING"  require_(true, "THERMAL_LAW_BINDING")
+SURVIVED loadReferenceEvidence:658:require_:"REFERENCE_LENGTH"  require_(true, "REFERENCE_LENGTH")
+KILLED   loadReferenceEvidence:672:require_:"FIT_BINDING"  require_(true, "FIT_BINDING")
+KILLED   loadReferenceEvidence:676:require_:"SUPPORT_COMPONENT_SHAPE"  require_(true, "SUPPORT_COMPONENT_SHAPE")
+KILLED   loadReferenceEvidence:683:require_:"SUPPORT_COMPONENT_DOF"  require_(true, "SUPPORT_COMPONENT_DOF")
+KILLED   loadReferenceEvidence:684:require_:"SUPPORT_COMPONENT_LAW"  require_(true, "SUPPORT_COMPONENT_LAW")
+KILLED   loadReferenceEvidence:685:require_:"SUPPORT_COMPONENT_UNIT"  require_(true, "SUPPORT_COMPONENT_UNIT")
+KILLED   loadReferenceEvidence:699:require_:"CONTRIBUTION_SHAPE"  require_(true, "CONTRIBUTION_SHAPE")
+KILLED   loadReferenceEvidence:700:require_:"CONTRIBUTION_CLASSIFICATION"  require_(true, "CONTRIBUTION_CLASSIFICATION")
+KILLED   loadReferenceEvidence:709:require_:"CONTRIBUTION_APPLIED_MAGNITUDE"  require_(true, "CONTRIBUTION_APPLIED_MAGNITUDE")
+KILLED   loadReferenceEvidence:716:require_:"CONTRIBUTION_FACTOR"  require_(true, "CONTRIBUTION_FACTOR")
+KILLED   loadReferenceEvidence:84:throw  throw fail(name);
+KILLED   loadReferenceEvidence:106:throw  throw fail("STRING_INVALID");
+KILLED   loadReferenceEvidence:111:throw  throw fail("NUMBER_INVALID");
+KILLED   loadReferenceEvidence:117:throw  throw fail("BOOLEAN_INVALID");
+KILLED   loadReferenceEvidence:121:throw  throw fail("INTEGER_INVALID");
+SURVIVED loadReferenceEvidence:125:throw  throw fail("ARRAY_INVALID");
+SURVIVED loadReferenceEvidence:160:throw  throw fail("NUMBER_INVALID");
+SURVIVED loadReferenceEvidence:343:throw  throw fail("RECORD_CASE_UNRESOLVED");
+SURVIVED loadReferenceEvidence:362:throw  throw fail("REGION_CASE_UNRESOLVED");
+SURVIVED loadReferenceEvidence:368:throw  throw fail("REGION_MATERIAL_BINDING");
+SURVIVED loadReferenceEvidence:505:throw  throw fail("RECORD_CASE_UNRESOLVED");
+SURVIVED loadReferenceEvidence:513:throw  throw fail("MEMBER_MATERIAL_COVERAGE");
+SURVIVED loadReferenceEvidence:531:throw  throw fail("MEMBER_CONTRIBUTION_COVERAGE");
+SURVIVED loadReferenceEvidence:538:throw  throw fail("SUPPORT_CONTRIBUTION_COVERAGE");
+KILLED   loadReferenceEvidence:600:throw  throw fail("MATERIAL_SELECTION_KIND");
+KILLED   loadReferenceEvidence:630:throw  throw fail("LAW_SEGMENT");
+KILLED   loadReferenceEvidence:654:throw  throw fail("THERMAL_DEFINITION");
+KILLED   loadReferenceEvidence:670:throw  throw fail("FIT_KIND");
+SURVIVED loadReferenceEvidence:680:throw  throw fail("SUPPORT_COMPONENT_DOF");
+KILLED   loadReferenceEvidence:697:throw  throw fail("CONTRIBUTION_KIND");
+KILLED   loadReferenceEvidence:704:throw  throw fail("CONTRIBUTION_FACTOR");
+KILLED   loadReferenceEvidence:224:throw  throw new LoadReferenceError("SOURCE_LOAD_REFERENCE_TABLE_HASH");
+SURVIVED loadReferenceEvidence:226:throw  throw new LoadReferenceError("SOURCE_LOAD_REFERENCE_TABLE_IDENTITY");
+SURVIVED loadReferenceEvidence:231:throw  throw new LoadReferenceError("SOURCE_LOAD_REFERENCE_TRANSPORT_SCHEMA_HASH");
+SURVIVED loadReferenceEvidence:252:throw  throw new LoadReferenceError("SOURCE_LOAD_REFERENCE_MALFORMED");
+KILLED   loadReferenceEvidence:263:throw  throw new LoadReferenceError(`${code("PHYSICS_EVIDENCE")}: ${error instanceof Error && err
+SURVIVED loadReferenceEvidence:90:throw  throw new MalformedAccess(key);
+KILLED   loadReferenceSourceEvidence:144:require_:"JOIN_IDENTITY"  require_(true, "JOIN_IDENTITY")
+KILLED   loadReferenceSourceEvidence:170:require_:"JOIN_RECEIPT_POLICY"  require_(true, "JOIN_RECEIPT_POLICY")
+KILLED   loadReferenceSourceEvidence:175:require_:"JOIN_RECEIPT_HASH"  require_(true, "JOIN_RECEIPT_HASH")
+KILLED   loadReferenceSourceEvidence:178:require_:"JOIN_PUBLICATION_HASH"  require_(true, "JOIN_PUBLICATION_HASH")
+KILLED   loadReferenceSourceEvidence:184:require_:"JOIN_CASE_ORDER"  require_(true, "JOIN_CASE_ORDER")
+KILLED   loadReferenceSourceEvidence:188:require_:"JOIN_RECOVERY_METHOD"  require_(true, "JOIN_RECOVERY_METHOD")
+KILLED   loadReferenceSourceEvidence:189:require_:"JOIN_REQUESTED_MODE"  require_(true, "JOIN_REQUESTED_MODE")
+KILLED   loadReferenceSourceEvidence:194:require_:"JOIN_PHYSICAL_CASE_HASH"  require_(true, "JOIN_PHYSICAL_CASE_HASH")
+KILLED   loadReferenceSourceEvidence:173:throw  throw fail("JOIN_RECEIPT_SHAPE");
+KILLED   loadReferenceSourceEvidence:64:throw  throw new LoadReferenceError("SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH");
+SURVIVED loadReferenceSourceEvidence:67:throw  throw new LoadReferenceError("SOURCE_LOAD_REFERENCE_SOURCE_TABLE_IDENTITY");
+SURVIVED loadReferenceSourceEvidence:137:throw  throw new LoadReferenceError("SOURCE_LOAD_REFERENCE_MALFORMED");
+KILLED   loadReferenceSourceEvidence:158:throw  throw new LoadReferenceError(`${code("JOIN_PHYSICS_SOURCE")}: ${error instanceof Error && 
+KILLED   loadReferenceSourceEvidence:272:blocks:name  blocks(true, name)
+KILLED   loadReferenceSourceEvidence:277:blocks:"VALUE_NONFINITE"  blocks(true, "VALUE_NONFINITE")
+KILLED   loadReferenceSourceEvidence:292:blocks:"ORDINARY_MODE"  blocks(true, "ORDINARY_MODE")
+KILLED   loadReferenceSourceEvidence:294:blocks:"ORDINARY_REPORT_REF"  blocks(true, "ORDINARY_REPORT_REF")
+KILLED   loadReferenceSourceEvidence:295:blocks:"ORDINARY_FAILURE_REF"  blocks(true, "ORDINARY_FAILURE_REF")
+KILLED   loadReferenceSourceEvidence:297:blocks:"ORDINARY_NOT_ATTEMPTED"  blocks(true, "ORDINARY_NOT_ATTEMPTED")
+KILLED   loadReferenceSourceEvidence:299:blocks:"ORDINARY_REPORT"  blocks(true, "ORDINARY_REPORT")
+KILLED   loadReferenceSourceEvidence:300:blocks:"ORDINARY_REPORT_KIND"  blocks(true, "ORDINARY_REPORT_KIND")
+KILLED   loadReferenceSourceEvidence:302:blocks:"ORDINARY_REJECTION"  blocks(true, "ORDINARY_REJECTION")
+KILLED   loadReferenceSourceEvidence:311:blocks:"SOURCE_COUNTS"  blocks(true, "SOURCE_COUNTS")
+KILLED   loadReferenceSourceEvidence:312:blocks:"FUNCTIONAL_COUNT"  blocks(true, "FUNCTIONAL_COUNT")
+KILLED   loadReferenceSourceEvidence:315:blocks:"SOURCE_PARTITION"  blocks(true, "SOURCE_PARTITION")
+KILLED   loadReferenceSourceEvidence:317:blocks:"BLOCK_PARTITION"  blocks(true, "BLOCK_PARTITION")
+KILLED   loadReferenceSourceEvidence:320:blocks:"MEMBER_COVERAGE"  blocks(true, "MEMBER_COVERAGE")
+KILLED   loadReferenceSourceEvidence:327:blocks:"PROJECTION_VALUE_BINDING"  blocks(true, "PROJECTION_VALUE_BINDING")
+KILLED   loadReferenceSourceEvidence:329:blocks:"PROJECTION_INTERVAL"  blocks(true, "PROJECTION_INTERVAL")
+KILLED   loadReferenceSourceEvidence:332:blocks:"PROJECTION_EXACT_BASIS"  blocks(true, "PROJECTION_EXACT_BASIS")
+KILLED   loadReferenceSourceEvidence:334:blocks:"PROJECTION_ENCLOSURE"  blocks(true, "PROJECTION_ENCLOSURE")
+KILLED   loadReferenceSourceEvidence:335:blocks:"PROJECTION_RELATIVE_BOUND"  blocks(true, "PROJECTION_RELATIVE_BOUND")
+SURVIVED loadReferenceSourceEvidence:337:blocks:"PROJECTION_CRITERION"  blocks(true, "PROJECTION_CRITERION")
+KILLED   loadReferenceSourceEvidence:349:blocks:"PROJECTION_TYPED_QUANTITY"  blocks(true, "PROJECTION_TYPED_QUANTITY")
+KILLED   loadReferenceSourceEvidence:355:blocks:"DERIVED_SIGNATURE"  blocks(true, "DERIVED_SIGNATURE")
+KILLED   loadReferenceSourceEvidence:357:blocks:"TRANSLATION_NORM_INPUTS"  blocks(true, "TRANSLATION_NORM_INPUTS")
+SURVIVED loadReferenceSourceEvidence:359:blocks:"SUPPORT_NORM_INPUTS"  blocks(true, "SUPPORT_NORM_INPUTS")
+SURVIVED loadReferenceSourceEvidence:361:blocks:"STRESS_RECIPE_INPUTS"  blocks(true, "STRESS_RECIPE_INPUTS")
+SURVIVED loadReferenceSourceEvidence:363:blocks:"SUMMARY_RECIPE_INPUTS"  blocks(true, "SUMMARY_RECIPE_INPUTS")
+SURVIVED loadReferenceSourceEvidence:365:blocks:"SECTION_RECIPE_KIND"  blocks(true, "SECTION_RECIPE_KIND")
+SURVIVED loadReferenceSourceEvidence:367:blocks:"DERIVED_RECIPE"  blocks(true, "DERIVED_RECIPE")
+KILLED   loadReferenceSourceEvidence:369:blocks:"DERIVED_ENTITY"  blocks(true, "DERIVED_ENTITY")
+SURVIVED loadReferenceSourceEvidence:375:blocks:"DERIVED_NORM_RANGE"  blocks(true, "DERIVED_NORM_RANGE")
+KILLED   loadReferenceSourceEvidence:383:blocks:"DERIVED_NORM_RANGE"  blocks(true, "DERIVED_NORM_RANGE")
+KILLED   loadReferenceSourceEvidence:385:blocks:"DERIVED_NORM_VALUE"  blocks(true, "DERIVED_NORM_VALUE")
+SURVIVED loadReferenceSourceEvidence:390:blocks:"STRESS_ACTION_BINDING"  blocks(true, "STRESS_ACTION_BINDING")
+SURVIVED loadReferenceSourceEvidence:394:blocks:"STRESS_ACTION_RANGE"  blocks(true, "STRESS_ACTION_RANGE")
+SURVIVED loadReferenceSourceEvidence:396:blocks:"STRESS_OUTPUT_RANGE"  blocks(true, "STRESS_OUTPUT_RANGE")
+SURVIVED loadReferenceSourceEvidence:398:blocks:"STRESS_ACTION_SIGN"  blocks(true, "STRESS_ACTION_SIGN")
+SURVIVED loadReferenceSourceEvidence:399:blocks:"STRESS_PA_OBSERVATION_RANGE"  blocks(true, "STRESS_PA_OBSERVATION_RANGE")
+SURVIVED loadReferenceSourceEvidence:402:blocks:"SUMMARY_STRESS_COVERAGE"  blocks(true, "SUMMARY_STRESS_COVERAGE")
+SURVIVED loadReferenceSourceEvidence:407:blocks:"SUMMARY_STRESS_COVERAGE"  blocks(true, "SUMMARY_STRESS_COVERAGE")
+SURVIVED loadReferenceSourceEvidence:409:blocks:"SUMMARY_INPUT_RANGE"  blocks(true, "SUMMARY_INPUT_RANGE")
+SURVIVED loadReferenceSourceEvidence:411:blocks:"SUMMARY_PA_OBSERVATION_RANGE"  blocks(true, "SUMMARY_PA_OBSERVATION_RANGE")
+SURVIVED loadReferenceSourceEvidence:422:blocks:"SUMMARY_SUBTOTAL_RANGE"  blocks(true, "SUMMARY_SUBTOTAL_RANGE")
+SURVIVED loadReferenceSourceEvidence:424:blocks:"SUMMARY_SUBTOTAL_RANGE"  blocks(true, "SUMMARY_SUBTOTAL_RANGE")
+SURVIVED loadReferenceSourceEvidence:427:blocks:"SUMMARY_OUTPUT_RANGE"  blocks(true, "SUMMARY_OUTPUT_RANGE")
+KILLED   loadReferenceSourceEvidence:432:blocks:"SUPPORT_COVERAGE"  blocks(true, "SUPPORT_COVERAGE")
+KILLED   loadReferenceSourceEvidence:436:blocks:"SIX_SUPPORT_COMPONENTS"  blocks(true, "SIX_SUPPORT_COMPONENTS")
+KILLED   loadReferenceSourceEvidence:441:blocks:"SUPPORT_PROJECTION"  blocks(true, "SUPPORT_PROJECTION")
+KILLED   loadReferenceSourceEvidence:443:blocks:"SUPPORT_ROW_SEMANTICS"  blocks(true, "SUPPORT_ROW_SEMANTICS")
+KILLED   loadReferenceSourceEvidence:447:blocks:"SUPPORT_ACTION_TERMS"  blocks(true, "SUPPORT_ACTION_TERMS")
+KILLED   loadReferenceSourceEvidence:451:blocks:"SUPPORT_ACTION_OWNER"  blocks(true, "SUPPORT_ACTION_OWNER")
+KILLED   loadReferenceSourceEvidence:453:blocks:"SUPPORT_ACTION_DOF"  blocks(true, "SUPPORT_ACTION_DOF")
+KILLED   loadReferenceSourceEvidence:455:blocks:"IDEAL_ATTRIBUTION_AMBIGUOUS"  blocks(true, "IDEAL_ATTRIBUTION_AMBIGUOUS")
+SURVIVED loadReferenceSourceEvidence:457:blocks:"SPRING_ATTRIBUTION_DUPLICATE"  blocks(true, "SPRING_ATTRIBUTION_DUPLICATE")
+KILLED   loadReferenceSourceEvidence:459:blocks:"STRUCTURAL_ZERO"  blocks(true, "STRUCTURAL_ZERO")
+KILLED   loadReferenceSourceEvidence:464:blocks:"IDEAL_SOURCE_COVERAGE"  blocks(true, "IDEAL_SOURCE_COVERAGE")
+KILLED   loadReferenceSourceEvidence:465:blocks:"SUPPORT_RESULT_BIJECTION"  blocks(true, "SUPPORT_RESULT_BIJECTION")
+KILLED   loadReferenceSourceEvidence:477:blocks:"MEMBER_PRIMARY_COVERAGE"  blocks(true, "MEMBER_PRIMARY_COVERAGE")
+KILLED   loadReferenceSourceEvidence:480:blocks:"MEMBER_STRESS_COVERAGE"  blocks(true, "MEMBER_STRESS_COVERAGE")
+KILLED   loadReferenceSourceEvidence:482:blocks:"MEMBER_SUMMARY_COVERAGE"  blocks(true, "MEMBER_SUMMARY_COVERAGE")
+KILLED   loadReferenceSourceEvidence:485:blocks:"SUPPORT_MAGNITUDE_COVERAGE"  blocks(true, "SUPPORT_MAGNITUDE_COVERAGE")
+KILLED   loadReferenceSourceEvidence:513:blocks:"SUMMARY_HEADLINE"  blocks(true, "SUMMARY_HEADLINE")
+KILLED   loadReferenceSourceEvidence:516:blocks:"SUMMARY_RESULT_BINDING"  blocks(true, "SUMMARY_RESULT_BINDING")
+SURVIVED loadReferenceSourceEvidence:519:blocks:"SUMMARY_UNSOURCED_HEADLINE"  blocks(true, "SUMMARY_UNSOURCED_HEADLINE")
+KILLED   loadReferenceSourceEvidence:525:blocks:"RAW_FIELDS"  blocks(true, "RAW_FIELDS")
+KILLED   loadReferenceSourceEvidence:526:blocks:"PRODUCER"  blocks(true, "PRODUCER")
+KILLED   loadReferenceSourceEvidence:528:blocks:"FORMULATION"  blocks(true, "FORMULATION")
+KILLED   loadReferenceSourceEvidence:533:blocks:"RECEIPT_HASH"  blocks(true, "RECEIPT_HASH")
+KILLED   loadReferenceSourceEvidence:535:blocks:"PUBLICATION_HASH"  blocks(true, "PUBLICATION_HASH")
+KILLED   loadReferenceSourceEvidence:537:blocks:"ROWS"  blocks(true, "ROWS")
+SURVIVED loadReferenceSourceEvidence:539:blocks:"EVIDENCE_IDS"  blocks(true, "EVIDENCE_IDS")
+KILLED   loadReferenceSourceEvidence:546:blocks:"ROW_FIELDS"  blocks(true, "ROW_FIELDS")
+KILLED   loadReferenceSourceEvidence:548:blocks:"ROW_METADATA"  blocks(true, "ROW_METADATA")
+KILLED   loadReferenceSourceEvidence:553:blocks:"ORDINARY_QUALITY"  blocks(true, "ORDINARY_QUALITY")
+KILLED   loadReferenceSourceEvidence:556:blocks:"ORDINARY_CASE"  blocks(true, "ORDINARY_CASE")
+KILLED   loadReferenceSourceEvidence:564:blocks:"ORDINARY_AGGREGATE"  blocks(true, "ORDINARY_AGGREGATE")
+KILLED   loadReferenceSourceEvidence:569:blocks:"QUALITY_CASE_BINDING"  blocks(true, "QUALITY_CASE_BINDING")
+KILLED   loadReferenceSourceEvidence:574:blocks:"INVOCATION_WORK_LIMIT"  blocks(true, "INVOCATION_WORK_LIMIT")
+KILLED   loadReferenceSourceEvidence:575:blocks:"WORK_LEDGER"  blocks(true, "WORK_LEDGER")
+KILLED   loadReferenceSourceEvidence:580:blocks:"QUALIFIED_OUTCOME"  blocks(true, "QUALIFIED_OUTCOME")
+KILLED   loadReferenceSourceEvidence:584:blocks:"ORDINARY_SELECTION"  blocks(true, "ORDINARY_SELECTION")
+KILLED   loadReferenceSourceEvidence:586:blocks:"EXACT_SOURCE_REQUIRED"  blocks(true, "EXACT_SOURCE_REQUIRED")
+SURVIVED loadReferenceSourceEvidence:590:blocks:"FAILED_OUTCOME"  blocks(true, "FAILED_OUTCOME")
+SURVIVED loadReferenceSourceEvidence:591:blocks:"FAILURE_BLOCK_ORDER"  blocks(true, "FAILURE_BLOCK_ORDER")
+SURVIVED loadReferenceSourceEvidence:593:blocks:"FAILURE_CATEGORY"  blocks(true, "FAILURE_CATEGORY")
+KILLED   loadReferenceSourceEvidence:608:blocks:"STRESS_TOTAL_RELATIVE_BOUND"  blocks(true, "STRESS_TOTAL_RELATIVE_BOUND")
+KILLED   loadReferenceSourceEvidence:611:blocks:"CASE_ROW_COVERAGE"  blocks(true, "CASE_ROW_COVERAGE")
+KILLED   loadReferenceSourceEvidence:619:blocks:"SAME_CASE_INPUTS"  blocks(true, "SAME_CASE_INPUTS")
+KILLED   loadReferenceSourceEvidence:624:blocks:"PROJECTION_ROW"  blocks(true, "PROJECTION_ROW")
+KILLED   loadReferenceSourceEvidence:627:blocks:"DERIVED_ROW"  blocks(true, "DERIVED_ROW")
+KILLED   loadReferenceSourceEvidence:632:blocks:"NORM_PROJECTION_INPUT"  blocks(true, "NORM_PROJECTION_INPUT")
+SURVIVED loadReferenceSourceEvidence:637:blocks:"NORM_TOTAL_RELATIVE_BOUND"  blocks(true, "NORM_TOTAL_RELATIVE_BOUND")
+KILLED   loadReferenceSourceEvidence:639:blocks:"UNQUALIFIED_DERIVED_INPUT"  blocks(true, "UNQUALIFIED_DERIVED_INPUT")
+KILLED   loadReferenceSourceEvidence:641:blocks:"ORDINARY_ROW"  blocks(true, "ORDINARY_ROW")
+KILLED   loadReferenceSourceEvidence:643:blocks:"INSPECTION_ROW"  blocks(true, "INSPECTION_ROW")
+KILLED   loadReferenceSourceEvidence:647:blocks:"PROJECTION_BIJECTION"  blocks(true, "PROJECTION_BIJECTION")
+SURVIVED loadReferenceSourceEvidence:652:blocks:"ROW_DEPENDENCY_CYCLE"  blocks(true, "ROW_DEPENDENCY_CYCLE")
+SURVIVED loadReferenceSourceEvidence:660:blocks:"UNSELECTED_SUPPORT_CERTIFICATE"  blocks(true, "UNSELECTED_SUPPORT_CERTIFICATE")
+KILLED   loadReferenceSourceEvidence:664:blocks:"INVOCATION_WORK_LEDGER"  blocks(true, "INVOCATION_WORK_LEDGER")
+KILLED   loadReferenceSourceEvidence:668:blocks:"ENVELOPE_ROW_COVERAGE"  blocks(true, "ENVELOPE_ROW_COVERAGE")
+SURVIVED loadReferenceSourceEvidence:672:blocks:"PHYSICAL_OBSERVATION_ESCAPE"  blocks(true, "PHYSICAL_OBSERVATION_ESCAPE")
+KILLED   loadReferenceSourceEvidence:674:blocks:"SOURCE_METHOD_RECORD_REQUIRED"  blocks(true, "SOURCE_METHOD_RECORD_REQUIRED")
+SURVIVED loadReferenceSourceEvidence:676:blocks:"AGGREGATE_STATUS"  blocks(true, "AGGREGATE_STATUS")
+KILLED   loadReferenceSourceEvidence:493:composite:"SOURCE_FALLBACK_TRIGGER"  composite(true, "SOURCE_FALLBACK_TRIGGER")
+SURVIVED loadReferenceSourceEvidence:497:composite:"SOURCE_PRESSURE_RHS"  composite(true, "SOURCE_PRESSURE_RHS")
+KILLED   loadReferenceSourceEvidence:500:composite:"DERIVED_CHECK_COVERAGE"  composite(true, "DERIVED_CHECK_COVERAGE")
+KILLED   loadReferenceSourceEvidence:504:composite:"STRESS_CHECK_COVERAGE"  composite(true, "STRESS_CHECK_COVERAGE")
+KILLED   loadReferenceSourceEvidence:531:composite:"RECEIPT_SHAPE"  composite(true, "RECEIPT_SHAPE")
+KILLED   joined-early-return  replace 'return { contract, status: "needs_recompute" as const, eligible: false'
+KILLED   lr-standing-reader  replace 'try { validateLoadReferenceEvidence(source, model ?? undefined); }'
+KILLED   lr-header-profile-evidence  replace ': loadReference ? f?.profile_id === LOAD_REFERENCE_PROFILE && evidence'
+KILLED   joined-header-profile-evidence  replace ': joined ? f?.profile_id === LOAD_REFERENCE_SOURCE_PROFILE && evidence'
+KILLED   joined-header-receipt-shape  replace 'joined ? !loadReferenceSourceReceiptShape(source.source_block_recovery'
+KILLED   joined-registration-binding  replace 'if (!registration || !current || current.text !== registration.text ||'
+KILLED   joined-receipt-shape-fn  replace 'return schemaShape(shaped, physicsSourceSchema, physicsSourceSchema);\n'
+KILLED   native-registration-lr-reader  replace 'if (sourceContract(source) === "load_reference") validateLoadReference'
+KILLED   browser-040-retention  replace 'if (documentVersion.every((part, index) => part === loadReference[inde'
+KILLED   analysis-run-joined-evidence  replace 'if (route === "physics_source" || route === "load_reference_source") r'
+KILLED   analysis-run-joined-receipt  replace 'if (route === "source_blocks" || route === "physics_source" || route ='
+KILLED   lr-projection-copy  replace 'const projected = structuredClone(source) as Json;'
+SURVIVED joined-validate-copy  replace 'await guardedJoined(() => validate(structuredClone(source), true));'
+KILLED   shared-output-refusal  replace 'return isLoadReferenceRoute(source) ? LOAD_REFERENCE_OUTPUT_REFUSAL : '
+KILLED   stress-neutral-builder-refusal  replace '  refuseLoadReferenceOutput(args.result);\n'
+KILLED   result-export-builder-refusal  replace '  refuseLoadReferenceOutput(result);\n'
+EXIT 0

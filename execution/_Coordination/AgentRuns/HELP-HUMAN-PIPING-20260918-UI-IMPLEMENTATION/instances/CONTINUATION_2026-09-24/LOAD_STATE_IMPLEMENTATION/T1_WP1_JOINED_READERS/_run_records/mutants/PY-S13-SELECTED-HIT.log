@@ -1,0 +1,30 @@
+..................................................F
+=================================== FAILURES ===================================
+_ test_shared_adversarial_case[SEL-ordinary-case-claims-selected-with-exact-case] _
+
+case = {'id': 'SEL-ordinary-case-claims-selected-with-exact-case', 'source': 'mixed-sparse', 'ops': [{'op': 'set', 'path': '/...ry_method', 'value': 'retained_source_blocks_exact_v1'}], 'dispatch': 'SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        joined = outcome(lambda: validate_load_reference_source_evidence(doc))
+        entry = {"id": case["id"], "dispatch": dispatch, "joined": joined}
+        if "lr" in case:
+            entry["lr"] = outcome(lambda: validate_load_reference_evidence(doc))
+        if "ps" in case:
+            entry["ps"] = outcome(lambda: validate_physics_source(doc))
+        RESULTS.append(entry)
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC', 'SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC', 'SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC')
+E        +    where 'SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC' = expected({'id': 'SEL-ordinary-case-claims-selected-with-exact-case', 'source': 'mixed-sparse', 'ops': [{'op': 'set', 'path': '/...ry_method', 'value': 'retained_source_blocks_exact_v1'}], 'dispatch': 'SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC'}, 'dispatch')
+
+tests/test_load_reference_source_readers.py:212: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_source_readers.py::test_shared_adversarial_case[SEL-ordinary-case-claims-selected-with-exact-case]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 50 passed in 38.78s
+
+--- stderr ---

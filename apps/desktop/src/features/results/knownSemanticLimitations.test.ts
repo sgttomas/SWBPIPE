@@ -43,8 +43,9 @@ describe("frozen T0R texts (S1 §10), verbatim", () => {
 });
 
 describe("static fresh-identity set and standing reasons", () => {
-  it("admits only preview-physics-1, source-blocks-1, physics-1 and physics-source-1", () => {
+  it("admits only preview-physics-1, source-blocks-1, physics-1, physics-source-1 and T1's load-reference-1 and load-reference-source-1", () => {
     expect([...FRESH_SEMANTIC_CONTRACT_IDS].sort()).toEqual([
+      "openpipestress.result_semantics/0.3.0/load-reference-1", "openpipestress.result_semantics/0.3.0/load-reference-source-1",
       "openpipestress.result_semantics/0.3.0/physics-1", "openpipestress.result_semantics/0.3.0/physics-source-1",
       "openpipestress.result_semantics/0.3.0/preview-physics-1", "openpipestress.result_semantics/0.3.0/source-blocks-1"]);
     expect(isFreshSemanticResult(clone(connectedSparse))).toBe(true);

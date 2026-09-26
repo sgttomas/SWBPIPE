@@ -1,0 +1,103 @@
+{
+  "actor": "CP2_EXTENSION Type 2 TASK (non-implementer analytical reference author)",
+  "mechanism": "Claude Code harness-native subagent spawned by ROOT (HELP_HUMAN) at the request of the load-state WORKING_ITEMS manager (SendMessage id a3675abb28ada0834); no further delegation",
+  "model": "claude-opus-5-5",
+  "role_text_sha256_as_supplied": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+  "checkout": "/home/user/wt/loadstate",
+  "branch": "codex/piping-load-states-20260925",
+  "head_at_start": "5511596af66085ec1d70fab1277431b9023744ff",
+  "head_at_end": "3293c319a14396d7578b8922ef5d8ca20ce0982a (manager WIP freeze committed during this run; fixture blob unchanged there, 5478bba8)",
+  "python": "Python 3.11.15 (standard library only)",
+  "brief": {
+    "as_issued_sha256_verified_at_start": "fe864ffa5afc6695068920fdb84329aca82d142a411c81a321c91e6aeeb5c3d8",
+    "republished_sha256_seen_at_end": "6a92fdc99539377313ea0dd510de06a79da66e4c38ad4e26c3c572411f21fb2c",
+    "republication_diff": "portability only: machine checkout path replaced by 'the manager's load-state worktree' and a footnote added; as-issued bytes kept at _run_records/session2/issued_briefs/CP2_EXTENSION_BRIEF.as_issued.md (sha256 fe864ffa..., verified)"
+  },
+  "manager_messages": [
+    "plan accepted; negative_contract_controls.datum_outside_thermal_coverage stays unchanged and applies to integral/dilation definitions, not engineering_secant",
+    "send one short message when the fixture edit is complete and valid, before RETURN.md (sent)"
+  ],
+  "read": {
+    "instructions": {
+      "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    "design_via_git_show_9e8a55d": {
+      "VERIFICATION.md": "061f1f8fa53d426e3af9db58bf684bdfca790b13f3df780935e9353d5402fc57",
+      "INTERFACE.md": "18587811735a262187cf4a26bb934d6c3ef03ceb37c78228bb39b7f8afe073bf (law definition names only)"
+    },
+    "coordination": [
+      "REVIEW_CHECKPOINT_1/RETURN.md",
+      "ANALYTICAL_REFERENCE/BRIEF.md",
+      "ANALYTICAL_REFERENCE/_run_records/generation.json and STARTUP.json",
+      "CHECKPOINT_1.md (fixture/recheck sections)",
+      "CP2_RUNTIME_TESTS/BRIEF.md (fixture consumption only)",
+      "CP2_WIRE.md (law/unit field names only)",
+      "_run_records/session2/independent_fixture_check.py (to run it)"
+    ],
+    "session1_generator_partial": "generate_references.py lines 1-40, 175-200, 280-320: numeric-representation helpers and serialisation only, to match the convention; no values imported",
+    "src_grep": "one grep over core/*/src for the string literals \"degC\"/\"degF\"/\"degR\" to match unit-label spelling; only file:line:label output was seen, no kernel logic read"
+  },
+  "not_read": [
+    "product kernels core/product_physics/src/case_state/*.rs (beyond the label grep)",
+    "any test .rs file",
+    "manager's _run_records/session2/sf1_multisegment_derivation.py/.log",
+    "reviewer's probe_crate and thermal_probes.log",
+    "domains/piping-design equation artifacts"
+  ],
+  "commands": [
+    {
+      "cmd": "sha256 of brief/fixture/instructions/design; git rev-parse",
+      "log": "pre_edit_state.txt"
+    },
+    {
+      "cmd": "python3 extend_reference_cases.py <scratch copy>  (dry run; output sha256 4d7b7777...)",
+      "log": "not retained separately; identical output re-produced in reproduce.log"
+    },
+    {
+      "cmd": "python3 check_extension.py <scratch pre> <scratch dry run>",
+      "log": "dry run; superseded by check_extension.log on the real file"
+    },
+    {
+      "cmd": "python3 extend_reference_cases.py core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
+      "log": "extend_run.log"
+    },
+    {
+      "cmd": "git show HEAD:<fixture> > <scratch>/pre_from_git_HEAD.json; python3 check_extension.py <scratch>/pre_from_git_HEAD.json <fixture>",
+      "log": "check_extension.log"
+    },
+    {
+      "cmd": "python3 LOAD_STATE_IMPLEMENTATION/_run_records/session2/independent_fixture_check.py <fixture>",
+      "log": "manager_independent_fixture_check.log"
+    },
+    {
+      "cmd": "git diff --numstat / removed-line listing / python3 -m json.tool (read-only)",
+      "log": "git_diff_numstat.log"
+    },
+    {
+      "cmd": "reproduction from git blob 5511596af and refusal of a second application",
+      "log": "reproduce.log"
+    }
+  ],
+  "not_run": [
+    "Cargo",
+    "npm",
+    "browser",
+    "native",
+    "UI",
+    "any Git write",
+    "any product or product-test execution"
+  ],
+  "outputs_sha256": {
+    "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json": "4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab",
+    "core/product_physics/tests/fixtures/load_reference_states/README.md": "fe8149c0545453275e012af4276e7808bd9179c4accac866e0681d38da0979fb",
+    "ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/check_extension.log": "0ac5c9b7f571b2e7892cdd7b44ffc6ec1e76fb76461ab71626867a499b78c439",
+    "ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/check_extension.py": "0bd587dc6313489fc5228938a6e12468008b29cecf94e735785df413f47df461",
+    "ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/extend_reference_cases.py": "28a7aba31f55a5d60dfd1fa71dd040d65d9a94204398e5d72754103c4c962b0a",
+    "ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/extend_run.log": "c67574203cc43b5259668ab0c72168e079abeb1d87e4166c7d08153b2833d1da",
+    "ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/git_diff_numstat.log": "439a70870985531ed6800ce97af0f34e9a23130a10c54fe29d6f70e4280569b5",
+    "ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/manager_independent_fixture_check.log": "06122b286dc67eebec490c7badf8a3a82412c42572531c5f6cb03fd6d917883d",
+    "ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/pre_edit_state.txt": "65ffa77ae9814e309c334ee656f106f8396a0a8cec6395efea7d196b8feac128",
+    "ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/reproduce.log": "4fc4ebaacb51fbf75b59c8cfb831335c94e7c1e6ef2379aefe4ab11ea16c07fd"
+  }
+}

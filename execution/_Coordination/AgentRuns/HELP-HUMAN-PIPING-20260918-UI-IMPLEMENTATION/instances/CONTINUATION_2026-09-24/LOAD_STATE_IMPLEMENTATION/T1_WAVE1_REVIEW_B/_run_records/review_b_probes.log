@@ -1,0 +1,16 @@
+test p1_pressure_profile_downgrades_a_0_4_0_model ... P1 review codes: []
+P1 apply codes: []
+P1 applied schema_version = "0.3.0"
+P1 product: status {"mechanics":"MODEL_INCOMPLETE","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} codes [String("LOAD_STATE_CONTRACT_VERSION_MISMATCH")]
+P1 follow-up removal codes: ["blocking:OP-LOAD-STATE-SCHEMA-VERSION-INVALID"]
+P1 inverse codes: ["blocking:OP-PRESSURE-PAYLOAD-INVALID"]; applied=false
+test p2_temperature_points_replacement_orphans_point_ref ... P2 remove: applied=true codes=["warning:OP-RICH-NOT-SOLVE-READY"]
+P2 remove: case:cold element 0 still names "point:cold"
+P2 remove product: mechanics "MODEL_INCOMPLETE" blocking [String("LOAD_STATE_MATERIAL_POINT_UNRESOLVED"), String("LOAD_STATE_MATERIAL_POINT_UNRESOLVED")]
+P2 rename: applied=true codes=["warning:OP-RICH-NOT-SOLVE-READY", "warning:OP-RICH-NOT-SOLVE-READY"]
+P2 rename: case:cold element 0 still names "point:cold"
+P2 rename product: mechanics "MODEL_INCOMPLETE" blocking [String("LOAD_STATE_MATERIAL_POINT_UNRESOLVED"), String("LOAD_STATE_MATERIAL_POINT_UNRESOLVED")]
+test p3_explicit_null_prior_is_not_restorable ... P3 forward: applied=true codes=[]
+P3 inverse: applied=false codes=["blocking:OP-LOAD-STATE-EXPLICIT-NULL"]
+test p4_dense_and_sparse_agree_on_connected_middle_ux ... P4 sparse 0.7499999999999999 dense 0.7499999999999998 diff 1.1102230246251565e-16
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s

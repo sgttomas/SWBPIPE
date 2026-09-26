@@ -1,0 +1,5 @@
+hot_N_sign exit 1 ['fit.generic_reviewed.hot.N: fixture r:89976 != independent r:-89976']
+datum_ratio exit 1 ['datum.generic_reviewed.strain: fixture r:43/25000 != independent r:43/25009']
+value_projection exit 1 ['two_bar.generic_reviewed.middle_UX: value 6.6666666666666e-05 is not rounded projection 6.666666666666667e-05']
+rotation_Mz exit 1 ['rot_fixed.annular_companion.far_Mz: fixture pi:3439 != independent pi:3439/2']
+log_control exit 1 ['coef.log_fwd: 0.0015 vs 0.001501125562711000797073703202707797003597183630357865375423210978941877596900045580']

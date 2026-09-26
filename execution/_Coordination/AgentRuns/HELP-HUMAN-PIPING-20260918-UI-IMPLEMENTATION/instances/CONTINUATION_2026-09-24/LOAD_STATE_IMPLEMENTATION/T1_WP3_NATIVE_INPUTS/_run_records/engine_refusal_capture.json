@@ -1,0 +1,17 @@
+{
+  "route": "local_wasm_engine",
+  "unknown_field": [
+    {
+      "code": "OP-LOAD-STATE-PAYLOAD-INVALID",
+      "severity": "blocking",
+      "message": "reference_configurations refused at the product's closed typed boundary: unknown field `unreviewed_extra`, expected one of `id`, `label`, `geometry_ref`, `member_references`, `provenance` at line 1 column 695"
+    }
+  ],
+  "wrong_version": [
+    {
+      "code": "OP-LOAD-STATE-SCHEMA-VERSION-INVALID",
+      "severity": "blocking",
+      "message": "analysis_state can be authored only on a model whose schema_version is already 0.4.0; no operation changes the version"
+    }
+  ]
+}

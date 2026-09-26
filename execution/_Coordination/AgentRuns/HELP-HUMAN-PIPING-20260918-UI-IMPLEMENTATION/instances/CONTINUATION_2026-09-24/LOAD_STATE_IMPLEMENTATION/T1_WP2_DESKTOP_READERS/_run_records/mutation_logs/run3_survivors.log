@@ -1,0 +1,38 @@
+248 mutants
+SURVIVED loadReferenceEvidence:343:throw  throw fail("RECORD_CASE_UNRESOLVED");
+SURVIVED loadReferenceEvidence:368:throw  throw fail("REGION_MATERIAL_BINDING");
+SURVIVED loadReferenceEvidence:505:throw  throw fail("RECORD_CASE_UNRESOLVED");
+SURVIVED loadReferenceEvidence:513:throw  throw fail("MEMBER_MATERIAL_COVERAGE");
+SURVIVED loadReferenceEvidence:531:throw  throw fail("MEMBER_CONTRIBUTION_COVERAGE");
+SURVIVED loadReferenceEvidence:538:throw  throw fail("SUPPORT_CONTRIBUTION_COVERAGE");
+SURVIVED loadReferenceEvidence:226:throw  throw new LoadReferenceError("SOURCE_LOAD_REFERENCE_TABLE_IDENTITY");
+SURVIVED loadReferenceSourceEvidence:67:throw  throw new LoadReferenceError("SOURCE_LOAD_REFERENCE_SOURCE_TABLE_IDENTITY");
+SURVIVED loadReferenceSourceEvidence:337:blocks:"PROJECTION_CRITERION"  blocks(true, "PROJECTION_CRITERION")
+SURVIVED loadReferenceSourceEvidence:359:blocks:"SUPPORT_NORM_INPUTS"  blocks(true, "SUPPORT_NORM_INPUTS")
+SURVIVED loadReferenceSourceEvidence:361:blocks:"STRESS_RECIPE_INPUTS"  blocks(true, "STRESS_RECIPE_INPUTS")
+SURVIVED loadReferenceSourceEvidence:363:blocks:"SUMMARY_RECIPE_INPUTS"  blocks(true, "SUMMARY_RECIPE_INPUTS")
+SURVIVED loadReferenceSourceEvidence:365:blocks:"SECTION_RECIPE_KIND"  blocks(true, "SECTION_RECIPE_KIND")
+SURVIVED loadReferenceSourceEvidence:367:blocks:"DERIVED_RECIPE"  blocks(true, "DERIVED_RECIPE")
+SURVIVED loadReferenceSourceEvidence:375:blocks:"DERIVED_NORM_RANGE"  blocks(true, "DERIVED_NORM_RANGE")
+SURVIVED loadReferenceSourceEvidence:390:blocks:"STRESS_ACTION_BINDING"  blocks(true, "STRESS_ACTION_BINDING")
+SURVIVED loadReferenceSourceEvidence:394:blocks:"STRESS_ACTION_RANGE"  blocks(true, "STRESS_ACTION_RANGE")
+SURVIVED loadReferenceSourceEvidence:396:blocks:"STRESS_OUTPUT_RANGE"  blocks(true, "STRESS_OUTPUT_RANGE")
+SURVIVED loadReferenceSourceEvidence:398:blocks:"STRESS_ACTION_SIGN"  blocks(true, "STRESS_ACTION_SIGN")
+SURVIVED loadReferenceSourceEvidence:399:blocks:"STRESS_PA_OBSERVATION_RANGE"  blocks(true, "STRESS_PA_OBSERVATION_RANGE")
+SURVIVED loadReferenceSourceEvidence:402:blocks:"SUMMARY_STRESS_COVERAGE"  blocks(true, "SUMMARY_STRESS_COVERAGE")
+SURVIVED loadReferenceSourceEvidence:407:blocks:"SUMMARY_STRESS_COVERAGE"  blocks(true, "SUMMARY_STRESS_COVERAGE")
+SURVIVED loadReferenceSourceEvidence:409:blocks:"SUMMARY_INPUT_RANGE"  blocks(true, "SUMMARY_INPUT_RANGE")
+SURVIVED loadReferenceSourceEvidence:411:blocks:"SUMMARY_PA_OBSERVATION_RANGE"  blocks(true, "SUMMARY_PA_OBSERVATION_RANGE")
+SURVIVED loadReferenceSourceEvidence:422:blocks:"SUMMARY_SUBTOTAL_RANGE"  blocks(true, "SUMMARY_SUBTOTAL_RANGE")
+SURVIVED loadReferenceSourceEvidence:424:blocks:"SUMMARY_SUBTOTAL_RANGE"  blocks(true, "SUMMARY_SUBTOTAL_RANGE")
+SURVIVED loadReferenceSourceEvidence:427:blocks:"SUMMARY_OUTPUT_RANGE"  blocks(true, "SUMMARY_OUTPUT_RANGE")
+SURVIVED loadReferenceSourceEvidence:457:blocks:"SPRING_ATTRIBUTION_DUPLICATE"  blocks(true, "SPRING_ATTRIBUTION_DUPLICATE")
+KILLED   loadReferenceSourceEvidence:519:blocks:"SUMMARY_UNSOURCED_HEADLINE"  blocks(true, "SUMMARY_UNSOURCED_HEADLINE")
+SURVIVED loadReferenceSourceEvidence:590:blocks:"FAILED_OUTCOME"  blocks(true, "FAILED_OUTCOME")
+SURVIVED loadReferenceSourceEvidence:591:blocks:"FAILURE_BLOCK_ORDER"  blocks(true, "FAILURE_BLOCK_ORDER")
+SURVIVED loadReferenceSourceEvidence:593:blocks:"FAILURE_CATEGORY"  blocks(true, "FAILURE_CATEGORY")
+KILLED   loadReferenceSourceEvidence:637:blocks:"NORM_TOTAL_RELATIVE_BOUND"  blocks(true, "NORM_TOTAL_RELATIVE_BOUND")
+KILLED   loadReferenceSourceEvidence:652:blocks:"ROW_DEPENDENCY_CYCLE"  blocks(true, "ROW_DEPENDENCY_CYCLE")
+SURVIVED loadReferenceSourceEvidence:660:blocks:"UNSELECTED_SUPPORT_CERTIFICATE"  blocks(true, "UNSELECTED_SUPPORT_CERTIFICATE")
+KILLED   loadReferenceSourceEvidence:676:blocks:"AGGREGATE_STATUS"  blocks(true, "AGGREGATE_STATUS")
+EXIT 0

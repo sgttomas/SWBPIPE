@@ -1,0 +1,77 @@
+........................................................................ [ 30%]
+........................................................................ [ 60%]
+............................................................FFF......... [ 90%]
+.........F...........s                                                   [100%]
+=================================== FAILURES ===================================
+_____________ test_shared_adversarial_case[N3-duplicate-consumed] ______________
+
+case = {'id': 'N3-duplicate-consumed', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load_r...wer_index': 0, 'upper_index': 1, 'start_k': 293.15, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE')
+E       assert False
+E        +  where False = agrees('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE')
+E        +    where 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE' = expected({'id': 'N3-duplicate-consumed', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load_r...wer_index': 0, 'upper_index': 1, 'start_k': 293.15, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE'}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+_____________ test_shared_adversarial_case[N3-duplicate-consulted] _____________
+
+case = {'id': 'N3-duplicate-consulted', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load_...wer_index': 1, 'upper_index': 2, 'start_k': 373.15, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE')
+E       assert False
+E        +  where False = agrees('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE')
+E        +    where 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE' = expected({'id': 'N3-duplicate-consulted', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load_...wer_index': 1, 'upper_index': 2, 'start_k': 373.15, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE'}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+___________ test_shared_adversarial_case[N3-duplicate-numeric-form] ____________
+
+case = {'id': 'N3-duplicate-numeric-form', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/lo...ower_index': 0, 'upper_index': 1, 'start_k': 300.0, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE')
+E       assert False
+E        +  where False = agrees('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE')
+E        +    where 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE' = expected({'id': 'N3-duplicate-numeric-form', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/lo...ower_index': 0, 'upper_index': 1, 'start_k': 300.0, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE'}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+_____________ test_transport_metadata_case[TRANSPORT-N3-duplicate] _____________
+
+case = {'id': 'TRANSPORT-N3-duplicate', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load_...lower_index': 1, 'upper_index': 2, 'start_k': 373.15, ...}]}], 'expect': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE'}
+
+    @pytest.mark.parametrize("case", CASES["transport_cases"], ids=lambda case: case["id"])
+    def test_transport_metadata_case(case):
+        meta = metadata(apply(source(case["source"]), case["ops"]))
+        result = outcome(lambda: validate_load_reference_transport_metadata(meta))
+        RESULTS.append({"id": case["id"], "transport": result})
+>       assert agrees(result, case["expect"]), result
+E       AssertionError: accept
+E       assert False
+E        +  where False = agrees('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE')
+
+tests/test_load_reference_readers.py:210: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N3-duplicate-consumed]
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N3-duplicate-consulted]
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N3-duplicate-numeric-form]
+FAILED tests/test_load_reference_readers.py::test_transport_metadata_case[TRANSPORT-N3-duplicate]
+4 failed, 233 passed, 1 skipped in 47.29s

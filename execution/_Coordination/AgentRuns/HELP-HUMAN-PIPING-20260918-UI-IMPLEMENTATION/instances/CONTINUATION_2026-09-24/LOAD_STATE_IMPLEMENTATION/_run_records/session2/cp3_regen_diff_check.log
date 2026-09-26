@@ -1,0 +1,26 @@
+{
+ "connected-sparse_interactive": {
+  "new_sha256": "915965a446ff04c6c4b7f0209ffff34c4ac040a0d4b8243d875dc7217a9cb74c",
+  "reconstructed_frozen_sha256": "6c1dd176e5600bdbec08066345372a26459746ed34d665fa4767569594dd03bf",
+  "matches_frozen": true,
+  "substituted_messages": 2
+ },
+ "connected-dense_scrutiny": {
+  "new_sha256": "3824035cabf2d2a151756e04b46112ccbdcf4ce8237f49e68b5d3b36b8dfb2bf",
+  "reconstructed_frozen_sha256": "333515b39d15e1fc270b40f267d6ff47c5de24acd733ee52660d4488a3c31c11",
+  "matches_frozen": true,
+  "substituted_messages": 2
+ },
+ "pressure-sparse_interactive": {
+  "new_sha256": "71be3e4fb1af54e962d5e4939a518fcab6f7896842ab4f08212a8212ae47f134",
+  "reconstructed_frozen_sha256": "20802f97f3e00fe7043d3adf5d78e926270f0e0f9c80f4b724ef4d122fc9ab75",
+  "matches_frozen": true,
+  "substituted_messages": 2
+ },
+ "pressure-dense_scrutiny": {
+  "new_sha256": "b46eeb8a5dc82bb9e0398b8d58db07eb73906eb25110d68b0032fd12df1d0707",
+  "reconstructed_frozen_sha256": "8215cad29a51e0e9d59f90b5db014256787592cf514b82ccef56fd814ce94be3",
+  "matches_frozen": true,
+  "substituted_messages": 2
+ }
+}

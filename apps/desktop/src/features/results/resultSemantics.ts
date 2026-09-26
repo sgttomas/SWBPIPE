@@ -4,6 +4,8 @@ import sourceBlocksContract from '../../../../../fixtures/results/semantic_contr
 import physicsContract from '../../../../../fixtures/results/semantic_contract_v0_3_physics_1.json';
 import precisionContract from '../../../../../fixtures/results/semantic_contract_v0_3_precision_1.json';
 import previewPhysicsContract from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json';
+import loadReferenceContract from '../../../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json';
+import loadReferenceSourceContract from '../../../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json';
 import { sourceContract } from './numericalResultQuality';
 import type { MechanicsResult } from '../../types';
 export type SourceRow = MechanicsResult['results'][number];
@@ -21,6 +23,10 @@ export function semanticContractForSource(source?: MechanicsResult) {
   if (sourceContract(source) === 'source_blocks') return sourceBlocksContract;
   // First variant in table order whose source_basis is absent or equals metadata.basis (S1 §1).
   if (sourceContract(source) === 'preview_physics') return previewPhysicsContract;
+  // T1: each load/reference-state identity reads its own pinned table (rows
+  // equal to physics-1 and physics-source-1 respectively).
+  if (sourceContract(source) === 'load_reference') return loadReferenceContract;
+  if (sourceContract(source) === 'load_reference_source') return loadReferenceSourceContract;
   throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');
 }
 export function resultSemantics(row: SourceRow, source?: MechanicsResult): SemanticSignature | null {

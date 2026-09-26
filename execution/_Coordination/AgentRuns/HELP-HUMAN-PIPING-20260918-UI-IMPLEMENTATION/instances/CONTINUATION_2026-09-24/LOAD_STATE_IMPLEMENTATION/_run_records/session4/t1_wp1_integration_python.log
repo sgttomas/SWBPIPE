@@ -1,0 +1,6 @@
+......................ss................................................ [ 98%]
+.........................                                                [100%]
+1521 passed, 16 skipped in 808.81s (0:13:28)
+
+[exited with code 0]
+command: python -m pytest -q -p no:cacheprovider tests/test_load_reference_source_readers.py tests/test_load_reference_source_schema.py tests/test_load_reference_readers.py tests/test_load_reference_schema.py tests/test_results_schema.py tests/test_analysis_run_schema.py tests/test_stress_neutral_export_package.py tests/test_stress_neutral_physics_source.py tests/test_stress_neutral_precision.py tests/test_source_block_schema_contract.py tests/test_physics_consumer_contract.py tests/test_physics_source_contract.py (WORKING_ROOT, session venv, OPENPIPESTRESS_*_BIN = existing built helpers)

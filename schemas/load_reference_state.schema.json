@@ -1,0 +1,2472 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/load_reference_state.schema.json",
+  "title": "Load/reference-state authored namespace and load-reference-1 raw evidence",
+  "description": "Definitions library for openpipestress.load_reference_state/1.0.0 (model 0.4.0) and the load-reference-1 raw producer evidence. Validate a specific $defs entry; the root carries no assertions. Authored definitions describe typed-boundary shape only: an unknown field, a missing required field or an unknown discriminant is rejected before solve, while coverage, resolution, unit dimension, finiteness and the parse-then-block branches are producer diagnostics and are not encoded here. Every $ref is a local #/$defs/<name> reference so the repository's closed-shape checkers can use this file as their root.",
+  "$defs": {
+    "Quantity": {
+      "description": "Authored quantity {value, unit}. Shape only: unit-catalog membership, dimension and finiteness are producer admission rules that parse and then block (for example LOAD_STATE_QUANTITY_INVALID or LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID). Closed per CP2_WIRE; see RETURN.md for the typed-DTO note.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "unit"
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    },
+    "GeometryReference": {
+      "description": "The model's own normalized nodes, connectivity and pipe frames; the producer publishes its projection hash.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "authored_model_geometry"
+        }
+      }
+    },
+    "ReferenceBasis": {
+      "description": "Member reference basis (tag `kind`). An unknown kind is a typed-boundary rejection.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "installation_temperature"
+          ],
+          "properties": {
+            "kind": {
+              "const": "temperature_reference"
+            },
+            "installation_temperature": {
+              "$ref": "#/$defs/Quantity"
+            }
+          }
+        },
+        {
+          "description": "Interval-only thermal routes; supplies no absolute temperature.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "direct_strain_reference"
+            }
+          }
+        }
+      ]
+    },
+    "FitReference": {
+      "description": "Explicit fit selection (tag `kind`); absence of fit is the explicit kind `none`. A fit carrying both `length_change` and `strain`, or no `kind`, is rejected. The natural-length reference length is the member's authored chord length (producer rule).",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "none"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "length_change"
+          ],
+          "properties": {
+            "kind": {
+              "const": "natural_length_change"
+            },
+            "length_change": {
+              "$ref": "#/$defs/Quantity"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "strain"
+          ],
+          "properties": {
+            "kind": {
+              "const": "fit_strain"
+            },
+            "strain": {
+              "$ref": "#/$defs/Quantity"
+            }
+          }
+        }
+      ]
+    },
+    "MemberReference": {
+      "description": "One member of a reference configuration. Coverage (every pipe exactly once), unknown/duplicate members and empty provenance are producer diagnostics, not shape.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pipe_ref",
+        "basis",
+        "fit",
+        "provenance"
+      ],
+      "properties": {
+        "pipe_ref": {
+          "type": "string"
+        },
+        "basis": {
+          "$ref": "#/$defs/ReferenceBasis"
+        },
+        "fit": {
+          "$ref": "#/$defs/FitReference"
+        },
+        "provenance": {
+          "type": "string"
+        }
+      }
+    },
+    "ReferenceConfiguration": {
+      "description": "Model-level `reference_configurations[]` item: the stress-free installed state. `label` is optional; JSON null is accepted as absence, as at the typed boundary. Resolution and coverage are producer diagnostics (LOAD_STATE_REFERENCE_*).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "geometry_ref",
+        "member_references",
+        "provenance"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "geometry_ref": {
+          "$ref": "#/$defs/GeometryReference"
+        },
+        "member_references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MemberReference"
+          }
+        },
+        "provenance": {
+          "type": "string"
+        }
+      }
+    },
+    "CoefficientPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature",
+        "coefficient"
+      ],
+      "properties": {
+        "temperature": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "coefficient": {
+          "$ref": "#/$defs/Quantity"
+        }
+      }
+    },
+    "DilationPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature",
+        "dilation"
+      ],
+      "properties": {
+        "temperature": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "dilation": {
+          "$ref": "#/$defs/Quantity"
+        }
+      }
+    },
+    "SecantData": {
+      "description": "engineering_secant data (tag `kind`): a constant coefficient or a linear-coefficient table.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "coefficient"
+          ],
+          "properties": {
+            "kind": {
+              "const": "constant"
+            },
+            "coefficient": {
+              "$ref": "#/$defs/Quantity"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "interpolation",
+            "points"
+          ],
+          "properties": {
+            "kind": {
+              "const": "table"
+            },
+            "interpolation": {
+              "const": "linear_coefficient"
+            },
+            "points": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/CoefficientPoint"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "DilationData": {
+      "description": "engineering_dilation data: a linear-dilation table only.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "interpolation",
+        "points"
+      ],
+      "properties": {
+        "kind": {
+          "const": "table"
+        },
+        "interpolation": {
+          "const": "linear_dilation"
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DilationPoint"
+          }
+        }
+      }
+    },
+    "CoefficientTableData": {
+      "description": "Coefficient-definition data (differential or logarithmic): a linear-coefficient table only.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "interpolation",
+        "points"
+      ],
+      "properties": {
+        "kind": {
+          "const": "table"
+        },
+        "interpolation": {
+          "const": "linear_coefficient"
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CoefficientPoint"
+          }
+        }
+      }
+    },
+    "ExpansionLaw": {
+      "description": "User-owned expansion definition carried by its material record (tag `definition`). Table coverage, positivity, point order and unit dimension are producer diagnostics (LOAD_STATE_EXPANSION_LAW_INVALID, LOAD_STATE_STRAIN_UNRESOLVED), not shape.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "definition",
+            "id",
+            "datum_temperature",
+            "data",
+            "provenance"
+          ],
+          "properties": {
+            "definition": {
+              "const": "engineering_secant"
+            },
+            "id": {
+              "type": "string"
+            },
+            "datum_temperature": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "data": {
+              "$ref": "#/$defs/SecantData"
+            },
+            "provenance": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "definition",
+            "id",
+            "datum_temperature",
+            "data",
+            "provenance"
+          ],
+          "properties": {
+            "definition": {
+              "const": "engineering_dilation"
+            },
+            "id": {
+              "type": "string"
+            },
+            "datum_temperature": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "data": {
+              "$ref": "#/$defs/DilationData"
+            },
+            "provenance": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "definition",
+            "id",
+            "datum_temperature",
+            "data",
+            "provenance"
+          ],
+          "properties": {
+            "definition": {
+              "const": "differential_per_datum_length"
+            },
+            "id": {
+              "type": "string"
+            },
+            "datum_temperature": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "data": {
+              "$ref": "#/$defs/CoefficientTableData"
+            },
+            "provenance": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "definition",
+            "id",
+            "datum_temperature",
+            "data",
+            "provenance"
+          ],
+          "properties": {
+            "definition": {
+              "const": "logarithmic_per_current_length"
+            },
+            "id": {
+              "type": "string"
+            },
+            "datum_temperature": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "data": {
+              "$ref": "#/$defs/CoefficientTableData"
+            },
+            "provenance": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "MaterialExpansionLaws": {
+      "description": "The material-owned `expansion_laws` array. When the key is present it must be an array (JSON null is rejected at the typed boundary); the material record is otherwise unchanged.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ExpansionLaw"
+      }
+    },
+    "MaterialSelection": {
+      "description": "Per-member material selection (tag `kind`). material_ref equality with the pipe's material, E/nu basis, point/temperature resolution and override needs are producer diagnostics (LOAD_STATE_MATERIAL_*).",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "material_ref",
+            "applicability_reference"
+          ],
+          "properties": {
+            "kind": {
+              "const": "explicit_base_properties"
+            },
+            "material_ref": {
+              "type": "string"
+            },
+            "applicability_reference": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "material_ref",
+            "point_ref"
+          ],
+          "properties": {
+            "kind": {
+              "const": "exact_point"
+            },
+            "material_ref": {
+              "type": "string"
+            },
+            "point_ref": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "material_ref",
+            "temperature",
+            "interpolation",
+            "extrapolation"
+          ],
+          "properties": {
+            "kind": {
+              "const": "temperature_interpolation"
+            },
+            "material_ref": {
+              "type": "string"
+            },
+            "temperature": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "interpolation": {
+              "const": "piecewise_linear"
+            },
+            "extrapolation": {
+              "const": "forbidden"
+            }
+          }
+        }
+      ]
+    },
+    "ThermalState": {
+      "description": "Per-member thermal state (tag `kind`). free_length_state requires operating_temperature, a temperature_reference basis and a law on the same material; those are producer diagnostics.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "provenance"
+          ],
+          "properties": {
+            "kind": {
+              "const": "unchanged_reference"
+            },
+            "provenance": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "strain",
+            "interval_reference",
+            "provenance"
+          ],
+          "properties": {
+            "kind": {
+              "const": "explicit_interval_strain"
+            },
+            "strain": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "interval_reference": {
+              "type": "string"
+            },
+            "provenance": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "coefficient",
+            "temperature_change",
+            "coefficient_meaning",
+            "provenance"
+          ],
+          "properties": {
+            "kind": {
+              "const": "constant_alpha_interval"
+            },
+            "coefficient": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "temperature_change": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "coefficient_meaning": {
+              "const": "engineering_interval"
+            },
+            "provenance": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "expansion_law_ref"
+          ],
+          "properties": {
+            "kind": {
+              "const": "free_length_state"
+            },
+            "expansion_law_ref": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "AnalysisBasisOverride": {
+      "description": "Explicit actual-versus-selected temperature basis override; empty text is a producer diagnostic.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "provenance"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "provenance": {
+          "type": "string"
+        }
+      }
+    },
+    "ElementState": {
+      "description": "`analysis_state.element_states[]` item. operating_temperature, analysis_basis_override and mass_state_ref are optional (JSON null is accepted as absence, as at the typed boundary). mass_state_ref parses and then blocks (LOAD_STATE_MASS_STATE_UNSUPPORTED). Coverage is a producer diagnostic.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pipe_ref",
+        "material_selection",
+        "thermal_state"
+      ],
+      "properties": {
+        "pipe_ref": {
+          "type": "string"
+        },
+        "operating_temperature": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/Quantity"
+            }
+          ]
+        },
+        "material_selection": {
+          "$ref": "#/$defs/MaterialSelection"
+        },
+        "thermal_state": {
+          "$ref": "#/$defs/ThermalState"
+        },
+        "analysis_basis_override": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/AnalysisBasisOverride"
+            }
+          ]
+        },
+        "mass_state_ref": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "PositionSource": {
+      "description": "Locked-component position source (tag `kind`).",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "entered"
+            },
+            "value": {
+              "$ref": "#/$defs/Quantity"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "case_ref",
+            "state_hash",
+            "support_ref",
+            "dof"
+          ],
+          "properties": {
+            "kind": {
+              "const": "predecessor_value"
+            },
+            "case_ref": {
+              "type": "string"
+            },
+            "state_hash": {
+              "type": "string"
+            },
+            "support_ref": {
+              "type": "string"
+            },
+            "dof": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "LockedComponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dof",
+        "position_source"
+      ],
+      "properties": {
+        "dof": {
+          "type": "string"
+        },
+        "position_source": {
+          "$ref": "#/$defs/PositionSource"
+        }
+      }
+    },
+    "Participation": {
+      "description": "Support participation (tag `kind`). `inactive` and `locked_equivalent_support` parse and then block (LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED) in this capability.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "active_model_device"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "inactive"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "components"
+          ],
+          "properties": {
+            "kind": {
+              "const": "locked_equivalent_support"
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/LockedComponent"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Motion": {
+      "description": "Prescribed support motion. DOF validity, duplicates, rigid restraint and length/angle unit are producer diagnostics (LOAD_STATE_BOUNDARY_MOTION_*).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dof",
+        "value",
+        "meaning"
+      ],
+      "properties": {
+        "dof": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "meaning": {
+          "const": "absolute_reference_displacement"
+        }
+      }
+    },
+    "DeviceReference": {
+      "description": "Device reference state (tag `kind`); parses and then blocks (LOAD_STATE_SUPPORT_REFERENCE_UNSUPPORTED).",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "reference_position",
+            "force"
+          ],
+          "properties": {
+            "kind": {
+              "const": "force_at_reference"
+            },
+            "reference_position": {
+              "$ref": "#/$defs/Quantity"
+            },
+            "force": {
+              "$ref": "#/$defs/Quantity"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "reference_position"
+          ],
+          "properties": {
+            "kind": {
+              "const": "unloaded_reference"
+            },
+            "reference_position": {
+              "$ref": "#/$defs/Quantity"
+            }
+          }
+        }
+      ]
+    },
+    "SupportState": {
+      "description": "`analysis_state.support_states[]` item. boundary_motion, base_motion and device_reference are optional (JSON null is accepted as absence). base_motion and device_reference parse and then block. Coverage is a producer diagnostic.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "support_ref",
+        "participation"
+      ],
+      "properties": {
+        "support_ref": {
+          "type": "string"
+        },
+        "participation": {
+          "$ref": "#/$defs/Participation"
+        },
+        "boundary_motion": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Motion"
+              }
+            }
+          ]
+        },
+        "base_motion": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Motion"
+              }
+            }
+          ]
+        },
+        "device_reference": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/DeviceReference"
+            }
+          ]
+        }
+      }
+    },
+    "LoadSource": {
+      "description": "Complete inclusion entry for one stored primitive of the owning case. Resolution, duplicates and a finite nonzero factor are producer diagnostics (LOAD_STATE_SOURCE_*).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_ref",
+        "factor"
+      ],
+      "properties": {
+        "source_ref": {
+          "type": "string"
+        },
+        "factor": {
+          "type": "number"
+        }
+      }
+    },
+    "History": {
+      "description": "Case history (tag `kind`); independent_equilibrium is the only kind.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "independent_equilibrium"
+            }
+          }
+        }
+      ]
+    },
+    "AnalysisState": {
+      "description": "Case-owned `analysis_state` (model 0.4.0): the complete resolved-state and ordinary-source request.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract",
+        "reference_configuration_ref",
+        "element_states",
+        "support_states",
+        "load_sources",
+        "history",
+        "provenance"
+      ],
+      "properties": {
+        "contract": {
+          "type": "string",
+          "description": "Supported value: openpipestress.load_reference_state/1.0.0. Any other string parses and then blocks (LOAD_STATE_CONTRACT_UNSUPPORTED); it is an admission rule, not shape."
+        },
+        "reference_configuration_ref": {
+          "type": "string"
+        },
+        "element_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ElementState"
+          }
+        },
+        "support_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SupportState"
+          }
+        },
+        "load_sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LoadSource"
+          }
+        },
+        "history": {
+          "$ref": "#/$defs/History"
+        },
+        "provenance": {
+          "type": "string"
+        }
+      }
+    },
+    "PhysicsGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outside_diameter_m",
+        "effective_wall_thickness_m",
+        "ri_m",
+        "ro_m",
+        "Ai_m2",
+        "As_m2",
+        "I_m4",
+        "J_m4",
+        "Z_m3",
+        "pipe_id",
+        "geometry_basis"
+      ],
+      "properties": {
+        "outside_diameter_m": {
+          "type": "number"
+        },
+        "effective_wall_thickness_m": {
+          "type": "number"
+        },
+        "ri_m": {
+          "type": "number"
+        },
+        "ro_m": {
+          "type": "number"
+        },
+        "Ai_m2": {
+          "type": "number"
+        },
+        "As_m2": {
+          "type": "number"
+        },
+        "I_m4": {
+          "type": "number"
+        },
+        "J_m4": {
+          "type": "number"
+        },
+        "Z_m3": {
+          "type": "number"
+        },
+        "pipe_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "geometry_basis": {
+          "const": "authored_normalized_od_wall_v1"
+        }
+      }
+    },
+    "LoadReferencePipeMaterial": {
+      "description": "results.v0.3 PhysicsMaterial plus material_selection_kind and resolved_eigenstrain, from the same resolved members.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pipe_id",
+        "material_id",
+        "E_pa",
+        "nu",
+        "G_pa",
+        "constitutive_basis",
+        "thermal_consumed",
+        "alpha_per_kelvin",
+        "provenance",
+        "material_selection_kind",
+        "resolved_eigenstrain"
+      ],
+      "properties": {
+        "pipe_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "material_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "E_pa": {
+          "type": "number"
+        },
+        "nu": {
+          "type": "number"
+        },
+        "G_pa": {
+          "type": "number"
+        },
+        "constitutive_basis": {
+          "const": "homogeneous_isotropic_E_nu_v1"
+        },
+        "thermal_consumed": {
+          "type": "boolean"
+        },
+        "alpha_per_kelvin": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "material_selection_kind": {
+          "enum": [
+            "explicit_base_properties",
+            "exact_point",
+            "temperature_interpolation"
+          ]
+        },
+        "resolved_eigenstrain": {
+          "type": "number"
+        }
+      }
+    },
+    "LoadReferencePressureEvidence": {
+      "description": "results.v0.3 PhysicsContractEvidence pressure item, except materials[].temperature_basis, which the producer publishes as the string resolved_member_state for resolved per-member pairs.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "region_id",
+        "profile_mode",
+        "profile_version",
+        "pressure_basis",
+        "p_pa",
+        "external_pressure_increment_pa",
+        "member_pipe_ids",
+        "geometry",
+        "materials",
+        "terminals",
+        "applied_loads",
+        "approximation",
+        "provenance",
+        "geometry_representation_guard",
+        "result_ids"
+      ],
+      "properties": {
+        "load_case_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "region_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile_mode": {
+          "const": "exact_straight_pressure_v2"
+        },
+        "profile_version": {
+          "const": "2.0.0"
+        },
+        "pressure_basis": {
+          "const": "internal_differential_zero_external_v1"
+        },
+        "p_pa": {
+          "type": "number"
+        },
+        "external_pressure_increment_pa": {
+          "const": 0
+        },
+        "member_pipe_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "geometry": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "outside_diameter_m",
+              "effective_wall_thickness_m",
+              "ri_m",
+              "ro_m",
+              "Ai_m2",
+              "As_m2",
+              "I_m4",
+              "J_m4",
+              "Z_m3",
+              "pipe_id",
+              "geometry_basis",
+              "traversal_forward"
+            ],
+            "properties": {
+              "outside_diameter_m": {
+                "type": "number"
+              },
+              "effective_wall_thickness_m": {
+                "type": "number"
+              },
+              "ri_m": {
+                "type": "number"
+              },
+              "ro_m": {
+                "type": "number"
+              },
+              "Ai_m2": {
+                "type": "number"
+              },
+              "As_m2": {
+                "type": "number"
+              },
+              "I_m4": {
+                "type": "number"
+              },
+              "J_m4": {
+                "type": "number"
+              },
+              "Z_m3": {
+                "type": "number"
+              },
+              "pipe_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "geometry_basis": {
+                "const": "authored_normalized_od_wall_v1"
+              },
+              "traversal_forward": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "materials": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pipe_id",
+              "material_id",
+              "E_pa",
+              "nu",
+              "G_pa",
+              "constitutive_basis",
+              "thermal_consumed",
+              "alpha_per_kelvin",
+              "provenance",
+              "temperature_basis"
+            ],
+            "properties": {
+              "pipe_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "material_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "E_pa": {
+                "type": "number"
+              },
+              "nu": {
+                "type": "number"
+              },
+              "G_pa": {
+                "type": "number"
+              },
+              "constitutive_basis": {
+                "const": "homogeneous_isotropic_E_nu_v1"
+              },
+              "thermal_consumed": {
+                "type": "boolean"
+              },
+              "alpha_per_kelvin": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "provenance": {
+                "type": "string",
+                "minLength": 1
+              },
+              "temperature_basis": {
+                "const": "resolved_member_state"
+              }
+            }
+          }
+        },
+        "terminals": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node_ref",
+              "closure_transfer",
+              "provenance",
+              "closure_pressure_load_global_n",
+              "pipe_cap_transfer_global_n",
+              "remote_closure_excluded_from_pipe_solve",
+              "remote_closure_support_reaction_global_n"
+            ],
+            "properties": {
+              "node_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "closure_transfer": {
+                "enum": [
+                  "transfers_to_wall",
+                  "separately_supported_or_compensated"
+                ]
+              },
+              "provenance": {
+                "type": "string",
+                "minLength": 1
+              },
+              "closure_pressure_load_global_n": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "pipe_cap_transfer_global_n": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "remote_closure_excluded_from_pipe_solve": {
+                "type": "boolean"
+              },
+              "remote_closure_support_reaction_global_n": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "applied_loads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pipe_id",
+              "eigenload_pair_local_n",
+              "local_x_global",
+              "mathematical_cap_pair_local_n",
+              "thermal_included"
+            ],
+            "properties": {
+              "pipe_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "eigenload_pair_local_n": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "local_x_global": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "mathematical_cap_pair_local_n": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "thermal_included": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "approximation": {
+          "const": "long_straight_annulus_small_strain_v2"
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "geometry_representation_guard": {
+          "const": {
+            "epsilon_multiplier": 64,
+            "meaning": "arithmetic_representation_only"
+          }
+        },
+        "result_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "LoadReferenceExactCase": {
+      "description": "results.v0.3 PhysicsContractEvidence exact_cases item, except material_basis (const) and pipe_materials items (LoadReferencePipeMaterial).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "profile_mode",
+        "material_basis",
+        "pipe_materials",
+        "pipe_sections",
+        "pipe_stress_extrema",
+        "stress_maximum_coverage",
+        "pressure_rhs_assembly"
+      ],
+      "properties": {
+        "load_case_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile_mode": {
+          "const": "exact_straight_pressure_v2"
+        },
+        "material_basis": {
+          "const": "resolved_per_member_load_reference_state_v1"
+        },
+        "pipe_materials": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LoadReferencePipeMaterial"
+          }
+        },
+        "pipe_sections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PhysicsGeometry"
+          }
+        },
+        "pipe_stress_extrema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pipe_id",
+              "result_id",
+              "station_fraction",
+              "span_index",
+              "local_fraction",
+              "value_lower_pa",
+              "value_upper_pa",
+              "global_upper_bound_pa",
+              "certified_gap_pa",
+              "subdivisions",
+              "approximation",
+              "coefficient_basis",
+              "enclosure_scope"
+            ],
+            "properties": {
+              "pipe_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "result_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "station_fraction": {
+                "type": "number"
+              },
+              "span_index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "local_fraction": {
+                "type": "number"
+              },
+              "value_lower_pa": {
+                "type": "number"
+              },
+              "value_upper_pa": {
+                "type": "number"
+              },
+              "global_upper_bound_pa": {
+                "type": "number"
+              },
+              "certified_gap_pa": {
+                "type": "number"
+              },
+              "subdivisions": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 131072
+              },
+              "approximation": {
+                "const": "piecewise_quadratic_straight_section_statics"
+              },
+              "coefficient_basis": {
+                "const": "j_side_section_equilibrium_binary64"
+              },
+              "enclosure_scope": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "stress_maximum_coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "complete",
+            "unavailable_pipe_ids"
+          ],
+          "properties": {
+            "complete": {
+              "type": "boolean"
+            },
+            "unavailable_pipe_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "pressure_rhs_assembly": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "load_case_id",
+            "node_order",
+            "dof_order",
+            "dof_units",
+            "assembled_pressure_rhs_global",
+            "rounded_cap_rhs_global",
+            "rounded_poisson_rhs_global",
+            "groups",
+            "rounded_cap_and_eigen_ledgers_are_observational",
+            "cancellation_screen",
+            "screen_limit",
+            "screen_roundoff_multiplier",
+            "screen_is_not_numerical_qualification"
+          ],
+          "properties": {
+            "method": {
+              "const": "source_factor_grouped_pressure_rhs_v1"
+            },
+            "load_case_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "node_order": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "dof_order": {
+              "const": [
+                "Fx",
+                "Fy",
+                "Fz",
+                "Mx",
+                "My",
+                "Mz"
+              ]
+            },
+            "dof_units": {
+              "const": [
+                "N",
+                "N",
+                "N",
+                "N*m",
+                "N*m",
+                "N*m"
+              ]
+            },
+            "assembled_pressure_rhs_global": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "rounded_cap_rhs_global": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "rounded_poisson_rhs_global": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "node_ref",
+                  "component",
+                  "pressure_bits",
+                  "source_inner_radius_hi_bits",
+                  "source_inner_radius_lo_bits",
+                  "direction_component_magnitude",
+                  "coefficient_sum",
+                  "assembled_force_n",
+                  "terms"
+                ],
+                "properties": {
+                  "node_ref": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "component": {
+                    "enum": [
+                      "Fx",
+                      "Fy",
+                      "Fz"
+                    ]
+                  },
+                  "pressure_bits": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{16}$"
+                  },
+                  "source_inner_radius_hi_bits": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{16}$"
+                  },
+                  "source_inner_radius_lo_bits": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{16}$"
+                  },
+                  "direction_component_magnitude": {
+                    "type": "number"
+                  },
+                  "coefficient_sum": {
+                    "type": "number"
+                  },
+                  "assembled_force_n": {
+                    "type": "number"
+                  },
+                  "terms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "coefficient",
+                        "region_id",
+                        "pipe_id",
+                        "kind"
+                      ],
+                      "properties": {
+                        "coefficient": {
+                          "type": "number"
+                        },
+                        "region_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "kind": {
+                          "enum": [
+                            "poisson_eigen",
+                            "terminal_cap"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "rounded_cap_and_eigen_ledgers_are_observational": {
+              "const": true
+            },
+            "cancellation_screen": {
+              "type": "number"
+            },
+            "screen_limit": {
+              "const": 1e-09
+            },
+            "screen_roundoff_multiplier": {
+              "const": 32
+            },
+            "screen_is_not_numerical_qualification": {
+              "const": true
+            }
+          }
+        }
+      }
+    },
+    "ConsumedMaterialPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "point_id",
+        "temperature_k",
+        "E_pa",
+        "nu",
+        "retained_G_ignored"
+      ],
+      "properties": {
+        "point_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "temperature_k": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "E_pa": {
+          "type": "number"
+        },
+        "nu": {
+          "type": "number"
+        },
+        "retained_G_ignored": {
+          "type": "boolean"
+        }
+      }
+    },
+    "LawSegment": {
+      "description": "Law-table segment. Consumed segments entered the value; consulted segments only established coverage or positivity admissibility.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "use",
+        "lower_index",
+        "upper_index",
+        "start_k",
+        "end_k"
+      ],
+      "properties": {
+        "use": {
+          "enum": [
+            "interpolation_sample",
+            "integration_interval"
+          ]
+        },
+        "lower_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "upper_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "start_k": {
+          "type": "number"
+        },
+        "end_k": {
+          "type": "number"
+        }
+      }
+    },
+    "LoadReferenceMember": {
+      "description": "One resolved member (CP2_WIRE_ADDENDUM_1 section 3). Absent optional values are JSON null. Cross-field bindings (fit_kind with fit_input, E/nu/G with exact_cases, coverage) belong to the reader validators.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pipe_id",
+        "material_id",
+        "material_selection_kind",
+        "consumed_material_points",
+        "interpolation_fraction",
+        "applicability_reference",
+        "analysis_basis_override",
+        "selected_E_pa",
+        "selected_nu",
+        "derived_G_pa",
+        "G_basis",
+        "retained_G_ignored",
+        "operating_temperature_k",
+        "material_selection_temperature_k",
+        "reference_basis",
+        "installation_temperature_k",
+        "thermal_definition",
+        "expansion_law_id",
+        "coefficient_datum_k",
+        "consumed_law_point_indices",
+        "consumed_law_segments",
+        "consulted_law_point_indices",
+        "consulted_law_segments",
+        "installation_datum_stretch",
+        "operating_datum_stretch",
+        "thermal_strain",
+        "thermal_stretch",
+        "fit_strain",
+        "fit_stretch",
+        "total_eigenstrain",
+        "eigenstrain_composition",
+        "fit_kind",
+        "fit_input",
+        "reference_length_m"
+      ],
+      "properties": {
+        "pipe_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "material_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "material_selection_kind": {
+          "enum": [
+            "explicit_base_properties",
+            "exact_point",
+            "temperature_interpolation"
+          ]
+        },
+        "consumed_material_points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConsumedMaterialPoint"
+          }
+        },
+        "interpolation_fraction": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "applicability_reference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "analysis_basis_override": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "reason",
+                "provenance"
+              ],
+              "properties": {
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provenance": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          ]
+        },
+        "selected_E_pa": {
+          "type": "number"
+        },
+        "selected_nu": {
+          "type": "number"
+        },
+        "derived_G_pa": {
+          "type": "number"
+        },
+        "G_basis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "retained_G_ignored": {
+          "type": "boolean"
+        },
+        "operating_temperature_k": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "material_selection_temperature_k": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "reference_basis": {
+          "enum": [
+            "temperature_reference",
+            "direct_strain_reference"
+          ]
+        },
+        "installation_temperature_k": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "thermal_definition": {
+          "enum": [
+            "unchanged_reference",
+            "explicit_interval_strain",
+            "constant_alpha_interval",
+            "engineering_secant",
+            "engineering_dilation",
+            "differential_per_datum_length",
+            "logarithmic_per_current_length"
+          ]
+        },
+        "expansion_law_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "coefficient_datum_k": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "consumed_law_point_indices": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "consumed_law_segments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LawSegment"
+          }
+        },
+        "consulted_law_point_indices": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "consulted_law_segments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LawSegment"
+          }
+        },
+        "installation_datum_stretch": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "operating_datum_stretch": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "thermal_strain": {
+          "type": "number"
+        },
+        "thermal_stretch": {
+          "type": "number"
+        },
+        "fit_strain": {
+          "type": "number"
+        },
+        "fit_stretch": {
+          "type": "number"
+        },
+        "total_eigenstrain": {
+          "type": "number"
+        },
+        "eigenstrain_composition": {
+          "const": "lambda_fit*lambda_thermal-1"
+        },
+        "fit_kind": {
+          "enum": [
+            "none",
+            "natural_length_change",
+            "fit_strain"
+          ]
+        },
+        "fit_input": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "length_change_m"
+              ],
+              "properties": {
+                "length_change_m": {
+                  "type": "number"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "strain"
+              ],
+              "properties": {
+                "strain": {
+                  "type": "number"
+                }
+              }
+            }
+          ]
+        },
+        "reference_length_m": {
+          "type": "number"
+        }
+      }
+    },
+    "SupportComponent": {
+      "description": "One entered boundary_motion DOF; every other restrained DOF is an explicit zero boundary value. Translations publish m and rotations rad.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "support_id",
+        "node_id",
+        "dof",
+        "global_dof",
+        "law_kind",
+        "prescribed_value",
+        "unit",
+        "meaning",
+        "physical_state_source"
+      ],
+      "properties": {
+        "support_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dof": {
+          "enum": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        },
+        "global_dof": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "law_kind": {
+          "const": "rigid_prescribed"
+        },
+        "prescribed_value": {
+          "type": "number"
+        },
+        "unit": {
+          "enum": [
+            "m",
+            "rad"
+          ]
+        },
+        "meaning": {
+          "const": "absolute_reference_displacement"
+        },
+        "physical_state_source": {
+          "const": "support_state.boundary_motion"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "dof": {
+              "enum": [
+                "UX",
+                "UY",
+                "UZ"
+              ]
+            },
+            "unit": {
+              "const": "m"
+            }
+          }
+        },
+        {
+          "properties": {
+            "dof": {
+              "enum": [
+                "RX",
+                "RY",
+                "RZ"
+              ]
+            },
+            "unit": {
+              "const": "rad"
+            }
+          }
+        }
+      ]
+    },
+    "Contribution": {
+      "description": "Complete physical-source ledger entry (tag `owner_kind`, fixed classification per owner). The support_state `value` and the pressure_region null `factor` are published by the producer but not listed in CP2_WIRE_ADDENDUM_1 section 3 (see RETURN.md).",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "owner_kind",
+            "source_id",
+            "classification",
+            "factor",
+            "category",
+            "dimension",
+            "authored_normalized_magnitude",
+            "applied_magnitude"
+          ],
+          "properties": {
+            "owner_kind": {
+              "const": "stored_primitive"
+            },
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "classification": {
+              "const": "ordinary_applied"
+            },
+            "factor": {
+              "type": "number"
+            },
+            "category": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dimension": {
+              "type": "string",
+              "minLength": 1
+            },
+            "authored_normalized_magnitude": {
+              "type": "number"
+            },
+            "applied_magnitude": {
+              "type": "number"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "owner_kind",
+            "source_id",
+            "classification",
+            "consumed_input_refs",
+            "value"
+          ],
+          "properties": {
+            "owner_kind": {
+              "const": "resolved_member_state"
+            },
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "classification": {
+              "const": "eigenstrain"
+            },
+            "consumed_input_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "value": {
+              "type": "number"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "owner_kind",
+            "source_id",
+            "classification",
+            "value"
+          ],
+          "properties": {
+            "owner_kind": {
+              "const": "support_state"
+            },
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "classification": {
+              "const": "prescribed_boundary"
+            },
+            "value": {
+              "type": "number"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "owner_kind",
+            "source_id",
+            "classification",
+            "factor"
+          ],
+          "properties": {
+            "owner_kind": {
+              "const": "pressure_region"
+            },
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "classification": {
+              "const": "pressure_eigen_and_closure"
+            },
+            "factor": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    },
+    "ExcludedSource": {
+      "description": "A stored primitive of the case not listed in analysis_state.load_sources.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "owner_kind",
+        "classification",
+        "category",
+        "reason"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner_kind": {
+          "const": "stored_primitive"
+        },
+        "classification": {
+          "const": "excluded"
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "LoadReferenceStateRecord": {
+      "description": "One `contract_evidence.load_reference_states[]` record per case, exactly the CP2_WIRE_ADDENDUM_1 section 3 keys. Case binding, uniqueness and member/pipe bijection belong to the reader validators.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "contract",
+        "profile",
+        "reference_configuration_id",
+        "provenance",
+        "reference_geometry",
+        "history",
+        "solve",
+        "source_recovery",
+        "members",
+        "support_components",
+        "contributions",
+        "excluded_sources"
+      ],
+      "properties": {
+        "load_case_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contract": {
+          "const": "openpipestress.load_reference_state/1.0.0"
+        },
+        "profile": {
+          "const": "resolved_straight_load_state_v1"
+        },
+        "reference_configuration_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference_geometry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "projection_sha256"
+          ],
+          "properties": {
+            "kind": {
+              "const": "authored_model_geometry"
+            },
+            "projection_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "history": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "independent_equilibrium"
+            }
+          }
+        },
+        "solve": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requested_mode",
+            "recovery_method",
+            "boundary",
+            "eigenload"
+          ],
+          "properties": {
+            "requested_mode": {
+              "enum": [
+                "sparse_interactive",
+                "dense_scrutiny"
+              ]
+            },
+            "recovery_method": {
+              "enum": [
+                "ordinary_sparse_structural_v1",
+                "ordinary_dense_structural_v1"
+              ]
+            },
+            "boundary": {
+              "type": "string",
+              "minLength": 1
+            },
+            "eigenload": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "oneOf": [
+            {
+              "properties": {
+                "requested_mode": {
+                  "const": "sparse_interactive"
+                },
+                "recovery_method": {
+                  "const": "ordinary_sparse_structural_v1"
+                }
+              }
+            },
+            {
+              "properties": {
+                "requested_mode": {
+                  "const": "dense_scrutiny"
+                },
+                "recovery_method": {
+                  "const": "ordinary_dense_structural_v1"
+                }
+              }
+            }
+          ]
+        },
+        "source_recovery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "code"
+          ],
+          "properties": {
+            "status": {
+              "const": "not_joined"
+            },
+            "code": {
+              "const": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+            }
+          }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LoadReferenceMember"
+          }
+        },
+        "support_components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SupportComponent"
+          }
+        },
+        "contributions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Contribution"
+          }
+        },
+        "excluded_sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExcludedSource"
+          }
+        }
+      }
+    },
+    "LoadReferenceContractEvidence": {
+      "description": "Raw producer `contract_evidence` for semantic contract openpipestress.result_semantics/0.3.0/load-reference-1 (profile resolved_straight_load_state_v1). Carriers preserve it verbatim. Closed shape only; cross-binding is executable reader validation.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pressure",
+        "connector",
+        "exact_cases",
+        "load_reference_states"
+      ],
+      "properties": {
+        "pressure": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LoadReferencePressureEvidence"
+          }
+        },
+        "connector": {
+          "const": []
+        },
+        "exact_cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LoadReferenceExactCase"
+          }
+        },
+        "load_reference_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LoadReferenceStateRecord"
+          }
+        }
+      }
+    }
+  }
+}

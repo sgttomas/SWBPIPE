@@ -1,0 +1,8 @@
+VP-STATIC rerun on merge commit a9528b2e1 (scratch; development_comparison; not a new recorded run)
+command: LSI/_run_records/session4/t1_vp_static_run.py <WORKING_ROOT> <runner> <SCRATCH> <the four review paths of the recorded run>
+runner: openpipestress-runner dev build from a9528b2e1, sha256 5efd804f138b23712af541ac35defd4925564c0578aadecd352fcb2bf067602e
+outcome sparse_interactive: all_required_assertions_matched
+outcome dense_scrutiny: all_required_assertions_matched
+per mode: 507/507 matched (467 positive, 40 negative), 98/98 structural, 14 checks_passed
+sparse_interactive: runner stdin/stdout/stderr identical to the recorded run: 42/42; differing artifacts: 18 (ledger, selection, reader-basis binding and review bytes, and the 14 reader snapshots that embed the binding hash)
+dense_scrutiny: runner stdin/stdout/stderr identical to the recorded run: 42/42; differing artifacts: 18 (ledger, selection, reader-basis binding and review bytes, and the 14 reader snapshots that embed the binding hash)

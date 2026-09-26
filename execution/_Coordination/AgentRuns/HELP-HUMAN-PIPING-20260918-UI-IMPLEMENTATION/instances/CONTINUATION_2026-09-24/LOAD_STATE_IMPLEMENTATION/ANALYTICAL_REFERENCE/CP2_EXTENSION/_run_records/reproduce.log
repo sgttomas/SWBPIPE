@@ -1,0 +1,14 @@
+2026-09-25T18:10:00Z
+$ git show 5511596af:projects/chirality-piping/core/product_physics/tests/fixtures/load_reference_states/reference_cases.json > <scratch>/repro.json   (read-only; 3293c319a carries the same pre-edit blob)
+5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891  /tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/repro.json
+5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891  -
+$ python3 execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/extend_reference_cases.py <scratch>/repro.json
+ "input_sha256": "5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891",
+ "output_sha256": "4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab",
+exit=0
+$ cmp <scratch>/repro.json core/product_physics/tests/fixtures/load_reference_states/reference_cases.json
+reproduction is byte-identical to the edited working-tree fixture
+$ python3 execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/extend_reference_cases.py core/product_physics/tests/fixtures/load_reference_states/reference_cases.json   # a second application must refuse
+refusing: core/product_physics/tests/fixtures/load_reference_states/reference_cases.json sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab != reviewed pre-edit 5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891
+exit=1
+4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab  core/product_physics/tests/fixtures/load_reference_states/reference_cases.json

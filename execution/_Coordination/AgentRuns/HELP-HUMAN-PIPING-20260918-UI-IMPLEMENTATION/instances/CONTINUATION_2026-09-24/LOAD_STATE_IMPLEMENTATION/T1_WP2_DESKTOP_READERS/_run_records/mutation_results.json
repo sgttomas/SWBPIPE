@@ -1,0 +1,4186 @@
+[
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:274:require_:\"FOREIGN_METHOD_EVIDENCE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 274,
+  "kind": "require_(true, \"FOREIGN_METHOD_EVIDENCE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.6,
+  "summary": [
+   "      Tests  1 failed | 306 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:275:require_:\"JOIN_RECEIPT_REQUIRED\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 275,
+  "kind": "require_(true, \"JOIN_RECEIPT_REQUIRED\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 9.8,
+  "summary": [
+   "      Tests  1 failed | 297 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:277:require_:\"FOREIGN_METHOD_EVIDENCE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 277,
+  "kind": "require_(true, \"FOREIGN_METHOD_EVIDENCE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.3,
+  "summary": [
+   "      Tests  1 failed | 126 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:282:require_:\"TRANSPORT_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 282,
+  "kind": "require_(true, \"TRANSPORT_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.5,
+  "summary": [
+   "      Tests  1 failed | 257 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:284:require_:\"EVIDENCE_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 284,
+  "kind": "require_(true, \"EVIDENCE_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.1,
+  "summary": [
+   "      Tests  1 failed | 51 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:285:require_:\"CONNECTOR_UNSUPPORTED\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 285,
+  "kind": "require_(true, \"CONNECTOR_UNSUPPORTED\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.4,
+  "summary": [
+   "      Tests  1 failed | 213 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:293:require_:\"NUMERICAL_CASE_BASIS\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 293,
+  "kind": "require_(true, \"NUMERICAL_CASE_BASIS\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.4,
+  "summary": [
+   "      Tests  1 failed | 217 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:302:require_:\"CASE_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 302,
+  "kind": "require_(true, \"CASE_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.9,
+  "summary": [
+   "      Tests  1 failed | 66 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:304:require_:\"CASE_DUPLICATE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 304,
+  "kind": "require_(true, \"CASE_DUPLICATE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.6,
+  "summary": [
+   "      Tests  1 failed | 155 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:305:require_:\"MATERIAL_BASIS\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 305,
+  "kind": "require_(true, \"MATERIAL_BASIS\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.2,
+  "summary": [
+   "      Tests  1 failed | 146 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:308:require_:\"MATERIAL_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 308,
+  "kind": "require_(true, \"MATERIAL_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.2,
+  "summary": [
+   "      Tests  1 failed | 67 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:324:require_:\"RECORD_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 324,
+  "kind": "require_(true, \"RECORD_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.1,
+  "summary": [
+   "      Tests  1 failed | 52 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:326:require_:\"RECORD_DUPLICATE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 326,
+  "kind": "require_(true, \"RECORD_DUPLICATE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.1,
+  "summary": [
+   "      Tests  1 failed | 154 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:332:require_:\"CASE_COVERAGE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 332,
+  "kind": "require_(true, \"CASE_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.0,
+  "summary": [
+   "      Tests  1 failed | 211 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:334:require_:\"UNSOLVED_EVIDENCE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 334,
+  "kind": "require_(true, \"UNSOLVED_EVIDENCE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.0,
+  "summary": [
+   "      Tests  1 failed | 216 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:344:require_:\"JOIN_RECOVERY_METHOD\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 344,
+  "kind": "require_(true, \"JOIN_RECOVERY_METHOD\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.0,
+  "summary": [
+   "      Tests  1 failed | 316 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:346:require_:\"JOIN_SELECTION_REQUIRED\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 346,
+  "kind": "require_(true, \"JOIN_SELECTION_REQUIRED\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.2,
+  "summary": [
+   "      Tests  1 failed | 319 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:352:require_:\"REFERENCE_GEOMETRY_CONSISTENCY\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 352,
+  "kind": "require_(true, \"REFERENCE_GEOMETRY_CONSISTENCY\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.1,
+  "summary": [
+   "      Tests  1 failed | 172 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:353:require_:\"SOLVE_CONSISTENCY\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 353,
+  "kind": "require_(true, \"SOLVE_CONSISTENCY\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.1,
+  "summary": [
+   "      Tests  1 failed | 168 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:358:require_:\"REGION_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 358,
+  "kind": "require_(true, \"REGION_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 68 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:364:require_:\"REGION_MATERIAL_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 364,
+  "kind": "require_(true, \"REGION_MATERIAL_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.1,
+  "summary": [
+   "      Tests  1 failed | 69 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:365:require_:\"REGION_TEMPERATURE_BASIS\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 365,
+  "kind": "require_(true, \"REGION_TEMPERATURE_BASIS\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.5,
+  "summary": [
+   "      Tests  1 failed | 214 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:369:require_:\"REGION_MATERIAL_BINDING\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 369,
+  "kind": "require_(true, \"REGION_MATERIAL_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.9,
+  "summary": [
+   "      Tests  1 failed | 102 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:389:require_:name",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 389,
+  "kind": "require_(true, name)",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.1,
+  "summary": [
+   "      Tests  1 failed | 116 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:391:require_:\"NOT_JOINED_DIAGNOSTIC\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 391,
+  "kind": "require_(true, \"NOT_JOINED_DIAGNOSTIC\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.5,
+  "summary": [
+   "      Tests  1 failed | 121 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:393:require_:\"JOIN_SELECTED_DIAGNOSTIC\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 393,
+  "kind": "require_(true, \"JOIN_SELECTED_DIAGNOSTIC\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.7,
+  "summary": [
+   "      Tests  1 failed | 324 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:396:require_:\"JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 396,
+  "kind": "require_(true, \"JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.9,
+  "summary": [
+   "      Tests  1 failed | 331 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:429:require_:\"RECORD_CONTRACT\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 429,
+  "kind": "require_(true, \"RECORD_CONTRACT\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.9,
+  "summary": [
+   "      Tests  1 failed | 138 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:430:require_:\"RECORD_PROFILE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 430,
+  "kind": "require_(true, \"RECORD_PROFILE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.3,
+  "summary": [
+   "      Tests  1 failed | 133 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:434:require_:\"REFERENCE_GEOMETRY_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 434,
+  "kind": "require_(true, \"REFERENCE_GEOMETRY_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 53 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:435:require_:\"REFERENCE_GEOMETRY\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 435,
+  "kind": "require_(true, \"REFERENCE_GEOMETRY\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 170 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:437:require_:\"HISTORY_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 437,
+  "kind": "require_(true, \"HISTORY_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.5,
+  "summary": [
+   "      Tests  1 failed | 54 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:438:require_:\"HISTORY\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 438,
+  "kind": "require_(true, \"HISTORY\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 166 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:440:require_:\"SOLVE_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 440,
+  "kind": "require_(true, \"SOLVE_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 55 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:446:require_:\"SOLVE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 446,
+  "kind": "require_(true, \"SOLVE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 167 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:453:require_:\"SOURCE_RECOVERY_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 453,
+  "kind": "require_(true, \"SOURCE_RECOVERY_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.0,
+  "summary": [
+   "      Tests  1 failed | 310 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:454:require_:\"SOURCE_RECOVERY\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 454,
+  "kind": "require_(true, \"SOURCE_RECOVERY\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.8,
+  "summary": [
+   "      Tests  1 failed | 311 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:456:require_:\"SOURCE_RECOVERY_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 456,
+  "kind": "require_(true, \"SOURCE_RECOVERY_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 56 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:457:require_:\"SOURCE_RECOVERY\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 457,
+  "kind": "require_(true, \"SOURCE_RECOVERY\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 123 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:465:require_:\"MEMBER_DUPLICATE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 465,
+  "kind": "require_(true, \"MEMBER_DUPLICATE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.1,
+  "summary": [
+   "      Tests  1 failed | 152 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:475:require_:\"SUPPORT_COMPONENT_DUPLICATE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 475,
+  "kind": "require_(true, \"SUPPORT_COMPONENT_DUPLICATE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.1,
+  "summary": [
+   "      Tests  1 failed | 153 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:481:require_:\"SUPPORT_COMPONENT_NODE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 481,
+  "kind": "require_(true, \"SUPPORT_COMPONENT_NODE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 198 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:489:require_:\"CONTRIBUTION_DUPLICATE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 489,
+  "kind": "require_(true, \"CONTRIBUTION_DUPLICATE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 148 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:495:require_:\"EXCLUDED_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 495,
+  "kind": "require_(true, \"EXCLUDED_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 65 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:496:require_:\"EXCLUDED_CLASSIFICATION\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 496,
+  "kind": "require_(true, \"EXCLUDED_CLASSIFICATION\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 209 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:500:require_:\"EXCLUDED_OVERLAP\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 500,
+  "kind": "require_(true, \"EXCLUDED_OVERLAP\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.1,
+  "summary": [
+   "      Tests  1 failed | 150 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:508:require_:\"MEMBER_COVERAGE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 508,
+  "kind": "require_(true, \"MEMBER_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 210 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:514:require_:\"MEMBER_MATERIAL_BINDING\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 514,
+  "kind": "require_(true, \"MEMBER_MATERIAL_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 94 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:532:require_:\"MEMBER_CONTRIBUTION_BINDING\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 532,
+  "kind": "require_(true, \"MEMBER_CONTRIBUTION_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 114 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:539:require_:\"SUPPORT_CONTRIBUTION_BINDING\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 539,
+  "kind": "require_(true, \"SUPPORT_CONTRIBUTION_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.5,
+  "summary": [
+   "      Tests  1 failed | 199 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:545:require_:\"PRESSURE_CONTRIBUTION_COVERAGE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 545,
+  "kind": "require_(true, \"PRESSURE_CONTRIBUTION_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.6,
+  "summary": [
+   "      Tests  1 failed | 204 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:550:require_:\"MEMBER_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 550,
+  "kind": "require_(true, \"MEMBER_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 57 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:553:require_:\"MEMBER_BASIS\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 553,
+  "kind": "require_(true, \"MEMBER_BASIS\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 194 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:556:require_:\"MEMBER_MATERIAL_RANGE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 556,
+  "kind": "require_(true, \"MEMBER_MATERIAL_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 101 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:559:require_:\"MEMBER_G_BINDING\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 559,
+  "kind": "require_(true, \"MEMBER_G_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.3,
+  "summary": [
+   "      Tests  1 failed | 74 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:564:require_:\"MATERIAL_POINT_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 564,
+  "kind": "require_(true, \"MATERIAL_POINT_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.5,
+  "summary": [
+   "      Tests  1 failed | 58 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:577:require_:\"OVERRIDE_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 577,
+  "kind": "require_(true, \"OVERRIDE_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 70 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:585:require_:\"TEMPERATURE_RANGE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 585,
+  "kind": "require_(true, \"TEMPERATURE_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 192 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:602:require_:\"MATERIAL_SELECTION\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 602,
+  "kind": "require_(true, \"MATERIAL_SELECTION\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.5,
+  "summary": [
+   "      Tests  1 failed | 185 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:605:require_:\"REFERENCE_BASIS\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 605,
+  "kind": "require_(true, \"REFERENCE_BASIS\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 181 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:609:require_:\"STRETCH_BINDING\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 609,
+  "kind": "require_(true, \"STRETCH_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 177 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:616:require_:\"LAW_INDICES\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 616,
+  "kind": "require_(true, \"LAW_INDICES\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 188 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:626:require_:\"LAW_SEGMENT_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 626,
+  "kind": "require_(true, \"LAW_SEGMENT_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 71 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:633:require_:\"LAW_SEGMENT\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 633,
+  "kind": "require_(true, \"LAW_SEGMENT\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 191 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:635:require_:\"LAW_SEGMENT_DUPLICATE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 635,
+  "kind": "require_(true, \"LAW_SEGMENT_DUPLICATE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 244 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:646:require_:\"THERMAL_LAW_BINDING\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 646,
+  "kind": "require_(true, \"THERMAL_LAW_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.1,
+  "summary": [
+   "      Tests  1 failed | 183 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:672:require_:\"FIT_BINDING\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 672,
+  "kind": "require_(true, \"FIT_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 59 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:676:require_:\"SUPPORT_COMPONENT_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 676,
+  "kind": "require_(true, \"SUPPORT_COMPONENT_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 60 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:683:require_:\"SUPPORT_COMPONENT_DOF\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 683,
+  "kind": "require_(true, \"SUPPORT_COMPONENT_DOF\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 195 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:684:require_:\"SUPPORT_COMPONENT_LAW\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 684,
+  "kind": "require_(true, \"SUPPORT_COMPONENT_LAW\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 197 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:685:require_:\"SUPPORT_COMPONENT_UNIT\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 685,
+  "kind": "require_(true, \"SUPPORT_COMPONENT_UNIT\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.5,
+  "summary": [
+   "      Tests  1 failed | 196 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:699:require_:\"CONTRIBUTION_SHAPE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 699,
+  "kind": "require_(true, \"CONTRIBUTION_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 61 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:700:require_:\"CONTRIBUTION_CLASSIFICATION\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 700,
+  "kind": "require_(true, \"CONTRIBUTION_CLASSIFICATION\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 207 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:709:require_:\"CONTRIBUTION_APPLIED_MAGNITUDE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 709,
+  "kind": "require_(true, \"CONTRIBUTION_APPLIED_MAGNITUDE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 160 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:716:require_:\"CONTRIBUTION_FACTOR\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 716,
+  "kind": "require_(true, \"CONTRIBUTION_FACTOR\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 161 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:84:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 84,
+  "kind": "throw fail(name);",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.3,
+  "summary": [
+   "      Tests  1 failed | 33 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:106:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 106,
+  "kind": "throw fail(\"STRING_INVALID\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 109 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:111:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 111,
+  "kind": "throw fail(\"NUMBER_INVALID\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 162 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:117:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 117,
+  "kind": "throw fail(\"BOOLEAN_INVALID\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 193 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:121:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 121,
+  "kind": "throw fail(\"INTEGER_INVALID\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 189 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:600:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 600,
+  "kind": "throw fail(\"MATERIAL_SELECTION_KIND\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.5,
+  "summary": [
+   "      Tests  1 failed | 174 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:630:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 630,
+  "kind": "throw fail(\"LAW_SEGMENT\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 190 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:654:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 654,
+  "kind": "throw fail(\"THERMAL_DEFINITION\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 175 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:670:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 670,
+  "kind": "throw fail(\"FIT_KIND\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.1,
+  "summary": [
+   "      Tests  1 failed | 176 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:697:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 697,
+  "kind": "throw fail(\"CONTRIBUTION_KIND\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 206 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:704:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 704,
+  "kind": "throw fail(\"CONTRIBUTION_FACTOR\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.2,
+  "summary": [
+   "      Tests  1 failed | 156 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:224:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 224,
+  "kind": "throw new LoadReferenceError(\"SOURCE_LOAD_REFERENCE_TABLE_HASH\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 250 passed (406)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:263:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 263,
+  "kind": "throw new LoadReferenceError(`${code(\"PHYSICS_EVIDENCE\")}: ${error instanceof Error && err",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.2,
+  "summary": [
+   "      Tests  1 failed | 48 passed (406)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:144:require_:\"JOIN_IDENTITY\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 144,
+  "kind": "require_(true, \"JOIN_IDENTITY\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.5,
+  "summary": [
+   "      Tests  1 failed | 337 passed (464)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:170:require_:\"JOIN_RECEIPT_POLICY\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 170,
+  "kind": "require_(true, \"JOIN_RECEIPT_POLICY\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.7,
+  "summary": [
+   "      Tests  1 failed | 394 passed (464)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:175:require_:\"JOIN_RECEIPT_HASH\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 175,
+  "kind": "require_(true, \"JOIN_RECEIPT_HASH\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.9,
+  "summary": [
+   "      Tests  1 failed | 400 passed (464)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:178:require_:\"JOIN_PUBLICATION_HASH\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 178,
+  "kind": "require_(true, \"JOIN_PUBLICATION_HASH\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.6,
+  "summary": [
+   "      Tests  1 failed | 344 passed (464)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:184:require_:\"JOIN_CASE_ORDER\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 184,
+  "kind": "require_(true, \"JOIN_CASE_ORDER\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.6,
+  "summary": [
+   "      Tests  1 failed | 418 passed (464)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:188:require_:\"JOIN_RECOVERY_METHOD\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 188,
+  "kind": "require_(true, \"JOIN_RECOVERY_METHOD\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.6,
+  "summary": [
+   "      Tests  1 failed | 412 passed (464)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:189:require_:\"JOIN_REQUESTED_MODE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 189,
+  "kind": "require_(true, \"JOIN_REQUESTED_MODE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.8,
+  "summary": [
+   "      Tests  1 failed | 378 passed (464)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:194:require_:\"JOIN_PHYSICAL_CASE_HASH\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 194,
+  "kind": "require_(true, \"JOIN_PHYSICAL_CASE_HASH\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.7,
+  "summary": [
+   "      Tests  1 failed | 405 passed (464)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:173:throw",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 173,
+  "kind": "throw fail(\"JOIN_RECEIPT_SHAPE\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.8,
+  "summary": [
+   "      Tests  1 failed | 398 passed (464)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:64:throw",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 64,
+  "kind": "throw new LoadReferenceError(\"SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 9.8,
+  "summary": [
+   "      Tests  1 failed | 482 passed (502)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:158:throw",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 158,
+  "kind": "throw new LoadReferenceError(`${code(\"JOIN_PHYSICS_SOURCE\")}: ${error instanceof Error && ",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.8,
+  "summary": [
+   "      Tests  1 failed | 441 passed (502)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:272:blocks:name",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 272,
+  "kind": "blocks(true, name)",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.0,
+  "summary": [
+   "      Tests  1 failed | 219 passed | 157 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:277:blocks:\"VALUE_NONFINITE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 277,
+  "kind": "blocks(true, \"VALUE_NONFINITE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.2,
+  "summary": [
+   "      Tests  1 failed | 221 passed | 156 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:292:blocks:\"ORDINARY_MODE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 292,
+  "kind": "blocks(true, \"ORDINARY_MODE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.5,
+  "summary": [
+   "      Tests  1 failed | 228 passed | 157 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:294:blocks:\"ORDINARY_REPORT_REF\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 294,
+  "kind": "blocks(true, \"ORDINARY_REPORT_REF\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.3,
+  "summary": [
+   "      Tests  1 failed | 229 passed | 157 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:295:blocks:\"ORDINARY_FAILURE_REF\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 295,
+  "kind": "blocks(true, \"ORDINARY_FAILURE_REF\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.3,
+  "summary": [
+   "      Tests  1 failed | 230 passed | 157 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:297:blocks:\"ORDINARY_NOT_ATTEMPTED\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 297,
+  "kind": "blocks(true, \"ORDINARY_NOT_ATTEMPTED\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.4,
+  "summary": [
+   "      Tests  1 failed | 231 passed | 157 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:299:blocks:\"ORDINARY_REPORT\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 299,
+  "kind": "blocks(true, \"ORDINARY_REPORT\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.5,
+  "summary": [
+   "      Tests  1 failed | 232 passed | 157 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:300:blocks:\"ORDINARY_REPORT_KIND\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 300,
+  "kind": "blocks(true, \"ORDINARY_REPORT_KIND\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.7,
+  "summary": [
+   "      Tests  1 failed | 234 passed | 156 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:302:blocks:\"ORDINARY_REJECTION\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 302,
+  "kind": "blocks(true, \"ORDINARY_REJECTION\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.8,
+  "summary": [
+   "      Tests  1 failed | 371 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:311:blocks:\"SOURCE_COUNTS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 311,
+  "kind": "blocks(true, \"SOURCE_COUNTS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.2,
+  "summary": [
+   "      Tests  1 failed | 380 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:312:blocks:\"FUNCTIONAL_COUNT\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 312,
+  "kind": "blocks(true, \"FUNCTIONAL_COUNT\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.8,
+  "summary": [
+   "      Tests  1 failed | 381 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:315:blocks:\"SOURCE_PARTITION\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 315,
+  "kind": "blocks(true, \"SOURCE_PARTITION\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.9,
+  "summary": [
+   "      Tests  1 failed | 382 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:317:blocks:\"BLOCK_PARTITION\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 317,
+  "kind": "blocks(true, \"BLOCK_PARTITION\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.0,
+  "summary": [
+   "      Tests  1 failed | 382 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:320:blocks:\"MEMBER_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 320,
+  "kind": "blocks(true, \"MEMBER_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.2,
+  "summary": [
+   "      Tests  1 failed | 386 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:327:blocks:\"PROJECTION_VALUE_BINDING\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 327,
+  "kind": "blocks(true, \"PROJECTION_VALUE_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.9,
+  "summary": [
+   "      Tests  1 failed | 397 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:329:blocks:\"PROJECTION_INTERVAL\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 329,
+  "kind": "blocks(true, \"PROJECTION_INTERVAL\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.8,
+  "summary": [
+   "      Tests  1 failed | 398 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:332:blocks:\"PROJECTION_EXACT_BASIS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 332,
+  "kind": "blocks(true, \"PROJECTION_EXACT_BASIS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.9,
+  "summary": [
+   "      Tests  1 failed | 399 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:334:blocks:\"PROJECTION_ENCLOSURE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 334,
+  "kind": "blocks(true, \"PROJECTION_ENCLOSURE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.0,
+  "summary": [
+   "      Tests  1 failed | 399 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:335:blocks:\"PROJECTION_RELATIVE_BOUND\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 335,
+  "kind": "blocks(true, \"PROJECTION_RELATIVE_BOUND\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.1,
+  "summary": [
+   "      Tests  1 failed | 401 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:349:blocks:\"PROJECTION_TYPED_QUANTITY\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 349,
+  "kind": "blocks(true, \"PROJECTION_TYPED_QUANTITY\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.4,
+  "summary": [
+   "      Tests  1 failed | 402 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:355:blocks:\"DERIVED_SIGNATURE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 355,
+  "kind": "blocks(true, \"DERIVED_SIGNATURE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.2,
+  "summary": [
+   "      Tests  1 failed | 406 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:357:blocks:\"TRANSLATION_NORM_INPUTS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 357,
+  "kind": "blocks(true, \"TRANSLATION_NORM_INPUTS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.4,
+  "summary": [
+   "      Tests  1 failed | 406 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:369:blocks:\"DERIVED_ENTITY\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 369,
+  "kind": "blocks(true, \"DERIVED_ENTITY\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.5,
+  "summary": [
+   "      Tests  1 failed | 409 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:383:blocks:\"DERIVED_NORM_RANGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 383,
+  "kind": "blocks(true, \"DERIVED_NORM_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.1,
+  "summary": [
+   "      Tests  1 failed | 410 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:385:blocks:\"DERIVED_NORM_VALUE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 385,
+  "kind": "blocks(true, \"DERIVED_NORM_VALUE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.3,
+  "summary": [
+   "      Tests  1 failed | 407 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:432:blocks:\"SUPPORT_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 432,
+  "kind": "blocks(true, \"SUPPORT_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.2,
+  "summary": [
+   "      Tests  1 failed | 416 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:436:blocks:\"SIX_SUPPORT_COMPONENTS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 436,
+  "kind": "blocks(true, \"SIX_SUPPORT_COMPONENTS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.5,
+  "summary": [
+   "      Tests  1 failed | 417 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:441:blocks:\"SUPPORT_PROJECTION\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 441,
+  "kind": "blocks(true, \"SUPPORT_PROJECTION\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.3,
+  "summary": [
+   "      Tests  1 failed | 417 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:443:blocks:\"SUPPORT_ROW_SEMANTICS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 443,
+  "kind": "blocks(true, \"SUPPORT_ROW_SEMANTICS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.8,
+  "summary": [
+   "      Tests  1 failed | 419 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:447:blocks:\"SUPPORT_ACTION_TERMS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 447,
+  "kind": "blocks(true, \"SUPPORT_ACTION_TERMS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.3,
+  "summary": [
+   "      Tests  1 failed | 420 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:451:blocks:\"SUPPORT_ACTION_OWNER\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 451,
+  "kind": "blocks(true, \"SUPPORT_ACTION_OWNER\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.1,
+  "summary": [
+   "      Tests  1 failed | 421 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:453:blocks:\"SUPPORT_ACTION_DOF\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 453,
+  "kind": "blocks(true, \"SUPPORT_ACTION_DOF\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.0,
+  "summary": [
+   "      Tests  1 failed | 423 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:455:blocks:\"IDEAL_ATTRIBUTION_AMBIGUOUS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 455,
+  "kind": "blocks(true, \"IDEAL_ATTRIBUTION_AMBIGUOUS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.9,
+  "summary": [
+   "      Tests  1 failed | 423 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:459:blocks:\"STRUCTURAL_ZERO\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 459,
+  "kind": "blocks(true, \"STRUCTURAL_ZERO\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.4,
+  "summary": [
+   "      Tests  1 failed | 425 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:464:blocks:\"IDEAL_SOURCE_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 464,
+  "kind": "blocks(true, \"IDEAL_SOURCE_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.6,
+  "summary": [
+   "      Tests  1 failed | 425 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:465:blocks:\"SUPPORT_RESULT_BIJECTION\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 465,
+  "kind": "blocks(true, \"SUPPORT_RESULT_BIJECTION\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 9.2,
+  "summary": [
+   "      Tests  1 failed | 427 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:477:blocks:\"MEMBER_PRIMARY_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 477,
+  "kind": "blocks(true, \"MEMBER_PRIMARY_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.7,
+  "summary": [
+   "      Tests  1 failed | 427 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:480:blocks:\"MEMBER_STRESS_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 480,
+  "kind": "blocks(true, \"MEMBER_STRESS_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.3,
+  "summary": [
+   "      Tests  1 failed | 429 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:482:blocks:\"MEMBER_SUMMARY_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 482,
+  "kind": "blocks(true, \"MEMBER_SUMMARY_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.7,
+  "summary": [
+   "      Tests  1 failed | 429 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:485:blocks:\"SUPPORT_MAGNITUDE_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 485,
+  "kind": "blocks(true, \"SUPPORT_MAGNITUDE_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.1,
+  "summary": [
+   "      Tests  1 failed | 431 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:513:blocks:\"SUMMARY_HEADLINE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 513,
+  "kind": "blocks(true, \"SUMMARY_HEADLINE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.6,
+  "summary": [
+   "      Tests  1 failed | 439 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:516:blocks:\"SUMMARY_RESULT_BINDING\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 516,
+  "kind": "blocks(true, \"SUMMARY_RESULT_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.3,
+  "summary": [
+   "      Tests  1 failed | 439 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:525:blocks:\"RAW_FIELDS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 525,
+  "kind": "blocks(true, \"RAW_FIELDS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.4,
+  "summary": [
+   "      Tests  1 failed | 212 passed | 157 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:526:blocks:\"PRODUCER\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 526,
+  "kind": "blocks(true, \"PRODUCER\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.4,
+  "summary": [
+   "      Tests  1 failed | 214 passed | 156 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:528:blocks:\"FORMULATION\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 528,
+  "kind": "blocks(true, \"FORMULATION\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.3,
+  "summary": [
+   "      Tests  1 failed | 215 passed | 156 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:533:blocks:\"RECEIPT_HASH\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 533,
+  "kind": "blocks(true, \"RECEIPT_HASH\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.3,
+  "summary": [
+   "      Tests  1 failed | 217 passed | 156 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:535:blocks:\"PUBLICATION_HASH\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 535,
+  "kind": "blocks(true, \"PUBLICATION_HASH\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.0,
+  "summary": [
+   "      Tests  1 failed | 218 passed | 156 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:537:blocks:\"ROWS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 537,
+  "kind": "blocks(true, \"ROWS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.3,
+  "summary": [
+   "      Tests  1 failed | 219 passed | 156 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:546:blocks:\"ROW_FIELDS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 546,
+  "kind": "blocks(true, \"ROW_FIELDS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.5,
+  "summary": [
+   "      Tests  1 failed | 222 passed | 156 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:548:blocks:\"ROW_METADATA\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 548,
+  "kind": "blocks(true, \"ROW_METADATA\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.4,
+  "summary": [
+   "      Tests  1 failed | 223 passed | 156 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:553:blocks:\"ORDINARY_QUALITY\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 553,
+  "kind": "blocks(true, \"ORDINARY_QUALITY\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.4,
+  "summary": [
+   "      Tests  1 failed | 225 passed | 156 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:556:blocks:\"ORDINARY_CASE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 556,
+  "kind": "blocks(true, \"ORDINARY_CASE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.1,
+  "summary": [
+   "      Tests  1 failed | 226 passed | 156 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:564:blocks:\"ORDINARY_AGGREGATE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 564,
+  "kind": "blocks(true, \"ORDINARY_AGGREGATE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.2,
+  "summary": [
+   "      Tests  1 failed | 226 passed | 157 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:569:blocks:\"QUALITY_CASE_BINDING\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 569,
+  "kind": "blocks(true, \"QUALITY_CASE_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.3,
+  "summary": [
+   "      Tests  1 failed | 227 passed | 157 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:574:blocks:\"INVOCATION_WORK_LIMIT\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 574,
+  "kind": "blocks(true, \"INVOCATION_WORK_LIMIT\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.8,
+  "summary": [
+   "      Tests  1 failed | 371 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:575:blocks:\"WORK_LEDGER\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 575,
+  "kind": "blocks(true, \"WORK_LEDGER\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.0,
+  "summary": [
+   "      Tests  1 failed | 373 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:580:blocks:\"QUALIFIED_OUTCOME\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 580,
+  "kind": "blocks(true, \"QUALIFIED_OUTCOME\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.9,
+  "summary": [
+   "      Tests  1 failed | 374 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:584:blocks:\"ORDINARY_SELECTION\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 584,
+  "kind": "blocks(true, \"ORDINARY_SELECTION\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.9,
+  "summary": [
+   "      Tests  1 failed | 375 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:586:blocks:\"EXACT_SOURCE_REQUIRED\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 586,
+  "kind": "blocks(true, \"EXACT_SOURCE_REQUIRED\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.9,
+  "summary": [
+   "      Tests  1 failed | 375 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:608:blocks:\"STRESS_TOTAL_RELATIVE_BOUND\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 608,
+  "kind": "blocks(true, \"STRESS_TOTAL_RELATIVE_BOUND\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.2,
+  "summary": [
+   "      Tests  1 failed | 392 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:611:blocks:\"CASE_ROW_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 611,
+  "kind": "blocks(true, \"CASE_ROW_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.1,
+  "summary": [
+   "      Tests  1 failed | 392 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:619:blocks:\"SAME_CASE_INPUTS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 619,
+  "kind": "blocks(true, \"SAME_CASE_INPUTS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.0,
+  "summary": [
+   "      Tests  1 failed | 395 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:624:blocks:\"PROJECTION_ROW\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 624,
+  "kind": "blocks(true, \"PROJECTION_ROW\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.3,
+  "summary": [
+   "      Tests  1 failed | 395 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:627:blocks:\"DERIVED_ROW\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 627,
+  "kind": "blocks(true, \"DERIVED_ROW\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.3,
+  "summary": [
+   "      Tests  1 failed | 403 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:632:blocks:\"NORM_PROJECTION_INPUT\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 632,
+  "kind": "blocks(true, \"NORM_PROJECTION_INPUT\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.0,
+  "summary": [
+   "      Tests  1 failed | 411 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:639:blocks:\"UNQUALIFIED_DERIVED_INPUT\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 639,
+  "kind": "blocks(true, \"UNQUALIFIED_DERIVED_INPUT\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.4,
+  "summary": [
+   "      Tests  1 failed | 412 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:641:blocks:\"ORDINARY_ROW\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 641,
+  "kind": "blocks(true, \"ORDINARY_ROW\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.9,
+  "summary": [
+   "      Tests  1 failed | 413 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:643:blocks:\"INSPECTION_ROW\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 643,
+  "kind": "blocks(true, \"INSPECTION_ROW\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.2,
+  "summary": [
+   "      Tests  1 failed | 414 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:647:blocks:\"PROJECTION_BIJECTION\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 647,
+  "kind": "blocks(true, \"PROJECTION_BIJECTION\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.1,
+  "summary": [
+   "      Tests  1 failed | 415 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:664:blocks:\"INVOCATION_WORK_LEDGER\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 664,
+  "kind": "blocks(true, \"INVOCATION_WORK_LEDGER\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.1,
+  "summary": [
+   "      Tests  1 failed | 434 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:668:blocks:\"ENVELOPE_ROW_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 668,
+  "kind": "blocks(true, \"ENVELOPE_ROW_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.3,
+  "summary": [
+   "      Tests  1 failed | 436 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:674:blocks:\"SOURCE_METHOD_RECORD_REQUIRED\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 674,
+  "kind": "blocks(true, \"SOURCE_METHOD_RECORD_REQUIRED\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.0,
+  "summary": [
+   "      Tests  1 failed | 437 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:493:composite:\"SOURCE_FALLBACK_TRIGGER\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 493,
+  "kind": "composite(true, \"SOURCE_FALLBACK_TRIGGER\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.2,
+  "summary": [
+   "      Tests  1 failed | 432 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:500:composite:\"DERIVED_CHECK_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 500,
+  "kind": "composite(true, \"DERIVED_CHECK_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.4,
+  "summary": [
+   "      Tests  1 failed | 432 passed | 21 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:504:composite:\"STRESS_CHECK_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 504,
+  "kind": "composite(true, \"STRESS_CHECK_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.2,
+  "summary": [
+   "      Tests  1 failed | 434 passed | 20 skipped (464)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:531:composite:\"RECEIPT_SHAPE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 531,
+  "kind": "composite(true, \"RECEIPT_SHAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.2,
+  "summary": [
+   "      Tests  1 failed | 215 passed | 157 skipped (464)"
+  ]
+ },
+ {
+  "group": "D",
+  "id": "joined-early-return",
+  "file": "src/features/results/numericalResultQuality.ts",
+  "line": 101,
+  "kind": "replace 'return { contract, status: \"needs_recompute\" as const, eligible: false'",
+  "tests": [
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/workspace/loadReferenceSession.test.ts"
+  ],
+  "killed": true,
+  "seconds": 6.5,
+  "summary": [
+   "      Tests  2 failed | 31 passed (45)"
+  ]
+ },
+ {
+  "group": "D",
+  "id": "lr-standing-reader",
+  "file": "src/features/results/numericalResultQuality.ts",
+  "line": 111,
+  "kind": "replace 'try { validateLoadReferenceEvidence(source, model ?? undefined); }'",
+  "tests": [
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/workspace/loadReferenceSession.test.ts"
+  ],
+  "killed": true,
+  "seconds": 13.1,
+  "summary": [
+   "      Tests  1 failed | 27 passed (45)"
+  ]
+ },
+ {
+  "group": "D",
+  "id": "lr-header-profile-evidence",
+  "file": "src/features/results/numericalResultQuality.ts",
+  "line": 82,
+  "kind": "replace ': loadReference ? f?.profile_id === LOAD_REFERENCE_PROFILE && evidence'",
+  "tests": [
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.2,
+  "summary": [
+   "      Tests  1 failed | 106 passed (406)"
+  ]
+ },
+ {
+  "group": "D",
+  "id": "joined-header-profile-evidence",
+  "file": "src/features/results/numericalResultQuality.ts",
+  "line": 83,
+  "kind": "replace ': joined ? f?.profile_id === LOAD_REFERENCE_SOURCE_PROFILE && evidence'",
+  "tests": [
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.5,
+  "summary": [
+   "      Tests  1 failed | 225 passed | 157 skipped (406)"
+  ]
+ },
+ {
+  "group": "D",
+  "id": "joined-header-receipt-shape",
+  "file": "src/features/results/numericalResultQuality.ts",
+  "line": 63,
+  "kind": "replace 'joined ? !loadReferenceSourceReceiptShape(source.source_block_recovery'",
+  "tests": [
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.1,
+  "summary": [
+   "      Tests  1 failed | 226 passed | 156 skipped (406)"
+  ]
+ },
+ {
+  "group": "D",
+  "id": "joined-registration-binding",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 106,
+  "kind": "replace 'if (!registration || !current || current.text !== registration.text ||'",
+  "tests": [
+   "src/features/results/loadReferenceReaders.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.3,
+  "summary": [
+   "      Tests  1 failed | 37 passed (38)"
+  ]
+ },
+ {
+  "group": "D",
+  "id": "joined-receipt-shape-fn",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 79,
+  "kind": "replace 'return schemaShape(shaped, physicsSourceSchema, physicsSourceSchema);\\n'",
+  "tests": [
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.4,
+  "summary": [
+   "      Tests  1 failed | 226 passed | 156 skipped (406)"
+  ]
+ },
+ {
+  "group": "D",
+  "id": "native-registration-lr-reader",
+  "file": "src/services/previewService.ts",
+  "line": 126,
+  "kind": "replace 'if (sourceContract(source) === \"load_reference\") validateLoadReference'",
+  "tests": [
+   "src/features/workspace/loadReferenceSession.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.5,
+  "summary": [
+   "      Tests  1 failed | 2 passed (7)"
+  ]
+ },
+ {
+  "group": "P",
+  "id": "browser-040-retention",
+  "file": "src/services/projectService.ts",
+  "line": 157,
+  "kind": "replace 'if (documentVersion.every((part, index) => part === loadReference[inde'",
+  "tests": [
+   "src/services/loadReferenceRoundTrip.test.ts"
+  ],
+  "killed": true,
+  "seconds": 2.7,
+  "summary": [
+   "      Tests  1 failed (8)"
+  ]
+ },
+ {
+  "group": "P",
+  "id": "analysis-run-joined-evidence",
+  "file": "src/services/analysisRunCompatibility.ts",
+  "line": 141,
+  "kind": "replace 'if (route === \"physics_source\" || route === \"load_reference_source\") r'",
+  "tests": [
+   "src/services/loadReferenceAnalysisRun.test.ts",
+   "src/services/loadReferenceRoundTrip.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.4,
+  "summary": [
+   "      Tests  2 failed | 11 passed (28)"
+  ]
+ },
+ {
+  "group": "P",
+  "id": "analysis-run-joined-receipt",
+  "file": "src/services/analysisRunCompatibility.ts",
+  "line": 142,
+  "kind": "replace 'if (route === \"source_blocks\" || route === \"physics_source\" || route ='",
+  "tests": [
+   "src/services/loadReferenceAnalysisRun.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.8,
+  "summary": [
+   "      Tests  1 failed | 4 passed (20)"
+  ]
+ },
+ {
+  "group": "P",
+  "id": "lr-projection-copy",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 405,
+  "kind": "replace 'const projected = structuredClone(source) as Json;'",
+  "tests": [
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 2.9,
+  "summary": [
+   "      Tests  1 failed | 1 passed (406)"
+  ]
+ },
+ {
+  "group": "O",
+  "id": "shared-output-refusal",
+  "file": "src/features/results/loadReferenceOutputAvailability.ts",
+  "line": 30,
+  "kind": "replace 'return isLoadReferenceRoute(source) ? LOAD_REFERENCE_OUTPUT_REFUSAL : '",
+  "tests": [
+   "src/features/results/loadReferenceOutputRefusal.test.tsx"
+  ],
+  "killed": true,
+  "seconds": 4.0,
+  "summary": [
+   "      Tests  1 failed (61)"
+  ]
+ },
+ {
+  "group": "O",
+  "id": "stress-neutral-builder-refusal",
+  "file": "src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "line": 489,
+  "kind": "replace '  refuseLoadReferenceOutput(args.result);\\n'",
+  "tests": [
+   "src/features/results/loadReferenceOutputRefusal.test.tsx"
+  ],
+  "killed": true,
+  "seconds": 135.8,
+  "summary": [
+   "      Tests  1 failed | 59 passed (61)"
+  ]
+ },
+ {
+  "group": "O",
+  "id": "result-export-builder-refusal",
+  "file": "src/features/result-export/resultExportAdapter.ts",
+  "line": 172,
+  "kind": "replace '  refuseLoadReferenceOutput(result);\\n'",
+  "tests": [
+   "src/features/results/loadReferenceOutputRefusal.test.tsx"
+  ],
+  "killed": true,
+  "seconds": 128.5,
+  "summary": [
+   "      Tests  1 failed | 58 passed (61)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:295:require_:\"NUMERICAL_CASE_DUPLICATE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 295,
+  "kind": "require_(true, \"NUMERICAL_CASE_DUPLICATE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.0,
+  "summary": [
+   "      Tests  1 failed | 212 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:310:require_:\"MATERIAL_DUPLICATE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 310,
+  "kind": "require_(true, \"MATERIAL_DUPLICATE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.4,
+  "summary": [
+   "      Tests  1 failed | 213 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:316:require_:\"SECTION_DUPLICATE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 316,
+  "kind": "require_(true, \"SECTION_DUPLICATE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.7,
+  "summary": [
+   "      Tests  1 failed | 214 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:510:require_:\"MEMBER_MATERIAL_COVERAGE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 510,
+  "kind": "require_(true, \"MEMBER_MATERIAL_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.0,
+  "summary": [
+   "      Tests  1 failed | 215 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:527:require_:\"MEMBER_CONTRIBUTION_COVERAGE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 527,
+  "kind": "require_(true, \"MEMBER_CONTRIBUTION_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 3.6,
+  "summary": [
+   "      Tests  1 failed | 216 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:535:require_:\"SUPPORT_CONTRIBUTION_COVERAGE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 535,
+  "kind": "require_(true, \"SUPPORT_CONTRIBUTION_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.2,
+  "summary": [
+   "      Tests  1 failed | 256 passed | 156 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:567:require_:\"TEMPERATURE_RANGE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 567,
+  "kind": "require_(true, \"TEMPERATURE_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.5,
+  "summary": [
+   "      Tests  1 failed | 256 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:569:require_:\"MATERIAL_POINT_RANGE\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 569,
+  "kind": "require_(true, \"MATERIAL_POINT_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.2,
+  "summary": [
+   "      Tests  1 failed | 257 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:651:require_:\"THERMAL_LAW_BINDING\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 651,
+  "kind": "require_(true, \"THERMAL_LAW_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.0,
+  "summary": [
+   "      Tests  1 failed | 259 passed | 156 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:658:require_:\"REFERENCE_LENGTH\"",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 658,
+  "kind": "require_(true, \"REFERENCE_LENGTH\")",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.3,
+  "summary": [
+   "      Tests  1 failed | 260 passed | 156 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:125:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 125,
+  "kind": "throw fail(\"ARRAY_INVALID\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.5,
+  "summary": [
+   "      Tests  1 failed | 261 passed | 156 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:160:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 160,
+  "kind": "throw fail(\"NUMBER_INVALID\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.3,
+  "summary": [
+   "      Tests  1 failed | 264 passed | 156 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:362:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 362,
+  "kind": "throw fail(\"REGION_CASE_UNRESOLVED\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.7,
+  "summary": [
+   "      Tests  1 failed | 261 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:680:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 680,
+  "kind": "throw fail(\"SUPPORT_COMPONENT_DOF\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.1,
+  "summary": [
+   "      Tests  1 failed | 262 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:231:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 231,
+  "kind": "throw new LoadReferenceError(\"SOURCE_LOAD_REFERENCE_TRANSPORT_SCHEMA_HASH\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.6,
+  "summary": [
+   "      Tests  1 failed | 268 passed | 156 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:252:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 252,
+  "kind": "throw new LoadReferenceError(\"SOURCE_LOAD_REFERENCE_MALFORMED\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.3,
+  "summary": [
+   "      Tests  1 failed | 264 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:90:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 90,
+  "kind": "throw new MalformedAccess(key);",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.0,
+  "summary": [
+   "      Tests  1 failed | 265 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:137:throw",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 137,
+  "kind": "throw new LoadReferenceError(\"SOURCE_LOAD_REFERENCE_MALFORMED\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": true,
+  "seconds": 10.5,
+  "summary": [
+   "      Tests  1 failed | 499 passed | 21 skipped (524)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:539:blocks:\"EVIDENCE_IDS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 539,
+  "kind": "blocks(true, \"EVIDENCE_IDS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 12.3,
+  "summary": [
+   "      Tests  1 failed | 440 passed | 21 skipped (467)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:672:blocks:\"PHYSICAL_OBSERVATION_ESCAPE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 672,
+  "kind": "blocks(true, \"PHYSICAL_OBSERVATION_ESCAPE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.2,
+  "summary": [
+   "      Tests  1 failed | 442 passed | 21 skipped (467)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:497:composite:\"SOURCE_PRESSURE_RHS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 497,
+  "kind": "composite(true, \"SOURCE_PRESSURE_RHS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 8.8,
+  "summary": [
+   "      Tests  1 failed | 442 passed | 20 skipped (467)"
+  ]
+ },
+ {
+  "group": "P",
+  "id": "joined-validate-copy",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 117,
+  "kind": "replace 'await guardedJoined(() => validate(structuredClone(source), true));'",
+  "tests": [
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 4.8,
+  "summary": [
+   "      Tests  1 failed | 266 passed | 157 skipped (425)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:343:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 343,
+  "kind": "throw fail(\"RECORD_CASE_UNRESOLVED\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": false,
+  "seconds": 9.1,
+  "summary": [
+   "      Tests  426 passed (426)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:368:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 368,
+  "kind": "throw fail(\"REGION_MATERIAL_BINDING\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": false,
+  "seconds": 9.2,
+  "summary": [
+   "      Tests  426 passed (426)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:505:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 505,
+  "kind": "throw fail(\"RECORD_CASE_UNRESOLVED\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.9,
+  "summary": [
+   "      Tests  426 passed (426)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:513:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 513,
+  "kind": "throw fail(\"MEMBER_MATERIAL_COVERAGE\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": false,
+  "seconds": 9.3,
+  "summary": [
+   "      Tests  426 passed (426)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:531:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 531,
+  "kind": "throw fail(\"MEMBER_CONTRIBUTION_COVERAGE\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": false,
+  "seconds": 9.1,
+  "summary": [
+   "      Tests  426 passed (426)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:538:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 538,
+  "kind": "throw fail(\"SUPPORT_CONTRIBUTION_COVERAGE\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": false,
+  "seconds": 9.1,
+  "summary": [
+   "      Tests  426 passed (426)"
+  ]
+ },
+ {
+  "group": "R",
+  "id": "loadReferenceEvidence:226:throw",
+  "file": "src/features/results/loadReferenceEvidence.ts",
+  "line": 226,
+  "kind": "throw new LoadReferenceError(\"SOURCE_LOAD_REFERENCE_TABLE_IDENTITY\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.8,
+  "summary": [
+   "      Tests  426 passed (426)"
+  ]
+ },
+ {
+  "group": "J",
+  "id": "loadReferenceSourceEvidence:67:throw",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 67,
+  "kind": "throw new LoadReferenceError(\"SOURCE_LOAD_REFERENCE_SOURCE_TABLE_IDENTITY\");",
+  "tests": [
+   "src/features/results/loadReferenceEvidence.parity.test.ts",
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceReaders.test.ts",
+   "src/features/results/loadReferenceReaderCases.test.ts"
+  ],
+  "killed": false,
+  "seconds": 11.2,
+  "summary": [
+   "      Tests  535 passed (535)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:337:blocks:\"PROJECTION_CRITERION\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 337,
+  "kind": "blocks(true, \"PROJECTION_CRITERION\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.4,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:359:blocks:\"SUPPORT_NORM_INPUTS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 359,
+  "kind": "blocks(true, \"SUPPORT_NORM_INPUTS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.3,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:361:blocks:\"STRESS_RECIPE_INPUTS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 361,
+  "kind": "blocks(true, \"STRESS_RECIPE_INPUTS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.5,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:363:blocks:\"SUMMARY_RECIPE_INPUTS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 363,
+  "kind": "blocks(true, \"SUMMARY_RECIPE_INPUTS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.4,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:365:blocks:\"SECTION_RECIPE_KIND\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 365,
+  "kind": "blocks(true, \"SECTION_RECIPE_KIND\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.4,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:367:blocks:\"DERIVED_RECIPE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 367,
+  "kind": "blocks(true, \"DERIVED_RECIPE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.6,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:375:blocks:\"DERIVED_NORM_RANGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 375,
+  "kind": "blocks(true, \"DERIVED_NORM_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.6,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:390:blocks:\"STRESS_ACTION_BINDING\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 390,
+  "kind": "blocks(true, \"STRESS_ACTION_BINDING\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.4,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:394:blocks:\"STRESS_ACTION_RANGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 394,
+  "kind": "blocks(true, \"STRESS_ACTION_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.1,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:396:blocks:\"STRESS_OUTPUT_RANGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 396,
+  "kind": "blocks(true, \"STRESS_OUTPUT_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.7,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:398:blocks:\"STRESS_ACTION_SIGN\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 398,
+  "kind": "blocks(true, \"STRESS_ACTION_SIGN\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.4,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:399:blocks:\"STRESS_PA_OBSERVATION_RANGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 399,
+  "kind": "blocks(true, \"STRESS_PA_OBSERVATION_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 9.1,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:402:blocks:\"SUMMARY_STRESS_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 402,
+  "kind": "blocks(true, \"SUMMARY_STRESS_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.3,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:407:blocks:\"SUMMARY_STRESS_COVERAGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 407,
+  "kind": "blocks(true, \"SUMMARY_STRESS_COVERAGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.6,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:409:blocks:\"SUMMARY_INPUT_RANGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 409,
+  "kind": "blocks(true, \"SUMMARY_INPUT_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.6,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:411:blocks:\"SUMMARY_PA_OBSERVATION_RANGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 411,
+  "kind": "blocks(true, \"SUMMARY_PA_OBSERVATION_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 9.1,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:422:blocks:\"SUMMARY_SUBTOTAL_RANGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 422,
+  "kind": "blocks(true, \"SUMMARY_SUBTOTAL_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.6,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:424:blocks:\"SUMMARY_SUBTOTAL_RANGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 424,
+  "kind": "blocks(true, \"SUMMARY_SUBTOTAL_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.7,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:427:blocks:\"SUMMARY_OUTPUT_RANGE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 427,
+  "kind": "blocks(true, \"SUMMARY_OUTPUT_RANGE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.1,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:457:blocks:\"SPRING_ATTRIBUTION_DUPLICATE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 457,
+  "kind": "blocks(true, \"SPRING_ATTRIBUTION_DUPLICATE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.0,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:519:blocks:\"SUMMARY_UNSOURCED_HEADLINE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 519,
+  "kind": "blocks(true, \"SUMMARY_UNSOURCED_HEADLINE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.8,
+  "summary": [
+   "      Tests  1 failed | 443 passed | 21 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:590:blocks:\"FAILED_OUTCOME\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 590,
+  "kind": "blocks(true, \"FAILED_OUTCOME\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.2,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:591:blocks:\"FAILURE_BLOCK_ORDER\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 591,
+  "kind": "blocks(true, \"FAILURE_BLOCK_ORDER\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.1,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:593:blocks:\"FAILURE_CATEGORY\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 593,
+  "kind": "blocks(true, \"FAILURE_CATEGORY\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 8.2,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:637:blocks:\"NORM_TOTAL_RELATIVE_BOUND\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 637,
+  "kind": "blocks(true, \"NORM_TOTAL_RELATIVE_BOUND\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 7.9,
+  "summary": [
+   "      Tests  1 failed | 446 passed | 20 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:652:blocks:\"ROW_DEPENDENCY_CYCLE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 652,
+  "kind": "blocks(true, \"ROW_DEPENDENCY_CYCLE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 1197.0,
+  "summary": [
+   "non-terminating test run (endless dependency walk) stopped by hand after 1197 s"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:660:blocks:\"UNSELECTED_SUPPORT_CERTIFICATE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 660,
+  "kind": "blocks(true, \"UNSELECTED_SUPPORT_CERTIFICATE\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": false,
+  "seconds": 11.9,
+  "summary": [
+   "      Tests  477 passed (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:676:blocks:\"AGGREGATE_STATUS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 676,
+  "kind": "blocks(true, \"AGGREGATE_STATUS\")",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 10.9,
+  "summary": [
+   "      Tests  1 failed | 447 passed | 20 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:318:unique:\"MEMBER_IDENTITY\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 318,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 10.9,
+  "summary": [
+   "      Tests  1 failed | 383 passed | 21 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:319:unique:\"SUPPORT_IDENTITY\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 319,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 10.8,
+  "summary": [
+   "      Tests  1 failed | 384 passed | 21 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:448:unique:\"SUPPORT_TERM_DUPLICATE\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 448,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 12.4,
+  "summary": [
+   "      Tests  1 failed | 420 passed | 21 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:540:unique:\"EVIDENCE_IDS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 540,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.4,
+  "summary": [
+   "      Tests  1 failed | 219 passed | 157 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:551:unique:\"CASE_IDS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 551,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 5.5,
+  "summary": [
+   "      Tests  1 failed | 224 passed | 156 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:597:unique:\"COMMITMENT_DOMAIN_SEPARATION\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 597,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 11.5,
+  "summary": [
+   "      Tests  1 failed | 386 passed | 21 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:601:unique:\"PROJECTION_IDS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 601,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 11.7,
+  "summary": [
+   "      Tests  1 failed | 387 passed | 21 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:602:unique:\"FUNCTIONAL_IDS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 602,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 11.5,
+  "summary": [
+   "      Tests  1 failed | 388 passed | 21 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:603:unique:\"PROJECTION_RESULTS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 603,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 11.9,
+  "summary": [
+   "      Tests  1 failed | 389 passed | 21 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:606:unique:\"ROW_IDS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 606,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 11.2,
+  "summary": [
+   "      Tests  1 failed | 390 passed | 21 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:618:unique:\"ROW_INPUTS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 618,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 11.7,
+  "summary": [
+   "      Tests  1 failed | 393 passed | 21 skipped (477)"
+  ]
+ },
+ {
+  "group": "L",
+  "id": "loadReferenceSourceEvidence:666:unique:\"OBSERVATION_IDS\"",
+  "file": "src/features/results/loadReferenceSourceEvidence.ts",
+  "line": 666,
+  "kind": "unique(...) removed",
+  "tests": [
+   "src/features/results/loadReferenceSourceLedger.test.ts",
+   "src/features/results/loadReferenceEvidence.parity.test.ts"
+  ],
+  "killed": true,
+  "seconds": 13.2,
+  "summary": [
+   "      Tests  1 failed | 435 passed | 21 skipped (477)"
+  ]
+ }
+]

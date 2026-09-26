@@ -1,0 +1,10 @@
+REVIEW_B backcheck: both WP3 goldens regenerated from the base revision 203396e4d.
+Scratch: one git archive of HEAD (3cf238d83; no reviewed path changed after ab5919133), core/fixtures/schemas.
+Overlaid from 203396e4d: src/lib.rs 4f088d67, src/load_state_authoring.rs 63223cc2, src/pressure_authoring.rs b1017d66,
+src/rich_authoring.rs 3c21a44c (= the Addendum 2 "before" hashes). The candidate tests/load_state_delete_control.rs was kept.
+product_physics, units, canonical_json and the fixture models are unchanged between 203396e4d and HEAD.
+LOAD_REFERENCE_DELETE_CONTROL_BLESS=1 cargo +1.97.1 test --locked --offline -j 2 --test load_state_delete_control
+  (CARGO_TARGET_DIR=<shared ls-vp-target>, CARGO_INCREMENTAL=0) -> 2 passed (both blessed)
+load_reference_delete_control.json     regenerated == committed: 1da7ef35cc20773643e3a0f08f7f76ecb6ec301a953c43acd8207ebf4186e16f
+load_reference_authoring_control.json  regenerated == committed: 2e21291cf07dbf900cc12ed6136a8b6a1b3a65295c25dbf859e803334bc2ade4
+authoring control: 54 outcomes, 22 applied; codes OP-RICH-NOT-SOLVE-READY x44, OP-PRESSURE-PAYLOAD-INVALID x10
