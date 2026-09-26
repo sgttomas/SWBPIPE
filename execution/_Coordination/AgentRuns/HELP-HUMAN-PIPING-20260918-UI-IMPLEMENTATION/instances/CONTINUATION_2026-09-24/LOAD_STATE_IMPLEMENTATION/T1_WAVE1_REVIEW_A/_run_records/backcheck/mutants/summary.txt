@@ -1,0 +1,5 @@
+PY-N2-CHECK-REMOVED: KILLED FAILED tests/test_load_reference_source_readers.py::test_shared_adversarial_case[DIAG-unavailable-on-selected]
+PY-N2-FIRST-REF-ONLY: KILLED FAILED tests/test_load_reference_source_readers.py::test_shared_adversarial_case[DIAG-unavailable-among-refs-of-selected-resealed]
+PY-N2-ALL-REFS: KILLED FAILED tests/test_load_reference_source_readers.py::test_shared_adversarial_case[DIAG-unavailable-among-refs-of-selected-resealed]
+PY-N2-ANY-CASE-NOT-SELECTED: KILLED FAILED tests/test_load_reference_source_readers.py::test_shared_adversarial_case[ACCEPT-unavailable-on-ordinary-case-resealed]
+PY-N2-APPLIED-TO-LOAD-REFERENCE-TOO: KILLED FAILED tests/test_load_reference_source_readers.py::test_shared_adversarial_case[ACCEPT-lr-fallback-sparse]
