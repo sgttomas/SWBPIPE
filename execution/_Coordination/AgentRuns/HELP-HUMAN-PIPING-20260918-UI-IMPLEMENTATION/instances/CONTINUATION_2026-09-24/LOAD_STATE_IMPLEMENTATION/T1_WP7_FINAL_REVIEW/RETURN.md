@@ -208,3 +208,34 @@ Each mutant is one exact replacement. The source was restored and checked by sha
 - **Browser storage and the Undo/Redo byte witness.** Not re-run by me beyond the `loadStateFixtures` session-level test (which includes the Undo byte restore). The e2e is the manager's sweep.
 - **Symlinks created and removed:** `node_modules` and `apps/desktop/node_modules` in my scratch archive, both pointing at the sibling engine worktree's `projects/chirality-piping/node_modules` and `apps/desktop/node_modules`. The first pair (on the `6f42b9be5` archive) was removed when that archive was replaced; the second pair (on the `f3270ea79` archive) was removed before return. No link was created in the live worktree.
 - **Scratch.** The private cargo targets were deleted; free disk stayed above 8 GB (lowest 11 GB).
+
+---
+
+# Addendum — N4 follow-up review of `5a689fdb4` (ROOT request)
+
+- **Scope:** only `git diff f3270ea79 5a689fdb4`. It touches 2 files, `apps/desktop/src/features/load-cases/loadStateAuthoring.tsx` and `LoadReferenceStateInputs.test.tsx`, and nothing else in the repository. I worked on a scratch `git archive` of `5a689fdb4` and made no Git writes.
+- **Verdict: CLEAR.**
+
+**What the fix does.** A record is now a quantity only if its keys are a subset of {`value`, `unit`} and its `value` is absent, null or a non-object (`loadStateAuthoring.tsx:45-47`).
+
+**Shapes the inputs can produce whose keys are a subset of {`value`, `unit`}:**
+- **The `Quantity` slot:** `{value: string}`, `{unit}` or `{value, unit}`. `setMember` deletes empty strings, and an emptied slot becomes `undefined`. The value is always scalar, so these are classified as quantities exactly as before.
+- **A partly filled `boundary_motion` row:** `{value: {…quantity…}}`, with `dof` and `meaning` unset. This is the only shape whose classification changes. Before, it was taken as a quantity and threw "value must be a finite number". Now it is a structure: its inner quantity converts, and the row goes to the engine's validate-only check. `MotionInput` requires `dof` and `meaning`, so the engine refuses it and nothing is queued.
+- **Everything else is unaffected:**
+  - An emptied row, `{}`, has no entries.
+  - Every other record carries at least one other key: `dof`, `meaning`, `kind`, `id`, `pipe_ref`, `source_ref`, `definition`, `temperature`, `coefficient` or `dilation`.
+  - Pass-through records (`base_motion` rows, locked components, device references) carry `dof`, `meaning` or `kind`.
+  - Authored `null` or boolean `value`s count as scalar, so they take the same path as before.
+
+**Nothing new is defaulted or queued.** No key is added, and the inner quantity converts under the same rules. The only behavioural difference: a partial motion row now reaches the engine's validate-only check, which refuses it, instead of a client-side error. Nothing reaches the Review/Apply queue that did not before.
+
+**The two new expectations each fail with the fix reverted:**
+- The first fails with "Input value must be a finite number."
+- The second, run with the first commented out, fails with "Input 1 value must be a finite number."
+- The sources were restored, and `cmp` against `5a689fdb4` shows them identical.
+
+**Run:** `LoadReferenceStateInputs.test.tsx`, 14/14 passed. Log: `_run_records/n4_followup.log`.
+
+**Cleanup:**
+- Symlinks: `node_modules` and `apps/desktop/node_modules`, created in this scratch archive only and removed before return.
+- My scratch copy is now the `5a689fdb4` archive, which replaced the `f3270ea79` one.
