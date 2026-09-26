@@ -1101,6 +1101,8 @@ impl FinalizedSourceBlockReceipt {
 #[cfg(test)]
 mod load_state_fallback_tests;
 #[cfg(test)]
+mod load_state_join_tests;
+#[cfg(test)]
 mod load_state_tests;
 #[cfg(test)]
 mod tests;
