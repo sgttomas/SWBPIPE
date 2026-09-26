@@ -386,3 +386,14 @@ RF-ELOAD revision 1 at `b6927f783` is selected and frozen: see `ROOT_SELECTION_R
 
 - **K3a arctangent: accepted.** I2's proved bound of 23.6 ulp at p = 128 satisfies `ROOT_SELECTION_DESIGNS.md` C1 as a proof. The measured worst, 5.41 ulp over I2's wider angle set (V1 measured 2.69 over 13 angles), is recorded alongside it. The test tolerance covers 5.41 and stays at or below 23.6.
 - **Disk.** ROOT deleted finished scratch (t3-p1, which matches the committed DETECTION/RETURN.md, and T1's WP7 scratch copy). The floor stays at about 8 GB. Once RV1 has returned and no cargo process is using them, the manager may prune `t3-target`, delete t3-s11k scratch if S11-K needs no fixes, and delete `/tmp/rv1-s11k-scratch`. `/home/user/wt/engine` is left alone, because it is the node_modules source for the desktop tests.
+
+## S11-K regeneration and hash-pin approvals (ROOT, 2026-09-26, on I1's pre-regeneration report `14354efdb`)
+
+ROOT relayed these decisions by SendMessage; they are recorded here as relayed. The recording was late: RV1's S3 found it missing (`REVIEW/S11K_REVIEW.md`, `65e98c259`). The substance was verified by RV1 on the candidate.
+
+1. **Regeneration: approved.** "Regenerate A, B1 and B2 with their producers, and then the 12 derived files with the §5 producers. Producers only, no hand edits. The change record discloses every size, and I1 explains the sparse invocation_work publication_charged −12."
+2. **Hash pins: approved.** "I1's write set extends to the two hash-pin constants (result_export/tests/load_reference_contract.rs and tests/test_load_reference_readers.py FROZEN), in the same PR, with old → new hashes disclosed. They pin exactly the pre-registered A raws."
+3. **TS suite:** "yes, run the full desktop suite locally before the PR." The package-lock at the S11-K head was byte-identical to the engine worktree's, so node_modules was symlinked from there rather than running `npm ci`, and the links were removed before committing. The desktop vitest and build were run after regeneration.
+4. **The index touch:** "noted and accepted as harmless. The rule stands: no Git writes by TASKs."
+
+**Then (ROOT):** the S11-K PR needs an independent review of the full diff (the §8.1 items, the R3 fixes, R5-3's caller classification, the option-(c) pins), hosted CI, the full dual-viewport dispatch, and a clean DEC-025 sweep. **PR scope (ROOT, later):** option (b), a fresh branch off origin/main (`codex/piping-s11k-pr-20260926`), carrying the S11-K commits only.
