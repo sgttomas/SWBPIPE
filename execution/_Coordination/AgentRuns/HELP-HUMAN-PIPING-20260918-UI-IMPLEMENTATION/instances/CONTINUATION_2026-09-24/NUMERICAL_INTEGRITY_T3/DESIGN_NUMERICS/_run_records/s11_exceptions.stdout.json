@@ -1,4 +1,11 @@
 {
+ "reconciliation_with_pin": {
+  "pinned": 228,
+  "predicted": 228,
+  "equal": true,
+  "predicted_not_pinned": [],
+  "pinned_not_predicted": []
+ },
  "triples": [
   [
    "captured",
@@ -13,17 +20,7 @@
   [
    "captured",
    "RF-CANCEL-F-G1e7-GnG",
-   "Mb.M1.mid"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-F-G1e7-GnG",
    "Mb.M2.i"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-F-G1e7-GnG",
-   "Mb.M2.mid"
   ],
   [
    "captured",
@@ -68,17 +65,7 @@
   [
    "typed",
    "RF-CANCEL-F-G1e7-GnG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e7-GnG",
    "Mb.M2.i"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e7-GnG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -123,17 +110,7 @@
   [
    "captured",
    "RF-CANCEL-F-G1e7-nGG",
-   "Mb.M1.mid"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-F-G1e7-nGG",
    "Mb.M2.i"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-F-G1e7-nGG",
-   "Mb.M2.mid"
   ],
   [
    "captured",
@@ -178,17 +155,7 @@
   [
    "typed",
    "RF-CANCEL-F-G1e7-nGG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e7-nGG",
    "Mb.M2.i"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e7-nGG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -233,17 +200,7 @@
   [
    "captured",
    "RF-CANCEL-F-G1e8-GnG",
-   "Mb.M1.mid"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-F-G1e8-GnG",
    "Mb.M2.i"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-F-G1e8-GnG",
-   "Mb.M2.mid"
   ],
   [
    "captured",
@@ -288,17 +245,7 @@
   [
    "typed",
    "RF-CANCEL-F-G1e8-GnG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e8-GnG",
    "Mb.M2.i"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e8-GnG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -343,17 +290,7 @@
   [
    "captured",
    "RF-CANCEL-F-G1e8-nGG",
-   "Mb.M1.mid"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-F-G1e8-nGG",
    "Mb.M2.i"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-F-G1e8-nGG",
-   "Mb.M2.mid"
   ],
   [
    "captured",
@@ -398,17 +335,7 @@
   [
    "typed",
    "RF-CANCEL-F-G1e8-nGG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e8-nGG",
    "Mb.M2.i"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e8-nGG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -511,11 +438,6 @@
    "Mb.M2.i"
   ],
   [
-   "captured",
-   "RF-CANCEL-F-G1e8-GnG-INPLANE",
-   "Mb.M2.mid"
-  ],
-  [
    "typed",
    "RF-CANCEL-F-G1e8-GnG-INPLANE",
    "Mb.M1.j"
@@ -524,11 +446,6 @@
    "typed",
    "RF-CANCEL-F-G1e8-GnG-INPLANE",
    "Mb.M2.i"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e8-GnG-INPLANE",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -543,17 +460,7 @@
   [
    "typed",
    "RF-CANCEL-F-G1e80-GnG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e80-GnG",
    "Mb.M2.i"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e80-GnG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -598,17 +505,7 @@
   [
    "typed",
    "RF-CANCEL-F-G1e80-nGG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e80-nGG",
    "Mb.M2.i"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e80-nGG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -681,11 +578,6 @@
    "Mb.M2.i"
   ],
   [
-   "typed",
-   "RF-CANCEL-F-G1e80-GnG-INPLANE",
-   "Mb.M2.mid"
-  ],
-  [
    "captured",
    "RF-CANCEL-M-G1e7-GnG",
    "Mb.M1.i"
@@ -698,22 +590,12 @@
   [
    "captured",
    "RF-CANCEL-M-G1e7-GnG",
-   "Mb.M1.mid"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-M-G1e7-GnG",
    "Mb.M2.i"
   ],
   [
    "captured",
    "RF-CANCEL-M-G1e7-GnG",
    "Mb.M2.j"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-M-G1e7-GnG",
-   "Mb.M2.mid"
   ],
   [
    "captured",
@@ -753,22 +635,12 @@
   [
    "typed",
    "RF-CANCEL-M-G1e7-GnG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e7-GnG",
    "Mb.M2.i"
   ],
   [
    "typed",
    "RF-CANCEL-M-G1e7-GnG",
    "Mb.M2.j"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e7-GnG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -808,22 +680,12 @@
   [
    "captured",
    "RF-CANCEL-M-G1e7-nGG",
-   "Mb.M1.mid"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-M-G1e7-nGG",
    "Mb.M2.i"
   ],
   [
    "captured",
    "RF-CANCEL-M-G1e7-nGG",
    "Mb.M2.j"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-M-G1e7-nGG",
-   "Mb.M2.mid"
   ],
   [
    "captured",
@@ -863,22 +725,12 @@
   [
    "typed",
    "RF-CANCEL-M-G1e7-nGG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e7-nGG",
    "Mb.M2.i"
   ],
   [
    "typed",
    "RF-CANCEL-M-G1e7-nGG",
    "Mb.M2.j"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e7-nGG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -918,22 +770,12 @@
   [
    "captured",
    "RF-CANCEL-M-G1e8-GnG",
-   "Mb.M1.mid"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-M-G1e8-GnG",
    "Mb.M2.i"
   ],
   [
    "captured",
    "RF-CANCEL-M-G1e8-GnG",
    "Mb.M2.j"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-M-G1e8-GnG",
-   "Mb.M2.mid"
   ],
   [
    "captured",
@@ -973,22 +815,12 @@
   [
    "typed",
    "RF-CANCEL-M-G1e8-GnG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e8-GnG",
    "Mb.M2.i"
   ],
   [
    "typed",
    "RF-CANCEL-M-G1e8-GnG",
    "Mb.M2.j"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e8-GnG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -1028,22 +860,12 @@
   [
    "captured",
    "RF-CANCEL-M-G1e8-nGG",
-   "Mb.M1.mid"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-M-G1e8-nGG",
    "Mb.M2.i"
   ],
   [
    "captured",
    "RF-CANCEL-M-G1e8-nGG",
    "Mb.M2.j"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-M-G1e8-nGG",
-   "Mb.M2.mid"
   ],
   [
    "captured",
@@ -1083,22 +905,12 @@
   [
    "typed",
    "RF-CANCEL-M-G1e8-nGG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e8-nGG",
    "Mb.M2.i"
   ],
   [
    "typed",
    "RF-CANCEL-M-G1e8-nGG",
    "Mb.M2.j"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e8-nGG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -1186,11 +998,6 @@
    "Mb.M2.j"
   ],
   [
-   "captured",
-   "RF-CANCEL-M-G1e8-GnG-INPLANE",
-   "Mb.M2.mid"
-  ],
-  [
    "typed",
    "RF-CANCEL-M-G1e8-GnG-INPLANE",
    "Mb.M2.i"
@@ -1199,11 +1006,6 @@
    "typed",
    "RF-CANCEL-M-G1e8-GnG-INPLANE",
    "Mb.M2.j"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e8-GnG-INPLANE",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -1218,22 +1020,12 @@
   [
    "typed",
    "RF-CANCEL-M-G1e80-GnG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e80-GnG",
    "Mb.M2.i"
   ],
   [
    "typed",
    "RF-CANCEL-M-G1e80-GnG",
    "Mb.M2.j"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e80-GnG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -1273,22 +1065,12 @@
   [
    "typed",
    "RF-CANCEL-M-G1e80-nGG",
-   "Mb.M1.mid"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e80-nGG",
    "Mb.M2.i"
   ],
   [
    "typed",
    "RF-CANCEL-M-G1e80-nGG",
    "Mb.M2.j"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e80-nGG",
-   "Mb.M2.mid"
   ],
   [
    "typed",
@@ -1349,11 +1131,6 @@
    "typed",
    "RF-CANCEL-M-G1e80-GnG-INPLANE",
    "Mb.M2.j"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e80-GnG-INPLANE",
-   "Mb.M2.mid"
   ],
   [
    "captured",
@@ -1371,7 +1148,7 @@
    "th.S1.RZ"
   ]
  ],
- "count": 274,
+ "count": 228,
  "cases_per_entry": {
   "captured": [
    "RF-CANCEL-F-G1e7-GnG",

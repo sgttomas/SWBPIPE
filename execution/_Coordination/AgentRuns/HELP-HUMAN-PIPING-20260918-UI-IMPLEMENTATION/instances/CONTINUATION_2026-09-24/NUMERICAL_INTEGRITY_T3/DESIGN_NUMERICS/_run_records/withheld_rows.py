@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""D1 DESIGN rev 4: rows a W1-selected case would withhold, estimated on committed fixtures.
+"""D1 DESIGN rev 4 (support-family rule per revision 5a, R5-2): rows a W1-selected case would withhold, estimated on committed fixtures.
 
 Usage: python3 withheld_rows.py <root> [<root> ...]    (standard library only)
 
@@ -49,6 +49,26 @@ RESTRAINT = {"global_nodal_displacement_x": "UX", "global_nodal_displacement_y":
              "global_nodal_rotation_x": "RX", "global_nodal_rotation_y": "RY", "global_nodal_rotation_z": "RZ"}
 
 
+def hanger_type(s):
+    """PP support_hanger_type: the hanger's type, else the support family (trimmed, non-empty)."""
+    t = ((s.get("hanger") or {}).get("hanger_type") or "").strip()
+    return t or (s.get("family") or "").strip() or None
+
+
+def is_rigid_support(s):
+    """Revision 5a (R5-2): the product's rule for rigid restraints (PP build_model support filter and
+    rigid_linear_support_from_preview). Not rigid: nonlinear supports without restraints or stiffness,
+    constant-effort supports, the `spring` family and variable spring hangers (free DOFs with stiffness
+    or applied force). Every other support's restraints are rigid (restrained or prescribed)."""
+    if s.get("nonlinear") is not None and not s.get("restraints") and s.get("stiffness") is None:
+        return False
+    if hanger_type(s) == "constant_effort_support":
+        return False
+    if s.get("family") == "spring" or hanger_type(s) in ("variable_spring_hanger", "spring_hanger"):
+        return False
+    return True
+
+
 def request_for(path):
     d, f = os.path.split(path)
     base = f.replace(".raw.json", "")
@@ -75,7 +95,7 @@ def classify_case(rows, model):
         sec[p["id"]] = (A, I / (od / 2.0))
     restrained = defaultdict(set)
     for s in m["supports"]:
-        if s.get("family") != "spring":
+        if is_rigid_support(s):
             for r in s.get("restraints", []):
                 restrained[s["node"]].add(r)
     S = defaultdict(float)

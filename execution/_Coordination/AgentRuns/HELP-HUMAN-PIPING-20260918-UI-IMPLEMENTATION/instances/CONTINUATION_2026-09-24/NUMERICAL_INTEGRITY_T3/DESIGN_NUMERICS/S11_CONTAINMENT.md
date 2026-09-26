@@ -1,6 +1,13 @@
 # V1-S11 — cancelled load contributions: exact ledger and exact recovery
 
-D1 (TASK), 2026-09-26. **Revision 5** (narrow). It is delivered with `DESIGN.md` revision 5 and carries:
+D1 (TASK), 2026-09-26. **Revision 5a** (narrow follow-up, delivered with `DESIGN.md` revision 5a). It carries three things:
+- ROOT's R5-3 correction of the caller list (§8.1);
+- the S11 gate exceptions re-pinned to `GATE/S11_EXCEPTIONS.json` (88 captured / 140 typed; ROOT `7e3cc1f31`);
+- P1's S11-PROBE-A cases as S11-K/F tests, not gate cases.
+
+Revision 5 (sha256 `776a6309…`, committed at `490f02982`) is kept as `_run_records/S11_CONTAINMENT_revision5.md`.
+
+**Revision 5** (narrow). It is delivered with `DESIGN.md` revision 5 and carries:
 - ROOT's hard S-H/S11-F ordering (`b6fe1eb75`);
 - S11-F's tests on both entries;
 - the named exceptions of the "no Passed breach" gate;
@@ -22,6 +29,14 @@ Revision 2 answered:
 - **Paths.** `P/`, `PP`, `FK` and `SA` are as in `DESIGN.md`. `SP` means `P/core/solver/straight_pipe/src/lib.rs`. `CB` means `P/core/solver/curved_bend/src/lib.rs`.
 - **Scope of work.** Read-only on product source. I ran standard-library Python probes and scans only (§12). The host is still held, so nothing was built and no product test ran. No Git write was made.
 
+## 0.a What changed in revision 5a
+
+| Item | Change | Where |
+|---|---|---|
+| **R5-3** (ROOT, urgent for I1) | The caller list gains two callers of KS-changed functions. **`product_equilibrium::evaluate`** (`nonlinear_integration/src/product_equilibrium.rs:52-56`) calls `evaluate_original_residual` (KS3) directly: from the nonlinear loop's final equilibrium (`nonlinear_integration/src/lib.rs:1957`), which is pinned to the legacy binary64 variant with a test, and from the exact-gap projection gate (`SA:1030`), which I1 classifies. **`linear_supports::apply_linear_supports`** calls `reduce_system_with_prescribed_displacements` (KS2; `linear_supports/src/lib.rs:467`, `:487`), used with imposed displacements by `validation/benchmarks/mechanics` (6 sites); I1 classifies it. Option (c) applies to both: a linear caller gets the exact path, and any benchmark or fixture bit change goes through the stop rule and is reported to ROOT before regeneration | §8.1 |
+| **Exception re-pin** (ROOT, `7e3cc1f31`) | The gate's S11 exceptions are the pinned `GATE/S11_EXCEPTIONS.json` (88 captured / 140 typed, frozen-reference cases only); revision 5's 106/168 were a prediction including `Mb.*.mid` | §0, §8.2 |
+| **P1's probes** (ROOT) | P1's S11-PROBE-A cases become S11-K/F test cases with exact expected nets (K4 and F2's class), not gate cases | §9 |
+
 ## 0. What changed in revision 5
 
 | Item | Change | Where |
@@ -30,7 +45,7 @@ Revision 2 answered:
 | **Lesson (ROOT)** | Both the design and its review missed the nonlinear loop's nonzero prescribed values. The checks must find **every caller of a changed kernel function**, not only the product's linear path. §8.1 and §9 K11 now name the callers | §8.1, §9 |
 | **B1, B2 (ROOT)** | Expected diffs added to §8.3: B1, `fixtures/results/preview_physics_invented_{dense,sparse}.json` (6 values per file, about 4 ulp, from the live E4/E6 exact station sums, plus one near-zero stress at roundoff); B2, T1's `load_reference_fallback_uz` raws (the `Debug` residual text, from KS1–KS3). B3 (a qualification input's `Debug` text) is recorded as informational | §8.3 |
 | **ROOT S-H/S11-F** (`b6fe1eb75`) | S-H never lands before S11-F (same PR, or S-H's PR after S11-F is on main, re-running the 1e80 RF-CANCEL cases through the captured route). S11-F's tests cover both entries, with RF-CANCEL at 1e80 (F, M, ORTHO, INPLANE, UDL-W1e80). The ledger sits in the shared `solve_load_case` (merged tree `PP:2137`; force built at `:2248`), which both the captured entry (`PP:1407` → `:1432` → `:1470`) and the typed entry (`PP:1397`, reached from headless `run_preview_in_memory_mode`, `P/core/runner/headless/src/lib.rs:804`) call, at `PP:1682`, `:1711` and `:1779`. So one ledger serves both | §8.2, §9 |
-| **"No Passed breach" exceptions** (D5C-5) | The gate's S11 exceptions are (entry, case, quantity) triples, predicted from R1's frozen controls: 106 in 13 cases on the captured entry, and 168 in 22 cases on the typed entry. They are pinned to P1's record, and a test requires the list to be empty once S11-F merges (`DESIGN.md` §4.10) | §8.2, §9 |
+| **"No Passed breach" exceptions** (D5C-5; **counts superseded in revision 5a**) | The gate's S11 exceptions are (entry, case, quantity) triples. Revision 5 predicted 106 in 13 cases (captured) and 168 in 22 (typed), which included the unpublished midspan magnitudes `Mb.*.mid`. **The committed list is `GATE/S11_EXCEPTIONS.json`: 88 triples in 13 cases captured, 140 in 22 typed** (ROOT `7e3cc1f31`). They are pinned to P1's record, and a test requires the list to be empty once S11-F merges (`DESIGN.md` §4.10) | §8.2, §9 |
 | **Nonlinear loop and S11-F** | When `PP` moves to the typed path, the nonlinear loop's closed-gap prescribed solves stay on the legacy binary64 variant until T5's residual policy, together with the friction fold (T5 open work) | §8.2, §10 |
 
 ### 0.M Citation map, `c61a540ea` → `303609725` (`PP` only)
@@ -446,7 +461,10 @@ Result: the invariant holds in every row. The product tests therefore use G = 1e
   - KS1–KS3 where a prescribed value is nonzero on a linear caller: T1's support-motion fixtures (pre-registered, §8.3). **Corrected in revision 5:** the nonlinear loop's closed-gap solves also carry nonzero prescribed values on main. They stay on the legacy binary64 variant (§4.6, ROOT option (c)), pinned by a test.
   - **Callers (revision 5, ROOT's lesson).** Every caller of each changed kernel function is listed in the PR record, with the variant it gets:
     - `reduce_system`, `reduce_system_with_prescribed_displacements` (`PP:2333-2340` merged; `nonlinear_integration/src/lib.rs`);
-    - `prepare_structural` and `evaluate_original_residual`, through `solve_structural_dense`/`_sparse` (`SA:280-282`, `nonlinear_integration/src/lib.rs:1933-1936`, `product_equilibrium.rs:122-153`, and the kernel tests).
+    - `prepare_structural` and `evaluate_original_residual`, through `solve_structural_dense`/`_sparse` (`SA:280-282`, reached from `PP:3965` and from the nonlinear loop at `nonlinear_integration/src/lib.rs:1915`; the loop's direct calls at `:1933-1936`; `product_equilibrium.rs:122-153` in its tests; and the kernel tests);
+    - **(revision 5a, R5-3)** `evaluate_original_residual` called directly by **`product_equilibrium::evaluate`** (`product_equilibrium.rs:52-56`): from the nonlinear loop's final equilibrium (`nonlinear_integration/src/lib.rs:1957`), **pinned to the legacy variant** with the loop, and from the exact-gap projection gate (`SA:1030`), which I1 classifies;
+    - **(revision 5a, R5-3)** `reduce_system_with_prescribed_displacements` called by **`linear_supports::apply_linear_supports`** (`P/core/solver/linear_supports/src/lib.rs:467`, `:487`), used with `LinearSupport::imposed_displacement` in `validation/benchmarks/mechanics` (6 sites, for example `:908`, `:4333`, `:4406`); I1 classifies it;
+    - for `SA:1030` and `linear_supports`: if I1 finds them linear callers, they get the exact path, and any benchmark or fixture bit change goes through the stop rule and is reported to ROOT before regeneration (ROOT, BACKCHECK_R5 item 1);
     - A caller not listed is a stop.
   - Everything else is dormant until S11-F.
 - **Gates (D-S11-3, ruled).** A full product slice as its own PR to main: independent review, hosted CI including the surface-4 dual-viewport dispatch, a clean DEC-025 sweep, and the fixture stop rule (§8.3).
@@ -463,7 +481,7 @@ Result: the invariant holds in every row. The product tests therefore use G = 1e
 - **Ordering with D2's S-H (ROOT, `b6fe1eb75`, hard).** S-H never lands before S11-F. They may land in the same PR. If separate, S-H's PR needs S11-F already on main, and its tests re-run the G = 1e80 RF-CANCEL cases through the captured route and show them repaired.
 - **Both entries.** The ledger sits in `solve_load_case` (merged `PP:2137`; the force at `:2248`, today `global_load_vector`), which the captured entry and the historical typed entry share (§0). S11-F therefore repairs both at once, and its tests cover both (§9 F11).
 - **The nonlinear loop.** When `PP` moves to the typed path, the nonlinear active-set loop's closed-gap prescribed solves stay on the legacy binary64 variant (ROOT option (c)). They are T5's open work, with the friction fold (§10 item 1).
-- **The named exceptions** of the "no Passed breach" gate (`DESIGN.md` §4.10) are emptied by S11-F. Its PR shows both entries clean.
+- **The named exceptions** of the "no Passed breach" gate (`DESIGN.md` §4.10), pinned as `GATE/S11_EXCEPTIONS.json` (**88 triples in 13 cases on the captured entry, 140 in 22 on the typed entry**, frozen-reference cases only; revision 5a), are emptied by S11-F. Its PR shows both entries clean.
 
 ### 8.3 Bit changes and disclosure (S11-V7; ROOT 6)
 
@@ -525,8 +543,9 @@ Tests are cited as K*n* (the S11-K list) and F*n* (the S11-F list). The kernel s
 10. **E15 and E16 (S11B-2):** a pipe with pressure loads (P, 0.3 Pa, −P) at P = 1e8 and 1e80 Pa, and an expansion joint carrying the matching thrust loads, with the precondition. The published hoop and longitudinal stresses and `expansion_joint_pressure_thrust_load_review` equal the values from the exact net.
 
 11. **Both entries (revision 5, ROOT `b6fe1eb75`).** F1's RF-CANCEL cases run through the captured entry and through the historical typed entry, via headless `run_preview_in_memory_mode` (`P/core/runner/headless/src/lib.rs:804`). That includes **RF-CANCEL at G = 1e80: F, M, ORTHO, INPLANE and UDL-W1e80**, on the typed entry, and on the captured route once S-H is present. Every comparison meets R1's predicate on the binding scale. Today the typed entry publishes these as M03 Passed with the net lost, for example UDL-W1e80's rotation of 1.2e57 rad against an expected 4.6e-16 (P1).
-12. **The exceptions list.** The "no Passed breach" gate's S11 exception list is empty after S11-F, on both entries (`DESIGN.md` §4.10).
+12. **The exceptions list.** The "no Passed breach" gate's S11 exception list (`GATE/S11_EXCEPTIONS.json`) is empty after S11-F, on both entries (`DESIGN.md` §4.10).
 13. **The nonlinear legacy pin (revision 5, ROOT option (c)).** A test asserts that the nonlinear loop's closed-gap prescribed solves call the legacy binary64 variant, and DEC-046's `multisupport_acceptance_inventory_uses_narrow_dec_046_policy` passes unchanged. It belongs to S11-K and stays through S11-F.
+14. **P1's probes as tests (revision 5a, ROOT).** P1's S11-PROBE-A cases (its product-model form of probe A, G ≥ 1e7) join S11-F's tests with exact expected nets, through both entries; they are not gate cases. V1-CHECK-L joins K1's and F1's classes likewise.
 
 **Mutations that must fail** (required kill set G = 1e8 and 1e80; one mutant per site, S11B-5; labels corrected in revision 4).
 

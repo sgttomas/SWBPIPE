@@ -25,6 +25,8 @@ The proof (DESIGN revision 5 s8.1.2) uses only integer pattern data and exact ra
      member); stresses by the families they read (no pressure on the model); support reaction
      components from the restrained DOF's element couplings (no load at that DOF), spring reactions
      from the spring DOF, unrestrained components structurally zero; magnitudes from all components.
+Revision 5a: step 5's reaction rule carries V1's R5-1 fix, and rigid supports follow the product's
+family rule (withheld_rows.is_rigid_support, R5-2).
 A withheld row (absolute_verified under revision 5's table and floor) is then counted as
   proven_zero      published value +-0.0 and proven zero: exempt under B (bindable as exact 0);
   zero_unproven    published 0.0 but no proof (symmetry, cancellation or unplaced load): needs C;
@@ -89,10 +91,16 @@ def analyse(rows, req):
                             g.add(6 * idx[end] + 3 * block + comp)
             fams[f] = g
         members[s["id"]] = fams
-    restrained, springs, supports = set(), {}, {}
+    restrained, springs, supports, effort_nodes = set(), {}, {}, set()
     for s in m["supports"]:
         n = idx[s["node"]]
-        if s.get("family") == "spring":
+        # Revision 5a (R5-2): the product's family rule (withheld_rows.is_rigid_support).
+        if s.get("nonlinear") is not None:
+            return None, "nonlinear support present (outside W1 and B)"
+        if W.hanger_type(s) == "constant_effort_support":
+            effort_nodes.add(n)  # an applied force at a free node: seeded below, never a restraint
+            continue
+        if not W.is_rigid_support(s):
             st = s.get("stiffness") or {}
             springs[s["id"]] = 6 * n + COMP[st.get("dof", s["restraints"][0])]
             supports[s["id"]] = ("spring", n, {springs[s["id"]]})
@@ -175,6 +183,8 @@ def analyse(rows, req):
                 axial_members.add(mr["pipe_ref"])  # uniform fit strain: axial family only
     if unplaced:
         return None, "unplaced load categories: " + ",".join(sorted(set(map(str, unplaced))))
+    for n_ in effort_nodes:
+        loaded_dofs |= {6 * n_ + c for c in range(6)}  # conservative: every DOF of a constant-effort node
     for d in loaded_dofs:
         if d not in restrained:
             seeds.add(d)
@@ -206,6 +216,12 @@ def analyse(rows, req):
             return True  # no restraint or spring on this component: structurally zero
         if kind == "spring":
             return d in zero
+        # Revision 5a (R5-1, V1's fix): a member load, pressure or state term on an incident member puts an
+        # end force at d, and an axial eigen strain puts an axial end force at d.
+        if any(d in g for mid in loaded_members for g in members[mid].values()):
+            return False
+        if any(d in members[mid]["axial"] for mid in axial_members):
+            return False
         return d not in loaded_dofs and adj[d] <= zero and d in zero
 
     proven = {}
