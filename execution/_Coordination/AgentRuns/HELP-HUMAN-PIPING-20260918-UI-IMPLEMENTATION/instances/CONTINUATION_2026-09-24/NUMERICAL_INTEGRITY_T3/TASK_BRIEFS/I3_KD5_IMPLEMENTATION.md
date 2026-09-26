@@ -109,3 +109,15 @@ Put the list in `_run_records/callers.txt`, by lexer scan, as I1 did.
   - what was not done.
 
 Send the manager a SendMessage summary. Message the manager at once if the stop rule triggers or a design item cannot be implemented as specified. Don't improvise a different design.
+
+## Addendum: K3a's actual API (manager, 2026-09-26, on K3a head `a2e804a75`)
+
+Base: branch `codex/piping-k3a-20260926` at `a2e804a757359d589f4c31ea8e36a923f28ccb8c`. K3a's surface, all `pub(crate)` in `frame_kernel`, is in `FK/src/structural/retained/wide.rs`:
+
+- **Types.** `Wide2` (= `Wide<2>`), `Wide2::from_f64` (the exact lift), `WideArith::new(p)` with `add`, `sub`, `mul`, `div` and `sqrt` (correctly rounded at p ≤ 128, and each counted), and `work() -> WorkCounter`.
+- **Angle.** `WideArith::included_angle(s, c)` = 2·atan(s/(1 + c)) ∈ (0, π), for s > 0 and 1 + c > 0. `atan_positive(t)` is also available. This is the arctangent R5-4 needs: sine and cosine come from the radial vectors with square roots, and φ from `included_angle`. Its proved bound is 23.6 ulp at p ≤ 128, and the test tolerance is 6 ulp.
+- **Into the ledger.** `Wide2::add_product_to(&mut ExactAccumulator, factor: f64) -> Result<bool, WideError>` adds `self · factor` through the exact split into at most three binary64 terms. It returns `true` when the split was truncated below 2^-1074. **Use it for ρ's K_int·u terms,** and carry the truncation flag into the per-row allowance the design specifies (2^-1074·|factor|).
+- **Errors.** `WideError` (InvalidPrecision, NonFinite, ExponentRange, DivisionByZero, NegativeSqrt, AngleDomain, ArctangentLimit, SplitOverflow, Accumulator). **Any `WideError` inside the formation check fails closed:** the case is demoted with `formation_check_unavailable`. It is never passed, and it never becomes an `Err` from the solve.
+- **Module placement.** `retained` is declared privately in `structural.rs` (`mod retained;`), so `formation_check.rs` must sit under `structural/`, as the design places it, to reach `super::retained::wide`. Do not widen `retained`'s visibility.
+- **dead_code.** K-D5 is K3a's first caller. Remove the `#![allow(dead_code)]` in `retained/mod.rs`, and fix any items that remain unused. Report which items those are.
+- **Environment.** Use `RUSTUP_AUTO_INSTALL=0` and `RUSTUP_TOOLCHAIN=1.97.1`. Cargo priority: I1's S11-K fixes, then ROOT's DEC-025 sweep, then RV2, then you. Hold your cargo while the sweep runs.
