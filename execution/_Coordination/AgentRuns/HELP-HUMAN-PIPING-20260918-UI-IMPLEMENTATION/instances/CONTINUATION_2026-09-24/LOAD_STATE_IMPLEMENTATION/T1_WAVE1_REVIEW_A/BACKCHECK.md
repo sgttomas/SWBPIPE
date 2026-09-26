@@ -80,3 +80,16 @@ All three notes are resolved as proposed, and the diff changes nothing else.
 
 - No Rust run (host hold). The Rust claims rest on code reading and the author's recorded `final_cargo_test.log` (69/69).
 - Scratch copies were deleted, and no cargo target was created.
+
+## Addendum: the deferred Rust run (after the host hold was lifted)
+
+- **What ran.** The manager reported the hold lifted. I then ran `cargo +1.97.1 test --locked --offline -j 2` in `core/reporting/result_export`.
+- **Where.** On the committed head `277f3d02f`, in the worktree. No reviewed or dependency path differs from `1ccca8b87` there (`core/reporting`, `core/analysis_runs`, `core/serialization`, `core/units`, `fixtures/results`, `fixtures/product_preview`, `schemas`), and those paths are clean in the working tree.
+- **Environment, as ROOT constrained it.** The shared `CARGO_TARGET_DIR` (`ls-vp-target`, reused; no new target) with `CARGO_INCREMENTAL=0`. Free disk space was 15 GB before and after.
+- **Result: 69 passed, 0 failed** (22 unit, 6 derivative, 5 load-reference, 5 load-reference-source, 10 physics, 7 physics-source, 4 precision, 10 source-blocks). Log: `BR/cargo_result_export_277f3d02f.log`.
+- **What that includes.**
+  - `shared_adversarial_cases_match_in_rust` runs all 116 raw cases of the joined shared file, including the 4 N-2 cases and the declared N-1 case, and it passes.
+  - `table_bytes_and_transport_cases_match_in_rust` passes.
+  - The load-reference-1 contract tests (5) pass unchanged.
+
+With this run, the Rust side of the follow-up is verified by execution as well as by reading. The verdict stays **CLEAR** for both languages. The reader bytes `14e1750e…` (Python) and the Rust readers at `a045664d…` (`load_reference.rs`) and `5fd4902c…` (`load_reference_source.rs`) are covered.
