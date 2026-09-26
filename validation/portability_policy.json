@@ -4603,6 +4603,22 @@
       "role": "CONTROL",
       "reason": "Sealed completed D70 writer brief preserves the exact machine-local context supplied to the finished writer; historical control, not a live dispatch.",
       "authority": "HELP_HUMAN under the approved D70 baseline and standing routine coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/D70_BASELINE/_run_records/PORTABILITY_CLOSEOUT_V1/DISPOSITION.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/_run_records/session2/issued_briefs/CP2_EXTENSION_BRIEF.as_issued.md",
+      "sha256": "fe864ffa5afc6695068920fdb84329aca82d142a411c81a321c91e6aeeb5c3d8",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable as-issued copy of a T1 CP2 TASK brief; its bytes are bound by sha256 in MECHANISM.json and the CP2 run records, so the machine paths it recorded at issue cannot be relativized.",
+      "authority": "HELP_HUMAN ROOT under the owner's standing authorization; T1 checkpoint 7 records the historical path mentions."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/_run_records/session2/issued_briefs/CP2_RUNTIME_TESTS_BRIEF.as_issued.md",
+      "sha256": "4cf1ae3d8f2dceffefaefde5ee489cda9bf53423d0bb4b47c49ae514669c9b77",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable as-issued copy of a T1 CP2 TASK brief; its bytes are bound by sha256 in MECHANISM.json and the CP2 run records, so the machine paths it recorded at issue cannot be relativized.",
+      "authority": "HELP_HUMAN ROOT under the owner's standing authorization; T1 checkpoint 7 records the historical path mentions."
     }
   ]
 }
