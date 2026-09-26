@@ -225,3 +225,34 @@ Context: P1's secondary observation. The historical typed entry (`run_linear_sta
 2. **The no-interim ruling is unchanged.** Its terms still hold: the committed fixtures are clean, and the realistic models are at 1.5e-13 or better. **Correction recorded:** the Passed-band breach class on main is broad in synthetic space. It covers axis-aligned soft springs and solve error at up to about 4e-9 relative, with cond between about 1e6 and 6.7e7. It is not a single case.
 3. **K-D5 priority rises, and it moves ahead of K2a.** K2a only affects extreme sub-2^-1022 stiffness, while K-D5 guards a broad Passed-band class. The order becomes **S11-K → K-D5 → K2a → K1 → K2b → K5**, if the exact-residual EF does not need K3's Wide type. If it does, the order is **S11-K → K3 (the part K-D5 needs) → K-D5 → K2a**. D1 states which applies.
 4. **Should-fix items.** D5C-2 to D5C-5 and N-3 go into revision 5. **D5C-2:** any stiffness contribution EF cannot re-form (curved, user matrix, joint) makes the case not eligible for Passed through K-D5; it is demoted until coverage exists. Silence is not acceptable. D1 reports whether this over-demotes any committed fixture.
+
+## BACKCHECK_R4 (ROOT, 2026-09-26, after `e27181fb2`)
+
+Input: [REVIEW/BACKCHECK_R4.md](REVIEW/BACKCHECK_R4.md). BLOCKING only through D5C-1, which is already ruled; everything else is SHOULD-FIX. These rulings go into D1's revision 5 and D2's alignment revision.
+
+- **R4-1: accepted.** The span-statics rows use k = 2√2 for the circular maximum and k = 4 for the open-formula summary, because the moment is rebuilt from one end's actions. The floor is proven at 1e-9 with those k.
+- **R4-2: accepted, per the D-15 ruling.**
+  - Retirement is domain by domain, and the condition is row-level: side-by-side per-case withheld counts, not envelope standing.
+  - F2 does not retire exact-block in any domain where the successor withholds rows that are Current today. By V1's counts that includes multicase signed-companion and T1 eigen_motion, where 11 and 23 relied-upon non-zero values are involved (soft-support reaction moments, member torques, torsional shear).
+  - **Coexistence rule:** no W1 attempt in an invocation where exact-block selects any case, so one envelope never mixes methods.
+  - D1 corrects "almost all exact zeros" for those two cases.
+- **R4-3: accepted. This is what the conservative-binding constraint requires.** D2's C design needs:
+  - sound interval evaluation over the rule formula language (abs, divide, not, equal and the rest), with a three-valued pass / fail / indeterminate outcome, where indeterminate never counts as pass;
+  - scope limited to `absolute_verified` rows;
+  - b taken from the receipt, with outward-rounded endpoints;
+  - an honest statement of the basis of b;
+  - gate-count semantics for indeterminate.
+
+  A formula operator that cannot be evaluated soundly makes the rule indeterminate.
+- **R4-4: the tables are aligned.**
+  - The intensified k_i rounds upward (conservative), so D1 changes to D2's rule.
+  - All 11 mismatches resolve to one table, with D1's closed table as the source and D2 mirroring it.
+  - D1 fixes its §5 inconsistency: twist and extension scales are harness-only, not in the receipt.
+- **Also:**
+  - D2 mirrors N-2;
+  - the "no Passed breach" gate carries the named S11 exceptions as (case, quantity) pairs and runs through both entries (`b6fe1eb75`).
+- **Next.** D1's revision 5 and D2's alignment revision get V1's narrow re-pass: the fixed EF on the 230, 105 and 122 cases, R4-1 to R4-4, and D-15. That is the last design check before the package.
+
+## Main merged into the T3 branch
+
+The manager merged origin/main (at `0883c2108`, which contains T1's `5aa4285c2`) into the T3 branch as `303609725`, after BACKCHECK_R4 returned and before any product-wiring slice. From here, D1, D2 and V1 cite product line numbers at the merged tree.
