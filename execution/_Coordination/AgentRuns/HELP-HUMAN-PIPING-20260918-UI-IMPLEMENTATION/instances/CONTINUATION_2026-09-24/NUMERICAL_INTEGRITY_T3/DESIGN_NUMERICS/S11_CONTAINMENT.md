@@ -1,8 +1,10 @@
 # V1-S11 — cancelled load contributions: exact ledger and exact recovery
 
-D1 (TASK), 2026-09-26. **Revision 3.** Revision 2 (sha256 `4bec712c…`, committed at `4663cdbb6`) is kept as `_run_records/S11_CONTAINMENT_revision2.md`. Revision 1 (sha256 `616214b2…`, committed at `70f56b83e`) is kept as `_run_records/S11_CONTAINMENT_revision1.md`.
+D1 (TASK), 2026-09-26. **Revision 4** (narrow). Revision 3 (sha256 `561c7200…`, committed at `d6575c25e`) is kept as `_run_records/S11_CONTAINMENT_revision3.md`. Revision 2 (sha256 `4bec712c…`, committed at `4663cdbb6`) is kept as `_run_records/S11_CONTAINMENT_revision2.md`. Revision 1 (sha256 `616214b2…`, committed at `70f56b83e`) is kept as `_run_records/S11_CONTAINMENT_revision1.md`.
 
-**Revision 3** answers V1's backcheck of revision 2, `T3/REVIEW/S11_BACKCHECK.md` at `61b228543` (sha256 `a3dfcd78…`, verdict BLOCKING on S11B-1 and S11B-2), ROOT's rulings on it (`T3/ROOT_RULINGS_V1.md` at `45cfc92b1`), and the manager's dispositions of S11B-1 to S11B-9. What changed is in §0.1. V1 backchecks revision 3 on those items only.
+**Revision 4** answers V1's backcheck of revision 3, `T3/REVIEW/S11_BACKCHECK_R3.md` at `ef8fc4224` (sha256 `d9b077a8…`, verdict FINDINGS; both blockers resolved). It changes only the items in §0. V1 backchecks it together with `DESIGN.md` revision 3.
+
+**Revision 3** answered V1's backcheck of revision 2, `T3/REVIEW/S11_BACKCHECK.md` at `61b228543` (sha256 `a3dfcd78…`, verdict BLOCKING on S11B-1 and S11B-2), ROOT's rulings on it (`T3/ROOT_RULINGS_V1.md` at `45cfc92b1`), and the manager's dispositions of S11B-1 to S11B-9. What changed is in §0.1. V1 backchecks revision 3 on those items only.
 
 Revision 2 answered:
 - V1's check of revision 1, `T3/REVIEW/S11_CHECK.md` at `56b651282` (sha256 `47b6fff2…`), verdict BLOCKING;
@@ -13,7 +15,19 @@ Revision 2 answered:
 - **Paths.** `P/`, `PP`, `FK` and `SA` are as in `DESIGN.md`. `SP` means `P/core/solver/straight_pipe/src/lib.rs`. `CB` means `P/core/solver/curved_bend/src/lib.rs`.
 - **Scope of work.** Read-only on product source. I ran standard-library Python probes and scans only (§12). The host is still held, so nothing was built and no product test ran. No Git write was made.
 
-## 0. What changed in revision 3 (V1's backcheck)
+## 0. What changed in revision 4 (V1's backcheck of revision 3)
+
+| Item | Change | Where |
+|---|---|---|
+| R3-1 | KS1–KS3 are bit-identical only where every prescribed value is zero. That holds on main today, but S11-K lands after T1 merges, when T1's support-motion fixtures (nonzero prescribed values) are committed. Those fixtures and every file derived from them are **pre-registered as expected diffs** under the stop rule, with their reason | §2.4, §4.6, §8.1, §8.3 |
+| R3-2 | F8 uses (G, 0.3, −G) and cancelling thermal strains, and joins the precondition list, so M1h–M1k are killed. K4 gains an axial-effect case (G, n, −G), so M1b and the axial half of E3 are killed | §9 |
+| R3-3 | §2.5's table becomes the site test's constant: every function with a floating-point compound assignment, `.sum` or `fold` in `PP`, `pressure_runtime.rs`, `self_weight.rs`, `SP`, `CB` and `load_case_algebra` must be named as an E-site, a declared formation, an integer or max, or an allow-listed observation. §4.3 limit 4 is corrected | §2.5, §4.3 |
+| R3-N1 | The nonlinear influence solves' unit-force vectors (`nonlinear_integration/src/lib.rs:1332-1337`) are allow-listed as T5's | §4.3 |
+| R3-N2 | KS1 and KS3 scale by the row's power of two **inside** the accumulator and then round once (`round_scaled(e)`), so a subnormal-range value is not rounded twice | §4.1.1, §4.6 |
+| R3-N3 | V1's scan of the files §2.5 omitted is recorded (nothing further) | §2.5 |
+| R3-N4 | The per-site mutants are relabelled M1a–M1o (15 E-sites) | §9 |
+
+## 0.1 What changed in revision 3 (V1's backcheck of revision 2)
 
 | Item | Change | Where |
 |---|---|---|
@@ -21,13 +35,13 @@ Revision 2 answered:
 | **S11B-2** (BLOCKING) | E15 `pressure_for_pipe` (`PP:10780-10802`) and E16 the expansion-joint thrust aggregate (`PP:8368-8382`) added, each an exact sum rounded once. A re-scan of `PP`, `pressure_runtime.rs`, `self_weight.rs`, `primitive_loads`, `FK`, `SA` and `sparse_direct` for any other published sum over more than one source finds none (§2.5) | §2.2, §2.5, §4.4 |
 | S11B-3 | The ledger and `AssembledForce` move into `FK`. Every solve seam takes an `FK`-owned, ledger-built type (`StructuralSystem`, `reduce_system*`, `StructuralAssembly::solve`, the nonlinear entry points). The site test is extended to `FK`, `SA` and `nonlinear_integration` and catches copies, `iter_mut` and compound assignment on any binding derived from a force. Stated limits: generic linear-algebra kernels, two protected observation lanes, and T5's in-loop friction | §4.3 |
 | S11B-4 | Accumulator spec completed: quantum 2^-2148, rounding at the binary64 subnormal quantum (no copy-bits shortcut), and a nonzero net that rounds to zero gives +0.0 at every site (a stated deviation from IEEE's −0.0 for a negative underflow). V1's probe X cases join K1 | §4.1.1 |
-| S11B-5 | Required kill set G = 1e8 and 1e80, one mutant per E-site (M1a–M1p) | §9 |
+| S11B-5 | Required kill set G = 1e8 and 1e80, one mutant per E-site (M1a–M1p; relabelled M1a–M1o in revision 4) | §9 |
 | S11B-6 | F4, F5, F6 and K4 assert as a precondition that the binary64 fold differs from the correctly rounded net. F5 restated: the producer fixes the order (nodal first, then eigen pairs), so the case is the interior node of two colinear hot members | §9 |
 | S11B-7 | Erratum: the zero witness is removed from E3–E5 and K5; it stays only at `FK:554`, with V1's boundary wording. Evidence corrected: `multicase-dense_scrutiny` holds 5 −0.0 stress rows, all retained-path rows of selected cases. The E-site folds cannot produce −0.0 today, so +0.0 there changes no committed zero sign | §4.1.3, §9 |
 | S11B-8 | The product's m_i is the audit's per-row operation count; the completeness limit is per row and recorded. The "acceptance does not depend on d_i" claim is scoped to paths where every load-like term goes through the accumulator | §5.1, §5.2 |
 | S11B-9 | Counts corrected (245 values in 31 of the 37 files carrying intended-action rows). The formation item is answered in `R2_ERRATUM_F2.md` (K2a checks every intermediate) | §7 |
 
-## 0.1 What changed in revision 2 (from revision 1)
+## 0.2 What changed in revision 2 (from revision 1)
 
 | Item | Revision 1 | Revision 2 | Where |
 |---|---|---|---|
@@ -53,7 +67,7 @@ Revision 2 answered:
 3. **One correctly rounded function.** It is `FK`'s new `exact_sum` accumulator, moved from `P/core/product_physics/src/pressure_sum.rs`: a fixed-point sum, rounded to nearest-even. An exact zero is +0.0. It replaces `Expansion::rounded()`, which is not correctly rounded, at all three `FK` sites.
 4. **New finding (§7).** `Expansion::rounded()` feeds a published, byte-compared value: the M03 intended-action `ResidualRow` in the `Debug` structural report embedded in diagnostics. It publishes **−0.0** for an exact-zero residual, because the standard library's float `Sum` starts from −0.0. There are 245 such values in committed fixtures. Moving that site to +0.0 would change them, so ROOT adopted the zero witness there, and only there (D-S11-1, §4.1.3).
 5. **Landing.**
-   - **S11-K** is the first T3 slice. It is T1-disjoint and a full product slice with full gates (ROOT, D-S11-3). ROOT has raised its priority: it lands soon after T1 merges (after S11B-1). It is live in `SP` (exact recovery), in `load_case_algebra` (exact combination), and at the `FK` rounding sites. The exact prescribed-motion right-hand side is bit-identical on main, where every prescribed value is 0.0 (`PP:3371-3374`; imposed displacements are refused at `PP:1236`), and live on T1's 0.4.0 route once T1 merges. Everything else in it is dormant.
+   - **S11-K** is the first T3 slice. It is T1-disjoint and a full product slice with full gates (ROOT, D-S11-3). ROOT has raised its priority: it lands soon after T1 merges (after S11B-1). It is live in `SP` (exact recovery), in `load_case_algebra` (exact combination), and at the `FK` rounding sites. The exact prescribed-motion right-hand side is bit-identical on main, where every prescribed value is 0.0 (`PP:3371-3374`; imposed displacements are refused at `PP:1236`), and live on T1's 0.4.0 route once T1 merges, where T1's support-motion fixtures are pre-registered as expected diffs (§8.3). Everything else in it is dormant.
    - **S11-F** is the first facade slice after T1 merges. It covers the ledger, the switch to the typed seams, the `PP` recovery composition (including E15 and E16) and T1's three sites.
    - The ROOT text below governs: no interim containment before T1 merges. S11-K's live parts are repairs in T1-disjoint files, as ROOT's disposition of S11-V1 allows for `SP`. `load_case_algebra` and the `FK` sites were D1's additions, accepted by ROOT (D-S11-3).
 6. **A detected loss** still makes the case Sensitive, never refused. It carries `NUMERICAL_INTEGRITY_SENSITIVE` plus the new warning `LOAD_CONTRIBUTION_ABSORBED` (§6). Under the design this happens only when a mutation or a future defect bypasses the ledger.
@@ -124,7 +138,7 @@ Revision 2 answered:
 | KS2 | `FK/lib.rs:870-877` `reduce_system_for_boundary` (behind `reduce_system` and `reduce_system_with_prescribed_displacements`) | `adjusted_force -= K·g` in the same way | S11-K |
 | KS3 | `FK/structural.rs:697-760` `evaluate_original_residual`, on rows coupled to a nonzero prescribed value | `r = −f_i + Σ_j fl(K_ij·u_j)` over the full row, prescribed columns included. The refinement correction is solved from this residual (`:966-973`). If KS1 is exact but KS3 still folds, a refinement step puts the fold error back | S11-K |
 
-- **Live where.** Every prescribed value on main is 0.0 (`PP:3371-3374`; imposed displacements are refused at `PP:1236`), so KS1–KS3 are bit-identical on main. They are live on T1's 0.4.0 support-motion route (`StructuralSystem.prescribed` from `resolved.prescribed`), after T1 merges.
+- **Live where (corrected in revision 4, R3-1).** KS1–KS3 are bit-identical wherever every prescribed value is zero. On main today every prescribed value is 0.0 (`PP:3371-3374`; imposed displacements are refused at `PP:1236`). They are live on T1's 0.4.0 support-motion route (`StructuralSystem.prescribed` from `resolved.prescribed`). **S11-K lands after T1 merges** (ROOT), when T1's committed support-motion fixtures carry nonzero prescribed values (for example `load_reference/connected.request.json`: UX 0.5 mm and RZ 0.001 rad). Their original-residual rows (KS3) will almost surely change in the low bits, and their displacements may (KS1). They are pre-registered as expected diffs (§8.3).
 - **Evidence.** V1's probe P (`T3/REVIEW/_run_records/s11_backcheck/`): two 3 m members, both ends settled by the same g, and a 0.0137 N·m moment at the middle node. Member moments are wrong by 1.21e-9 (g = 0.05 m) and 2.57e-9 (g = 0.20 m) on the body scale, with the guard at 3.4e-4 and 8.5e-5 of its target.
 - **ROOT (after `61b228543`).** S11B-1 does not block T1's merge. The no-interim ruling is extended to T1's 0.4.0 support-motion route, with the added reopen trigger "P1 or T1's final review finds a Passed breach on a realistic settlement case". The exact right-hand side joins S11-K, which lands soon after T1 merges.
 - **Not changed:** T1's legacy observation lane (`observation_force`, the same fold) feeds only the protected DEC-050/053 observations. It stays as it is (§4.3 limits).
@@ -149,8 +163,9 @@ Searched, at `c61a540ea` and at T1 with `git show`: every `+=`, `-=`, `.sum()`, 
 | `FK/structural.rs:474-490` `contribution_differences` delta norm | A diagnostic norm of stiffness differences |
 | `SA:870-871` scrutiny force plus applied friction | T5's open item (E14) |
 | `sparse_direct/src/lib.rs:678`, `:728` | Permutations, not sums |
+| `preview_physics.rs:777-778`; `pressure_exact*`; `membrane_publication_range.rs`; `source_receipt/{composite, endpoint_maximum}.rs`; `stress_recovery` | V1's scan (S11_BACKCHECK_R3, R3-N3): a combination-factor sum used only for a gate with a Σ|c|-scaled tolerance, a max fold, and no other sums outside tests |
 
-No further published sum over more than one source was found.
+No further published sum over more than one source was found. **This table is the site test's constant** (§4.3 rule 8, revision 4): each function named here, with its disposition, is listed in the test.
 
 ## 3. Options (revision 1's verdicts stand)
 
@@ -173,6 +188,7 @@ No further published sum over more than one source was found.
   - `add(x: f64)` adds x exactly, as the integer x·2^2148.
   - `add_product(a: f64, b: f64)` adds a·b exactly, through the 106-bit integer product of the significands placed at exponent e_a + e_b. No FMA underflow case exists.
   - **`round(&self) -> Result<f64, SumError>`** rounds the exact integer to binary64, to nearest with ties to even, **at the binary64 quantum of the result's binade, including the subnormal binade (quantum 2^-1074).** It does not reuse `pressure_sum`'s shortcut `highest < 52 → f64::from_bits(sign | a[0])` (`pressure_sum.rs:85-87`), which is exact only when the accumulator's quantum is 2^-1074. Examples from V1's probe X: 3·2^-1076 → 2^-1074; a tie at 2^-1075 → 0; (1.7e308)² − (1.7e308)² → exactly 0.
+  - **`round_scaled(&self, e: i32)`** (revision 4, R3-N2) multiplies the exact integer by 2^e (an exact shift of the binary point) and then rounds once, with the same rules. `round()` is `round_scaled(0)`. Callers that scale a rounded sum by a power of two (KS1 and KS3's radix normalization) use it, so a value that would be subnormal before or after scaling is not rounded twice.
   - **A nonzero net that rounds to zero (S11B-4).** It returns **+0.0** at every site, whatever its sign. That is a stated deviation from IEEE 754's −0.0 for a negative underflow, chosen because the ledger, the bit-equality checks and every published sum then share one zero (ROOT, D-S11-1). The ledger records each such DOF in its evidence (`LedgerEvidence::underflowed_dofs`), because a load below 2^-1075 in SI units has been lost. Range handling stays W2's (`DESIGN.md` §4.7); this is not a refusal.
 - **`exact_rounded_sum(values)`** and **`exact_rounded_dot(pairs)`** are thin wrappers. There is one rounding path.
 - **Errors.** `SumError::{NonFinite, AccumulatorOverflow, NonRepresentable}` are unchanged from `pressure_sum`. A net outside the binary64 range is `NonRepresentable`, never ±∞. Each call site maps it to the diagnostic its current non-finite path already uses: `require_finite_mechanics` and `validate_finite_array`.
@@ -250,8 +266,8 @@ Recovery sums use the same granularity (§4.4), so force and recovery see the sa
 - **Stated limits (where a type cannot reach, and why).**
   1. **Generic linear-algebra kernels** keep `&[f64]`: `FK::solve_dense`, `PreparedSystem::solve(rhs)`, `sparse_direct::{solve_symmetric_system, solve_symmetric_system_from_entries, factorize_ldlt}`. They solve refinement corrections, condition-estimate probes and test systems, not case forces, so a force type there would be wrong. The site test forbids any product call to them except in the allow-listed observation functions below.
   2. **Two protected observation lanes** read `values()` and fold in binary64 on purpose: main's sparse parity observation (`assemble_reduced_sparse_entry_system` → `solve_symmetric_system_from_entries`, published as `sparse_live_path_dense_parity_relative_delta`, DEC-050/053) and T1's `observation_force`. They report solver parity, not mechanics results. They stay as they are, allow-listed by function name.
-  3. **In-loop friction** (`SA:870-871`, `nonlinear_integration/src/lib.rs:1642-1659`) adds applied friction forces inside the nonlinear loop. It is T5's open item (E14), allow-listed as such.
-  4. **Reading is always possible.** Rust cannot stop code reading `values()` into a new vector. The types stop such a vector reaching a solve; the site test stops a published sum being formed from it outside the E-list.
+  3. **In-loop friction** (`SA:870-871`, `nonlinear_integration/src/lib.rs:1642-1659`) adds applied friction forces inside the nonlinear loop, and the friction influence solves build unit-force vectors (`nonlinear_integration/src/lib.rs:1332-1337`, `unit_force[…] += 1.0`, solved through the generic kernels). Both are T5's (E14, SUP-16), allow-listed as such (revision 4, R3-N1).
+  4. **Reading is always possible.** Rust cannot stop code reading `values()` into a new vector. The types stop such a vector reaching a solve. Rule 8 below makes every floating-point accumulation in the load-bearing files a named, reviewed entry, so a new published sum cannot appear silently; whether a newly listed entry is really a load sum remains a review judgment, which the list makes visible (corrected in revision 4, R3-3).
 - **Enumerated site test (S11-F, strengthened).** A `PP` unit test reads, with `include_str!` and relative paths, `PP`, `source_recovery.rs`, `source_receipt.rs` and `source_receipt/*.rs`, `pressure_runtime.rs`, `self_weight.rs`, `FK/{lib.rs, structural.rs, structural/exact_boundary.rs, load_ledger.rs}`, `SA`, `nonlinear_integration/src/lib.rs` and `sparse_direct/src/structural.rs`. Outside `#[cfg(test)]` blocks it asserts:
   1. no `global_load_vector(` call;
   2. no `values()` followed by `.to_vec(`, `.to_owned(`, `.iter_mut(` or `.iter().copied()/.cloned()…collect`, except in allow-listed functions;
@@ -259,7 +275,8 @@ Recovery sums use the same granularity (§4.4), so force and recovery see the sa
   4. no product call to the generic kernels of limit 1 outside the allow-list;
   5. the functions that call `.push(`/`.push_product(` on a `LoadLedger` are exactly the producer list of §4.2;
   6. the functions in `FK`, `SA` and `nonlinear_integration` that combine a force with other terms are exactly KS1–KS3 (§2.4), `audit_intended_action` (already exact), the exact-context coverage check, and the allow-listed E14;
-  7. the allow-list itself equals a constant in the test, so extending it is a visible edit.
+  7. the allow-list itself equals a constant in the test, so extending it is a visible edit;
+  8. **(revision 4, R3-3) completeness by constant.** The test also reads `SP`, `CB` and `load_case_algebra/src/lib.rs`. In `PP`, `pressure_runtime.rs`, `self_weight.rs`, `SP`, `CB` and `load_case_algebra`, every function outside `#[cfg(test)]` that contains a compound assignment (`+=`, `-=`), `.sum`, `.sum::<f64>` or `fold(` must appear in the test's constant with one disposition: E-site (E1–E16), declared formation, integer (index and count arithmetic, which a source scan cannot tell apart from floats, so it is listed too), max, or allow-listed observation. The constant is §2.5's table plus §2.2's declared formations, by function name. A function that matches the pattern and is not in the constant fails the test, whatever its variable names. This catches an E15-class sum (`let mut pressure = 0.0; pressure += …`), which rule 3's name-based check would not.
   
   **Limit of the test itself.** It is a source scan, not a type check. It backs the types where the types cannot reach (limits 1–4), and a reviewer sees any change to its lists.
 - **`global_load_vector`** stays for non-product callers, documented as "binary64 fold; not for solve input". The test forbids it in the scanned files.
@@ -307,7 +324,8 @@ Exact sums do not depend on order, and correct rounding is unique. The four site
 - **KS1 (`prepare_structural`) and KS2 (`reduce_system_for_boundary`).** For each free row i, the reduced right-hand side is one `ExactAccumulator` sum: the ledger's terms for DOF i (from `force.terms()`), plus `add_product(−K_ic, g_c)` for every prescribed (c, g_c), rounded once. `prepare_structural` then applies its exact radix scaling (`radix_scale`) to the rounded value, as today.
 - **KS3 (`evaluate_original_residual`), on rows coupled to a nonzero prescribed value.** The numerator is one exact sum: the ledger's terms for DOF i negated, plus `add_product(K_ij, u_j)` over the full row, rounded once and then radix-normalized, as today. Its denominator and allowance are unchanged. Rows with no nonzero prescribed coupling keep today's binary64 evaluation, bit for bit, because their only load operand is the ledger's single net and the rest is the structural action that M03 already audits.
   - Why KS3 is needed: the refinement correction is solved from these residual rows (`FK/structural.rs:966-973`). If KS1 were exact but KS3 still folded f with the gross `K_ic·g_c`, a refinement step would put the fold error back.
-- **Effect on main:** none. Every prescribed value on main is 0.0, so the exact sum of [ledger terms, ±0 products] equals today's value bit for bit. That includes +0.0, because `round()` never returns −0.0 and today's `b − (±0)` from +0.0 is +0.0.
+- **Where the bits do not change:** every row whose prescribed values are all zero. There the exact sum of [ledger terms, ±0 products] equals today's value bit for bit. That includes +0.0, because `round()` never returns −0.0 and today's `b − (±0)` from +0.0 is +0.0. That is every row on main today. **Where they change:** rows coupled to a nonzero prescribed value, which after T1 merges includes T1's committed support-motion fixtures (§8.3's pre-registered list).
+- **Scaling (R3-N2).** `prepare_structural` radix-normalizes its right-hand side by `exponents[r]`, and `evaluate_original_residual` normalizes by the row exponent. KS1 and KS3 use `round_scaled` with that exponent instead of rounding and then calling `radix_scale`. For normal values the result is bit-identical to rounding then scaling; it differs only where rounding-then-scaling would round twice in the subnormal range.
 - **The exact context** (`exact_boundary.rs`) already treats `K_fc·g` exactly and checks only force coverage (V1), so it needs no change beyond §4.1.2.
 
 ## 5. Guard, scale and invariant
@@ -402,7 +420,7 @@ Result: the invariant holds in every row. The product tests therefore use G = 1e
   - `SP`: exact recovery sums in every product path that recovers straight members;
   - combinations;
   - the `FK` rounding sites;
-  - KS1–KS3 only where a prescribed value is nonzero, which on main is nowhere (§4.6).
+  - KS1–KS3 only where a prescribed value is nonzero: nowhere on main today, and T1's support-motion fixtures once T1 has merged (pre-registered, §8.3).
   - Everything else is dormant until S11-F.
 - **Gates (D-S11-3, ruled).** A full product slice as its own PR to main: independent review, hosted CI including the surface-4 dual-viewport dispatch, a clean DEC-025 sweep, and the fixture stop rule (§8.3).
 - **Serialization.** S11-K → K2a → K1 → K2b → K5 (`DESIGN.md` §6). S11-K, K1, K2b and K5 write `SA` and `FK/structural.rs`; S11-K and K2a both write `FK/lib.rs` (S11-K its module declarations and `reduce_system*`, K2a `local_stiffness`), so K2a merges after S11-K. K3 runs in parallel.
@@ -429,14 +447,15 @@ Result: the invariant holds in every row. The product tests therefore use G = 1e
   - Release notes repeat it if a release carries the slices.
   - **No in-band marker** in S11-K or S11-F. Any new envelope field would change every committed envelope. The method identity changes in-band at the F-slices' receipt profile (`DESIGN.md` §5). See D-S11-4.
 - **Fixture diff.** Each slice runs every committed request under `P/fixtures/**` through base and candidate, in both modes (T0R and D2 practice). It attaches the diff and a summary by output kind.
-  - **The expected result is "unchanged".** Committed force DOFs carry at most two contributions (§2.1 R10). The E-site folds cannot produce −0.0 today, so +0.0 there changes no committed zero sign (§4.1.3), and the witness keeps the 245 residual −0.0 values at `FK:554`. KS1–KS3 are bit-identical on main (§4.6).
+  - **The expected result is "unchanged", except the pre-registered list.** Committed force DOFs carry at most two contributions (§2.1 R10). The E-site folds cannot produce −0.0 today, so +0.0 there changes no committed zero sign (§4.1.3), and the witness keeps the 245 residual −0.0 values at `FK:554`. KS1–KS3 are bit-identical wherever every prescribed value is zero (§4.6).
+  - **Pre-registered expected diffs (revision 4, R3-1).** S11-K lands after T1 merges, so these T1 files are expected to change in low bits, because their requests carry nonzero prescribed motions (KS1: displacements may change; KS3: the original-residual rows in the `Debug` text will almost surely change): `fixtures/product_preview/load_reference/connected-{dense_scrutiny,sparse_interactive}.raw.json`; `fixtures/product_preview/load_reference_source/eigen_motion-{dense_scrutiny,sparse_interactive}.raw.json`; and the derived `fixtures/results/load_reference_connected_{dense,sparse}.{analysis_run,document,stress_neutral}.json` and `fixtures/results/load_reference_source_eigen_motion_{dense,sparse}.{analysis_run,document,stress_neutral}.json`. The diff tool also flags any other committed request with a nonzero prescribed value, and every file derived from it, as belonging to this list. The stop still applies: the slice reports these diffs to the T3 manager with the reason, and ROOT decides before the actual producer regenerates them. Any diff outside the list is an unexpected stop.
   - **Stop rule.** `pipe:P-120` in `load:L-100` has four-term end-force sums (E5). Committed Debug residuals may also differ from correct rounding (§7). If the diff shows any committed byte change, the slice stops and reports each change to the T3 manager with its site and reason, **before** any fixture is regenerated. Derived fixtures are regenerated only by the actual producer, after ROOT's decision. Frozen references and historical raws never change.
 
 ## 9. Tests and mutations
 
 Tests are cited as K*n* (the S11-K list) and F*n* (the S11-F list). The kernel sites of §2.4 are KS1–KS3, and `DESIGN.md`'s kernel slices are K1–K6, K2a and K2b.
 
-**Precondition rule (S11B-6).** Every test that is meant to kill a fold mutation first asserts, inside the test, that the binary64 fold of its terms (in the producer's own order) differs from the correctly rounded net. Otherwise the test could pass vacuously. This applies to K4, K11, F4, F5, F6, F9 and F10.
+**Precondition rule (S11B-6).** Every test that is meant to kill a fold mutation first asserts, inside the test, that the binary64 fold of its terms (in the producer's own order) differs from the correctly rounded net. Otherwise the test could pass vacuously. This applies to K4, K11, F4, F5, F6, F8, F9 and F10.
 
 **S11-K.**
 1. `exact_rounded_sum` and `exact_rounded_dot` equal the correctly rounded `Fraction` value for:
@@ -448,6 +467,7 @@ Tests are cited as K*n* (the S11-K list) and F*n* (the S11-F list). The kernel s
 2. Zero: [1e8, −1e8], [−0.0], [−0.0, −0.0] and [] all give +0.0 (bits). `round()` never returns −0.0.
 3. `pressure_sum`'s existing tests pass unchanged through the wrapper.
 4. `SP`: probe A as a unit test at **G ∈ {1e8, 1e80}** (the required kill set; S11B-5) in the orders (G, n, −G) and (n, G, −G), with the precondition. End forces, midspan and quarter stations, and E3, each within 1e-9 of the exact value (`Fraction` reference in the test). G = 1e7 is kept as an informative case, not a kill requirement (its root-shear margin is only 1.24). For one load, E1 is bit-identical to today.
+   - **Axial-effect case (revision 4, R3-2).** One member with three axial-effect loads (thermal and thrust `StraightPipeAxialEffect`s of G, n and −G, G ∈ {1e8, 1e80}, n = 0.3 N), in the orders (G, n, −G) and (n, G, −G), with the precondition. E2 and the axial half of E3 are each within 1e-9 of the exact value.
 5. **`SP` zero sign (rewritten, S11B-7):** a load-free station, a load-free end force and a station whose load terms cancel exactly all publish +0.0; a station of a member with a nonzero end action is bit-identical to today. No witness applies at E3–E5.
 6. `load_case_algebra`: A + B − A2 with (1e80, 1e-8) → 1e-8 (the fold gives 0). 1.3 + 1.35·4.1e7 − 1.35·4.1e7 → 1.3 (the fold gives 1.2999999970197678).
 7. `FK`:
@@ -469,15 +489,15 @@ Tests are cited as K*n* (the S11-K list) and F*n* (the S11-F list). The kernel s
 5. **V1's 0.4.0 test, restated (S11B-6).** The authored order cannot be chosen: the producer folds nodal loads first and then the eigen pairs (`source_receipt.rs:218-219`; `source_recovery.rs:1270`). The unfavourable order (1.3, +N, −N) therefore arises at the **interior node of two colinear hot members** carrying a 1.3 N co-axial nodal load, with N = 4.1e7 N from the two eigen pairs. The test asserts the precondition, then checks that the retained join is selected, finalization succeeds, and the published force equals the correctly rounded net.
 6. A multi-case pre-0.4 exact-route invocation: selected case A, plus case B carrying the cancelling loads and an element load (so out of retained scope). **No `Err`, and no blocked envelope.** The precondition is asserted for case B.
 7. The strengthened site test of §4.3.
-8. Curved: a bend with two uniform loads (G, −G) plus 0.3 on the span, and a thermal case. Recovery equals the exact per-load answer.
+8. **Curved (revised in revision 4, R3-2):** a bend carrying three uniform loads (G, 0.3, −G) N/m, G ∈ {1e8, 1e80}, in that authored order, and a thermal case with three cancelling thermal strains (ε, ε_n, −ε) on the span, so that E8's pre-summed strain is exercised. The precondition is asserted for each (the order (G, −G, 0.3) is Sterbenz-exact and would kill nothing). Recovery (end forces and arc stations) equals the exact per-load answer within 1e-9.
 9. **0.4.0 support motion (S11B-1):** V1's probe P model authored on T1's 0.4.0 route (settlements g ∈ {0.05, 0.20} m). Member moments within 1e-9 of the exact answer on the body scale, with the precondition asserted.
 10. **E15 and E16 (S11B-2):** a pipe with pressure loads (P, 0.3 Pa, −P) at P = 1e8 and 1e80 Pa, and an expansion joint carrying the matching thrust loads, with the precondition. The published hoop and longitudinal stresses and `expansion_joint_pressure_thrust_load_review` equal the values from the exact net.
 
-**Mutations that must fail** (required kill set G = 1e8 and 1e80; one mutant per site, S11B-5).
+**Mutations that must fail** (required kill set G = 1e8 and 1e80; one mutant per site, S11B-5; labels corrected in revision 4).
 
 | # | Mutation | Killed by |
 |---|---|---|
-| M1a–M1p | Restore the binary64 fold at one E-site each: E1, E2, E3, E4, E6 (in `SP`), E5, E7, E8, E9, E10, E11, E12 (in `PP`), E13 (`load_case_algebra`), E15, E16 (`PP`) | E1–E4, E6: K4; E13: K6; E5, E7, E12: F2; E8–E11: F8; E15, E16: F10 |
+| M1a–M1o | Restore the binary64 fold at one E-site each (15 sites): M1a E1, M1b E2, M1c E3, M1d E4, M1e E6 (in `SP`); M1f E5, M1g E7, M1h E8, M1i E9, M1j E10, M1k E11, M1l E12 (in `PP`); M1m E13 (`load_case_algebra`); M1n E15, M1o E16 (`PP`) | M1a, M1c, M1d, M1e: K4; M1b and E3's axial half: K4's axial-effect case; M1m: K6; M1f, M1g, M1l: F2; M1h–M1k: F8; M1n, M1o: F10 |
 | M2 | Restore `mechanical` then `corrected` as two folds in `PP` (E5) | F2 |
 | M3 | Restore the ledger fold | F1, F2's invariant check, and the audit (the case turns Sensitive with `LOAD_CONTRIBUTION_ABSORBED`) |
 | M4 | Add a `force[i] +=` producer, a `values().to_vec()` copy handed to a solve, or a `global_load_vector` call in `PP` | fails to compile at the typed seams (K12); F7 |
