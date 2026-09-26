@@ -1,0 +1,2576 @@
+[
+ {
+  "id": "RAW_FIELDS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/invented_extra",
+    "value": 1
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_RAW_FIELDS"
+ },
+ {
+  "id": "PRODUCER",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/producer/component_version",
+    "value": "0.3.0"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PRODUCER"
+ },
+ {
+  "id": "FORMULATION",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/formulation_basis/limitations",
+    "value": []
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_FORMULATION"
+ },
+ {
+  "id": "RECEIPT_SHAPE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/invented",
+    "value": 1
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+ },
+ {
+  "id": "RECEIPT_HASH",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/receipt_sha256",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+   }
+  ],
+  "reseal_publication": null,
+  "python": "SOURCE_BLOCKS_RECEIPT_HASH"
+ },
+ {
+  "id": "PUBLICATION_HASH",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/publication_sha256",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+   }
+  ],
+  "reseal_publication": false,
+  "python": "SOURCE_BLOCKS_PUBLICATION_HASH"
+ },
+ {
+  "id": "ROWS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/diagnostics",
+    "value": {}
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ROWS"
+ },
+ {
+  "id": "EVIDENCE_IDS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/diagnostics/0/id",
+    "value": "result:disp:independent-root"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_EVIDENCE_IDS"
+ },
+ {
+  "id": "VALUE_NONFINITE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/results/0/value",
+    "value": "0"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_VALUE_NONFINITE"
+ },
+ {
+  "id": "ROW_FIELDS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/results/0/unit",
+    "value": ""
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ROW_FIELDS"
+ },
+ {
+  "id": "ROW_METADATA",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/results/2/metadata/invented",
+    "value": "x"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ROW_METADATA"
+ },
+ {
+  "id": "CASE_IDS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/basis_ref",
+    "value": {
+     "ref_id": "case",
+     "ref_type": "load_case"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_CASE_IDS"
+ },
+ {
+  "id": "ORDINARY_QUALITY",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/numerical_quality/integrity_policy",
+    "value": "invented"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_QUALITY"
+ },
+ {
+  "id": "ORDINARY_CASE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/numerical_quality/cases/0/accuracy_evidence",
+    "value": "invented"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_CASE"
+ },
+ {
+  "id": "ORDINARY_AGGREGATE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/numerical_quality/status",
+    "value": "failed"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_AGGREGATE"
+ },
+ {
+  "id": "QUALITY_CASE_BINDING",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/ordinary_attempt/quality_case_index",
+    "value": 1
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_QUALITY_CASE_BINDING"
+ },
+ {
+  "id": "ORDINARY_MODE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/ordinary_attempt/requested_mode",
+    "value": "dense_scrutiny"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_MODE"
+ },
+ {
+  "id": "ORDINARY_REPORT_REF",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/ordinary_attempt/structural_report_diagnostic_ref",
+    "value": "diagnostic:invented"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_REPORT_REF"
+ },
+ {
+  "id": "ORDINARY_FAILURE_REF",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/ordinary_attempt/failure",
+    "value": {
+     "stage": "assembly",
+     "diagnostic_ref": "diagnostic:invented"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_FAILURE_REF"
+ },
+ {
+  "id": "ORDINARY_NOT_ATTEMPTED",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/ordinary_attempt/outcome",
+    "value": "not_attempted"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_NOT_ATTEMPTED"
+ },
+ {
+  "id": "ORDINARY_REPORT",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/ordinary_attempt/outcome",
+    "value": "checks_passed"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_REPORT"
+ },
+ {
+  "id": "ORDINARY_REPORT_KIND",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/ordinary_attempt/structural_report_diagnostic_ref",
+    "value": "diagnostic:numerical-integrity:case:ordinary-pressure"
+   },
+   {
+    "op": "set",
+    "path": "/numerical_quality/cases/0/evidence_refs",
+    "value": [
+     "diagnostic:numerical-integrity:case:ordinary-pressure"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_REPORT_KIND"
+ },
+ {
+  "id": "ORDINARY_REJECTION",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/ordinary_attempt/outcome",
+    "value": "rejected"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_REJECTION"
+ },
+ {
+  "id": "INVOCATION_WORK_LIMIT",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/work/charged",
+    "value": 64000001
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_INVOCATION_WORK_LIMIT"
+ },
+ {
+  "id": "WORK_LEDGER",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/work/charged",
+    "value": 8000001
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_WORK_LEDGER"
+ },
+ {
+  "id": "QUALIFIED_OUTCOME",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/work/reserved_unobserved_failure",
+    "value": 1
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_QUALIFIED_OUTCOME"
+ },
+ {
+  "id": "ORDINARY_SELECTION",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/selected_method",
+    "value": "ordinary_dense_structural_v1"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_SELECTION"
+ },
+ {
+  "id": "EXACT_SOURCE_REQUIRED",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source",
+    "value": null
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_EXACT_SOURCE_REQUIRED"
+ },
+ {
+  "id": "FAILED_OUTCOME",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/outcome",
+    "value": "failed"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+ },
+ {
+  "id": "FAILURE_BLOCK_ORDER",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/outcome",
+    "value": "failed"
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/selected_method",
+    "value": null
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/failure",
+    "value": {
+     "code": "unsupported_block",
+     "block_order": 1,
+     "diagnostic_ref": "diagnostic:load:torque:category-mapping"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+ },
+ {
+  "id": "FAILURE_CATEGORY",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/outcome",
+    "value": "unsupported"
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/selected_method",
+    "value": null
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/failure",
+    "value": {
+     "code": "numerical_failure",
+     "block_order": null,
+     "diagnostic_ref": "diagnostic:load:torque:category-mapping"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+ },
+ {
+  "id": "SOURCE_COUNTS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/stiffness_term_count",
+    "value": 0
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SOURCE_COUNTS"
+ },
+ {
+  "id": "FUNCTIONAL_COUNT",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/functional_count",
+    "value": 1
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_FUNCTIONAL_COUNT"
+ },
+ {
+  "id": "SOURCE_PARTITION",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/prescribed_dofs",
+    "value": [
+     0,
+     1,
+     2,
+     4
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SOURCE_PARTITION"
+ },
+ {
+  "id": "BLOCK_PARTITION",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/free_blocks",
+    "value": [
+     [
+      3,
+      9
+     ],
+     [
+      6
+     ],
+     [
+      7,
+      11
+     ]
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_BLOCK_PARTITION"
+ },
+ {
+  "id": "MEMBER_IDENTITY",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/member_ids",
+    "value": [
+     "independent-member",
+     "independent-member"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_MEMBER_IDENTITY"
+ },
+ {
+  "id": "SUPPORT_IDENTITY",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/support_ids",
+    "value": [
+     "anchor",
+     "anchor"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUPPORT_IDENTITY"
+ },
+ {
+  "id": "MEMBER_COVERAGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/member_ids",
+    "value": []
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_MEMBER_COVERAGE"
+ },
+ {
+  "id": "COMMITMENT_DOMAIN_SEPARATION",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/normalized_source_sha256",
+    "value": "96916efff41ea719135fefe4a062efec9b4e73e67094e566cf6cb9c46b8b9777"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_COMMITMENT_DOMAIN_SEPARATION"
+ },
+ {
+  "id": "PROJECTION_IDS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/1/projection_id",
+    "value": "projection:source-functional:4:case:0"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PROJECTION_IDS"
+ },
+ {
+  "id": "FUNCTIONAL_IDS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/1/functional_id",
+    "value": "source-functional:4:case:0"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_FUNCTIONAL_IDS"
+ },
+ {
+  "id": "PROJECTION_RESULTS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/1/result_id",
+    "value": "result:force:independent-member:axial"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PROJECTION_RESULTS"
+ },
+ {
+  "id": "ROW_IDS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "value": {
+     "input_result_ids": [
+      "result:disp:independent-root:ux",
+      "result:disp:independent-root:uy",
+      "result:disp:independent-root:uz"
+     ],
+     "projection_id": null,
+     "recipe_id": "translation_norm_scaled_v1",
+     "result_id": "result:disp:independent-root",
+     "treatment": "checked_derived"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ROW_IDS"
+ },
+ {
+  "id": "STRESS_TOTAL_RELATIVE_BOUND",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/33/relative_error_bound",
+    "value": 1e-09
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_STRESS_TOTAL_RELATIVE_BOUND"
+ },
+ {
+  "id": "CASE_ROW_COVERAGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "remove",
+    "path": "/source_block_recovery/body/cases/0/rows/2"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_CASE_ROW_COVERAGE"
+ },
+ {
+  "id": "ROW_INPUTS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/0/input_result_ids",
+    "value": [
+     "result:disp:independent-root:ux",
+     "result:disp:independent-root:ux",
+     "result:disp:independent-root:ux"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ROW_INPUTS"
+ },
+ {
+  "id": "SAME_CASE_INPUTS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/0/input_result_ids",
+    "value": [
+     "result:disp:independent-root:ux",
+     "result:disp:independent-root:uy",
+     "result:disp:independent-root"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SAME_CASE_INPUTS"
+ },
+ {
+  "id": "PROJECTION_ROW",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/5/projection_id",
+    "value": "projection:invented"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PROJECTION_ROW"
+ },
+ {
+  "id": "PROJECTION_VALUE_BINDING",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/0/value_bits",
+    "value": "8000000000000000"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PROJECTION_VALUE_BINDING"
+ },
+ {
+  "id": "PROJECTION_INTERVAL",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/0/interval",
+    "value": [
+     1.0,
+     2.0
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PROJECTION_INTERVAL"
+ },
+ {
+  "id": "PROJECTION_EXACT_BASIS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/0/absolute_error_bound",
+    "value": 1e-30
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PROJECTION_EXACT_BASIS"
+ },
+ {
+  "id": "PROJECTION_ENCLOSURE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/33/absolute_error_bound",
+    "value": 0.0
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PROJECTION_ENCLOSURE"
+ },
+ {
+  "id": "PROJECTION_RELATIVE_BOUND",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/33/relative_error_bound",
+    "value": 0.0
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PROJECTION_RELATIVE_BOUND"
+ },
+ {
+  "id": "PROJECTION_CRITERION",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/33/relative_limit",
+    "value": 1e-08
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+ },
+ {
+  "id": "PROJECTION_TYPED_QUANTITY",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/0/quantity",
+    "value": "constraint_reaction"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PROJECTION_TYPED_QUANTITY"
+ },
+ {
+  "id": "DERIVED_ROW",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/0/recipe_id",
+    "value": null
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_DERIVED_ROW"
+ },
+ {
+  "id": "DERIVED_RECIPE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/0/recipe_id",
+    "value": "invented_recipe_v1"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+ },
+ {
+  "id": "DERIVED_SIGNATURE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/results/0/unit",
+    "value": "m"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_DERIVED_SIGNATURE"
+ },
+ {
+  "id": "TRANSLATION_NORM_INPUTS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/0/input_result_ids",
+    "value": [
+     "result:disp:independent-root:uz",
+     "result:disp:independent-root:uy",
+     "result:disp:independent-root:ux"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_TRANSLATION_NORM_INPUTS"
+ },
+ {
+  "id": "DERIVED_NORM_VALUE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/results/0/value",
+    "value": 1.0
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_DERIVED_NORM_VALUE"
+ },
+ {
+  "id": "DERIVED_ENTITY",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/0/input_result_ids",
+    "value": [
+     "result:disp:independent-tip:ux",
+     "result:disp:independent-tip:uy",
+     "result:disp:independent-tip:uz"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_DERIVED_ENTITY"
+ },
+ {
+  "id": "DERIVED_NORM_RANGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/results/2/value",
+    "value": 1e-310
+   },
+   {
+    "op": "set",
+    "path": "/results/3/value",
+    "value": 1e-310
+   },
+   {
+    "op": "set",
+    "path": "/results/4/value",
+    "value": 1e-310
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_DERIVED_NORM_RANGE"
+ },
+ {
+  "id": "NORM_PROJECTION_INPUT",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/2/treatment",
+    "value": "checked_derived"
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/2/projection_id",
+    "value": null
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/2/recipe_id",
+    "value": "translation_norm_scaled_v1"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_NORM_PROJECTION_INPUT"
+ },
+ {
+  "id": "UNQUALIFIED_DERIVED_INPUT",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/14/treatment",
+    "value": "inspection_only"
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/14/projection_id",
+    "value": null
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_UNQUALIFIED_DERIVED_INPUT"
+ },
+ {
+  "id": "ORDINARY_ROW",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/rows/0/recipe_id",
+    "value": "translation_norm_scaled_v1"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_ROW"
+ },
+ {
+  "id": "INSPECTION_ROW",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/rows/0/treatment",
+    "value": "inspection_only"
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/rows/0/recipe_id",
+    "value": "translation_norm_scaled_v1"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_INSPECTION_ROW"
+ },
+ {
+  "id": "PROJECTION_BIJECTION",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/projections",
+    "value": {
+     "absolute_error_bound": 0.0,
+     "basis": "exact_zero",
+     "functional_id": "source-functional:invented",
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "projection_id": "projection:invented",
+     "quantity": "member_end_action",
+     "relative_error_bound": 0.0,
+     "relative_limit": 1e-09,
+     "result_id": "result:invented",
+     "unit": "N",
+     "value": 0.0,
+     "value_bits": "0000000000000000"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PROJECTION_BIJECTION"
+ },
+ {
+  "id": "SUPPORT_COVERAGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/support_ids",
+    "value": [
+     "independent-spring",
+     "anchor"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUPPORT_COVERAGE"
+ },
+ {
+  "id": "SIX_SUPPORT_COMPONENTS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/supports/0/components/0/component",
+    "value": "Fy"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SIX_SUPPORT_COMPONENTS"
+ },
+ {
+  "id": "SUPPORT_PROJECTION",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/supports/0/components/0/functional_id",
+    "value": "source-functional:invented"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUPPORT_PROJECTION"
+ },
+ {
+  "id": "SUPPORT_ROW_SEMANTICS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/supports/0/support_id",
+    "value": "independent-spring"
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/supports/1/support_id",
+    "value": "anchor"
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/support_ids",
+    "value": [
+     "independent-spring",
+     "anchor"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUPPORT_ROW_SEMANTICS"
+ },
+ {
+  "id": "SUPPORT_ACTION_TERMS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/supports/0/components/0/action_terms",
+    "value": []
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUPPORT_ACTION_TERMS"
+ },
+ {
+  "id": "SUPPORT_TERM_DUPLICATE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/supports/0/components/0/action_terms",
+    "value": {
+     "global_dof": 0,
+     "kind": "ideal_constraint",
+     "source_id": "anchor"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUPPORT_TERM_DUPLICATE"
+ },
+ {
+  "id": "SUPPORT_ACTION_OWNER",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/supports/0/components/0/action_terms/0/source_id",
+    "value": "independent-spring"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUPPORT_ACTION_OWNER"
+ },
+ {
+  "id": "SUPPORT_ACTION_DOF",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/supports/0/components/3/action_terms/0/global_dof",
+    "value": 9
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUPPORT_ACTION_DOF"
+ },
+ {
+  "id": "IDEAL_ATTRIBUTION_AMBIGUOUS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/supports/1/components/0/action_terms/0/kind",
+    "value": "ideal_constraint"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_IDEAL_ATTRIBUTION_AMBIGUOUS"
+ },
+ {
+  "id": "STRUCTURAL_ZERO",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/supports/1/components/3/action_terms/0/kind",
+    "value": "structural_zero"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_STRUCTURAL_ZERO"
+ },
+ {
+  "id": "IDEAL_SOURCE_COVERAGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/supports/0/components/3/action_terms/0/kind",
+    "value": "ground_spring"
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/prescribed_dofs",
+    "value": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/free_dofs",
+    "value": [
+     6,
+     7,
+     8,
+     9,
+     10,
+     11
+    ]
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/source/free_blocks",
+    "value": [
+     [
+      9
+     ],
+     [
+      6
+     ],
+     [
+      7,
+      11
+     ],
+     [
+      8,
+      10
+     ]
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_IDEAL_SOURCE_COVERAGE"
+ },
+ {
+  "id": "SUPPORT_RESULT_BIJECTION",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/results",
+    "value": {
+     "id": "result:invented-ghost",
+     "kind": "support_reaction_component_v2",
+     "value": 0.0,
+     "unit": "N",
+     "entity_ref": "ghost",
+     "basis_ref": {
+      "ref_type": "load_case",
+      "ref_id": "case"
+     },
+     "metadata": {
+      "component": "Fx",
+      "coordinate_system": "global",
+      "location": "node",
+      "basis": "recovered_from_assembled_support_law",
+      "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+     }
+    }
+   },
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/projections",
+    "value": {
+     "absolute_error_bound": 0.0,
+     "basis": "exact_zero",
+     "functional_id": "source-functional:invented-ghost",
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "projection_id": "projection:invented-ghost",
+     "quantity": "support_action_component",
+     "relative_error_bound": 0.0,
+     "relative_limit": 1e-09,
+     "result_id": "result:invented-ghost",
+     "unit": "N",
+     "value": 0.0,
+     "value_bits": "0000000000000000"
+    }
+   },
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "value": {
+     "result_id": "result:invented-ghost",
+     "treatment": "qualified_projection",
+     "projection_id": "projection:invented-ghost",
+     "recipe_id": null,
+     "input_result_ids": []
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUPPORT_RESULT_BIJECTION"
+ },
+ {
+  "id": "MEMBER_PRIMARY_COVERAGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/results/30/metadata/location",
+    "value": "end_j"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_MEMBER_PRIMARY_COVERAGE"
+ },
+ {
+  "id": "MEMBER_STRESS_COVERAGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/results",
+    "value": {
+     "id": "result:invented-stress",
+     "kind": "element_local_axial_normal_stress",
+     "value": 0.0,
+     "unit": "MPa",
+     "entity_ref": "independent-member",
+     "basis_ref": {
+      "ref_type": "load_case",
+      "ref_id": "case"
+     },
+     "metadata": {
+      "component": "axial_normal_stress",
+      "coordinate_system": "element_local",
+      "location": "end_i",
+      "basis": "recovered_from_local_element_stiffness",
+      "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+     }
+    }
+   },
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "value": {
+     "input_result_ids": [],
+     "projection_id": null,
+     "recipe_id": "retained_source_straight_stress_v1",
+     "result_id": "result:invented-stress",
+     "treatment": "checked_derived"
+    }
+   },
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/section_stress_checks",
+    "value": {
+     "action": {
+      "interval": [
+       0.0,
+       0.0
+      ],
+      "value": 0.0
+     },
+     "component": "axial_normal_stress",
+     "functional_id": "source-functional:4:case:12",
+     "functional_index": 12,
+     "location": "end_i",
+     "parameters": {
+      "area_m2": 0.005969026041820607,
+      "pa_per_mpa": 1000000.0,
+      "section_modulus_m3": 0.0002700984283923826,
+      "torsion_constant_m4": 5.4019685678476514e-05,
+      "torsion_radius_m": 0.1
+     },
+     "pipe_id": "independent-member",
+     "recipe_id": "retained_source_straight_stress_v1",
+     "result_id": "result:invented-stress"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_MEMBER_STRESS_COVERAGE"
+ },
+ {
+  "id": "MEMBER_SUMMARY_COVERAGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/results",
+    "value": {
+     "id": "result:invented-maximum",
+     "kind": "pipe_elastic_normal_stress_maximum_v2",
+     "value": 0.0,
+     "unit": "Pa",
+     "entity_ref": "independent-member",
+     "basis_ref": {
+      "ref_type": "load_case",
+      "ref_id": "case"
+     },
+     "metadata": {
+      "component": "maximum_absolute_normal_stress",
+      "coordinate_system": "pipe_section",
+      "location": "governing_station",
+      "basis": "retained_source_endpoint_normal_max_v1",
+      "sign_convention": "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate"
+     }
+    }
+   },
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "value": {
+     "input_result_ids": [],
+     "projection_id": null,
+     "recipe_id": "retained_source_endpoint_normal_max_v1",
+     "result_id": "result:invented-maximum",
+     "treatment": "checked_derived"
+    }
+   },
+   {
+    "op": "append",
+    "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema",
+    "value": {
+     "absolute_error_bound_pa": 0.0,
+     "area_m2": 0.005969026041820607,
+     "basis": "retained_source_endpoint_normal_max_v1",
+     "coefficient_basis": "retained_section_functionals_binary64",
+     "enclosure_scope": "retained_action_projection_and_ordered_binary64_recipe;represented_source_section_operands",
+     "endpoints": [
+      {
+       "actions": [
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        },
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        },
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        }
+       ],
+       "functional_ids": [
+        "source-functional:4:case:12",
+        "source-functional:4:case:16",
+        "source-functional:4:case:17"
+       ],
+       "functional_indices": [
+        12,
+        16,
+        17
+       ],
+       "interval_pa": [
+        0.0,
+        0.0
+       ],
+       "station_fraction": 0.0,
+       "value_pa": 0.0
+      },
+      {
+       "actions": [
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        },
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        },
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        }
+       ],
+       "functional_ids": [
+        "source-functional:4:case:36",
+        "source-functional:4:case:40",
+        "source-functional:4:case:41"
+       ],
+       "functional_indices": [
+        36,
+        40,
+        41
+       ],
+       "interval_pa": [
+        0.0,
+        0.0
+       ],
+       "station_fraction": 1.0,
+       "value_pa": 0.0
+      }
+     ],
+     "load_case_id": "case",
+     "locations": {
+      "kind": "whole_span_constant"
+     },
+     "pipe_id": "independent-member",
+     "relative_error_bound": 0.0,
+     "relative_limit": 1e-09,
+     "result_id": "result:invented-maximum",
+     "section_modulus_m3": 0.0002700984283923826,
+     "source_identity_sha256": "69d9d9017b936b6d2d2dbc91c896462e41841a7cd9a327fbde64626898b3ca50",
+     "station_fraction": 0.0,
+     "value_lower_pa": 0.0,
+     "value_pa": 0.0,
+     "value_upper_pa": 0.0
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_MEMBER_SUMMARY_COVERAGE"
+ },
+ {
+  "id": "SUPPORT_MAGNITUDE_COVERAGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/results",
+    "value": {
+     "id": "result:invented-force-norm",
+     "kind": "support_reaction_force_magnitude_v2",
+     "value": 0.0,
+     "unit": "N",
+     "entity_ref": "anchor",
+     "basis_ref": {
+      "ref_type": "load_case",
+      "ref_id": "case"
+     },
+     "metadata": {
+      "component": "force_magnitude",
+      "coordinate_system": "global",
+      "location": "node",
+      "basis": "recovered_from_assembled_support_law",
+      "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+     }
+    }
+   },
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "value": {
+     "input_result_ids": [
+      "result:support-action:4:case:6:anchor:Fx",
+      "result:support-action:4:case:6:anchor:Fy",
+      "result:support-action:4:case:6:anchor:Fz"
+     ],
+     "projection_id": null,
+     "recipe_id": "support_force_norm_scaled_checked_v1",
+     "result_id": "result:invented-force-norm",
+     "treatment": "checked_derived"
+    }
+   },
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/derived_checks",
+    "value": {
+     "absolute_error_bound": 0.0,
+     "functional_ids": [
+      "source-functional:4:case:55",
+      "source-functional:4:case:56",
+      "source-functional:4:case:57"
+     ],
+     "functional_indices": [
+      55,
+      56,
+      57
+     ],
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "intervals": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0
+      ]
+     ],
+     "recipe_id": "support_force_norm_scaled_checked_v1",
+     "relative_error_bound": 0.0,
+     "relative_limit": 1e-09,
+     "result_id": "result:invented-force-norm",
+     "support_id": "anchor",
+     "value": 0.0,
+     "values": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUPPORT_MAGNITUDE_COVERAGE"
+ },
+ {
+  "id": "SOURCE_FALLBACK_TRIGGER",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/ordinary_attempt/outcome",
+    "value": "checks_passed"
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/ordinary_attempt/structural_report_diagnostic_ref",
+    "value": "diagnostic:numerical-integrity:case:ordinary-pressure"
+   },
+   {
+    "op": "set",
+    "path": "/numerical_quality/cases/0/evidence_refs",
+    "value": [
+     "diagnostic:numerical-integrity:case:ordinary-pressure"
+    ]
+   },
+   {
+    "op": "set",
+    "path": "/numerical_quality/cases/0/solve_quality",
+    "value": "checks_passed"
+   },
+   {
+    "op": "set",
+    "path": "/numerical_quality/status",
+    "value": "checks_passed"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_SOURCE_FALLBACK_TRIGGER"
+ },
+ {
+  "id": "DERIVED_CHECK_COVERAGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/derived_checks",
+    "value": {
+     "absolute_error_bound": 0.0,
+     "functional_ids": [
+      "source-functional:4:case:55",
+      "source-functional:4:case:56",
+      "source-functional:4:case:57"
+     ],
+     "functional_indices": [
+      55,
+      56,
+      57
+     ],
+     "interval": [
+      0.0,
+      0.0
+     ],
+     "intervals": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0
+      ]
+     ],
+     "recipe_id": "support_force_norm_scaled_checked_v1",
+     "relative_error_bound": 0.0,
+     "relative_limit": 1e-09,
+     "result_id": "result:invented",
+     "support_id": "anchor",
+     "value": 0.0,
+     "values": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_DERIVED_CHECK_COVERAGE"
+ },
+ {
+  "id": "STRESS_CHECK_COVERAGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/section_stress_checks",
+    "value": {
+     "action": {
+      "interval": [
+       0.0,
+       0.0
+      ],
+      "value": 0.0
+     },
+     "component": "axial_normal_stress",
+     "functional_id": "source-functional:4:case:12",
+     "functional_index": 12,
+     "location": "end_i",
+     "parameters": {
+      "area_m2": 0.005969026041820607,
+      "pa_per_mpa": 1000000.0,
+      "section_modulus_m3": 0.0002700984283923826,
+      "torsion_constant_m4": 5.4019685678476514e-05,
+      "torsion_radius_m": 0.1
+     },
+     "pipe_id": "independent-member",
+     "recipe_id": "retained_source_straight_stress_v1",
+     "result_id": "result:invented"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_STRESS_CHECK_COVERAGE"
+ },
+ {
+  "id": "INVOCATION_WORK_LEDGER",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/invocation_work/publication_charged",
+    "value": 1
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_INVOCATION_WORK_LEDGER"
+ },
+ {
+  "id": "OBSERVATION_IDS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/envelope_observation_result_ids",
+    "value": [
+     "result:disp:independent-root",
+     "result:disp:independent-root"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_OBSERVATION_IDS"
+ },
+ {
+  "id": "ENVELOPE_ROW_COVERAGE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/envelope_observation_result_ids",
+    "value": [
+     "result:disp:independent-root"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ENVELOPE_ROW_COVERAGE"
+ },
+ {
+  "id": "SOURCE_METHOD_RECORD_REQUIRED",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "remove",
+    "path": "/source_block_recovery/body/cases/0"
+   },
+   {
+    "op": "remove",
+    "path": "/numerical_quality/cases/0"
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/ordinary_attempt/quality_case_index",
+    "value": 0
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "basis_ref": {
+      "ref_id": "case",
+      "ref_type": "load_case"
+     }
+    }
+   },
+   {
+    "op": "set",
+    "path": "/numerical_quality/status",
+    "value": "checks_passed"
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/invocation_work/charged",
+    "value": 546536
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SOURCE_METHOD_RECORD_REQUIRED"
+ },
+ {
+  "id": "SUMMARY_HEADLINE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/summary/max_displacement",
+    "value": null
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUMMARY_HEADLINE"
+ },
+ {
+  "id": "SUMMARY_RESULT_BINDING",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/summary/max_displacement/value",
+    "value": 1.0
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUMMARY_RESULT_BINDING"
+ },
+ {
+  "id": "EVIDENCE_IDS#empty-id",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/diagnostics/0/id",
+    "value": ""
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_EVIDENCE_IDS"
+ },
+ {
+  "id": "SOURCE_PRESSURE_RHS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/contract_evidence/exact_cases/0/pressure_rhs_assembly/assembled_pressure_rhs_global/0",
+    "value": 1.0
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_SOURCE_PRESSURE_RHS"
+ },
+ {
+  "id": "PHYSICAL_OBSERVATION_ESCAPE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/results",
+    "value": {
+     "id": "result:invented-observation",
+     "kind": "displacement_magnitude",
+     "value": 0.0,
+     "unit": "mm",
+     "entity_ref": "independent-root",
+     "basis_ref": null
+    }
+   },
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/envelope_observation_result_ids",
+    "value": "result:invented-observation"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_PHYSICAL_OBSERVATION_ESCAPE"
+ },
+ {
+  "id": "SUMMARY_UNSOURCED_HEADLINE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "kind": "displacement_magnitude"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:disp:independent-root"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:disp:independent-tip"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:loadcase:case-ordinary-pressure:disp:independent-root"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:loadcase:case-ordinary-pressure:disp:independent-tip"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/1/rows",
+    "match": {
+     "result_id": "result:disp:independent-root"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/1/rows",
+    "match": {
+     "result_id": "result:disp:independent-tip"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/1/rows",
+    "match": {
+     "result_id": "result:loadcase:case-ordinary-pressure:disp:independent-root"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/1/rows",
+    "match": {
+     "result_id": "result:loadcase:case-ordinary-pressure:disp:independent-tip"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_SUMMARY_UNSOURCED_HEADLINE"
+ },
+ {
+  "id": "ROW_DEPENDENCY_CYCLE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/rows/0/input_result_ids",
+    "value": [
+     "result:loadcase:case-ordinary-pressure:disp:independent-root"
+    ]
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/rows/1/input_result_ids",
+    "value": [
+     "result:loadcase:case-ordinary-pressure:solver-mode:linear-solve-basis"
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ROW_DEPENDENCY_CYCLE"
+ },
+ {
+  "id": "NORM_TOTAL_RELATIVE_BOUND",
+  "source": "eigen_motion-dense_scrutiny",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/projections/31/relative_error_bound",
+    "value": 1e-09
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-i:axial-normal"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:axial-normal"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-i:bending-normal-y"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:bending-normal-y"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-i:bending-normal-z"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:bending-normal-z"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-i:torsional-shear"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:torsional-shear"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-j:axial-normal"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:axial-normal"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-j:bending-normal-y"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:bending-normal-y"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-j:bending-normal-z"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:bending-normal-z"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-j:torsional-shear"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:torsional-shear"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:axial-normal"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:axial-normal"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:bending-normal-y"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:bending-normal-y"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:bending-normal-z"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:bending-normal-z"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:torsional-shear"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:torsional-shear"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:axial-normal"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:axial-normal"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:bending-normal-y"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:bending-normal-y"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:bending-normal-z"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:bending-normal-z"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:torsional-shear"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:torsional-shear"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:axial-normal"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:axial-normal"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:bending-normal-y"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:bending-normal-y"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:bending-normal-z"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:bending-normal-z"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:torsional-shear"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:torsional-shear"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_NORM_TOTAL_RELATIVE_BOUND"
+ },
+ {
+  "id": "AGGREGATE_STATUS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases",
+    "value": []
+   },
+   {
+    "op": "set",
+    "path": "/numerical_quality/cases",
+    "value": []
+   },
+   {
+    "op": "set",
+    "path": "/numerical_quality/status",
+    "value": "not_assessed"
+   },
+   {
+    "op": "set",
+    "path": "/results",
+    "value": []
+   },
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/invocation_work/charged",
+    "value": 546536
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_AGGREGATE_STATUS"
+ },
+ {
+  "id": "SPRING_ATTRIBUTION_DUPLICATE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/supports/1/components",
+    "value": {
+     "action_terms": [
+      {
+       "global_dof": 3,
+       "kind": "ground_spring",
+       "source_id": "independent-spring"
+      }
+     ],
+     "component": "Mx",
+     "functional_id": "source-functional:4:case:64",
+     "result_id": "result:support-action:4:case:18:independent-spring:Mx"
+    }
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+ },
+ {
+  "id": "SUPPORT_NORM_INPUTS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/20/recipe_id",
+    "value": "support_force_norm_scaled_v1"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+ },
+ {
+  "id": "STRESS_RECIPE_INPUTS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/60/recipe_id",
+    "value": "straight_open_stress_v1"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+ },
+ {
+  "id": "SUMMARY_RECIPE_INPUTS",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/80/recipe_id",
+    "value": "reviewed_stress_summary_v1"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+ },
+ {
+  "id": "SECTION_RECIPE_KIND",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/0/rows/0/recipe_id",
+    "value": "section_property_from_source_v1"
+   }
+  ],
+  "reseal_publication": true,
+  "python": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+ },
+ {
+  "id": "UNSELECTED_SUPPORT_CERTIFICATE",
+  "source": "mixed-sparse_interactive",
+  "ops": [
+   {
+    "op": "set",
+    "path": "/source_block_recovery/body/cases/1/supports",
+    "value": [
+     {
+      "attribution": "unique_source_owned",
+      "components": [
+       {
+        "action_terms": [
+         {
+          "global_dof": 0,
+          "kind": "ideal_constraint",
+          "source_id": "anchor"
+         }
+        ],
+        "component": "Fx",
+        "functional_id": "source-functional:4:case:55",
+        "result_id": "result:support-action:4:case:6:anchor:Fx"
+       },
+       {
+        "action_terms": [
+         {
+          "global_dof": 1,
+          "kind": "ideal_constraint",
+          "source_id": "anchor"
+         }
+        ],
+        "component": "Fy",
+        "functional_id": "source-functional:4:case:56",
+        "result_id": "result:support-action:4:case:6:anchor:Fy"
+       },
+       {
+        "action_terms": [
+         {
+          "global_dof": 2,
+          "kind": "ideal_constraint",
+          "source_id": "anchor"
+         }
+        ],
+        "component": "Fz",
+        "functional_id": "source-functional:4:case:57",
+        "result_id": "result:support-action:4:case:6:anchor:Fz"
+       },
+       {
+        "action_terms": [
+         {
+          "global_dof": 3,
+          "kind": "structural_zero",
+          "source_id": "anchor"
+         }
+        ],
+        "component": "Mx",
+        "functional_id": "source-functional:4:case:58",
+        "result_id": "result:support-action:4:case:6:anchor:Mx"
+       },
+       {
+        "action_terms": [
+         {
+          "global_dof": 4,
+          "kind": "ideal_constraint",
+          "source_id": "anchor"
+         }
+        ],
+        "component": "My",
+        "functional_id": "source-functional:4:case:59",
+        "result_id": "result:support-action:4:case:6:anchor:My"
+       },
+       {
+        "action_terms": [
+         {
+          "global_dof": 5,
+          "kind": "ideal_constraint",
+          "source_id": "anchor"
+         }
+        ],
+        "component": "Mz",
+        "functional_id": "source-functional:4:case:60",
+        "result_id": "result:support-action:4:case:6:anchor:Mz"
+       }
+      ],
+      "node_id": "independent-root",
+      "support_id": "anchor"
+     },
+     {
+      "attribution": "unique_source_owned",
+      "components": [
+       {
+        "action_terms": [
+         {
+          "global_dof": 0,
+          "kind": "structural_zero",
+          "source_id": "independent-spring"
+         }
+        ],
+        "component": "Fx",
+        "functional_id": "source-functional:4:case:61",
+        "result_id": "result:support-action:4:case:18:independent-spring:Fx"
+       },
+       {
+        "action_terms": [
+         {
+          "global_dof": 1,
+          "kind": "structural_zero",
+          "source_id": "independent-spring"
+         }
+        ],
+        "component": "Fy",
+        "functional_id": "source-functional:4:case:62",
+        "result_id": "result:support-action:4:case:18:independent-spring:Fy"
+       },
+       {
+        "action_terms": [
+         {
+          "global_dof": 2,
+          "kind": "structural_zero",
+          "source_id": "independent-spring"
+         }
+        ],
+        "component": "Fz",
+        "functional_id": "source-functional:4:case:63",
+        "result_id": "result:support-action:4:case:18:independent-spring:Fz"
+       },
+       {
+        "action_terms": [
+         {
+          "global_dof": 3,
+          "kind": "ground_spring",
+          "source_id": "independent-spring"
+         }
+        ],
+        "component": "Mx",
+        "functional_id": "source-functional:4:case:64",
+        "result_id": "result:support-action:4:case:18:independent-spring:Mx"
+       },
+       {
+        "action_terms": [
+         {
+          "global_dof": 4,
+          "kind": "structural_zero",
+          "source_id": "independent-spring"
+         }
+        ],
+        "component": "My",
+        "functional_id": "source-functional:4:case:65",
+        "result_id": "result:support-action:4:case:18:independent-spring:My"
+       },
+       {
+        "action_terms": [
+         {
+          "global_dof": 5,
+          "kind": "structural_zero",
+          "source_id": "independent-spring"
+         }
+        ],
+        "component": "Mz",
+        "functional_id": "source-functional:4:case:66",
+        "result_id": "result:support-action:4:case:18:independent-spring:Mz"
+       }
+      ],
+      "node_id": "independent-root",
+      "support_id": "independent-spring"
+     }
+    ]
+   }
+  ],
+  "reseal_publication": true,
+  "python": "SOURCE_BLOCKS_ORDINARY_SELECTION"
+ },
+ {
+  "id": "ACCEPT-mixed",
+  "source": "mixed-sparse_interactive",
+  "ops": [],
+  "reseal_publication": true,
+  "python": "accept"
+ },
+ {
+  "id": "ACCEPT-n05",
+  "source": "n05-sparse_interactive",
+  "ops": [],
+  "reseal_publication": true,
+  "python": "accept"
+ },
+ {
+  "id": "ACCEPT-eigen",
+  "source": "eigen_motion-dense_scrutiny",
+  "ops": [],
+  "reseal_publication": true,
+  "python": "accept"
+ }
+]

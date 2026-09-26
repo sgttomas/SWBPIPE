@@ -1,4 +1,5 @@
 import { Download, ShieldAlert } from "lucide-react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 
 type WarningClass = "RULE_CHECK_BLOCKING" | "PROVENANCE_WARNING" | "ASSUMPTION_WARNING" | "IP_BOUNDARY_WARNING";
@@ -50,6 +51,7 @@ export function RuleCheckPanel({ model, result }: { model: PreviewModel; result:
         Rule-Check Completeness
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="rule-check">
         <ControlledExportLink
           className="report-export-link"
           data-testid="rule-check-export-link"
@@ -59,6 +61,7 @@ export function RuleCheckPanel({ model, result }: { model: PreviewModel; result:
           <Download size={14} aria-hidden="true" />
           Local completeness JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="rule-check-summary">
           {review.summary.finding_count} review findings; rule_check_blocked=
           {String(review.summary.rule_check_blocked)}; mechanics_reviewable=

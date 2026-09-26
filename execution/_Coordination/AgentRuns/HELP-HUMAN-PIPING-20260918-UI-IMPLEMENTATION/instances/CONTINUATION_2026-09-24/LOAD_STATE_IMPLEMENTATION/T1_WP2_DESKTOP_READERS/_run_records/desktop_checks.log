@@ -1,0 +1,81 @@
+# Desktop checks (T1 WP2). Machine paths replaced by <SCRATCH>, <SIBLING_WORKTREE>.
+
+## Full suite at base fe3e2dbbc (scratch git-archive copy), run 1
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/App.deadControls.test.tsx > dead-control audit (TP-APP-R2-UXSHELL-001) > every button is either responsive or disabled with a stated reason
+Error: Test timed out in 600000ms.
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > round trips preserved historical review proposal operations through local save and open
+Error: Test timed out in 30000ms.
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed_units sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed_units dense_scrutiny binds actual input, Current gates and portable evidence
+Error: Test timed out in 30000ms.
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'multicase-dense_scrutiny' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'multicase-sparse_interactive' connects Current, exports, rule revision and saved history
+Error: Test timed out in 30000ms.
+ FAIL  src/features/stress-neutral/StressNeutralExportPanel.test.tsx > refuses precision header presence on rehashed legacy packets without altering historical inputs
+Error: Test timed out in 30000ms.
+ Test Files  5 failed | 116 passed (121)
+      Tests  7 failed | 2131 passed (2138)
+
+## Full suite at base, run 2
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/App.deadControls.test.tsx > dead-control audit (TP-APP-R2-UXSHELL-001) > every button is either responsive or disabled with a stated reason
+Error: Test timed out in 600000ms.
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > renders the engineering workspace from invented local fixtures
+Error: Test timed out in 30000ms.
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > round trips preserved historical review proposal operations through local save and open
+Error: Test timed out in 30000ms.
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > fields sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed_units sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed_units dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05_unicode sparse_interactive binds actual input, Current gates and portable evidence
+Error: Test timed out in 30000ms.
+ Test Files  3 failed | 118 passed (121)
+      Tests  9 failed | 2129 passed (2138)
+
+## Full suite, this change (scratch copy synced to the worktree src)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > renders the engineering workspace from invented local fixtures
+Error: Test timed out in 30000ms.
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed dense_scrutiny binds actual input, Current gates and portable evidence
+Error: Test timed out in 30000ms.
+ FAIL  src/features/workspace/sessionBoundary.test.ts > session-state import guard > lets no file but workspaceSession.ts import a *SessionState module
+ Test Files  3 failed | 126 passed (129)
+      Tests  3 failed | 2772 passed (2775)
+   Duration  870.95s (transform 22.36s, setup 24.56s, import 66.67s, tests 2340.83s, environment 126.39s)
+(The sessionBoundary import-guard failure was caused by my new session test's file name; it was renamed to features/workspace/loadReference.resultsSessionState.test.ts, and sessionBoundary.test.ts plus the renamed file then passed: 2 files, 10 tests.)
+
+## Isolated reruns of the timed-out files (mine = mut, base = base)
+== mut src/App.test.tsx
+ Test Files  1 passed (1)
+      Tests  225 passed (225)
+== mut src/features/results/physicsSourceIntegration.test.tsx
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+== base src/App.test.tsx
+ Test Files  1 passed (1)
+      Tests  225 passed (225)
+== base src/features/results/physicsSourceIntegration.test.tsx
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+
+## npm run build --workspace apps/desktop (this change)
+
+> @openpipestress/desktop@0.1.0 build
+> tsc -b && vite build
+
+vite v7.3.3 building client environment for production...
+transforming...
+✓ 1781 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                           1.13 kB │ gzip:   0.55 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 9.70s
+EXIT 0

@@ -1,4 +1,5 @@
 import { Download, FileText } from "lucide-react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
@@ -70,6 +71,7 @@ export function CaepipeMbfExportPanel({
         Model batch file (.mbf)
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="caepipe-mbf">
         <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-mbf-export-link"
@@ -88,6 +90,7 @@ export function CaepipeMbfExportPanel({
           <Download size={14} aria-hidden="true" />
           MBF text
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="caepipe-mbf-summary">
           available; nodes={packet.model_payload.nodes.length}; pipes={packet.model_payload.elements.length};
           supports={packet.model_payload.supports.length}; validation={packet.validation_report.validation_status};

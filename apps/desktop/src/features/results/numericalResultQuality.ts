@@ -2,6 +2,8 @@ import { physicsSourceReceiptShape, physicsSourceStanding } from "./physicsSourc
 import { SOURCE_BLOCKS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_SHA256, sourceBlockReceiptShape, sourceBlockStanding } from "./sourceBlockRecovery";
 import { validatePhysicsEvidence } from "./physicsResultEvidence";
 import { validatePreviewPhysicsEvidence } from "./previewPhysicsEvidence";
+import { validateLoadReferenceEvidence } from "./loadReferenceEvidence";
+import { loadReferenceSourceReceiptShape, loadReferenceSourceStanding, LOAD_REFERENCE_SOURCE_PROFILE } from "./loadReferenceSourceEvidence";
 import type { MechanicsResult, PreviewModel } from "../../types";
 export const PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1";
 export const PRECISION_CONTRACT_SHA256 = "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e";
@@ -12,10 +14,14 @@ export const PHYSICS_CONTRACT_SHA256 = "9a2cf6268b57bd5265a1a115497c07450819dd4d
 export const PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 export const PREVIEW_PHYSICS_CONTRACT_SHA256 = "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a";
 /** T1 load/reference-state identities (0.4.0 exact route only). Members of the
- * static fresh set; the desktop readers for them arrive with T1 WP2. */
+ * static fresh set, read by `loadReferenceEvidence.ts` and
+ * `loadReferenceSourceEvidence.ts` (T1 WP2). */
 export const LOAD_REFERENCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1";
+export const LOAD_REFERENCE_CONTRACT_SHA256 = "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d";
+export const LOAD_REFERENCE_PROFILE = "resolved_straight_load_state_v1";
 export const LOAD_REFERENCE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-source-1";
-export type SourceContract = "legacy" | "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "unsupported";
+export const LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 = "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337";
+export type SourceContract = "legacy" | "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source" | "unsupported";
 export function sourceSemanticBinding(source: MechanicsResult) {
   const route = sourceContract(source);
   if (route === "physics_source") return { id: PHYSICS_SOURCE_CONTRACT_ID, sha256: PHYSICS_SOURCE_CONTRACT_SHA256 };
@@ -23,6 +29,8 @@ export function sourceSemanticBinding(source: MechanicsResult) {
   if (route === "physics") return { id: PHYSICS_CONTRACT_ID, sha256: PHYSICS_CONTRACT_SHA256 };
   if (route === "preview_physics") return { id: PREVIEW_PHYSICS_CONTRACT_ID, sha256: PREVIEW_PHYSICS_CONTRACT_SHA256 };
   if (route === "precision") return { id: PRECISION_CONTRACT_ID, sha256: PRECISION_CONTRACT_SHA256 };
+  if (route === "load_reference") return { id: LOAD_REFERENCE_CONTRACT_ID, sha256: LOAD_REFERENCE_CONTRACT_SHA256 };
+  if (route === "load_reference_source") return { id: LOAD_REFERENCE_SOURCE_CONTRACT_ID, sha256: LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 };
   throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
 }
 /** Exact known (readable) contract binding. This does not authenticate a
@@ -49,13 +57,17 @@ export function sourceContract(source: MechanicsResult): SourceContract {
   const blocks = p?.semantic_contract_id === SOURCE_BLOCKS_CONTRACT_ID;
   const composite = p?.semantic_contract_id === PHYSICS_SOURCE_CONTRACT_ID;
   const preview = p?.semantic_contract_id === PREVIEW_PHYSICS_CONTRACT_ID;
-  if (composite ? !physicsSourceReceiptShape(source.source_block_recovery) : blocks ? !sourceBlockReceiptShape(source.source_block_recovery) : Object.hasOwn(source, "source_block_recovery")) return "unsupported";
+  // T1: explicit load/reference-state dispatch, each bound to its one profile.
+  const loadReference = p?.semantic_contract_id === LOAD_REFERENCE_CONTRACT_ID;
+  const joined = p?.semantic_contract_id === LOAD_REFERENCE_SOURCE_CONTRACT_ID;
+  if (composite ? !physicsSourceReceiptShape(source.source_block_recovery) : blocks ? !sourceBlockReceiptShape(source.source_block_recovery) : joined ? !loadReferenceSourceReceiptShape(source.source_block_recovery) : Object.hasOwn(source, "source_block_recovery")) return "unsupported";
+  const evidenceObject = !!source.contract_evidence && typeof source.contract_evidence === "object" && !Array.isArray(source.contract_evidence);
   return source.schema_version === "0.2.0"
     && keys(p, ["component_name", "component_version", "semantic_contract_id"])
     && keys(q, ["value_representation", "publication_quantization", "integrity_policy", "status", "cases"])
     && keys(f, ["profile_id", "limitations"])
     && p?.component_name === "open_pipe_stress_product_physics"
-    && p.component_version === "0.2.0" && [PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID].includes(p.semantic_contract_id)
+    && p.component_version === "0.2.0" && [PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID].includes(p.semantic_contract_id)
     && q?.value_representation === "finite_binary64" && q.publication_quantization === "none"
     && q.integrity_policy === "M03-INTEGRITY-v1" && Array.isArray(q.cases)
     && statuses.includes(q.status)
@@ -65,9 +77,13 @@ export function sourceContract(source: MechanicsResult): SourceContract {
       && statuses.includes(c.solve_quality) && ["represented_equations_retained", "assembly_loss_detected", "assembly_uncertainty", "not_assessed"].includes(c.model_matrix_fidelity)
       && ["not_claimed", "reference_verified", "unresolved"].includes(c.accuracy_evidence)
       && Array.isArray(c.evidence_refs) && c.evidence_refs.every(r => typeof r === "string" && !!r))
-    && f !== undefined && ([PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID].includes(p.semantic_contract_id) ? f?.profile_id === "exact_straight_pressure_v2" : preview ? f?.profile_id === "product_preview_mechanics_v1" && !!source.contract_evidence && typeof source.contract_evidence === "object" && !Array.isArray(source.contract_evidence) : f?.profile_id === "product_preview_mechanics_v1" && source.contract_evidence == null) && Array.isArray(f.limitations)
+    && f !== undefined && ([PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID].includes(p.semantic_contract_id) ? f?.profile_id === "exact_straight_pressure_v2"
+      : preview ? f?.profile_id === "product_preview_mechanics_v1" && evidenceObject
+      : loadReference ? f?.profile_id === LOAD_REFERENCE_PROFILE && evidenceObject
+      : joined ? f?.profile_id === LOAD_REFERENCE_SOURCE_PROFILE && evidenceObject
+      : f?.profile_id === "product_preview_mechanics_v1" && source.contract_evidence == null) && Array.isArray(f.limitations)
     && f.limitations.length > 0 && f.limitations.every(x => typeof x === "string" && x.length > 0)
-    ? (composite ? "physics_source" : blocks ? "source_blocks" : preview ? "preview_physics" : p.semantic_contract_id === PHYSICS_CONTRACT_ID ? "physics" : "precision") : "unsupported";
+    ? (composite ? "physics_source" : blocks ? "source_blocks" : preview ? "preview_physics" : loadReference ? "load_reference" : joined ? "load_reference_source" : p.semantic_contract_id === PHYSICS_CONTRACT_ID ? "physics" : "precision") : "unsupported";
 }
 export function numericalResultStanding(source: MechanicsResult, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null) {
   const contract = sourceContract(source);
@@ -76,11 +92,24 @@ export function numericalResultStanding(source: MechanicsResult, model?: (Pick<P
   else if (contract === "unsupported") findings.push("SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED");
   else if (contract === "physics_source") findings.push(...physicsSourceStanding(source, model).findings);
   else if (contract === "source_blocks") findings.push(...sourceBlockStanding(source, model).findings);
+  else if (contract === "load_reference_source") {
+    // T1 (declared standing edit, T1_WAVE1_RULINGS.md sections 6-8): reader
+    // validation first (a refused joined envelope keeps its validation finding),
+    // then T0R's standing reason (none applies to this identity), then the
+    // declared early needs_recompute. Joined evidence is never numerically
+    // eligible in T1, as in Rust and Python.
+    return { contract, status: "needs_recompute" as const, eligible: false, findings: loadReferenceSourceStanding(source).findings };
+  }
   else {
     const q = source.numerical_quality!;
     if (contract === "physics") {
       try { validatePhysicsEvidence(source, model ?? undefined); }
       catch (error) { findings.push(error instanceof Error ? error.message : "PHYSICS_EVIDENCE_INVALID"); }
+    }
+    if (contract === "load_reference") {
+      // T0R's generic standing, unchanged, after the load-reference-1 reader.
+      try { validateLoadReferenceEvidence(source, model ?? undefined); }
+      catch (error) { findings.push(error instanceof Error ? error.message : "SOURCE_LOAD_REFERENCE_MALFORMED"); }
     }
     if (contract === "preview_physics") {
       try { validatePreviewPhysicsEvidence(source, model ?? undefined); }

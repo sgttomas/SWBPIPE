@@ -131,7 +131,7 @@ function ReviewGeometryLine({ label, value, testId }: { label: string; value: st
   );
 }
 
-function buildReviewGeometryPacket({
+export function buildReviewGeometryPacket({
   model,
   result,
   analysisRun

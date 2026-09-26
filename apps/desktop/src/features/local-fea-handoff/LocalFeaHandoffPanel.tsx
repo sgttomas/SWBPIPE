@@ -1,4 +1,5 @@
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileJson } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
@@ -61,6 +62,7 @@ export function LocalFeaHandoffPanel({
       {packet ? (
         <>
           <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="local-fea">
         <ControlledExportLink
               className="report-export-link"
               data-testid="local-fea-export-link"
@@ -70,6 +72,7 @@ export function LocalFeaHandoffPanel({
               <Download size={14} aria-hidden="true" />
               Handoff JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
             <span data-testid="local-fea-summary">
               available; labels={packet.handoff_package.guidance_assessment.labels.length}; flags=
               {packet.handoff_package.unsupported_behavior_flags.length}; diagnostics=

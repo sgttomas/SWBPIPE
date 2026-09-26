@@ -2,6 +2,8 @@ import { validatePhysicsSourceRecovery } from "../features/results/physicsSource
 import { validateSourceBlockRecovery } from "../features/results/sourceBlockRecovery";
 import { sourceContract, hasCurrentSourceContract } from '../features/results/numericalResultQuality';
 import { validatePreviewPhysicsEvidence } from '../features/results/previewPhysicsEvidence';
+import { validateLoadReferenceEvidence } from '../features/results/loadReferenceEvidence';
+import { validateLoadReferenceSourceEvidence } from '../features/results/loadReferenceSourceEvidence';
 import { invoke } from "@tauri-apps/api/core";
 import type {
   AgentProposal,
@@ -118,6 +120,11 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     if (sourceContract(source) === "physics_source") await validatePhysicsSourceRecovery(source, capture.invocation, capture.callerModel);
     // A preview-physics-1 source registers only when its closed reader checks pass.
     if (sourceContract(source) === "preview_physics") validatePreviewPhysicsEvidence(source, capture.invocation.request.model);
+    // T1: a load/reference-state source registers only when its closed reader
+    // checks pass. The joined reader also records its outcome for standing,
+    // which stays needs_recompute (never numerically eligible in T1).
+    if (sourceContract(source) === "load_reference") validateLoadReferenceEvidence(source, capture.invocation.request.model);
+    if (sourceContract(source) === "load_reference_source") await validateLoadReferenceSourceEvidence(source);
     await canonicalSha256HexCheckedV1(source);
     if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
     nativeSourceInvocations.set(source, { capture, sourceFingerprint });

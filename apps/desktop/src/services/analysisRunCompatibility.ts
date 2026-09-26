@@ -1,6 +1,8 @@
 import { validatePhysicsSourceTransportMetadata } from "../features/results/physicsSourceRecovery";
 import { validatePhysicsEvidence } from "../features/results/physicsResultEvidence";
 import { validatePreviewPhysicsEvidence } from "../features/results/previewPhysicsEvidence";
+import { validateLoadReferenceEvidence } from "../features/results/loadReferenceEvidence";
+import { validateLoadReferenceSourceEvidence } from "../features/results/loadReferenceSourceEvidence";
 import { semanticContractForSource, semanticSourceBasisMatches } from "../features/results/resultSemantics";
 import { sourceContract, sourceSemanticBinding, hasCurrentSourceContract } from "../features/results/numericalResultQuality";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
@@ -74,10 +76,18 @@ export async function buildAnalysisRunV02(result: MechanicsResult, inputManifest
 }
 export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest: ManifestEvidence, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-  return buildAnalysisRecord(result, inputManifest, sourceContract(result) as "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics", ruleCheckStatus, loadBasisRefs);
+  return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs);
 }
-async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: "legacy" | "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics", ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
+type V03Route = "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source";
+/** T1: the load/reference-state readers run before a record is built or
+ * validated, as Python `_source_contract` runs them (raw evidence). */
+async function validateLoadReferenceRoute(source: MechanicsResult): Promise<void> {
+  if (sourceContract(source) === "load_reference") validateLoadReferenceEvidence(source);
+  if (sourceContract(source) === "load_reference_source") await validateLoadReferenceSourceEvidence(source);
+}
+async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: "legacy" | V03Route, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
   if (sourceContract(result) === "physics") validatePhysicsEvidence(result);
+  await validateLoadReferenceRoute(result);
   // Preview-evidence check: a preview-physics-1 source is recorded only after its closed reader checks pass.
   if (sourceContract(result) === "preview_physics") validatePreviewPhysicsEvidence(result);
   if (route === "source_blocks" || route === "physics_source") await validateRetainedRecoverySource(result);
@@ -126,8 +136,10 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
       provenance,
     },
   };
-  if (route === "physics_source") record.analysis_run.contract_evidence = structuredClone(result.contract_evidence);
-  if (route === "source_blocks" || route === "physics_source") record.analysis_run.source_block_recovery = structuredClone(result.source_block_recovery);
+  // Python mirror: load-reference-1 is recorded like physics-1 (no retained
+  // namespace), load-reference-source-1 like physics-source-1 (both retained).
+  if (route === "physics_source" || route === "load_reference_source") record.analysis_run.contract_evidence = structuredClone(result.contract_evidence);
+  if (route === "source_blocks" || route === "physics_source" || route === "load_reference_source") record.analysis_run.source_block_recovery = structuredClone(result.source_block_recovery);
   record.analysis_run.hashes.unshift({ algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: runRef, payload_scope: "analysis_run_record", value: await canonicalSha256HexCheckedV1(analysisRecordProjection(record)) });
   if (route !== "legacy") await validateAnalysisRunV03(record, result, loadBasisRefs);
   return record;
@@ -153,13 +165,17 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   if (!hasCurrentSourceContract(source) || record.schema_version !== ANALYSIS_RUN_V03 || record.run_contract_status.record_contract !== "strict_analysis_run_v0_3") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
   if (sourceContract(source) === "physics") validatePhysicsEvidence(source);
   if (sourceContract(source) === "preview_physics") validatePreviewPhysicsEvidence(source);
+  await validateLoadReferenceRoute(source);
   validateSourceRuleStatus(source);
   const run = record.analysis_run;
   if (["source_blocks", "physics_source"].includes(sourceContract(source))) {
     await validateRetainedRecoverySource(source);
     if (!same(run.source_block_recovery, source.source_block_recovery)) throw new Error("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH");
+  } else if (sourceContract(source) === "load_reference_source") {
+    // The joined reader above verified the receipt and publication hashes.
+    if (!same(run.source_block_recovery, source.source_block_recovery)) throw new Error("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH");
   } else if (Object.hasOwn(run, "source_block_recovery")) throw new Error("SOURCE_RECOVERY_METADATA_CONTRADICTION");
-  if (sourceContract(source) === "physics_source") {
+  if (sourceContract(source) === "physics_source" || sourceContract(source) === "load_reference_source") {
     if (!same(run.contract_evidence, source.contract_evidence)) throw new Error("ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH");
   } else if (Object.hasOwn(run, "contract_evidence")) throw new Error("ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN");
   if (!same(run.diagnostics, source.diagnostics.map(source_annotation => ({ source_annotation })))) throw new Error("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");

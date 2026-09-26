@@ -143,3 +143,10 @@ REVIEW_B's verdict was FINDINGS, with nothing blocking (`T1_WAVE1_REVIEW_B/RETUR
 ## 13. WP4 finding 1: solver-mode custody on receipt-less identities (ROOT direction)
 
 A digest-consistent, crate-internal relabel of the solver mode in `QualifiedPreviewEvidence` is accepted by `build_result_export_document_with_evidence`. The manager probe shows this for `physics-1`, `preview-physics-1` and `load-reference-1` alike (`T1_WP4_HEADLESS/_run_records/manager_mode_relabel_probe.log`). Only source-block receipts bind the invocation. The property is therefore pre-existing, not a T1 defect. Per ROOT, it is open work routed to **T6** (reader and proof hardening). WP4's pin stays, annotated as observed behaviour that a T6 binding flips. The combined wave-2 review is asked to check this item explicitly.
+
+## 14. WP2 desktop readers: ROOT guidance at integration
+
+- **Identifier-only packets.** A result or AnalysisRun reference alone is not result data under §12. Review geometry, operation diff preview and operation review ledger are group (c): the gates are removed, and value-invariance tests prove that no result values flow through them.
+- **Surviving mutants (32).** They are accepted only after the combined wave-2 review verifies them: every reader survivor, and a sample of the ledger survivors. Any mutant found reachable gets a killing test before the PR. The redundant checks stay, as the check-for-check mirror requires.
+- **Browser 0.3.0.** Its divergence from native predates T1. It is unchanged in T1 and routed to UI-SUCCESSOR.
+- **Timeouts.** The 30 s timeouts in `App.test.tsx` and `physicsSourceIntegration.test.tsx` are not accepted as flakes. WP7's quiet-host sweep must pass with no timeout raised, or they are root-caused.

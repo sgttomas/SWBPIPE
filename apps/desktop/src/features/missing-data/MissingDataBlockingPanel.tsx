@@ -1,4 +1,5 @@
 import { Ban, Download } from "lucide-react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 
 type GuiWarningClass =
@@ -42,6 +43,7 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
         Missing Data Blocking
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="missing-data">
         <ControlledExportLink
           className="report-export-link"
           data-testid="missing-data-export-link"
@@ -51,6 +53,7 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
           <Download size={14} aria-hidden="true" />
           Warning JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="missing-data-summary">
           available; classes={packet.summary.warning_class_count}; active=
           {packet.summary.active_warning_count}; solve_blocked=
