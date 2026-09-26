@@ -207,3 +207,20 @@ All three readers also refuse:
 2. a support that is both attributed and withheld in the same case.
 
 The shared tamper vector gains V10 (a negative intensified value) and V11 (a support both attributed and withheld). V11 uses an RFC 6901 `add` with `-` (append). Further invariants S4 dropped are recorded in the S6 notes as follow-up hardening for T6: intensified `source_result_refs` being exactly the two bending rows, load-case rows lying in a preview case, the `basis_ref` kind, and unique diagnostic ids.
+
+### A4 — 2026-09-26: the last parity round (ROOT ruling on the R2 backcheck)
+
+The R2 backcheck found nine residual malformed-input differences. ROOT settled each one. All three readers apply these rulings identically, and nothing else changes. Every refusal below is a true invariant of the five actual fixtures and the two blocked `invented_mechanics_result_preview_physics_1_*` envelopes: all diagnostics have ids, every support-action row is `global`, every `basis_ref` has exactly `ref_type` and `ref_id`, every combination `source_result_refs` is an array, and every envelope has a `summary` object.
+
+1. **N1: intensified metadata is open.** A1 f checks each named metadata field exactly, and does not check the key count. An extra key is accepted. Rust drops its exactly-five-keys rule.
+2. **N2: `basis_ref` is closed.** When `basis_ref` is present and not null, its keys are exactly `ref_type` and `ref_id`. An extra key is refused. (Checking the `ref_type` value stays with T6, per A3.)
+3. **N3: diagnostic ids.** Every diagnostic has a non-empty string `id`.
+4. **N4: combination `source_result_refs`.** On a combination row, `source_result_refs` may be absent. When the key is present it must be an array whose entries resolve; null is refused. This is the same rule as A2 5.
+5. **N5: one combined support component.** Within one mechanics or subtraction combination, at most one `support_reaction_*_v2` row may exist per (`entity_ref`, `metadata.component`). A duplicate under a new id is refused. Range envelopes stay exempt, per A1 c.
+6. **N6: support-action frame.** Every `support_reaction_*_v2` row has `metadata.coordinate_system` `global`, whatever its `basis_ref`, including none.
+7. **N8: blocked summary.** Every envelope, blocked or solved, has a `summary` object. A1 e and A2 6 then apply to it.
+8. **N7 and N10: integer fields by numeric value.** A field that A2 or the table calls an integer is checked by its numeric value: a finite JSON number with an integral value is that integer, whether it is written `4` or `4.0`, `0` or `0.0`. A non-integral value such as `4.5` is refused, and so is a boolean. The reason is that JavaScript cannot distinguish `4.0` from `4`. The rule covers `span_index`, `subdivisions` and `component_stress_modifier_count`. Python's `span_index = 1.0` refusal test becomes an acceptance test.
+
+**Shared tamper vector:** it gains nine entries, `A4-N1` to `A4-N8` and `A4-N10`. N1, N7 and N10 expect `accepted`, and the other six expect `refused`. Every suite applies all 22 entries.
+
+**Closure:** this is the last reader-parity round for T0R. Honest output reads identically in all three readers. Any further malformed-input difference found after A4 goes to T6 as hardening. T6 will add one generative cross-language parity harness instead of another T0R round.

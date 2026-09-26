@@ -1,5 +1,5 @@
 {
-  "description": "T0R S1 amendments A2/A3 shared tamper vector. Each variant applies its ops (RFC 6901 JSON pointers) to a copy of its base fixture; every reader (Rust, Python, TS) must give the expected outcome. Bases are actual producer output. Ops: replace, remove, reverse, and add (append with '-').",
+  "description": "T0R S1 amendments A2/A3/A4 shared tamper vector. Each variant applies its ops (RFC 6901 JSON pointers) to a copy of its base fixture; every reader (Rust, Python, TS) must give the expected outcome. Bases are actual producer output. Ops: replace, remove, reverse, and add (append with '-').",
   "bases": {
     "unicode": "fixtures/results/preview_physics_unicode_ids_sparse.json",
     "blocked": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json"
@@ -149,6 +149,141 @@
         }
       ],
       "expect": "refused"
+    },
+    {
+      "id": "A4-N1-intensified-metadata-extra-key",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "add",
+          "path": "/results/132/metadata/extra",
+          "value": "x"
+        }
+      ],
+      "expect": "accepted"
+    },
+    {
+      "id": "A4-N2-basis-ref-extra-key",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "add",
+          "path": "/results/22/basis_ref/extra",
+          "value": "x"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N3-diagnostic-without-id",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/diagnostics/15/id"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N4-combination-source-result-refs-null",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/268/source_result_refs",
+          "value": null
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N5-duplicate-combination-force-magnitude",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "add",
+          "path": "/results/-",
+          "value": {
+            "id": "result:combination:combination-Σ:support-action:11:support:锚:force_magnitude:duplicate",
+            "kind": "support_reaction_force_magnitude_v2",
+            "value": 1118.033988749895,
+            "unit": "N",
+            "entity_ref": "support:锚",
+            "basis_ref": {
+              "ref_type": "combination",
+              "ref_id": "combination:Σ"
+            },
+            "source_result_refs": [
+              "result:combination:combination-Σ:support-action:11:support:锚:Fx",
+              "result:combination:combination-Σ:support-action:11:support:锚:Fy",
+              "result:combination:combination-Σ:support-action:11:support:锚:Fz",
+              "result:combination:combination-Σ:support-action:11:support:锚:Mx",
+              "result:combination:combination-Σ:support-action:11:support:锚:My",
+              "result:combination:combination-Σ:support-action:11:support:锚:Mz"
+            ],
+            "metadata": {
+              "component": "force_magnitude",
+              "coordinate_system": "global",
+              "location": "node",
+              "basis": "explicit_user_linear_combination",
+              "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+            }
+          }
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N6-support-row-without-basis-ref-element-local",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/results/22/basis_ref"
+        },
+        {
+          "op": "replace",
+          "path": "/results/22/metadata/coordinate_system",
+          "value": "element_local"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N7-integer-count-written-as-float",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/summary/component_stress_modifier_count",
+          "value": 4.0
+        }
+      ],
+      "expect": "accepted"
+    },
+    {
+      "id": "A4-N8-blocked-envelope-without-summary",
+      "base": "blocked",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/summary"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N10-integer-span-index-written-as-float",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/0/span_index",
+          "value": 0.0
+        }
+      ],
+      "expect": "accepted"
     }
   ]
 }
