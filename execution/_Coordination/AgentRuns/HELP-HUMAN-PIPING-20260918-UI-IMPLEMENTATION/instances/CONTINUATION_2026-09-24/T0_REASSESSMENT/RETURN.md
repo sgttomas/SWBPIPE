@@ -390,5 +390,5 @@ All under `_run_records/`. Paths are repo-relative; `{REPO_ROOT}` and `${CARGO_T
 Rerun:
 
 - Cargo tests: from `projects/chirality-piping/core/product_physics`, run `CARGO_TARGET_DIR=<scratch> cargo test --offline --locked --lib`, and again with `--test <name>` for each integration file. Do the same in `core/solver/frame_kernel` and `core/solver/sparse_direct`.
-- Probe: copy `t0_probe/` outside the repository, drop the `.txt` suffixes, set its dependency path to `projects/chirality-piping/core/product_physics`, then run `cargo run --offline -q`.
+- Probe: copy `t0_probe/` outside the repository, drop the `.txt` suffixes, set its dependency path to the absolute path of `projects/chirality-piping/core/product_physics` in your checkout (the recorded run used the default 1.94.1 toolchain, outside the project override), then run `cargo run --offline -q`.
 - Python gate: run `python -m pytest -q` on the five test files, using the DEC-025 venv.
