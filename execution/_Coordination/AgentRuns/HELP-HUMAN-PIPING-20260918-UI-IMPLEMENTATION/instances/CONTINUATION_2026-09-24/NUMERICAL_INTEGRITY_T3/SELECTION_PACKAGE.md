@@ -22,11 +22,11 @@ The references are already frozen (`ROOT_SELECTION_REFERENCES.md`). The S11 cont
 
 | Record | Revision / commit | sha256 (prefix) |
 |---|---|---|
-| `DESIGN_NUMERICS/DESIGN.md` (D1) | revision 5a.1 at `8dfd72921` | `13c1a7d5` |
-| `DESIGN_NUMERICS/S11_CONTAINMENT.md` | revision 5a at `16bcbf369` (selected at revision 3 plus R3) | `82c1b072` |
+| `DESIGN_NUMERICS/DESIGN.md` (D1) | revision 5a.2 at `932698d7a` | `fb62ef4a` |
+| `DESIGN_NUMERICS/S11_CONTAINMENT.md` | revision 5a.2 at `932698d7a` (selected at revision 3 plus R3) | `e6507587` |
 | `DESIGN_NUMERICS/D5_TRIGGER.md` | revision 2a at `16bcbf369` | `f6e24a69` |
-| `DESIGN_NUMERICS/R5_4_CURVED.md` | `4bc3e0696` | `4843c4e9` |
-| `DESIGN_STANDING/DESIGN.md` (D2) | revision 5b.1 at `ae2333a80` | `71bb7278` |
+| `DESIGN_NUMERICS/R5_4_CURVED.md` | `932698d7a` (arctangent bound wording only; first committed at `4bc3e0696`, `4843c4e9`) | `2c9fae78` |
+| `DESIGN_STANDING/DESIGN.md` (D2) | revision 5b.2 at `8b2bca91b` | `edc78f9c` |
 | `REFERENCES/` (R1, frozen) | `c0f14201c` | `references.json` `7b176dbb` |
 | Reviews | `REVIEW/RETURN.md`, `S11_CHECK.md`, `S11_BACKCHECK.md`, `S11_BACKCHECK_R3.md`, `BACKCHECK_R2.md`, `BACKCHECK_R3.md`, `D5_CHECK.md`, `BACKCHECK_R4.md`, `BACKCHECK_R5.md` | — |
 | Reference checks | `REFERENCE_CHECK/RETURN.md`, `BACKCHECK.md`, `ERRATUM_N1.md` | — |
@@ -118,6 +118,7 @@ D1's note `DESIGN_NUMERICS/R5_4_CURVED.md` (commit `4bc3e0696`, sha256 `4843c4e9
   - Four curved Passed breaches on main (up to 1.48×): all caught, with EF equal to the actual error to three digits. A check reusing the product's binary64 curved matrix misses 2.
   - T4's null-space confirmation is not a prerequisite.
 - **ROOT (2026-09-26):** pre-accepted. Options (a), (b) and (c) fall away. Final acceptance depends on V1's targeted verification (`ROOT_RULINGS_V1.md`).
+- **ROOT on V1's verification (2026-09-26):** the K3a arctangent bound is stated as V1's measurement (≤ 2.69 ulp at p = 128, over 13 angles), not a proof. That is acceptable for selection, provided the K3a slice's test vectors carry a few-ulp tolerance and the implementation slice owns any proof.
 - **Findings:** the curved Passed breaches (M03, under the no-interim ruling, fixed by K-D5), and the product's curved element not being rotation-consistent on binary64 inputs (routed to T4 and W1c).
 
 ## 7. What T3 completes and what remains
@@ -139,6 +140,10 @@ This section is drawn from D1 §8 and D2 §8, at the final revisions. **Nothing 
 | **T1-routed: selected-UNAVAILABLE alignment** | Closed (S-A), built into S-G | S-A | — |
 | **T0R carries R-1, R-2** | Fresh results: moot after F2. Historical: containment kept by ruling (R-7 (i)) | F2 | None, unless a defect is found |
 | **Standing (D-15)** | Today's selected-case withholding restored by C (S-I1, S-I2), and proven zeros by B (S-J). Retirement proceeds domain by domain, only under gate condition 3 (row level and check level) | S-I, S-J, F2b | Rows a check cannot decide within ±b read indeterminate, never pass. Case-scoped standing and F-P2's whole-invocation blocking (T6) |
+
+**Open into implementation (T3):**
+- V1's NOTE 8: the scripts `withheld_rows.py` and `b_proof.py` do not read `hanger.stiffness`, which `support_stiffness_input` also reads. It does not change the restrained set. This is a script fix for the K-D5/W1 slice (ROOT, 2026-09-26).
+- The K3a arctangent: a test-vector tolerance of a few ulp, with any proof of the bound owned by the implementation slice.
 
 **Routed elsewhere:**
 - **T5:** the friction fold; the nonlinear closed-gap prescribed solves (option (c), legacy binary64 variants pinned); mixed recovery basis; gap classification.
