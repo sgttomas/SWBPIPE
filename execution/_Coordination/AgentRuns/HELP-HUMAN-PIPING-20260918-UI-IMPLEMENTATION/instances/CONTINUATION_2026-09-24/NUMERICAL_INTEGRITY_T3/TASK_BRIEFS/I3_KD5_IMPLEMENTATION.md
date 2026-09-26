@@ -1,0 +1,111 @@
+# I3: implement slice K-D5 (the D-5 formation check)
+
+This is an implementation TASK. Read `_COMMON.md` first. This brief overrides it where they differ (writes and builds).
+
+## Purpose
+
+Implement slice K-D5 of the selected design (`ROOT_SELECTION_DESIGNS.md`). K-D5 is the formation-error check on the ordinary linear route:
+- EF = K̃⁻¹ρ, where ρ = f − K_int·u is the exact residual of the intended system, formed in `Wide<2>` from binary64 primitives, with a factor of 2 on the coupled S\*.
+- A Passed invocation whose check exceeds the criterion is demoted to Sensitive.
+
+K-D5 repairs main's Passed-band wrong values in the skew and absorbed-spring class and in the curved class (R5-4). It must never publish a silently wrong value, strip a load or feature, skip a test or raise a timeout.
+
+## Governing basis (read in this order)
+
+1. `T3/ROOT_SELECTION_DESIGNS.md`, including **C2** (the scripts read `hanger.stiffness`) and **C5**.
+2. `T3/DESIGN_NUMERICS/DESIGN.md` **revision 5a.2** (`932698d7a`, `fb62ef4a…`):
+   - **§4.3 and §4.3.1**: the check, the trigger (2|w|/criterion > 1; a quoted EF is |w|/criterion), the factor-2 margin, the zero-scale clause, and nonlinear supports never selected;
+   - **the K-D5 row of the §6 slice table** (write set and tests, quoted below);
+   - the §9 mutation table: (23), (26)–(28), (31), (32).
+3. `T3/DESIGN_NUMERICS/R5_4_CURVED.md` (`2c9fae78`) and `_run_records/curved_ef.py`: the objective curved and joint re-formation from the actual chord, with sine and cosine from square roots, and the atan from K3a.
+4. `T3/DESIGN_NUMERICS/D5_TRIGGER.md` revision 2a (`f6e24a69`), for background only: §4.3.1 of DESIGN replaces its (a2) rule, §5 and §9.
+5. `T3/ROOT_RULINGS_V1.md`: D-5 (O1 final), D5C-1 to D5C-5, R5-4, S11-K's option (c), and the nonlinear-support ruling.
+6. `T3/REVIEW/D5_CHECK.md` and `VERIFY_R5.md`: V1's probes C and D, and the R5-4 reproductions.
+7. K3a's `retained/wide.rs` and S11-K's `exact_sum.rs` and `ExactAccumulator` on your base. Use them; do not modify them.
+
+## Base, worktree and branch
+
+- ROOT creates `<kd5-worktree>`, on a new branch from **the K3a head** (which already contains S11-K).
+- **K-D5 lands after K3a merges**, with its own full-gate PR.
+- Make no Git writes. The manager commits.
+
+## Write set (from the K-D5 row)
+
+- **`P/core/solver/frame_kernel/src/structural.rs`:**
+  - EF after the residual gate in `finish_checked_factor`;
+  - the Passed→Sensitive demotion;
+  - a typed optional formation source on `StructuralSystem`;
+  - a `FormationCheck` record on `StructuralSolution`, **never on `StructuralReport`**.
+- **New `P/core/solver/frame_kernel/src/structural/formation_check.rs`:**
+  - the `Wide<2>` re-formation of straight frames, realized curved bends (objective, from the actual chord) and user-stiffness elements from their primitives;
+  - ρ as one `ExactAccumulator` sum per free row, extending `contribution_sums`/`audit_intended_action`.
+- **`P/core/solver/nonlinear_integration/src/structural_adapter.rs` (SA):**
+  - the formation source from `AssemblyEvidence::new`: frame, curved and user primitives, plus a flag for any family the check cannot re-form;
+  - a **new `solve_with_formation_check`** beside the unchanged `solve`.
+- **`P/core/product_physics/src/lib.rs`:** only the one call site at the merged `PP:3965` (`solve_preview_reduced_system`), switched to `solve_with_formation_check`. Report the exact line on your base. No other `PP` change.
+- **C2:** `T3/DESIGN_NUMERICS/_run_records/withheld_rows.py` and `b_proof.py` in the **numerics** worktree read `hanger.stiffness` as `support_stiffness_input` does. Re-run both and **report any change to their outputs to the manager before continuing.** This is a records write outside your product worktree; it is the only one allowed.
+- Tests in the touched crates, and records in `T3/IMPLEMENTATION/KD5/**` in `<kd5-worktree>`.
+
+## Callers (ROOT's recorded lesson)
+
+**Enumerate every caller of every function you change.** At least:
+- `solve_structural_dense` and `_sparse`;
+- `StructuralAssembly::solve` / `AssemblyEvidence::solve` and `solve_binary64`;
+- `finish_checked_factor`;
+- `evaluate_original_residual`.
+
+Classify each caller. Requirements:
+- **Linear:** the new linear entry is reached only from `PP:3965`.
+- **Nonlinear:** the loop's calls (the `_binary64` targets from `solve_linearized_system_evidence`, `StructuralAssembly::solve` at the loop, `product_equilibrium`, `scrutinize_gaps`) reach **no** formation check. Extend I1's pin test `option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path` to assert this (mutation 32).
+- **Nonlinear-support cases** are never selected and keep their ordinary result (ROOT ruling).
+
+Put the list in `_run_records/callers.txt`, by lexer scan, as I1 did.
+
+## Tests (from the K-D5 row; all required)
+
+- **The required true positive:** RF-SKEW-T-CANT-OFF-122-r1e-04 demotes in both modes **and on both entries** (captured and typed).
+- **Must not demote:** RF-SKEW 345, the RF-CHAIN r1e-04 continuity controls, the invented M11.
+- **D5C-1 controls,** each demoting where its actual error exceeds half the criterion:
+  - a solve-error-only case (V1's probe D class);
+  - an absorbed-spring case (probe C);
+  - an axis-aligned bending-soft case near the criterion.
+- **The zero-scale clause,** as a kernel-level test supplying ledger terms that differ from the solve's force (N-2).
+- **R5-4:**
+  - E1 and E6 must not demote;
+  - the skew-plane elbow cantilever at k_X = 8.5 demotes in both modes;
+  - an expansion-joint model (lateral zero) must not demote;
+  - a seeded non-re-formable family demotes with `formation_check_unavailable`.
+- **Callers:** a nonlinear-loop model reaches no formation check (the pin).
+- **D5C-3:** every committed raw is byte-identical when nothing demotes, and `StructuralReport` is unchanged.
+- **The committed-fixture diff** (run every committed request through base and candidate, in both modes): expected unchanged. Any committed-byte change, including any demotion of a committed fixture case, **stops the work** and is reported to the manager with its site and reason before anything is regenerated.
+- **The no-Passed-breach gate** through both entries, over the frozen references, with exactly `GATE/S11_EXCEPTIONS.json`'s triples as exceptions. The skew and curved cases are not exceptions.
+- **Mutations** (23), (26)–(28), (31) and (32), in a scratch copy: record each patch, the command and the killing test. A survivor is a defect; never weaken a test.
+- **Every existing suite** in the touched crates and their path dependents, including `benchmarks/nonlinear` (unchanged, with DEC-046's limits untouched), `benchmarks/mechanics`, `runner/headless` (with `--no-fail-fast`), `result_export`, `apps/desktop/src-tauri`, and the Python and desktop TS suites if any fixture reader is touched.
+
+## Build rules
+
+- `RUSTUP_TOOLCHAIN=1.97.1`, `CARGO_INCREMENTAL=0`, `CARGO_TARGET_DIR=<t3-target>`, `--offline --locked`.
+- **One heavy cargo job at a time across T3.** Check `pgrep -x cargo` first.
+- Keep free disk above about 8 GB.
+- Run `cargo fmt` on changed files. **Make no Git index operations.**
+
+## Disclosure and return
+
+- **`T3/IMPLEMENTATION/KD5/CHANGE_RECORD.md`**, following `.agents/skills/chirality-change/SKILL.md`. It states:
+  - which cases can change standing (Passed → Sensitive), and why;
+  - that no value changes;
+  - the measured fixture result;
+  - the cost per curved element;
+  - that there is no in-band marker.
+- **`T3/IMPLEMENTATION/KD5/RETURN.md`**, with logs under `_run_records/`, `SHA256SUMS` and no machine paths. It covers:
+  - the files changed and their line counts;
+  - each write-set item and test;
+  - the caller list;
+  - the C2 script result;
+  - the per-crate counts;
+  - the mutation table;
+  - the fixture diff;
+  - the toolchain;
+  - what was not done.
+
+Send the manager a SendMessage summary. Message the manager at once if the stop rule triggers or a design item cannot be implemented as specified. Don't improvise a different design.
