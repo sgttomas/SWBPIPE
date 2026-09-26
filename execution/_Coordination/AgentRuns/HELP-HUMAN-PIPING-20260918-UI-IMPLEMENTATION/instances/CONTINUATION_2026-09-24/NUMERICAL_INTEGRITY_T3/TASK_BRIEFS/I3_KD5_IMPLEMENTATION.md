@@ -121,3 +121,19 @@ Base: branch `codex/piping-k3a-20260926` at `a2e804a757359d589f4c31ea8e36a923f28
 - **Module placement.** `retained` is declared privately in `structural.rs` (`mod retained;`), so `formation_check.rs` must sit under `structural/`, as the design places it, to reach `super::retained::wide`. Do not widen `retained`'s visibility.
 - **dead_code.** K-D5 is K3a's first caller. Remove the `#![allow(dead_code)]` in `retained/mod.rs`, and fix any items that remain unused. Report which items those are.
 - **Environment.** Use `RUSTUP_AUTO_INSTALL=0` and `RUSTUP_TOOLCHAIN=1.97.1`. Cargo priority: I1's S11-K fixes, then ROOT's DEC-025 sweep, then RV2, then you. Hold your cargo while the sweep runs.
+
+## Addendum 2: realization decisions (manager, 2026-09-26, on I3's report; ROOT informed)
+
+1. **Curved primitives (option B).**
+   - `solve_with_formation_check` takes the curved macro elements as an extra argument, passed at the single PP:3965 call from `built.curved_bend_elements`.
+   - SA matches each curved slot by (node_i, node_j) and bitwise equality of `macro.global_stiffness()` with the slot's matrix.
+   - Any unmatched slot, and any explicit `CurvedBendStiffnessElement::new` slot, sets the cannot-re-form flag, so the case is demoted with `formation_check_unavailable`.
+   - `CurvedBendStiffnessElement` and nonlinear `lib.rs` are not touched.
+   - Tests: matched macro elements re-form (E1 and E6 not demoted, the k_X = 8.5 elbow demoted); a mismatched or explicit slot demotes; matching is order-independent.
+2. **Nonlinear-support cases.**
+   - The PP:3965 call passes `selected = built.nonlinear_supports.is_empty()`. When it is false, SA runs the unchanged `solve`. That is ROOT's "never selected, never refused".
+   - Test: a nonlinear-support model with a skew soft member that would demote keeps its linear attempt, ordinary_attempt and receipt byte-identical to base.
+3. **Accepted realizations:**
+   - the `FormationCheckedSystem` wrapper, following S11-K's `AssembledStructuralSystem` pattern (StructuralReport unchanged; no struct literal outside the write set changes);
+   - the K-D5 nonlinear pins in a new `structural_adapter/kd5_tests.rs`, not edits to I1's pin function, integrated when K-D5 is merged forward after S11-K and K3a merge;
+   - joints with nonzero lateral stiffness are non-re-formable, and the lateral-zero test is at SA level.
