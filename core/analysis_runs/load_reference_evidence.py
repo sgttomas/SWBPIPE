@@ -33,6 +33,13 @@ TRANSPORT_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "load_
 RECORD_CONTRACT = "openpipestress.load_reference_state/1.0.0"
 MATERIAL_BASIS = "resolved_per_member_load_reference_state_v1"
 NOT_JOINED = "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+# Selected retained-source method and its info diagnostic (joined method only).
+EXACT_METHOD = "retained_source_blocks_exact_v1"
+SELECTED = "SOURCE_BLOCK_RECOVERY_SELECTED"
+# The method whose namespace is admitted: load-reference-1 (unchanged) or the
+# joined load-reference-source-1 pre-pass (``load_reference_source``).
+LOAD_REFERENCE = "load_reference"
+JOINED = "joined"
 REGION_TEMPERATURE_BASIS = "resolved_member_state"
 G_BASIS = "E/[2(1+nu)] from the selected pair"
 COMPOSITION = "lambda_fit*lambda_thermal-1"
@@ -260,12 +267,44 @@ def _guarded(source: Mapping[str, Any], *, raw: bool) -> None:
 
 
 def _validate(source: Mapping[str, Any], raw: bool) -> None:
+    _prepass(source, raw, LOAD_REFERENCE)
+    # S14 inherited physics-1 checks on the projected copy.
+    projected = _project(source)
+    from .physics_evidence import validate_physics_evidence, validate_transport_metadata
+    try:
+        if raw:
+            validate_physics_evidence(projected)
+        else:
+            validate_transport_metadata(projected)
+    except ValueError as error:
+        raise LoadReferenceError(f"{_code('PHYSICS_EVIDENCE')}: {error}") from error
+    except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+        raise LoadReferenceError(f"{_code('PHYSICS_EVIDENCE')}: SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+
+
+def _is_selected(record: Any) -> bool:
+    """A record whose case publishes the selected retained-source response."""
+    return _eq(_get(_get(record, "solve"), "recovery_method"), EXACT_METHOD)
+
+
+def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
+    """Steps S1-S13, shared with the joined reader (Rust ``load_reference::prepass``).
+
+    The joined method differs only in S1 (the receipt is required), the
+    transport schema (not applied: the frozen schema admits only not-joined
+    records), S7 (``recovery_method``), S10 (a selected record), S10b and S13.
+    """
+    joined = method == JOINED
     # S1 foreign method namespaces.
-    _require(not isinstance(source, Mapping) or ("source_block_recovery" not in source and "carrier_evidence" not in source), "FOREIGN_METHOD_EVIDENCE")
+    if joined:
+        _require(not isinstance(source, Mapping) or "carrier_evidence" not in source, "FOREIGN_METHOD_EVIDENCE")
+        _require(isinstance(source, Mapping) and "source_block_recovery" in source, "JOIN_RECEIPT_REQUIRED")
+    else:
+        _require(not isinstance(source, Mapping) or ("source_block_recovery" not in source and "carrier_evidence" not in source), "FOREIGN_METHOD_EVIDENCE")
     # S2 finite numbers everywhere.
     _finite_tree(source)
     evidence = _get(source, "contract_evidence")
-    if not raw:
+    if not raw and not joined:
         from .source_blocks import _shape as schema_shape
         schema = transport_schema()
         _require(schema_shape(evidence, schema["$defs"]["LoadReferenceContractEvidence"], schema), "TRANSPORT_SHAPE")
@@ -285,8 +324,9 @@ def _validate(source: Mapping[str, Any], raw: bool) -> None:
         quality_ids.append(case_id)
     # S7 exact cases, their resolved materials and section identities.
     cases: list[tuple[str, Mapping[str, Any]]] = []
+    case_keys = CASE_KEYS + (["recovery_method"] if joined else [])
     for case in exact:
-        _require(_keys(case, CASE_KEYS), "CASE_SHAPE")
+        _require(_keys(case, case_keys), "CASE_SHAPE")
         case_id = _text(case["load_case_id"])
         _require(all(known != case_id for known, _ in cases), "CASE_DUPLICATE")
         _require(_eq(case["material_basis"], MATERIAL_BASIS), "MATERIAL_BASIS")
@@ -318,7 +358,16 @@ def _validate(source: Mapping[str, Any], raw: bool) -> None:
         _require(not records and not exact and not pressure, "UNSOLVED_EVIDENCE")
     # S10 each record in document order.
     for record in records:
-        _validate_record(record, cases, pressure)
+        _validate_record(record, cases, pressure, method)
+    # S10b (joined) the published method of each case agrees with its exact
+    # case, and at least one case publishes the selected response.
+    if joined:
+        for record in records:
+            case = next((value for known, value in cases if _eq(record["load_case_id"], known)), None)
+            if case is None:
+                raise _fail("RECORD_CASE_UNRESOLVED")
+            _require(_same(case["recovery_method"], _get(record["solve"], "recovery_method")), "JOIN_RECOVERY_METHOD")
+        _require(any(_is_selected(record) for record in records), "JOIN_SELECTION_REQUIRED")
     # S11 one model geometry and one requested mode per envelope.
     if records:
         first = records[0]
@@ -341,26 +390,24 @@ def _validate(source: Mapping[str, Any], raw: bool) -> None:
             if member is None:
                 raise _fail("REGION_MATERIAL_BINDING")
             _require(_same(_without(material, ["temperature_basis"]), _without(member, ["material_selection_kind", "resolved_eigenstrain"])), "REGION_MATERIAL_BINDING")
-    # S13 exactly one not-joined info diagnostic per resolved case.
+    # S13 exactly one not-joined info diagnostic per resolved case. In the
+    # joined method a selected case instead carries exactly one info
+    # SOURCE_BLOCK_RECOVERY_SELECTED diagnostic and no not-joined diagnostic.
     if raw and solved:
         diagnostics = _array(_get(source, "diagnostics"))
-        for case_id in record_ids:
-            expected = f"diagnostic:load-state:{case_id.replace(':', '-')}:source-recovery-not-joined"
-            hits = [d for d in diagnostics if _eq(_get(d, "code"), NOT_JOINED) and _eq(_get(d, "id"), expected)]
-            _require(len(hits) == 1 and _eq(_get(hits[0], "severity"), "info") and _same(_get(hits[0], "affected_refs"), [case_id]), "NOT_JOINED_DIAGNOSTIC")
-        _require(sum(1 for d in diagnostics if _eq(_get(d, "code"), NOT_JOINED)) == len(record_ids), "NOT_JOINED_DIAGNOSTIC")
-    # S14 inherited physics-1 checks on the projected copy.
-    projected = _project(source)
-    from .physics_evidence import validate_physics_evidence, validate_transport_metadata
-    try:
-        if raw:
-            validate_physics_evidence(projected)
-        else:
-            validate_transport_metadata(projected)
-    except ValueError as error:
-        raise LoadReferenceError(f"{_code('PHYSICS_EVIDENCE')}: {error}") from error
-    except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
-        raise LoadReferenceError(f"{_code('PHYSICS_EVIDENCE')}: SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+        not_joined = selected = 0
+        for case_id, record in zip(record_ids, records):
+            if joined and _is_selected(record):
+                selected += 1
+                kind, expected, name = SELECTED, f"diagnostic:source-recovery:{case_id}:selected", "JOIN_SELECTED_DIAGNOSTIC"
+            else:
+                not_joined += 1
+                kind, expected, name = NOT_JOINED, f"diagnostic:load-state:{case_id.replace(':', '-')}:source-recovery-not-joined", "NOT_JOINED_DIAGNOSTIC"
+            hits = [d for d in diagnostics if _eq(_get(d, "code"), kind) and _eq(_get(d, "id"), expected)]
+            _require(len(hits) == 1 and _eq(_get(hits[0], "severity"), "info") and _same(_get(hits[0], "affected_refs"), [case_id]), name)
+        _require(sum(1 for d in diagnostics if _eq(_get(d, "code"), NOT_JOINED)) == not_joined, "NOT_JOINED_DIAGNOSTIC")
+        if joined:
+            _require(sum(1 for d in diagnostics if _eq(_get(d, "code"), SELECTED)) == selected, "JOIN_SELECTED_DIAGNOSTIC")
 
 
 def _project(source: Mapping[str, Any]) -> dict[str, Any]:
@@ -383,7 +430,7 @@ def _project(source: Mapping[str, Any]) -> dict[str, Any]:
     return projected
 
 
-def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[str, Any]]], pressure: list[Any]) -> None:
+def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[str, Any]]], pressure: list[Any], method: str = LOAD_REFERENCE) -> None:
     case_id = _text(record["load_case_id"])
     # R1-R7 record-level closed statements.
     _require(_eq(record["contract"], RECORD_CONTRACT), "RECORD_CONTRACT")
@@ -399,15 +446,23 @@ def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[s
     solve = record["solve"]
     _require(_keys(solve, ["requested_mode", "recovery_method", "boundary", "eigenload"]), "SOLVE_SHAPE")
     pair = (solve["requested_mode"], solve["recovery_method"])
+    # The joined method also admits the selected retained-source response in
+    # either requested mode (ADDENDUM_2 section 5.3).
+    selected = method == JOINED and _eq(solve["recovery_method"], EXACT_METHOD)
     _require(
         all(isinstance(item, str) for item in pair)
-        and pair in {("sparse_interactive", "ordinary_sparse_structural_v1"), ("dense_scrutiny", "ordinary_dense_structural_v1")}
+        and (pair in {("sparse_interactive", "ordinary_sparse_structural_v1"), ("dense_scrutiny", "ordinary_dense_structural_v1")}
+             or (selected and pair[0] in {"sparse_interactive", "dense_scrutiny"}))
         and _eq(solve["boundary"], BOUNDARY) and _eq(solve["eigenload"], EIGENLOAD),
         "SOLVE",
     )
     recovery = record["source_recovery"]
-    _require(_keys(recovery, ["status", "code"]), "SOURCE_RECOVERY_SHAPE")
-    _require(_eq(recovery["status"], "not_joined") and _eq(recovery["code"], NOT_JOINED), "SOURCE_RECOVERY")
+    if selected:
+        _require(_keys(recovery, ["status", "method"]), "SOURCE_RECOVERY_SHAPE")
+        _require(_eq(recovery["status"], "selected") and _eq(recovery["method"], EXACT_METHOD), "SOURCE_RECOVERY")
+    else:
+        _require(_keys(recovery, ["status", "code"]), "SOURCE_RECOVERY_SHAPE")
+        _require(_eq(recovery["status"], "not_joined") and _eq(recovery["code"], NOT_JOINED), "SOURCE_RECOVERY")
     # R8 members.
     members = _array(record["members"])
     member_ids: list[str] = []

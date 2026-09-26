@@ -958,7 +958,8 @@
                 "openpipestress.result_semantics/0.3.0/physics-1",
                 "openpipestress.result_semantics/0.3.0/source-blocks-1",
                 "openpipestress.result_semantics/0.3.0/physics-source-1",
-                "openpipestress.result_semantics/0.3.0/load-reference-1"
+                "openpipestress.result_semantics/0.3.0/load-reference-1",
+                "openpipestress.result_semantics/0.3.0/load-reference-source-1"
               ]
             }
           }
@@ -980,7 +981,8 @@
                 "openpipestress.result_semantics/0.3.0/physics-1",
                 "openpipestress.result_semantics/0.3.0/source-blocks-1",
                 "openpipestress.result_semantics/0.3.0/physics-source-1",
-                "openpipestress.result_semantics/0.3.0/load-reference-1"
+                "openpipestress.result_semantics/0.3.0/load-reference-1",
+                "openpipestress.result_semantics/0.3.0/load-reference-source-1"
               ]
             }
           }
@@ -997,7 +999,8 @@
               "enum": [
                 "product_preview_mechanics_v1",
                 "exact_straight_pressure_v2",
-                "resolved_straight_load_state_v1"
+                "resolved_straight_load_state_v1",
+                "resolved_straight_load_state_source_v1"
               ]
             },
             "limitations": {
@@ -1110,6 +1113,9 @@
             },
             {
               "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence"
+            },
+            {
+              "$ref": "#/$defs/LoadReferenceSourceContractEvidence"
             }
           ]
         },
@@ -1120,6 +1126,9 @@
             },
             {
               "$ref": "physics_source_recovery.schema.json"
+            },
+            {
+              "$ref": "#/$defs/LoadReferenceSourceRecovery"
             }
           ]
         }
@@ -1338,6 +1347,46 @@
                 ]
               }
             ]
+          }
+        },
+        {
+          "required": [
+            "source_block_recovery",
+            "contract_evidence"
+          ],
+          "properties": {
+            "producer": {
+              "properties": {
+                "semantic_contract_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+                }
+              }
+            },
+            "semantic_contract_ref": {
+              "properties": {
+                "ref_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+                }
+              }
+            },
+            "formulation_basis": {
+              "properties": {
+                "profile_id": {
+                  "const": "resolved_straight_load_state_source_v1"
+                }
+              }
+            },
+            "source_block_recovery": {
+              "$ref": "#/$defs/LoadReferenceSourceRecovery"
+            },
+            "contract_evidence": {
+              "$ref": "#/$defs/LoadReferenceSourceContractEvidence"
+            },
+            "result_sets": {
+              "items": {
+                "$ref": "#/$defs/PhysicsSourceResultSet"
+              }
+            }
           }
         }
       ]
@@ -3063,6 +3112,772 @@
           }
         }
       }
+    },
+    "LoadReferenceSourceRecovery": {
+      "description": "Closed LOAD-REFERENCE-SOURCE-1 source_block_recovery receipt; the physics-source-1 receipt envelope with its own body.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "body",
+        "receipt_sha256"
+      ],
+      "properties": {
+        "body": {
+          "$ref": "#/$defs/LoadReferenceSourceReceiptBody"
+        },
+        "receipt_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "LoadReferenceSourceReceiptBody": {
+      "description": "Receipt body of openpipestress.result_semantics/0.3.0/load-reference-source-1: the physics-source-1 receipt body (physics_source_recovery.schema.json#/$defs/receipt_body) with policy LOAD-REFERENCE-SOURCE-1; every nested shape is reused by $ref. Closed shape only; hashes, bindings and the physical-evidence domain are executable reader validation.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_version",
+        "policy",
+        "status",
+        "invocation",
+        "publication_sha256",
+        "cases",
+        "envelope_observation_result_ids",
+        "invocation_work"
+      ],
+      "properties": {
+        "receipt_version": {
+          "const": "1.0.0"
+        },
+        "policy": {
+          "const": "LOAD-REFERENCE-SOURCE-1"
+        },
+        "status": {
+          "const": "qualified"
+        },
+        "invocation": {
+          "$ref": "physics_source_recovery.schema.json#/$defs/invocation"
+        },
+        "publication_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "cases": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "$ref": "physics_source_recovery.schema.json#/$defs/case"
+          }
+        },
+        "envelope_observation_result_ids": {
+          "type": "array",
+          "maxItems": 16384,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "invocation_work": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "limit",
+            "charged",
+            "publication_charged"
+          ],
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 64000000
+            },
+            "charged": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 64000000
+            },
+            "publication_charged": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 64000000
+            }
+          }
+        }
+      }
+    },
+    "LoadReferenceSourceContractEvidence": {
+      "description": "Raw producer contract_evidence for semantic contract openpipestress.result_semantics/0.3.0/load-reference-source-1 (profile resolved_straight_load_state_source_v1): exactly {pressure, connector, exact_cases, load_reference_states}, connector []. Carriers preserve it verbatim. Closed shape only; cross-binding is executable reader validation.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pressure",
+        "connector",
+        "exact_cases",
+        "load_reference_states"
+      ],
+      "properties": {
+        "pressure": {
+          "type": "array",
+          "items": {
+            "$ref": "load_reference_state.schema.json#/$defs/LoadReferencePressureEvidence"
+          }
+        },
+        "connector": {
+          "const": []
+        },
+        "exact_cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LoadReferenceSourceExactCase"
+          }
+        },
+        "load_reference_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LoadReferenceSourceStateRecord"
+          }
+        }
+      }
+    },
+    "LoadReferenceSourceExactCase": {
+      "description": "One contract_evidence.exact_cases[] item under load-reference-source-1: the physics-source-1 exact case (recovery_method and retained pipe_stress_extrema) with material_basis resolved_per_member_load_reference_state_v1 and resolved-member pipe_materials (load_reference_state.schema.json#/$defs/LoadReferencePipeMaterial).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "profile_mode",
+        "material_basis",
+        "pipe_materials",
+        "pipe_sections",
+        "pipe_stress_extrema",
+        "stress_maximum_coverage",
+        "pressure_rhs_assembly",
+        "recovery_method"
+      ],
+      "properties": {
+        "load_case_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile_mode": {
+          "const": "exact_straight_pressure_v2"
+        },
+        "material_basis": {
+          "const": "resolved_per_member_load_reference_state_v1"
+        },
+        "pipe_materials": {
+          "type": "array",
+          "items": {
+            "$ref": "load_reference_state.schema.json#/$defs/LoadReferencePipeMaterial"
+          }
+        },
+        "pipe_sections": {
+          "type": "array",
+          "items": {
+            "$ref": "physics_source_recovery.schema.json#/$defs/PhysicsGeometry"
+          }
+        },
+        "pipe_stress_extrema": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "result_id",
+                  "station_fraction",
+                  "span_index",
+                  "local_fraction",
+                  "value_lower_pa",
+                  "value_upper_pa",
+                  "global_upper_bound_pa",
+                  "certified_gap_pa",
+                  "subdivisions",
+                  "approximation",
+                  "coefficient_basis",
+                  "enclosure_scope"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "result_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "station_fraction": {
+                    "type": "number"
+                  },
+                  "span_index": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "local_fraction": {
+                    "type": "number"
+                  },
+                  "value_lower_pa": {
+                    "type": "number"
+                  },
+                  "value_upper_pa": {
+                    "type": "number"
+                  },
+                  "global_upper_bound_pa": {
+                    "type": "number"
+                  },
+                  "certified_gap_pa": {
+                    "type": "number"
+                  },
+                  "subdivisions": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 131072
+                  },
+                  "approximation": {
+                    "const": "piecewise_quadratic_straight_section_statics"
+                  },
+                  "coefficient_basis": {
+                    "const": "j_side_section_equilibrium_binary64"
+                  },
+                  "enclosure_scope": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              {
+                "$ref": "physics_source_recovery.schema.json#/$defs/retained_endpoint_maximum"
+              }
+            ]
+          }
+        },
+        "stress_maximum_coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "complete",
+            "unavailable_pipe_ids"
+          ],
+          "properties": {
+            "complete": {
+              "type": "boolean"
+            },
+            "unavailable_pipe_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "pressure_rhs_assembly": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "load_case_id",
+            "node_order",
+            "dof_order",
+            "dof_units",
+            "assembled_pressure_rhs_global",
+            "rounded_cap_rhs_global",
+            "rounded_poisson_rhs_global",
+            "groups",
+            "rounded_cap_and_eigen_ledgers_are_observational",
+            "cancellation_screen",
+            "screen_limit",
+            "screen_roundoff_multiplier",
+            "screen_is_not_numerical_qualification"
+          ],
+          "properties": {
+            "method": {
+              "const": "source_factor_grouped_pressure_rhs_v1"
+            },
+            "load_case_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "node_order": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "dof_order": {
+              "const": [
+                "Fx",
+                "Fy",
+                "Fz",
+                "Mx",
+                "My",
+                "Mz"
+              ]
+            },
+            "dof_units": {
+              "const": [
+                "N",
+                "N",
+                "N",
+                "N*m",
+                "N*m",
+                "N*m"
+              ]
+            },
+            "assembled_pressure_rhs_global": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "rounded_cap_rhs_global": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "rounded_poisson_rhs_global": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "node_ref",
+                  "component",
+                  "pressure_bits",
+                  "source_inner_radius_hi_bits",
+                  "source_inner_radius_lo_bits",
+                  "direction_component_magnitude",
+                  "coefficient_sum",
+                  "assembled_force_n",
+                  "terms"
+                ],
+                "properties": {
+                  "node_ref": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "component": {
+                    "enum": [
+                      "Fx",
+                      "Fy",
+                      "Fz"
+                    ]
+                  },
+                  "pressure_bits": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{16}$"
+                  },
+                  "source_inner_radius_hi_bits": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{16}$"
+                  },
+                  "source_inner_radius_lo_bits": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{16}$"
+                  },
+                  "direction_component_magnitude": {
+                    "type": "number"
+                  },
+                  "coefficient_sum": {
+                    "type": "number"
+                  },
+                  "assembled_force_n": {
+                    "type": "number"
+                  },
+                  "terms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "coefficient",
+                        "region_id",
+                        "pipe_id",
+                        "kind"
+                      ],
+                      "properties": {
+                        "coefficient": {
+                          "type": "number"
+                        },
+                        "region_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "kind": {
+                          "enum": [
+                            "poisson_eigen",
+                            "terminal_cap"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "rounded_cap_and_eigen_ledgers_are_observational": {
+              "const": true
+            },
+            "cancellation_screen": {
+              "type": "number"
+            },
+            "screen_limit": {
+              "const": 1e-09
+            },
+            "screen_roundoff_multiplier": {
+              "const": 32
+            },
+            "screen_is_not_numerical_qualification": {
+              "const": true
+            }
+          }
+        },
+        "recovery_method": {
+          "enum": [
+            "retained_source_blocks_exact_v1",
+            "ordinary_dense_structural_v1",
+            "ordinary_sparse_structural_v1"
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "recovery_method": {
+              "const": "retained_source_blocks_exact_v1"
+            },
+            "pipe_stress_extrema": {
+              "items": {
+                "$ref": "physics_source_recovery.schema.json#/$defs/retained_endpoint_maximum"
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "recovery_method": {
+              "enum": [
+                "ordinary_dense_structural_v1",
+                "ordinary_sparse_structural_v1"
+              ]
+            },
+            "pipe_stress_extrema": {
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "result_id",
+                  "station_fraction",
+                  "span_index",
+                  "local_fraction",
+                  "value_lower_pa",
+                  "value_upper_pa",
+                  "global_upper_bound_pa",
+                  "certified_gap_pa",
+                  "subdivisions",
+                  "approximation",
+                  "coefficient_basis",
+                  "enclosure_scope"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "result_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "station_fraction": {
+                    "type": "number"
+                  },
+                  "span_index": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "local_fraction": {
+                    "type": "number"
+                  },
+                  "value_lower_pa": {
+                    "type": "number"
+                  },
+                  "value_upper_pa": {
+                    "type": "number"
+                  },
+                  "global_upper_bound_pa": {
+                    "type": "number"
+                  },
+                  "certified_gap_pa": {
+                    "type": "number"
+                  },
+                  "subdivisions": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 131072
+                  },
+                  "approximation": {
+                    "const": "piecewise_quadratic_straight_section_statics"
+                  },
+                  "coefficient_basis": {
+                    "const": "j_side_section_equilibrium_binary64"
+                  },
+                  "enclosure_scope": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "LoadReferenceSourceStateRecord": {
+      "description": "One contract_evidence.load_reference_states[] record under load-reference-source-1 (CP2_WIRE_ADDENDUM_2 section 5.3): the load-reference-1 record (load_reference_state.schema.json#/$defs/LoadReferenceStateRecord, nested shapes reused by $ref) except that a selected case has solve.recovery_method retained_source_blocks_exact_v1 with source_recovery {status: selected, method: retained_source_blocks_exact_v1}, and every other case keeps its ordinary method with {status: not_joined, code: LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED}. Case order, at least one selected case and the receipt binding are executable reader validation.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "contract",
+        "profile",
+        "reference_configuration_id",
+        "provenance",
+        "reference_geometry",
+        "history",
+        "solve",
+        "source_recovery",
+        "members",
+        "support_components",
+        "contributions",
+        "excluded_sources"
+      ],
+      "properties": {
+        "load_case_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contract": {
+          "const": "openpipestress.load_reference_state/1.0.0"
+        },
+        "profile": {
+          "const": "resolved_straight_load_state_v1"
+        },
+        "reference_configuration_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference_geometry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "projection_sha256"
+          ],
+          "properties": {
+            "kind": {
+              "const": "authored_model_geometry"
+            },
+            "projection_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "history": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "independent_equilibrium"
+            }
+          }
+        },
+        "solve": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requested_mode",
+            "recovery_method",
+            "boundary",
+            "eigenload"
+          ],
+          "properties": {
+            "requested_mode": {
+              "enum": [
+                "sparse_interactive",
+                "dense_scrutiny"
+              ]
+            },
+            "recovery_method": {
+              "enum": [
+                "ordinary_sparse_structural_v1",
+                "ordinary_dense_structural_v1",
+                "retained_source_blocks_exact_v1"
+              ]
+            },
+            "boundary": {
+              "type": "string",
+              "minLength": 1
+            },
+            "eigenload": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "oneOf": [
+            {
+              "properties": {
+                "requested_mode": {
+                  "const": "sparse_interactive"
+                },
+                "recovery_method": {
+                  "const": "ordinary_sparse_structural_v1"
+                }
+              }
+            },
+            {
+              "properties": {
+                "requested_mode": {
+                  "const": "dense_scrutiny"
+                },
+                "recovery_method": {
+                  "const": "ordinary_dense_structural_v1"
+                }
+              }
+            },
+            {
+              "properties": {
+                "recovery_method": {
+                  "const": "retained_source_blocks_exact_v1"
+                }
+              }
+            }
+          ]
+        },
+        "source_recovery": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "code"
+              ],
+              "properties": {
+                "status": {
+                  "const": "not_joined"
+                },
+                "code": {
+                  "const": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "method"
+              ],
+              "properties": {
+                "status": {
+                  "const": "selected"
+                },
+                "method": {
+                  "const": "retained_source_blocks_exact_v1"
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceMember"
+          }
+        },
+        "support_components": {
+          "type": "array",
+          "items": {
+            "$ref": "load_reference_state.schema.json#/$defs/SupportComponent"
+          }
+        },
+        "contributions": {
+          "type": "array",
+          "items": {
+            "$ref": "load_reference_state.schema.json#/$defs/Contribution"
+          }
+        },
+        "excluded_sources": {
+          "type": "array",
+          "items": {
+            "$ref": "load_reference_state.schema.json#/$defs/ExcludedSource"
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "solve": {
+              "properties": {
+                "recovery_method": {
+                  "const": "retained_source_blocks_exact_v1"
+                }
+              }
+            },
+            "source_recovery": {
+              "properties": {
+                "status": {
+                  "const": "selected"
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "solve": {
+              "properties": {
+                "recovery_method": {
+                  "enum": [
+                    "ordinary_sparse_structural_v1",
+                    "ordinary_dense_structural_v1"
+                  ]
+                }
+              }
+            },
+            "source_recovery": {
+              "properties": {
+                "status": {
+                  "const": "not_joined"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

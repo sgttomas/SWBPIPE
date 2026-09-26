@@ -230,7 +230,8 @@
             "openpipestress.result_semantics/0.3.0/physics-1",
             "openpipestress.result_semantics/0.3.0/source-blocks-1",
             "openpipestress.result_semantics/0.3.0/physics-source-1",
-            "openpipestress.result_semantics/0.3.0/load-reference-1"
+            "openpipestress.result_semantics/0.3.0/load-reference-1",
+            "openpipestress.result_semantics/0.3.0/load-reference-source-1"
           ]
         }
       }
@@ -352,7 +353,8 @@
           "enum": [
             "product_preview_mechanics_v1",
             "exact_straight_pressure_v2",
-            "resolved_straight_load_state_v1"
+            "resolved_straight_load_state_v1",
+            "resolved_straight_load_state_source_v1"
           ]
         },
         "limitations": {
@@ -382,7 +384,8 @@
             "openpipestress.result_semantics/0.3.0/physics-1",
             "openpipestress.result_semantics/0.3.0/source-blocks-1",
             "openpipestress.result_semantics/0.3.0/physics-source-1",
-            "openpipestress.result_semantics/0.3.0/load-reference-1"
+            "openpipestress.result_semantics/0.3.0/load-reference-1",
+            "openpipestress.result_semantics/0.3.0/load-reference-source-1"
           ]
         }
       }
@@ -401,7 +404,8 @@
             "openpipestress.result_semantics/0.3.0/physics-1",
             "openpipestress.result_semantics/0.3.0/source-blocks-1",
             "openpipestress.result_semantics/0.3.0/physics-source-1",
-            "openpipestress.result_semantics/0.3.0/load-reference-1"
+            "openpipestress.result_semantics/0.3.0/load-reference-1",
+            "openpipestress.result_semantics/0.3.0/load-reference-source-1"
           ]
         },
         "sha256": {
@@ -3225,6 +3229,97 @@
           }
         ]
       }
+    },
+    {
+      "properties": {
+        "producer": {
+          "properties": {
+            "semantic_contract_id": {
+              "const": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+            }
+          }
+        },
+        "semantic_contract_ref": {
+          "properties": {
+            "ref_id": {
+              "const": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+            }
+          }
+        },
+        "semantic_contract": {
+          "properties": {
+            "id": {
+              "const": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+            },
+            "sha256": {
+              "const": "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"
+            }
+          }
+        },
+        "formulation_basis": {
+          "properties": {
+            "profile_id": {
+              "const": "resolved_straight_load_state_source_v1"
+            }
+          }
+        },
+        "contract_evidence": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/LoadReferenceSourceContractEvidence"
+        },
+        "source_block_recovery": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/LoadReferenceSourceRecovery"
+        },
+        "export_profile": {
+          "required": [
+            "csv_encoding",
+            "csv_row_order"
+          ],
+          "properties": {
+            "csv_encoding": {
+              "const": "utf-8"
+            },
+            "csv_row_order": {
+              "const": "unicode_scalar_value_result_id"
+            }
+          }
+        },
+        "manifest": {
+          "properties": {
+            "package_members": {
+              "prefixItems": [
+                {},
+                {
+                  "properties": {
+                    "checksum": {
+                      "properties": {
+                        "canonicalization": {
+                          "const": "utf8_csv_record_lf_v1"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "checksums": {
+              "prefixItems": [
+                {
+                  "properties": {
+                    "canonicalization": {
+                      "const": "utf8_csv_record_lf_v1"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "contract_evidence",
+        "source_block_recovery",
+        "source_annotations"
+      ]
     }
   ]
 }

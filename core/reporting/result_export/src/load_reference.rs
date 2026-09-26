@@ -21,9 +21,23 @@ use std::sync::OnceLock;
 
 type Check = Result<(), String>;
 
+/// The method whose evidence namespace is being admitted. `LoadReference` is
+/// the unchanged load-reference-1 behaviour; `Joined` is the
+/// load-reference-source-1 pre-pass (`crate::load_reference_source`), which
+/// shares every check and code except where ADDENDUM_2 section 5.3 lets a case
+/// publish its selected retained-source response.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Method {
+    LoadReference,
+    Joined,
+}
+
 pub const RECORD_CONTRACT: &str = "openpipestress.load_reference_state/1.0.0";
 pub const MATERIAL_BASIS: &str = "resolved_per_member_load_reference_state_v1";
 pub const NOT_JOINED: &str = "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED";
+/// Selected retained-source method and its info diagnostic (joined method only).
+pub const EXACT_METHOD: &str = "retained_source_blocks_exact_v1";
+pub const SELECTED: &str = "SOURCE_BLOCK_RECOVERY_SELECTED";
 pub const REGION_TEMPERATURE_BASIS: &str = "resolved_member_state";
 pub const G_BASIS: &str = "E/[2(1+nu)] from the selected pair";
 pub const COMPOSITION: &str = "lambda_fit*lambda_thermal-1";
@@ -342,15 +356,44 @@ pub fn validate_load_reference_transport_metadata(source: &Value) -> Check {
 }
 
 fn validate(source: &Value, raw: bool) -> Check {
+    prepass(source, raw, Method::LoadReference)?;
+    // S14 inherited physics-1 checks on the projected copy.
+    let projected = project(source);
+    let inherited = if raw {
+        crate::physics_evidence::validate_physics_evidence(&projected)
+    } else {
+        crate::physics_evidence::validate_transport_metadata(&projected)
+    };
+    inherited.map_err(|e| format!("{}: {e}", code("PHYSICS_EVIDENCE")))
+}
+
+/// Steps S1-S13, shared with the joined reader. The joined method differs only
+/// in S1 (the receipt is required), the transport schema (not applied: the
+/// frozen schema admits only not-joined records), S7 (`recovery_method`), S10
+/// (a selected record), S10b and S13 (the selected diagnostic).
+pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
+    let joined = method == Method::Joined;
     // S1 foreign method namespaces.
-    require(
-        source.get("source_block_recovery").is_none() && source.get("carrier_evidence").is_none(),
-        "FOREIGN_METHOD_EVIDENCE",
-    )?;
+    if joined {
+        require(
+            source.get("carrier_evidence").is_none(),
+            "FOREIGN_METHOD_EVIDENCE",
+        )?;
+        require(
+            source.get("source_block_recovery").is_some(),
+            "JOIN_RECEIPT_REQUIRED",
+        )?;
+    } else {
+        require(
+            source.get("source_block_recovery").is_none()
+                && source.get("carrier_evidence").is_none(),
+            "FOREIGN_METHOD_EVIDENCE",
+        )?;
+    }
     // S2 finite numbers everywhere.
     finite_tree(source)?;
     let evidence = &source["contract_evidence"];
-    if !raw {
+    if !raw && !joined {
         let schema = transport_schema()?;
         require(
             crate::source_blocks::shape_in(
@@ -384,8 +427,13 @@ fn validate(source: &Value, raw: bool) -> Check {
     }
     // S7 exact cases, their resolved materials and section identities.
     let mut cases: Vec<(&str, &Value)> = Vec::new();
+    let case_keys: Vec<&str> = CASE_KEYS
+        .iter()
+        .copied()
+        .chain(joined.then_some("recovery_method"))
+        .collect();
     for case in exact {
-        require(keys(case, CASE_KEYS), "CASE_SHAPE")?;
+        require(keys(case, &case_keys), "CASE_SHAPE")?;
         let id = text(&case["load_case_id"])?;
         require(cases.iter().all(|(c, _)| *c != id), "CASE_DUPLICATE")?;
         require(case["material_basis"] == MATERIAL_BASIS, "MATERIAL_BASIS")?;
@@ -430,7 +478,26 @@ fn validate(source: &Value, raw: bool) -> Check {
     }
     // S10 each record in document order.
     for record in records {
-        validate_record(record, &cases, pressure)?;
+        validate_record(record, &cases, pressure, method)?;
+    }
+    // S10b (joined) the published method of each case agrees with its exact
+    // case, and at least one case publishes the selected response.
+    if joined {
+        for record in records {
+            let case = cases
+                .iter()
+                .find(|(c, _)| record["load_case_id"] == *c)
+                .map(|(_, v)| *v)
+                .ok_or_else(|| code("RECORD_CASE_UNRESOLVED"))?;
+            require(
+                case["recovery_method"] == record["solve"]["recovery_method"],
+                "JOIN_RECOVERY_METHOD",
+            )?;
+        }
+        require(
+            records.iter().any(|r| is_selected(r)),
+            "JOIN_SELECTION_REQUIRED",
+        )?;
     }
     // S11 one model geometry and one requested mode per envelope.
     if let Some(first) = records.first() {
@@ -480,22 +547,40 @@ fn validate(source: &Value, raw: bool) -> Check {
         }
     }
     // S13 exactly one not-joined info diagnostic per resolved case.
+    // In the joined method a selected case instead carries exactly one info
+    // SOURCE_BLOCK_RECOVERY_SELECTED diagnostic and no not-joined diagnostic.
     if raw && solved {
         let diagnostics = array(&source["diagnostics"])?;
-        for case_id in &record_ids {
-            let expected = format!(
-                "diagnostic:load-state:{}:source-recovery-not-joined",
-                case_id.replace(':', "-")
-            );
+        let mut not_joined = 0;
+        let mut selected = 0;
+        for (case_id, record) in record_ids.iter().zip(records) {
+            let (kind, expected, name) = if joined && is_selected(record) {
+                selected += 1;
+                (
+                    SELECTED,
+                    format!("diagnostic:source-recovery:{case_id}:selected"),
+                    "JOIN_SELECTED_DIAGNOSTIC",
+                )
+            } else {
+                not_joined += 1;
+                (
+                    NOT_JOINED,
+                    format!(
+                        "diagnostic:load-state:{}:source-recovery-not-joined",
+                        case_id.replace(':', "-")
+                    ),
+                    "NOT_JOINED_DIAGNOSTIC",
+                )
+            };
             let hits: Vec<&Value> = diagnostics
                 .iter()
-                .filter(|d| d["code"] == NOT_JOINED && d["id"] == expected.as_str())
+                .filter(|d| d["code"] == kind && d["id"] == expected.as_str())
                 .collect();
             require(
                 hits.len() == 1
                     && hits[0]["severity"] == "info"
                     && hits[0]["affected_refs"] == json!([case_id]),
-                "NOT_JOINED_DIAGNOSTIC",
+                name,
             )?;
         }
         require(
@@ -503,21 +588,25 @@ fn validate(source: &Value, raw: bool) -> Check {
                 .iter()
                 .filter(|d| d["code"] == NOT_JOINED)
                 .count()
-                == record_ids.len(),
+                == not_joined,
             "NOT_JOINED_DIAGNOSTIC",
         )?;
+        if joined {
+            require(
+                diagnostics.iter().filter(|d| d["code"] == SELECTED).count() == selected,
+                "JOIN_SELECTED_DIAGNOSTIC",
+            )?;
+        }
     }
-    // S14 inherited physics-1 checks on the projected copy.
-    let projected = project(source);
-    let inherited = if raw {
-        crate::physics_evidence::validate_physics_evidence(&projected)
-    } else {
-        crate::physics_evidence::validate_transport_metadata(&projected)
-    };
-    inherited.map_err(|e| format!("{}: {e}", code("PHYSICS_EVIDENCE")))
+    Ok(())
 }
 
-fn project(source: &Value) -> Value {
+/// A record whose case publishes the selected retained-source response.
+fn is_selected(record: &Value) -> bool {
+    record["solve"]["recovery_method"] == EXACT_METHOD
+}
+
+pub(crate) fn project(source: &Value) -> Value {
     let mut projected = source.clone();
     let evidence = &mut projected["contract_evidence"];
     if let Some(o) = evidence.as_object_mut() {
@@ -548,7 +637,12 @@ fn project(source: &Value) -> Value {
     projected
 }
 
-fn validate_record(record: &Value, cases: &[(&str, &Value)], pressure: &[Value]) -> Check {
+fn validate_record(
+    record: &Value,
+    cases: &[(&str, &Value)],
+    pressure: &[Value],
+    method: Method,
+) -> Check {
     let case_id = text(&record["load_case_id"])?;
     // R1-R7 record-level closed statements.
     require(record["contract"] == RECORD_CONTRACT, "RECORD_CONTRACT")?;
@@ -578,8 +672,11 @@ fn validate_record(record: &Value, cases: &[(&str, &Value)], pressure: &[Value])
         ),
         "SOLVE_SHAPE",
     )?;
+    // The joined method also admits the selected retained-source response
+    // in either requested mode (ADDENDUM_2 section 5.3).
+    let selected = method == Method::Joined && solve["recovery_method"] == EXACT_METHOD;
     require(
-        matches!(
+        (matches!(
             (
                 solve["requested_mode"].as_str(),
                 solve["recovery_method"].as_str()
@@ -588,16 +685,32 @@ fn validate_record(record: &Value, cases: &[(&str, &Value)], pressure: &[Value])
                 Some("sparse_interactive"),
                 Some("ordinary_sparse_structural_v1")
             ) | (Some("dense_scrutiny"), Some("ordinary_dense_structural_v1"))
-        ) && solve["boundary"] == BOUNDARY
+        ) || (selected
+            && matches!(
+                solve["requested_mode"].as_str(),
+                Some("sparse_interactive" | "dense_scrutiny")
+            )))
+            && solve["boundary"] == BOUNDARY
             && solve["eigenload"] == EIGENLOAD,
         "SOLVE",
     )?;
     let recovery = &record["source_recovery"];
-    require(keys(recovery, &["status", "code"]), "SOURCE_RECOVERY_SHAPE")?;
-    require(
-        recovery["status"] == "not_joined" && recovery["code"] == NOT_JOINED,
-        "SOURCE_RECOVERY",
-    )?;
+    if selected {
+        require(
+            keys(recovery, &["status", "method"]),
+            "SOURCE_RECOVERY_SHAPE",
+        )?;
+        require(
+            recovery["status"] == "selected" && recovery["method"] == EXACT_METHOD,
+            "SOURCE_RECOVERY",
+        )?;
+    } else {
+        require(keys(recovery, &["status", "code"]), "SOURCE_RECOVERY_SHAPE")?;
+        require(
+            recovery["status"] == "not_joined" && recovery["code"] == NOT_JOINED,
+            "SOURCE_RECOVERY",
+        )?;
+    }
     // R8 members.
     let members = array(&record["members"])?;
     let mut member_ids: Vec<&str> = Vec::new();

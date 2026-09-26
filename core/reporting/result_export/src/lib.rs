@@ -1652,10 +1652,11 @@ mod tests {
     }
 }
 
-pub mod semantic_contract;
 pub mod derivative;
+pub mod semantic_contract;
 
-mod physics_evidence;
 pub mod load_reference;
+pub mod load_reference_source;
+mod physics_evidence;
 pub mod physics_source;
 pub mod source_blocks;

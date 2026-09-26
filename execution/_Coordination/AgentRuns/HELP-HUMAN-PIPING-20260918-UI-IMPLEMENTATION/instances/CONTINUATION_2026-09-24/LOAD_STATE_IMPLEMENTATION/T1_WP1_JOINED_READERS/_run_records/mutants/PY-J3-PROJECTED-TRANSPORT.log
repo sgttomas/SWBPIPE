@@ -1,0 +1,24 @@
+........................................................................ [ 48%]
+..........................................................F
+=================================== FAILURES ===================================
+________ test_transport_metadata_case[TRANSPORT-endpoint-link-resealed] ________
+
+case = {'id': 'TRANSPORT-endpoint-link-resealed', 'source': 'n05-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/e...', 'physical': 'joined', 'publication': True, 'receipt': True}], 'expect': 'SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE'}
+
+    @pytest.mark.parametrize("case", CASES["transport_cases"], ids=lambda case: case["id"])
+    def test_transport_metadata_case(case):
+        meta = metadata(apply(source(case["source"]), case["ops"]))
+        result = outcome(lambda: validate_load_reference_source_transport_metadata(meta))
+        RESULTS.append({"id": case["id"], "transport": result})
+>       assert agrees(result, case["expect"]), result
+E       AssertionError: accept
+E       assert False
+E        +  where False = agrees('accept', 'SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE')
+
+tests/test_load_reference_source_readers.py:251: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_source_readers.py::test_transport_metadata_case[TRANSPORT-endpoint-link-resealed]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 130 passed in 41.75s
+
+--- stderr ---

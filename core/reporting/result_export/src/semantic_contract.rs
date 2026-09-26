@@ -97,6 +97,11 @@ pub const LOAD_REFERENCE_ID: &str = "openpipestress.result_semantics/0.3.0/load-
 pub const LOAD_REFERENCE_PROFILE: &str = "resolved_straight_load_state_v1";
 pub const LOAD_REFERENCE_TABLE_SHA256: &str =
     "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d";
+/// Joined load/reference-state method (retained-source receipt required);
+/// bound to exactly one formulation profile and one receipt policy.
+pub const LOAD_REFERENCE_SOURCE_ID: &str = crate::load_reference_source::CONTRACT_ID;
+pub const LOAD_REFERENCE_SOURCE_PROFILE: &str = crate::load_reference_source::PROFILE;
+pub const LOAD_REFERENCE_SOURCE_TABLE_SHA256: &str = crate::load_reference_source::TABLE_SHA256;
 pub fn precision_contract() -> &'static Value {
     static CONTRACT: OnceLock<Value> = OnceLock::new();
     CONTRACT.get_or_init(|| {
@@ -137,6 +142,19 @@ pub fn load_reference_contract() -> &'static Value {
             "../../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json"
         ))
         .expect("pinned load-reference semantic contract")
+    })
+}
+/// Pinned joined table bytes: identity, profile, policy and sha256 are checked.
+pub fn verify_load_reference_source_table(bytes: &[u8]) -> Result<Value, String> {
+    crate::load_reference_source::verify_table(bytes)
+}
+pub fn load_reference_source_contract() -> &'static Value {
+    static CONTRACT: OnceLock<Value> = OnceLock::new();
+    CONTRACT.get_or_init(|| {
+        verify_load_reference_source_table(include_bytes!(
+            "../../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json"
+        ))
+        .expect("pinned load-reference-source semantic contract")
     })
 }
 pub fn physics_source_contract() -> &'static Value {
@@ -185,21 +203,24 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                             | PHYSICS_ID
                             | PHYSICS_SOURCE_ID
                             | LOAD_REFERENCE_ID
+                            | LOAD_REFERENCE_SOURCE_ID
                             | crate::source_blocks::CONTRACT_ID
                     )
                 )
             {
                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
             }
-            // The load-reference method owns no carrier namespace (same code
+            // The load-reference methods own no carrier namespace (same code
             // and position as the Python reader's first dispatch check).
-            if p["semantic_contract_id"] == LOAD_REFERENCE_ID
+            if (p["semantic_contract_id"] == LOAD_REFERENCE_ID
+                || p["semantic_contract_id"] == LOAD_REFERENCE_SOURCE_ID)
                 && source.get("carrier_evidence").is_some()
             {
                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
             }
             if p["semantic_contract_id"] != crate::source_blocks::CONTRACT_ID
                 && p["semantic_contract_id"] != PHYSICS_SOURCE_ID
+                && p["semantic_contract_id"] != LOAD_REFERENCE_SOURCE_ID
                 && source.get("source_block_recovery").is_some()
             {
                 return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
@@ -271,6 +292,8 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 Some(PHYSICS_ID | PHYSICS_SOURCE_ID) => "exact_straight_pressure_v2",
                 // The only profile for load-reference-1; no other contract accepts it.
                 Some(LOAD_REFERENCE_ID) => LOAD_REFERENCE_PROFILE,
+                // The only profile for load-reference-source-1, likewise exclusive.
+                Some(LOAD_REFERENCE_SOURCE_ID) => LOAD_REFERENCE_SOURCE_PROFILE,
                 _ => "product_preview_mechanics_v1",
             };
             if !exact_keys(f, &["profile_id", "limitations"])
@@ -287,6 +310,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 Some(PHYSICS_ID) => physics_contract(),
                 Some(PHYSICS_SOURCE_ID) => physics_source_contract(),
                 Some(LOAD_REFERENCE_ID) => load_reference_contract(),
+                Some(LOAD_REFERENCE_SOURCE_ID) => load_reference_source_contract(),
                 Some(crate::source_blocks::CONTRACT_ID) => source_blocks_contract(),
                 Some(PRECISION_ID) => precision_contract(),
                 _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
@@ -310,6 +334,9 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
             crate::physics_source::validate(source, None)?;
         }
         Some(LOAD_REFERENCE_ID) => validate_load_reference_evidence(source)?,
+        Some(LOAD_REFERENCE_SOURCE_ID) => {
+            validate_load_reference_source_evidence(source)?;
+        }
         Some(crate::source_blocks::CONTRACT_ID) => {
             // Shape/publication validation does not supply an actual invocation
             // or recreate the producer's private arithmetic receipt.
@@ -330,6 +357,9 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
 }
 pub use crate::load_reference::{
     validate_load_reference_evidence, validate_load_reference_transport_metadata,
+};
+pub use crate::load_reference_source::{
+    validate_load_reference_source_evidence, validate_load_reference_source_transport_metadata,
 };
 pub use crate::physics_evidence::{
     validate_physics_evidence, validate_transport_metadata as validate_physics_transport_metadata,
@@ -368,6 +398,12 @@ pub fn numerical_use_standing_with_context(
     let Ok((_, version)) = for_source(source) else {
         return "unsupported";
     };
+    // Admitted joined evidence is never numerically eligible here: a 0.4.0
+    // resolved case cannot be re-derived from a captured request by a reader.
+    // Identical in outcome to the fall-through (its status is never checks_passed).
+    if source["producer"]["semantic_contract_id"] == LOAD_REFERENCE_SOURCE_ID {
+        return "needs_recompute";
+    }
     if version != "0.3.0" || requested_basis_refs.is_empty() {
         return "needs_recompute";
     }

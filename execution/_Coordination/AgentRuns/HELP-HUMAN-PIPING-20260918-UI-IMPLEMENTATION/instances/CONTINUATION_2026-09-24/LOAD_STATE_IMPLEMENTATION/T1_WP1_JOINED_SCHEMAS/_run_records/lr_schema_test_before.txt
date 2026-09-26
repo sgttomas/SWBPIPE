@@ -1,0 +1,21 @@
+# ---------------------------------------------------------------- carriers
+def test_carrier_branches_are_appended_after_the_existing_methods():
+    results = schema("results.v0.3.schema.yaml")["$defs"]["ResultEnvelope"]
+    ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] for branch in results["oneOf"]]
+    assert ids == ["openpipestress.result_semantics/0.3.0/precision-1", PHYSICS_ID,
+                   "openpipestress.result_semantics/0.3.0/source-blocks-1",
+                   "openpipestress.result_semantics/0.3.0/physics-source-1", LR_ID]
+    assert results["properties"]["contract_evidence"]["anyOf"][-1] == LR_EVIDENCE_REF
+    assert results["oneOf"][4]["properties"]["contract_evidence"] == LR_EVIDENCE_REF
+    assert results["oneOf"][4]["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": LR_PROFILE}
+    run = schema("analysis_run.v0.3.schema.json")["$defs"]
+    assert run["SemanticContract"]["oneOf"][-1] == {"properties": {"id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}}
+    assert len(run["AnalysisRun"]["oneOf"]) == 5
+    assert run["AnalysisRun"]["oneOf"][4]["not"] == {"anyOf": [{"required": ["source_block_recovery"]},
+                                                              {"required": ["contract_evidence"]}]}
+    package = schema("stress_neutral_export.v0.3.schema.json")
+    assert len(package["oneOf"]) == 5
+    assert package["oneOf"][4]["properties"]["semantic_contract"]["properties"] == {
+        "id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}
+    assert package["oneOf"][4]["properties"]["contract_evidence"] == LR_EVIDENCE_REF
+

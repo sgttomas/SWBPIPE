@@ -1,0 +1,30 @@
+...................................................................F
+=================================== FAILURES ===================================
+______________ test_shared_adversarial_case[RCPT-extra-body-key] _______________
+
+case = {'id': 'RCPT-extra-body-key', 'source': 'n05-sparse', 'ops': [{'op': 'set', 'path': '/source_block_recovery/body/inven...al', 'physical': None, 'publication': False, 'receipt': True}], 'dispatch': 'SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        joined = outcome(lambda: validate_load_reference_source_evidence(doc))
+        entry = {"id": case["id"], "dispatch": dispatch, "joined": joined}
+        if "lr" in case:
+            entry["lr"] = outcome(lambda: validate_load_reference_evidence(doc))
+        if "ps" in case:
+            entry["ps"] = outcome(lambda: validate_physics_source(doc))
+        RESULTS.append(entry)
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_RECEIPT_SHAPE', 'SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_RECEIPT_SHAPE', 'SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE')
+E        +    where 'SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE' = expected({'id': 'RCPT-extra-body-key', 'source': 'n05-sparse', 'ops': [{'op': 'set', 'path': '/source_block_recovery/body/inven...al', 'physical': None, 'publication': False, 'receipt': True}], 'dispatch': 'SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE'}, 'dispatch')
+
+tests/test_load_reference_source_readers.py:212: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_source_readers.py::test_shared_adversarial_case[RCPT-extra-body-key]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 67 passed in 37.64s
+
+--- stderr ---

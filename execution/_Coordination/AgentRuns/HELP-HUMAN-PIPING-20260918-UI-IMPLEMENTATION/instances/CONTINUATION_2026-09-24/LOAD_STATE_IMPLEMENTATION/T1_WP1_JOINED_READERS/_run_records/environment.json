@@ -1,0 +1,10 @@
+{
+ "python": "session DEC-025 venv (location given in the spawn request), Python 3.11",
+ "pytest_flags": "PYTHONDONTWRITEBYTECODE=1, -q -p no:cacheprovider",
+ "cargo": "cargo 1.97.1 (c980f4866 2026-06-30), +1.97.1 --locked --offline -j 2",
+ "cargo_target_dir": "per-TASK scratch target outside the repository, deleted at the end",
+ "rustfmt": "rustfmt 1.8.0-stable (+stable --edition 2021)",
+ "OPENPIPESTRESS_CHECKED_JSON_BIN / OPENPIPESTRESS_UNITS_BIN": "the pre-existing release builds under core/serialization/canonical_json/target and core/units/target (not rebuilt)",
+ "producer_example": "core/product_physics/examples/physics_source_connected.rs, release build in the scratch target; it reproduced the committed eigen_motion joined raws byte for byte",
+ "base_commit": "see base_commit.txt"
+}

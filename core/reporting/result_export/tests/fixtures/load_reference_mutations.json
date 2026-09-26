@@ -1313,8 +1313,9 @@
      "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
     }
    ],
-   "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
-   "validator": "accept"
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "validator": "accept",
+   "note": "D1 activated load-reference-source-1; the LR profile under the joined ID is now refused at the formulation basis"
   },
   {
    "id": "TABLE-id-physics-1",

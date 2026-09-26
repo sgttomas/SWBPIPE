@@ -1,0 +1,30 @@
+...............................................................F
+=================================== FAILURES ===================================
+___________ test_shared_adversarial_case[RCPT-policy-physics-source] ___________
+
+case = {'id': 'RCPT-policy-physics-source', 'source': 'n05-sparse', 'ops': [{'op': 'set', 'path': '/source_block_recovery/body/policy', 'value': 'PHYSICS-SOURCE-1'}], 'dispatch': 'SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        joined = outcome(lambda: validate_load_reference_source_evidence(doc))
+        entry = {"id": case["id"], "dispatch": dispatch, "joined": joined}
+        if "lr" in case:
+            entry["lr"] = outcome(lambda: validate_load_reference_evidence(doc))
+        if "ps" in case:
+            entry["ps"] = outcome(lambda: validate_physics_source(doc))
+        RESULTS.append(entry)
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH', 'SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH', 'SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY')
+E        +    where 'SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY' = expected({'id': 'RCPT-policy-physics-source', 'source': 'n05-sparse', 'ops': [{'op': 'set', 'path': '/source_block_recovery/body/policy', 'value': 'PHYSICS-SOURCE-1'}], 'dispatch': 'SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY'}, 'dispatch')
+
+tests/test_load_reference_source_readers.py:212: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_source_readers.py::test_shared_adversarial_case[RCPT-policy-physics-source]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 63 passed in 40.21s
+
+--- stderr ---

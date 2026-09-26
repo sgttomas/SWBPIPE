@@ -55,3 +55,32 @@ The TASK asked four design questions. Rulings:
 - **Q2:** `not_present` is accepted as the inverse after-value.
 - **Q3:** the stricter refusal of duplicated keys is accepted.
 - **Q4:** the other rules stay with the product's solve-time diagnostics.
+
+## 6. Further WP1 and WP5 rulings
+
+**One declared standing edit (WP1 readers).** ROOT accepted one early return of `needs_recompute` for `load-reference-source-1`, at the top of `semantic_contract::numerical_use_standing_with_context` (Rust) and the single equivalent early return in the Python peer.
+
+- Why: it is conservative and has the same outcome as the fall-through. An admitted joined envelope always has a selected case whose ordinary attempt was sensitive or rejected, so it can never be `checks_passed`.
+- Nothing else in any standing function changes.
+- The two standing edits are combined by hand at the T0R/T1 merge.
+
+**Shared-case expectation (WP1 readers).** In `load_reference_mutations.json`, case `TABLE-id-reserved-source-successor` (an LR envelope relabelled with the joined ID, keeping the LR profile) previously expected `SOURCE_PRODUCER_CONTRACT_UNSUPPORTED`, which encoded "reserved, inactive". D1 activates the ID, so the case is now refused at the formulation basis (`SOURCE_FORMULATION_BASIS_UNSUPPORTED`), identically in both languages. It is still refused. Only that expectation changes.
+
+**Schema test pin (WP1 schemas, ruling 4).** One minimal edit in `tests/test_source_block_schema_contract.py`: the joined branch (index 5) uses `PhysicsSourceResultSet`, like physics-source-1 (index 3). The pin on branches 0–4 stays exact.
+
+**WP5 negatives.** Negative assertions are keyed on the assertion ID, and each (selector quantity, wrong value) pair must be unique. This lets each reference discriminator have its own negative. Positive selectors stay unique.
+
+## 7. ROOT decision: joined results are not numerically eligible in T1 (2026-09-26)
+
+In T1, joined (`load-reference-source-1`) results stay `needs_recompute`. The readers accept and display them, but never grant numerical eligibility.
+
+Invocation-based eligibility is **open work mapped to T3**, not T6. It needs a reader-side re-derivation of the resolved case, in both languages and captured like physics-source-1: thermal laws, fit and material selection. That is retained-source recovery qualification, which belongs to T3 (general retained-source recovery, M03/M34).
+
+This does not block closing M10, M16 and M29. Their required capability is correct imposed motion, per-element thermal and reference states, and cold spring. It is delivered and qualified on the ordinary `load-reference-1` route, through the VP-STATIC comparisons and the native witnesses. Today every route withholds sensitive cases from Current, and qualifying them is M03 numerical work. The closure reassessment must state this boundary.
+
+ROOT made this decision within its delegated correctness authority.
+
+## 8. WP1 readers: two placement details
+
+- **Standing early return.** It sits immediately after the existing `for_source` / `_source_contract` validation, not before it. A refused joined envelope therefore stays `unsupported`, as the shared cases pin.
+- **Ruling B, dispatch only.** Only the dispatch expectation changed. The direct load-reference-1 validator still accepts the relabelled case, because it leaves the header to dispatch, so its expectation stays "accept".

@@ -252,7 +252,8 @@
             "openpipestress.result_semantics/0.3.0/physics-1",
             "openpipestress.result_semantics/0.3.0/source-blocks-1",
             "openpipestress.result_semantics/0.3.0/physics-source-1",
-            "openpipestress.result_semantics/0.3.0/load-reference-1"
+            "openpipestress.result_semantics/0.3.0/load-reference-1",
+            "openpipestress.result_semantics/0.3.0/load-reference-source-1"
           ]
         },
         "sha256": {
@@ -261,7 +262,8 @@
             "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
             "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f",
             "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1",
-            "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"
+            "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d",
+            "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"
           ]
         },
         "signature_id": {
@@ -319,6 +321,16 @@
             },
             "sha256": {
               "const": "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d"
+            }
+          }
+        },
+        {
+          "properties": {
+            "id": {
+              "const": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+            },
+            "sha256": {
+              "const": "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"
             }
           }
         }
@@ -660,11 +672,21 @@
             },
             {
               "$ref": "physics_source_recovery.schema.json"
+            },
+            {
+              "$ref": "results.v0.3.schema.yaml#/$defs/LoadReferenceSourceRecovery"
             }
           ]
         },
         "contract_evidence": {
-          "$ref": "physics_source_recovery.schema.json#/$defs/physical_evidence"
+          "anyOf": [
+            {
+              "$ref": "physics_source_recovery.schema.json#/$defs/physical_evidence"
+            },
+            {
+              "$ref": "results.v0.3.schema.yaml#/$defs/LoadReferenceSourceContractEvidence"
+            }
+          ]
         }
       },
       "oneOf": [
@@ -903,6 +925,50 @@
                 ]
               }
             ]
+          }
+        },
+        {
+          "required": [
+            "source_block_recovery",
+            "contract_evidence"
+          ],
+          "properties": {
+            "reproducibility": {
+              "properties": {
+                "semantic_contract": {
+                  "properties": {
+                    "id": {
+                      "const": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+                    },
+                    "sha256": {
+                      "const": "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"
+                    }
+                  }
+                }
+              }
+            },
+            "result_refs": {
+              "items": {
+                "properties": {
+                  "semantic_contract": {
+                    "properties": {
+                      "id": {
+                        "const": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+                      },
+                      "sha256": {
+                        "const": "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "source_block_recovery": {
+              "$ref": "results.v0.3.schema.yaml#/$defs/LoadReferenceSourceRecovery"
+            },
+            "contract_evidence": {
+              "$ref": "results.v0.3.schema.yaml#/$defs/LoadReferenceSourceContractEvidence"
+            }
           }
         }
       ]

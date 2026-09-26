@@ -1,0 +1,359 @@
+{
+ "fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "075f28e042685e77305320c69beb22a954e646987670c9fbe489885844f357eb",
+  "contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "dc4c4d5309e706e04b3b827e5879899db00170a1daff734a88ea5ae78dbdc08a",
+  "stress_neutral_sha256": "057f845ea9daa0f5cbcaa2a3badea3cab4bf39570fc7e06a754773fca0a15a8d",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/load-reference-1"
+  ]
+ },
+ "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "3eadc80dcdb130a2e107d7d242322faa38beb4ad7a13f065e349880f87e5fed3",
+  "contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "68d4704fb75d5cede05ae8f1088c796df5fbaf533cb7b36224241b85cfb7639a",
+  "stress_neutral_sha256": "e35b779f45170697857f20eb4edb264b8879714a2622219891953a9ff7dcdbb4",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/load-reference-1"
+  ]
+ },
+ "fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "2e9cc641eec1e9fad8f489d2a4e77b89c7a882c471e5b29f5ad952098c73e2d3",
+  "contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "492ad736680d72f71585cbd1b80321d15bca1710b1f3fe427a737613d296699c",
+  "stress_neutral_sha256": "106ad7499245baf6a966fff0ba6e4391a6156652944d1fd451801af8ca8c3c85",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/load-reference-1"
+  ]
+ },
+ "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "12b2a5e66a2e077358a90962601b03361a703e5b42b8e1998dbd8b7b6c646064",
+  "contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "efe3e9f0bbf398fe24f7f8d34f56aa28cc6408e862908ceb65963791c0dd7ad1",
+  "stress_neutral_sha256": "46cc22df538f049e0e2eefdcf0f2e6c6d24ed04b4d9b2096439be6d96ee9ebaf",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/load-reference-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/fields-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "dfa77cb94a79a3dbd70ae5ddceca7ebd3ae13888cb86ff3a47558f149af81248",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "f03f905e7166144abb7555223ee126c0b6d86bcc7432b28abaece2bbf8d9da6a",
+  "stress_neutral_sha256": "96f440f4075284f71d0cb4d49e1eb7cdc1c94d0b2d7be702e30a9323a19b9cce",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/fields-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "67686de2482255667f79a94971469d5bc21f21e8e706d26708d00d3711dda559",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "34fdce18e9cebd4af88454907f2452a6c692eb8fe394aedbf292774ce2401c10",
+  "stress_neutral_sha256": "423972312354632827bb712b9cd8af811f889fd48c1f8c453ed2b9424cd6a953",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/mixed-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "84639e29254c9ed913273c9c1126662b967f0ba1480cea43efd71c9083d91a21",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "693f67a6d1d6b43c5a577b919955b695e58ff12c2872c35823b3376fe42d166c",
+  "stress_neutral_sha256": "7e7343898b6da48bf13fa86d372edc1a9e8942f50bc48c8c52d93a5178a0c5a0",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "ac7463468344d7fb8597add3079596c9b034925add26f84e0a1b6bb32847cdcd",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "1217db9f4447a8dbe85b2911d327e9471a968e30e24787ac145e9fdcfe174e74",
+  "stress_neutral_sha256": "2812d7b112adbee9c30ea540b83019024e6ad8570d73a1c60b36702b2ac126ba",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/mixed_units-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "0fd27798d5aada7606255343d802bfbc205f4da0d0548b85a025a85d223de7be",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "0a0504ed45d1b9e32a5beaaf2ca269b0aa801c94eed7bd41232f9fd219ec41c5",
+  "stress_neutral_sha256": "7a9c75cbdcb70641d5d459dfaf2ba0fd5a03bb258194797e892c9838b2571310",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/mixed_units-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "30b2ed244fac1e2596420913abef29f31546155ad5e45e078d8dc842764f0228",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "32e073df37f2ed7dc06d69c8360636f3254841085af7bf2a38abdf90f1f780a3",
+  "stress_neutral_sha256": "4032d442fdf83dca967e4794201abb91760991b4b49d911d86a6ee288b333a2b",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/n05-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "7f1d2c18fdd60e393c9f3eabc585242f27fa16d60d3bd2684f4a09fe4cf2f5a4",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "c5a896af9890dd9d2fcda0655a6246308e5b57515e5bd127f9f39539ed23d49a",
+  "stress_neutral_sha256": "e3568f403cd13970a9ff0f0413dff6eee0ba3a344fc7b2cfcbef70baffe544bf",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "84e5b760dd668e64c684a5d912b4b5548ffa6f1e73601c0944a620f8d2076240",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "2479c668c4353cb3bdd1e0be8625eca9b543aaedf8c8588724c16cfb9e7396e5",
+  "stress_neutral_sha256": "c93bf8aec8302e5ac03397985d3e0110df40acbddfd6065d97d43666aebacce7",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/n05_unicode-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "12fc462c58b0e417a5d868912c373b4d2049b8a735759931135b1350d89b1b19",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "406b6948f3e5ee247ab11933bc7fc0da101e662ac679a107f2387390a982ecae",
+  "stress_neutral_sha256": "d04587cae9cb820283c92b6eb7c2bef5fdaf147bb9ed7ae2dc609a0cdaa237bf",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/n05_unicode-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "a0dc236395658001337f9c51656667f430843b41af615f427676c05446492628",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "a772f36347f33a161c2c8ab79e2c57632241a088549bbb23ea1f826723efc41f",
+  "stress_neutral_sha256": "f33a7484c6156ca278069b3eb57174db2d58b06d077efebc288b2a1846d6e960",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/n05_units-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "60c347f9fbdf9c1747651430890565383c813a359ab125384bcddd1aa00ba953",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "1941b19efe7657bc83fb81fc54531f80093034bb2ca78775a11d280ab2dee22a",
+  "stress_neutral_sha256": "415423adf2f0dd28a317802f8657ec21800212582af4e1827e7277f7be49fb8c",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/n05_units-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "cc3245d3d0519a1afa5b80f0e9503c78959b18b99a10125ce98b16907646f888",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "e6756a6d3e2429c64733c937143f9a7613b14b9c30d216e8dc3586513d8c7a45",
+  "stress_neutral_sha256": "4d0e2e829713788ffbf99aa0ad600dfaa6ff223a52db9d970d6a3b08531700d6",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/n06-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "c0a852889dc42d898b8c83b739459dd5c67cb20aba4d8900c16cc40a00814ada",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "ebe74d355a68a02c17f15f95246ac009dde03c4aa5094528ab075b5955a60fc1",
+  "stress_neutral_sha256": "f9384d4e4d0dfb1dfa7ed0b80979b48da481e1e0f5f17c9b72ed74db351ddea9",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/physics_source/n06-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "ee434462be576c57085c3ef44846163769c782f04a9520467f4fc064dd1d8c6d",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-source-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "9653adde6ba72b4387055aa381e9f546de6bb610903e305474e50e5d8736fdb4",
+  "stress_neutral_sha256": "48fea853a510c64d0361b1b8440e9119780b51a43400ffd2235e3b50dd50f1e7",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-source-1"
+  ]
+ },
+ "fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "cbb27f5f7c62f6717a45bffdabf9f917a800dca26ff06ec7563c55a5e5b73887",
+  "contract": "openpipestress.result_semantics/0.3.0/source-blocks-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "76ef0cf4436b686b8be0222d0666647b8ddefeedc904b4dacfed0fa6b9a6026e",
+  "stress_neutral_sha256": "24b7d661eefd71a0942ff94f2b2bf562f157ced88a825ab01362966da796bbc1",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/source-blocks-1"
+  ]
+ },
+ "fixtures/product_preview/source_blocks/ui/multicase-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "e6e9041cdf97537f4d850d7525f131c0653bf0c523d6dda5afdbc3f5efc83a30",
+  "contract": "openpipestress.result_semantics/0.3.0/source-blocks-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "0da67501ab5bab0c5576f6249e4dfac2e6cb25060cd19cc30d08f71dadd34b04",
+  "stress_neutral_sha256": "71d1c4721731d7f078b449789bd093e50772dcf11c2da71c20bbd89046f502f7",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/source-blocks-1"
+  ]
+ },
+ "fixtures/product_preview/source_blocks/ui/n05-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "0c69fbc1bc9b6c561882bc5941bb361462e722bc8e6e74ec735d6cb37070c249",
+  "contract": "openpipestress.result_semantics/0.3.0/source-blocks-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "355b5bbc1126db1d0eb20fa69755824a6d69ee45ac40a548892805d78de5e71a",
+  "stress_neutral_sha256": "6e479307d22bce26b7f275ad240fcb1e81010d6f589a94a84d7123c8674adb9b",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/source-blocks-1"
+  ]
+ },
+ "fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "164ced34d5794aab6a46f7826002063e1ea9b721df957c99d2eb9c3254ce5d37",
+  "contract": "openpipestress.result_semantics/0.3.0/source-blocks-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "61cc26be92b57f701722a43cddd770b4356d2d1705cc6f169d451326637ec7c1",
+  "stress_neutral_sha256": "fe342744464f57a3fa8ee708990eda66ea8594887b676221308af94749c80bea",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/source-blocks-1"
+  ]
+ },
+ "fixtures/product_preview/source_blocks/ui/n06-dense_scrutiny.raw.json": {
+  "analysis_run_sha256": "9964ac0eedbd590d5ba7ab3a10a3205c489c53d74b9c3dcf76be5b8d0765c4f9",
+  "contract": "openpipestress.result_semantics/0.3.0/source-blocks-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "223d8ea4e43ae95d3493993de329a62569271788247bf1cc926e9140b6ebcae2",
+  "stress_neutral_sha256": "c74800f5421fa17ed2c9195c542d0c48c88c0f275d1c93df01305e092cec7aad",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/source-blocks-1"
+  ]
+ },
+ "fixtures/product_preview/source_blocks/ui/n06-sparse_interactive.raw.json": {
+  "analysis_run_sha256": "73132701ae18c8b0954d941fe88c7e0feec729f41cbf172e3db47952fb415468",
+  "contract": "openpipestress.result_semantics/0.3.0/source-blocks-1",
+  "standing": "needs_recompute",
+  "stress_neutral_package_checksum": "8166fd02ab112f6f03604fad12dd3541528932637094469cdc6642853c5dec75",
+  "stress_neutral_sha256": "08a37d201e0814e5d3ba22bc759573923784f29d304ffb64fe4a8f3ef33d1329",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/source-blocks-1"
+  ]
+ },
+ "fixtures/results/physics_connected_mechanics_dense.json": {
+  "analysis_run_sha256": "454bc297ed6f59c43ed9ae149180930c45e26178970c92b1a3890f1913755837",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "0046ffcf724280885b99a3cd3f58ba066c52da14674bab27a747cb15bc6b26a9",
+  "stress_neutral_sha256": "caed39379648be235cb5af112fd67ca13a447189b88e17071fe8f48f4488ab75",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-1"
+  ]
+ },
+ "fixtures/results/physics_connected_mechanics_sparse.json": {
+  "analysis_run_sha256": "1c8720a05b7670fac5320de0cc1d84f55984fb47645dd7c0ecf5fa0392c606cb",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "817c6c39eb8b34115ba1ff089aee6f5022cec40e06c64698bb08d6d10c8c9e82",
+  "stress_neutral_sha256": "fed9f29302db8c9a503329f68997c54645d679dcb6864c9b974e40299c54c5be",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-1"
+  ]
+ },
+ "fixtures/results/physics_connected_ui_mechanics_dense.json": {
+  "analysis_run_sha256": "9fc40b811c6937767c75988320a1cae4c943b9adcc36452b95a2654fbc604fa1",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "da8ca2b15b01f93d93ca2574603b984b61042ff89f48998e69dc3f60e56152cb",
+  "stress_neutral_sha256": "025fab8bcf19e334be92c4bac69401ee56148b662677c6f443129b30a50694e7",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-1"
+  ]
+ },
+ "fixtures/results/physics_connected_ui_mechanics_sparse.json": {
+  "analysis_run_sha256": "828c7fde6709f6003b4e9d26655a16b7948c09786d48bc27125a925a8a5afbde",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "6feabb16caa658b19cf705398a7457088f8ec7818c2607242cc988a2c4169a22",
+  "stress_neutral_sha256": "93fd334ca64f6f21d79e7b785e8a28af678ae5e00a5cb7e967574645a7b968eb",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-1"
+  ]
+ },
+ "fixtures/results/physics_thermal_ui_mechanics_dense.json": {
+  "analysis_run_sha256": "882723942ff19e563ee9ead02885990fac6a534a7548a74bda077b4ee5cfa037",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "be0a336785ca909a86700f48ed94dc3970da1013b7ffb4ff64fae3676a112eee",
+  "stress_neutral_sha256": "5bb305d442cca5a3615997f4aa122d0681640017dcfb368a18b8e5b2dabef26d",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-1"
+  ]
+ },
+ "fixtures/results/physics_thermal_ui_mechanics_sparse.json": {
+  "analysis_run_sha256": "1cd35ad6837717e6b1ad6a39fed40098fc87b0d269ed384683b630cd54b8102a",
+  "contract": "openpipestress.result_semantics/0.3.0/physics-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "bfda691ddd5c7cb3e0b9c2b7d8b760ef4393d7342fc089eaab88bbad54870461",
+  "stress_neutral_sha256": "13b9b3df67f0bff62629ed27a28ed796f7f6ee991045175f1727575ca7b37535",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/physics-1"
+  ]
+ },
+ "fixtures/results/precision_connected_ui_mechanics_dense.json": {
+  "analysis_run_sha256": "656ca65895764f565d5f3c62a0fcc9e6144ea9dbd0bd9d7737871b2afe60d392",
+  "contract": "openpipestress.result_semantics/0.3.0/precision-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "5d3584eed02e652832f6efc0c6f069e5ecbf52e562e2b1f3c3bb72b45e8e6d2b",
+  "stress_neutral_sha256": "937774931ce8a76e569c28cf6d9aea590351e190ed16d222d4243a106af238f5",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/precision-1"
+  ]
+ },
+ "fixtures/results/precision_connected_ui_mechanics_sparse.json": {
+  "analysis_run_sha256": "d8a2e6cbb06e3b743be3b6738dc27e4f11aa4aad5ae64197e2f8ac9c1f2f8b04",
+  "contract": "openpipestress.result_semantics/0.3.0/precision-1",
+  "standing": "numerically_eligible",
+  "stress_neutral_package_checksum": "110f1f840944e89810288305980bb7951393068ae5cde909e23c13a9a9312e33",
+  "stress_neutral_sha256": "776c1633b46521fb4d994398f23c8d5c51447ec9a7f544a73e7df69fa229320a",
+  "transport": [
+   "ok",
+   "openpipestress.result_semantics/0.3.0/precision-1"
+  ]
+ },
+ "test_stress_neutral_precision.prepare()": {
+  "analysis_run_sha256": "16eb6764c65e35da598f4feb5e265110145b92433cfbc4e9d2eaf935ef7730ac",
+  "stress_neutral_package_checksum": "3677f468fb9dde4683de9fd5d9483fcce135cd4050d2f3fa7fa24d369a97359e",
+  "stress_neutral_sha256": "982347a6b8bc2ffe56a2c7028dbe860bd08760c7ffc5be858f3710b4a9c586ef"
+ }
+}

@@ -374,7 +374,7 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
     # Validate the exact branch wiring; canonical packet positives remain the
     # separately supplied actual headless producer artifacts, never constructed here.
     for index, branch in enumerate(results["$defs"]["ResultEnvelope"]["oneOf"]):
-        target = "PhysicsSourceResultSet" if index == 3 else "ResultSet"
+        target = "PhysicsSourceResultSet" if index in (3, 5) else "ResultSet"
         assert branch["properties"]["result_sets"]["items"] == {"$ref": f"#/$defs/{target}"}
     assert results["$defs"]["ResultSet"]["properties"]["values"]["items"] == {"$ref": "#/$defs/QuantityResult"}
     assert results["$defs"]["QuantityResult"]["properties"]["metadata"] == {"$ref": "#/$defs/ResultMetadata"}
