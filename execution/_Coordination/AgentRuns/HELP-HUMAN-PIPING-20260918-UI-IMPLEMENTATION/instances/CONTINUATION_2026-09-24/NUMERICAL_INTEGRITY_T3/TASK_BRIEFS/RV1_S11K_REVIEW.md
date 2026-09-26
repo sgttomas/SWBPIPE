@@ -109,3 +109,13 @@ Write `T3/REVIEW/S11K_REVIEW.md` in `<s11k-worktree>`. It contains:
 - what you did not check.
 
 The verdict is **PASS** (no unresolved BLOCKING findings) or **FAIL**. Then send the manager a SendMessage summary with the verdict, the findings count by severity, and the file's sha256.
+
+## Addendum (manager, 2026-09-26, after ROOT_SELECTION_DESIGNS C3)
+
+- **The S11 basis to verify against** is `S11_CONTAINMENT.md` **revision 5a.2** at `932698d7a`, sha256 `e6507587…`. That is the selected text (`ROOT_SELECTION_DESIGNS.md`). S11-K was selected on revision 3 plus R3; every later revision is binding where it touches S11-K.
+- **The 5 → 5a.2 changes that bear on S11-K**, which you must check are in the code:
+  - **R5-3:** the caller list, including `product_equilibrium::evaluate` and `linear_supports::apply_linear_supports`. The authoritative enumeration is I1's `ks_callers.txt`. Your own independent caller list (item 3 above) is compared with both.
+  - **P1's S11-PROBE-A:** its kernel part is an S11-K test (`straight_pipe` `p1_probe_a_recovery_is_exact_at_g1e7_and_g1e8`, with its expected values derived independently). The product-model part is S11-F's.
+- The exception re-pin (`GATE/S11_EXCEPTIONS.json`) belongs to the V-K/V-P gate and S11-F. Record it only if S11-K's code or records contradict it.
+- Also verify ROOT's regeneration approvals (`ROOT_RULINGS_V1.md`, 2026-09-26): producers only; the two hash-pin constants; and the local TS run with the `node_modules` links removed before commit.
+- **Any 5a.x change affecting S11-K code** that the candidate lacks is a BLOCKING finding. ROOT_SELECTION_S11 requires such changes to be applied before the S11-K PR merges.
