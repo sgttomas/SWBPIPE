@@ -193,3 +193,5 @@ These findings were found during stage 1 and are recorded here so the map stays 
 | N-S11-R: the M03 intended-action residual is published with a naive sum; an exact zero shows as -0.0 | `FK/structural.rs:554`, rendered at `PP:883, 2046, 2057` | Low: imprecise diagnostic value | T3, D-S11-2 |
 | Formation silent zero: an underflowed stiffness-coefficient product becomes 0 with no error | `FK/lib.rs:717-726` | Silent input change | T3, K2 (checked formation), next after S11-K |
 | Friction forces added after the ledger in the nonlinear loop, with no in-loop load guard | `nonlinear_integration/src/lib.rs:1642-1659` | Bounded | T5 (open) |
+| F-P2: a rejected, unrecoverable case blocks the whole invocation (fails closed) | M03 blocking rule; D2 probe PR-2 | Coverage (no wrong value) | T3 D1 F2 (the general method recovers such cases; probe PR-2b); whole-invocation blocking with T6 |
+| F-P7: binary64 renders 1e16 and 1e20 as integral literals that checked-profile readers refuse | D2 probe PR-7 | Migration hazard | T6 carrier-migration notes: every consumer switches together |
