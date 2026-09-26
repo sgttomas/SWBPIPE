@@ -1,0 +1,18 @@
+# DESIGN §9.2 producer mutation controls (candidate dcbd3cad7, product_physics only)
+# Method: apply one source mutation, run `cargo test --offline --locked --test preview_physics_runtime`
+# (CARGO_TARGET_DIR outside the repo), record failing tests, restore the file. Scripts were
+# scratch only; the mutation strings are listed here so the run can be repeated by hand.
+KILLED: abs-sum objective (maximum inflated by sqrt2 toward the abs-sum bound) -> 17 tests incl. m14_s1_rotated_and_pure_torque, m33_headline..., m14_x1..., m14_thermal...
+KILLED: first() headline (headline condition without preview) -> m33_headline_is_all_case_maximum_with_first_case_control
+KILLED: dropping support moments (vector[3..6]=0) -> m05_pure_torque_publishes_the_moment, m05_r1..., b1..., b2..., constant_effort..., m05_combinations..., m05_springs...
+KILLED: linear combination of magnitudes (mechanics magnitudes algebra over operand magnitudes) -> m05_combinations_recompute_magnitudes_and_envelope_components, m08_marker...
+KILLED: restoring SIF x k (intensified value multiplied by user k) -> m08_marker_intensified..., m08_headline_tie_rule, invented_demo_model_renders_completely
+KILLED: publishing an arc maximum (arc members given an enclosure) -> b1_arc_signed_rows_frames_and_withheld_maximum
+KILLED: zero-filling a withheld support (non-consuming constant effort attributed with zeros) -> constant_effort_counted_once_and_gated_when_factors_do_not_sum_to_one
+KILLED: removing the nonlinear gate -> nonlinear_mechanics_combinations_are_withheld_subtraction_kept, invented_demo_model_renders_completely
+KILLED: removing the constant-effort gate -> constant_effort_counted_once_and_gated_when_factors_do_not_sum_to_one
+KILLED: removing the mixed-modulus gate -> mixed_modulus_mechanics_combination_is_withheld
+KILLED: intensified measure including an axial term -> m08_marker..., m08_branch..., invented_demo...
+SURVIVED then KILLED: intensified row entering a combination. Adding the kind to LINEAR_STATE_KINDS alone
+  survives because algebra_dimension() has no dimension for "Pa" (a second, independent guard). With that
+  guard also removed ("MPa" | "Pa"), the mutation is KILLED by m08_marker_intensified_measure_matches_references_and_never_combines.
