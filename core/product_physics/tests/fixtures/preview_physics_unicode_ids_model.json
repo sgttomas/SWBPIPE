@@ -1,0 +1,238 @@
+{
+  "schema_version": "0.2.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "project": {
+    "id": "project:t0r-unicode-id-vector",
+    "name": "T0R unicode id vector",
+    "units": {
+      "length": "m",
+      "force": "N",
+      "angle": "rad",
+      "pressure": "Pa",
+      "stress": "Pa",
+      "temperature": "degC"
+    }
+  },
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+    {
+      "id": "node:α",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "t0r_unicode_vector"
+    },
+    {
+      "id": "node:β",
+      "position": {
+        "x": 1,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "t0r_unicode_vector"
+    },
+    {
+      "id": "node:γ",
+      "position": {
+        "x": 1,
+        "y": 1,
+        "z": 0
+      },
+      "provenance": "t0r_unicode_vector"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:α-β",
+      "from": "node:α",
+      "to": "node:β",
+      "section": {
+        "outside_diameter": {
+          "value": 0.12,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.01,
+          "unit": "m"
+        }
+      },
+      "material": "material:m",
+      "y_reference": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "provenance": "t0r_unicode_vector"
+    },
+    {
+      "id": "pipe:β-γ",
+      "from": "node:β",
+      "to": "node:γ",
+      "section": {
+        "outside_diameter": {
+          "value": 0.12,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.01,
+          "unit": "m"
+        }
+      },
+      "material": "material:m",
+      "y_reference": {
+        "x": 1,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "t0r_unicode_vector"
+    }
+  ],
+  "supports": [
+    {
+      "id": "support:锚",
+      "node": "node:α",
+      "family": "anchor",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "t0r_unicode_vector"
+    },
+    {
+      "id": "support:ü-ce",
+      "node": "node:γ",
+      "family": "constant_effort_support",
+      "restraints": [],
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "constant_load": {
+          "value": 100.0,
+          "unit": "N"
+        },
+        "travel_range": {
+          "value": 0.05,
+          "unit": "m"
+        },
+        "source_reference": "t0r_invented"
+      },
+      "provenance": "t0r_unicode_vector"
+    }
+  ],
+  "components": [
+    {
+      "id": "component:ç",
+      "label": "t0r unicode marker",
+      "kind": "bend",
+      "node": "node:β",
+      "geometry": {
+        "bend_radius": {
+          "value": 0.2,
+          "unit": "m"
+        },
+        "bend_angle": {
+          "value": 1.5707963268,
+          "unit": "rad"
+        },
+        "bend_plane_orientation": "global_xy_preview",
+        "bend_geometry_source_reference": "t0r"
+      },
+      "modifiers": {
+        "sif_user_value": {
+          "value": 1.2,
+          "unit": "none"
+        },
+        "source_reference": "t0r_invented_𝔰"
+      },
+      "mechanics_interface": {
+        "solver_consumption": "mechanics_geometry_only",
+        "rule_check_consumption": "user_rule_pack_inputs_only"
+      },
+      "provenance": "t0r_unicode_vector"
+    }
+  ],
+  "materials": [
+    {
+      "id": "material:m",
+      "elastic_modulus": {
+        "value": 200000000000.0,
+        "unit": "Pa"
+      },
+      "shear_modulus": {
+        "value": 76923076923.0,
+        "unit": "Pa"
+      },
+      "provenance": "t0r_invented_test_values"
+    }
+  ],
+  "load_cases": [
+    {
+      "id": "load:é",
+      "primitive_loads": [
+        {
+          "id": "f:é",
+          "category": "concentrated_force",
+          "target": {
+            "type": "node",
+            "node": "node:γ"
+          },
+          "direction": "global_z",
+          "magnitude": {
+            "value": 1000.0,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "t0r_unicode_vector"
+        }
+      ],
+      "provenance": "t0r_unicode_vector"
+    },
+    {
+      "id": "load:𝔫",
+      "primitive_loads": [
+        {
+          "id": "f:𝔫",
+          "category": "concentrated_force",
+          "target": {
+            "type": "node",
+            "node": "node:γ"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 500.0,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "t0r_unicode_vector"
+        }
+      ],
+      "provenance": "t0r_unicode_vector"
+    }
+  ],
+  "combinations": [
+    {
+      "id": "combination:Σ",
+      "basis": "mechanics",
+      "terms": [
+        {
+          "load_case": "load:é",
+          "factor": 1.0
+        },
+        {
+          "load_case": "load:𝔫",
+          "factor": 1.0
+        }
+      ],
+      "provenance": "t0r_unicode_vector"
+    }
+  ]
+}

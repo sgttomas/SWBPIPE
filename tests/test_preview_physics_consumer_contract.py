@@ -855,3 +855,28 @@ def test_generated_unchanged_demo_output_is_recorded_truthfully(mode):
     preserved = {item["path"]: item["sha256"] for item in record["historical_precision_fixtures_preserved"]}
     for name, digest in preserved.items():
         assert hashlib.sha256((PROJECT / name).read_bytes()).hexdigest() == digest
+
+
+def test_shared_unicode_id_vector_is_admitted_and_byte_lengths_are_required():
+    """Shared id vector (T0R S6): the same actual producer bytes the Rust and TS
+    readers admit. Row ids use UTF-8 byte lengths with ':' between segments;
+    diagnostic ids use the concatenated ID() form; character counts are refused."""
+    text = (PROJECT / "fixtures/results/preview_physics_unicode_ids_sparse.json").read_text(encoding="utf-8")
+    source = json.loads(text)
+    validate_preview_physics_evidence(source)
+    ids = {row["id"] for row in source["results"]}
+    for expected in (
+        "result:support-action:7:load:é:11:support:锚:Fx",
+        "result:elastic-maximum:7:load:é:10:pipe:α-β",
+        "result:elastic-maximum:9:load:𝔫:10:pipe:β-γ",
+        "result:intensified-bending:component-ç:pipe-α-β:end-j",
+        "result:loadcase:load-𝔫:intensified-bending:component-ç:pipe-β-γ:end-i",
+    ):
+        assert expected in ids, expected
+    assert "diagnostic:preview-physics:constant-effort-not-consumed:13:support:ü-ce" in {d["id"] for d in source["diagnostics"]}
+    for good, bad in (
+        ("result:elastic-maximum:7:load:é:", "result:elastic-maximum:6:load:é:"),
+        ("constant-effort-not-consumed:13:support:ü-ce", "constant-effort-not-consumed:12:support:ü-ce"),
+    ):
+        with pytest.raises(ValueError):
+            validate_preview_physics_evidence(json.loads(text.replace(good, bad)))

@@ -658,3 +658,34 @@ fn a1_diagnostic_without_affected_refs_is_allowed() {
     not_array["diagnostics"][0]["affected_refs"] = json!("result:never-emitted");
     assert!(s::for_source(&not_array).is_err());
 }
+
+/// Shared id vector (T0R S6): actual producer output with non-ASCII and
+/// supplementary-plane ids, read identically by the Rust, Python and TS readers.
+/// Row ids use UTF-8 byte lengths with ':' between segments; diagnostic ids use
+/// the concatenated ID() form. A character-count length is refused.
+#[test]
+fn shared_unicode_id_vector_is_admitted_and_byte_lengths_are_required() {
+    let raw = fixture("preview_physics_unicode_ids_sparse.json");
+    s::for_source(&raw).expect("shared unicode id vector is admitted");
+    let ids: Vec<&str> = raw["results"].as_array().unwrap().iter().map(|r| r["id"].as_str().unwrap()).collect();
+    for expected in [
+        "result:support-action:7:load:é:11:support:锚:Fx",
+        "result:elastic-maximum:7:load:é:10:pipe:α-β",
+        "result:elastic-maximum:9:load:𝔫:10:pipe:β-γ",
+        "result:intensified-bending:component-ç:pipe-α-β:end-j",
+        "result:loadcase:load-𝔫:intensified-bending:component-ç:pipe-β-γ:end-i",
+    ] {
+        assert!(ids.contains(&expected), "{expected}");
+    }
+    let diagnostics: Vec<&str> = raw["diagnostics"].as_array().unwrap().iter().map(|d| d["id"].as_str().unwrap()).collect();
+    assert!(diagnostics.contains(&"diagnostic:preview-physics:constant-effort-not-consumed:13:support:ü-ce"));
+    // Character-count lengths (é is 2 bytes, 𝔫 is 4) must be refused.
+    let text = serde_json::to_string(&raw).unwrap();
+    for (bytes, chars) in [
+        ("result:elastic-maximum:7:load:é:", "result:elastic-maximum:6:load:é:"),
+        ("constant-effort-not-consumed:13:support:ü-ce", "constant-effort-not-consumed:12:support:ü-ce"),
+    ] {
+        let tampered: Value = serde_json::from_str(&text.replace(bytes, chars)).unwrap();
+        assert!(s::for_source(&tampered).is_err(), "character-count id admitted: {chars}");
+    }
+}
