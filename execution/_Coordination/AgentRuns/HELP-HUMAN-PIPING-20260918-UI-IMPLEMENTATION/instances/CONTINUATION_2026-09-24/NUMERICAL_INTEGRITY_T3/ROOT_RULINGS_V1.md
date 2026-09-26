@@ -354,3 +354,11 @@ Input: [REVIEW/BACKCHECK_R5.md](REVIEW/BACKCHECK_R5.md). Verdict FINDINGS, nothi
 
 - **Correction.** D-14's equivalent-static extension goes in **F3**, with the W1b element-load work, not F2b. ROOT's "F2b" was a slip: generated equivalent-static loads are uniform element loads and need W1b's element-load machinery. It lands atomic with F3's RF-ELOAD gate. Until then, the case is refused as `equivalent-static unsupported`. D1's revision 5a already places it this way.
 - The rest of D1's revision 5a (`16bcbf369`) stands as ruled. It goes to D2 for revision 5b, then to V1's targeted verification.
+
+## D2 revision 5b choices (ROOT, 2026-09-26, after `41f018355`)
+
+1. **Undecided counting: accepted.** In the check-level gate (R5-5), withheld-row refusals count as undecided. This is conservative and correct: a check the user could decide yesterday and cannot today is a regression, whatever the reason.
+2. **Nonlinear-support rule: accepted, narrowed.** It must never refuse the solve. A case with a nonlinear support is **not selected** for W1 or the retained-precision route, so it gets no proof and no successor identity. It keeps its ordinary result with its ordinary standing, exactly as today. This is T5's domain, and T3 must not remove a result the product publishes today.
+   - D2 narrows its rule to that: `INPUT_DOF_MISMATCH` may apply only where a receipt *claims* selection of such a case, as a reader integrity refusal of the receipt, never of the ordinary result.
+   - D1 mirrors it in the W1 selection rule, together with the trimmed/untrimmed support-family detail D2 took from `PP`.
+   - V1 checks both.
