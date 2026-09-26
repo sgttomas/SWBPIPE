@@ -2,6 +2,8 @@
 //! No formal inertia certificate or guaranteed forward accuracy is claimed.
 pub mod exact_boundary;
 
+use crate::exact_sum::{ExactAccumulator, SumError};
+use crate::load_ledger::{AssembledForce, ForceTerm, ForceTermKind};
 use std::fmt;
 
 pub const POLICY: &str = "M03-INTEGRITY-v1";
@@ -29,6 +31,120 @@ pub struct StructuralSystem<'a> {
     pub prescribed: &'a [(usize, f64)],
     pub contributions: Option<&'a [StiffnessContribution]>,
     pub symmetry: Option<SymmetryEvidence<'a>>,
+}
+/// Typed structural system (S11-K): today's `StructuralSystem` layout plus the
+/// ledger-built `AssembledForce` its `force` slice is taken from. The kernel's
+/// right-hand side (KS1), refinement residual (KS3) and load-fidelity audit
+/// read the ledger terms from here. A plain vector is refused at compile time:
+/// ```compile_fail
+/// use open_pipe_stress_frame_kernel::structural::StructuralSystem;
+/// let k = vec![vec![1.0]];
+/// let force: Vec<f64> = vec![1.0];
+/// let _ = StructuralSystem::assembled(&k, &force, &[0], &[], None, None);
+/// ```
+/// ```
+/// use open_pipe_stress_frame_kernel::load_ledger::LoadLedger;
+/// use open_pipe_stress_frame_kernel::structural::{solve_assembled_structural_dense, StructuralSystem};
+/// let mut ledger = LoadLedger::new();
+/// ledger.push("load:a", 0, 1.0);
+/// let force = ledger.finish(1).unwrap();
+/// let k = vec![vec![1.0]];
+/// let system = StructuralSystem::assembled(&k, &force, &[0], &[], None, None);
+/// assert_eq!(solve_assembled_structural_dense(&system).unwrap().displacements, vec![1.0]);
+/// ```
+#[derive(Debug)]
+pub struct AssembledStructuralSystem<'a> {
+    system: StructuralSystem<'a>,
+    force: &'a AssembledForce,
+}
+impl<'a> StructuralSystem<'a> {
+    /// The typed constructor: the force vector is the ledger's.
+    pub fn assembled(
+        stiffness: &'a [Vec<f64>],
+        force: &'a AssembledForce,
+        free_dofs: &'a [usize],
+        prescribed: &'a [(usize, f64)],
+        contributions: Option<&'a [StiffnessContribution]>,
+        symmetry: Option<SymmetryEvidence<'a>>,
+    ) -> AssembledStructuralSystem<'a> {
+        AssembledStructuralSystem {
+            system: StructuralSystem {
+                stiffness,
+                force: force.values(),
+                free_dofs,
+                prescribed,
+                contributions,
+                symmetry,
+            },
+            force,
+        }
+    }
+}
+impl<'a> AssembledStructuralSystem<'a> {
+    pub fn system(&self) -> &StructuralSystem<'a> {
+        &self.system
+    }
+    pub fn force(&self) -> &'a AssembledForce {
+        self.force
+    }
+}
+/// Where the kernel takes its load terms from.
+#[derive(Debug, Clone, Copy)]
+enum ForceBinding<'s> {
+    /// Legacy `&[f64]`: each DOF's value is its only term; no load audit.
+    /// KS1/KS3 are exact on rows coupled to a nonzero prescribed value.
+    Legacy,
+    /// The named, unchanged binary64 path (ROOT option (c)): KS1 and KS3 fold
+    /// in binary64 on every row, as before S11-K; no load audit.
+    Binary64,
+    /// Ledger force: KS1/KS3 and the load audit use its terms.
+    Assembled(&'s AssembledForce),
+    /// Legacy vector solved as given; the load audit compares it with these
+    /// identified terms (the C3-detect entry point).
+    AuditTerms(&'s [ForceTerm]),
+}
+impl<'s> ForceBinding<'s> {
+    fn binary64(self) -> bool {
+        matches!(self, Self::Binary64)
+    }
+    fn assembled(self) -> Option<&'s AssembledForce> {
+        match self {
+            Self::Assembled(force) => Some(force),
+            _ => None,
+        }
+    }
+    fn audit_terms(self) -> Option<&'s [ForceTerm]> {
+        match self {
+            Self::Legacy | Self::Binary64 => None,
+            Self::Assembled(force) => Some(force.terms()),
+            Self::AuditTerms(terms) => Some(terms),
+        }
+    }
+}
+/// One row flagged by the load-fidelity audit (S11 sections 5.1 and 6).
+#[derive(Debug, Clone, PartialEq)]
+pub struct LoadFidelityRow {
+    pub global_dof: usize,
+    /// True for a prescribed (restrained) row, where the residual is the reaction.
+    pub restrained: bool,
+    /// Bits of the correctly rounded exact net of the identified terms.
+    pub exact_net_bits: u64,
+    /// Bits of the force value the solve used.
+    pub actual_bits: u64,
+    pub guarded_ratio: f64,
+    pub target: f64,
+    /// The audit's own per-row operation count m_i.
+    pub operation_count: usize,
+    /// Largest row amplification d_i/|f_i| for which the guard is complete at
+    /// 1e-9: 1e-9 / (64 * gamma(m_i)).
+    pub completeness_limit: f64,
+    pub sources: Vec<String>,
+}
+/// Present only when a row is flagged; never part of `StructuralReport`, so the
+/// Debug-published report is byte-unchanged when nothing is flagged.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LoadFidelityReport {
+    pub rows: Vec<LoadFidelityRow>,
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum StructuralError {
@@ -127,10 +243,14 @@ pub struct StructuralReport {
 pub struct StructuralSolution {
     pub displacements: Vec<f64>,
     pub report: StructuralReport,
+    /// Load-fidelity audit findings (S11); `None` when nothing is flagged or
+    /// when no identified force terms were supplied.
+    pub load_fidelity: Option<LoadFidelityReport>,
 }
 #[derive(Debug)]
 pub struct PreparedSystem<'s> {
     source: &'s StructuralSystem<'s>,
+    force_binding: ForceBinding<'s>,
     matrix: Vec<Vec<f64>>,
     rhs: Vec<f64>,
     scale_exponents: Vec<i32>,
@@ -363,11 +483,12 @@ impl Expansion {
     pub(crate) fn is_zero(&self) -> bool {
         self.terms.is_empty()
     }
-    pub(crate) fn rounded(&self) -> f64 {
-        self.terms.iter().copied().sum()
+    /// The expansion's exact value, correctly rounded once (+0.0 for zero).
+    pub(crate) fn round(&self) -> Result<f64, StructuralError> {
+        crate::exact_sum::exact_rounded_sum(self.terms.iter().copied()).map_err(sum_range)
     }
     pub(crate) fn exact_scalar(&self) -> Result<Option<f64>, StructuralError> {
-        let value = self.rounded();
+        let value = self.round()?;
         let mut difference = self.clone();
         difference.add(-value)?;
         Ok(if difference.is_zero() {
@@ -375,6 +496,13 @@ impl Expansion {
         } else {
             None
         })
+    }
+}
+fn sum_range(error: SumError) -> StructuralError {
+    match error {
+        SumError::NonFinite => StructuralError::Range("exact sum input"),
+        SumError::AccumulatorOverflow => StructuralError::Range("exact sum accumulator"),
+        SumError::NonRepresentable => StructuralError::Range("exact sum outside binary64 range"),
     }
 }
 pub(crate) fn exact_radix(mut value: f64, mut exponent: i32) -> Result<f64, StructuralError> {
@@ -405,9 +533,9 @@ fn contribution_sums(
             return Err(StructuralError::InvalidInput("contribution"));
         }
         let sum = &mut sums[entry.row][entry.col];
-        let old = sum.rounded();
+        let old = sum.round()?;
         sum.add(entry.value)?;
-        if entry.row == entry.col && entry.value > 0.0 && old != 0.0 && sum.rounded() == old {
+        if entry.row == entry.col && entry.value > 0.0 && old != 0.0 && sum.round()? == old {
             return Err(unresolved(
                 "positive diagonal contribution absorbed by assembly; stabilization unresolved",
                 Some(entry.row),
@@ -551,7 +679,16 @@ fn audit_intended_action(
         }
         let operations = (residual.operations + denominator_operations + 2).max(2);
         let g = gamma(operations);
-        let r = residual.rounded();
+        // Zero witness (S11 D-S11-1): an exact-zero intended-action residual keeps
+        // the -0.0 that committed diagnostics publish (245 `normalized_residual:
+        // -0.0` values in 31 fixture files, e.g. n05-dense_scrutiny.raw.json).
+        // It is only rendered in Debug diagnostics and gated through abs(); it
+        // never feeds a bit-equality check or a receipt. Every other zero is +0.0.
+        let r = if residual.is_zero() {
+            -0.0
+        } else {
+            residual.round()?
+        };
         let allowance = g * denominator / (1.0 - g);
         let ratio = if denominator == 0.0 {
             if residual.is_zero() {
@@ -567,10 +704,216 @@ fn audit_intended_action(
     }
     Ok(rows)
 }
+fn term_exponent(term: &ForceTerm) -> Option<i32> {
+    match term.kind {
+        ForceTermKind::Term(x) if x != 0.0 => Some(binary_exponent(x)),
+        ForceTermKind::Product(a, b) if a != 0.0 && b != 0.0 => {
+            Some(binary_exponent(a) + binary_exponent(b) + 1)
+        }
+        _ => None,
+    }
+}
+fn subtract_term(
+    residual: &mut Expansion,
+    term: &ForceTerm,
+    exponent: i32,
+) -> Result<(), StructuralError> {
+    match term.kind {
+        ForceTermKind::Term(x) => residual.add(exact_radix(-x, -exponent)?),
+        ForceTermKind::Product(a, b) => residual.add_product(-a, b, -exponent),
+    }
+}
+/// Load-fidelity audit (S11 section 5.1): M03's intended-action predicate with
+/// the load term replaced by the exact per-DOF sum of the identified terms, on
+/// free AND restrained rows.
+/// - Free row: `|sum_j K_ij u_j - f_i^exact| / d_i`.
+/// - Restrained row (the residual is the reaction): the published reaction's
+///   load term against the exact one, `|f_i - f_i^exact| / d_i`.
+///
+/// `d_i = |f_i^exact| + sum_j |K_ij| |u_j|`; a row is flagged when the guarded
+/// ratio exceeds `64 * gamma(m_i)`, m_i being this row's own operation count.
+/// K is the exact intended stiffness (contribution expansions) when supplied,
+/// otherwise the represented matrix. Only flagged rows are returned.
+pub fn audit_load_fidelity(
+    system: &StructuralSystem<'_>,
+    u: &[f64],
+    force_terms: &[ForceTerm],
+) -> Result<LoadFidelityReport, StructuralError> {
+    validate(system)?;
+    let n = system.force.len();
+    if u.len() != n || u.iter().any(|x| !x.is_finite()) {
+        return Err(StructuralError::InvalidInput("displacement vector"));
+    }
+    let mut by_dof: Vec<Vec<&ForceTerm>> = vec![Vec::new(); n];
+    for term in force_terms {
+        if term.dof >= n || term.source.is_empty() {
+            return Err(StructuralError::InvalidInput("force term"));
+        }
+        by_dof[term.dof].push(term);
+    }
+    let sums = contribution_sums(system)?;
+    let mut restrained = vec![false; n];
+    for &(i, _) in system.prescribed {
+        restrained[i] = true;
+    }
+    let mut rows = Vec::new();
+    for i in 0..n {
+        let terms = &by_dof[i];
+        let mut net = ExactAccumulator::new();
+        for term in terms {
+            term.accumulate(&mut net, false).map_err(sum_range)?;
+        }
+        let exact_net = net.round().map_err(sum_range)?;
+        let parts: Vec<(f64, f64)> = match &sums {
+            Some(sums) => sums[i]
+                .iter()
+                .zip(u)
+                .flat_map(|(coefficient, &x)| coefficient.terms.iter().map(move |&k| (k, x)))
+                .collect(),
+            None => system.stiffness[i]
+                .iter()
+                .zip(u)
+                .filter(|(&k, _)| k != 0.0)
+                .map(|(&k, &x)| (k, x))
+                .collect(),
+        };
+        let mut exponent = i32::MIN;
+        for term in terms {
+            if let Some(e) = term_exponent(term) {
+                exponent = exponent.max(e);
+            }
+        }
+        if restrained[i] && system.force[i] != 0.0 {
+            exponent = exponent.max(binary_exponent(system.force[i]));
+        }
+        for &(k, x) in &parts {
+            if k != 0.0 && x != 0.0 {
+                exponent = exponent.max(binary_exponent(k) + binary_exponent(x) + 1);
+            }
+        }
+        if exponent == i32::MIN {
+            exponent = 0;
+        }
+        let mut residual = Expansion::default();
+        if restrained[i] {
+            residual.add(exact_radix(system.force[i], -exponent)?)?;
+        } else {
+            for &(k, x) in &parts {
+                residual.add_product(k, x, -exponent)?;
+            }
+        }
+        for term in terms {
+            subtract_term(&mut residual, term, exponent)?;
+        }
+        let mut denominator = exact_radix(exact_net.abs(), -exponent)?;
+        let mut denominator_operations = 0;
+        for &(k, x) in &parts {
+            denominator =
+                checked_value(denominator + normalized_product(k.abs(), x.abs(), exponent)?)?;
+            denominator_operations += 2;
+        }
+        let operations = (residual.operations + denominator_operations + 2).max(2);
+        let g = gamma(operations);
+        let r = residual.round()?;
+        let ratio = if denominator == 0.0 {
+            if residual.is_zero() {
+                0.0
+            } else {
+                f64::INFINITY
+            }
+        } else {
+            (r.abs() / denominator + g / (1.0 - g)) * (1.0 + g) * (1.0 + 4.0 * f64::EPSILON)
+        };
+        let target = 64.0 * g;
+        if ratio > target {
+            let mut sources: Vec<String> = terms.iter().map(|t| t.source.clone()).collect();
+            sources.sort();
+            sources.dedup();
+            rows.push(LoadFidelityRow {
+                global_dof: i,
+                restrained: restrained[i],
+                exact_net_bits: exact_net.to_bits(),
+                actual_bits: system.force[i].to_bits(),
+                guarded_ratio: ratio,
+                target,
+                operation_count: operations,
+                completeness_limit: 1e-9 / target,
+                sources,
+            });
+        }
+    }
+    Ok(LoadFidelityReport { rows })
+}
 /// Nearby radix diagonal equilibration: A = T K_ff T, b = T f_reduced, u_f=T y.
 /// Ideal work-conjugate length/energy scaling cancels in total diagonal equilibration.
 pub fn prepare_structural<'s>(
     system: &'s StructuralSystem<'s>,
+) -> Result<PreparedSystem<'s>, StructuralError> {
+    prepare_bound(system, ForceBinding::Legacy)
+}
+/// Named, unchanged binary64 variant of `prepare_structural` for the nonlinear
+/// active-set loop's closed-gap prescribed solves (ROOT option (c)): the
+/// right-hand side and the refinement residual fold in binary64 as before
+/// S11-K. Linear callers use `prepare_structural` (exact KS1/KS3).
+pub fn prepare_structural_binary64<'s>(
+    system: &'s StructuralSystem<'s>,
+) -> Result<PreparedSystem<'s>, StructuralError> {
+    prepare_bound(system, ForceBinding::Binary64)
+}
+/// Typed sibling of `prepare_structural`: KS1 sums the ledger terms exactly.
+pub fn prepare_assembled_structural<'s>(
+    system: &'s AssembledStructuralSystem<'s>,
+) -> Result<PreparedSystem<'s>, StructuralError> {
+    prepare_bound(&system.system, ForceBinding::Assembled(system.force))
+}
+/// The C3-detect entry point: the legacy vector is solved as given, and the
+/// load-fidelity audit compares it with the identified terms.
+pub fn prepare_structural_with_force_terms<'s>(
+    system: &'s StructuralSystem<'s>,
+    force_terms: &'s [ForceTerm],
+) -> Result<PreparedSystem<'s>, StructuralError> {
+    prepare_bound(system, ForceBinding::AuditTerms(force_terms))
+}
+fn prescribed_coupled(system: &StructuralSystem<'_>, row: usize) -> bool {
+    system
+        .prescribed
+        .iter()
+        .any(|&(j, u)| system.stiffness[row][j] != 0.0 && u != 0.0)
+}
+/// KS1: `f_i - sum_c K_ic * g_c`, one exact sum scaled by `2^exponent` before
+/// its single rounding (S11 R3-4), with `radix_scale`'s range semantics.
+fn exact_scaled_rhs(
+    system: &StructuralSystem<'_>,
+    binding: ForceBinding<'_>,
+    row: usize,
+    exponent: i32,
+) -> Result<f64, StructuralError> {
+    let mut accumulator = ExactAccumulator::new();
+    match binding.assembled() {
+        Some(force) => force
+            .accumulate_dof(row, &mut accumulator, false)
+            .map_err(sum_range)?,
+        None => accumulator.add(system.force[row]).map_err(sum_range)?,
+    }
+    for &(j, u) in system.prescribed {
+        accumulator
+            .add_product(-system.stiffness[row][j], u)
+            .map_err(sum_range)?;
+    }
+    if accumulator.round().is_err() {
+        return Err(StructuralError::Range("nonfinite radix input"));
+    }
+    let value = accumulator
+        .round_scaled(exponent)
+        .map_err(|_| StructuralError::Range("radix scaling loses normal range"))?;
+    if value.is_subnormal() || (value == 0.0 && !accumulator.is_zero()) {
+        return Err(StructuralError::Range("radix scaling loses normal range"));
+    }
+    Ok(value)
+}
+fn prepare_bound<'s>(
+    system: &'s StructuralSystem<'s>,
+    force_binding: ForceBinding<'s>,
 ) -> Result<PreparedSystem<'s>, StructuralError> {
     validate(system)?;
     let n = system.free_dofs.len();
@@ -600,11 +943,18 @@ pub fn prepare_structural<'s>(
         for (c, &j) in system.free_dofs.iter().enumerate() {
             a[r][c] = radix_scale(system.stiffness[i][j], exponents[r] + exponents[c])?;
         }
-        let mut b = system.force[i];
-        for &(j, u) in system.prescribed {
-            b = checked_value(b - checked_product(system.stiffness[i][j], u)?)?;
+        if !force_binding.binary64()
+            && (force_binding.assembled().is_some() || prescribed_coupled(system, i))
+        {
+            rhs[r] = exact_scaled_rhs(system, force_binding, i, exponents[r])?;
+        } else {
+            // No nonzero prescribed product: today's evaluation, bit for bit.
+            let mut b = system.force[i];
+            for &(j, u) in system.prescribed {
+                b = checked_value(b - checked_product(system.stiffness[i][j], u)?)?;
+            }
+            rhs[r] = radix_scale(b, exponents[r])?;
         }
-        rhs[r] = radix_scale(b, exponents[r])?;
     }
     let mut projection = false;
     let mut max_skew: f64 = 0.0;
@@ -656,6 +1006,7 @@ pub fn prepare_structural<'s>(
         audit_contributions(system, &exponents, &rhs)?;
     Ok(PreparedSystem {
         source: system,
+        force_binding,
         matrix: a,
         rhs,
         scale_exponents: exponents,
@@ -694,8 +1045,27 @@ fn physical_residual_record(mut value: f64, mut exponent: i32) -> Result<f64, St
     Ok(value)
 }
 /// Original GLOBAL equations, independent of factor/order/reduced RHS. Constrained rows are reactions.
+/// This public evaluation is today's binary64 measurement, byte for byte
+/// (its callers are the nonlinear loop's product-equilibrium observation and
+/// the gap scrutiny). The solve's own residual and refinement use the exact
+/// KS3 numerator on prescribed-coupled rows (see `finish_structural`), and so
+/// does `evaluate_assembled_original_residual`.
 pub fn evaluate_original_residual(
     system: &StructuralSystem<'_>,
+    u: &[f64],
+) -> Result<Vec<ResidualRow>, StructuralError> {
+    evaluate_original_residual_bound(system, ForceBinding::Binary64, u)
+}
+/// Typed sibling of `evaluate_original_residual` (KS3 reads the ledger terms).
+pub fn evaluate_assembled_original_residual(
+    system: &AssembledStructuralSystem<'_>,
+    u: &[f64],
+) -> Result<Vec<ResidualRow>, StructuralError> {
+    evaluate_original_residual_bound(&system.system, ForceBinding::Assembled(system.force), u)
+}
+fn evaluate_original_residual_bound(
+    system: &StructuralSystem<'_>,
+    binding: ForceBinding<'_>,
     u: &[f64],
 ) -> Result<Vec<ResidualRow>, StructuralError> {
     validate(system)?;
@@ -725,14 +1095,34 @@ pub fn evaluate_original_residual(
         let mut r = -radix_scale(system.force[i], -row_exponent)?;
         let mut d = r.abs();
         let mut count = 0;
+        // KS3: on a row coupled to a nonzero prescribed value the numerator is
+        // one exact sum (ledger terms negated, plus K_ij * u_j over the full
+        // row), scaled before its single rounding. Other rows: today's code.
+        let exact_numerator = !binding.binary64() && prescribed_coupled(system, i);
+        let mut numerator = ExactAccumulator::new();
+        if exact_numerator {
+            match binding.assembled() {
+                Some(force) => force
+                    .accumulate_dof(i, &mut numerator, true)
+                    .map_err(sum_range)?,
+                None => numerator.add(-system.force[i]).map_err(sum_range)?,
+            }
+        }
         for (&k, &x) in system.stiffness[i].iter().zip(u) {
             if k == 0.0 {
                 continue;
             }
             count += 1;
             let p = normalized_product(k, x, row_exponent)?;
-            r = checked_value(r + p)?;
+            if exact_numerator {
+                numerator.add_product(k, x).map_err(sum_range)?;
+            } else {
+                r = checked_value(r + p)?;
+            }
             d = checked_value(d + p.abs())?;
+        }
+        if exact_numerator {
+            r = checked_value(numerator.round_scaled(-row_exponent).map_err(sum_range)?)?;
         }
         let operations = 2 * count + 2;
         let g = gamma(operations);
@@ -914,7 +1304,7 @@ where
         for (r, &i) in system.free_dofs.iter().enumerate() {
             u[i] = radix_scale(y[r], prepared.scale_exponents[r])?;
         }
-        let residual = evaluate_original_residual(system, &u)?;
+        let residual = evaluate_original_residual_bound(system, prepared.force_binding, &u)?;
         let worst = residual
             .iter()
             .map(|r| r.guarded_ratio / r.target)
@@ -927,11 +1317,20 @@ where
                     None,
                 ));
             }
+            // S11 section 6: a detected load loss is Sensitive, never a refusal.
+            let load_fidelity = match prepared.force_binding.audit_terms() {
+                Some(terms) => {
+                    let report = audit_load_fidelity(system, &u, terms)?;
+                    (!report.rows.is_empty()).then_some(report)
+                }
+                None => None,
+            };
             return Ok(StructuralSolution {
                 displacements: u,
+                load_fidelity: load_fidelity.clone(),
                 report: StructuralReport {
                     policy: POLICY,
-                    quality: if rcond < f64::EPSILON.sqrt() {
+                    quality: if rcond < f64::EPSILON.sqrt() || load_fidelity.is_some() {
                         SolveQuality::Sensitive
                     } else {
                         SolveQuality::Passed
@@ -1108,7 +1507,32 @@ pub fn finish_structural(
 pub fn solve_structural_dense(
     system: &StructuralSystem<'_>,
 ) -> Result<StructuralSolution, StructuralError> {
-    let prepared = prepare_structural(system)?;
+    solve_prepared_dense(prepare_structural(system)?)
+}
+/// Named, unchanged binary64 variant of `solve_structural_dense` for the
+/// nonlinear active-set loop (ROOT option (c)).
+pub fn solve_structural_dense_binary64(
+    system: &StructuralSystem<'_>,
+) -> Result<StructuralSolution, StructuralError> {
+    solve_prepared_dense(prepare_structural_binary64(system)?)
+}
+/// Typed sibling of `solve_structural_dense`.
+pub fn solve_assembled_structural_dense(
+    system: &AssembledStructuralSystem<'_>,
+) -> Result<StructuralSolution, StructuralError> {
+    solve_prepared_dense(prepare_assembled_structural(system)?)
+}
+/// C3-detect sibling of `solve_structural_dense` (see
+/// `prepare_structural_with_force_terms`).
+pub fn solve_structural_dense_with_force_terms(
+    system: &StructuralSystem<'_>,
+    force_terms: &[ForceTerm],
+) -> Result<StructuralSolution, StructuralError> {
+    solve_prepared_dense(prepare_structural_with_force_terms(system, force_terms)?)
+}
+fn solve_prepared_dense(
+    prepared: PreparedSystem<'_>,
+) -> Result<StructuralSolution, StructuralError> {
     let factor = match factor_structural_cholesky(&prepared) {
         Ok(factor) => factor,
         Err(error) => return Err(negative_pair_witness(&prepared)?.unwrap_or(error)),
@@ -1348,6 +1772,9 @@ pub fn negative_pair_witness(
     }
     Ok(None)
 }
+
+#[cfg(test)]
+mod s11k_tests;
 
 #[cfg(test)]
 mod tests {

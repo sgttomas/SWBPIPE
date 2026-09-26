@@ -8,6 +8,7 @@
 //! flexibility-factor or stress-intensification formulas, or private
 //! project data.
 
+use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use std::error::Error;
 use std::f64::consts::PI;
 use std::fmt;
@@ -589,6 +590,71 @@ impl CurvedBendMacroElement {
         Ok(resultants)
     }
 
+    /// E11 terms API (S11-K; dormant until S11-F). By linearity the section
+    /// resultant is the exact sum of this element's section function applied
+    /// to the node-j force alone, to each uniform intensity alone, and to each
+    /// radial-pressure thrust alone; each component is rounded once. With a
+    /// single input it equals `arc_section_resultants(_with_radial_pressure)`
+    /// on that input (a zero component is +0.0).
+    pub fn arc_section_resultant_terms(
+        &self,
+        fraction: f64,
+        node_j_force_global: [f64; DOF_PER_NODE],
+        intensities_global: &[[f64; 3]],
+        radial_pressure_thrusts: &[f64],
+    ) -> Result<[f64; DOF_PER_NODE], CurvedBendError> {
+        let mut terms =
+            Vec::with_capacity(1 + intensities_global.len() + radial_pressure_thrusts.len());
+        terms.push(self.arc_section_resultants(fraction, node_j_force_global, [0.0; 3])?);
+        for &intensity in intensities_global {
+            terms.push(self.arc_section_resultants(fraction, [0.0; DOF_PER_NODE], intensity)?);
+        }
+        if !radial_pressure_thrusts.is_empty() {
+            let geometry = self.geometry()?;
+            let remaining_angle = (1.0 - fraction) * geometry.included_angle;
+            for &thrust in radial_pressure_thrusts {
+                if !thrust.is_finite() {
+                    return Err(FrameKernelError::NonFiniteInput {
+                        name: "radial_pressure_thrust",
+                        value: thrust,
+                    }
+                    .into());
+                }
+                terms.push([
+                    thrust * (1.0 - remaining_angle.cos()),
+                    -(thrust * remaining_angle.sin()),
+                    0.0,
+                    0.0,
+                    0.0,
+                    thrust * geometry.radius * (remaining_angle.cos() - 1.0),
+                ]);
+            }
+        }
+        let mut resultants = [0.0; DOF_PER_NODE];
+        for (component, value) in resultants.iter_mut().enumerate() {
+            let mut accumulator = ExactAccumulator::new();
+            for term in &terms {
+                accumulator.add(term[component]).map_err(|_| {
+                    CurvedBendError::from(FrameKernelError::NonFiniteInput {
+                        name: "arc_section_resultant_term",
+                        value: term[component],
+                    })
+                })?;
+            }
+            *value = accumulator.round().map_err(|_| {
+                CurvedBendError::from(FrameKernelError::NonFiniteInput {
+                    name: "arc_section_resultants",
+                    value: if accumulator.signum() < 0 {
+                        f64::NEG_INFINITY
+                    } else {
+                        f64::INFINITY
+                    },
+                })
+            })?;
+        }
+        Ok(resultants)
+    }
+
     // Free-tip (node i clamped) deflection at node j under the outward
     // radial wall load, local frame, by the unit-load theorem with the same
     // strain-energy weights as `end_flexibility`. The wall load's
@@ -1059,6 +1125,9 @@ fn cross(left: [f64; 3], right: [f64; 3]) -> [f64; 3] {
         left[0] * right[1] - left[1] * right[0],
     ]
 }
+
+#[cfg(test)]
+mod s11k_tests;
 
 #[cfg(test)]
 mod tests {
