@@ -160,7 +160,7 @@ A failure makes the source unsupported (Rust/Python error code prefix `SOURCE_PR
 
 ## 11. Fixtures
 
-S2a generates, only with the actual producer: `P/fixtures/results/preview_physics_connected_{sparse,dense}.json` from `P/fixtures/model_operations/precision_connected_ui_model.json` (the desktop connected model; for the TS replay profile). S4's generator mode writes `P/fixtures/product_preview/invented_mechanics_result_preview_physics_1_{sparse,dense}.json` from the unchanged invented demo model (the F-1 positive control), never overwriting the precision-1 pair. Historical precision-1 and source-blocks-1 fixtures stay byte-unchanged.
+S2a generates, only with the actual producer: `P/fixtures/results/preview_physics_connected_{sparse,dense}.json` from `P/fixtures/model_operations/precision_connected_ui_model.json` (the desktop connected model; for the TS replay profile), and `P/fixtures/results/preview_physics_invented_{sparse,dense}.json` from the derived demo model (legacy pressure and, per A1, joint C-150 removed) — **this invented pair is the F-1 positive control** (hanger, `DEC-046` and SIF source-reference refs). S4's generator mode writes `P/fixtures/product_preview/invented_mechanics_result_preview_physics_1_{sparse,dense}.json` from the unchanged demo model; that output is truthfully blocked (legacy pressure refused) and is not the F-1 control. The precision-1 pair is never overwritten. (Corrected at A2, R2 N6.) Historical precision-1 and source-blocks-1 fixtures stay byte-unchanged.
 
 ## Amendments
 
@@ -181,3 +181,21 @@ S2a generates, only with the actual producer: `P/fixtures/results/preview_physic
 - f. **Metadata semantics** are checked exactly for support v2 rows and maximum rows (§3 strings). For intensified rows, `component`, `coordinate_system`, `location` and `basis` are checked exactly, and `sign_convention` must start with `nonnegative i*hypot(My,Mz)/Z at the member end; i=`.
 - g. When `summary.component_stress_modifier_count` is present, it equals the number of intensified rows.
 - h. `rule_check_runner::RuleCheckRunInput` is not a serde type, so `refused_solver_results` is a plain field set at every construction site. It has no `#[serde(default)]`.
+
+### A2 — 2026-09-26: one strict reader list (ROOT ruling on R2 SF-1)
+
+Every check below is a true invariant of honest producer output, verified on all five actual fixtures (`preview_physics_{connected,invented}_{sparse,dense}`, `preview_physics_unicode_ids_sparse`) and the blocked `invented_mechanics_result_preview_physics_1_*`. All three readers implement **exactly** A1 a–h plus the following, and nothing stricter:
+1. **Extrema:** `station_fraction` and `local_fraction` are numbers in [0, 1]; `span_index` is an integer ≥ 0; `subdivisions` is an integer in [0, 131072] (`MAX_SUBDIVISIONS`, `core/loads/stress_recovery/src/elastic_extrema.rs`); and the A1 d checks.
+2. **Case order:** on a solved envelope, `preview_cases[*].load_case_id` equals `numerical_quality.cases[*].basis_ref.ref_id` in the same order.
+3. **Attribution sets:** each case's attributed set and withheld set (support id and reason) are identical in every case. Dispositions are structural, so the producer guarantees this.
+4. **Combination support rows** (`support_reaction_*_v2` with a combination `basis_ref`) keep `coordinate_system` `global`, `location` `node` and their component token. Only `basis` and `sign_convention` follow §7.
+5. **Diagnostics:** `affected_refs`, when the key is present, is an array of non-empty strings (null is refused). A1 a still allows the key to be absent.
+6. **Blocked envelopes:** `summary.component_stress_modifier_count`, when present, is 0.
+7. **Intensified evidence:** `sif_source_reference` is a non-empty string, `sif` > 0 and `section_modulus_m3` > 0.
+8. **Rows:** every row has non-empty string `id`, `kind`, `unit` and `entity_ref`.
+9. **Magnitude check scope:** only range envelopes (A1 c) are exempt. No other exemption (for example "no linear basis") is allowed.
+10. **Standing order:** every `numerical_use_standing*` validates first, so a malformed or tampered source is `unsupported`. Only then does a standing reason give `needs_recompute`. (In Rust this moves the T0R early return below `for_source`; ROOT's hand merge with T1's early return, N-B, follows the same order.)
+
+**Shared tamper vector:** `P/fixtures/results/preview_physics_tamper_vector.json` holds R2's 9 variants and 2 unchanged controls, as RFC 6901 ops (`replace`, `remove`, `reverse`) over actual producer bases. Every reader's test suite applies every variant and asserts the listed outcome.
+
+**Report wire gate** (R2 N3): the report-package wire carries no semantic identity, so the Rust gate refuses by fresh-only metadata content. It is defence in depth behind the TS identity gate, which refuses by identity.

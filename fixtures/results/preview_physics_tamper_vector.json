@@ -1,0 +1,127 @@
+{
+  "description": "T0R S1 amendment A2 shared tamper vector. Each variant applies its ops (RFC 6901 JSON pointers) to a copy of its base fixture; every reader (Rust, Python, TS) must give the expected outcome. Bases are actual producer output.",
+  "bases": {
+    "unicode": "fixtures/results/preview_physics_unicode_ids_sparse.json",
+    "blocked": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json"
+  },
+  "variants": [
+    {
+      "id": "C1-unicode-unchanged",
+      "base": "unicode",
+      "ops": [],
+      "expect": "accepted"
+    },
+    {
+      "id": "C2-blocked-unchanged",
+      "base": "blocked",
+      "ops": [],
+      "expect": "accepted"
+    },
+    {
+      "id": "V1-station-fraction-above-1",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/0/station_fraction",
+          "value": 1.5
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V2-subdivisions-above-cap",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/0/subdivisions",
+          "value": 200000
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V3-negative-span-index",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/0/span_index",
+          "value": -1
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V4-preview-cases-reordered",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "reverse",
+          "path": "/contract_evidence/preview_cases"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V5-combination-support-row-not-global",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/389/metadata/coordinate_system",
+          "value": "element_local"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V6-null-affected-refs",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/diagnostics/0/affected_refs",
+          "value": null
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V7-blocked-modifier-count-nonzero",
+      "base": "blocked",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/summary/component_stress_modifier_count",
+          "value": 3
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V8-empty-sif-source-reference",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/0/sif_source_reference",
+          "value": ""
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V9-missing-entity-ref",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/results/0/entity_ref"
+        }
+      ],
+      "expect": "refused"
+    }
+  ]
+}
