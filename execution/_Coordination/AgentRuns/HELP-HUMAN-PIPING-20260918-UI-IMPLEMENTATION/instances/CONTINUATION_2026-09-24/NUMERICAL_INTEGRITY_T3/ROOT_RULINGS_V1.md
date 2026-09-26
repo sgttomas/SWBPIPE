@@ -362,3 +362,18 @@ Input: [REVIEW/BACKCHECK_R5.md](REVIEW/BACKCHECK_R5.md). Verdict FINDINGS, nothi
    - D2 narrows its rule to that: `INPUT_DOF_MISMATCH` may apply only where a receipt *claims* selection of such a case, as a reader integrity refusal of the receipt, never of the ordinary result.
    - D1 mirrors it in the W1 selection rule, together with the trimmed/untrimmed support-family detail D2 took from `PP`.
    - V1 checks both.
+
+## RF-ELOAD refutation (V3) rulings (ROOT, 2026-09-26, after `3bb46bc62`)
+
+- **D-14 clarification (V3 Q2 / F3).** "Computed exactly from the user's inputs" means exact from the **binary64 inputs as the document stores them** (D1 §4.2). It is the same principle as re-forming stiffness from binary64 primitives. The authored decimal text is not the source. The represented basis for RF-ELOAD-CANCEL-SEIS-G1e7 and -G1e8 stands.
+- **V3 Q1 / F1: add a variant; do not edit G1e8.** The author adds RF-ELOAD-CANCEL-SEIS-G1e8b with V3's inputs (gen.g_factor.Z = −0.23, D = 143.44076231504138435), on the represented basis. Expected: NC-FLOAT-SUM fails about 9.44×, NC-BIN64-PRODUCT about 89.6×, finite_input about 8.55e-9. Every existing case and value stays byte-identical.
+- **In the same revision:**
+  - F1 text: the NC-FLOAT-SUM control text and README finding 3 say what the control rounds.
+  - F8: retire NC-LOST-SOFT at r1e-06.
+  - F4–F6: the control texts specify the defect exactly as V3 found it (the lever rule lumps full-span loads 50/50; ALPHA-TIMES-INTERVAL and SUBTRACT-DILATIONS drop the fit; COMB-DIFF's NC-MAG-SUM is Mb_A − Mb_B).
+  - V3's §6.2 labels on the 21 kept controls, and its re-scale decision.
+  - F9: a symmetric CANCEL-FEM gross column, or one labelled review-only.
+  - F10: a README harness-mapping note (station labels under an i/j swap; tp_phys_008's N sign).
+  - F7: no change to the rule, which V3 rules sound and ROOT accepts. The README says it is a new rule, since R1 refuses that case.
+- **Check.** V3 re-refutes the delta only: the new case by its own route, the changed or retired controls, and byte identity of every pre-existing value. Then RF-ELOAD comes to ROOT for selection, before F3.
+- **Carried into F3's brief (D-14):** a **required** kernel-level test that each generated load enters the ledger as the exact product of its binary64 inputs at working precision, with no binary64 intermediate. No non-cancelling reference can observe D-14.
