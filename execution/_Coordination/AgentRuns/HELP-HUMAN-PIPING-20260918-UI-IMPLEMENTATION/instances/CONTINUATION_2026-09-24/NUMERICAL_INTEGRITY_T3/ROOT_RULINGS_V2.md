@@ -14,3 +14,9 @@ HELP_HUMAN (ROOT), 2026-09-26, relayed to the T3 manager by SendMessage and reco
 3. **F2 (SHOULD-FIX for D1 and the harness).** D1 gives twist and extension their own scale kinds, so the stop-rule guarantee covers them. Any comparison still below the floor is flagged by the harness as **not covered by the guarantee**. That includes the 3 G=1e80 RF-CANCEL rows and the RF-WEAK far and coupling regions. Neither a below-floor comparison nor a not-covered flag counts as a pass. D1 folds this into its revision, and V1's BACKCHECK_R2 checks it.
 
 After V2's narrow backcheck, ROOT freezes the references with the selection package. The host stays held while T1 runs its full local e2e and then VP-STATIC.
+
+## Confirmation (ROOT, crossing message)
+
+- The RF-CANCEL ruling (1) is confirmed.
+- **P1 may start on the current references** once the host is released. It takes exact inputs from `references.py`, not from the printed JSON, and records the references commit it ran against. After R1's F1 revision, P1's mismatches are re-evaluated against the frozen references before any finding is final.
+- **F2:** D1's erratum or revision 3 goes to V1's BACKCHECK_R2. Twist and extension get their own kinds, and anything left below the floor is flagged not covered and never counts as a pass.

@@ -1,6 +1,10 @@
 # P1 — detection run on main (pre-change baseline)
 
-Execution TASK. Read `_COMMON.md` first. It runs only after the manager confirms two things: ROOT has released the host, and V2 has refuted R1's references with ROOT's acknowledgement (the references at the commit the manager names at spawn).
+Execution TASK. Read `_COMMON.md` first. It runs only after the manager confirms that ROOT has released the host. By ROOT's ruling (`ROOT_RULINGS_V2.md`), it may run on the V2-confirmed references before their freeze.
+
+- Take every model input from `references.py` itself (`--model` or `--full`), never from the printed JSON. Some inputs in the JSON are printed rounded (V2 F1).
+- Record the references commit and the `references.py` hash you ran against.
+- After R1's F1 revision, the manager re-evaluates your mismatches against the frozen references before any finding is final.
 
 ## Purpose
 
@@ -21,6 +25,8 @@ Record what main publishes today for every T3 reference quantity, before any T3 
   - for every expected quantity, the observed value, the comparison `|obs − exp| ≤ 1e-9·max(|exp|, scale)` using the reference's stated scale, and pass or mismatch;
   - for every negative control, whether main's value matches the wrong answer;
   - the standing main would give the result (Current-eligible or not), by calling the Rust standing function on the envelope.
+  - for each comparison, the binding scale: for RF-CANCEL the recommended (net-governed) column (`ROOT_RULINGS_V2.md` §1).
+  - expected values below the binary64 range, compared as absolute and reported as such (V2 F8).
 - **For RF-LARGE,** also record wall time and peak RSS per size, measured in fresh processes (`/usr/bin/time -v` or equivalent). This is the first M32 memory observation; label it an observation, not a limit.
 
 ## Expected outcomes to confirm or refute
