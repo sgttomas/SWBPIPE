@@ -1,11 +1,10 @@
 # T3 selection package (DRAFT)
 
-T3 WORKING_ITEMS manager for ROOT, 2026-09-26. **Status: DRAFT.** R5-4 is pre-accepted. Three things are still pending:
-- D1's and D2's narrow final follow-up (R5-1, R5-2, R5-3, R5-5, N-1 to N-6, adopting R5-4, the D-14 pin and the exception re-pin);
+T3 WORKING_ITEMS manager for ROOT, 2026-09-26. **Status: DRAFT.** R5-4 is pre-accepted. Still pending:
 - V1's verification of those items;
 - I1's S11-K pre-regeneration report.
 
-The hashes in §2 are the latest committed revisions and will be updated when the follow-up lands. Nothing here is selected until ROOT records a selection.
+The follow-up has landed (D1 5a.1, D2 5b.1); §2 lists the final design revisions. Nothing here is selected until ROOT records a selection.
 
 ## 1. What T3 asks ROOT to select
 
@@ -23,11 +22,11 @@ The references are already frozen (`ROOT_SELECTION_REFERENCES.md`). The S11 cont
 
 | Record | Revision / commit | sha256 (prefix) |
 |---|---|---|
-| `DESIGN_NUMERICS/DESIGN.md` (D1) | revision 5a at `16bcbf369` | `7decddea` |
+| `DESIGN_NUMERICS/DESIGN.md` (D1) | revision 5a.1 at `8dfd72921` | `13c1a7d5` |
 | `DESIGN_NUMERICS/S11_CONTAINMENT.md` | revision 5a at `16bcbf369` (selected at revision 3 plus R3) | `82c1b072` |
 | `DESIGN_NUMERICS/D5_TRIGGER.md` | revision 2a at `16bcbf369` | `f6e24a69` |
 | `DESIGN_NUMERICS/R5_4_CURVED.md` | `4bc3e0696` | `4843c4e9` |
-| `DESIGN_STANDING/DESIGN.md` (D2) | revision 5a at `8bf23f794` (5b pending) | `04a466b1` |
+| `DESIGN_STANDING/DESIGN.md` (D2) | revision 5b.1 at `ae2333a80` | `71bb7278` |
 | `REFERENCES/` (R1, frozen) | `c0f14201c` | `references.json` `7b176dbb` |
 | Reviews | `REVIEW/RETURN.md`, `S11_CHECK.md`, `S11_BACKCHECK.md`, `S11_BACKCHECK_R3.md`, `BACKCHECK_R2.md`, `BACKCHECK_R3.md`, `D5_CHECK.md`, `BACKCHECK_R4.md`, `BACKCHECK_R5.md` | — |
 | Reference checks | `REFERENCE_CHECK/RETURN.md`, `BACKCHECK.md`, `ERRATUM_N1.md` | — |
