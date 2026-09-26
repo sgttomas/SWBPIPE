@@ -1,6 +1,6 @@
 # TASK S5 — TypeScript readers and the minimum text-only UI
 
-Read `_COMMON.md` first. Desktop app: `P/apps/desktop` (`npm` scripts in its `package.json`; `export PATH=/opt/node24/bin:$PATH`).
+Read `_COMMON.md` first. Desktop app: `P/apps/desktop` (`npm` scripts in its `package.json`; `export PATH=<node>/bin:$PATH`).
 
 ## Assignment (DESIGN §6 TS rows and §7; S1_INTERFACE §9–§10)
 1. `src/features/results/numericalResultQuality.ts` and `resultSemantics.ts`: register preview-physics-1 (`sourceContract` value e.g. `'preview_physics'`, the table import, sha pin `ae55503d…`), first-match `source_basis` lookup as in S1 §1.

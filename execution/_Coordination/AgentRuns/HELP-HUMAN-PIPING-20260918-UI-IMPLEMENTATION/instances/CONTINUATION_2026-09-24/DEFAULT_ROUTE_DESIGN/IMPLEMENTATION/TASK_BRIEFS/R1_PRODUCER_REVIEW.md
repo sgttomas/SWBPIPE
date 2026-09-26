@@ -1,9 +1,9 @@
 # TASK R1 — independent review of the T0R producer (S1 + S2a/S2b)
 
-You are a fresh-context, non-author reviewer (TASK, Type 2) under the T0R WORKING_ITEMS manager. Read Root `AGENTS.md`, `agents/AGENT_TASK.md` and `projects/chirality-piping/AGENTS.md`. **Read-only:** do not edit any file in the repository and make no Git write. You may build and run tests with `CARGO_TARGET_DIR=/home/user/wt/t0r-r1` (delete it when done) and write scratch probes outside the repository.
+You are a fresh-context, non-author reviewer (TASK, Type 2) under the T0R WORKING_ITEMS manager. Read Root `AGENTS.md`, `agents/AGENT_TASK.md` and `projects/chirality-piping/AGENTS.md`. **Read-only:** do not edit any file in the repository and make no Git write. You may build and run tests with `CARGO_TARGET_DIR=<scratch>/t0r-r1` (delete it when done) and write scratch probes outside the repository.
 
 ## Candidate
-Worktree `/home/user/wt/engine`, commits `cbec393f3` (S1 table + interface) and `dcbd3cad7` (producer), over main `45a5381c8`. Review the complete diff `git diff 45a5381c8 dcbd3cad7 -- projects/chirality-piping/core projects/chirality-piping/fixtures projects/chirality-piping/validation` plus the S1 records in `DEFAULT_ROUTE_DESIGN/IMPLEMENTATION/`. Other uncommitted files in the worktree belong to parallel TASKs (readers, Python, TS); they are out of scope for R1.
+Worktree `<worktree>`, commits `cbec393f3` (S1 table + interface) and `dcbd3cad7` (producer), over main `45a5381c8`. Review the complete diff `git diff 45a5381c8 dcbd3cad7 -- projects/chirality-piping/core projects/chirality-piping/fixtures projects/chirality-piping/validation` plus the S1 records in `DEFAULT_ROUTE_DESIGN/IMPLEMENTATION/`. Other uncommitted files in the worktree belong to parallel TASKs (readers, Python, TS); they are out of scope for R1.
 
 ## Basis
 `DEFAULT_ROUTE_DESIGN/DESIGN.md` revision 3 with `ROOT_SELECTION.md` amendments F-1 and N-A, `ROOT_RULINGS.md`, `IMPLEMENTATION/S1_INTERFACE.md`, the frozen `references.py` / `_run_records/references.stdout.txt`, and `../OWNER_SIF_DECISION_2026-09-26.md`.

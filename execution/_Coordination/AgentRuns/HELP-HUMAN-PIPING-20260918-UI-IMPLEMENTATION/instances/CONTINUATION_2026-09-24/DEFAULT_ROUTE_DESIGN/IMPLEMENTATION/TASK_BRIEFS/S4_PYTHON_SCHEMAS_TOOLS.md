@@ -14,4 +14,4 @@ Read `_COMMON.md` first.
 `P/core/analysis_runs/**`, `P/core/handoff/stress_neutral/package_v0_3.py`, the three schemas above, `P/tools/serialization/generate_product_preview_mechanics.mjs`, its two new outputs and new generation record, `P/tests/**` (Python only; add `P/tools/validation/*` only if a test proves it enumerates ids — ask first). Also `P/package.json` only if the new mode needs a script entry.
 
 ## Checks
-From `P/`: `/home/user/dec025-venv/bin/python -m pytest tests -q -x` (or the targeted subset, then the full `tests/` once) and any schema validation tests. Report counts and failures verbatim.
+From `P/`: `<venv>/bin/python -m pytest tests -q -x` (or the targeted subset, then the full `tests/` once) and any schema validation tests. Report counts and failures verbatim.

@@ -1,6 +1,6 @@
 # TASK R2 — complete-diff independent review of the T0R candidate
 
-You are a fresh-context, non-author reviewer (TASK, Type 2) under the T0R WORKING_ITEMS manager. Read Root `AGENTS.md`, `agents/AGENT_TASK.md` and `projects/chirality-piping/AGENTS.md`. **Read-only**: no repository edits, no Git writes. Review from Git objects (for example a `git archive` scratch copy outside the repository); the shared worktree may be running checks. Use `CARGO_TARGET_DIR=/home/user/wt/t0r-r2` for any build and delete it and your scratch copy when done. Disk is tight (<10 GB free): build only what you need.
+You are a fresh-context, non-author reviewer (TASK, Type 2) under the T0R WORKING_ITEMS manager. Read Root `AGENTS.md`, `agents/AGENT_TASK.md` and `projects/chirality-piping/AGENTS.md`. **Read-only**: no repository edits, no Git writes. Review from Git objects (for example a `git archive` scratch copy outside the repository); the shared worktree may be running checks. Use `CARGO_TARGET_DIR=<scratch>/t0r-r2` for any build and delete it and your scratch copy when done. Disk is tight (<10 GB free): build only what you need.
 
 ## Candidate
 Branch `claude/inspiring-ptolemy-zxofd6`, range `45a5381c8..ba5ffba12` (11 commits, 94 files). Review the **complete** diff (`git diff 45a5381c8 ba5ffba12`), every file. If the manager adds repair commits before you finish, it will tell you the new tip.
