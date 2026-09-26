@@ -61,7 +61,11 @@ fn rule_eligibility_requires_actual_case_coverage_and_resolving_evidence() {
     raw["numerical_quality"]["status"]=json!("checks_passed");
     assert_eq!(s::numerical_use_standing(&raw,&[basis.clone()]),"needs_recompute");
     raw["numerical_quality"]["cases"]=json!([{"basis_ref":basis,"structural_status":"passive_model_basis","solve_quality":"checks_passed","model_matrix_fidelity":"represented_equations_retained","accuracy_evidence":"not_claimed","evidence_refs":["rotation"]}]);
-    assert_eq!(s::numerical_use_standing(&raw,&[basis.clone()]),"numerically_eligible");
+    // T0R retires precision-1 as Current (S1 10): complete passing evidence no longer
+    // makes it eligible. The same progression on preview-physics-1 is in preview_physics_contract.rs.
+    assert!(s::for_source(&raw).is_ok());
+    assert_eq!(s::numerical_use_standing(&raw,&[basis.clone()]),"needs_recompute");
+    assert_eq!(s::standing_reason(&raw),Some(s::PRECISION_1_HISTORICAL_SEMANTICS));
     assert_eq!(s::numerical_use_standing(&raw,&[]),"needs_recompute");
     assert_eq!(s::numerical_use_standing(&raw,&[basis.clone(),basis.clone()]),"needs_recompute");
     raw["numerical_quality"]["cases"][0]["solve_quality"]=json!("sensitive");

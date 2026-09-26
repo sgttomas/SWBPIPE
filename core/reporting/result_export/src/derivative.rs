@@ -95,7 +95,9 @@ pub fn derive_document(
         if matches!(
             source["producer"]["semantic_contract_id"].as_str(),
             Some(
-                crate::semantic_contract::PHYSICS_ID | crate::semantic_contract::PHYSICS_SOURCE_ID
+                crate::semantic_contract::PHYSICS_ID
+                    | crate::semantic_contract::PHYSICS_SOURCE_ID
+                    | crate::semantic_contract::PREVIEW_PHYSICS_ID
             )
         ) {
             e["contract_evidence"] = source["contract_evidence"].clone();

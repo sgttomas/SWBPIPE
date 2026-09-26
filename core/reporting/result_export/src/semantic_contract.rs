@@ -92,6 +92,9 @@ pub fn canonical_metadata_in(table: &Value, row: &Value) -> Option<Value> {
 pub const PHYSICS_SOURCE_ID: &str = "openpipestress.result_semantics/0.3.0/physics-source-1";
 pub const PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
 pub const PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
+pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+pub const PREVIEW_PHYSICS_SHA256: &str =
+    "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a";
 pub fn precision_contract() -> &'static Value {
     static CONTRACT: OnceLock<Value> = OnceLock::new();
     CONTRACT.get_or_init(|| {
@@ -108,6 +111,15 @@ pub fn physics_contract() -> &'static Value {
             "../../../../fixtures/results/semantic_contract_v0_3_physics_1.json"
         ))
         .expect("pinned physics semantic contract")
+    })
+}
+pub fn preview_physics_contract() -> &'static Value {
+    static CONTRACT: OnceLock<Value> = OnceLock::new();
+    CONTRACT.get_or_init(|| {
+        serde_json::from_str(include_str!(
+            "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
+        ))
+        .expect("pinned preview-physics semantic contract")
     })
 }
 pub fn physics_source_contract() -> &'static Value {
@@ -155,6 +167,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                         PRECISION_ID
                             | PHYSICS_ID
                             | PHYSICS_SOURCE_ID
+                            | PREVIEW_PHYSICS_ID
                             | crate::source_blocks::CONTRACT_ID
                     )
                 )
@@ -166,6 +179,11 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 && source.get("source_block_recovery").is_some()
             {
                 return Err("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN".into());
+            }
+            if p["semantic_contract_id"] == PREVIEW_PHYSICS_ID
+                && !source.get("contract_evidence").is_some_and(Value::is_object)
+            {
+                return Err("SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED".into());
             }
             let q = &source["numerical_quality"];
             if !exact_keys(
@@ -253,6 +271,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
                 Some(PHYSICS_SOURCE_ID) => physics_source_contract(),
                 Some(crate::source_blocks::CONTRACT_ID) => source_blocks_contract(),
                 Some(PRECISION_ID) => precision_contract(),
+                Some(PREVIEW_PHYSICS_ID) => preview_physics_contract(),
                 _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
             };
             Ok((table, "0.3.0"))
@@ -266,6 +285,7 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
     let selected = for_source_metadata(source)?;
     match source["producer"]["semantic_contract_id"].as_str() {
         Some(PHYSICS_ID) => validate_physics_evidence(source)?,
+        Some(PREVIEW_PHYSICS_ID) => validate_preview_physics_evidence(source)?,
         Some(PHYSICS_SOURCE_ID) => {
             crate::physics_source::validate(source, None)?;
         }
@@ -288,6 +308,47 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
     Ok(selected)
 }
 pub use crate::physics_evidence::{validate_physics_evidence, validate_transport_metadata as validate_physics_transport_metadata};
+pub use crate::preview_physics_evidence::validate_preview_physics_evidence;
+
+/// Identities a fresh solve may publish (DESIGN 5.7, S1 10). One static set in
+/// every language, never a route predicate. T1 adds its identities on activation.
+pub const FRESH_IDENTITIES: &[&str] = &[
+    PREVIEW_PHYSICS_ID,
+    crate::source_blocks::CONTRACT_ID,
+    PHYSICS_ID,
+    PHYSICS_SOURCE_ID,
+];
+pub fn is_fresh_identity(semantic_contract_id: &str) -> bool {
+    FRESH_IDENTITIES.contains(&semantic_contract_id)
+}
+pub const PRECISION_1_HISTORICAL_SEMANTICS: &str = "PRECISION_1_HISTORICAL_SEMANTICS";
+pub const SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS: &str =
+    "SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS";
+pub const RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE: &str = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE";
+/// Why a readable source is not Current. Derived from the received bytes only.
+pub fn standing_reason(source: &Value) -> Option<&'static str> {
+    match source["producer"]["semantic_contract_id"].as_str() {
+        Some(PRECISION_ID) => Some(PRECISION_1_HISTORICAL_SEMANTICS),
+        Some(crate::source_blocks::CONTRACT_ID)
+            if crate::source_blocks::has_ordinary_qualified_case(source) =>
+        {
+            Some(SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS)
+        }
+        _ => None,
+    }
+}
+/// Rule binding refusal (DESIGN 5.7 SF-B). The abs-sum summary of a
+/// non-composite source-blocks-1 envelope may not be bound, directly or via
+/// its headline reference. Every binding site calls this helper.
+pub fn rule_binding_refusal(envelope: &Value, row: &Value) -> Option<&'static str> {
+    if envelope["producer"]["semantic_contract_id"] != crate::source_blocks::CONTRACT_ID {
+        return None;
+    }
+    let headline = &envelope["summary"]["max_open_formula_stress"]["result_ref"];
+    (row["kind"] == "open_formula_stress_summary"
+        || (headline.is_string() && row["id"] == *headline))
+        .then_some(RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE)
+}
 
 fn quality_status(value: &Value) -> bool {
     matches!(
@@ -308,6 +369,10 @@ pub fn numerical_use_standing_with_context(
     requested_basis_refs: &[Value],
     actual_invocation: Option<&Value>,
 ) -> &'static str {
+    // T0R: historical precision-1 and mixed ordinary source-blocks-1 are never Current.
+    if standing_reason(source).is_some() {
+        return "needs_recompute";
+    }
     let Ok((_, version)) = for_source(source) else {
         return "unsupported";
     };

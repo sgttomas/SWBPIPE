@@ -69,6 +69,7 @@ fn run(document: &Value, solver_value: f64) -> RuleCheckRunResult {
     run_rule_checks(&RuleCheckRunInput {
         rule_pack_document: document,
         solver_results: vec![solver(solver_value)],
+        refused_solver_results: Vec::new(),
         supplied_values: limit_supplied(),
         library_values: vec![],
         current_statuses: vec![AnalysisStatus::MechanicsSolved],
