@@ -370,10 +370,14 @@ Input: [REVIEW/BACKCHECK_R5.md](REVIEW/BACKCHECK_R5.md). Verdict FINDINGS, nothi
 - **In the same revision:**
   - F1 text: the NC-FLOAT-SUM control text and README finding 3 say what the control rounds.
   - F8: retire NC-LOST-SOFT at r1e-06.
-  - F4–F6: the control texts specify the defect exactly as V3 found it (the lever rule lumps full-span loads 50/50; ALPHA-TIMES-INTERVAL and SUBTRACT-DILATIONS drop the fit; COMB-DIFF's NC-MAG-SUM is |Mb_A − Mb_B|; corrected after V3's delta check at `1daa512d4`, where V3 withdrew its F6 misreading).
+  - F4–F6: the control texts specify the defect exactly as V3 found it (the lever rule lumps full-span loads 50/50; ALPHA-TIMES-INTERVAL and SUBTRACT-DILATIONS drop the fit; COMB-DIFF's NC-MAG-SUM is |Mb_A − Mb_B|; corrected 2026-09-26 by ROOT after V3's delta check at `1daa512d4`, where V3 withdrew its F6 misreading; ROOT's ruling text had said "Mb_A − Mb_B").
   - V3's §6.2 labels on the 21 kept controls, and its re-scale decision.
   - F9: a symmetric CANCEL-FEM gross column, or one labelled review-only.
   - F10: a README harness-mapping note (station labels under an i/j swap; tp_phys_008's N sign).
   - F7: no change to the rule, which V3 rules sound and ROOT accepts. The README says it is a new rule, since R1 refuses that case.
 - **Check.** V3 re-refutes the delta only: the new case by its own route, the changed or retired controls, and byte identity of every pre-existing value. Then RF-ELOAD comes to ROOT for selection, before F3.
 - **Carried into F3's brief (D-14):** a **required** kernel-level test that each generated load enters the ledger as the exact product of its binary64 inputs at working precision, with no binary64 intermediate. No non-cancelling reference can observe D-14.
+
+## RF-ELOAD selection (ROOT, 2026-09-26)
+
+RF-ELOAD revision 1 at `b6927f783` is selected and frozen: see `ROOT_SELECTION_ELOAD.md`. The N1 and N2 wording errata are recorded there and not applied. The COMB-DIFF ruling-text correction to |Mb_A − Mb_B| (dated above) is ROOT's.
