@@ -98,9 +98,12 @@ fn sb_invocation_limit(root: &Path, copies: usize) -> Option<Value> {
     Some(r)
 }
 
-/// A large but finite nodal torque on the N05 witness. Published support
-/// actions then exceed 2^53 - 1 in magnitude, which the checked canonical
-/// profile used by receipt hashing refuses.
+/// Revision 2 (V1-S5). A nodal torque on the N05 witness. With a request value
+/// above 2^53 - 1 (1e16), invocation capture refuses the request before solving
+/// (checked hash of the raw request, source_receipt.rs:64-73). With a request
+/// value below it (1e12), the request is captured, and the published rotation
+/// (about T/k = 1e16 rad) exceeds 2^53 - 1, which the receipt's checked hash
+/// then refuses at finalization.
 fn large_load(root: &Path, rel: &str, torque: f64) -> Option<Value> {
     let mut r = fixture(root, rel)?;
     r["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(torque);
@@ -145,7 +148,7 @@ fn canonical() {
     use open_pipe_stress_canonical_json::binary64::canonical_json_binary64_v1_text;
     use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
     use open_pipe_stress_result_export::derivative::guard_json;
-    for x in [9007199254740991.0f64, 9007199254740992.0, 1e16, 1e20, 1e21, 1e300, 1.5e-310, 123.456] {
+    for x in [9007199254740991.0f64, 9007199254740992.0, 1e16, 1e20, 1e21, 1e300, 1.5e-310, 5e-324, -0.0, 123.456] {
         let text = serde_json::to_string(&json!([x])).unwrap();
         println!(
             "canonical {x:e}: guard_json={:?} ijson={:?} binary64={:?}",
@@ -191,9 +194,19 @@ fn main() {
     run("PR-3 sb_invocation_limit_21", sb_invocation_limit(&root, 21));
     run("PR-3b sb_invocation_limit_2_control", sb_invocation_limit(&root, 2));
     run("PR-4 p3", p3(&root));
-    run("PR-5a sb_large_torque_1e16", large_load(&root, "source_blocks/n05-dense_scrutiny.request.json", 1e16));
-    run("PR-5b ps_large_torque_1e16", large_load(&root, "physics_source/n05.request.json", 1e16));
-    run("PR-5c sb_torque_1e15_control", large_load(&root, "source_blocks/n05-dense_scrutiny.request.json", 1e15));
+    // PR-5a/5b: request value above 2^53 - 1: capture refusal (every route).
+    run("PR-5a sb_request_torque_1e16_capture", large_load(&root, "source_blocks/n05-dense_scrutiny.request.json", 1e16));
+    run("PR-5b ps_request_torque_1e16_capture", large_load(&root, "physics_source/n05.request.json", 1e16));
+    // PR-5c: request value below 2^53 - 1 whose published rotation (~1e11 rad) stays below it.
+    run("PR-5c sb_torque_1e7_control", large_load(&root, "source_blocks/n05-dense_scrutiny.request.json", 1e7));
+    // PR-5d/5e: request safe (1e12); published rotation ~1e16 rad exceeds 2^53 - 1: receipt-hash failure.
+    run("PR-5d sb_published_rotation_1e16", large_load(&root, "source_blocks/n05-dense_scrutiny.request.json", 1e12));
+    run("PR-5e ps_published_rotation_1e16", large_load(&root, "physics_source/n05.request.json", 1e12));
+    // PR-5f: the ordinary route (no source attempt possible: a combination is present) with a request value above 2^53 - 1.
+    run("PR-5f ordinary_route_request_1e16_capture", large_load(&root, "source_blocks/n05-dense_scrutiny.request.json", 1e16).map(|mut r| {
+        r["model"]["combinations"] = json!([{"id": "combination:probe", "label": "invented probe", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}], "provenance": "invented_t3_d2_probe_no_code_default"}]);
+        r
+    }));
     display();
     canonical();
 }
