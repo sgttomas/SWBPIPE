@@ -1,0 +1,2 @@
+rustfmt 1.8.0-stable (e408947bfd 2026-03-25)
+rustfmt --check: clean (exit 0)
