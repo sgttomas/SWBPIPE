@@ -1,6 +1,6 @@
 # V1-S11 — cancelled load contributions: exact ledger and exact recovery
 
-D1 (TASK), 2026-09-26. **Revision 5a** (narrow follow-up, delivered with `DESIGN.md` revision 5a). It carries three things:
+D1 (TASK), 2026-09-26. **Revision 5a**, with one text-only addition in 5a.2 (§8.1: the pointer to I1's caller enumeration and the `scrutinize_gaps` classification, V1 VERIFY_R5 NOTE 1). Delivered with `DESIGN.md` revision 5a. It carries three things:
 - ROOT's R5-3 correction of the caller list (§8.1);
 - the S11 gate exceptions re-pinned to `GATE/S11_EXCEPTIONS.json` (88 captured / 140 typed; ROOT `7e3cc1f31`);
 - P1's S11-PROBE-A cases as S11-K/F tests, not gate cases.
@@ -464,6 +464,7 @@ Result: the invariant holds in every row. The product tests therefore use G = 1e
     - `prepare_structural` and `evaluate_original_residual`, through `solve_structural_dense`/`_sparse` (`SA:280-282`, reached from `PP:3965` and from the nonlinear loop at `nonlinear_integration/src/lib.rs:1915`; the loop's direct calls at `:1933-1936`; `product_equilibrium.rs:122-153` in its tests; and the kernel tests);
     - **(revision 5a, R5-3)** `evaluate_original_residual` called directly by **`product_equilibrium::evaluate`** (`product_equilibrium.rs:52-56`): from the nonlinear loop's final equilibrium (`nonlinear_integration/src/lib.rs:1957`), **pinned to the legacy variant** with the loop, and from the exact-gap projection gate (`SA:1030`), which I1 classifies;
     - **(revision 5a, R5-3)** `reduce_system_with_prescribed_displacements` called by **`linear_supports::apply_linear_supports`** (`P/core/solver/linear_supports/src/lib.rs:467`, `:487`), used with `LinearSupport::imposed_displacement` in `validation/benchmarks/mechanics` (6 sites, for example `:908`, `:4333`, `:4406`); I1 classifies it;
+    - **(revision 5a.2)** The authoritative enumeration is I1's `IMPLEMENTATION/S11K/_run_records/fixture_diff/ks_callers.txt` and `PRE_REGENERATION_REPORT.md` §2 (at `14354efdb`); the bullets here summarize it. It also lists the zero-prescribed `reduce_system` callers in `performance_harness` and the mechanics benchmark. I1 classifies `scrutinize_gaps` (`SA:1030` here, `SA:1146` on I1's branch) as nonlinear, on the legacy path: it is `pub(crate)` and called only from the active-set loop;
     - for `SA:1030` and `linear_supports`: if I1 finds them linear callers, they get the exact path, and any benchmark or fixture bit change goes through the stop rule and is reported to ROOT before regeneration (ROOT, BACKCHECK_R5 item 1);
     - A caller not listed is a stop.
   - Everything else is dormant until S11-F.

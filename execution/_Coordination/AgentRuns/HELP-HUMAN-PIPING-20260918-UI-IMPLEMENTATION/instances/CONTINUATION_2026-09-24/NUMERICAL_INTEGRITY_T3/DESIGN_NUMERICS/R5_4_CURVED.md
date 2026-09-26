@@ -65,7 +65,7 @@ The product's element (`P/core/solver/curved_bend/src/lib.rs`) is formed like th
 
 **Cost.**
 - Per curved element: about 400 `Wide<2>` operations for the flexibility, 6³ for the inverse, and 2·12³ for H and the transform.
-- The arctangent takes about 30 series terms after at most five reductions.
+- The arctangent takes at most 15 series terms after at most five reductions, with an error of at most 2.69 ulp at p = 128 (V1's measurement over 13 angles, `REVIEW/VERIFY_R5.md` item 17; a measured bound, not a proof). The domain is the open interval 0 < φ < π. *(Wording corrected in DESIGN revision 5a.2; nothing else in this note changed.)*
 - No extra solve.
 - Implementation: `atan` joins K3a, with test vectors and the seeded `Fraction` differential. `formation_check.rs` gains the curved and user families. `SA` passes each element's primitives from `AssemblyEvidence::new` (`SA:25-143`); SA has them from `CurvedBendStiffnessElement` and `UserStiffnessElement`.
 
