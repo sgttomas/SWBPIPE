@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""V1 BACKCHECK_R4 probe (standard library only).
+
+  check P  DESIGN r4 s4.1.6 proof arithmetic: 2^-30 (1 + 4u) + 6u against 1e-9, and the margin.
+  check K  the pinned k constant 0x3FF6A09E667F3BCD (>= sqrt2, nearest), and whether an intensified
+           row's k_i = fl(k_sqrt2 * i) (D1 r4, round to nearest) equals D2 r4's fl_up(fl_up(sqrt2) * i)
+           over i = 1.00, 1.01, ..., 10.00 (a disagreement is a reader SCALE_MISMATCH).
+  check J  span statics (PP exact_straight_summary_extrema / straight_section_resultants): the moment
+           at a section x is rebuilt from ONE end's published actions, M(x) = M_i - V_i*x (+ load
+           terms). With the stop-rule bounds |dM_i| <= eps*mo and |dV_i| <= eps*fo, and fo*L <= mo
+           (DESIGN r4 s4.1.6.1 item 6 coupling with L <= L_b), |dM(L)| reaches 2*eps*mo. The probe
+           evaluates the worst relative error of a circular-maximum row at its threshold with
+           k = sqrt2 (r4) and k = 2*sqrt2, and of the open-formula summary with k = 2 and k = 4.
+"""
+import json
+import math
+import struct
+import sys
+from fractions import Fraction as Fr
+
+u = 2.0 ** -53
+eps = Fr(1, 2 ** 64)
+R = Fr(1, 2 ** 34)
+out = {}
+
+bound = 2.0 ** -30 * (1 + 4 * u) + 6 * u
+out["P"] = {"bound": bound, "below_1e-9": bound < 1e-9, "margin": 1e-9 - bound}
+
+k2 = struct.unpack(">d", bytes.fromhex("3FF6A09E667F3BCD"))[0]
+
+
+def fl_up(x):
+    """Smallest binary64 >= exact Fraction x."""
+    f = float(x)
+    return f if Fr(f) >= x else math.nextafter(f, math.inf)
+
+
+mism = []
+for j in range(100, 1001):
+    i = j / 100.0
+    near = k2 * i
+    up = fl_up(Fr(k2) * Fr(i))  # fl_up(sqrt2) is k2 itself (check K above)
+    if near != up:
+        mism.append(i)
+out["K"] = {"k_sqrt2": k2, "equals_math_sqrt2": k2 == math.sqrt(2.0), "k_squared_ge_2": Fr(k2) ** 2 >= 2,
+            "i_values_tested": 901, "nearest_vs_upward_disagreements": len(mism), "examples": mism[:8]}
+
+# check J: pure bending member spanning the body, fo*L = mo; worst aligned errors.
+mo = Fr(1000)          # N*m
+L = Fr(5)              # m
+fo = mo / L            # N (so fo*L = mo)
+Z = Fr(1, 10000)       # m^3
+A = Fr(1, 100)         # m^2
+dM_end = eps * mo + eps * fo * L       # rebuilt far-end moment error
+res = {}
+for label, kk, comps in (("circular_max_k_sqrt2", 2 ** 0.5, 2), ("circular_max_k_2sqrt2", 2 * 2 ** 0.5, 2)):
+    S = float(fo / A) * 0 + kk * float(mo / Z)            # moment-governed row (N part negligible)
+    q = float(R) * S                                     # a row exactly at its threshold
+    dq = (2 ** 0.5) * float(dM_end / Z)                  # hypot of two rebuilt components
+    res[label] = {"worst_rel_error_at_threshold": dq / q, "exceeds_1e-9": dq / q > 1e-9}
+for label, kk in (("open_summary_k2", 2.0), ("open_summary_k4", 4.0)):
+    S = kk * float(mo / Z)
+    q = float(R) * S
+    dq = 2 * float(dM_end / Z)                           # |My| + |Mz|, both rebuilt
+    res[label] = {"worst_rel_error_at_threshold": dq / q, "exceeds_1e-9": dq / q > 1e-9}
+out["J"] = {"rebuilt_far_end_moment_error_over_eps_mo": float(dM_end / (eps * mo)), "rows": res}
+print(json.dumps({"python": sys.version.split()[0], **out}, indent=1))

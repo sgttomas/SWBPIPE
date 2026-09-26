@@ -1,0 +1,1576 @@
+{
+ "load_reference_source/eigen_motion-dense_scrutiny.raw.json :: case:join": {
+  "nonzero_withheld_r4": [
+   {
+    "entity": "anchor",
+    "kind": "support_reaction_component_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "anchor",
+    "kind": "support_reaction_moment_magnitude_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "spring",
+    "kind": "support_reaction_component_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "spring",
+    "kind": "support_reaction_moment_magnitude_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_moment_z",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_moment_z",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_moment_z",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_moment_z",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_normal_stress_z",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -6.896171741232862e-16,
+    "value_over_scale": 1.0171267928244675e-18,
+    "value_over_threshold": 1.747410524426582e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": 1.851177006012158e-11,
+    "value_over_scale": 2.7303289444165358e-14,
+    "value_over_threshold": 0.0004690669409436489
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_normal_stress_z",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -6.896171741232862e-16,
+    "value_over_scale": 1.0171267928244675e-18,
+    "value_over_threshold": 1.747410524426582e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": 1.851177006012158e-11,
+    "value_over_scale": 2.7303289444165358e-14,
+    "value_over_threshold": 0.0004690669409436489
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_normal_stress_z",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -6.896171741232862e-16,
+    "value_over_scale": 1.0171267928244675e-18,
+    "value_over_threshold": 1.747410524426582e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": 1.851177006012158e-11,
+    "value_over_scale": 2.7303289444165358e-14,
+    "value_over_threshold": 0.0004690669409436489
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_normal_stress_z",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -6.896171741232862e-16,
+    "value_over_scale": 1.0171267928244675e-18,
+    "value_over_threshold": 1.747410524426582e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": 1.851177006012158e-11,
+    "value_over_scale": 2.7303289444165358e-14,
+    "value_over_threshold": 0.0004690669409436489
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_normal_stress_z",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -6.896171741232862e-16,
+    "value_over_scale": 1.0171267928244675e-18,
+    "value_over_threshold": 1.747410524426582e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": 1.851177006012158e-11,
+    "value_over_scale": 2.7303289444165358e-14,
+    "value_over_threshold": 0.0004690669409436489
+   }
+  ],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 39,
+   "input_derived": 6,
+   "non_quantity": 1,
+   "relative_verified": 21,
+   "rows": 90,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 39,
+   "input_derived": 6,
+   "non_quantity": 1,
+   "relative_verified": 21,
+   "rows": 90,
+   "withheld": 62
+  }
+ },
+ "load_reference_source/eigen_motion-sparse_interactive.raw.json :: case:join": {
+  "nonzero_withheld_r4": [
+   {
+    "entity": "anchor",
+    "kind": "support_reaction_component_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "anchor",
+    "kind": "support_reaction_moment_magnitude_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "spring",
+    "kind": "support_reaction_component_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "spring",
+    "kind": "support_reaction_moment_magnitude_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_moment_z",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_moment_z",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_moment_z",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 1e-08,
+    "value_over_scale": 5.5842052735679237e-14,
+    "value_over_threshold": 0.0009593591609649986
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_moment_z",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -1.8626451492309566e-13,
+    "value_over_scale": 1.040139286512122e-18,
+    "value_over_threshold": 1.786945687541735e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_normal_stress_z",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -6.896171741232862e-16,
+    "value_over_scale": 1.0171267928244675e-18,
+    "value_over_threshold": 1.747410524426582e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": 1.851177006012158e-11,
+    "value_over_scale": 2.7303289444165358e-14,
+    "value_over_threshold": 0.0004690669409436489
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_normal_stress_z",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -6.896171741232862e-16,
+    "value_over_scale": 1.0171267928244675e-18,
+    "value_over_threshold": 1.747410524426582e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": 1.851177006012158e-11,
+    "value_over_scale": 2.7303289444165358e-14,
+    "value_over_threshold": 0.0004690669409436489
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_normal_stress_z",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -6.896171741232862e-16,
+    "value_over_scale": 1.0171267928244675e-18,
+    "value_over_threshold": 1.747410524426582e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": 1.851177006012158e-11,
+    "value_over_scale": 2.7303289444165358e-14,
+    "value_over_threshold": 0.0004690669409436489
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_normal_stress_z",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -6.896171741232862e-16,
+    "value_over_scale": 1.0171267928244675e-18,
+    "value_over_threshold": 1.747410524426582e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": 1.851177006012158e-11,
+    "value_over_scale": 2.7303289444165358e-14,
+    "value_over_threshold": 0.0004690669409436489
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_bending_normal_stress_z",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -6.896171741232862e-16,
+    "value_over_scale": 1.0171267928244675e-18,
+    "value_over_threshold": 1.747410524426582e-08
+   },
+   {
+    "entity": "member",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": 1.851177006012158e-11,
+    "value_over_scale": 2.7303289444165358e-14,
+    "value_over_threshold": 0.0004690669409436489
+   }
+  ],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 39,
+   "input_derived": 6,
+   "relative_verified": 21,
+   "rows": 89,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 39,
+   "input_derived": 6,
+   "relative_verified": 21,
+   "rows": 89,
+   "withheld": 62
+  }
+ },
+ "physics_source/fields-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 8,
+   "absolute_verified_exact_zero": 8,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 68,
+   "rows": 82,
+   "withheld": 8
+  },
+  "span": {
+   "absolute_verified": 8,
+   "absolute_verified_exact_zero": 8,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 68,
+   "rows": 82,
+   "withheld": 8
+  }
+ },
+ "physics_source/fields-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 8,
+   "absolute_verified_exact_zero": 8,
+   "input_derived": 5,
+   "relative_verified": 68,
+   "rows": 81,
+   "withheld": 8
+  },
+  "span": {
+   "absolute_verified": 8,
+   "absolute_verified_exact_zero": 8,
+   "input_derived": 5,
+   "relative_verified": 68,
+   "rows": 81,
+   "withheld": 8
+  }
+ },
+ "physics_source/mixed-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 14,
+   "rows": 82,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 14,
+   "rows": 82,
+   "withheld": 62
+  }
+ },
+ "physics_source/mixed-dense_scrutiny.raw.json :: case:ordinary-pressure": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 68,
+   "absolute_verified_exact_zero": 68,
+   "input_derived": 25,
+   "non_quantity": 3,
+   "relative_verified": 15,
+   "rows": 111,
+   "withheld": 68
+  },
+  "span": {
+   "absolute_verified": 68,
+   "absolute_verified_exact_zero": 68,
+   "input_derived": 25,
+   "non_quantity": 3,
+   "relative_verified": 15,
+   "rows": 111,
+   "withheld": 68
+  }
+ },
+ "physics_source/mixed-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  }
+ },
+ "physics_source/mixed-sparse_interactive.raw.json :: case:ordinary-pressure": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 68,
+   "absolute_verified_exact_zero": 68,
+   "input_derived": 25,
+   "non_quantity": 2,
+   "relative_verified": 15,
+   "rows": 110,
+   "withheld": 68
+  },
+  "span": {
+   "absolute_verified": 68,
+   "absolute_verified_exact_zero": 68,
+   "input_derived": 25,
+   "non_quantity": 2,
+   "relative_verified": 15,
+   "rows": 110,
+   "withheld": 68
+  }
+ },
+ "physics_source/mixed_units-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 14,
+   "rows": 82,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 14,
+   "rows": 82,
+   "withheld": 62
+  }
+ },
+ "physics_source/mixed_units-dense_scrutiny.raw.json :: case:ordinary-pressure": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 68,
+   "absolute_verified_exact_zero": 68,
+   "input_derived": 25,
+   "non_quantity": 3,
+   "relative_verified": 15,
+   "rows": 111,
+   "withheld": 68
+  },
+  "span": {
+   "absolute_verified": 68,
+   "absolute_verified_exact_zero": 68,
+   "input_derived": 25,
+   "non_quantity": 3,
+   "relative_verified": 15,
+   "rows": 111,
+   "withheld": 68
+  }
+ },
+ "physics_source/mixed_units-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  }
+ },
+ "physics_source/mixed_units-sparse_interactive.raw.json :: case:ordinary-pressure": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 68,
+   "absolute_verified_exact_zero": 68,
+   "input_derived": 25,
+   "non_quantity": 2,
+   "relative_verified": 15,
+   "rows": 110,
+   "withheld": 68
+  },
+  "span": {
+   "absolute_verified": 68,
+   "absolute_verified_exact_zero": 68,
+   "input_derived": 25,
+   "non_quantity": 2,
+   "relative_verified": 15,
+   "rows": 110,
+   "withheld": 68
+  }
+ },
+ "physics_source/n05-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 14,
+   "rows": 82,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 14,
+   "rows": 82,
+   "withheld": 62
+  }
+ },
+ "physics_source/n05-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  }
+ },
+ "physics_source/n05_unicode-dense_scrutiny.raw.json :: case:\u6e29\u5ea6:\u03b1": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 14,
+   "rows": 82,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 14,
+   "rows": 82,
+   "withheld": 62
+  }
+ },
+ "physics_source/n05_unicode-sparse_interactive.raw.json :: case:\u6e29\u5ea6:\u03b1": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  }
+ },
+ "physics_source/n05_units-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 14,
+   "rows": 82,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 14,
+   "rows": 82,
+   "withheld": 62
+  }
+ },
+ "physics_source/n05_units-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  }
+ },
+ "physics_source/n06-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  }
+ },
+ "physics_source/n06-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  },
+  "span": {
+   "absolute_verified": 62,
+   "absolute_verified_exact_zero": 62,
+   "input_derived": 5,
+   "relative_verified": 14,
+   "rows": 81,
+   "withheld": 62
+  }
+ },
+ "rejected_stress_range/dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 59,
+   "absolute_verified_exact_zero": 59,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 15,
+   "rows": 80,
+   "withheld": 59
+  },
+  "span": {
+   "absolute_verified": 59,
+   "absolute_verified_exact_zero": 59,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 15,
+   "rows": 80,
+   "withheld": 59
+  }
+ },
+ "rejected_stress_range/sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 59,
+   "absolute_verified_exact_zero": 59,
+   "input_derived": 5,
+   "relative_verified": 15,
+   "rows": 79,
+   "withheld": 59
+  },
+  "span": {
+   "absolute_verified": 59,
+   "absolute_verified_exact_zero": 59,
+   "input_derived": 5,
+   "relative_verified": 15,
+   "rows": 79,
+   "withheld": 59
+  }
+ },
+ "source_blocks/multicase-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 13,
+   "rows": 80,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 13,
+   "rows": 80,
+   "withheld": 61
+  }
+ },
+ "source_blocks/multicase-dense_scrutiny.raw.json :: case:signed-companion": {
+  "nonzero_withheld_r4": [
+   {
+    "entity": "soft",
+    "kind": "support_reaction_component_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   }
+  ],
+  "r4": {
+   "absolute_verified": 57,
+   "absolute_verified_exact_zero": 46,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 17,
+   "rows": 80,
+   "withheld": 57
+  },
+  "span": {
+   "absolute_verified": 57,
+   "absolute_verified_exact_zero": 46,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 17,
+   "rows": 80,
+   "withheld": 57
+  }
+ },
+ "source_blocks/multicase-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  }
+ },
+ "source_blocks/multicase-sparse_interactive.raw.json :: case:signed-companion": {
+  "nonzero_withheld_r4": [
+   {
+    "entity": "soft",
+    "kind": "support_reaction_component_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   }
+  ],
+  "r4": {
+   "absolute_verified": 57,
+   "absolute_verified_exact_zero": 46,
+   "input_derived": 5,
+   "relative_verified": 17,
+   "rows": 79,
+   "withheld": 57
+  },
+  "span": {
+   "absolute_verified": 57,
+   "absolute_verified_exact_zero": 46,
+   "input_derived": 5,
+   "relative_verified": 17,
+   "rows": 79,
+   "withheld": 57
+  }
+ },
+ "source_blocks/n05-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 13,
+   "rows": 80,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 13,
+   "rows": 80,
+   "withheld": 61
+  }
+ },
+ "source_blocks/n05-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  }
+ },
+ "source_blocks/n06-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  }
+ },
+ "source_blocks/n06-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  }
+ },
+ "ui/multicase-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 13,
+   "rows": 80,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 13,
+   "rows": 80,
+   "withheld": 61
+  }
+ },
+ "ui/multicase-dense_scrutiny.raw.json :: case:signed-companion": {
+  "nonzero_withheld_r4": [
+   {
+    "entity": "soft",
+    "kind": "support_reaction_component_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   }
+  ],
+  "r4": {
+   "absolute_verified": 57,
+   "absolute_verified_exact_zero": 46,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 17,
+   "rows": 80,
+   "withheld": 57
+  },
+  "span": {
+   "absolute_verified": 57,
+   "absolute_verified_exact_zero": 46,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 17,
+   "rows": 80,
+   "withheld": 57
+  }
+ },
+ "ui/multicase-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  }
+ },
+ "ui/multicase-sparse_interactive.raw.json :: case:signed-companion": {
+  "nonzero_withheld_r4": [
+   {
+    "entity": "soft",
+    "kind": "support_reaction_component_v2",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": 2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_moment",
+    "scale_kind": "moment",
+    "unit": "N*m",
+    "value": -2e-08,
+    "value_over_scale": 1.0000000000000001e-11,
+    "value_over_threshold": 0.17179869184000002
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   },
+   {
+    "entity": "pipe",
+    "kind": "element_local_torsional_shear_stress",
+    "scale_kind": "stress",
+    "unit": "MPa",
+    "value": -3.702354012024315e-11,
+    "value_over_scale": 4.889377826671552e-12,
+    "value_over_threshold": 0.08399887145336749
+   }
+  ],
+  "r4": {
+   "absolute_verified": 57,
+   "absolute_verified_exact_zero": 46,
+   "input_derived": 5,
+   "relative_verified": 17,
+   "rows": 79,
+   "withheld": 57
+  },
+  "span": {
+   "absolute_verified": 57,
+   "absolute_verified_exact_zero": 46,
+   "input_derived": 5,
+   "relative_verified": 17,
+   "rows": 79,
+   "withheld": 57
+  }
+ },
+ "ui/n05-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 13,
+   "rows": 80,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "non_quantity": 1,
+   "relative_verified": 13,
+   "rows": 80,
+   "withheld": 61
+  }
+ },
+ "ui/n05-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  }
+ },
+ "ui/n06-dense_scrutiny.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  }
+ },
+ "ui/n06-sparse_interactive.raw.json :: case": {
+  "nonzero_withheld_r4": [],
+  "r4": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  },
+  "span": {
+   "absolute_verified": 61,
+   "absolute_verified_exact_zero": 61,
+   "input_derived": 5,
+   "relative_verified": 13,
+   "rows": 79,
+   "withheld": 61
+  }
+ }
+}
