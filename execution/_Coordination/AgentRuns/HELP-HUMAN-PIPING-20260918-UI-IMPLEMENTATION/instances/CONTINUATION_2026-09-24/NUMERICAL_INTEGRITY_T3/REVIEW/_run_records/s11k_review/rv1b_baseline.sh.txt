@@ -1,0 +1,10 @@
+#!/bin/bash
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<rv1b-target>
+P=<rv1b-src>/projects/chirality-piping
+for c in core/solver/frame_kernel core/solver/nonlinear_integration validation/benchmarks/nonlinear; do
+  while pgrep -x cargo >/dev/null; do sleep 10; done
+  (cd $P/$c && cargo test --offline --locked --no-fail-fast > <scratch>/$(echo $c|tr / _).log 2>&1); rc=$?
+  echo "$c exit=$rc $(grep -E '^test result' <scratch>/$(echo $c|tr / _).log | awk '{p+=$4; f+=$6; i+=$8} END {print "passed="p" failed="f" ignored="i}')" >> <scratch>/SUMMARY.txt
+done
+<dec025-venv>/bin/python <scratch>/rv1b_mutate.py > <scratch>/mutation_run.log 2>&1
+echo "rc=$?" >> <scratch>/mutation_run.log

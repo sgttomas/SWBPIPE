@@ -283,3 +283,81 @@ Records are in `T3/REVIEW/_run_records/s11k_review/`, with their own `SHA256SUMS
 - **Not re-run by me:** the whole-corpus fixture diff across every committed request (I verified the diff that is committed, and re-ran producers per kind), the mechanics-benchmark byte comparison of base against candidate (the suite passes), and the dense `fallback_uz` raw and the eigen_motion dense and connected sparse derived documents through a reset-to-base.
 - **Not my review:** the DEC-025 sweep and hosted CI, including the surface-4 dual-viewport dispatch.
 - **Not verified:** the exact −1 byte arithmetic of each residual rendering behind the −12 (I checked the factor and the totals), and the root cause of each `compile_fail` doctest beyond reading them (RV1-N8).
+
+## Addendum: delta-only backcheck of S1, S2, S3 and N4 (RV1, 2026-09-26)
+
+### Verdict: PASS
+
+S1, S2, S3 and N4 are resolved. The delta adds no new BLOCKING or SHOULD-FIX finding. The 9 NOTEs are carried forward: N4 is resolved, and N1–N3 and N5–N9 are outside this delta and unchanged. The backcheck adds two NOTEs, B-N1 and B-N2.
+
+### Scope
+
+- **Candidate:** `codex/piping-s11k-pr-20260926` at `1251df9868c98d0ebd5dd0592bed494ad7a49199`, one commit over `f76643235`.
+- **Diff reviewed:** `git diff f76643235 1251df986`, 12 files:
+  - `nonlinear_integration/src/s11k_tests.rs` (+528 −28);
+  - `frame_kernel/src/structural/s11k_tests.rs`;
+  - `CHANGE_RECORD.md` and `RETURN.md`;
+  - `_run_records/SHA256SUMS` and 7 new files under `_run_records/rv1_fixes/`.
+- **No production code, fixture, lockfile or committed output changed.**
+- **Hygiene:**
+  - I1's `_run_records/SHA256SUMS` verifies: 46 entries for 46 files.
+  - No machine-specific absolute path appears in the added lines.
+  - `git diff --check` is clean.
+- **Build setup:** a detached scratch worktree `<rv1b-src>` at `1251df986` (`git worktree add --detach`, removed afterwards) and a target at `<rv1b-target>` (deleted afterwards). `RUSTUP_TOOLCHAIN=1.97.1`, `RUSTUP_AUTO_INSTALL=0`, `CARGO_INCREMENTAL=0`, `--offline --locked --no-fail-fast`, one cargo job at a time.
+
+### S1: resolved
+
+- **Source pin** (`option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path`):
+  - It first runs `lex` (comments removed, string and char literal contents blanked) and then `strip_cfg_test` over `lib.rs`. `lex` is identical to the site table's once comment lines are ignored (diffed).
+  - The five legacy targets must appear as real calls in `solve_linearized_system_evidence`.
+  - The 13 exact entry-point patterns are forbidden anywhere in the lexed, non-test `lib.rs`: `reduce_system_with_prescribed_displacements(`, `reduce_assembled_system`, `.solve(`, `.solve_assembled(`, `solve_structural_dense(`, `solve_structural_sparse(`, `prepare_structural(`, `prepare_assembled_structural(`, `solve_assembled_structural_dense(`, `evaluate_assembled_original_residual(`, `_with_force_terms(`, `with_force_terms(` and `StructuralSystem::assembled(`.
+  - It includes a self-check that a commented or quoted call is not treated as a call.
+- **Behavioural pins:**
+  - `option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path` drives `solve_linearized_system_evidence`, dense and sparse, with and without `AssemblyEvidence`, at g ∈ {0.05, 0.20}.
+  - `option_c_active_set_loop_first_closed_gap_iteration_is_binary64` drives the public `solve_active_set_frame_with_mode`.
+  - The first test asserts its precondition first: `assert_ne!` of the in-test legacy fold of the RZ row against the correctly rounded exact value. It then asserts discrimination: the exact solve's displacements and the exact reduced force's sparse observation both differ from the legacy ones.
+  - The second test uses the same model, which the first test's precondition covers, and asserts the first iteration's boundary.
+  - Both then assert bit equality of displacements, residual rows and the sparse observation.
+- **Re-applied mutants** (`rv1b_mutation_results.json`). Each is now killed by at least one behavioural test, not only by the pin:
+
+| Mutant | Killing tests |
+|---|---|
+| RV-OPT1 (loop reduction → exact KS2) | both behavioural pins, and the source pin |
+| RV-OPT3 (loop dense and sparse solves without assembly → exact) | `…closed_gap_loop_solves…`, and the source pin |
+| RV-OPT4 (exact solve through a helper, legacy text left in a comment) | both behavioural pins, the source pin, and the two `unsupported_gap_inspection_*` tests |
+| **RV-EV1** (new evasion) | **Both behavioural pins; the source pin passes.** A same-named `reduce_system_with_prescribed_displacements_binary64` is defined in `structural_adapter.rs`, which the pin does not scan, and calls the exact KS2. `lib.rs` imports it in place of the kernel's, so the call text in `lib.rs` is unchanged. |
+| **RV-EV4** (new evasion) | **Both behavioural pins and the two gap-inspection tests; the source pin passes.** The exact assembly solve is written as `AssemblyEvidence::solve(assembly, …)`, which no forbidden pattern matches, and the binary64 call is kept in dead code (`if false { … }`). |
+| RV-EV2 (new; the SA variant `solve_structural_sparse_binary64` made exact) | `…closed_gap_loop_solves…`, through its discrimination assertion |
+| RV-EV3 (new; `AssemblyEvidence::solve_binary64` made exact) | `…closed_gap_loop_solves…` and the two gap-inspection tests |
+
+### S2: resolved
+
+- `option_c_public_original_residual_stays_binary64_on_coupled_rows` now uses the free RZ rotation 0.0, and asserts `assert_ne!(r, exact_numerator.round_scaled(-e))` before its equality check.
+- **RV-PUB re-applied:** the test now fails. It is the only failure among the 108 frame_kernel lib tests. A focused re-run shows the panic at `s11k_tests.rs:660`, which is the `assert_eq!` of the public row. The precondition `assert_ne!` at `:655` held (`rv1b_rv_pub_focused.txt`).
+
+### S3 and N4: resolved
+
+- `CHANGE_RECORD.md` now has:
+  - a header naming the PR branch, base `6bb3ee490` merged forward to `f76643235`, and basis revision 5a.2 (`e6507587`) with its C3 context;
+  - an approvals citation of `T3/ROOT_RULINGS_V1.md` "S11-K regeneration and hash-pin approvals" at **`cef281b21`**. That commit exists on the T3 branch and adds exactly that section: regeneration by producers only, the two hash-pin constants, the TS run with the links removed, and the index touch;
+  - a checks-run command, `cargo test --offline --locked --no-fail-fast`, which matches `_run_records/rv1_fixes/run_suites_final.sh.txt`. It now also states that the earlier `run_suites.sh.txt` ran without that flag.
+- I cannot independently confirm that `run_suites_final.sh.txt` is the exact script used for the post-regeneration full run. My own suite results for this candidate, and those in §"What I ran", are consistent with it.
+
+### New NOTEs
+
+| ID | Severity | Site | Evidence | What would resolve it |
+|---|---|---|---|---|
+| RV1-B-N1 | NOTE | the source pin in `nonlinear_integration/src/s11k_tests.rs` | The source pin still misses the two new evasions: a same-named helper defined outside `lib.rs` (RV-EV1), and fully qualified call syntax `AssemblyEvidence::solve(` (RV-EV4). Both are killed by the behavioural pins, which now carry the guarantee. | Optional: add `::solve(` and `::solve_assembled(` to `EXACT_ENTRY_POINTS`, and extend the scan to `structural_adapter.rs` outside the defining variants. Or say in the doc comment that the behavioural pins are authoritative. |
+| RV1-B-N2 | NOTE | `expected_binary64` in the behavioural pins | The expected displacements and residual rows come from the `_binary64` variants themselves; only the reduced force and the sparse observation are folded in the test. A mutated variant is still caught, by the discrimination `assert_ne!` against the exact solve (RV-EV2, RV-EV3) and by frame_kernel's `option_c_binary64_variants_keep_todays_fold_on_probe_p`, which pins the variants' right-hand side to an in-test fold. | None needed. |
+
+### What I ran
+
+- **Baseline** in `<rv1b-src>` (`rv1b_suites_SUMMARY.txt`): frame_kernel 116, nonlinear_integration 71 and `validation/benchmarks/nonlinear` 19 passed (DEC-046 unchanged), with none skipped or filtered.
+- **Mutations:** 8 mutants (`rv1b_mutate.py.txt`, `rv1b_mutation_results.json`, `rv1b_mutation_run.log.txt`), each applied to the scratch worktree and restored from `git show 1251df986:<path>`. After the run, `git status` in the scratch worktree was clean.
+- **Focused RV-PUB re-run:** `rv1b_rv_pub_focused.txt`.
+
+### Not done
+
+- I did not re-run the other suites (product_physics, headless, result_export and the rest). Their code and fixtures are unchanged by this delta.
+- I did not re-run the fixture producers, for the same reason.
+- I did not re-check N1–N3 or N5–N9.
