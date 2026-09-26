@@ -119,6 +119,16 @@ Pre-registered (R3-1, and ROOT's ruling on the stop report) or accepted as the i
 - `primitive_loads::global_load_vector` carries no "not for solve input" doc note yet.
 - These two leftovers (the missing `sparse_direct` typed sibling and the missing `global_load_vector` doc note) are items in S11-F's brief (manager, per ROOT).
 
+## PR branch and base (manager, 2026-09-26)
+
+- **PR branch:** `codex/piping-s11k-pr-20260926`, cut at `origin/main` `6bb3ee4903977ed316bcf872c4f04a461349d2fe` (ROOT's decision (b)). It contains only the S11-K commits, cherry-picked with `-x` from the development branch `codex/piping-s11k-20260926`: `14354efdb`, `e517fd9b6`, `41bfcab85`, `9be58ea95` and `65f3dcdef`.
+- **Net diff against the base:** the 52 S11-K code, lockfile, test and fixture files, plus `IMPLEMENTATION/S11K/**` (43 files). Nothing else. Every file is blob-identical to the development head `65f3dcdef`. T1 is already on main (PR963).
+- **Sanity check on this branch** (the full suites ran on the development branch; RV1 and CI re-run them here):
+  - `frame_kernel`: 116 passed (108 + 2 + 6);
+  - `result_export --test load_reference_contract`: 5 passed, including `frozen_inputs_table_and_schema_are_pinned`;
+  - `tests/test_load_reference_readers.py -k frozen`: 1 passed.
+  Toolchain 1.97.1, `--offline --locked`.
+
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
 https://claude.ai/code/session_01Lrj9eTaA4WByAAZBRNu7xP
