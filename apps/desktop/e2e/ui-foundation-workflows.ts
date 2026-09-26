@@ -23,6 +23,17 @@ export const APPEARANCE_VIEWPORTS: readonly ViewportSize[] = [
 ];
 
 export async function attachBrowserIdentity(browser: Browser, testInfo: TestInfo): Promise<void> {
+  // CDP exists only in Chromium. The opt-in WebKit lane records Playwright's
+  // engine identity instead; the Playwright version pins the browser build.
+  // The Chromium record below is unchanged.
+  const browserName = browser.browserType().name();
+  if (browserName !== "chromium") {
+    await testInfo.attach("browser-identity", {
+      body: JSON.stringify({ browserName, playwrightBrowserVersion: browser.version(), playwrightVersion: testInfo.config.version }, null, 2),
+      contentType: "application/json",
+    });
+    return;
+  }
   const session = await browser.newBrowserCDPSession();
   let cdpVersion: unknown;
   try {
