@@ -15,7 +15,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 1e-09,
         "absolute_tolerance_value": 0.0,
         "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"

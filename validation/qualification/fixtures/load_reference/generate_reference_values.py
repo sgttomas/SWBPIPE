@@ -215,7 +215,8 @@ def rule_for(assertion: dict, expected: float, document: dict) -> dict:
         'unit_ref': {'ref_type': 'unit', 'ref': unit},
         'normalization_basis': 'same_unit_required',
         'tolerance_value_status': 'project_specific_review_required',
-        'review': 'pending the independent WP6 freeze check; candidate only, not admitted',
+        'review': (ADMITTED_REVIEW if ADMITTED else
+                   'pending the independent WP6 freeze check; candidate only, not admitted'),
     }
     if expected != 0.0:
         require(rule_id == prefix + 'relative_1e-9', f'{assertion["id"]}: nonzero reference needs the relative rule')
@@ -239,6 +240,8 @@ def rule_for(assertion: dict, expected: float, document: dict) -> dict:
 
 
 ADMITTED: dict | None = None
+ADMITTED_REVIEW = ('reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as '
+                   'changed); admitted as a project-specific development criterion, not a release criterion')
 ADMISSION_FORMAT = 'openpipestress.load_reference_admission/1'
 
 

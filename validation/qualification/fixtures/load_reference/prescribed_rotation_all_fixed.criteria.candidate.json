@@ -15,7 +15,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 1e-09,
         "absolute_tolerance_value": 0.0,
         "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
@@ -30,7 +30,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 0.0,
         "absolute_tolerance_value": 1e-12,
         "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ| = 0.001 rad (zero-scale tag prescribed_rotation)"
@@ -45,7 +45,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 0.0,
         "absolute_tolerance_value": 2e-09,
         "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ| * |/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/L| = 2 mm (zero-scale tag rotation_times_length)"
@@ -60,7 +60,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 1e-09,
         "absolute_tolerance_value": 0.0,
         "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
@@ -75,7 +75,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 0.0,
         "absolute_tolerance_value": 2e-12,
         "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ| * |/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/L| = 0.002 m (zero-scale tag rotation_times_length)"
@@ -90,7 +90,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 0.0,
         "absolute_tolerance_value": 1e-12,
         "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ| = 0.001 rad (zero-scale tag prescribed_rotation)"
@@ -105,7 +105,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 0.0,
         "absolute_tolerance_value": 8.102952851771474e-06,
         "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Fy| = 8102.952851771474210304772946 N (zero-scale tag case_force)"
@@ -120,7 +120,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 1e-09,
         "absolute_tolerance_value": 0.0,
         "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
@@ -135,7 +135,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 0.0,
         "absolute_tolerance_value": 1.08039371356953e-05,
         "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Mz| = 10803.9371356952989470730306 N*m (zero-scale tag case_moment)"
@@ -150,7 +150,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 1e-09,
         "absolute_tolerance_value": 0.0,
         "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
@@ -165,7 +165,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 1e-09,
         "absolute_tolerance_value": 0.0,
         "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
@@ -180,7 +180,7 @@
         },
         "normalization_basis": "same_unit_required",
         "tolerance_value_status": "project_specific_review_required",
-        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
         "relative_tolerance_value": 1e-09,
         "absolute_tolerance_value": 0.0,
         "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"

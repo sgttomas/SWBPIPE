@@ -1,4 +1,4 @@
-# VP-STATIC load/reference-state cases (WP6 authoring candidates)
+# VP-STATIC load/reference-state cases (WP6, admitted after independent freeze)
 
 This package holds invented 0.4.0 product requests, runner inputs, selectors,
 reference values and criteria for three load/reference-state families:
@@ -7,10 +7,21 @@ reference values and criteria for three load/reference-state families:
 - reference temperatures (M16);
 - cold spring (M29).
 
-**Status: authoring only.** No comparison has been run and no observed output is
-recorded. Every reference file is `readiness: pending_independent_review`.
-Every criteria profile is `draft_pending_independent_review`. Nothing here is
-admitted. An independent freeze check comes before any run.
+**Status: admitted after the independent freeze.** The independent freeze
+(`T1_WP6_FREEZE`, verdict FREEZE, admit as changed) is named with its sha256 in
+`ADMISSION.json`. Its changes R1 (signed-fit zero rule), R2 and R3 (this README)
+are applied. The generator produces the admitted files: every reference file is
+`readiness: ready` with the freeze as `independent_review_ref`, and every criteria
+profile is `reviewed`. Values, rules and selectors are exactly the frozen ones.
+The files keep their `*.candidate.json` names. No observed producer value is
+used as a reference or criterion. Admission is a development-comparison
+admission; it is not engineering acceptance or a release criterion.
+
+Reproduction: the authored package (commit `91ec30630`) plus `apply_R1.py` from
+the freeze records, the README corrections, `ADMISSION.json`, and
+`generate_reference_values.py --write`. The WP6 authoring script
+`author_package.py` reproduces only the pre-freeze candidates and is superseded
+for R1 (see `PROVENANCE.json` `admission`).
 
 All inputs are invented test quantities. None of them is material-library,
 component-library or code-rule data.

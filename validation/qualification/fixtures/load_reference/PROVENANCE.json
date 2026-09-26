@@ -1,6 +1,6 @@
 {
   "format": "openpipestress.load_reference_qualification_provenance/1",
-  "status": "authoring_only_pending_independent_freeze",
+  "status": "admitted_after_independent_freeze",
   "author": "T1_WP6_STATIC_CASES TASK (Type 2), requested by the T1 WORKING_ITEMS manager",
   "date": "2026-09-26",
   "base_commit": "d8f0dc4f7d95d2893078d335e11d7d31911e6e3b",
@@ -61,120 +61,120 @@
   ],
   "generator": {
     "path": "validation/qualification/fixtures/load_reference/generate_reference_values.py",
-    "sha256": "272864e80a4f8a18a5bd96844b0dea2fce9aa9d8f0d3ec21b4309ef59690d1fb"
+    "sha256": "ead121195bd3149dbc3eed0a9bac1cc4e7e3ea22d6097d0162ef4e74e4effa67"
   },
   "generator_outputs": [
     {
       "path": "validation/qualification/fixtures/load_reference/coefficient_definition.reference.candidate.json",
-      "sha256": "ce24a27e9992c69074d1001898a400fecfe81dfba60a27e2ccbb062be8f11882"
+      "sha256": "575ae977c5e44954e1ea19eaccb0af6fb2ab44c2d1627ce76a32163210b74605"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/constant_alpha_interval.reference.candidate.json",
-      "sha256": "47c4b9745787edfcdd6d9e7359b966bd5d9f635df696b718a86cf5d88b0550c3"
+      "sha256": "e335c0477ed89dda2193dcb850f8d1f4ca4697ee369fad807fd91096da8ab58d"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/multi_segment_free_length.reference.candidate.json",
-      "sha256": "ab6de6fa339f32e7a25ac41e725fca64e7eabafb5b5ca5650155b783231f09a6"
+      "sha256": "47d7ee2c9fe41b985369f3b194cfab93af15811054b607e340d8c186d4235396"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/persistent_source_once.reference.candidate.json",
-      "sha256": "3ca1f84ce19a2bd1cd87d99c81abe96ab8bc0f5b19d8672fef03f5343909e205"
+      "sha256": "803b3df36542281c5b5948e493a0371c921274bb420cf81fb39b9904d6b88ece"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_all_fixed.reference.candidate.json",
-      "sha256": "60f0e9d534fc06ea270c318d49d76fba7ed918b36f55570d5991d737e991592c"
+      "sha256": "7237fdd3d5d2504c70373e1d55867cdc622969bf5edf8d33449903e7919faaa7"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_free_tip.reference.candidate.json",
-      "sha256": "d2493e92eeb2b44f8594b08d47cb23ff488889cb6fe4695b64ca6842ddb17534"
+      "sha256": "c3e1eee9419fafe35f1716d591c2a5e130a4bccc52c88f968cbafac7d90083c0"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/prescribed_translation_all_fixed.reference.candidate.json",
-      "sha256": "448fb425d64e08ee4637b4589a3d7f690e3ebc19f467c31e2bd16786fd44e652"
+      "sha256": "0b04b17a47625d12c45bb027663660627ba9792e872f734aa31f573679b29c67"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/prescribed_translation_two_bar.reference.candidate.json",
-      "sha256": "b6d0806c028dd24290b990c12d14f91d1e75d5af332a5dca9893663df025c6bf"
+      "sha256": "0f71dbbf452e837868eba9e3b215a6e014a9ff613d54bb03363daa8aaa38e340"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/shared_material_serial_companion.reference.candidate.json",
-      "sha256": "b6a0a27a2380ee982e6437903b3cd64db40fda7cedbf0f9d0e3e28d4e96a7c57"
+      "sha256": "4c22c6b320a4acdc984be91c194638decfedaccd8e812fffee4696b891778b15"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/signed_fit_states.fixed.reference.candidate.json",
-      "sha256": "1b1d8942c58cb64d9cc1deea431ea6cee326e922d856378cdcd2f406b645664a"
+      "sha256": "e989a45b4b87fa10f6867d18cb7d60d483e65457f95746d46db3b155bdee5465"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/signed_fit_states.released.reference.candidate.json",
-      "sha256": "163ab410d1029b0df475e147c7285481634dccfbbc8c8de982180b49c5716ed8"
+      "sha256": "062333fd77811a819d5726963e3c6ee0f621d0bfa63ee05fe3c3a3d4e6506a22"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/temperature_unit_identity.reference.candidate.json",
-      "sha256": "e60778cf20ee72a754d58e7214abb2a5adbcceddc759d6c618d225f933b3c0b3"
+      "sha256": "4346d986e474e5e1fbf9de98a4af9d70c1aa238880e5a158c0022c2cc8a57f9d"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.fixed.reference.candidate.json",
-      "sha256": "bef246b637801099bed1c7f7ec53dc226024abcccbda993bdf4315d7415d54f2"
+      "sha256": "8f5c2db719f20f9d085eea62cd68628eeca65dbb194deaa5f3870935668d3fff"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.reference.candidate.json",
-      "sha256": "5a02696005c68b77b37accab1e65c50618d23f5fab8e025218bb691a58c04abc"
+      "sha256": "0e4b4b2a6cc904d0dde0d6f306bd13c2a645fccb98f72bc599338e1aa49647dc"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/coefficient_definition.criteria.candidate.json",
-      "sha256": "bb9eea5187efa819aa854adc9acb12c2374f214bd1ff529d45f2825cfa3ffeef"
+      "sha256": "e1227dfb51850dc6b64295ff7c8c63954a723bea84c12d9427a58f848db66f71"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/constant_alpha_interval.criteria.candidate.json",
-      "sha256": "7c618a5f100e1e20a62bc14e795ad8f2e7a582391dec59860c9fd50c92013066"
+      "sha256": "32be91b077bcc01d477d6a6f928ab532bad20ceb7ad7244372407a7b06506190"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/multi_segment_free_length.criteria.candidate.json",
-      "sha256": "40a32ce0c40a8c0666b35f7aa3c026248a39b7f35c08b225949a0049e61b8225"
+      "sha256": "80cb51a90eba843c2288298d2c1a918b17bfc8ffb8765e3ea6e4862dcbfbd94a"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/persistent_source_once.criteria.candidate.json",
-      "sha256": "454a186a10c9f6a34a6ab6942e21685847995f82c7dc71cc3064464f4101d3c8"
+      "sha256": "7e9c5202347f3ac532178b1583482780787381d163e29b9953fa873d5d09228e"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_all_fixed.criteria.candidate.json",
-      "sha256": "65d371d6d4d88795b835c84ca8351890405269b01252491293dc410929d1e439"
+      "sha256": "ca6b8d7134ac6a7a8ec60c87796dd6e50322d84bb628f3b9939dff266aa11260"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_free_tip.criteria.candidate.json",
-      "sha256": "075b3d65eee282fbb9b580ce237e27f1df9cc9f01a168d9cf2972bdb7684da00"
+      "sha256": "38fca18cdbb04bdb88d716587523b721dac0c33979e7c71127a9ff6eaf34c197"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/prescribed_translation_all_fixed.criteria.candidate.json",
-      "sha256": "4d38c055f953f4052b0645bc02537ff568377ef70683d1aca0d6662367d3b885"
+      "sha256": "b94f9e1d5d3164d15a58745e67880dbe6527a5768adb7a5320f6190c1568ac5e"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/prescribed_translation_two_bar.criteria.candidate.json",
-      "sha256": "16645ba478cc7f3b0007d4fbf04f8a53deecc273d9fad352beafc888548cc1c1"
+      "sha256": "48384a5c67dba10f9e6790fb8d4c850f5e417be9889121a4e1d447f070f6f18b"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/shared_material_serial_companion.criteria.candidate.json",
-      "sha256": "8a4cfcd1664a6c60e04030bd7e5aaed2d4d73678cbaf7f4f5520e1abe605c87f"
+      "sha256": "a671ec50feaad4213e5b79212fc6f2fe874893476cc93a719921596820b57b20"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/signed_fit_states.fixed.criteria.candidate.json",
-      "sha256": "95121e0ea7558541d97087368797e6529e7e649fafdd12bbaca7c1fba4bfe42d"
+      "sha256": "9ab6e140fbe35981efa0aa850b3cb819fff46258b90b13918ea6b245821f6469"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/signed_fit_states.released.criteria.candidate.json",
-      "sha256": "1ecfc1972d76ed6b4164c44830954914777c7585eba93e536f3e799dd2ba1c2f"
+      "sha256": "672f8d6bcd7ee9b050ea05be9c8cbd41b00ba987dc48dde10b42f315f2c0c1cd"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/temperature_unit_identity.criteria.candidate.json",
-      "sha256": "8dfda402a225f6f9ff226e8c08e994c67f39b67b8627a922e06f0fe9f23e735b"
+      "sha256": "2b1e75d37fc7b9b399bf1c53cd35faa0497c3cdf3fdf9ee0fec7816f58f181f8"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.fixed.criteria.candidate.json",
-      "sha256": "0928b3f5b69794fa37fd9ae18d4fdd60aa9a55d787e378c8e6e8c20b0cbc5b3e"
+      "sha256": "5d2fe828e2064fad33f42fa31c74a9671289dbcda95c14defd8a5950b3fe9c45"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.criteria.candidate.json",
-      "sha256": "f34e9d082703da95194dbedb175a621d99ac56733a9927c7cf56b8f8aed4f5c6"
+      "sha256": "73ed7c6d93100b9650762457342920ae43b99b3f4e758388f297a0544d236231"
     }
   ],
   "authoring_records": [
@@ -483,5 +483,21 @@
         "source ids source:action-a/-b and their +200 N magnitude (the reference independent_action) from the numeric_deduplication discriminator"
       ]
     }
-  ]
+  ],
+  "admission": {
+    "record": {
+      "path": "validation/qualification/fixtures/load_reference/ADMISSION.json",
+      "sha256": "f17f04f7399de4ece1b442c265588509e723ad37fcf342180ed964ef8102ca8d"
+    },
+    "independent_freeze": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_FREEZE/RETURN.md",
+      "sha256": "795b04214006160755fe39a427005022beecf94830c81e37110a8032d2574c49"
+    },
+    "freeze_change_R1_script": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_FREEZE/_run_records/apply_R1.py",
+      "sha256": "0652e00a22783531b4e550d528d1af14c8d78a43eb2d0fab486f17ed49d91e03"
+    },
+    "reproduction": "The admitted package is the authored candidate package (commit 91ec30630) with the freeze change R1 applied by apply_R1.py, the README corrections R2/R3, ADMISSION.json, and generate_reference_values.py --write; MANIFEST.json and this file are re-hashed accordingly.",
+    "superseded_authoring_records": "The authoring records listed under authoring_records reproduce the pre-freeze candidate package only. author_package.py still writes the pre-R1 signed-fit rule (hot_thermal_strain) at its line 1020 and is superseded for R1 by apply_R1.py; its provenance and hash are kept unchanged as the authoring record."
+  }
 }

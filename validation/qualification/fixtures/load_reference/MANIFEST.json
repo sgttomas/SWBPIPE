@@ -21,7 +21,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_translation_two_bar.criteria.candidate.json",
-        "sha256": "32a0f1ca82b5633f1def49893a6df182f771b64b55c87115f5be9491f326d840"
+        "sha256": "48384a5c67dba10f9e6790fb8d4c850f5e417be9889121a4e1d447f070f6f18b"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -54,7 +54,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_translation_all_fixed.criteria.candidate.json",
-        "sha256": "bad0f5394019f260cec8392d8794d3cc6676f7200ce11e6be2d63659d67cd1bf"
+        "sha256": "b94f9e1d5d3164d15a58745e67880dbe6527a5768adb7a5320f6190c1568ac5e"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -87,7 +87,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_all_fixed.criteria.candidate.json",
-        "sha256": "6ac16148de1a8f722fec7ad43b0c831e5ff7fc3a959ca5ef1e0d5ed4b415cad0"
+        "sha256": "ca6b8d7134ac6a7a8ec60c87796dd6e50322d84bb628f3b9939dff266aa11260"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -120,7 +120,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/prescribed_rotation_free_tip.criteria.candidate.json",
-        "sha256": "f3c176521cdca4a29baa36a9e689a7feb5af829fc2a247a4cad6df7794279dd1"
+        "sha256": "38fca18cdbb04bdb88d716587523b721dac0c33979e7c71127a9ff6eaf34c197"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -153,7 +153,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/shared_material_serial_companion.criteria.candidate.json",
-        "sha256": "757cb09c7bfcd8f7b5f2f01cf5dc5918437535d8da227d483adf49116981b173"
+        "sha256": "a671ec50feaad4213e5b79212fc6f2fe874893476cc93a719921596820b57b20"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -186,7 +186,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.fixed.criteria.candidate.json",
-        "sha256": "f706ca4bfcc096f747a8b32eb723b081a37759fbaa34063faac75437d53a2535"
+        "sha256": "5d2fe828e2064fad33f42fa31c74a9671289dbcda95c14defd8a5950b3fe9c45"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -219,7 +219,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.criteria.candidate.json",
-        "sha256": "3d37a5a5ffdda2bbe30e12ad946f0a33f036ec7015ae736f3b5fea9d6967c977"
+        "sha256": "73ed7c6d93100b9650762457342920ae43b99b3f4e758388f297a0544d236231"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -252,7 +252,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/coefficient_definition.criteria.candidate.json",
-        "sha256": "14ff2730b458c77e54a796925d566ce4dc4fc48e27057c4138947dc25e93f81d"
+        "sha256": "e1227dfb51850dc6b64295ff7c8c63954a723bea84c12d9427a58f848db66f71"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -285,7 +285,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/constant_alpha_interval.criteria.candidate.json",
-        "sha256": "ad02a67c86f1c2a1b128f4289d961a0c4c1c94ffba5be7b7f5d18ad643fecfb7"
+        "sha256": "32be91b077bcc01d477d6a6f928ab532bad20ceb7ad7244372407a7b06506190"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -318,7 +318,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/multi_segment_free_length.criteria.candidate.json",
-        "sha256": "15803c65e963638208cdffce02c2e933cf9a0a4567fef060393bd448193f5c28"
+        "sha256": "80cb51a90eba843c2288298d2c1a918b17bfc8ffb8765e3ea6e4862dcbfbd94a"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -351,7 +351,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/temperature_unit_identity.criteria.candidate.json",
-        "sha256": "88a53a1706d2cda2ade0e1fa0a527d32cddc53fefe80fd611a1e2c96bb4e300e"
+        "sha256": "2b1e75d37fc7b9b399bf1c53cd35faa0497c3cdf3fdf9ee0fec7816f58f181f8"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -384,7 +384,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/signed_fit_states.fixed.criteria.candidate.json",
-        "sha256": "6a6ef199adb00bfafed367907a57b5a11570865c0ca6365e6cdd04250222ccb5"
+        "sha256": "9ab6e140fbe35981efa0aa850b3cb819fff46258b90b13918ea6b245821f6469"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -417,7 +417,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/signed_fit_states.released.criteria.candidate.json",
-        "sha256": "f1967a89aef5728c9e9c2259e287ab424e438d5f0b28e4c5df0f6be24b6e7270"
+        "sha256": "672f8d6bcd7ee9b050ea05be9c8cbd41b00ba987dc48dde10b42f315f2c0c1cd"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
@@ -450,7 +450,7 @@
       },
       "criteria": {
         "path": "validation/qualification/fixtures/load_reference/persistent_source_once.criteria.candidate.json",
-        "sha256": "d266df3f5030ab3253aa1fae5fb2136ce9f62cb09101d301d4954bcf2d1696a3"
+        "sha256": "7e9c5202347f3ac532178b1583482780787381d163e29b9953fa873d5d09228e"
       },
       "analytical_reference": {
         "path": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
