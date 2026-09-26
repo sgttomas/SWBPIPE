@@ -116,6 +116,8 @@ Pre-registered (R3-1, and ROOT's ruling on the stop report) or accepted as the i
   - P1's S11-PROBE-A as product-model tests.
 - **The nonlinear loop** stays binary64 at the kernel's prescribed-motion sums (option (c)). Friction terms (E14) remain T5's open item.
 - `sparse_direct` has no typed sibling. SA reaches the sparse path through `factor_structural_ldlt`.
+- `primitive_loads::global_load_vector` carries no "not for solve input" doc note yet.
+- These two leftovers (the missing `sparse_direct` typed sibling and the missing `global_load_vector` doc note) are items in S11-F's brief (manager, per ROOT).
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
