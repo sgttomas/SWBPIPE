@@ -2,7 +2,17 @@
 
 Read `_T1_COMMON.md` first, including its **Wave 2** section. Return folder: `LSI/T1_WP3_NATIVE_INPUTS/`.
 
-**Base.** The manager's integration of T1_WP2_DESKTOP_READERS, which the spawn request names. Use its types and readers; do not redefine them.
+**Base.** `b0324db9d` or later. It includes T1_WP2_DESKTOP_READERS (`64711fd94`). Use its work as it stands; do not redefine any of it:
+- the 0.4.0 types in `types.ts`;
+- the readers `features/results/loadReferenceEvidence.ts` and `loadReferenceSourceEvidence.ts`;
+- dispatch and standing in `numericalResultQuality.ts`;
+- the browser 0.4.0 mirror in `services/projectService.ts`.
+
+Read `LSI/T1_WP2_DESKTOP_READERS/RETURN.md` and `LSI/T1_WAVE1_RULINGS.md` §12 and §14 first.
+
+**Kept from WP2.**
+- The output refusals (`LoadReferenceOutputGate`, `loadReferenceOutputAvailability.ts`) stay exactly as they are, and so do their tests. `SolvePanel.tsx` already gates its solve-job download for load/reference-state results: do not remove or bypass that gate. Nothing you add may write load/reference-state result data into a file, package, handoff or external request. Desktop output is routed to T6.
+- A combined independent review of the WP2 bytes runs at the same time. If you find a defect in WP2 code, report it to the manager and do not fix it yourself.
 
 ## Assignment (D2: plain fields, no layout or visual work)
 
@@ -32,7 +42,7 @@ Rules for the fields:
 **3. The read-only resolved-state block.**
 
 - In the Solve result (`features/solve/SolvePanel.tsx`), show the published `contract_evidence.load_reference_states` record, as read by the WP2 readers.
-- For each case, show the resolved element temperatures and strains, support motions and sources, with the case's numerical standing.
+- For each case, show the resolved element temperatures and strains, support motions and sources, with the case's numerical standing. Show a result only after the WP2 reader has admitted it. Take its standing from the WP2 dispatch and standing functions, not from a new computation.
 - Label the route:
   - ordinary `load-reference-1`;
   - joined `load-reference-source-1`, always shown as needing recompute (not Current) in T1.
