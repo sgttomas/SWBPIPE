@@ -369,13 +369,14 @@ pub fn numerical_use_standing_with_context(
     requested_basis_refs: &[Value],
     actual_invocation: Option<&Value>,
 ) -> &'static str {
-    // T0R: historical precision-1 and mixed ordinary source-blocks-1 are never Current.
-    if standing_reason(source).is_some() {
-        return "needs_recompute";
-    }
     let Ok((_, version)) = for_source(source) else {
         return "unsupported";
     };
+    // T0R (A2 item 10): validate first; then historical precision-1 and mixed
+    // ordinary source-blocks-1 are never Current.
+    if standing_reason(source).is_some() {
+        return "needs_recompute";
+    }
     if version != "0.3.0" || requested_basis_refs.is_empty() {
         return "needs_recompute";
     }

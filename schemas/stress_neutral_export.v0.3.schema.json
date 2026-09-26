@@ -2799,14 +2799,18 @@
                       "minLength": 1
                     },
                     "station_fraction": {
-                      "type": "number"
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
                     },
                     "span_index": {
                       "type": "integer",
                       "minimum": 0
                     },
                     "local_fraction": {
-                      "type": "number"
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
                     },
                     "value_lower_pa": {
                       "type": "number"
@@ -2953,7 +2957,8 @@
                       "exclusiveMinimum": 0
                     },
                     "sif_source_reference": {
-                      "type": "string"
+                      "type": "string",
+                      "minLength": 1
                     },
                     "section_modulus_m3": {
                       "type": "number",

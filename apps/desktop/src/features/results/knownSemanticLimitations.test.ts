@@ -61,9 +61,13 @@ describe("static fresh-identity set and standing reasons", () => {
     expect(sourceContract(probe)).toBe("source_blocks");
     expect(sourceBlocksOrdinaryCaseLegacy(probe)).toBe(true);
     expect(standingReason(probe)).toBe(SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS);
+    // A2 10: standing validates first. This relabelled receipt has no validated
+    // registration, so it is refused on validation alone; the standing reason
+    // is not reached. (No actual producer fixture carries a qualified ordinary
+    // case in a non-composite source-blocks-1 envelope, so the validated-mixed
+    // path is covered by the receipt derivation above.)
     const standing = sourceBlockStanding(probe, { load_cases: [] });
-    expect(standing.eligible).toBe(false);
-    expect(standing.findings).toContain(SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS);
+    expect(standing).toEqual({ eligible: false, findings: ["SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED"] });
     // physics-source-1 legitimately carries ordinary cases under physics-1 semantics.
     const composite = clone(physicsSourceMixed);
     expect(sourceContract(composite)).toBe("physics_source");

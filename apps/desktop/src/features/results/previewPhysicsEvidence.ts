@@ -32,7 +32,6 @@ const MAXIMUM_METADATA = {
   sign_convention: "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim",
 };
 const INTENSIFIED_SIGN_PREFIX = "nonnegative i*hypot(My,Mz)/Z at the member end; i=";
-const INTENSIFIED_SOURCE_KINDS = ["element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z"];
 const EXTREMA_KEYS = ["pipe_id", "result_id", "station_fraction", "span_index", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa", "subdivisions", "approximation", "coefficient_basis", "enclosure_scope"];
 const EXTREMA_CONSTANTS: Record<string, string> = {
   approximation: "piecewise_quadratic_straight_section_statics",
@@ -41,10 +40,11 @@ const EXTREMA_CONSTANTS: Record<string, string> = {
 };
 const CASE_KEYS = ["load_case_id", "pipe_stress_extrema", "stress_maximum_coverage", "support_attribution", "intensified_measures"];
 const INTENSIFIED_KEYS = ["result_id", "component_id", "pipe_id", "location", "factor_role", "sif", "sif_source_reference", "section_modulus_m3", "bending_moment_y_n_m", "bending_moment_z_n_m"];
+// A2 1: MAX_SUBDIVISIONS of core/loads/stress_recovery/src/elastic_extrema.rs.
+const MAX_SUBDIVISIONS = 131072;
 const WITHHELD_REASONS = ["SUPPORT_ACTION_ATTRIBUTION_WITHHELD", "CONSTANT_EFFORT_NOT_CONSUMED"];
 const PER_SUPPORT_NONLINEAR_KINDS = ["nonlinear_support_final_reaction", "nonlinear_support_final_displacement", "nonlinear_support_active_set_state_code"];
 export const PREVIEW_COMBINATION_GATE_CODES = ["NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE", "COMBINATION_MODULUS_BASIS_MIXED"] as const;
-const LINEAR_BASES = ["explicit_user_linear_combination", "explicit_user_result_state_subtraction"];
 const RANGE_BASIS = "explicit_user_range_envelope";
 // Representation guard only (S1 §9.7); not an engineering tolerance.
 const GUARD = 64 * Number.EPSILON;
@@ -156,24 +156,33 @@ function readCases(evidence: Json): Map<string, Json> {
       shape(record, ["support_id", "reason"], "withheld support shape");
       demand(text(record.support_id) && WITHHELD_REASONS.includes(record.reason), "withheld support values");
     }
-    const supports = [...attribution.attributed_support_ids, ...attribution.withheld.map((r: Json) => r.support_id)];
-    demand(new Set(supports).size === supports.length, "support attributed or withheld more than once");
+    // A3 2: a support is attributed or withheld, never both.
+    const withheldIds = new Set<string>(attribution.withheld.map((r: Json) => r.support_id));
+    demand(!attribution.attributed_support_ids.some((id: string) => withheldIds.has(id)), "support both attributed and withheld");
     for (const x of c.pipe_stress_extrema as unknown[]) {
       shape(x, EXTREMA_KEYS, "extrema shape");
       demand(text(x.pipe_id) && text(x.result_id) && Object.entries(EXTREMA_CONSTANTS).every(([k, v]) => x[k] === v), "extrema identity or basis");
-      // A1 d: exactly the listed checks; no certified-gap bound (finiteness is item 1).
+      // A1 d + A2 1: exactly these checks; no certified-gap bound (finiteness is item 1).
+      demand(finite(x.station_fraction) && x.station_fraction >= 0 && x.station_fraction <= 1
+        && finite(x.local_fraction) && x.local_fraction >= 0 && x.local_fraction <= 1, "extrema fractions");
+      demand(Number.isSafeInteger(x.span_index) && x.span_index >= 0
+        && Number.isSafeInteger(x.subdivisions) && x.subdivisions >= 0 && x.subdivisions <= MAX_SUBDIVISIONS, "extrema integers");
       demand(["value_lower_pa", "value_upper_pa"].every(k => finite(x[k])) && x.value_lower_pa >= 0 && x.value_lower_pa <= x.value_upper_pa, "extrema bounds");
     }
     const pipes: string[] = c.pipe_stress_extrema.map((x: Json) => x.pipe_id);
     demand(new Set(pipes).size === pipes.length && !pipes.some(p => coverage.unavailable_pipe_ids.includes(p) || coverage.outside_domain_pipe_ids.includes(p)), "extrema member partition");
     for (const m of c.intensified_measures as unknown[]) {
       shape(m, INTENSIFIED_KEYS, "intensified measure shape");
-      demand(text(m.result_id) && text(m.component_id) && text(m.pipe_id) && ["end_i", "end_j"].includes(m.location) && ["bend", "branch_header", "branch_branch"].includes(m.factor_role) && typeof m.sif_source_reference === "string", "intensified measure identity");
+      demand(text(m.result_id) && text(m.component_id) && text(m.pipe_id) && ["end_i", "end_j"].includes(m.location) && ["bend", "branch_header", "branch_branch"].includes(m.factor_role) && text(m.sif_source_reference), "intensified measure identity");
       demand(["sif", "section_modulus_m3", "bending_moment_y_n_m", "bending_moment_z_n_m"].every(k => finite(m[k])) && m.sif > 0 && m.section_modulus_m3 > 0, "intensified measure inputs");
     }
   }
-  const supportSets = new Set([...cases.values()].map(c => JSON.stringify([...c.support_attribution.attributed_support_ids, ...c.support_attribution.withheld.map((r: Json) => r.support_id)].sort())));
-  demand(supportSets.size <= 1, "support set differs between cases");
+  // A2 3: the attributed set and the withheld set (support id and reason) are identical in every case.
+  const attributionSets = new Set([...cases.values()].map(c => JSON.stringify([
+    [...c.support_attribution.attributed_support_ids].sort(),
+    c.support_attribution.withheld.map((r: Json) => JSON.stringify([r.support_id, r.reason])).sort(),
+  ])));
+  demand(attributionSets.size <= 1, "attribution sets differ between cases");
   const extremaIds = [...cases.values()].flatMap(c => c.pipe_stress_extrema.map((x: Json) => x.result_id));
   const measureIds = [...cases.values()].flatMap(c => c.intensified_measures.map((m: Json) => m.result_id));
   demand(new Set(extremaIds).size === extremaIds.length && new Set(measureIds).size === measureIds.length, "duplicate evidence result binding");
@@ -211,8 +220,7 @@ function validate(source: MechanicsResult): void {
   demand(Array.isArray(results) && Array.isArray(diagnostics), "result collections");
   demand(results.every(r => isObject(r) && text(r.id)) && diagnostics.every(d => isObject(d) && text(d.id)), "evidence identities");
   const rows = new Map(results.map(r => [r.id, r]));
-  const diagnosticIds = diagnostics.map(d => d.id as string);
-  demand(rows.size === results.length && new Set(diagnosticIds).size === diagnosticIds.length && !diagnosticIds.some(id => rows.has(id)), "duplicate or ambiguous evidence ID");
+  demand(rows.size === results.length, "duplicate result ID");
 
   // 2. Every row kind has a signature; no retired kind or diagnostic code.
   for (const row of results) {
@@ -222,15 +230,15 @@ function validate(source: MechanicsResult): void {
     const basis = basisOf(row);
     if (basis !== undefined && basis !== null) {
       shape(basis, ["ref_type", "ref_id"], "row basis reference");
-      demand(["load_case", "combination"].includes(basis.ref_type) && text(basis.ref_id), "row basis type");
     }
   }
   for (const item of diagnostics) demand(!PREVIEW_RETIRED_DIAGNOSTIC_CODES.includes(item.code), `retired diagnostic code ${item.code}`);
 
   // 3. Completeness (F-1): result-namespace references only.
   for (const item of diagnostics) {
-    const refs = item.affected_refs ?? [];
-    demand(Array.isArray(refs) && refs.every(ref => typeof ref === "string"), "diagnostic reference list");
+    // A1 a + A2 5: the key may be absent; when present it is an array of non-empty strings (null refused).
+    const refs = Object.hasOwn(item, "affected_refs") ? item.affected_refs : [];
+    demand(Array.isArray(refs) && refs.every(ref => text(ref)), "diagnostic reference list");
     for (const ref of refs) demand(!ref.startsWith("result:") || rows.has(ref), `dangling result reference ${ref}`);
   }
   const summary = source.summary as Json;
@@ -244,6 +252,8 @@ function validate(source: MechanicsResult): void {
   if (source.status?.mechanics !== "MECHANICS_SOLVED") {
     demand(cases.size === 0 && gates.size === 0 && results.length === 0
       && (summary.max_open_formula_stress ?? null) === null && (summary.max_displacement ?? null) === null, "blocked envelope carries evidence, rows or headlines");
+    // A2 6.
+    demand(!Object.hasOwn(summary, "component_stress_modifier_count") || summary.component_stress_modifier_count === 0, "blocked envelope modifier count");
     return;
   }
   // 4. Case scope.
@@ -253,8 +263,7 @@ function validate(source: MechanicsResult): void {
   for (const row of results) {
     const basis = basisOf(row);
     if (basis === undefined || basis === null) continue;
-    if (basis.ref_type === "load_case") demand(cases.has(basis.ref_id) || cases.size === 0, "row case scope");
-    else {
+    if (basis.ref_type === "combination") {
       const gate = gates.get(basis.ref_id);
       // 9. Combination rows only for admitted combinations.
       demand(gate !== undefined && gate.withheld === false, "combination row without an admitting gate");
@@ -317,11 +326,18 @@ function validate(source: MechanicsResult): void {
     const expectedId = `diagnostic:preview-physics:${item.code === "SUPPORT_ACTION_ATTRIBUTION_WITHHELD" ? "attribution" : "constant-effort-not-consumed"}:${text(support) ? lengthPrefixed(support) : ""}`;
     demand(text(support) && item.id === expectedId, "withheld diagnostic identity");
     const key = JSON.stringify([support, item.code]);
-    demand(!withheldDiagnostics.has(key), "duplicate withheld diagnostic");
+    demand(!withheldDiagnostics.has(key), "duplicate withholding diagnostic");
     withheldDiagnostics.add(key);
   }
   for (const row of results) {
-    if (SUPPORT_KINDS.includes(row.kind) && row.basis_ref?.ref_type === "load_case") demand(cases.has(row.basis_ref.ref_id), "support action outside a preview case");
+  }
+  // A2 4: combination support rows keep the global frame, node location and their component token.
+  for (const row of results) {
+    if (!SUPPORT_KINDS.includes(row.kind) || row.basis_ref?.ref_type !== "combination") continue;
+    const md = row.metadata as Json | undefined;
+    const component = md?.component;
+    demand(isObject(md) && md.coordinate_system === "global" && md.location === "node"
+      && typeof component === "string" && Object.hasOwn(SUPPORT_ROW_KINDS, component) && SUPPORT_ROW_KINDS[component][0] === row.kind && SUPPORT_ROW_KINDS[component][1] === row.unit, "combination support row frame");
   }
   for (const [caseId, c] of cases) {
     const attribution = c.support_attribution;
@@ -363,16 +379,15 @@ function validate(source: MechanicsResult): void {
       const row = rows.get(m.result_id);
       demand(row && row.kind === INTENSIFIED_KIND && row.unit === "Pa" && sameCaseBasis(row, caseId) && row.entity_ref === m.component_id, "intensified result binding");
       const md = row.metadata as Json | undefined;
-      demand(isObject(md) && Object.keys(md).length === 5 && md.component === "equal_factor_intensified_bending_stress" && md.coordinate_system === "pipe_section" && md.location === m.location
+      demand(isObject(md) && md.component === "equal_factor_intensified_bending_stress" && md.coordinate_system === "pipe_section" && md.location === m.location
         && md.basis === "user_sif_times_member_section_bending_stress_v1" && typeof md.sign_convention === "string" && md.sign_convention.startsWith(INTENSIFIED_SIGN_PREFIX), "intensified row semantics");
       const expected = m.sif * (Math.hypot(m.bending_moment_y_n_m, m.bending_moment_z_n_m) / m.section_modulus_m3);
-      demand(row.value >= 0 && Math.abs(row.value - expected) <= GUARD * Math.max(Math.abs(row.value), TINY), "intensified value inconsistent with its inputs");
+      // A3 1: i*hypot(My,Mz)/Z with i > 0 is never negative.
+      demand(row.value >= 0, "negative intensified value");
+      demand(Math.abs(row.value - expected) <= GUARD * Math.max(Math.abs(row.value), TINY), "intensified value inconsistent with its inputs");
       const refs = row.source_result_refs;
-      demand(Array.isArray(refs) && refs.length === 2 && refs.every(ref => typeof ref === "string" && rows.has(ref)), "intensified source reference");
-      const sources = refs.map(ref => rows.get(ref)!);
-      const kinds = new Set(sources.map(s => s.kind));
-      demand(kinds.size === 2 && INTENSIFIED_SOURCE_KINDS.every(k => kinds.has(k))
-        && sources.every(s => sameJson(s.basis_ref, row.basis_ref) && s.entity_ref === m.pipe_id && s.metadata?.location === m.location), "intensified source rows are not the same-case member end");
+      // §9 item 8: its source_result_refs resolve in the same case.
+      demand(Array.isArray(refs) && refs.every(ref => typeof ref === "string" && rows.has(ref) && sameJson(rows.get(ref)!.basis_ref, row.basis_ref)), "intensified source reference does not resolve in the same case");
       measured.add(row.id);
     }
   }
@@ -388,7 +403,8 @@ function validate(source: MechanicsResult): void {
   }
   for (const members of combinationRows.values()) {
     const bases = new Set(members.map(r => r.metadata?.basis).filter((b): b is string => typeof b === "string"));
-    if (bases.has(RANGE_BASIS) || !LINEAR_BASES.some(b => bases.has(b))) continue;
+    // A1 c + A2 9: only range envelopes are exempt.
+    if (bases.has(RANGE_BASIS)) continue;
     const nodal = new Map(members.filter(r => r.kind.startsWith("global_nodal_displacement_")).map(r => [JSON.stringify([r.entity_ref, r.kind]), r]));
     const supports = new Map<string, Row>();
     for (const row of members) {

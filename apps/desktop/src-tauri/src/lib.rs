@@ -2818,15 +2818,19 @@ fn qualify_rule_mechanics_with_context(model: &Value, envelope: &Value, invocati
     }
     // T0R: only a fresh identity is rule-eligible; precision-1 and mixed
     // ordinary source-blocks-1 stay readable but need a new solve.
+    // A2 item 10: validate first, so a tampered source is unsupported.
+    let standing = open_pipe_stress_result_export::semantic_contract::numerical_use_standing_with_context(envelope, &refs, invocation);
     let contract = envelope.pointer("/producer/semantic_contract_id").and_then(Value::as_str).unwrap_or_default();
-    if let Some(reason) = open_pipe_stress_result_export::semantic_contract::standing_reason(envelope) {
-        return Err(format!("RULE_NUMERICAL_NEEDS_RECOMPUTE: {reason}"));
+    if standing != "unsupported" {
+        if let Some(reason) = open_pipe_stress_result_export::semantic_contract::standing_reason(envelope) {
+            return Err(format!("RULE_NUMERICAL_NEEDS_RECOMPUTE: {reason}"));
+        }
     }
     // A legacy 0.1.0 source carries no producer id and stays needs_recompute below.
     if !contract.is_empty() && !open_pipe_stress_result_export::semantic_contract::is_fresh_identity(contract) {
         return Err("RULE_NUMERICAL_SOURCE_UNSUPPORTED: recompute with a supported producer and semantic contract".into());
     }
-    match open_pipe_stress_result_export::semantic_contract::numerical_use_standing_with_context(envelope, &refs, invocation) {
+    match standing {
         "numerically_eligible" => Ok(()),
         "unsupported" => Err("RULE_NUMERICAL_SOURCE_UNSUPPORTED: recompute with a supported producer and semantic contract".into()),
         _ => Err("RULE_NUMERICAL_NEEDS_RECOMPUTE: complete passing or source-qualified numerical evidence is required for every current load case".into()),

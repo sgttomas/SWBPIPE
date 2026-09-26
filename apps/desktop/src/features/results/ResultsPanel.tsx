@@ -69,6 +69,10 @@ export function ResultsPanel({
     [filteredResults, pageIndex, pageSize]
   );
   const groups = result ? groupResults(page.items, result) : [];
+  // Dispatch once per render; the row labels apply to preview-physics-1 only.
+  const labelSource = useMemo(() => {
+    try { return result && sourceContract(result) === "preview_physics" ? result : null; } catch { return null; }
+  }, [result]);
   const interpretation = result
     ? buildResultInterpretation({ result, resultId: selectedResultId, knowledge, analysisRun })
     : null;
@@ -155,7 +159,7 @@ export function ResultsPanel({
                           }}
                           tabIndex={0}
                         >
-                          <td>{item.id}<small> {semanticCategory(item, result)}</small>{resultRowLabel(item, result) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, result)}</small> : null}</td>
+                          <td>{item.id}<small> {semanticCategory(item, result)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}</td>
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td>

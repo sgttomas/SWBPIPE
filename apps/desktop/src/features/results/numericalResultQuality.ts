@@ -84,6 +84,8 @@ export function numericalResultStanding(source: MechanicsResult, model?: (Pick<P
     }
     // T0R: precision-1 stays readable and verifiable, but is historical only and
     // never Current, rule-, report- or Current-export-eligible.
+    // A2 10: dispatch above already validated the precision-1 header (a malformed or
+    // tampered carrier is "unsupported" and never reaches this reason).
     if (contract === "precision") findings.push("PRECISION_1_HISTORICAL_SEMANTICS");
     // Sensitive backward-error evidence does not establish source-answer accuracy.
     // Preserve its raw contract for inspection while withholding qualified use.

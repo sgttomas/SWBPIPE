@@ -40,7 +40,6 @@ MAXIMUM_METADATA = {
     "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim",
 }
 INTENSIFIED_SIGN_PREFIX = "nonnegative i*hypot(My,Mz)/Z at the member end; i="
-INTENSIFIED_SOURCE_KINDS = frozenset({"element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z"})
 EXTREMA_KEYS = frozenset({"pipe_id", "result_id", "station_fraction", "span_index", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa", "subdivisions", "approximation", "coefficient_basis", "enclosure_scope"})
 EXTREMA_CONSTANTS = {
     "approximation": "piecewise_quadratic_straight_section_statics",
@@ -166,20 +165,24 @@ def _cases(evidence: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
         for record in attribution["withheld"]:
             _shape(record, {"support_id", "reason"}, "withheld support shape")
             _require(_text(record["support_id"]) and record["reason"] in WITHHELD_REASONS, "withheld support values")
-        supports = [*attribution["attributed_support_ids"], *(record["support_id"] for record in attribution["withheld"])]
-        _require(len(set(supports)) == len(supports), "support attributed or withheld more than once")
+        # A3 2: a support is attributed or withheld, never both.
+        _require(not set(attribution["attributed_support_ids"]) & {record["support_id"] for record in attribution["withheld"]}, "support both attributed and withheld")
         for extremum in case["pipe_stress_extrema"]:
             _shape(extremum, EXTREMA_KEYS, "extrema shape")
             _require(_text(extremum["pipe_id"]) and _text(extremum["result_id"]) and all(extremum[key] == value for key, value in EXTREMA_CONSTANTS.items()), "extrema identity or basis")
             _require(all(_number(extremum[key]) for key in ("station_fraction", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa")), "extrema numbers")
             _require(type(extremum["span_index"]) is int and extremum["span_index"] >= 0 and type(extremum["subdivisions"]) is int and 0 <= extremum["subdivisions"] <= 131072, "extrema integers")
+            _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1, "extrema fractions")
             _require(0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"], "extrema bounds")
         pipes = [extremum["pipe_id"] for extremum in case["pipe_stress_extrema"]]
         _require(len(set(pipes)) == len(pipes) and not set(pipes) & (set(coverage["unavailable_pipe_ids"]) | set(coverage["outside_domain_pipe_ids"])), "extrema member partition")
         for measure in case["intensified_measures"]:
             _shape(measure, INTENSIFIED_KEYS, "intensified measure shape")
-            _require(all(_text(measure[key]) for key in ("result_id", "component_id", "pipe_id")) and measure["location"] in {"end_i", "end_j"} and measure["factor_role"] in {"bend", "branch_header", "branch_branch"} and isinstance(measure["sif_source_reference"], str), "intensified measure identity")
+            _require(all(_text(measure[key]) for key in ("result_id", "component_id", "pipe_id")) and measure["location"] in {"end_i", "end_j"} and measure["factor_role"] in {"bend", "branch_header", "branch_branch"} and _text(measure["sif_source_reference"]), "intensified measure identity")
             _require(all(_number(measure[key]) for key in ("sif", "section_modulus_m3", "bending_moment_y_n_m", "bending_moment_z_n_m")) and measure["sif"] > 0 and measure["section_modulus_m3"] > 0, "intensified measure inputs")
+    # A2 3: dispositions are structural, so every case carries the same sets.
+    dispositions = {(frozenset(case["support_attribution"]["attributed_support_ids"]), frozenset((r["support_id"], r["reason"]) for r in case["support_attribution"]["withheld"])) for case in cases.values()}
+    _require(len(dispositions) <= 1, "support attribution differs between cases")
     extrema_ids = [extremum["result_id"] for case in cases.values() for extremum in case["pipe_stress_extrema"]]
     measure_ids = [measure["result_id"] for case in cases.values() for measure in case["intensified_measures"]]
     _require(len(set(extrema_ids)) == len(extrema_ids) and len(set(measure_ids)) == len(measure_ids), "duplicate evidence result binding")
@@ -213,8 +216,7 @@ def _validate(source: Mapping[str, Any]) -> None:
     _require(isinstance(results, list) and isinstance(diagnostics, list), "result collections")
     _require(all(isinstance(row, Mapping) and _text(row.get("id")) for row in results) and all(isinstance(item, Mapping) and _text(item.get("id")) for item in diagnostics), "evidence identities")
     rows = {row["id"]: row for row in results}
-    diagnostic_ids = [item["id"] for item in diagnostics]
-    _require(len(rows) == len(results) and len(set(diagnostic_ids)) == len(diagnostic_ids) and not rows.keys() & set(diagnostic_ids), "duplicate or ambiguous evidence ID")
+    _require(len(rows) == len(results), "duplicate result ID")
 
     # 2. Every row kind has a signature; no retired kind or diagnostic code.
     for row in results:
@@ -224,14 +226,14 @@ def _validate(source: Mapping[str, Any]) -> None:
         basis = row.get("basis_ref")
         if basis is not None:
             _shape(basis, {"ref_type", "ref_id"}, "row basis reference")
-            _require(basis["ref_type"] in {"load_case", "combination"} and _text(basis["ref_id"]), "row basis type")
     for item in diagnostics:
         _require(item.get("code") not in RETIRED_CODES, f"retired diagnostic code {item.get('code')}")
 
     # 3. Completeness (F-1): result-namespace references only.
     for item in diagnostics:
+        # A1 a / A2 5: the key may be absent; when present it is an array of non-empty strings.
         refs = item.get("affected_refs", [])
-        _require(isinstance(refs, list) and all(isinstance(ref, str) for ref in refs), "diagnostic reference list")
+        _require(isinstance(refs, list) and all(_text(ref) for ref in refs), "diagnostic reference list")
         for ref in refs:
             _require(not ref.startswith("result:") or ref in rows, f"dangling result reference {ref}")
     summary = source.get("summary")
@@ -250,19 +252,23 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(not evidence["preview_cases"] and not evidence["combination_gates"], "blocked envelope carries preview evidence")
         _require(not results, "blocked envelope carries result rows")
         _require(summary.get("max_displacement") is None and summary.get("max_open_formula_stress") is None, "blocked envelope carries a headline")
+        _require(summary.get("component_stress_modifier_count", 0) == 0, "blocked envelope counts intensified rows")
     for row in results:
         basis = row.get("basis_ref")
         if basis is None:
             continue
-        if basis["ref_type"] == "load_case":
-            _require(basis["ref_id"] in cases or not cases, "row case scope")
-        else:
+        if basis["ref_type"] == "combination":
             gate = gates.get(basis["ref_id"])
             # 9. Combination rows only for admitted combinations.
             _require(gate is not None and gate["withheld"] is False, "combination row without an admitting gate")
             _require(row["kind"] not in {MAXIMUM_KIND, INTENSIFIED_KIND}, "maximum or intensified row for a combination")
             refs = row.get("source_result_refs", [])
             _require(isinstance(refs, list) and all(isinstance(ref, str) and ref in rows for ref in refs), "combination source reference")
+            if row["kind"] in SUPPORT_KINDS:
+                # A2 4: only basis and sign_convention follow the combination.
+                metadata = row.get("metadata") or {}
+                component = metadata.get("component")
+                _require(component in SUPPORT_ROW_KINDS and SUPPORT_ROW_KINDS[component] == (row["kind"], row["unit"]) and metadata.get("coordinate_system") == "global" and metadata.get("location") == "node", "combination support row semantics")
 
     def case_rows(cid: str, kind: str | None = None) -> list[Mapping[str, Any]]:
         return [row for row in results if row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} and (kind is None or row["kind"] == kind)]
@@ -310,9 +316,6 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(summary["component_stress_modifier_count"] == len(intensified_rows), "intensified row count")
 
     # 7. Support actions: attributed => exactly eight rows; withheld => none.
-    for row in results:
-        if row["kind"] in SUPPORT_KINDS and (row.get("basis_ref") or {}).get("ref_type") == "load_case":
-            _require(row["basis_ref"]["ref_id"] in cases, "support action outside a preview case")
     withheld_diagnostics: set[tuple[str, str]] = set()
     for item in diagnostics:
         if item.get("code") in WITHHELD_REASONS:
@@ -355,13 +358,13 @@ def _validate(source: Mapping[str, Any]) -> None:
             row = rows.get(measure["result_id"])
             _require(row is not None and row["kind"] == INTENSIFIED_KIND and row["unit"] == "Pa" and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} and row["entity_ref"] == measure["component_id"], "intensified result binding")
             metadata = row.get("metadata") or {}
-            _require(set(metadata) == {"component", "coordinate_system", "location", "basis", "sign_convention"} and metadata["component"] == "equal_factor_intensified_bending_stress" and metadata["coordinate_system"] == "pipe_section" and metadata["location"] == measure["location"] and metadata["basis"] == "user_sif_times_member_section_bending_stress_v1" and isinstance(metadata["sign_convention"], str) and metadata["sign_convention"].startswith(INTENSIFIED_SIGN_PREFIX), "intensified row semantics")
+            _require(metadata.get("component") == "equal_factor_intensified_bending_stress" and metadata.get("coordinate_system") == "pipe_section" and metadata.get("location") == measure["location"] and metadata.get("basis") == "user_sif_times_member_section_bending_stress_v1" and isinstance(metadata.get("sign_convention"), str) and metadata["sign_convention"].startswith(INTENSIFIED_SIGN_PREFIX), "intensified row semantics")
             expected = measure["sif"] * (math.hypot(measure["bending_moment_y_n_m"], measure["bending_moment_z_n_m"]) / measure["section_modulus_m3"])
-            _require(row["value"] >= 0 and abs(row["value"] - expected) <= GUARD * max(abs(row["value"]), TINY), "intensified value inconsistent with its inputs")
+            # A3 1: i*hypot(My,Mz)/Z with i > 0 is never negative.
+            _require(row["value"] >= 0, "negative intensified value")
+            _require(abs(row["value"] - expected) <= GUARD * max(abs(row["value"]), TINY), "intensified value inconsistent with its inputs")
             refs = row.get("source_result_refs")
-            _require(isinstance(refs, list) and len(refs) == 2 and all(isinstance(ref, str) and ref in rows for ref in refs), "intensified source reference")
-            sources = [rows[ref] for ref in refs]
-            _require({item["kind"] for item in sources} == INTENSIFIED_SOURCE_KINDS and all(item.get("basis_ref") == row["basis_ref"] and item["entity_ref"] == measure["pipe_id"] and (item.get("metadata") or {}).get("location") == measure["location"] for item in sources), "intensified source rows are not the same-case member end")
+            _require(isinstance(refs, list) and all(isinstance(ref, str) and ref in rows and rows[ref].get("basis_ref") == row["basis_ref"] for ref in refs), "intensified source reference does not resolve in the same case")
             measured.add(row["id"])
     _require(measured == {row["id"] for row in intensified_rows}, "intensified row without exactly one measure")
 

@@ -4,7 +4,9 @@ import inventedSparse from "../../../../../fixtures/results/preview_physics_inve
 import inventedModel from "../../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json";
 import precisionSparse from "../../../../../fixtures/results/precision_connected_ui_mechanics_sparse.json";
 import multicase from "../../../../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json";
+import sourceBlocksN05 from "../../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json";
 import { ResultsPanel } from "./ResultsPanel";
+import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { ComparisonPanel } from "../comparison/ComparisonPanel";
 import { LocalFeaHandoffPanel } from "../local-fea-handoff/LocalFeaHandoffPanel";
 import { ResultExportPanel } from "../result-export/ResultExportPanel";
@@ -35,15 +37,21 @@ describe("text-only T0R UI (DESIGN §7)", () => {
     expect(screen.getByTestId(`result-row-label-${intensified.id}`).textContent).toContain(N_INTENSIFIED);
     expect(JSON.stringify(result)).toBe(before);
   });
-  it("Results: withheld reason when the stress headline is null; N-P1 on precision-1; N-SB on all-selected source-blocks-1", () => {
+  // R2 SF-2: split into one render per test (each renders a single result).
+  it("Results: withheld reason when the stress headline is null", () => {
     const withheld = clone(inventedSparse); withheld.summary.max_open_formula_stress = null;
-    const { unmount } = render(<ResultsPanel result={withheld} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
+    render(<ResultsPanel result={withheld} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
     expect(screen.getByTestId("results-notice-headline-withheld").textContent).toBe(N_HEADLINE_WITHHELD);
-    unmount();
-    const second = render(<ResultsPanel result={clone(precisionSparse)} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
+  });
+  it("Results: N-P1 on precision-1", () => {
+    render(<ResultsPanel result={clone(precisionSparse)} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
     expect(screen.getByTestId("results-notice-precision-1").textContent).toBe(N_P1);
-    second.unmount();
-    render(<ResultsPanel result={clone(multicase)} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
+  });
+  // The ResultsPanel placement of the notice component is covered by the tests
+  // above; rendering the full row table of a source-blocks-1 result costs several
+  // seconds per render in jsdom, so N-SB is asserted on the component itself.
+  it("Results notices: N-SB on all-selected source-blocks-1", () => {
+    render(<KnownSemanticNotices result={clone(sourceBlocksN05)} testIdPrefix="results" />);
     expect(screen.getByTestId("results-notice-source-blocks-summary").textContent).toBe(N_SB);
   });
   it("Comparison shows the gate reason where combination rows would appear", () => {

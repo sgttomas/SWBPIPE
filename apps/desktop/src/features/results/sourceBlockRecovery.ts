@@ -291,6 +291,10 @@ export function sourceBlocksOrdinaryCaseLegacy(source: Pick<MechanicsResult, 'pr
 /** No token is serialized or copied to a cloned/imported historical carrier. */
 export function sourceBlockStanding(source: MechanicsResult, model?: Pick<PreviewModel, 'load_cases'> | null): Validation {
   const standing = knownSourceStanding(source, model, SOURCE_BLOCKS_CONTRACT_ID);
+  // A2 10: validation first. A source whose validated registration is absent or
+  // changed stays unsupported (its validation finding only); the standing reason
+  // applies only to a validated source.
+  if (standing.findings.some(f => f.startsWith('SOURCE_BLOCKS_VALIDATED_'))) return standing;
   if (!sourceBlocksOrdinaryCaseLegacy(source)) return standing;
   return { eligible: false, findings: [...new Set([...standing.findings, 'SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS'])] };
 }

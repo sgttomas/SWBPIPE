@@ -71,6 +71,8 @@ const SUPPORT_COMPONENTS: [&str; 8] = [
     "force_magnitude",
     "moment_magnitude",
 ];
+/// `MAX_SUBDIVISIONS` of core/loads/stress_recovery/src/elastic_extrema.rs (A2 item 1).
+const MAX_SUBDIVISIONS: u64 = 131072;
 const MAXIMUM: &str = "pipe_elastic_normal_stress_maximum_v2";
 const INTENSIFIED: &str = "component_equal_factor_intensified_bending_stress_v1";
 const SUPPORT_COMPONENT: &str = "support_reaction_component_v2";
@@ -177,7 +179,10 @@ fn row_semantics(row: &Value, kind: &str) -> Check {
     let direct = case_of(row).is_some();
     match kind {
         SUPPORT_COMPONENT | SUPPORT_FORCE | SUPPORT_MOMENT => {
-            require(keys(md, METADATA_KEYS), "ROW_METADATA_SHAPE")?;
+            // A1 f exact on case rows; A2 item 4 (frame, location, component) on combination rows.
+            if direct {
+                require(keys(md, METADATA_KEYS), "ROW_METADATA_SHAPE")?;
+            }
             let c = component(row);
             require(
                 match kind {
@@ -254,18 +259,11 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     let solved = source["status"]["mechanics"] == "MECHANICS_SOLVED";
 
     let mut rows: HashMap<&str, &Value> = HashMap::new();
-    let mut all_ids = HashSet::new();
     for row in rows_list {
         let id = text(&row["id"])?;
-        require(all_ids.insert(id), "DUPLICATE_SOURCE_ID")?;
-        rows.insert(id, row);
+        require(rows.insert(id, row).is_none(), "DUPLICATE_SOURCE_ID")?;
     }
-    for diagnostic in diagnostics {
-        require(
-            all_ids.insert(text(&diagnostic["id"])?),
-            "DUPLICATE_SOURCE_ID",
-        )?;
-    }
+    // Unique diagnostic ids are T6 hardening (A3 note); not checked here.
     // 2. Kinds from the table only; no retired kind or code.
     let retired: Vec<&Value> = array(&table["retired_source_kinds"])?.iter().collect();
     for row in rows_list {
@@ -273,33 +271,29 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         require(!retired.contains(&&row["kind"]), "RETIRED_KIND")?;
         number(&row["value"])?;
         text(&row["unit"])?;
+        text(&row["entity_ref"])?; // A2 item 8
+        require(
+            row["metadata"].is_null() || row["metadata"].is_object(),
+            "ROW_METADATA_SHAPE",
+        )?;
         let signature = crate::semantic_contract::signature_in(table, row)
             .map_err(|e| format!("SOURCE_PREVIEW_PHYSICS_ROW_SIGNATURE: {e}"))?;
         require(signature.is_some(), "ROW_SIGNATURE")?;
         row_semantics(row, kind)?;
-        let basis = &row["basis_ref"];
-        if !basis.is_null() && row.get("basis_ref").is_some() {
-            require(
-                matches!(
-                    basis["ref_type"].as_str(),
-                    Some("load_case" | "combination")
-                ) && basis["ref_id"].as_str().is_some_and(|s| !s.is_empty()),
-                "ROW_BASIS",
-            )?;
-        }
+        // The basis_ref kind is T6 hardening (A3 note); not checked here.
     }
     // 3. Completeness of result-namespace references (F-1).
     for diagnostic in diagnostics {
-        let code = text(&diagnostic["code"])?;
+        let code = diagnostic["code"].as_str().unwrap_or("");
         require(!RETIRED_CODES.contains(&code), "RETIRED_CODE")?;
-        let affected = match diagnostic.get("affected_refs").filter(|v| !v.is_null()) {
+        // A1 a: the key may be absent; A2 item 5: when present, an array of
+        // non-empty strings (null is refused).
+        let affected = match diagnostic.get("affected_refs") {
             Some(refs) => array(refs)?.as_slice(),
             None => &[],
         };
         for reference in affected {
-            let reference = reference
-                .as_str()
-                .ok_or("SOURCE_PREVIEW_PHYSICS_STRING_INVALID")?;
+            let reference = text(reference)?;
             if reference.starts_with("result:") {
                 require(rows.contains_key(reference), "DANGLING_RESULT_REF")?;
             }
@@ -335,14 +329,11 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     }
 
     // 4. Cases bind the numerical quality cases.
-    let mut quality_cases = HashSet::new();
-    for case in array(&source["numerical_quality"]["cases"])? {
-        require(
-            case["basis_ref"]["ref_type"] == "load_case"
-                && quality_cases.insert(text(&case["basis_ref"]["ref_id"])?),
-            "NUMERICAL_CASE",
-        )?;
-    }
+    // A2 item 2: same load cases in the same order.
+    let quality_cases: Vec<&Value> = array(&source["numerical_quality"]["cases"])?
+        .iter()
+        .map(|case| &case["basis_ref"]["ref_id"])
+        .collect();
     let mut cases: Vec<&str> = Vec::new();
     for case in preview_cases {
         require(keys(case, CASE_KEYS), "CASE_SHAPE")?;
@@ -351,19 +342,19 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         cases.push(id);
     }
     require(
-        cases.iter().copied().collect::<HashSet<_>>() == quality_cases,
+        cases.len() == quality_cases.len()
+            && cases
+                .iter()
+                .zip(&quality_cases)
+                .all(|(c, q)| q.as_str() == Some(*c)),
         "NUMERICAL_CASE_COVERAGE",
     )?;
-    for row in rows_list {
-        if let Some(case) = case_of(row) {
-            require(cases.contains(&case), "ROW_CASE_UNRESOLVED")?;
-        }
-    }
+    // Load-case rows lying in a preview case is T6 hardening (A3 note).
 
     // A withheld support is announced once per model support (S1 section 8).
     let mut withheld_notices: HashSet<(&str, &str)> = HashSet::new();
     for diagnostic in diagnostics {
-        let code = text(&diagnostic["code"])?;
+        let code = diagnostic["code"].as_str().unwrap_or("");
         if WITHHELD_REASONS.contains(&code) {
             let support = text(&diagnostic["affected_refs"][0])?;
             let kind = if code == WITHHELD_REASONS[0] {
@@ -383,6 +374,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             )?;
         }
     }
+    let mut first_dispositions: Option<(HashSet<&str>, HashSet<(&str, &str)>)> = None;
     let mut coverage_complete = true;
     let mut bound_maxima = HashSet::new();
     let mut bound_intensified = HashSet::new();
@@ -444,7 +436,9 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             }
             require(
                 extrema["span_index"].as_u64().is_some()
-                    && extrema["subdivisions"].as_u64().is_some(),
+                    && extrema["subdivisions"]
+                        .as_u64()
+                        .is_some_and(|n| n <= MAX_SUBDIVISIONS),
                 "EXTREMA_SUBDIVISIONS",
             )?;
             let lower = number(&extrema["value_lower_pa"])?;
@@ -499,6 +493,15 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             records.insert((support, reason));
         }
         require(records == withheld_notices, "SUPPORT_WITHHELD_RECORD")?;
+        // A2 item 3: dispositions are structural, identical in every case.
+        let dispositions = (
+            attributed.iter().copied().collect::<HashSet<_>>(),
+            records.clone(),
+        );
+        match &first_dispositions {
+            Some(first) => require(*first == dispositions, "SUPPORT_ATTRIBUTION_CASE_MISMATCH")?,
+            None => first_dispositions = Some(dispositions),
+        }
         let mut actions: HashMap<&str, HashMap<&str, &Value>> = HashMap::new();
         for row in rows_list.iter().filter(in_case) {
             let kind = row["kind"].as_str().unwrap_or("");
@@ -568,7 +571,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
                 .ok_or("SOURCE_PREVIEW_PHYSICS_INTENSIFIED_RESULT_MISSING")?;
             require(bound_intensified.insert(id), "INTENSIFIED_DUPLICATE")?;
             let location = text(&measure["location"])?;
-            let pipe = text(&measure["pipe_id"])?;
+            text(&measure["pipe_id"])?;
             require(
                 row["kind"] == INTENSIFIED
                     && case_of(row) == Some(case_id)
@@ -587,33 +590,23 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             let my = number(&measure["bending_moment_y_n_m"])?;
             let mz = number(&measure["bending_moment_z_n_m"])?;
             require(sif > 0.0 && z > 0.0, "INTENSIFIED_RANGE")?;
+            let value = number(&row["value"])?;
+            require(value >= 0.0, "INTENSIFIED_NEGATIVE")?; // A3 item 1
             require(
-                guarded(number(&row["value"])?, sif * (my.hypot(mz) / z)),
+                guarded(value, sif * (my.hypot(mz) / z)),
                 "INTENSIFIED_VALUE",
             )?;
-            let refs = strings(&row["source_result_refs"])?;
-            let mut kinds = HashSet::new();
-            for reference in &refs {
+            // S1 section 9 item 8: the refs resolve in the same case. Exactly the
+            // two bending rows is T6 hardening (A3 note).
+            for reference in array(&row["source_result_refs"])? {
                 let source_row = rows
-                    .get(reference)
+                    .get(text(reference)?)
                     .ok_or("SOURCE_PREVIEW_PHYSICS_DANGLING_RESULT_REF")?;
                 require(
-                    source_row["basis_ref"] == row["basis_ref"]
-                        && source_row["entity_ref"] == pipe
-                        && source_row["metadata"]["location"] == location,
+                    source_row["basis_ref"] == row["basis_ref"],
                     "INTENSIFIED_SOURCE_BINDING",
                 )?;
-                kinds.insert(source_row["kind"].as_str().unwrap_or(""));
             }
-            require(
-                refs.len() == 2
-                    && kinds
-                        == HashSet::from([
-                            "element_local_bending_normal_stress_y",
-                            "element_local_bending_normal_stress_z",
-                        ]),
-                "INTENSIFIED_SOURCE_BINDING",
-            )?;
         }
     }
     for row in rows_list {
@@ -717,8 +710,13 @@ fn combination_magnitudes(rows: &[&Value]) -> Check {
                     && c.is_none_or(|c| component(r) == c)
             })
             .collect();
-        require(hits.len() == 1, "COMBINATION_MAGNITUDE_COMPONENTS")?;
-        number(&hits[0]["value"])
+        // A combined support slot must be unique; a nodal component binds the
+        // last matching row (same rule as the Python reader).
+        require(
+            !hits.is_empty() && (kind != SUPPORT_COMPONENT || hits.len() == 1),
+            "COMBINATION_MAGNITUDE_COMPONENTS",
+        )?;
+        number(&hits[hits.len() - 1]["value"])
     };
     for row in rows {
         let entity = &row["entity_ref"];

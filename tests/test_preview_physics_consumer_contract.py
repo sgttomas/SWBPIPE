@@ -518,10 +518,10 @@ def test_a1_c_range_combination_is_exempt_from_magnitude_consistency():
     validate_preview_physics_evidence(source)
 
 
-def test_a1_d_no_fraction_or_certified_gap_bound_is_checked():
+def test_a1_d_no_certified_gap_or_global_bound_is_checked():
     source = envelope()
     extremum = source["contract_evidence"]["preview_cases"][0]["pipe_stress_extrema"][0]
-    extremum.update(station_fraction=1.5, local_fraction=-0.25, certified_gap_pa=0.0, global_upper_bound_pa=0.0)
+    extremum.update(station_fraction=0.0, local_fraction=1.0, certified_gap_pa=0.0, global_upper_bound_pa=0.0, subdivisions=131072)
     validate_preview_physics_evidence(source)
 
 
@@ -615,6 +615,158 @@ def test_a1_tamper_controls(change):
     with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_"):
         _source_contract(source)
     assert numerical_use_standing(source, bases(source)) == "unsupported"
+
+
+# ---- amendment A2 strict list (items 1-10) and the shared tamper vector ----
+
+def _a2_extremum(**values):
+    def change(s):
+        s["contract_evidence"]["preview_cases"][0]["pipe_stress_extrema"][0].update(values)
+    change.__name__ = "_extremum_" + "_".join(f"{k}_{v}" for k, v in values.items())
+    return change
+
+
+def _a2_case_order(s):
+    s["contract_evidence"]["preview_cases"].reverse()
+
+
+def _a2_attribution_differs(s):
+    s["contract_evidence"]["preview_cases"][1]["support_attribution"]["attributed_support_ids"].append("support:EXTRA")
+
+
+def _a2_combination_support_frame(s):
+    next(r for r in s["results"] if r["kind"] == "support_reaction_component_v2" and r["basis_ref"]["ref_type"] == "combination")["metadata"]["coordinate_system"] = "element_local"
+
+
+def _a2_combination_support_location(s):
+    next(r for r in s["results"] if r["kind"] == "support_reaction_component_v2" and r["basis_ref"]["ref_type"] == "combination")["metadata"]["location"] = "end_i"
+
+
+def _a2_combination_support_component(s):
+    next(r for r in s["results"] if r["kind"] == "support_reaction_force_magnitude_v2" and r["basis_ref"]["ref_type"] == "combination")["metadata"]["component"] = "Fx"
+
+
+def _a2_null_affected_refs(s):
+    s["diagnostics"][0]["affected_refs"] = None
+
+
+def _a2_empty_affected_ref(s):
+    s["diagnostics"][0]["affected_refs"].append("")
+
+
+def _a2_empty_sif_source(s):
+    s["contract_evidence"]["preview_cases"][0]["intensified_measures"][0]["sif_source_reference"] = ""
+
+
+def _a2_missing_entity_ref(s):
+    s["results"][0].pop("entity_ref")
+
+
+def _a2_empty_unit(s):
+    s["results"][0]["unit"] = ""
+
+
+@pytest.mark.parametrize("change", [
+    _a2_extremum(station_fraction=1.5), _a2_extremum(local_fraction=-0.25), _a2_extremum(span_index=-1),
+    _a2_extremum(span_index=1.0), _a2_extremum(subdivisions=131073), _a2_extremum(subdivisions=-1), _a2_extremum(subdivisions=True),
+    _a2_case_order, _a2_attribution_differs, _a2_combination_support_frame, _a2_combination_support_location,
+    _a2_combination_support_component, _a2_null_affected_refs, _a2_empty_affected_ref, _a2_empty_sif_source,
+    _a2_missing_entity_ref, _a2_empty_unit,
+], ids=lambda f: f.__name__.strip("_"))
+def test_a2_tamper_controls(change):
+    source = envelope()
+    change(source)
+    with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_"):
+        _source_contract(source)
+    assert numerical_use_standing(source, bases(source)) == "unsupported"
+
+
+def _a3_negative_intensified(s):
+    row = next(r for r in s["results"] if r["kind"] == "component_equal_factor_intensified_bending_stress_v1")
+    measure = next(m for c in s["contract_evidence"]["preview_cases"] for m in c["intensified_measures"] if m["result_id"] == row["id"])
+    # Consistent with its inputs except for the sign: only A3 1 can refuse it.
+    measure.update(bending_moment_y_n_m=0.0, bending_moment_z_n_m=0.0)
+    row["value"] = -1e-300
+
+
+def _a3_attributed_and_withheld(s):
+    for case in s["contract_evidence"]["preview_cases"]:
+        case["support_attribution"]["attributed_support_ids"].append("support:NL")
+
+
+@pytest.mark.parametrize("change", [_a3_negative_intensified, _a3_attributed_and_withheld], ids=lambda f: f.__name__.strip("_"))
+def test_a3_tamper_controls(change):
+    source = envelope()
+    change(source)
+    with pytest.raises(ValueError, match="negative intensified value|support both attributed and withheld"):
+        _source_contract(source)
+    assert numerical_use_standing(source, bases(source)) == "unsupported"
+
+
+def test_a2_6_blocked_modifier_count_is_zero():
+    source = blocked()
+    source["summary"]["component_stress_modifier_count"] = 3
+    with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_"):
+        _source_contract(source)
+
+
+def test_a2_10_standing_validates_before_a_standing_reason():
+    precision = precision_fixture()
+    assert numerical_use_standing(precision, bases(precision)) == "needs_recompute"
+    precision["numerical_quality"]["status"] = "unknown"
+    assert numerical_use_standing(precision, bases(precision)) == "unsupported"
+    mixed, context = _mixed_source_blocks()
+    bases_ = [case["basis_ref"] for case in mixed["source_block_recovery"]["body"]["cases"]]
+    assert numerical_use_standing(mixed, bases_, context) == "needs_recompute"
+    mixed["source_block_recovery"]["receipt_sha256"] = "0" * 64
+    assert numerical_use_standing(mixed, bases_, context) == "unsupported"
+    assert standing_reason(mixed) is None
+
+
+def _pointer(path):
+    return [part.replace("~1", "/").replace("~0", "~") for part in path.split("/")[1:]]
+
+
+def _apply(document, op):
+    *parents, leaf = _pointer(op["path"])
+    target = document
+    for part in parents:
+        target = target[int(part)] if isinstance(target, list) else target[part]
+    key = int(leaf) if isinstance(target, list) and leaf != "-" else leaf
+    if op["op"] == "replace":
+        assert key in range(len(target)) if isinstance(target, list) else key in target, op
+        target[key] = deepcopy(op["value"])
+    elif op["op"] == "add":
+        if isinstance(target, list):
+            index = len(target) if leaf == "-" else int(leaf)
+            assert 0 <= index <= len(target), op
+            target.insert(index, deepcopy(op["value"]))
+        else:
+            target[key] = deepcopy(op["value"])
+    elif op["op"] == "remove":
+        del target[key]
+    elif op["op"] == "reverse":
+        target[key].reverse()
+    else:
+        raise AssertionError(f"unknown op {op['op']}")
+
+
+TAMPER_VECTOR = json.loads((PROJECT / "fixtures/results/preview_physics_tamper_vector.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("variant", TAMPER_VECTOR["variants"], ids=lambda v: v["id"])
+def test_shared_tamper_vector(variant):
+    source = json.loads((PROJECT / TAMPER_VECTOR["bases"][variant["base"]]).read_text(encoding="utf-8"))
+    for op in variant["ops"]:
+        _apply(source, op)
+    if variant["expect"] == "accepted":
+        _source_contract(source)
+        assert numerical_use_standing(source, bases(source)) != "unsupported"
+    else:
+        assert variant["expect"] == "refused"
+        with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_"):
+            _source_contract(source)
+        assert numerical_use_standing(source, bases(source)) == "unsupported"
 
 
 # ---- source-blocks-1 standing (non-composite only) and rule binding ----
@@ -745,8 +897,8 @@ ACTUAL = [PROJECT / f"fixtures/results/preview_physics_{name}_{mode}.json" for n
 
 
 def actual(path):
-    if not path.exists():
-        pytest.skip("actual preview-physics-1 producer output not generated yet")
+    # R2 N8: the producer fixtures are committed; absence is a failure, not a skip.
+    assert path.exists(), f"missing actual preview-physics-1 fixture: {path}"
     return json.loads(path.read_text())
 
 

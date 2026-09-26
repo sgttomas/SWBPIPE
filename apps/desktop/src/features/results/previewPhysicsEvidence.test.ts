@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import connectedSparse from "../../../../../fixtures/results/preview_physics_connected_sparse.json";
 import connectedDense from "../../../../../fixtures/results/preview_physics_connected_dense.json";
@@ -255,5 +257,67 @@ describe("shared unicode id vector (actual producer output)", () => {
       expect(text.includes(from)).toBe(true);
       invalid(JSON.parse(text.replaceAll(from, to)) as MechanicsResult, detail);
     }
+  });
+});
+
+// A2 shared tamper vector: the same variants and expected outcomes as the Rust
+// and Python suites, as RFC 6901 ops over actual producer bases.
+describe("A2 shared tamper vector", () => {
+  const root = resolve(__dirname, "../../../../../");
+  const vector = JSON.parse(readFileSync(resolve(root, "fixtures/results/preview_physics_tamper_vector.json"), "utf8")) as {
+    bases: Record<string, string>;
+    variants: { id: string; base: string; ops: { op: "add" | "replace" | "remove" | "reverse"; path: string; value?: unknown }[]; expect: "accepted" | "refused" }[];
+  };
+  // TS detail per variant: each is refused by the A2 check it targets, not incidentally.
+  const TS_REFUSAL_DETAIL: Record<string, string> = {
+    "V1-station-fraction-above-1": "extrema fractions",
+    "V2-subdivisions-above-cap": "extrema integers",
+    "V3-negative-span-index": "extrema integers",
+    "V4-preview-cases-reordered": "preview case coverage",
+    "V5-combination-support-row-not-global": "combination support row frame",
+    "V6-null-affected-refs": "diagnostic reference list",
+    "V7-blocked-modifier-count-nonzero": "blocked envelope modifier count",
+    "V8-empty-sif-source-reference": "intensified measure identity",
+    "V9-missing-entity-ref": "source row fields",
+    "V10-negative-intensified-value": "negative intensified value",
+    "V11-support-both-attributed-and-withheld": "support both attributed and withheld",
+  };
+  const decode = (token: string) => token.replaceAll("~1", "/").replaceAll("~0", "~");
+  function locate(document: any, pointer: string, forAdd = false): [any, string] {
+    const tokens = pointer.split("/").slice(1).map(decode);
+    const key = tokens.pop()!;
+    let parent = document;
+    for (const token of tokens) {
+      if (parent === null || typeof parent !== "object" || !Object.hasOwn(parent, token)) throw new Error(`TAMPER_POINTER_UNRESOLVED: ${pointer}`);
+      parent = parent[token];
+    }
+    if (parent === null || typeof parent !== "object") throw new Error(`TAMPER_POINTER_UNRESOLVED: ${pointer}`);
+    // RFC 6901/6902 add: the target need not exist; "-" appends to an array.
+    if (!forAdd && !Object.hasOwn(parent, key)) throw new Error(`TAMPER_POINTER_UNRESOLVED: ${pointer}`);
+    return [parent, key];
+  }
+  function apply(document: any, op: { op: string; path: string; value?: unknown }) {
+    const [parent, key] = locate(document, op.path, op.op === "add");
+    if (op.op === "add") {
+      if (Array.isArray(parent)) {
+        const index = key === "-" ? parent.length : Number(key);
+        if (!Number.isInteger(index) || index < 0 || index > parent.length) throw new Error(`TAMPER_ADD_INDEX_INVALID: ${op.path}`);
+        parent.splice(index, 0, structuredClone(op.value));
+      } else parent[key] = structuredClone(op.value);
+    }
+    else if (op.op === "replace") parent[key] = structuredClone(op.value);
+    else if (op.op === "remove") { if (Array.isArray(parent)) parent.splice(Number(key), 1); else delete parent[key]; }
+    else if (op.op === "reverse") { if (!Array.isArray(parent[key])) throw new Error("TAMPER_REVERSE_NOT_ARRAY"); parent[key].reverse(); }
+    else throw new Error(`TAMPER_OP_UNSUPPORTED: ${op.op}`);
+  }
+  it("has 11 variants and 2 unchanged controls", () => {
+    expect(vector.variants.filter(v => v.ops.length === 0 && v.expect === "accepted")).toHaveLength(2);
+    expect(vector.variants.filter(v => v.expect === "refused")).toHaveLength(11);
+  });
+  it.each(vector.variants.map(v => [v.id, v] as const))("%s", (_id, variant) => {
+    const source = JSON.parse(readFileSync(resolve(root, vector.bases[variant.base]), "utf8"));
+    for (const op of variant.ops) apply(source, op);
+    if (variant.expect === "accepted") expect(() => validatePreviewPhysicsEvidence(source)).not.toThrow();
+    else invalid(source, TS_REFUSAL_DETAIL[variant.id]);
   });
 });

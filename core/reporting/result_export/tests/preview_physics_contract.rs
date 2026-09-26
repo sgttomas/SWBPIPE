@@ -502,11 +502,12 @@ fn precision_1_is_readable_but_never_fresh() {
         "openpipestress.result_semantics/0.3.0/source-blocks-1"
     ));
     // Relabelling a fresh envelope as precision-1 does not make it Current.
+    // A2 item 10: a relabelled envelope fails validation first, so it is unsupported.
     let mut relabelled = invented();
     relabelled["producer"]["semantic_contract_id"] = json!(s::PRECISION_ID);
     assert_eq!(
         s::numerical_use_standing(&relabelled, &bases(&relabelled)),
-        "needs_recompute"
+        "unsupported"
     );
 }
 
@@ -653,7 +654,11 @@ fn a1_diagnostic_without_affected_refs_is_allowed() {
     s::for_source(&raw).unwrap();
     let mut null_refs = invented();
     null_refs["diagnostics"][0]["affected_refs"] = Value::Null;
-    s::for_source(&null_refs).unwrap();
+    // A2 item 5: null is refused; so is an empty string entry.
+    refused(&null_refs, "ARRAY_INVALID");
+    let mut empty_entry = invented();
+    empty_entry["diagnostics"][0]["affected_refs"] = json!([""]);
+    refused(&empty_entry, "STRING_INVALID");
     let mut not_array = invented();
     not_array["diagnostics"][0]["affected_refs"] = json!("result:never-emitted");
     assert!(s::for_source(&not_array).is_err());
@@ -667,7 +672,12 @@ fn a1_diagnostic_without_affected_refs_is_allowed() {
 fn shared_unicode_id_vector_is_admitted_and_byte_lengths_are_required() {
     let raw = fixture("preview_physics_unicode_ids_sparse.json");
     s::for_source(&raw).expect("shared unicode id vector is admitted");
-    let ids: Vec<&str> = raw["results"].as_array().unwrap().iter().map(|r| r["id"].as_str().unwrap()).collect();
+    let ids: Vec<&str> = raw["results"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|r| r["id"].as_str().unwrap())
+        .collect();
     for expected in [
         "result:support-action:7:load:é:11:support:锚:Fx",
         "result:elastic-maximum:7:load:é:10:pipe:α-β",
@@ -677,15 +687,129 @@ fn shared_unicode_id_vector_is_admitted_and_byte_lengths_are_required() {
     ] {
         assert!(ids.contains(&expected), "{expected}");
     }
-    let diagnostics: Vec<&str> = raw["diagnostics"].as_array().unwrap().iter().map(|d| d["id"].as_str().unwrap()).collect();
-    assert!(diagnostics.contains(&"diagnostic:preview-physics:constant-effort-not-consumed:13:support:ü-ce"));
+    let diagnostics: Vec<&str> = raw["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|d| d["id"].as_str().unwrap())
+        .collect();
+    assert!(diagnostics
+        .contains(&"diagnostic:preview-physics:constant-effort-not-consumed:13:support:ü-ce"));
     // Character-count lengths (é is 2 bytes, 𝔫 is 4) must be refused.
     let text = serde_json::to_string(&raw).unwrap();
     for (bytes, chars) in [
-        ("result:elastic-maximum:7:load:é:", "result:elastic-maximum:6:load:é:"),
-        ("constant-effort-not-consumed:13:support:ü-ce", "constant-effort-not-consumed:12:support:ü-ce"),
+        (
+            "result:elastic-maximum:7:load:é:",
+            "result:elastic-maximum:6:load:é:",
+        ),
+        (
+            "constant-effort-not-consumed:13:support:ü-ce",
+            "constant-effort-not-consumed:12:support:ü-ce",
+        ),
     ] {
         let tampered: Value = serde_json::from_str(&text.replace(bytes, chars)).unwrap();
-        assert!(s::for_source(&tampered).is_err(), "character-count id admitted: {chars}");
+        assert!(
+            s::for_source(&tampered).is_err(),
+            "character-count id admitted: {chars}"
+        );
     }
+}
+
+/// A2 shared tamper vector: every reader applies the same RFC 6901 ops to the
+/// same actual producer bases and gives the listed outcome.
+#[test]
+fn a2_shared_tamper_vector() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let read = |path: &str| -> Value {
+        serde_json::from_str(&std::fs::read_to_string(root.join(path)).unwrap()).unwrap()
+    };
+    let vector = read("fixtures/results/preview_physics_tamper_vector.json");
+    let variants = vector["variants"].as_array().unwrap();
+    assert_eq!(variants.len(), 13);
+    for variant in variants {
+        let id = variant["id"].as_str().unwrap();
+        let base = vector["bases"][variant["base"].as_str().unwrap()]
+            .as_str()
+            .unwrap();
+        let mut source = read(base);
+        for op in variant["ops"].as_array().unwrap() {
+            let path = op["path"].as_str().unwrap();
+            match op["op"].as_str().unwrap() {
+                "replace" => {
+                    *source
+                        .pointer_mut(path)
+                        .unwrap_or_else(|| panic!("{id}: {path}")) = op["value"].clone();
+                }
+                "remove" => {
+                    let (parent, key) = path.rsplit_once('/').unwrap();
+                    let key = key.replace("~1", "/").replace("~0", "~");
+                    match source.pointer_mut(parent).unwrap() {
+                        Value::Object(map) => {
+                            assert!(map.remove(&key).is_some(), "{id}: {path}");
+                        }
+                        Value::Array(items) => {
+                            items.remove(key.parse::<usize>().unwrap());
+                        }
+                        _ => panic!("{id}: {path}"),
+                    }
+                }
+                "add" => {
+                    let (parent, key) = path.rsplit_once('/').unwrap();
+                    let key = key.replace("~1", "/").replace("~0", "~");
+                    match source.pointer_mut(parent).unwrap() {
+                        Value::Object(map) => {
+                            map.insert(key, op["value"].clone());
+                        }
+                        Value::Array(items) if key == "-" => items.push(op["value"].clone()),
+                        Value::Array(items) => {
+                            items.insert(key.parse::<usize>().unwrap(), op["value"].clone())
+                        }
+                        _ => panic!("{id}: {path}"),
+                    }
+                }
+                "reverse" => source
+                    .pointer_mut(path)
+                    .and_then(Value::as_array_mut)
+                    .unwrap_or_else(|| panic!("{id}: {path}"))
+                    .reverse(),
+                other => panic!("{id}: unknown op {other}"),
+            }
+        }
+        match variant["expect"].as_str().unwrap() {
+            "accepted" => {
+                s::for_source(&source).unwrap_or_else(|e| panic!("{id}: {e}"));
+            }
+            "refused" => assert!(s::for_source(&source).is_err(), "{id} was accepted"),
+            other => panic!("{id}: unknown expectation {other}"),
+        }
+    }
+}
+
+#[test]
+fn a2_attribution_identical_in_every_case_and_standing_order() {
+    // A2 item 3: dropping a support consistently from one case alone is refused.
+    let mut raw = invented();
+    let support = "support:S-100";
+    rows(&mut raw).retain(|r| {
+        !(r["entity_ref"] == support
+            && r["basis_ref"]["ref_id"] == "load:L-200"
+            && r["kind"].as_str().unwrap().starts_with("support_reaction_"))
+    });
+    case(&mut raw, "load:L-200")["support_attribution"]["attributed_support_ids"]
+        .as_array_mut()
+        .unwrap()
+        .retain(|s| s != support);
+    refused(&raw, "SUPPORT_ATTRIBUTION_CASE_MISMATCH");
+    // A2 item 10: a tampered historical source is unsupported, a valid one needs_recompute.
+    let precision = fixture("precision_connected_ui_mechanics_sparse.json");
+    assert_eq!(
+        s::numerical_use_standing(&precision, &bases(&precision)),
+        "needs_recompute"
+    );
+    let mut tampered = precision.clone();
+    tampered["numerical_quality"]["value_representation"] = json!("decimal");
+    assert_eq!(
+        s::numerical_use_standing(&tampered, &bases(&precision)),
+        "unsupported"
+    );
 }
