@@ -199,3 +199,13 @@ ROOT confirms the selection with the package.
 ## T1 merged (ROOT, 2026-09-26)
 
 T1's PR963 is on main as `5aa4285c2`. The T1-overlap hold is lifted. origin/main is merged into the T3 branch before the first product-wiring slice (S11-F, then S-D and the rest). The numerics worktree's product basis moves from `c61a540ea` to `5aa4285c2` at that merge, and D1 and V1 cite the new line numbers from then on. S11-K opens its PR against main once I1 returns, and diffs T1's merged fixtures as pre-registered.
+
+### D-15 option C (ROOT, crossing message)
+
+**ROOT rules C within delegated correctness authority**, under one binding constraint.
+
+- **Conservative binding.** A rule bound to q ± b is satisfied only if it holds for every value in [q − b, q + b]. Otherwise it fails or reads indeterminate. It can never turn a failing check into a passing one.
+- **Why no owner question arises.** With that constraint, C affects only rows that would otherwise be withheld under A. It restores their usability with a verified bound, b = 2^-64·S\*, and does not change how any currently covered row binds. It is a correctness-preserving restoration of today's capability, not a new product semantic. An owner question would arise only if C changed how covered rows bind, or let a bound-straddling result pass.
+- **Gate condition 3 is tightened** to compare row-level standing: per-case withheld counts for both identities, not just envelope standing.
+- V1's BACKCHECK_R4 checks the conservative-binding rule, including its indeterminate case, and whether any withheld row is a nonzero value a user would rely on.
+- This goes into the selection package.
