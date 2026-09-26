@@ -1,8 +1,8 @@
 # T3 selection package (DRAFT)
 
 T3 WORKING_ITEMS manager for ROOT, 2026-09-26. **Status: DRAFT.** R5-4 is pre-accepted. Still pending:
-- V1's verification of those items;
-- I1's S11-K pre-regeneration report.
+- V1's targeted verification of D1 5a.1 and D2 5b.1, and of R5-4's four conditions;
+- S11-K (under implementation): I1's regeneration, then the independent review (RV1) and the PR gates.
 
 The follow-up has landed (D1 5a.1, D2 5b.1); §2 lists the final design revisions. Nothing here is selected until ROOT records a selection.
 
