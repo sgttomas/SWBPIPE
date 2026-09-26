@@ -199,3 +199,11 @@ Every check below is a true invariant of honest producer output, verified on all
 **Shared tamper vector:** `P/fixtures/results/preview_physics_tamper_vector.json` holds R2's 9 variants and 2 unchanged controls, as RFC 6901 ops (`replace`, `remove`, `reverse`) over actual producer bases. Every reader's test suite applies every variant and asserts the listed outcome.
 
 **Report wire gate** (R2 N3): the report-package wire carries no semantic identity, so the Rust gate refuses by fresh-only metadata content. It is defence in depth behind the TS identity gate, which refuses by identity.
+
+### A3 — 2026-09-26: two further invariants (ROOT ruling on S4's A2 return)
+
+All three readers also refuse:
+1. an intensified row with `value < 0`. The value is `i·hypot/Z` with `i > 0`.
+2. a support that is both attributed and withheld in the same case.
+
+The shared tamper vector gains V10 (a negative intensified value) and V11 (a support both attributed and withheld). V11 uses an RFC 6901 `add` with `-` (append). Further invariants S4 dropped are recorded in the S6 notes as follow-up hardening for T6: intensified `source_result_refs` being exactly the two bending rows, load-case rows lying in a preview case, the `basis_ref` kind, and unique diagnostic ids.

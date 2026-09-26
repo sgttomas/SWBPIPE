@@ -1,5 +1,5 @@
 {
-  "description": "T0R S1 amendment A2 shared tamper vector. Each variant applies its ops (RFC 6901 JSON pointers) to a copy of its base fixture; every reader (Rust, Python, TS) must give the expected outcome. Bases are actual producer output.",
+  "description": "T0R S1 amendments A2/A3 shared tamper vector. Each variant applies its ops (RFC 6901 JSON pointers) to a copy of its base fixture; every reader (Rust, Python, TS) must give the expected outcome. Bases are actual producer output. Ops: replace, remove, reverse, and add (append with '-').",
   "bases": {
     "unicode": "fixtures/results/preview_physics_unicode_ids_sparse.json",
     "blocked": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json"
@@ -119,6 +119,33 @@
         {
           "op": "remove",
           "path": "/results/0/entity_ref"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V10-negative-intensified-value",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/132/value",
+          "value": -1.0
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V11-support-both-attributed-and-withheld",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "add",
+          "path": "/contract_evidence/preview_cases/0/support_attribution/withheld/-",
+          "value": {
+            "support_id": "support:锚",
+            "reason": "CONSTANT_EFFORT_NOT_CONSUMED"
+          }
         }
       ],
       "expect": "refused"

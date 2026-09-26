@@ -11,6 +11,8 @@ thread_local! { static ACTIVE: Cell<bool> = const { Cell::new(false) }; }
 
 pub(super) fn active() -> bool { ACTIVE.with(Cell::get) }
 
+/// Suspends, for the named in-crate test only, both refusals this scope covers:
+/// the legacy nonzero-pressure refusal and (T0R) the realized-joint refusal.
 pub(super) fn with_scope<T>(operation: impl FnOnce() -> T) -> T {
     struct Restore(bool);
     impl Drop for Restore { fn drop(&mut self) { ACTIVE.with(|active| active.set(self.0)); } }

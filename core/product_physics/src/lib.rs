@@ -11813,6 +11813,10 @@ mod tests {
     // Independent Decimal 30-DOF strain-energy/reference branch enumeration froze both
     // cases and reversal before product execution. Original historical constants remain
     // in their original test; this current companion tests the explicit pressure-free premise.
+    // T0R (R2 N4): despite the historical "current" name, this is now a retained
+    // historical premise. Its frozen oracle includes the refused joint C-150, so it
+    // runs inside `historical_pressure_reference::with_scope`, which suspends both
+    // the legacy-pressure refusal and the joint refusal for named tests only.
     #[test]
     fn current_composite_derived_normal_friction_and_reversal() {
         for mode in [
