@@ -7,4 +7,4 @@ Owner-directed Root tranche `ROOT-PACKAGE-HOME-D-GOV-48-20260926` (`docs/governa
 
 In-flight decompositions keep the rule and edition they adopted; nothing is retrofitted. This loop decides its own adoption; this source tranche grants no release.
 
-Piping-specific: the XRG family skips this loop because it has no `ScopeLedger.csv`; no finding is reported.
+Piping-specific: the XRG family skips this loop because it has no `_Decomposition/ScopeLedger.csv` under its execution root. Piping's register ledger (`docs/_Registers/ScopeLedger.csv`, 79 IN items, each with a `PackageID`) already conforms.
