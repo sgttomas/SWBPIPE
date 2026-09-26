@@ -55,3 +55,15 @@ These terms apply to every T1 wave-1 brief (`T1_*.md`) in this folder.
   - anything not done;
   - design questions.
 - Then `SendMessage` the manager a short summary and the path.
+
+## Wave 2 (after the T0R merge, `CHECKPOINT_6.md`)
+
+These terms supersede the wave-1 T0R reservation above. They apply to the wave-2 briefs (`T1_WP2_*`, `T1_WP3_NATIVE_INPUTS`, `T1_WP4_*` and their reviews).
+
+- **Base.** Start from `9e1103809` or later. T0R `preview-physics-1` is on this branch and is the ordinary default route for non-0.4.0 models. `DEFAULT_ROUTE_DESIGN/DESIGN.md` §10 and `DEFAULT_ROUTE_DESIGN/IMPLEMENTATION/S6_RECORD.md` describe it.
+- **Identities.** `load-reference-1` and `load-reference-source-1` are in the static fresh set in all three languages. They are 0.4.0 exact-route identities only. Every 0.4.0 envelope, blocked ones included, carries one of them.
+- **Standing.** In every language the order is: reader validation, then T0R's standing reason, then T1's declared early `needs_recompute` for `load-reference-source-1`. Joined results are never numerically eligible in T1; that is T3's open work. Do not change T0R's standing, rule-binding or export-refusal semantics. Adding T1 identities to their dispatch is allowed; anything else goes to the manager.
+- **Still reserved.** Product headline and maxima selection, `preview_physics.rs`, and the source-blocks readers. The M07 joint repair belongs to T4.
+- **Build.** Use the shared target named in the spawn request, with `CARGO_INCREMENTAL=0`, instead of a private target. Check `df` first. Keep more than about 8 GB free. When no cargo process is running, you may prune `<target>/*/incremental`. ROOT may place a hold on heavy cargo; honour it.
+- **Desktop.** This worktree has no `node_modules`. The spawn request names a sibling worktree with the same `package-lock.json`. You may symlink its `node_modules` (at the root and `apps/desktop/`) into this worktree, and you must remove the links before you return. Build the wasm engine from this tree (`npm run build:wasm --workspace apps/desktop`, against the shared target); its output is gitignored.
+- **Standing rules.** No skipped or `.only` tests, no raised timeouts, and no edited references, oracles or goldens to get a pass.
