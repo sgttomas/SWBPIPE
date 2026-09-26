@@ -10,4 +10,4 @@ Owner-authorized Root tranche `ROOT-WORKFLOW-WAVE2A-CLOSURE-20260926` revises th
 - `bounded-reconciliation` cites the Concordance §3.1 claim-granularity tests, returns edits to the owning path for CHECKING, ISSUED or frozen-run deliverables, and distinguishes navigation pointers from authority pins.
 - Catalog display names change: `reconciliation` is "Run corpus concordance program" and `review` is "Lifecycle transition review".
 
-Historical runs are not rewritten. This loop decides its own adoption; this source tranche grants no release.
+Historical runs are not rewritten, and runs that pinned the earlier reconciliation bytes (for example App D-APP-128 and Piping D-73) keep their pinned basis until their owning loop adopts this revision. This loop decides its own adoption; this source tranche grants no release.
