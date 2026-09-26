@@ -167,3 +167,21 @@ Input: [REVIEW/BACKCHECK_R3.md](REVIEW/BACKCHECK_R3.md). Verdict FINDINGS, nothi
   - N-4: S11-K's PR record carries the diff sizes.
   - N-5: the refusal codes are aligned.
 - **Next.** V1 narrowly backchecks revision 4 together with D5_TRIGGER. That is the last design check before the package.
+
+## D-5 (ROOT, 2026-09-26, after `7dc2655f9`)
+
+Input: [DESIGN_NUMERICS/D5_TRIGGER.md](DESIGN_NUMERICS/D5_TRIGGER.md).
+
+1. **Hard requirement: D1's reading is confirmed.** The VP-ROBUST "no Passed breach" gate names RF-CANCEL's 12 load-fold breaches as S11 exceptions until S11-F lands. They are covered by the S11 no-interim ruling and fixed by S11-K and S11-F, not by D-5. Once S11-F merges, the exceptions are removed and the gate must hold with none.
+2. **V1** starts on D5_TRIGGER now, and answers three questions:
+   - why the emulated error is 4–8× smaller than the product's observed 2.43;
+   - whether EF's extended-precision re-formation can itself be wrong in the band;
+   - whether (a2) can miss a formation-class breach that the 51 emulated cases do not represent.
+
+   V1 checks revision 4 narrowly when it lands. That remains the last design check.
+3. **D-5: pre-accepted, option O1.** (a2), the formation-error estimate, lands early as K-D5 after K3. It is kernel-local and T1-disjoint, and routes to W1 after F2. No interim measure before K-D5. **O2 is rejected**, because it withholds Current from correct models. Conditions:
+   - V1 returns CLEAR on D5_TRIGGER, or its findings are fixed;
+   - revision 4's combined withholding figure (D-5 plus R3B-2) does not show broad loss of Current on realistic models; if it does, ROOT takes the combined question to the owner;
+   - K-D5's thresholds come from product data, and P1's measured 122 case is a required true positive in K-D5's tests.
+
+ROOT confirms the selection with the package.
