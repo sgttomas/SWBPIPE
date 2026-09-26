@@ -20,7 +20,7 @@ fn request() -> serde_json::Value {
 
 fn run(value: serde_json::Value, mode: PreviewSolverMode, per_case_limit: usize, invocation_limit: usize) -> (MechanicsEnvelope, SourceRecoveryBudget) {
     let (request, capture) = source_receipt::CapturedInvocation::parse(value, mode).unwrap();
-    let mut budget = SourceRecoveryBudget { per_case_limit, invocation_limit, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0 };
+    let mut budget = SourceRecoveryBudget { per_case_limit, invocation_limit, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, ..Default::default() };
     let result = run_linear_static_preview_captured(request, mode, Some(&capture), &mut budget);
     (result, budget)
 }

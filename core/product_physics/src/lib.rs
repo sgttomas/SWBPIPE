@@ -815,11 +815,31 @@ struct SourceRecoveryBudget {
     publication_charged: usize,
     rejected: usize,
     attempts: usize,
+    /// 0.4.0 only (ROOT CP3 SF-1): when set, this invocation publishes every
+    /// case on its ordinary route; a successful retained-source attempt is
+    /// declined with this cause instead of being selected.
+    load_state_join_withheld: Option<String>,
+    /// 0.4.0 only: the first cause for which a selected join could not
+    /// finalize. The captured route then republishes ordinarily.
+    load_state_join_failure: Option<String>,
 }
 impl Default for SourceRecoveryBudget {
-    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0 } }
+    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None } }
 }
 impl SourceRecoveryBudget {
+    /// A fresh ledger with the same closed limits; executed work is never
+    /// refunded into it, because the fallback invocation is a separate run.
+    fn withholding_load_state_join(&self, cause: String) -> Self {
+        Self {
+            per_case_limit: self.per_case_limit,
+            invocation_limit: self.invocation_limit,
+            load_state_join_withheld: Some(cause),
+            ..Default::default()
+        }
+    }
+    fn record_load_state_join_failure(&mut self, cause: String) {
+        self.load_state_join_failure.get_or_insert(cause);
+    }
     fn case_limit(&self) -> usize { self.per_case_limit.min(self.invocation_limit.saturating_sub(self.charged)) }
     fn reserve_publication(&mut self, amount: usize) -> Result<(), open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport> {
         if amount > self.invocation_limit.saturating_sub(self.charged) {
@@ -1400,6 +1420,42 @@ fn run_linear_static_preview_captured(
     capture: Option<&source_receipt::CapturedInvocation>,
     source_budget: &mut SourceRecoveryBudget,
 ) -> MechanicsEnvelope {
+    // ROOT CP3 SF-1 (0.4.0 only): an invocation whose selected join cannot
+    // finalize never loses its ordinary results. It is republished with every
+    // case on its ordinary route (`load-reference-1`, no receipt); each
+    // successful retained-source attempt is declined with the recorded cause.
+    // Pre-0.4 invocations keep their existing behaviour and bytes.
+    let fallback_request = (capture.is_some()
+        && case_state::is_load_state(&request.model)
+        && source_budget.load_state_join_withheld.is_none())
+    .then(|| request.clone());
+    let envelope =
+        run_linear_static_preview_captured_once(request, solver_mode, capture, source_budget);
+    match (
+        fallback_request,
+        source_budget.load_state_join_failure.clone(),
+    ) {
+        (Some(request), Some(cause)) => {
+            let mut fallback = source_budget.withholding_load_state_join(cause);
+            let envelope = run_linear_static_preview_captured_once(
+                request,
+                solver_mode,
+                capture,
+                &mut fallback,
+            );
+            *source_budget = fallback;
+            envelope
+        }
+        _ => envelope,
+    }
+}
+
+fn run_linear_static_preview_captured_once(
+    request: LinearStaticPreviewRequest,
+    solver_mode: PreviewSolverMode,
+    capture: Option<&source_receipt::CapturedInvocation>,
+    source_budget: &mut SourceRecoveryBudget,
+) -> MechanicsEnvelope {
     let mut model = request.model;
     let request_materials_supplied = !request.materials.is_empty();
     let mut materials = if request.materials.is_empty() {
@@ -1897,7 +1953,15 @@ fn run_linear_static_preview_captured(
             };
             match finalized {
                 Ok(receipt) => envelope.source_block_recovery = Some(receipt.into_wire()),
-                Err(error) => envelope.diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![])),
+                Err(error) => {
+                    if joined_load_state {
+                        source_budget.record_load_state_join_failure(format!(
+                            "invocation receipt: {}",
+                            error.0
+                        ));
+                    }
+                    envelope.diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![]))
+                }
             }
         }
     }
@@ -2290,14 +2354,38 @@ fn solve_load_case(
     let source_eligible = capture.is_some() && built.nonlinear_supports.is_empty() && model.combinations.is_empty();
     if source_eligible && needs_source_recovery {
         source_budget.attempts += 1;
-        match source_recovery::solve(recovery_input(), open_pipe_stress_frame_kernel::structural::exact_boundary::Limits { operations: source_budget.case_limit(), ..Default::default() }) {
+        let case_limit = source_budget.case_limit();
+        let attempt = source_recovery::solve(
+            recovery_input(),
+            open_pipe_stress_frame_kernel::structural::exact_boundary::Limits {
+                operations: case_limit,
+                ..Default::default()
+            },
+        )
+        .and_then(|recovery| match load_state {
+            // Pre-0.4 selection is unchanged.
+            None => Ok(recovery),
+            // ROOT CP3 SF-1: the invocation publishes ordinarily.
+            Some(_) if source_budget.load_state_join_withheld.is_some() => {
+                Err(recovery.decline_withheld())
+            }
+            // ROOT CP3 SF-1: captured replay repeats the live attempt's work
+            // in the same ledger, so selection first reserves an equal
+            // amount; a case is selected only when that replay fits.
+            Some(_) => recovery.reserve_captured_replay(case_limit),
+        });
+        match attempt {
             Ok(recovery) => selected_source = Some(recovery),
             Err(failure) => {
                 source_budget.debit(failure.work.charged, true);
+                let withheld = match (&load_state, &source_budget.load_state_join_withheld) {
+                    (Some(_), Some(cause)) => format!("; the invocation publishes every case on its ordinary route because its selected join could not finalize: {cause}"),
+                    _ => String::new(),
+                };
                 diagnostics.push(diag(
                     &format!("diagnostic:source-recovery:{}", load_case.id),
                     "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", "info",
-                    format!("The bounded retained-source method did not produce a selected response: {failure:?}"),
+                    format!("The bounded retained-source method did not produce a selected response: {failure:?}{withheld}"),
                     vec![load_case.id.clone()],
                 ));
                 source_failure = Some(failure);
@@ -3340,6 +3428,12 @@ fn solve_load_case(
             }
             Err(error) => {
                 if source_selected {
+                    if load_state.is_some() {
+                        source_budget.record_load_state_join_failure(format!(
+                            "case {}: {}",
+                            load_case.id, error.0
+                        ));
+                    }
                     if let Some(work) = error.1 { source_budget.debit(work.charged, true); }
                     diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:finalization", load_case.id), "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![load_case.id.clone()]));
                 }

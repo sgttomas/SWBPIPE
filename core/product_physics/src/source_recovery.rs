@@ -187,6 +187,45 @@ impl SelectedSourceRecovery {
         Ok(result)
     }
 
+    /// ROOT CP3 SF-1 (resolved load/reference-state cases only). Captured
+    /// replay continues this attempt's own ledger and repeats its source
+    /// closure and exact solve, so its work is bounded by the live charge.
+    /// Selection first reserves that amount: the case is selected only when
+    /// the remaining limit still covers it. Otherwise the attempt is declined
+    /// as a budget refusal whose rejected work is the unreserved replay. This
+    /// does not by itself guarantee every later finalization stage; a join
+    /// that still cannot finalize is published on the ordinary route.
+    pub fn reserve_captured_replay(self, limit: usize) -> Result<Self, RecoveryFailure> {
+        let charged = self.summary.work.charged;
+        if charged <= limit.saturating_sub(charged) {
+            return Ok(self);
+        }
+        Err(RecoveryFailure {
+            stage: "captured replay reservation",
+            helper_stage: AttemptStage::Replay,
+            error: RecoveryError::Exact(exact::Error::Budget),
+            work: exact::WorkReport {
+                charged,
+                rejected: charged,
+                limit,
+            },
+        })
+    }
+
+    /// ROOT CP3 SF-1: the invocation's selected join could not finalize, so
+    /// its republication declines every successful attempt. The executed work
+    /// stays charged; nothing is selected or published from this response.
+    pub fn decline_withheld(self) -> RecoveryFailure {
+        RecoveryFailure {
+            stage: "invocation join withheld",
+            helper_stage: AttemptStage::Replay,
+            error: RecoveryError::Unsupported(
+                "selected join could not finalize for this invocation",
+            ),
+            work: self.summary.work,
+        }
+    }
+
     /// Final row binding and receipt hashing are part of the same bounded attempt.
     pub fn charge_finalization(&mut self, operations: usize) -> Result<(), RecoveryFailure> {
         let result = self.budget.charge(AttemptStage::Replay, operations);
