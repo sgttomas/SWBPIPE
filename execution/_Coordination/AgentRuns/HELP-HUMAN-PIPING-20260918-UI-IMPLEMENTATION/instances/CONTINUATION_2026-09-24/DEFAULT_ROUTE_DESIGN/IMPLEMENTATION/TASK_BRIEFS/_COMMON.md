@@ -1,0 +1,13 @@
+# Common terms for T0R implementing TASKs
+
+You are a TASK (Type 2) under the T0R WORKING_ITEMS manager (your manager; ROOT gives you its agent id). Read `agents/AGENT_TASK.md`, Root `AGENTS.md` and `projects/chirality-piping/AGENTS.md` in the worktree, then your brief.
+
+- **Worktree:** `/home/user/wt/engine`, branch `claude/inspiring-ptolemy-zxofd6`. Other TASKs and the manager edit other files in the same worktree at the same time. Write only inside your brief's write boundary. Never revert, format, stage or "fix" a file outside it; if you need a change outside it, ask the manager.
+- **No Git writes.** Do not commit, stage, stash, reset, checkout or rebase. The manager integrates and commits. Report your changed-file list.
+- **Contract:** `DEFAULT_ROUTE_DESIGN/IMPLEMENTATION/S1_INTERFACE.md` (frozen), over `DEFAULT_ROUTE_DESIGN/DESIGN.md` revision 3 and the binding amendments F-1 and N-A in `ROOT_SELECTION.md`. If the interface is ambiguous or wrong, ask the manager by SendMessage; do not invent a variant.
+- **Frozen:** `references.py`, `_run_records/references.stdout.txt`, every existing fixture, table, tolerance and protected test. Never weaken a protected criterion or test, and never change a fixture or reference to match an observation. Changing a test expectation is allowed only where the test pins behaviour that T0R deliberately retires (e.g. precision-1 read as Current); say so per test in your return.
+- **No agent-invented defaults;** never populate material or component libraries or code rules.
+- **Resources:** disk is shared (~15 GB free). Use `CARGO_TARGET_DIR=/home/user/wt/t0r-<your slice>` and `CARGO_BUILD_JOBS=2`, run targeted tests, and delete your target directory when done. Python venv `/home/user/dec025-venv`; Node at `/opt/node24` (`export PATH=/opt/node24/bin:$PATH`). This Linux host cannot compile `apps/desktop/src-tauri` (no WebKitGTK); say which edits there are uncompiled.
+- **Paths:** keep absolute machine paths out of committed files. Store probes as `.txt`, never as a `Cargo.toml` or `.rs` file outside a crate.
+- **Producer output:** the manager is writing the producer (S2a) in parallel. Until it lands, build reader tests from the interface with hand-built envelopes that follow S1 exactly. When the manager tells you the producer commit, add tests over the actual fixtures `P/fixtures/results/preview_physics_connected_{sparse,dense}.json` (and, for S4/S5, the invented-demo pair).
+- **Return:** one SendMessage to your manager when done (short progress messages only at real blockers): changed files; what each check ran, with counts and raw failures; test expectations you changed and why; consumer sites you found beyond DESIGN §6; anything uncompiled or unverified; open questions.
