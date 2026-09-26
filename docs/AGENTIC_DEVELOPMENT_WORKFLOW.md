@@ -49,9 +49,9 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 | `AGENTS.md` | Project mapping of Chirality roles to OpenPipeStress work. | It does not redefine the canonical agent framework. |
 | The newest `loop/WORKPLAN_*.md` (entry via `loop/LOOP_INIT.md`) | Current entry protocol, work selection from deliverable folders, bounded execution discipline, validation, and handoff rules. | Handoff prose is not substitute authority. |
 | `execution/_Coordination/_COORDINATION.md` | Ruled workflow records: the current target stage and the `DEC-040` state-tracking augmentation. | A record surface, not the operative protocol. |
-| `execution/_DAG/_LATEST.md` and approved DAG records | Active dependency graph authority and approved edge context. | DAG approval does not dispatch Type 2 work, change lifecycle state, promote candidates, or create release/professional claims (PRD §21.2). |
+| `execution/_DAG/_LATEST.md` and approved DAG records | The accepted current project DAG version and its edge context. It governs blockers only while current with local dependency evidence; departures are audited and decided by the human (D-GOV-49). | DAG approval does not dispatch Type 2 work, change lifecycle state, promote candidates, or create release/professional claims (PRD §21.2). |
 | `execution/_Decomposition/SOFTWARE_DECOMP.md` and `docs/_Registers/*.csv` | Package, deliverable, scope, objective, and context-budget truth. | Do not renumber, reinterpret, or silently expand scope. |
-| Deliverable-local `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `MEMORY.md`, and `_run_records/**` | Selected deliverable context, lifecycle state, references, dependency evidence, working memory, and execution evidence. | Local records do not supersede decomposition, DAG, review, or human approval authority. |
+| Deliverable-local `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `MEMORY.md`, and `_run_records/**` | Selected deliverable context, lifecycle state, references, dependency evidence, working memory, and execution evidence. | Local records do not supersede decomposition, review, or human approval authority. Local dependency files are the dependency evidence; a departure from the accepted DAG triggers a currency audit and a human decision, not a silent override either way. |
 | Human project authority and formal review/change records | Binding decisions, lifecycle gates, acceptance, release decisions, and scope amendments. | Software, agents, and deterministic tools provide evidence only. |
 
 ## Role Map
@@ -389,7 +389,7 @@ Warnings and open TBDs:
 ```
 
 The handoff is evidence for review. It does not change decomposition truth,
-DAG authority, lifecycle state, release status, maintainer authority, legal
+the accepted DAG version, lifecycle state, release status, maintainer authority, legal
 policy, or engineering reliance status by itself.
 
 For completed validated development tranches, the handoff must include or be
