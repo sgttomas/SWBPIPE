@@ -380,4 +380,4 @@ Input: [REVIEW/BACKCHECK_R5.md](REVIEW/BACKCHECK_R5.md). Verdict FINDINGS, nothi
 
 ## RF-ELOAD selection (ROOT, 2026-09-26)
 
-RF-ELOAD revision 1 at `b6927f783` is selected and frozen: see `ROOT_SELECTION_ELOAD.md`. The N1 and N2 wording errata are recorded there and not applied. The COMB-DIFF ruling-text correction to |Mb_A − Mb_B| (dated above) is ROOT's.
+RF-ELOAD revision 1 at `b6927f783` is selected and frozen: see `ROOT_SELECTION_RF_ELOAD.md`. The N1 and N2 wording errata are recorded there and not applied. The COMB-DIFF ruling-text correction to |Mb_A − Mb_B| (dated above) is ROOT's.
