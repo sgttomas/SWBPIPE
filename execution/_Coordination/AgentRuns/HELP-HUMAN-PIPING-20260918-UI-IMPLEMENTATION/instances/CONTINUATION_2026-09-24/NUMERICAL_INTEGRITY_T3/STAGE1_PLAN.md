@@ -56,3 +56,14 @@ None are needed to start stage 1. `STAGE0_MAP.md` §5.3 names the one foreseeabl
 1. The two T0R carries in `STAGE0_MAP.md` §2.8 (source-blocks-1 re-homing and the abs-sum summary) are T3 scope. T0R's selection routes them here, but the graph's T3 row does not list them.
 2. The two-design split in §1, and the six TASKs in §2.
 3. The M03 nonlinear items (mixed recovery basis, general mixed-device gap classification) stay on T5 with M06.
+
+## 8. ROOT's answers at checkpoint 0 (2026-09-26)
+
+ROOT accepted checkpoint 0 and pushed `e14f7fd13`. It spawned D1, D2 and R1 from these briefs, each returning to this manager and each under the host hold. R1 is bound to product-source independence and standard-library Python only.
+
+1. **Confirmed.** The two T0R source-blocks-1 carries are T3 scope: the selected-plus-ordinary legacy-semantics standing and the abs-sum summary. ROOT told D2, and will add them to the graph's T3 row in its next records PR.
+2. **Confirmed.** The D1/D2 split and the six-TASK sequence.
+3. **Confirmed.** The M03 nonlinear items (mixed recovery basis, mixed-device gap classification) stay on T5.
+4. **Comparison predicates.** ROOT agrees: protected predicates stay unchanged; new T3 cases use the existing `1e-9 · max(|exp|, scale)` form. Options come to ROOT only if a design shows a protected predicate is wrong.
+
+The host stays held until ROOT reports that the T1 sweep has finished. The manager then releases the TASKs for builds and probes.
