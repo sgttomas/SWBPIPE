@@ -25,7 +25,7 @@ The package sits beside the frozen `T3/REFERENCES/**` (R1). That package was rea
 | Represented basis | `RF-ELOAD-CANCEL-SEIS-G1e7` and `RF-ELOAD-CANCEL-SEIS-G1e8` (§7, finding 1) |
 | Python | 3.11.15 (CPython), standard library only, about 3 s |
 
-Files. The hashes are in `_run_records/SHA256SUMS`.
+Files. The hashes are in `_run_records/SHA256SUMS`. Its paths are relative to the `REFERENCES_ELOAD/` root, so verify it from there: `cd REFERENCES_ELOAD && sha256sum -c _run_records/SHA256SUMS`.
 
 - `references_eload.py`: the derivation, standard library only and deterministic.
   - `python3 references_eload.py` regenerates `references_eload.json` next to itself and prints the run summary.
