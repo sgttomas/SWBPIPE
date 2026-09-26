@@ -1,0 +1,9 @@
+RF-RANGE-CHAIN-LEF-large     max normalized difference with exact (untruncated) inputs: 1.859e-40
+RF-RANGE-CHAIN-SIM-a         max normalized difference with exact (untruncated) inputs: 3.985e-40
+RF-RANGE-CHAIN-SIM-b         max normalized difference with exact (untruncated) inputs: 3.985e-40
+RF-RANGE-SKEW-LEF-large      max normalized difference with exact (untruncated) inputs: 1.885e-40
+RF-RANGE-SKEW-SIM-a          max normalized difference with exact (untruncated) inputs: 1.183e-40
+RF-RANGE-SKEW-SIM-b          max normalized difference with exact (untruncated) inputs: 3.015e-40
+RF-RANGE-CONT-LEF-large      max normalized difference with exact (untruncated) inputs: 2.593e-40
+RF-RANGE-CONT-SIM-b          max normalized difference with exact (untruncated) inputs: 2.132e-40
+RF-CANCEL-UDL-W1e80          max normalized difference with exact (untruncated) inputs: 1.000e-40

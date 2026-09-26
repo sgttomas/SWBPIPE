@@ -1,0 +1,8 @@
+RF-MECH-LINE122-TORQUE {"nullity_v2": {"3": 1, "355/113": 1}, "nullity_r1": 1, "motions_independent": true} [(True, True, '9/1000')]
+RF-MECH-LINE122-PERP {"nullity_v2": {"3": 1, "355/113": 1}, "nullity_r1": 1, "motions_independent": true} [(True, True, '0')]
+RF-MECH-LINE122-UNLOADED {"nullity_v2": {"3": 1, "355/113": 1}, "nullity_r1": 1, "motions_independent": true} [(True, True, '0')]
+RF-MECH-LINE345-RZ {"nullity_v2": {"3": 1, "355/113": 1}, "nullity_r1": 1, "motions_independent": true} [(True, True, '1/40')]
+RF-MECH-K0 {"nullity_v2": {"3": 1, "355/113": 1}, "nullity_r1": 1, "motions_independent": true} [(True, True, '1/100000000')]
+RF-MECH-DISC-CHAIN100 {"nullity_v2": {"3": 6, "355/113": 6}, "nullity_r1": 6, "motions_independent": true} [(True, True, '0'), (True, True, '0'), (True, True, '0'), (True, True, '0'), (True, True, '0'), (True, True, '0')]
+RF-MECH-DISC-CHAIN100-SPRING {"nullity_v2": {"3": 5, "355/113": 5}, "nullity_r1": 5, "motions_independent": true} [(True, True, '0'), (True, True, '0'), (True, True, '0'), (True, True, '0'), (True, True, '0')]
+RF-MECH-LINE-IN-CHAIN1000 {"nullity_v2": {"3": 1, "355/113": 1}, "nullity_r1": 1, "motions_independent": true} [(True, True, '9/1000')]

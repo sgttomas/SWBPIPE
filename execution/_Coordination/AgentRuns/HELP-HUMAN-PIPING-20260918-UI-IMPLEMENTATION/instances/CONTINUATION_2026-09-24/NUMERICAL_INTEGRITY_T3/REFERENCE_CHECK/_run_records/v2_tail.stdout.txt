@@ -1,0 +1,2 @@
+RF-LARGE-CONT-n01000-AX max relative difference over nonzero published values 4.446e-40 at Mb.A250.mid smallest |exp|: [('u.C499.UZ', '1.911e-290', '1.15e-40'), ('u.C250.UZ', '4.875e-148', '9.04e-41'), ('R.S125.UZ', '1.335e-70', '2.00e-40'), ('Mb.A375.i', '1.351e-70', '3.54e-40')]
+RF-LARGE-CONT-n01000-ROT max relative difference over nonzero published values 4.446e-40 at Mb.A250.mid smallest |exp|: [('Mb.A375.i', '1.351e-70', '3.54e-40'), ('th.C500.RY', '1.880e-7', '1.59e-40'), ('u.C1.UY', '5.841e-7', '1.40e-41'), ('th.C2.RZ', '8.233e-7', '4.19e-41')]

@@ -1,0 +1,300 @@
+{
+ "RF-MECH-LINE122-TORQUE": {
+  "components": [
+   {
+    "members": 10,
+    "free_dofs": 33,
+    "nullity": 1,
+    "method": "exact"
+   }
+  ],
+  "nullity_v2": {
+   "3": 1,
+   "355/113": 1
+  },
+  "nullity_r1": 1,
+  "null_motion_checks": [
+   {
+    "description": "rigid rotation of every node about the line through the nodes, axis (1,2,2)/3, zero translation",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "9/1000"
+   }
+  ],
+  "motions_independent": true,
+  "load_work_r1": [
+   "9.000000000000000000000000e-3"
+  ]
+ },
+ "RF-MECH-LINE122-PERP": {
+  "components": [
+   {
+    "members": 10,
+    "free_dofs": 33,
+    "nullity": 1,
+    "method": "exact"
+   }
+  ],
+  "nullity_v2": {
+   "3": 1,
+   "355/113": 1
+  },
+  "nullity_r1": 1,
+  "null_motion_checks": [
+   {
+    "description": "rigid rotation of every node about the line through the nodes, axis (1,2,2)/3, zero translation",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   }
+  ],
+  "motions_independent": true,
+  "load_work_r1": [
+   "0"
+  ]
+ },
+ "RF-MECH-LINE122-UNLOADED": {
+  "components": [
+   {
+    "members": 10,
+    "free_dofs": 33,
+    "nullity": 1,
+    "method": "exact"
+   }
+  ],
+  "nullity_v2": {
+   "3": 1,
+   "355/113": 1
+  },
+  "nullity_r1": 1,
+  "null_motion_checks": [
+   {
+    "description": "rigid rotation of every node about the line through the nodes, axis (1,2,2)/3, zero translation",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   }
+  ],
+  "motions_independent": true,
+  "load_work_r1": [
+   "0"
+  ]
+ },
+ "RF-MECH-LINE345-RZ": {
+  "components": [
+   {
+    "members": 10,
+    "free_dofs": 22,
+    "nullity": 1,
+    "method": "exact"
+   }
+  ],
+  "nullity_v2": {
+   "3": 1,
+   "355/113": 1
+  },
+  "nullity_r1": 1,
+  "null_motion_checks": [
+   {
+    "description": "rigid rotation about the line, axis (3,4,0)/5 (no RZ component)",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "1/40"
+   }
+  ],
+  "motions_independent": true,
+  "load_work_r1": [
+   "2.500000000000000000000000e-2"
+  ]
+ },
+ "RF-MECH-K0": {
+  "components": [
+   {
+    "members": 10,
+    "free_dofs": 61,
+    "nullity": 1,
+    "method": "exact"
+   }
+  ],
+  "nullity_v2": {
+   "3": 1,
+   "355/113": 1
+  },
+  "nullity_r1": 1,
+  "null_motion_checks": [
+   {
+    "description": "rigid rotation of the whole chain about the x axis",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "1/100000000"
+   }
+  ],
+  "motions_independent": true,
+  "load_work_r1": [
+   "1.000000000000000000000000e-8"
+  ]
+ },
+ "RF-MECH-DISC-CHAIN100": {
+  "components": [
+   {
+    "members": 100,
+    "free_dofs": 600,
+    "nullity": 0,
+    "method": "exact"
+   },
+   {
+    "members": 3,
+    "free_dofs": 24,
+    "nullity": 6,
+    "method": "exact"
+   }
+  ],
+  "nullity_v2": {
+   "3": 6,
+   "355/113": 6
+  },
+  "nullity_r1": 6,
+  "null_motion_checks": [
+   {
+    "description": "translation of the sub-assembly along X",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   },
+   {
+    "description": "translation of the sub-assembly along Y",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   },
+   {
+    "description": "translation of the sub-assembly along Z",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   },
+   {
+    "description": "rotation of the sub-assembly about the X axis through D0",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   },
+   {
+    "description": "rotation of the sub-assembly about the Y axis through D0",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   },
+   {
+    "description": "rotation of the sub-assembly about the Z axis through D0",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   }
+  ],
+  "motions_independent": true,
+  "load_work_r1": [
+   "0",
+   "0",
+   "0",
+   "0",
+   "0",
+   "0"
+  ]
+ },
+ "RF-MECH-DISC-CHAIN100-SPRING": {
+  "components": [
+   {
+    "members": 100,
+    "free_dofs": 600,
+    "nullity": 0,
+    "method": "exact"
+   },
+   {
+    "members": 3,
+    "free_dofs": 24,
+    "nullity": 5,
+    "method": "exact"
+   }
+  ],
+  "nullity_v2": {
+   "3": 5,
+   "355/113": 5
+  },
+  "nullity_r1": 5,
+  "null_motion_checks": [
+   {
+    "description": "translation of the sub-assembly along Y",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   },
+   {
+    "description": "translation of the sub-assembly along Z",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   },
+   {
+    "description": "rotation of the sub-assembly about the X axis through D0",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   },
+   {
+    "description": "rotation of the sub-assembly about the Y axis through D0",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   },
+   {
+    "description": "rotation of the sub-assembly about the Z axis through D0",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "0"
+   }
+  ],
+  "motions_independent": true,
+  "load_work_r1": [
+   "0",
+   "0",
+   "0",
+   "0",
+   "0"
+  ]
+ },
+ "RF-MECH-LINE-IN-CHAIN1000": {
+  "components": [
+   {
+    "members": 1000,
+    "free_dofs": 6000,
+    "nullity": 0,
+    "method": "decimal-110",
+    "min_pivot_ratio": "6.667e-1"
+   },
+   {
+    "members": 5,
+    "free_dofs": 18,
+    "nullity": 1,
+    "method": "exact"
+   }
+  ],
+  "nullity_v2": {
+   "3": 1,
+   "355/113": 1
+  },
+  "nullity_r1": 1,
+  "null_motion_checks": [
+   {
+    "description": "rigid rotation of the line sub-assembly about its own axis (1,2,2)/3",
+    "restraints_satisfied": true,
+    "Kv_zero_all_dofs": true,
+    "load_work": "9/1000"
+   }
+  ],
+  "motions_independent": true,
+  "load_work_r1": [
+   "9.000000000000000000000000e-3"
+  ]
+ }
+}
