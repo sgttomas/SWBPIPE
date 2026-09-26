@@ -1,0 +1,61 @@
+{
+ "files_with_load_cases": 117,
+ "cases": 183,
+ "max_element_loads_on_one_element": 3,
+ "elements_with_2plus_loads": [
+  {
+   "file": "fixtures/product_preview/invented_preview_model.json",
+   "case": "load:L-100",
+   "element": "pipe:P-120",
+   "element_loads": 3
+  },
+  {
+   "file": "fixtures/product_preview/invented_preview_model.json",
+   "case": "load:L-200",
+   "element": "pipe:P-120",
+   "element_loads": 2
+  },
+  {
+   "file": "fixtures/results/invented/result_export_v0_2.json",
+   "case": "load:L-100",
+   "element": "pipe:P-120",
+   "element_loads": 3
+  },
+  {
+   "file": "fixtures/results/invented/result_export_v0_2.json",
+   "case": "load:L-200",
+   "element": "pipe:P-120",
+   "element_loads": 2
+  },
+  {
+   "file": "fixtures/results/invented/result_export_v0_2.json",
+   "case": "load:L-100",
+   "element": "pipe:P-120",
+   "element_loads": 3
+  },
+  {
+   "file": "fixtures/results/invented/result_export_v0_2.json",
+   "case": "load:L-200",
+   "element": "pipe:P-120",
+   "element_loads": 2
+  },
+  {
+   "file": "validation/witness/inputs/tp_runner_015_final_cli_solve_input.json",
+   "case": "load:L-100",
+   "element": "pipe:P-120",
+   "element_loads": 3
+  },
+  {
+   "file": "validation/witness/inputs/tp_runner_015_final_cli_solve_input.json",
+   "case": "load:L-200",
+   "element": "pipe:P-120",
+   "element_loads": 2
+  },
+  {
+   "file": "core/product_physics/tests/fixtures/preview_physics_invented_model.json",
+   "case": "load:L-100",
+   "element": "pipe:P-120",
+   "element_loads": 2
+  }
+ ]
+}
