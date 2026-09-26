@@ -30,6 +30,11 @@ Verify that each fix is present, correct, and consistent between D1 and D2. **Do
 
 Also confirm that the new K-D5 tests, mutations 31 and 32, and the separate linear entry `solve_with_formation_check` (called only from PP:3965, with the loop's calls pinned) are consistent with option (c) in S11-K.
 
+**Three D2 5b choices to check (D2 flagged them):**
+- **A new fail-closed reader rule:** a selected case whose invocation has a nonlinear support is refused as `INPUT_DOF_MISMATCH`, because W1 never selects one. Is it sound, is it consistent with D1's W1 coverage (nonlinear supports go to T5), and can it refuse a legitimate selected case?
+- **R5-5 wording:** D2 counts withheld-row refusals as "undecided" (RULE_INPUTS_INCOMPLETE from RULE_RESULT_INDETERMINATE *or* from a withheld-row refusal). That is broader than D1's word "indeterminate". Is it consistent with D1 and with the row-level count, and does it make the gate stricter, never looser?
+- **R5-2 family detail:** D2 states PP's family matching precisely. Hanger type is trimmed; family `"spring"` is compared untrimmed; `constant_effort_support`, `variable_spring_hanger` and `spring_hanger` contribute nothing; `boundary_motion` adds prescribed DOFs (PP:5169-5230, :5279, :10232-10250). Confirm it against the source, and check that D1's scripts and wording agree. If they don't, name which side should change.
+
 **Rulings made since revision 5, to check for consistency only:**
 - D-14: equivalent-static in F3, refused until then. The exact-from-inputs rule covers the solve-time seismic and wind generators only; self-weight is an ordinary stored input. Check the GeneratedUniform form.
 - The exception pin: `GATE/S11_EXCEPTIONS.json`, 88 triples in 13 cases captured and 140 in 22 typed. Check that `s11_exceptions.py` reconciles 228/228.
@@ -38,7 +43,7 @@ Also confirm that the new K-D5 tests, mutations 31 and 32, and the separate line
 ## Basis
 
 - D1 revision 5a at `16bcbf369`: DESIGN.md `7decddea`, S11_CONTAINMENT.md `82c1b072`, D5_TRIGGER.md `f6e24a69`, R5_4_CURVED.md `4843c4e9`.
-- D2 revision 5b: the manager gives its commit and hash when you are resumed.
+- D2 revision 5b at `41f018355`: DESIGN_STANDING/DESIGN.md `1bc8e036` (its §0.5 table lists every change).
 - Your own BACKCHECK_R5 (`0874bed35`) and its attachments.
 
 ## Running things
