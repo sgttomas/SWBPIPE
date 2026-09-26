@@ -1,0 +1,82 @@
+[
+  {
+    "id": "TABLEBYTES-pinned",
+    "table": "accept"
+  },
+  {
+    "id": "TABLEBYTES-id-edit",
+    "table": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+  },
+  {
+    "id": "TABLEBYTES-profile-edit",
+    "table": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+  },
+  {
+    "id": "TABLEBYTES-policy-edit",
+    "table": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+  },
+  {
+    "id": "TABLEBYTES-physics-source-table",
+    "table": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+  },
+  {
+    "id": "TABLEBYTES-load-reference-table",
+    "table": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+  },
+  {
+    "id": "TRANSPORT-ACCEPT-n05-sparse",
+    "transport": "accept"
+  },
+  {
+    "id": "TRANSPORT-ACCEPT-mixed-dense",
+    "transport": "accept"
+  },
+  {
+    "id": "TRANSPORT-ACCEPT-eigen_motion-sparse",
+    "transport": "accept"
+  },
+  {
+    "id": "TRANSPORT-ACCEPT-fields-dense",
+    "transport": "accept"
+  },
+  {
+    "id": "TRANSPORT-policy",
+    "transport": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY"
+  },
+  {
+    "id": "TRANSPORT-receipt-hash",
+    "transport": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH"
+  },
+  {
+    "id": "TRANSPORT-physical-hash",
+    "transport": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+  },
+  {
+    "id": "TRANSPORT-record-missing",
+    "transport": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE"
+  },
+  {
+    "id": "TRANSPORT-selected-inconsistent",
+    "transport": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE"
+  },
+  {
+    "id": "TRANSPORT-no-selection",
+    "transport": "SOURCE_LOAD_REFERENCE_JOIN_SELECTION_REQUIRED"
+  },
+  {
+    "id": "TRANSPORT-load-reference-relabel",
+    "transport": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED"
+  },
+  {
+    "id": "TRANSPORT-extremum-value-resealed",
+    "transport": "accept"
+  },
+  {
+    "id": "TRANSPORT-endpoint-link-resealed",
+    "transport": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_PHYSICAL_SHAPE"
+  },
+  {
+    "id": "TRANSPORT-no-diagnostic-binding",
+    "transport": "accept"
+  }
+]

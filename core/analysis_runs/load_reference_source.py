@@ -137,6 +137,9 @@ def _receipt(source: Mapping[str, Any], raw: bool) -> None:
     for case, exact_case, record in zip(cases, exact, records):
         _require(case["selected_method"] == exact_case["recovery_method"], "JOIN_RECOVERY_METHOD")
         _require(case["requested_mode"] == record["solve"]["requested_mode"], "JOIN_REQUESTED_MODE")
+        # The producer hashes pressure [] for a selected case; hashing the case's slice
+        # is equivalent only because J3 refuses a selected case with a non-empty pressure
+        # inventory (physics-source-1 SOURCE_PRESSURE_INVENTORY; note N-3).
         proof = {"exact_case": exact_case, "pressure": _case_pressure(pressure, exact_case["load_case_id"]), "load_reference_state": record}
         _require(case["physical_evidence_sha256"] == domain_hash(CASE_EVIDENCE_DOMAIN, proof), "JOIN_PHYSICAL_CASE_HASH")
 

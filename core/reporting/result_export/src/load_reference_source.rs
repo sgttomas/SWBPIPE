@@ -164,6 +164,9 @@ fn receipt(source: &Value, raw: bool) -> Check {
             case["requested_mode"] == record["solve"]["requested_mode"],
             "JOIN_REQUESTED_MODE",
         )?;
+        // The producer hashes `pressure: []` for a selected case; hashing the case's
+        // slice is equivalent only because J3 refuses a selected case with a non-empty
+        // pressure inventory (physics-source-1 SOURCE_PRESSURE_INVENTORY; note N-3).
         let proof = json!({
             "exact_case": exact,
             "pressure": case_pressure(pressure, &exact["load_case_id"]),

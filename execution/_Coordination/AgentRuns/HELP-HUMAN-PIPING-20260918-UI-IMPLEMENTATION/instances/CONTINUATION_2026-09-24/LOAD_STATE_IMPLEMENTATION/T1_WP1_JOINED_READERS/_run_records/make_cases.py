@@ -166,6 +166,30 @@ case("DIAG-not-joined-on-selected-case", "n05-sparse",
 case("DIAG-not-joined-missing", "mixed-sparse", [{"op": "remove_where", "path": "/diagnostics", "match": {"code": NOT_JOINED}}], P + "NOT_JOINED_DIAGNOSTIC")
 case("DIAG-not-joined-warning", "mixed-dense", [{"op": "set_where", "path": "/diagnostics", "match": {"code": NOT_JOINED}, "key": "severity", "value": "warning"}], P + "NOT_JOINED_DIAGNOSTIC")
 
+# Review A note N-2: no UNAVAILABLE diagnostic may name a selected case (the
+# producer never emits one). A resealed publication reaches S13 in either case;
+# the control names the ordinary case of the mixed witness and stays accepted.
+UNAVAILABLE_DIAG = {"id": "diagnostic:source-recovery:case:unavailable", "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", "severity": "info",
+                    "message": "invented", "source": "core/product_physics", "affected_refs": ["case"]}
+case("DIAG-unavailable-on-selected", "n05-sparse", [{"op": "append", "path": "/diagnostics", "value": UNAVAILABLE_DIAG}], P + "JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC")
+case("DIAG-unavailable-on-selected-resealed", "eigen_motion-dense",
+     [{"op": "append", "path": "/diagnostics", "value": {**UNAVAILABLE_DIAG, "id": "diagnostic:source-recovery:case:join:unavailable", "affected_refs": ["case:join"]}}, PUBLICATION],
+     P + "JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC")
+case("DIAG-unavailable-among-refs-of-selected-resealed", "mixed-sparse",
+     [{"op": "append", "path": "/diagnostics", "value": {**UNAVAILABLE_DIAG, "affected_refs": ["case:ordinary-pressure", "case"]}}, PUBLICATION],
+     P + "JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC")
+case("ACCEPT-unavailable-on-ordinary-case-resealed", "mixed-sparse",
+     [{"op": "append", "path": "/diagnostics", "value": {**UNAVAILABLE_DIAG, "id": "diagnostic:source-recovery:case:ordinary-pressure:unavailable", "affected_refs": ["case:ordinary-pressure"]}}, PUBLICATION],
+     "accept", lr=P + "FOREIGN_METHOD_EVIDENCE")
+
+# Review A note N-1: an integral literal above 2^53-1 in the hashed publication
+# reaches the checked canonical hash at R4 and is refused in both languages; the
+# inherited checked-JSON detail differs (Rust appends the number).
+case("NUM-unsafe-integer-in-publication", "n05-sparse", [s("/results/0/value", 2 ** 60)], None,
+     dispatch_rust="CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976", dispatch_python="CHECKED-JSON-UNSAFE-INTEGER",
+     joined_rust="CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976", joined_python="CHECKED-JSON-UNSAFE-INTEGER",
+     note="The checked canonical JSON profile refuses integral magnitudes above 2^53-1 at the R4 publication hash; the inherited detail differs: Rust's canonical_json error carries the literal and Python's adapter does not. Both refuse.")
+
 # Receipt policy, shape and hashes.
 case("RCPT-policy-physics-source", "n05-sparse", [s(f"{BODY}/policy", "PHYSICS-SOURCE-1")], P + "JOIN_RECEIPT_POLICY")
 case("RCPT-policy-source-blocks", "mixed-sparse", [s(f"{BODY}/policy", "SOURCE-BLOCKS-1")], P + "JOIN_RECEIPT_POLICY")

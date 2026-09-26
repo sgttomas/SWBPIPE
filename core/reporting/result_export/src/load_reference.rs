@@ -38,6 +38,8 @@ pub const NOT_JOINED: &str = "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED";
 /// Selected retained-source method and its info diagnostic (joined method only).
 pub const EXACT_METHOD: &str = "retained_source_blocks_exact_v1";
 pub const SELECTED: &str = "SOURCE_BLOCK_RECOVERY_SELECTED";
+/// A failed retained-source attempt; never emitted for a selected case.
+pub const UNAVAILABLE: &str = "SOURCE_BLOCK_RECOVERY_UNAVAILABLE";
 pub const REGION_TEMPERATURE_BASIS: &str = "resolved_member_state";
 pub const G_BASIS: &str = "E/[2(1+nu)] from the selected pair";
 pub const COMPOSITION: &str = "lambda_fit*lambda_thermal-1";
@@ -595,6 +597,24 @@ pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
             require(
                 diagnostics.iter().filter(|d| d["code"] == SELECTED).count() == selected,
                 "JOIN_SELECTED_DIAGNOSTIC",
+            )?;
+            // A selected case's attempt succeeded, so no UNAVAILABLE diagnostic
+            // may name it (the producer never emits one; review note N-2).
+            let selected_ids: Vec<&str> = record_ids
+                .iter()
+                .zip(records)
+                .filter(|(_, r)| is_selected(r))
+                .map(|(id, _)| *id)
+                .collect();
+            require(
+                !diagnostics.iter().any(|d| {
+                    d["code"] == UNAVAILABLE
+                        && d["affected_refs"].as_array().is_some_and(|refs| {
+                            refs.iter()
+                                .any(|r| r.as_str().is_some_and(|r| selected_ids.contains(&r)))
+                        })
+                }),
+                "JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
             )?;
         }
     }

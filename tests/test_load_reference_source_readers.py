@@ -255,7 +255,7 @@ def test_transport_metadata_case(case):
 
 def test_language_specific_cases_are_declared():
     special = [case for case in CASES["cases"] if any(key.endswith(("_rust", "_python")) for key in case)]
-    assert {case["id"] for case in special} == {"NUM-NONFINITE-member-E", "NUM-NONFINITE-region-pressure", "NUM-N2-integer-overflow-positive", "NUM-N2-integer-first-overflow"}
+    assert {case["id"] for case in special} == {"NUM-NONFINITE-member-E", "NUM-NONFINITE-region-pressure", "NUM-N2-integer-overflow-positive", "NUM-N2-integer-first-overflow", "NUM-unsafe-integer-in-publication"}
     assert all(case.get("note") for case in special)
 
 

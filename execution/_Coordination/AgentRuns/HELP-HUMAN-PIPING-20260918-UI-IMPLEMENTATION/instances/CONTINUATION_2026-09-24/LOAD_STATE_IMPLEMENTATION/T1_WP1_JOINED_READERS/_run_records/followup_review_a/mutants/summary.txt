@@ -1,0 +1,2 @@
+RS-S13-SELECTED-UNAVAILABLE	KILLED	["thread 'shared_adversarial_cases_match_in_rust' (17764) panicked at tests/load_reference_source_contract.rs:427:17:"]
+PY-S13-SELECTED-UNAVAILABLE	KILLED	['FAILED tests/test_load_reference_source_readers.py::test_shared_adversarial_case[DIAG-unavailable-on-selected]']

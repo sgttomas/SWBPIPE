@@ -36,6 +36,8 @@ NOT_JOINED = "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
 # Selected retained-source method and its info diagnostic (joined method only).
 EXACT_METHOD = "retained_source_blocks_exact_v1"
 SELECTED = "SOURCE_BLOCK_RECOVERY_SELECTED"
+# A failed retained-source attempt; never emitted for a selected case.
+UNAVAILABLE = "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
 # The method whose namespace is admitted: load-reference-1 (unchanged) or the
 # joined load-reference-source-1 pre-pass (``load_reference_source``).
 LOAD_REFERENCE = "load_reference"
@@ -408,6 +410,10 @@ def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
         _require(sum(1 for d in diagnostics if _eq(_get(d, "code"), NOT_JOINED)) == not_joined, "NOT_JOINED_DIAGNOSTIC")
         if joined:
             _require(sum(1 for d in diagnostics if _eq(_get(d, "code"), SELECTED)) == selected, "JOIN_SELECTED_DIAGNOSTIC")
+            # A selected case's attempt succeeded, so no UNAVAILABLE diagnostic
+            # may name it (the producer never emits one; review note N-2).
+            selected_ids = [case_id for case_id, record in zip(record_ids, records) if _is_selected(record)]
+            _require(not any(_eq(_get(d, "code"), UNAVAILABLE) and isinstance(_get(d, "affected_refs"), list) and any(isinstance(r, str) and r in selected_ids for r in d["affected_refs"]) for d in diagnostics), "JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC")
 
 
 def _project(source: Mapping[str, Any]) -> dict[str, Any]:

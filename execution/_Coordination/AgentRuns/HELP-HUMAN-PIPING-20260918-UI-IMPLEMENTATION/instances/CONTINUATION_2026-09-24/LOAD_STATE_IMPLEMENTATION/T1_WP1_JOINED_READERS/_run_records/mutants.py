@@ -33,6 +33,8 @@ MUTANTS = [
     ("RS-S10B-SELECTION-REQUIRED", L, "records.iter().any(|r| is_selected(r)),", "true,"),
     ("RS-S13-SELECTED-HIT", L, "            require(\n                hits.len() == 1", '            require(\n                name == "JOIN_SELECTED_DIAGNOSTIC" || hits.len() == 1'),
     ("RS-S13-SELECTED-COUNT", L, 'diagnostics.iter().filter(|d| d["code"] == SELECTED).count() == selected,', "true,"),
+    # Follow-up (review A note N-2).
+    ("RS-S13-SELECTED-UNAVAILABLE", L, "                !diagnostics.iter().any(|d| {\n                    d[\"code\"] == UNAVAILABLE", "                true || !diagnostics.iter().any(|d| {\n                    d[\"code\"] == UNAVAILABLE"),
     ("RS-R1-POLICY", R, 'require(body["policy"] == POLICY, "JOIN_RECEIPT_POLICY")?;', 'require(true, "JOIN_RECEIPT_POLICY")?;'),
     ("RS-R2-SHAPE", R, "crate::physics_source::validate_receipt_shape(&shaped).is_ok(),", "true,"),
     ("RS-R3-RECEIPT-HASH", R, 'receipt["receipt_sha256"] == domain_hash("source_blocks_receipt_v1", body)?,', "true,"),
@@ -59,6 +61,7 @@ MUTANTS = [
     ("PY-S10B-SELECTION-REQUIRED", PL, '_require(any(_is_selected(record) for record in records), "JOIN_SELECTION_REQUIRED")', '_require(True, "JOIN_SELECTION_REQUIRED")'),
     ("PY-S13-SELECTED-HIT", PL, "            _require(len(hits) == 1 and", '            _require(name == "JOIN_SELECTED_DIAGNOSTIC" or len(hits) == 1 and'),
     ("PY-S13-SELECTED-COUNT", PL, '_require(sum(1 for d in diagnostics if _eq(_get(d, "code"), SELECTED)) == selected, "JOIN_SELECTED_DIAGNOSTIC")', '_require(True, "JOIN_SELECTED_DIAGNOSTIC")'),
+    ("PY-S13-SELECTED-UNAVAILABLE", PL, '_require(not any(_eq(_get(d, "code"), UNAVAILABLE)', '_require(True or not any(_eq(_get(d, "code"), UNAVAILABLE)'),
     ("PY-R1-POLICY", PR, '_require(lr._eq(lr._get(body, "policy"), POLICY), "JOIN_RECEIPT_POLICY")', '_require(True, "JOIN_RECEIPT_POLICY")'),
     ("PY-R2-SHAPE", PR, "        validate_receipt_shape(shaped)\n", "        pass\n"),
     ("PY-R3-RECEIPT-HASH", PR, '_require(receipt["receipt_sha256"] == domain_hash("source_blocks_receipt_v1", body), "JOIN_RECEIPT_HASH")', '_require(True, "JOIN_RECEIPT_HASH")'),

@@ -1,0 +1,1 @@
+rustfmt 1.8.0 --check clean: src/load_reference.rs src/load_reference_source.rs

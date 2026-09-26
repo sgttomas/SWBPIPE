@@ -914,6 +914,127 @@
    "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
   },
   {
+   "id": "DIAG-unavailable-on-selected",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:source-recovery:case:unavailable",
+      "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
+      "severity": "info",
+      "message": "invented",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case"
+      ]
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-unavailable-on-selected-resealed",
+   "source": "eigen_motion-dense",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:source-recovery:case:join:unavailable",
+      "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
+      "severity": "info",
+      "message": "invented",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:join"
+      ]
+     }
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-unavailable-among-refs-of-selected-resealed",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:source-recovery:case:unavailable",
+      "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
+      "severity": "info",
+      "message": "invented",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:ordinary-pressure",
+       "case"
+      ]
+     }
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC"
+  },
+  {
+   "id": "ACCEPT-unavailable-on-ordinary-case-resealed",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:source-recovery:case:ordinary-pressure:unavailable",
+      "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
+      "severity": "info",
+      "message": "invented",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:ordinary-pressure"
+      ]
+     }
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+   "id": "NUM-unsafe-integer-in-publication",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/results/0/value",
+     "value": 1152921504606846976
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976",
+   "dispatch_python": "CHECKED-JSON-UNSAFE-INTEGER",
+   "joined_rust": "CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976",
+   "joined_python": "CHECKED-JSON-UNSAFE-INTEGER",
+   "note": "The checked canonical JSON profile refuses integral magnitudes above 2^53-1 at the R4 publication hash; the inherited detail differs: Rust's canonical_json error carries the literal and Python's adapter does not. Both refuse."
+  },
+  {
    "id": "RCPT-policy-physics-source",
    "source": "n05-sparse",
    "ops": [
