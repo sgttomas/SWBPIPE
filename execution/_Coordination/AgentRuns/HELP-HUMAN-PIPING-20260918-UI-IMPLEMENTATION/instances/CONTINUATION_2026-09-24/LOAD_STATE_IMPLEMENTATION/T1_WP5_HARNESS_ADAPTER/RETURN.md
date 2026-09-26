@@ -409,15 +409,15 @@ None of the eight is equivalent. REVIEW_B's `adapter_mutants.py` was rerun uncha
   - Every retained artifact's custody record carries the limit it was captured under.
 - **Tests above 8 MiB.** `OutputLimitTests`: a stdout above 8 MiB admitted under a 16 MiB limit, including a reader snapshot above 8 MiB; the same stdout refused one byte over the selected limit; `unwrap` and parser bounds; the gate's strict parse rules above 8 MiB; the snapshot refused before the helper starts; the helper's source limit.
 
-**Final files (sha256):**
+**Final files (sha256).** Mutation ran on the WP5 final bytes. The manager then integrated them in `ab5919133` and re-pinned the reader to the REVIEW_A follow-up bytes (`1ccca8b87`, `14e1750e…`). The integrated files differ from the mutated ones only in that re-pin: the `MODULE_SHA256` value and its comment, and the commit named in `test_pinned_identities_match_recorded_bytes`. No mutated predicate or test logic differs.
 
-| File | Committed in `31dc7ce08` (re-pinned) | Final |
-|---|---|---|
-| `tools/validation/qualification_load_reference.py` | `c36bf5ef0ab72f5a873da8e9f6165facb91cf3b0ed30e3cf44f1d09f3374903b` | `ea79022f4ae265530c536f05ff892b7d84f48f57a7dcba878267e8bfb2133f6c` |
-| `tools/validation/qualification_load_reference_helper.py` | `c9de926cc19aaaffb3ed066b5bb2b00b0dc96683979e6c9be6f656ddf35916b9` | `a7d88418dc7fcba1483bf3e4cb87f10a35a097b31e4b0beb27201f752056c6ea` |
-| `tests/test_qualification_load_reference.py` | `a96f1d04480c7e091a12732a1ea14e886d41811d4a0aacf8d988fae8cbf6dab8` | `6613e9f0601ecaf9542ddcf1b5cc6826e47cb8cf11e1706cc9bd90fa95b58550` |
+| File | Committed in `31dc7ce08` | WP5 final (mutated) | Integrated in `ab5919133` |
+|---|---|---|---|
+| `tools/validation/qualification_load_reference.py` | `c36bf5ef0ab72f5a873da8e9f6165facb91cf3b0ed30e3cf44f1d09f3374903b` | `ea79022f4ae265530c536f05ff892b7d84f48f57a7dcba878267e8bfb2133f6c` | `ea40ad642c47995b4c8c6883ac9935d309a027504bd23c47ba3643e5c76e1de2` |
+| `tools/validation/qualification_load_reference_helper.py` | `c9de926cc19aaaffb3ed066b5bb2b00b0dc96683979e6c9be6f656ddf35916b9` | `a7d88418dc7fcba1483bf3e4cb87f10a35a097b31e4b0beb27201f752056c6ea` | `a7d88418dc7fcba1483bf3e4cb87f10a35a097b31e4b0beb27201f752056c6ea` |
+| `tests/test_qualification_load_reference.py` | `a96f1d04480c7e091a12732a1ea14e886d41811d4a0aacf8d988fae8cbf6dab8` | `6613e9f0601ecaf9542ddcf1b5cc6826e47cb8cf11e1706cc9bd90fa95b58550` | `f7040597867e9831d2512a821fa890b81cc148d0d2d7c53aa7793abc9997d593` |
 
-**Checks on the final bytes:**
+**Checks** (integrated bytes, checkout `ab5919133` then `b9deaeae4`, which is docs only):
 
 | Suite | Result |
 |---|---|
@@ -425,7 +425,12 @@ None of the eight is equivalent. REVIEW_B's `adapter_mutants.py` was rerun uncha
 | `test_qualification_gate.py` (unchanged) | 31 OK |
 | `test_qualification_physics*.py` (unchanged) | 42 OK |
 
-Logs: `_run_records/wp5_suite.log` and `_run_records/protected_suites.log`, with machine paths replaced by placeholders.
+On the WP5 final bytes at `203396e4d` (the mutation clone), the suite was also 55 OK.
+
+**New reader check** (the manager asked; working tree at `1ccca8b87`, reader `14e1750e…`):
+- the top-level imports (`__future__`, `collections.abc`, `copy`, `functools`, `hashlib`, `json`, `math`, `pathlib`, `struct`, `typing`) fit `ALLOWED_IMPORTS`;
+- the deferred relative imports are still only `.physics_evidence` and `.source_blocks`;
+- all four committed raws pass through the helper as `consistent`.
 
 **Mutation evidence on the final bytes.** The scratch was a shared, sparse, read-only-use clone of the repository at `203396e4d`, with the three final files laid over it; the WP5 suite, `PinTests` included, passed there before mutation.
 

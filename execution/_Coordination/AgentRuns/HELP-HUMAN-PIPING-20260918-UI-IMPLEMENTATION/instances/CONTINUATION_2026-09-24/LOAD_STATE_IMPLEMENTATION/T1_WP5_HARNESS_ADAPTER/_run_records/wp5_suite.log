@@ -1,4 +1,4 @@
-# working tree at 1ccca8b87 plus the uncommitted WP5 repair
+# checkout at ab5919133 then b9deaeae4 (docs-only; no adapter, test, reader or fixture change between them): integrated WP5 repair, reader re-pinned
 $ PYTHONDONTWRITEBYTECODE=1 python -m unittest -v tests.test_qualification_load_reference
 test_case_binding_refusals_block (tests.test_qualification_load_reference.AdmissionTests.test_case_binding_refusals_block) ... ok
 test_duplicate_negative_selector_value_pair_is_refused (tests.test_qualification_load_reference.AdmissionTests.test_duplicate_negative_selector_value_pair_is_refused) ... ok
@@ -23,7 +23,7 @@ test_stdout_above_gate_limit_admitted_within_selected_limit (tests.test_qualific
 test_stdout_above_selected_limit_refused_with_denominator_kept (tests.test_qualification_load_reference.OutputLimitTests.test_stdout_above_selected_limit_refused_with_denominator_kept) ... ok
 test_unwrap_and_parser_enforce_the_selected_limit (tests.test_qualification_load_reference.OutputLimitTests.test_unwrap_and_parser_enforce_the_selected_limit) ... ok
 test_pinned_identities_match_recorded_bytes (tests.test_qualification_load_reference.PinTests.test_pinned_identities_match_recorded_bytes) ... ok
-test_working_tree_reader_matches_pin (tests.test_qualification_load_reference.PinTests.test_working_tree_reader_matches_pin) ... FAIL
+test_working_tree_reader_matches_pin (tests.test_qualification_load_reference.PinTests.test_working_tree_reader_matches_pin) ... ok
 test_bound_file_changed_during_run_is_error (tests.test_qualification_load_reference.ProcessTests.test_bound_file_changed_during_run_is_error) ... ok
 test_interruption_leaves_later_cases_not_run (tests.test_qualification_load_reference.ProcessTests.test_interruption_leaves_later_cases_not_run) ... ok
 test_keyboard_interrupt_after_capture_keeps_ledger (tests.test_qualification_load_reference.ProcessTests.test_keyboard_interrupt_after_capture_keeps_ledger) ... ok
@@ -56,22 +56,11 @@ test_support_component_unit_must_match_selector (tests.test_qualification_load_r
 test_wrong_case_frame_location_sign_definition_or_unit_metadata (tests.test_qualification_load_reference.ValueFaultTests.test_wrong_case_frame_location_sign_definition_or_unit_metadata) ... ok
 test_wrong_value_and_sign_fail_without_losing_denominator (tests.test_qualification_load_reference.ValueFaultTests.test_wrong_value_and_sign_fail_without_losing_denominator) ... ok
 
-======================================================================
-FAIL: test_working_tree_reader_matches_pin (tests.test_qualification_load_reference.PinTests.test_working_tree_reader_matches_pin)
 ----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "<WORKING_ROOT>/tests/test_qualification_load_reference.py", line 279, in test_working_tree_reader_matches_pin
-    self.assertEqual(sha256_bytes((PROJECT / lr.MODULE).read_bytes()), lr.MODULE_SHA256,
-AssertionError: '14e1750ebb96c8284d71b49e01e55455c9e42fa6197ac979f0118271503b57c7' != 'eff1fb3b8b7f8fee99aeb5344c55ec42ae37d3e60e7354908caa780d41c08ffe'
-- 14e1750ebb96c8284d71b49e01e55455c9e42fa6197ac979f0118271503b57c7
-+ eff1fb3b8b7f8fee99aeb5344c55ec42ae37d3e60e7354908caa780d41c08ffe
- : working-tree load_reference_evidence.py differs from MODULE_SHA256: re-pin at integration
+Ran 55 tests in 38.756s
 
-----------------------------------------------------------------------
-Ran 55 tests in 42.013s
-
-FAILED (failures=1)
+OK
 
 $ PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider --noconftest -q tests/test_qualification_load_reference.py
 .......................................................                  [100%]
-55 passed in 39.63s
+55 passed in 40.13s
