@@ -89,7 +89,7 @@ ROOT ruled on these before the final package, to save a round. They become final
 | D-9 | W4 | As proposed. T4 confirms the curved construction |
 | D-10 | Serialization | As in §4 |
 | D-11 | RF-ELOAD | Commission it now: a product-code-blind author, then a V2-style refutation. It lands before F3. Brief: `TASK_BRIEFS/R1_ADDENDUM_ELOAD.md`, including D-14's generated loads |
-| D-14 | Equivalent-static owner | **T3, as a W1b extension in F2b** (ROOT, 2026-09-26). The generated magnitude is computed exactly from the user's inputs (mass_per_length × g_factor × g; pressure × shape_factor × exposed_diameter) as the intended source, the same principle as re-forming stiffness from inputs. It is not the rounded binary64 product treated as input. D1 pins this in revision 5a. RF-ELOAD covers generated loads |
+| D-14 | Equivalent-static owner | **T3, as a W1b extension in F2b** (ROOT, 2026-09-26). The generated magnitude is computed exactly from the user's inputs (mass_per_length × g_factor × g; pressure × shape_factor × exposed_diameter) as the intended source, the same principle as re-forming stiffness from inputs. It is not the rounded binary64 product treated as input. The rule covers only the solve-time seismic and wind generators. Generated self-weight is an authoring-time document value, so it is an ordinary input (ROOT, after `28d96084f`). D1 pins this in revision 5a. RF-ELOAD covers generated loads |
 | DD-1, DD-2 | Composite finalization | F1 port of SF-1, with R-1a and R-1b open until W1 |
 | DD-3 | TS position | TS-a |
 | DD-4 | Host-rounded exp fields | H-a |
