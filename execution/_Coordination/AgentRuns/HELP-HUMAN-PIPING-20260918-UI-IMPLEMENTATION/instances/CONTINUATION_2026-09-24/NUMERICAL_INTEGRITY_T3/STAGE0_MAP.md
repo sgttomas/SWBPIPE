@@ -139,8 +139,8 @@ These are the M14 remainder that T0R names for T3. Re-homing means publishing so
 | Headless | `P/core/runner/headless/src/lib.rs` | **T1** | only if a route is added |
 | Python | `P/core/analysis_runs/{source_blocks.py, physics_source.py, __init__.py}` | disjoint | alignment, re-homing |
 | Python | `P/core/analysis_runs/{compatibility.py, load_reference_source.py}` | **T1** | standing, joined eligibility |
-| TS | `apps/desktop/src/features/results/{sourceBlockRecovery.ts, physicsSourceRecovery.ts}`, `knownSemanticLimitations.ts`, `apps/desktop/src/services/{unitConversion.ts, displayQuantityService.ts, ruleCheckService.ts}` | disjoint | re-homing notices; display representability |
-| TS | `apps/desktop/src/features/results/{numericalResultQuality.ts, loadReferenceSourceEvidence.ts}`, `apps/desktop/src/types.ts` | **T1** | standing parity; joined eligibility |
+| TS | `apps/desktop/src/features/results/{sourceBlockRecovery.ts, physicsSourceRecovery.ts}`, `apps/desktop/src/services/{unitConversion.ts, displayQuantityService.ts, ruleCheckService.ts}` | disjoint | re-homing; display representability |
+| TS | `apps/desktop/src/features/results/{numericalResultQuality.ts, loadReferenceSourceEvidence.ts, knownSemanticLimitations.ts}`, `apps/desktop/src/types.ts` | **T1** | standing parity; joined eligibility; re-homing notices (`N_SB`, `N_SB_MIXED`). Correction after D2: `knownSemanticLimitations.ts` and its test are T1-touched; the first version of this map listed them as disjoint |
 | Native | `apps/desktop/src-tauri/src/lib.rs` | **T1** | binding, rule gate, only if needed |
 | Units, transport | `P/core/units/**`, `P/core/serialization/canonical_json/**`, `P/tools/serialization/**` | disjoint | scientific profile adoption; display range |
 | Schemas | `P/schemas/results.v0.3.schema.yaml`, `analysis_run.v0.3.schema.json`, `stress_neutral_export.v0.3.schema.json` | **T1** | any new evidence field |

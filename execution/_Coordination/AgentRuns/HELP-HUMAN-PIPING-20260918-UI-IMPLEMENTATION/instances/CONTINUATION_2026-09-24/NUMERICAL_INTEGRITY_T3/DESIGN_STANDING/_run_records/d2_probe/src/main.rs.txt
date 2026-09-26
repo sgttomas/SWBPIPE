@@ -1,0 +1,199 @@
+//! T3 D2 design probes. Scratch copy only; never part of a product crate.
+//! Every input is a committed invented fixture or an invented edit of one; no
+//! material, component, catalogue or code-rule data is used or added.
+//!
+//! Usage: d2_probe <export-root> <label>
+//! Prints one line per probe outcome. Only public entry points are called:
+//! the captured value route, the display conversion facade, the canonical
+//! guards and the two canonical profiles.
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode,
+};
+use serde_json::{json, Value};
+use std::{env, fs, path::Path, path::PathBuf};
+
+const MODES: [PreviewSolverMode; 2] =
+    [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
+
+fn fixture(root: &Path, rel: &str) -> Option<Value> {
+    let path = root.join("projects/chirality-piping/fixtures/product_preview").join(rel);
+    fs::read_to_string(path).ok().map(|t| serde_json::from_str(&t).expect("fixture json"))
+}
+
+fn summary(e: &MechanicsEnvelope) -> String {
+    let receipt = e.source_block_recovery.as_ref();
+    let cases = receipt.map(|r| {
+        r["body"]["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|c| format!("{}:{}:{}", c["basis_ref"]["ref_id"], c["outcome"], c["selected_method"]))
+            .collect::<Vec<_>>()
+    });
+    let codes = |sev: &str| {
+        e.diagnostics
+            .iter()
+            .filter(|d| d.severity == sev && (d.code.contains("SOURCE") || d.code.contains("INTEGRITY") || sev == "blocking"))
+            .map(|d| format!("{}{:?}", d.code, d.affected_refs))
+            .collect::<Vec<_>>()
+    };
+    format!(
+        "semantic={} mechanics={} quality={} receipt={:?} cases={:?} rows={} blocking={:?} info={:?}",
+        e.producer.semantic_contract_id.rsplit('/').next().unwrap_or(""),
+        e.status.mechanics,
+        serde_json::to_value(&e.numerical_quality).unwrap()["status"],
+        receipt.map(|r| r["body"]["status"].clone()),
+        cases,
+        e.results.len(),
+        codes("blocking"),
+        codes("info"),
+    )
+}
+
+fn run(label: &str, request: Option<Value>) {
+    let Some(request) = request else {
+        println!("{label}: skipped (fixture absent at this revision)");
+        return;
+    };
+    for mode in MODES {
+        match run_linear_static_preview_value_with_mode(request.clone(), mode) {
+            Ok(e) => println!("{label} {mode:?}: Ok {}", summary(&e)),
+            Err(err) => println!("{label} {mode:?}: Err {err}"),
+        }
+    }
+}
+
+/// P12 (T1 CP3 review): the pre-0.4 physics-source-1 mixed witness with its
+/// second case made sensitive by removing its compliant modulus basis.
+fn p12(root: &Path) -> Option<Value> {
+    let mut r = fixture(root, "physics_source/mixed.request.json")?;
+    r["model"]["load_cases"][1].as_object_mut()?.remove("modulus_basis_ref");
+    Some(r)
+}
+
+/// P12 with the N06 witness as the selected case. N06's own ordinary attempt is
+/// rejected (assembly unresolved), so an ordinary republication cannot publish it.
+fn p12_n06(root: &Path) -> Option<Value> {
+    let mixed = fixture(root, "physics_source/mixed.request.json")?;
+    let mut r = fixture(root, "physics_source/n06.request.json")?;
+    let mut second = mixed["model"]["load_cases"][1].clone();
+    second.as_object_mut()?.remove("modulus_basis_ref");
+    r["model"]["load_cases"].as_array_mut()?.push(second);
+    Some(r)
+}
+
+/// source-blocks-1: the N05 case repeated until the 64M invocation ledger is
+/// exhausted (about 3.2M per case in the committed receipt).
+fn sb_invocation_limit(root: &Path, copies: usize) -> Option<Value> {
+    let mut r = fixture(root, "source_blocks/n05-dense_scrutiny.request.json")?;
+    let base = r["model"]["load_cases"][0].clone();
+    let mut cases = Vec::new();
+    for k in 0..copies {
+        let mut c = base.clone();
+        c["id"] = json!(format!("case:{k}"));
+        c["primitive_loads"][0]["id"] = json!(format!("torque:{k}"));
+        cases.push(c);
+    }
+    r["model"]["load_cases"] = Value::Array(cases);
+    Some(r)
+}
+
+/// A large but finite nodal torque on the N05 witness. Published support
+/// actions then exceed 2^53 - 1 in magnitude, which the checked canonical
+/// profile used by receipt hashing refuses.
+fn large_load(root: &Path, rel: &str, torque: f64) -> Option<Value> {
+    let mut r = fixture(root, rel)?;
+    r["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(torque);
+    Some(r)
+}
+
+/// P3 (T1 CP3 review, 0.4.0 only): eigen_motion plus a sensitive pressure case.
+fn p3(root: &Path) -> Option<Value> {
+    let mut r = fixture(root, "load_reference_source/eigen_motion.request.json")?;
+    let mut case = r["model"]["load_cases"][0].clone();
+    case["id"] = json!("case:pressure");
+    case["primitive_loads"][0]["id"] = json!("torque:case:pressure");
+    case["analysis_state"]["load_sources"][0]["source_ref"] = json!("torque:case:pressure");
+    let p = json!("invented_t3_d2_probe_not_library_data");
+    case["pressure_regions"] = json!([{"id": "region:probe", "member_pipe_ids": ["member"],
+        "pressure_basis": "internal_differential_zero_external_v1", "pressure": {"value": 1.0e-5, "unit": "Pa"},
+        "terminals": [{"node_ref": "root", "closure_transfer": "transfers_to_wall", "provenance": p},
+            {"node_ref": "tip", "closure_transfer": "transfers_to_wall", "provenance": p}], "provenance": p}]);
+    r["model"]["load_cases"].as_array_mut()?.push(case);
+    Some(r)
+}
+
+fn display() {
+    let items = json!({"items": [
+        {"id": "subnormal-in-identity", "value": 5e-324, "from_unit": "Pa", "to_unit": "Pa", "dimension_id": "stress"},
+        {"id": "subnormal-in-scaled", "value": 5e-324, "from_unit": "Pa", "to_unit": "MPa", "dimension_id": "stress"},
+        {"id": "normal-in-subnormal-out", "value": 1e-303, "from_unit": "Pa", "to_unit": "MPa", "dimension_id": "stress"},
+        {"id": "normal-in-zero-out", "value": 1e-320, "from_unit": "Pa", "to_unit": "MPa", "dimension_id": "stress"},
+        {"id": "smallest-normal-force", "value": 2.2250738585072014e-308, "from_unit": "N", "to_unit": "kN", "dimension_id": "force"},
+        {"id": "exact-zero", "value": 0.0, "from_unit": "Pa", "to_unit": "MPa", "dimension_id": "stress"},
+        {"id": "negative-zero", "value": -0.0, "from_unit": "Pa", "to_unit": "MPa", "dimension_id": "stress"},
+        {"id": "large-overflow", "value": 1.7e308, "from_unit": "MPa", "to_unit": "Pa", "dimension_id": "stress"}
+    ]});
+    let out = open_pipe_stress_operation_applier::convert_display_quantities(&items);
+    for item in out["items"].as_array().unwrap() {
+        let bits = item["value"].as_f64().map(|v| format!("{:016x}", v.to_bits()));
+        println!("display {}: {} value={} bits={:?} msg={}", item["id"], item["status"], item["value"], bits, item["message"]);
+    }
+}
+
+fn canonical() {
+    use open_pipe_stress_canonical_json::binary64::canonical_json_binary64_v1_text;
+    use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
+    use open_pipe_stress_result_export::derivative::guard_json;
+    for x in [9007199254740991.0f64, 9007199254740992.0, 1e16, 1e20, 1e21, 1e300, 1.5e-310, 123.456] {
+        let text = serde_json::to_string(&json!([x])).unwrap();
+        println!(
+            "canonical {x:e}: guard_json={:?} ijson={:?} binary64={:?}",
+            guard_json(&json!([x])),
+            canonical_json_checked_v1_text(&text),
+            canonical_json_binary64_v1_text(&text)
+        );
+    }
+    // Deterministic differential: every value the checked profile admits must
+    // canonicalize to identical text under the scientific profile.
+    let mut state: u64 = 0x9E37_79B9_7F4A_7C15;
+    let (mut admitted, mut equal, mut differ) = (0u64, 0u64, 0u64);
+    for _ in 0..200_000 {
+        state = state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        let x = f64::from_bits(state);
+        if !x.is_finite() {
+            continue;
+        }
+        let text = serde_json::to_string(&json!([x])).unwrap();
+        if let Ok(a) = canonical_json_checked_v1_text(&text) {
+            admitted += 1;
+            match canonical_json_binary64_v1_text(&text) {
+                Ok(b) if a == b => equal += 1,
+                other => {
+                    differ += 1;
+                    if differ <= 5 {
+                        println!("canonical differential DIFFER x={x:e} ijson={a} binary64={other:?}");
+                    }
+                }
+            }
+        }
+    }
+    println!("canonical differential admitted={admitted} equal={equal} differ={differ}");
+}
+
+fn main() {
+    let mut args = env::args().skip(1);
+    let root = PathBuf::from(args.next().expect("export root"));
+    let label = args.next().unwrap_or_default();
+    println!("d2_probe label={label}");
+    run("PR-1 p12", p12(&root));
+    run("PR-2 p12_n06", p12_n06(&root));
+    run("PR-3 sb_invocation_limit_21", sb_invocation_limit(&root, 21));
+    run("PR-3b sb_invocation_limit_2_control", sb_invocation_limit(&root, 2));
+    run("PR-4 p3", p3(&root));
+    run("PR-5a sb_large_torque_1e16", large_load(&root, "source_blocks/n05-dense_scrutiny.request.json", 1e16));
+    run("PR-5b ps_large_torque_1e16", large_load(&root, "physics_source/n05.request.json", 1e16));
+    run("PR-5c sb_torque_1e15_control", large_load(&root, "source_blocks/n05-dense_scrutiny.request.json", 1e15));
+    display();
+    canonical();
+}

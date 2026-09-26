@@ -1,0 +1,31 @@
+T3 D2 probe plan (prepared, NOT run: host hold in force when this design was written)
+
+Rule: run only after the T3 manager reports that ROOT has released the host.
+Never build in or read from T1's worktree; T1 is read only through `git show f3270ea79:`.
+
+1. Export both revisions under <scratch>:
+     git -C <worktree> archive c61a540ea projects/chirality-piping/core projects/chirality-piping/fixtures projects/chirality-piping/schemas | tar -x -C <scratch>/export-main
+     git -C <worktree> archive f3270ea79 projects/chirality-piping/core projects/chirality-piping/fixtures projects/chirality-piping/schemas | tar -x -C <scratch>/export-t1
+2. Copy d2_probe/ to <scratch>/d2_probe-main and <scratch>/d2_probe-t1, drop the .txt
+   suffixes, substitute <export>, copy the export's product_physics Cargo.lock.
+3. Build and run each:
+     RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<t3-target> \
+       cargo run --offline --release -- <scratch>/export-<rev> <rev>  > probes_<rev>.log
+4. Record probes_main.log, probes_t1.log, the cargo/rustc versions and the binary sha256
+   in this folder, add them to SHA256SUMS, delete the build output, check `df -h`.
+
+Predictions (the design relies on these; a different outcome is reported to the manager):
+  PR-1 p12            main: Err SOURCE_BLOCKS_FINALIZATION_FAILED (both modes); T1: same (T1 pins it).
+  PR-2 p12_n06        main and T1: Err SOURCE_BLOCKS_FINALIZATION_FAILED. Under the proposed
+                      fallback it would become a blocked envelope (residual R-1b).
+  PR-3 21 copies      main and T1: Err SOURCE_BLOCKS_FINALIZATION_FAILED (invocation ledger
+                      exhausted before publication reservation); PR-3b control: Ok source-blocks-1.
+  PR-4 p3             main: skipped (0.4.0 fixture absent); T1: Ok load-reference-1 (SF-1 fallback).
+  PR-5a/5b            Err SOURCE_BLOCKS_FINALIZATION_FAILED: the receipt's checked canonical hash
+                      refuses published actions above 2^53-1 (source_receipt.rs:30). 5c control
+                      (1e15 < 2^53-1): Ok with the source identity.
+  display             identity keeps 5e-324; scaled conversions of subnormal or tiny inputs
+                      report "converted" with a subnormal or zero value (the representability
+                      gap); overflow is already "unavailable".
+  canonical           guard_json and the checked profile refuse every |x| > 2^53-1 (including
+                      1e21 and 1e300); binary64 admits them; differential differ=0.

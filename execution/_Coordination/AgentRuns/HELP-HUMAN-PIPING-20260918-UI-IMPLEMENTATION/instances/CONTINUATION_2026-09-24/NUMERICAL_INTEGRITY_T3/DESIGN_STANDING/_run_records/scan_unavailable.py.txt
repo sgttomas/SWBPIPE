@@ -1,0 +1,39 @@
+"""Scan committed JSON carriers at a Git revision for SOURCE_BLOCK_RECOVERY_UNAVAILABLE
+diagnostics that name a case whose receipt selected_method is retained_source_blocks_exact_v1.
+Standard library only; reads blobs through `git show`."""
+import json, subprocess, sys
+rev = sys.argv[1]
+root = "projects/chirality-piping"
+names = subprocess.run(["git","ls-tree","-r","--name-only",rev,"--",root],capture_output=True,text=True,check=True).stdout.split()
+names = [n for n in names if n.endswith(".json")]
+stats = {"json":0,"with_receipt":0,"with_unavailable":0,"unavailable_on_selected":0}
+hits = []
+def envelopes(doc):
+    # every nested object carrying a receipt and diagnostics (raws, carriers, mutation cases)
+    if isinstance(doc, dict):
+        if "source_block_recovery" in doc and "diagnostics" in doc:
+            yield doc
+        for v in doc.values():
+            yield from envelopes(v)
+    elif isinstance(doc, list):
+        for v in doc:
+            yield from envelopes(v)
+for n in names:
+    blob = subprocess.run(["git","show",f"{rev}:{n}"],capture_output=True).stdout
+    try: doc = json.loads(blob)
+    except Exception: continue
+    stats["json"] += 1
+    for env in envelopes(doc):
+        stats["with_receipt"] += 1
+        rec = env.get("source_block_recovery") or {}
+        cases = (rec.get("body") or {}).get("cases") or []
+        selected = {c["basis_ref"]["ref_id"] for c in cases if isinstance(c,dict) and c.get("selected_method")=="retained_source_blocks_exact_v1"}
+        diags = env.get("diagnostics") or []
+        un = [d for d in diags if isinstance(d,dict) and d.get("code")=="SOURCE_BLOCK_RECOVERY_UNAVAILABLE"]
+        if un: stats["with_unavailable"] += 1
+        for d in un:
+            if set(d.get("affected_refs") or []) & selected:
+                stats["unavailable_on_selected"] += 1
+                hits.append((n, d.get("id")))
+print(rev, json.dumps(stats))
+for h in hits: print("HIT", h)
