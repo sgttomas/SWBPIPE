@@ -1,0 +1,12 @@
+$ PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -p test_qualification_gate.py
+...............................
+----------------------------------------------------------------------
+Ran 31 tests in 38.871s
+
+OK
+$ PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -p "test_qualification_physics*.py"
+..........................................
+----------------------------------------------------------------------
+Ran 42 tests in 10.036s
+
+OK
