@@ -1,0 +1,11 @@
+Reproducibility of T3/REFERENCES revision 2 (V2 backcheck, 2026-09-26)
+
+Input: T3/REFERENCES/_run_records/SHA256SUMS verified first (all 8 entries OK) at worktree commit c0f14201c.
+Command: references.py (sha256 80d473a7351e92a2a903d233b9e633aac794aeff07f3ac41e40d25a0d94fc8a8) copied unchanged
+         to <scratch>/regen2/ and run there as  nice -n 19 python3 references.py  (single-threaded; Python 3.11.15,
+         standard library only)
+Wall time: 695 s, exit 0, empty stderr.
+Result:  <scratch>/regen2/references.json
+         sha256 7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9
+         = T3/REFERENCES/references.json (cmp: identical, byte for byte)
+         stdout identical to T3/REFERENCES/_run_records/references.stdout.txt (diff: no differences)

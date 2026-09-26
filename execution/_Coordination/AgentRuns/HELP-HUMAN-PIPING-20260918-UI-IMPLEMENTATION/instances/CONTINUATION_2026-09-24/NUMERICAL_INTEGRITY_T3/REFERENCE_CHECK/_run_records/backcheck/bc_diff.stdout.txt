@@ -1,0 +1,32 @@
+differences: 141
+      10  .cases.<id>.cancellation.gross_scale (value)
+      41  .cases.<id>.cancellation.recommended_scale (value)
+      20  .cases.<id>.model.load_contributions_in_authored_order[][] (value)
+       4  .cases.<id>.model.loads.<n>.M[] (value)
+       2  .cases.<id>.model.member_uniform_loads_N_per_m_global.<m>[] (value)
+      18  .cases.<id>.model.nodes_m.<n>[] (value)
+       6  .cases.<id>.model.sections.<s>.ID (value)
+       6  .cases.<id>.model.sections.<s>.OD (value)
+       4  .cases.<id>.model.supports.<n>.springs[].k (value)
+       3  .cases.<id>.negative_controls[].defect_form (added)
+      11  .cases.<id>.negative_controls[].description (value)
+       3  .cases.<id>.negative_controls[].other_forms (added)
+      11  .cases.<id>.purpose (value)
+       1  .criterion (value)
+       1  .status (value)
+outside stated scope: 0
+F1 changed model inputs: 60 in 19 cases: ['RF-CANCEL-F-G1e80-GGn', 'RF-CANCEL-F-G1e80-GnG', 'RF-CANCEL-F-G1e80-GnG-INPLANE', 'RF-CANCEL-F-G1e80-GnG-ORTHO', 'RF-CANCEL-F-G1e80-nGG', 'RF-CANCEL-M-G1e80-GGn', 'RF-CANCEL-M-G1e80-GnG', 'RF-CANCEL-M-G1e80-GnG-INPLANE', 'RF-CANCEL-M-G1e80-GnG-ORTHO', 'RF-CANCEL-M-G1e80-nGG', 'RF-CANCEL-UDL-W1e80', 'RF-RANGE-CHAIN-LEF-large', 'RF-RANGE-CHAIN-SIM-a', 'RF-RANGE-CHAIN-SIM-b', 'RF-RANGE-CONT-LEF-large', 'RF-RANGE-CONT-SIM-b', 'RF-RANGE-SKEW-LEF-large', 'RF-RANGE-SKEW-SIM-a', 'RF-RANGE-SKEW-SIM-b']
+F1 max relative change of a changed input: 2.68e-28
+F1 revision-2 model input strings parsed: 33595; mantissas with >= 28 significant digits: 24
+    ('RF-RANGE-CHAIN-SIM-b.model.nodes_m.N1[0]', '2658455991569831745807614120560689152', 37)
+    ('RF-RANGE-CHAIN-SIM-b.model.nodes_m.N2[0]', '3987683987354747618711421180841033728', 37)
+    ('RF-RANGE-CHAIN-SIM-b.model.nodes_m.N3[0]', '7975367974709495237422842361682067456', 37)
+    ('RF-RANGE-CHAIN-SIM-b.model.nodes_m.N4[0]', '9969209968386869046778552952102584320', 36)
+    ('RF-RANGE-CHAIN-SIM-b.model.nodes_m.N5[0]', '13292279957849158729038070602803445760', 37)
+    ('RF-RANGE-CHAIN-SIM-b.model.sections.N.OD', '265845599156983174580761412056068915.2', 37)
+    ('RF-RANGE-CHAIN-SIM-b.model.sections.N.ID', '239261039241284857122685270850462023.68', 38)
+    ('RF-RANGE-SKEW-SIM-b.model.nodes_m.N1[0]', '1329227995784915872903807060280344576', 37)
+    ('RF-RANGE-SKEW-SIM-b.model.nodes_m.N1[1]', '2658455991569831745807614120560689152', 37)
+    ('RF-RANGE-SKEW-SIM-b.model.nodes_m.N1[2]', '2658455991569831745807614120560689152', 37)
+F3 recommended_scale texts: 41; missing phrases: []
+F3 rows with recommended < |exp|: 84 (all mixed); rows with recommended > class: 0
