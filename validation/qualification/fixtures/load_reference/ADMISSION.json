@@ -1,0 +1,14 @@
+{
+  "format": "openpipestress.load_reference_admission/1",
+  "status": "admitted",
+  "independent_review": {
+    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_FREEZE/RETURN.md",
+    "sha256": "795b04214006160755fe39a427005022beecf94830c81e37110a8032d2574c49"
+  },
+  "applied_changes": [
+    "R1: signed-fit cold/return thermal_strain zero rule scaled by |hot total_eigenstrain| (freeze RETURN section 3)",
+    "R2: README unasserted-quantities correction",
+    "R3: README list of reference quantities neither asserted nor gapped"
+  ],
+  "admitted_by": "T1 WORKING_ITEMS manager, after the independent freeze verdict FREEZE (admit as changed)"
+}

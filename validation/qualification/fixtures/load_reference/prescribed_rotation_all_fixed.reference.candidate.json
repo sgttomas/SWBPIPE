@@ -1,10 +1,10 @@
 {
   "format": "openpipestress.qualification_reference_values/1",
   "case_id": "prescribed_rotation_all_fixed",
-  "readiness": "pending_independent_review",
+  "readiness": "ready",
   "basis": "generate_reference_values.py evaluating core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab) at the pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to binary64; no observed producer value",
   "reference_kind": "analytical",
-  "independent_review_ref": null,
+  "independent_review_ref": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_FREEZE/RETURN.md#sha256=795b04214006160755fe39a427005022beecf94830c81e37110a8032d2574c49",
   "values": [
     {
       "assertion_id": "case:prescribed-root-rotation.rot.node:root.rz",

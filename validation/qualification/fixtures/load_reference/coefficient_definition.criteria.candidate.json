@@ -2,8 +2,8 @@
   "schema_version": "0.1.0",
   "tolerance_profile": {
     "profile_id": "load-reference-vp-static-coefficient_definition-v1",
-    "profile_status": "draft_pending_independent_review",
-    "scope": "This case only. Candidate comparison rules proposed per assertion family from the reference README consumer rule; not admitted, not a release criterion.",
+    "profile_status": "reviewed",
+    "scope": "This case only. Comparison rules proposed per assertion family from the reference README consumer rule and admitted after the independent freeze named in ADMISSION.json; not a release criterion.",
     "rules": [
       {
         "rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
