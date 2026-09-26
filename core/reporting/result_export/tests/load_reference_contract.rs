@@ -2,7 +2,9 @@
 //! adversarial cases shared with `tests/test_load_reference_readers.py`.
 //! Both readers must reproduce every expectation in the case file. This proves
 //! consumer admission and carrier preservation, not producer authentication.
-use open_pipe_stress_result_export::{derivative as d, load_reference as lr, semantic_contract as s};
+use open_pipe_stress_result_export::{
+    derivative as d, load_reference as lr, semantic_contract as s,
+};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
@@ -72,7 +74,8 @@ fn parent_path(path: &str) -> (String, String) {
     (parent, t.last().unwrap().clone())
 }
 fn resolve<'a>(doc: &'a Value, path: &str) -> &'a Value {
-    doc.pointer(path).unwrap_or_else(|| panic!("missing {path}"))
+    doc.pointer(path)
+        .unwrap_or_else(|| panic!("missing {path}"))
 }
 fn set(doc: &mut Value, path: &str, value: Value) {
     let (parent, last) = parent_path(path);
@@ -140,9 +143,11 @@ fn apply(doc: &Value, ops: &Value) -> (Value, Option<&'static str>) {
                 set(&mut doc, other, first);
             }
             "graft" => {
-                let value =
-                    resolve(&source(op["source"].as_str().unwrap()), op["from"].as_str().unwrap())
-                        .clone();
+                let value = resolve(
+                    &source(op["source"].as_str().unwrap()),
+                    op["from"].as_str().unwrap(),
+                )
+                .clone();
                 set(&mut doc, path, value);
             }
             "remove_where" => doc
@@ -250,10 +255,22 @@ fn write_log(name: &str, log: &[Value]) {
 #[test]
 fn frozen_inputs_table_and_schema_are_pinned() {
     for (name, digest) in [
-        ("connected-sparse", "915965a446ff04c6c4b7f0209ffff34c4ac040a0d4b8243d875dc7217a9cb74c"),
-        ("connected-dense", "3824035cabf2d2a151756e04b46112ccbdcf4ce8237f49e68b5d3b36b8dfb2bf"),
-        ("pressure-sparse", "71be3e4fb1af54e962d5e4939a518fcab6f7896842ab4f08212a8212ae47f134"),
-        ("pressure-dense", "b46eeb8a5dc82bb9e0398b8d58db07eb73906eb25110d68b0032fd12df1d0707"),
+        (
+            "connected-sparse",
+            "915965a446ff04c6c4b7f0209ffff34c4ac040a0d4b8243d875dc7217a9cb74c",
+        ),
+        (
+            "connected-dense",
+            "3824035cabf2d2a151756e04b46112ccbdcf4ce8237f49e68b5d3b36b8dfb2bf",
+        ),
+        (
+            "pressure-sparse",
+            "71be3e4fb1af54e962d5e4939a518fcab6f7896842ab4f08212a8212ae47f134",
+        ),
+        (
+            "pressure-dense",
+            "b46eeb8a5dc82bb9e0398b8d58db07eb73906eb25110d68b0032fd12df1d0707",
+        ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
     }
@@ -268,7 +285,10 @@ fn frozen_inputs_table_and_schema_are_pinned() {
         s::physics_contract()["canonical_metadata_vocabulary"]
     );
     assert!(lr::transport_schema().is_ok());
-    assert_eq!(lr::TRANSPORT_SCHEMA_SHA256, "640fd4477ac2c84f3c02268cfccc3958f51ee6508b3a67e5538b52d84899af65");
+    assert_eq!(
+        lr::TRANSPORT_SCHEMA_SHA256,
+        "640fd4477ac2c84f3c02268cfccc3958f51ee6508b3a67e5538b52d84899af65"
+    );
 }
 
 #[test]
@@ -285,14 +305,20 @@ fn shared_adversarial_cases_match_in_rust() {
             assert!(!text.contains(NONFINITE_MARKER));
             let parsed = serde_json::from_str::<Value>(&text);
             assert!(parsed.is_err(), "{id}: non-finite JSON text parsed");
-            ("JSON_PARSE_REJECTED".to_string(), "JSON_PARSE_REJECTED".to_string())
+            (
+                "JSON_PARSE_REJECTED".to_string(),
+                "JSON_PARSE_REJECTED".to_string(),
+            )
         } else {
             (
                 outcome(s::for_source(&doc)),
                 outcome(s::validate_load_reference_evidence(&doc)),
             )
         };
-        record(&mut log, json!({"id": id, "dispatch": dispatch, "validator": validator}));
+        record(
+            &mut log,
+            json!({"id": id, "dispatch": dispatch, "validator": validator}),
+        );
         assert!(
             agrees(&dispatch, expected(case, "dispatch")),
             "{id}: dispatch {dispatch} != {}",
@@ -317,15 +343,28 @@ fn shared_adversarial_cases_match_in_rust() {
             request(name)["model"].clone()
         };
         if dispatch == "accept" {
-            assert_eq!(s::for_source(&doc).unwrap().0["semantic_contract_id"], s::LOAD_REFERENCE_ID);
+            assert_eq!(
+                s::for_source(&doc).unwrap().0["semantic_contract_id"],
+                s::LOAD_REFERENCE_ID
+            );
             if doc["status"]["mechanics"] == "MECHANICS_SOLVED" {
                 let document = derive(&doc, &model).unwrap_or_else(|e| panic!("{id}: {e}"));
-                assert_eq!(document["result_envelope"]["contract_evidence"], doc["contract_evidence"]);
-                assert_eq!(s::numerical_use_standing(&doc, &bases(&doc)), "numerically_eligible");
+                assert_eq!(
+                    document["result_envelope"]["contract_evidence"],
+                    doc["contract_evidence"]
+                );
+                assert_eq!(
+                    s::numerical_use_standing(&doc, &bases(&doc)),
+                    "numerically_eligible"
+                );
             }
         } else {
             assert!(derive(&doc, &model).is_err(), "{id}: derived");
-            assert_eq!(s::numerical_use_standing(&doc, &bases(&doc)), "unsupported", "{id}");
+            assert_eq!(
+                s::numerical_use_standing(&doc, &bases(&doc)),
+                "unsupported",
+                "{id}"
+            );
         }
     }
     write_log("rust_outcomes.json", &log);
@@ -383,18 +422,34 @@ fn canonical_documents_preserve_source_metadata_and_evidence_verbatim() {
         let doc = derive(&raw, &model).unwrap();
         let e = &doc["result_envelope"];
         assert_eq!(doc["schema_version"], "0.3.0");
-        for key in ["producer", "numerical_quality", "formulation_basis", "contract_evidence"] {
+        for key in [
+            "producer",
+            "numerical_quality",
+            "formulation_basis",
+            "contract_evidence",
+        ] {
             assert_eq!(e[key], raw[key], "{name} {key}");
         }
         assert!(e.get("source_block_recovery").is_none());
-        assert_eq!(e["semantic_contract_ref"], d::reference("semantic_contract", s::LOAD_REFERENCE_ID));
-        assert_eq!(e["row_accounting"].as_array().unwrap().len(), raw["results"].as_array().unwrap().len());
+        assert_eq!(
+            e["semantic_contract_ref"],
+            d::reference("semantic_contract", s::LOAD_REFERENCE_ID)
+        );
+        assert_eq!(
+            e["row_accounting"].as_array().unwrap().len(),
+            raw["results"].as_array().unwrap().len()
+        );
         for account in e["row_accounting"].as_array().unwrap() {
             let row = &raw["results"][account["source_row_index"].as_u64().unwrap() as usize];
             if row["kind"].as_str().unwrap().ends_with("_v2") {
                 assert_eq!(account["disposition"], "exported_quantity");
-                let target = doc.pointer(account["target_field_path"].as_str().unwrap()).unwrap();
-                assert_eq!(target["magnitude"].as_f64().unwrap().to_bits(), row["value"].as_f64().unwrap().to_bits());
+                let target = doc
+                    .pointer(account["target_field_path"].as_str().unwrap())
+                    .unwrap();
+                assert_eq!(
+                    target["magnitude"].as_f64().unwrap().to_bits(),
+                    row["value"].as_f64().unwrap().to_bits()
+                );
                 assert_eq!(target["metadata"], row["metadata"]);
             }
         }
@@ -409,23 +464,49 @@ fn canonical_documents_preserve_source_metadata_and_evidence_verbatim() {
         if std::env::var("LOAD_REFERENCE_WRITE_FIXTURES").as_deref() == Ok("1") {
             std::fs::write(&path, &text).unwrap();
         }
-        assert_eq!(std::fs::read_to_string(&path).unwrap(), text, "{name} carrier bytes");
+        assert_eq!(
+            std::fs::read_to_string(&path).unwrap(),
+            text,
+            "{name} carrier bytes"
+        );
         // Tampered carriers stay bound to the source even after rehash.
         for (pointer, value, code) in [
-            ("/result_envelope/contract_evidence/load_reference_states/0/source_recovery/status", json!("joined"), "SOURCE_CONTRACT_EVIDENCE_BINDING_MISMATCH"),
-            ("/result_envelope/semantic_contract_ref/ref_id", json!(s::PHYSICS_ID), "SEMANTIC_CONTRACT_BINDING_MISMATCH"),
-            ("/result_envelope/formulation_basis/profile_id", json!("exact_straight_pressure_v2"), "SOURCE_METADATA_BINDING_MISMATCH"),
+            (
+                "/result_envelope/contract_evidence/load_reference_states/0/source_recovery/status",
+                json!("joined"),
+                "SOURCE_CONTRACT_EVIDENCE_BINDING_MISMATCH",
+            ),
+            (
+                "/result_envelope/semantic_contract_ref/ref_id",
+                json!(s::PHYSICS_ID),
+                "SEMANTIC_CONTRACT_BINDING_MISMATCH",
+            ),
+            (
+                "/result_envelope/formulation_basis/profile_id",
+                json!("exact_straight_pressure_v2"),
+                "SOURCE_METADATA_BINDING_MISMATCH",
+            ),
         ] {
             let mut bad = doc.clone();
             *bad.pointer_mut(pointer).unwrap() = value;
-            bad["result_envelope"]["reproducibility"].as_object_mut().unwrap().remove("derivative_hash");
+            bad["result_envelope"]["reproducibility"]
+                .as_object_mut()
+                .unwrap()
+                .remove("derivative_hash");
             bad["result_envelope"]["reproducibility"]["derivative_hash"] = d::checksum(
                 &bad,
                 "derivative_document_excludes_own_hash",
-                d::reference("derivative_document", bad["result_envelope"]["envelope_id"].as_str().unwrap()),
+                d::reference(
+                    "derivative_document",
+                    bad["result_envelope"]["envelope_id"].as_str().unwrap(),
+                ),
             )
             .unwrap();
-            assert_eq!(d::validate_document(&bad, &raw).unwrap_err(), code, "{name} {pointer}");
+            assert_eq!(
+                d::validate_document(&bad, &raw).unwrap_err(),
+                code,
+                "{name} {pointer}"
+            );
         }
     }
 }
@@ -435,15 +516,30 @@ fn header_only_dispatch_is_bound_to_one_profile_and_never_qualifies_raw_output()
     let raw = source("pressure-sparse");
     let mut header = raw.clone();
     header.as_object_mut().unwrap().remove("results");
-    assert_eq!(s::for_source_metadata(&header).unwrap().0["semantic_contract_id"], s::LOAD_REFERENCE_ID);
+    assert_eq!(
+        s::for_source_metadata(&header).unwrap().0["semantic_contract_id"],
+        s::LOAD_REFERENCE_ID
+    );
     assert!(s::for_source(&header).is_err());
     // Existing physics-1 dispatch is unchanged.
     let physics = source("physics-sparse");
-    assert_eq!(s::for_source(&physics).unwrap().0["semantic_contract_id"], s::PHYSICS_ID);
-    for id in [s::PRECISION_ID, s::PHYSICS_ID, s::PHYSICS_SOURCE_ID, "openpipestress.result_semantics/0.3.0/source-blocks-1"] {
+    assert_eq!(
+        s::for_source(&physics).unwrap().0["semantic_contract_id"],
+        s::PHYSICS_ID
+    );
+    for id in [
+        s::PRECISION_ID,
+        s::PHYSICS_ID,
+        s::PHYSICS_SOURCE_ID,
+        "openpipestress.result_semantics/0.3.0/source-blocks-1",
+    ] {
         let mut bad = physics.clone();
         bad["producer"]["semantic_contract_id"] = json!(id);
         bad["formulation_basis"]["profile_id"] = json!(s::LOAD_REFERENCE_PROFILE);
-        assert_eq!(s::for_source_metadata(&bad).unwrap_err(), "SOURCE_FORMULATION_BASIS_UNSUPPORTED", "{id}");
+        assert_eq!(
+            s::for_source_metadata(&bad).unwrap_err(),
+            "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+            "{id}"
+        );
     }
 }

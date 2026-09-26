@@ -121,8 +121,8 @@ pub fn verify_load_reference_table(bytes: &[u8]) -> Result<Value, String> {
     if format!("{:x}", Sha256::digest(bytes)) != LOAD_REFERENCE_TABLE_SHA256 {
         return Err("SOURCE_LOAD_REFERENCE_TABLE_HASH".into());
     }
-    let table: Value =
-        serde_json::from_slice(bytes).map_err(|_| "SOURCE_LOAD_REFERENCE_TABLE_HASH".to_string())?;
+    let table: Value = serde_json::from_slice(bytes)
+        .map_err(|_| "SOURCE_LOAD_REFERENCE_TABLE_HASH".to_string())?;
     if table["semantic_contract_id"] != LOAD_REFERENCE_ID
         || table["formulation_profile_id"] != LOAD_REFERENCE_PROFILE
     {
@@ -193,7 +193,8 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
             }
             // The load-reference method owns no carrier namespace (same code
             // and position as the Python reader's first dispatch check).
-            if p["semantic_contract_id"] == LOAD_REFERENCE_ID && source.get("carrier_evidence").is_some()
+            if p["semantic_contract_id"] == LOAD_REFERENCE_ID
+                && source.get("carrier_evidence").is_some()
             {
                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
             }
@@ -327,14 +328,19 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
     }
     Ok(selected)
 }
-pub use crate::physics_evidence::{validate_physics_evidence, validate_transport_metadata as validate_physics_transport_metadata};
 pub use crate::load_reference::{
     validate_load_reference_evidence, validate_load_reference_transport_metadata,
+};
+pub use crate::physics_evidence::{
+    validate_physics_evidence, validate_transport_metadata as validate_physics_transport_metadata,
 };
 /// These inputs were already refused by the closed physics namespaces; the
 /// shared code only names the load-reference downgrade in both readers.
 fn forbid_load_reference_evidence(source: &Value) -> Result<(), String> {
-    if source["contract_evidence"].get("load_reference_states").is_some() {
+    if source["contract_evidence"]
+        .get("load_reference_states")
+        .is_some()
+    {
         return Err("SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN".into());
     }
     Ok(())

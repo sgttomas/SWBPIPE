@@ -36,7 +36,12 @@ pub const TRANSPORT_SCHEMA_SHA256: &str =
 const TRANSPORT_SCHEMA_BYTES: &str =
     include_str!("../../../../schemas/load_reference_state.schema.json");
 
-const EVIDENCE_KEYS: &[&str] = &["pressure", "connector", "exact_cases", "load_reference_states"];
+const EVIDENCE_KEYS: &[&str] = &[
+    "pressure",
+    "connector",
+    "exact_cases",
+    "load_reference_states",
+];
 const CASE_KEYS: &[&str] = &[
     "load_case_id",
     "profile_mode",
@@ -111,7 +116,13 @@ const MEMBER_KEYS: &[&str] = &[
     "fit_input",
     "reference_length_m",
 ];
-const POINT_KEYS: &[&str] = &["point_id", "temperature_k", "E_pa", "nu", "retained_G_ignored"];
+const POINT_KEYS: &[&str] = &[
+    "point_id",
+    "temperature_k",
+    "E_pa",
+    "nu",
+    "retained_G_ignored",
+];
 const SEGMENT_KEYS: &[&str] = &["use", "lower_index", "upper_index", "start_k", "end_k"];
 const SUPPORT_KEYS: &[&str] = &[
     "support_id",
@@ -143,7 +154,13 @@ const MEMBER_STATE_KEYS: &[&str] = &[
 ];
 const SUPPORT_STATE_KEYS: &[&str] = &["source_id", "owner_kind", "classification", "value"];
 const PRESSURE_REGION_KEYS: &[&str] = &["source_id", "owner_kind", "classification", "factor"];
-const EXCLUDED_KEYS: &[&str] = &["source_id", "owner_kind", "classification", "category", "reason"];
+const EXCLUDED_KEYS: &[&str] = &[
+    "source_id",
+    "owner_kind",
+    "classification",
+    "category",
+    "reason",
+];
 const REGION_KEYS: &[&str] = &[
     "profile_version",
     "profile_mode",
@@ -346,7 +363,10 @@ fn validate(source: &Value, raw: bool) -> Check {
     }
     // S3-S5 namespace.
     require(keys(evidence, EVIDENCE_KEYS), "EVIDENCE_SHAPE")?;
-    require(array(&evidence["connector"])?.is_empty(), "CONNECTOR_UNSUPPORTED")?;
+    require(
+        array(&evidence["connector"])?.is_empty(),
+        "CONNECTOR_UNSUPPORTED",
+    )?;
     let pressure = array(&evidence["pressure"])?;
     let exact = array(&evidence["exact_cases"])?;
     let records = array(&evidence["load_reference_states"])?;
@@ -437,7 +457,10 @@ fn validate(source: &Value, raw: bool) -> Check {
             .map(|(_, v)| *v)
             .ok_or_else(|| code("REGION_CASE_UNRESOLVED"))?;
         for material in array(&region["materials"])? {
-            require(keys(material, REGION_MATERIAL_KEYS), "REGION_MATERIAL_SHAPE")?;
+            require(
+                keys(material, REGION_MATERIAL_KEYS),
+                "REGION_MATERIAL_SHAPE",
+            )?;
             require(
                 material["temperature_basis"] == REGION_TEMPERATURE_BASIS,
                 "REGION_TEMPERATURE_BASIS",
@@ -476,7 +499,11 @@ fn validate(source: &Value, raw: bool) -> Check {
             )?;
         }
         require(
-            diagnostics.iter().filter(|d| d["code"] == NOT_JOINED).count() == record_ids.len(),
+            diagnostics
+                .iter()
+                .filter(|d| d["code"] == NOT_JOINED)
+                .count()
+                == record_ids.len(),
             "NOT_JOINED_DIAGNOSTIC",
         )?;
     }
@@ -553,9 +580,14 @@ fn validate_record(record: &Value, cases: &[(&str, &Value)], pressure: &[Value])
     )?;
     require(
         matches!(
-            (solve["requested_mode"].as_str(), solve["recovery_method"].as_str()),
-            (Some("sparse_interactive"), Some("ordinary_sparse_structural_v1"))
-                | (Some("dense_scrutiny"), Some("ordinary_dense_structural_v1"))
+            (
+                solve["requested_mode"].as_str(),
+                solve["recovery_method"].as_str()
+            ),
+            (
+                Some("sparse_interactive"),
+                Some("ordinary_sparse_structural_v1")
+            ) | (Some("dense_scrutiny"), Some("ordinary_dense_structural_v1"))
         ) && solve["boundary"] == BOUNDARY
             && solve["eigenload"] == EIGENLOAD,
         "SOLVE",
@@ -611,7 +643,8 @@ fn validate_record(record: &Value, cases: &[(&str, &Value)], pressure: &[Value])
     for excluded in array(&record["excluded_sources"])? {
         require(keys(excluded, EXCLUDED_KEYS), "EXCLUDED_SHAPE")?;
         require(
-            excluded["owner_kind"] == "stored_primitive" && excluded["classification"] == "excluded",
+            excluded["owner_kind"] == "stored_primitive"
+                && excluded["classification"] == "excluded",
             "EXCLUDED_CLASSIFICATION",
         )?;
         let id = text(&excluded["source_id"])?;
@@ -634,8 +667,7 @@ fn validate_record(record: &Value, cases: &[(&str, &Value)], pressure: &[Value])
         .map(|s| s["pipe_id"].as_str().unwrap_or(""))
         .collect();
     require(
-        !member_ids.is_empty()
-            && member_ids.iter().copied().collect::<HashSet<_>>() == sections,
+        !member_ids.is_empty() && member_ids.iter().copied().collect::<HashSet<_>>() == sections,
         "MEMBER_COVERAGE",
     )?;
     let materials = array(&case["pipe_materials"])?;
@@ -658,7 +690,10 @@ fn validate_record(record: &Value, cases: &[(&str, &Value)], pressure: &[Value])
                 && num_eq(&material["G_pa"], &member["derived_G_pa"])
                 && material["material_id"] == member["material_id"]
                 && material["material_selection_kind"] == member["material_selection_kind"]
-                && num_eq(&material["resolved_eigenstrain"], &member["total_eigenstrain"])
+                && num_eq(
+                    &material["resolved_eigenstrain"],
+                    &member["total_eigenstrain"],
+                )
                 && material["thermal_consumed"] == false
                 && material["alpha_per_kelvin"].is_null(),
             "MEMBER_MATERIAL_BINDING",
@@ -680,7 +715,10 @@ fn validate_record(record: &Value, cases: &[(&str, &Value)], pressure: &[Value])
         .collect();
     require(
         of_kind("resolved_member_state")
-            == expected_members.iter().map(String::as_str).collect::<HashSet<_>>(),
+            == expected_members
+                .iter()
+                .map(String::as_str)
+                .collect::<HashSet<_>>(),
         "MEMBER_CONTRIBUTION_COVERAGE",
     )?;
     for member in members {
@@ -703,7 +741,10 @@ fn validate_record(record: &Value, cases: &[(&str, &Value)], pressure: &[Value])
         .collect();
     require(
         of_kind("support_state")
-            == expected_supports.iter().map(String::as_str).collect::<HashSet<_>>(),
+            == expected_supports
+                .iter()
+                .map(String::as_str)
+                .collect::<HashSet<_>>(),
         "SUPPORT_CONTRIBUTION_COVERAGE",
     )?;
     for component in components {
@@ -726,7 +767,10 @@ fn validate_record(record: &Value, cases: &[(&str, &Value)], pressure: &[Value])
     }
     require(
         of_kind("pressure_region")
-            == expected_regions.iter().map(String::as_str).collect::<HashSet<_>>(),
+            == expected_regions
+                .iter()
+                .map(String::as_str)
+                .collect::<HashSet<_>>(),
         "PRESSURE_CONTRIBUTION_COVERAGE",
     )?;
     Ok(())
@@ -765,10 +809,7 @@ fn validate_member(member: &Value) -> Check {
         require(positive(temperature), "TEMPERATURE_RANGE")?;
         let pe = number(&point["E_pa"])?;
         let pnu = number(&point["nu"])?;
-        require(
-            pe > 0.0 && pnu > -1.0 && pnu < 0.5,
-            "MATERIAL_POINT_RANGE",
-        )?;
+        require(pe > 0.0 && pnu > -1.0 && pnu < 0.5, "MATERIAL_POINT_RANGE")?;
         let point_retained = boolean(&point["retained_G_ignored"])?;
         consumed.push((temperature, pe, pnu, point_retained));
     }
@@ -920,9 +961,7 @@ fn validate_member(member: &Value) -> Check {
         Some("natural_length_change") => {
             keys(fit, &["length_change_m"])
                 && fit["length_change_m"].as_f64().is_some_and(|change| {
-                    change.is_finite()
-                        && fit_strain == change / length
-                        && length + change > 0.0
+                    change.is_finite() && fit_strain == change / length && length + change > 0.0
                 })
         }
         Some("fit_strain") => {
