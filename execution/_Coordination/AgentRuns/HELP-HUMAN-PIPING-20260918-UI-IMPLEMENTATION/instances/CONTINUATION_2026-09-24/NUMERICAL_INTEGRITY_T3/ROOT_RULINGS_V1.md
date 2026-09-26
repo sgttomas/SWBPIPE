@@ -286,3 +286,24 @@ Context: I1 stopped under the fixture stop rule.
 - The list must be empty after S11-F.
 - It is re-pinned from P1's final `results.json` once P1 re-evaluates against the frozen references.
 - **Any triple outside the list is a gate failure, not a new exception.**
+
+## BACKCHECK_R5 (ROOT, 2026-09-26, after `0874bed35`)
+
+Input: [REVIEW/BACKCHECK_R5.md](REVIEW/BACKCHECK_R5.md). Verdict FINDINGS, nothing blocking. **The D5C-1 condition is met, so O1 is final, subject to R5-4.**
+
+1. **R5-3 (urgent, for I1).** The KS caller list also covers:
+   - `product_equilibrium::evaluate`, which calls `evaluate_original_residual` (KS3) from the nonlinear loop (nonlinear lib.rs:1957) and from SA:1030;
+   - `linear_supports::apply_linear_supports`, which calls KS2 (linear_supports lib.rs:467, :487), used by the mechanics benchmarks with imposed displacements (6 sites).
+
+   Option (c) applies to both. Every nonlinear-loop caller, including `product_equilibrium` on the loop path, is pinned to the legacy binary64 variant with a pinning test. For SA:1030 and `linear_supports`, I1 reports whether they are linear callers. If they are, they get the exact path, and any benchmark or fixture bit change goes through the stop rule and is reported to ROOT before regeneration. D1 corrects the S11 caller list.
+2. **R5-1: V1's one-rule fix to `b_proof` is accepted** (the reaction rule for loaded fixed-fixed members). D1 adopts it, and D2's S-J mirrors it. Committed proven counts are unchanged.
+3. **R5-2.** `input_derived_dofs` is exactly the kernel's non-free DOFs, with the product's family rule stated explicitly. Spring hangers and constant-effort supports are free DOFs carrying applied force or stiffness, not rigid.
+4. **R5-5: accepted.** Condition 3 adds a check-level comparison: the committed rule packs run under both identities, and the successor must not turn a decided check (pass or fail) into indeterminate. Where it does, that domain does not retire.
+5. **N-1.** b is the exact point only when S\* = 0. For 0 < S\* < 2^-1011, b is rounded up to the smallest positive subnormal, not 0. **N-2 to N-6:** applied.
+6. **R5-4: data first.** D5C-2 demotes every Passed invocation containing a realized DEC-070 curved bend until W1c, and real piping models usually have elbows. Before ROOT decides whether this goes to the owner, D1 provides the following, and V1 checks it:
+   - how a user realizes a curved bend today (default or opt-in), and whether any committed or realistic invented model uses one;
+   - how many realistic models would lose Current;
+   - whether a bound-based alternative for curved contributions is feasible now, without T4, and its cost. Examples: re-forming the curved element's stiffness in Wide precision from its inputs for EF, or a documented formation-error bound for the curved element;
+   - whether T4's null-space confirmation is a prerequisite for that.
+
+   If a sound alternative exists within T3, ROOT selects it. Otherwise ROOT takes "demote realized curved bends until T4/W1c" to the owner, with the numbers. **The package may be assembled around R5-4, with R5-4 flagged as open.**
