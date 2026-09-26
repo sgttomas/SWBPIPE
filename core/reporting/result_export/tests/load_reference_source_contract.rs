@@ -29,37 +29,38 @@ const JOINED: [&str; 10] = [
     "eigen_motion-dense",
 ];
 
-macro_rules! joined_raw {
-    ($name:literal) => {
-        include_str!(concat!(
-            "../../../../fixtures/product_preview/load_reference_source/",
-            $name,
-            ".raw.json"
-        ))
-    };
-}
-macro_rules! joined_request {
-    ($name:literal) => {
-        include_str!(concat!(
-            "../../../../fixtures/product_preview/load_reference_source/",
-            $name,
-            ".request.json"
-        ))
-    };
-}
-
 fn source_text(name: &str) -> &'static str {
     match name {
-        "n05-sparse" => joined_raw!("n05-sparse_interactive"),
-        "n05-dense" => joined_raw!("n05-dense_scrutiny"),
-        "n06-sparse" => joined_raw!("n06-sparse_interactive"),
-        "n06-dense" => joined_raw!("n06-dense_scrutiny"),
-        "fields-sparse" => joined_raw!("fields-sparse_interactive"),
-        "fields-dense" => joined_raw!("fields-dense_scrutiny"),
-        "mixed-sparse" => joined_raw!("mixed-sparse_interactive"),
-        "mixed-dense" => joined_raw!("mixed-dense_scrutiny"),
-        "eigen_motion-sparse" => joined_raw!("eigen_motion-sparse_interactive"),
-        "eigen_motion-dense" => joined_raw!("eigen_motion-dense_scrutiny"),
+        "n05-sparse" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/n05-sparse_interactive.raw.json"
+        ),
+        "n05-dense" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/n05-dense_scrutiny.raw.json"
+        ),
+        "n06-sparse" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/n06-sparse_interactive.raw.json"
+        ),
+        "n06-dense" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/n06-dense_scrutiny.raw.json"
+        ),
+        "fields-sparse" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/fields-sparse_interactive.raw.json"
+        ),
+        "fields-dense" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/fields-dense_scrutiny.raw.json"
+        ),
+        "mixed-sparse" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/mixed-sparse_interactive.raw.json"
+        ),
+        "mixed-dense" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/mixed-dense_scrutiny.raw.json"
+        ),
+        "eigen_motion-sparse" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/eigen_motion-sparse_interactive.raw.json"
+        ),
+        "eigen_motion-dense" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/eigen_motion-dense_scrutiny.raw.json"
+        ),
         "lr-connected-sparse" => include_str!(
             "../../../../fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json"
         ),
@@ -77,11 +78,21 @@ fn source_text(name: &str) -> &'static str {
 }
 fn request_text(name: &str) -> &'static str {
     match name.rsplit_once('-').map_or(name, |(stem, _)| stem) {
-        "n05" => joined_request!("n05"),
-        "n06" => joined_request!("n06"),
-        "fields" => joined_request!("fields"),
-        "mixed" => joined_request!("mixed"),
-        "eigen_motion" => joined_request!("eigen_motion"),
+        "n05" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/n05.request.json"
+        ),
+        "n06" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/n06.request.json"
+        ),
+        "fields" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/fields.request.json"
+        ),
+        "mixed" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/mixed.request.json"
+        ),
+        "eigen_motion" => include_str!(
+            "../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+        ),
         "lr-connected" => {
             include_str!(
                 "../../../../fixtures/product_preview/load_reference/connected.request.json"
