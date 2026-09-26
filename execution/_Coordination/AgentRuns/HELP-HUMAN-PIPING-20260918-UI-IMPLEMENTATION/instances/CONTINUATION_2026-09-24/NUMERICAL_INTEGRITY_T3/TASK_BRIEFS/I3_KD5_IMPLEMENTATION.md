@@ -137,3 +137,9 @@ Base: branch `codex/piping-k3a-20260926` at `a2e804a757359d589f4c31ea8e36a923f28
    - the `FormationCheckedSystem` wrapper, following S11-K's `AssembledStructuralSystem` pattern (StructuralReport unchanged; no struct literal outside the write set changes);
    - the K-D5 nonlinear pins in a new `structural_adapter/kd5_tests.rs`, not edits to I1's pin function, integrated when K-D5 is merged forward after S11-K and K3a merge;
    - joints with nonzero lateral stiffness are non-re-formable, and the lateral-zero test is at SA level.
+
+**ROOT (2026-09-26): addendum 2 accepted, with conditions.**
+- **Option B:** add a test in which a curved slot's matrix differs by **one ulp** from its macro element's re-formed matrix. The slot must demote with `formation_check_unavailable` (fail closed) and never pass. Option B must add **no new call path from nonlinear `lib.rs`**.
+- **selected = built.nonlinear_supports.is_empty():** accepted. Keep the byte-identity test on such a case's linear attempt and receipt.
+- **Nonlinear pins (RV1's S1 lesson, applied from the start):** every pin gets a behavioural test that first asserts the two paths differ. The pins are integrated into I1's module at the forward merge.
+- **Joints with nonzero lateral stiffness:** they demote (the product refuses them anyway; M07, T4).
