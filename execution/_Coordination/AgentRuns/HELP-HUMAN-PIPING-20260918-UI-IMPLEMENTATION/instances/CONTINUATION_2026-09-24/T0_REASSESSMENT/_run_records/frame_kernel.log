@@ -1,0 +1,94 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 ({REPO_ROOT}/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.44s
+     Running unittests src/lib.rs (${CARGO_TARGET_DIR}/debug/deps/open_pipe_stress_frame_kernel-535ae6c056266eb7)
+running 85 tests
+test rigid_body::tests::empty_ground_has_explicit_null_and_origin_shift_does_not_change_rank ... ok
+test rigid_body::tests::full_ground_rank_does_not_assert_internal_stiffness_rank ... ok
+test rigid_body::tests::overflowing_geometry_length_is_range_uncertainty ... ok
+test structural::exact_boundary::functionals::tests::all_fixed_and_mixed_partition_include_affine_offsets ... ok
+test structural::exact_boundary::functionals::tests::coefficient_product_recipe_is_not_a_rounded_coefficient ... ok
+test rigid_body::tests::krev01_original_geometry_refutes_coarsened_null_witnesses ... ok
+test rigid_body::tests::oblique_geometry_and_actual_rotation_restraint ... ok
+test structural::exact_boundary::functionals::tests::exact_zero_and_nonzero_unprojectable_are_distinct ... ok
+test structural::exact_boundary::functionals::tests::generic_coupled_and_multiple_independent_blocks_have_rational_oracles ... ok
+test rigid_body::tests::krev01_valid_oblique_witness_survives_origin_and_radix_units ... ok
+test structural::exact_boundary::functionals::tests::denied_reservations_long_ids_range_failures_and_retries_keep_the_ledger ... ok
+test structural::exact_boundary::functionals::tests::plan_binding_and_typed_identity_and_metering_cannot_be_bypassed ... ok
+test structural::exact_boundary::tests::all_fixed_pulling_bearing_and_zero_reactions_are_distinct ... ok
+test structural::exact_boundary::functionals::tests::tiny_twist_recovers_signed_member_and_spring_actions_before_projection ... ok
+test structural::exact_boundary::functionals::tests::retention_replays_expected_plan_and_rejects_corruption_order_and_source_changes ... ok
+test structural::exact_boundary::tests::exact_zero_source_coupling_can_split_a_stored_connected_graph ... ok
+test structural::exact_boundary::tests::incomplete_duplicate_changed_maps_and_sources_fail ... ok
+test structural::exact_boundary::tests::coupled_tie_candidate_checks_original_rows_and_nonzero_prescribed ... ok
+test structural::exact_boundary::tests::force_tail_is_not_a_declared_vector_claim ... ok
+test structural::exact_boundary::tests::manager_small_strain_companion_exact_projection ... ok
+test structural::exact_boundary::tests::original_exact_graph_does_not_use_absorbed_stored_coupling ... ok
+test structural::exact_boundary::tests::node_permutation_and_exact_radix_rescaling_preserve_gap_proof ... ok
+test structural::exact_boundary::tests::outward_projection_all_signed_endpoints_and_gradual_underflow ... ok
+test structural::exact_boundary::tests::per_call_work_keeps_success_failure_and_rejected_reservations ... ok
+test structural::exact_boundary::tests::projection_exact_zero_and_range_edge_shortcuts ... ok
+test structural::exact_boundary::tests::projected_adjacent_reactions_preserve_exact_tiny_values ... ok
+test structural::exact_boundary::tests::projections_bind_the_same_response_quantity_and_source ... ok
+test structural::exact_boundary::tests::reactions_combine_independent_blocks_and_nonrepresentable_response ... ok
+test structural::exact_boundary::tests::retained_force_tail_and_projection_rebinding_are_checked ... ok
+test structural::exact_boundary::tests::retained_adjacent_witness_replays_after_context_drop ... ok
+test structural::exact_boundary::tests::source_permutation_preserves_proof_but_invalidates_old_binding ... ok
+test structural::exact_boundary::tests::unsupported_singular_negative_asymmetric_range_and_budget_are_explicit ... ok
+test structural::tests::generic_nonsymmetric_api_is_preserved ... ok
+test structural::tests::invalid_energy_zero_load_and_skew_are_not_solved ... ok
+test structural::tests::krev02_prescribed_contribution_error_is_not_zero_fidelity ... ok
+test structural::exact_boundary::tests::retained_mutations_and_different_consistent_source_reject_original_binding ... ok
+test structural::tests::krev03_offdiagonal_expansion_retains_lost_low_tail ... ok
+test structural::tests::krev04_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::tests::krev05_completion_requires_positive_source_bound_factor ... ok
+test structural::tests::lost_stabilizer_retains_unresolved_instead_of_physical_mechanism ... ok
+test structural::tests::nonfinite_and_unrepresentable_range_block ... ok
+test structural::tests::normalized_residual_retains_soft_physical_cancellation ... ok
+test structural::tests::original_residual_kills_wrong_solution_wrong_matrix_and_missing_load ... ok
+test structural::tests::prescribed_and_constrained_load_semantics ... ok
+test structural::tests::public_factor_dimensions_are_errors_not_panics ... ok
+test structural::tests::soft_diagonal_and_unit_congruence_are_not_mechanisms ... ok
+test tests::assembly_accumulates_shared_node_contributions ... ok
+test tests::assembly_rejects_node_index_outside_model ... ok
+test tests::assembly_uses_stable_dof_map_for_nonzero_node_indices ... ok
+test tests::audit_rejects_computed_nonfinite_stiffness_and_solutions ... ok
+test tests::boundary_metadata_rejects_missing_unit_and_model_refs ... ok
+test tests::boundary_metadata_trims_ids_and_rejects_tbd_placeholders ... ok
+test tests::boundary_reduction_rejects_force_length_mismatch ... ok
+test tests::boundary_reduction_rejects_out_of_range_restraint ... ok
+test tests::boundary_reduction_rejects_repeated_restraint ... ok
+test tests::canonical_dimension_exposes_force_per_length ... ok
+test tests::degenerate_orientation_is_rejected ... ok
+test tests::dense_operations_reject_invalid_numeric_shapes_and_values ... ok
+test tests::dense_solve_uses_internal_zero_pivot_guard ... ok
+test tests::dense_solve_uses_partial_pivoting ... ok
+test tests::frame_unit_basis_rejects_wrong_dimensions ... ok
+test tests::frame_unit_basis_uses_accepted_canonical_dimensions ... ok
+test tests::local_stiffness_contains_standard_terms ... ok
+test tests::global_x_member_transform_matches_local_stiffness ... ok
+test tests::non_finite_input_is_rejected ... ok
+test tests::non_positive_section_and_length_inputs_are_rejected ... ok
+test tests::orientation_constructor_rejects_non_orthonormal_axes ... ok
+test tests::prescribed_displacement_reduction_adjusts_free_forces ... ok
+test tests::prescribed_reduction_rejects_invalid_displacement_vector ... ok
+test tests::prescribed_reduction_rejects_repeated_and_out_of_range_dofs ... ok
+test tests::prescribed_reduction_uses_boundary_dof_order_for_force_adjustment ... ok
+test tests::reduction_removes_restrained_dofs ... ok
+test tests::repeated_element_node_index_is_rejected ... ok
+test tests::rotated_member_maps_local_axial_stiffness_to_global_axis ... ok
+test tests::rotated_member_transform_preserves_symmetry ... ok
+test tests::singular_system_is_detected ... ok
+test tests::six_dof_mapping_is_stable_and_node_based ... ok
+test tests::simple_axial_bar_solve_uses_reduced_system ... ok
+test tests::transformation_matrix_maps_translation_and_rotation_blocks ... ok
+test tests::user_stiffness_element_local_stiffness_consumes_directional_user_values ... ok
+test tests::zero_pivot_singular_system_is_detected ... ok
+test tests::user_stiffness_element_participates_in_global_solve ... ok
+test tests::zero_prescribed_displacements_match_legacy_reduction ... ok
+test structural::exact_boundary::tests::independent_27_neighbor_controls_both_senses_and_all_seeds ... ok
+test structural::tests::np_b_banded_family_does_not_require_comparison_inverse_certificate ... ok
+test result: ok. 85 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+   Doc-tests open_pipe_stress_frame_kernel
+running 1 test
+test src/structural.rs - structural::finish_structural (line 1087) - compile fail ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s

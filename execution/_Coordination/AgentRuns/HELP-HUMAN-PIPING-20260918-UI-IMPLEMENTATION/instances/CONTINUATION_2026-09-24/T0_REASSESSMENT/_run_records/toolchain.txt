@@ -1,0 +1,10 @@
+Toolchains actually used (rustup resolution by working directory):
+- Cargo tests (product_physics lib + integration, frame_kernel, sparse_direct) ran with cwd under
+  projects/chirality-piping, which has a rustup directory override:
+  rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
+- The t0_probe crate ran from a scratch directory outside the repository, which uses the default
+  stable toolchain (and rebuilt product_physics with it):
+  rustc 1.94.1 (e408947bf 2026-03-25); cargo 1.94.1 (29ea6fb6a 2026-03-24)
+- Python for the validation gate tests: Python 3.11.15 (DEC-025 venv)
+Correction: the first version of this file recorded only 1.94.1 because it was captured from the
+scratch target directory, outside the override. That describes the probe only.
