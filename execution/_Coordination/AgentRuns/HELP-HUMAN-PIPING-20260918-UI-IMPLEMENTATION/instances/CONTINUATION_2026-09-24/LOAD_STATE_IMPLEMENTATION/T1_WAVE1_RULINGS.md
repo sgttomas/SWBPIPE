@@ -150,3 +150,9 @@ A digest-consistent, crate-internal relabel of the solver mode in `QualifiedPrev
 - **Surviving mutants (32).** They are accepted only after the combined wave-2 review verifies them: every reader survivor, and a sample of the ledger survivors. Any mutant found reachable gets a killing test before the PR. The redundant checks stay, as the check-for-check mirror requires.
 - **Browser 0.3.0.** Its divergence from native predates T1. It is unchanged in T1 and routed to UI-SUCCESSOR.
 - **Timeouts.** The 30 s timeouts in `App.test.tsx` and `physicsSourceIntegration.test.tsx` are not accepted as flakes. WP7's quiet-host sweep must pass with no timeout raised, or they are root-caused.
+
+## 15. WP3 native inputs: write set and e2e route (manager rulings)
+
+- **C1.** The blank 0.4.0 model offer widens WP3's write set. It covers the builder in `services/projectService.ts`, the control in `App.tsx`, and a generalized or sibling handler in `features/workspace/workspaceSession.ts`. It includes no native IPC change. The existing blank path must stay byte-identical.
+- **C2.** Browser solve always refuses, and the browser fixture is 0.1.0. The Chromium e2e therefore runs: blank 0.4.0, then the existing authoring, then the 0.4.0 fields, then Review/Apply and Undo/Redo with the bytes restored. It asserts the browser solve refusal in both modes. The resolved-state block is proven in vitest over the committed raws. There is no fake Tauri backend. The 0.4.0 solve and block display in the native app remain owner's-Mac witness 4.
+- **C3.** Field refusals are pre-checked through the engine's own validate-only path, with the current model hash, and shown in the field group. Case labels come from WP2 standing ("integrity checked" or "needs recompute — not Current"). The word "Current" is never used for a case.
