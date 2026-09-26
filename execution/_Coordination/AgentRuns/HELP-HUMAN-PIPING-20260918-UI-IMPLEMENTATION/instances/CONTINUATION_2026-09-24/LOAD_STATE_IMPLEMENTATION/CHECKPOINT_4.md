@@ -95,6 +95,8 @@ These correct earlier records without rewriting them.
 
 This session verified every hash above against the files and `git show 485cc2ed0`.
 
+**This session's own record edit.** After dispatch, the manager replaced the absolute machine paths (worktree, venv and target locations) in `TASK_BRIEFS/CP4_READERS.md` and `CP4_JOIN_TESTS.md` with placeholders, in commit `<this commit>`. No other content changed. The TASKs executed the bytes committed at `c0ef4a8e0`, and those remain in Git history. The concrete locations are given in the spawn requests, not in committed records.
+
 ## 4. Checks
 
 Integrated head `5a7baefef`. The toolchain is `cargo +1.97.1 --locked --offline -j 2`, and the Python venv is the session's DEC-025 environment. Logs are in `_run_records/session3/`.

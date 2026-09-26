@@ -2,7 +2,7 @@
 
 - **Role:** TASK (Type 2), acting as a fresh-context **non-author** reviewer. You wrote none of the reviewed bytes. You do not delegate.
 - **Manager:** the T1 WORKING_ITEMS manager (load/reference states) that requested this TASK. Report to it by `SendMessage`.
-- **Candidate:** branch `codex/piping-load-states-20260925` in `/home/user/wt/loadstate`, at the records commit that the manager names in its spawn request (the candidate head). Review the frozen diff `a68326039..<head>`. `a68326039` is ROOT's merge of main into the CP3 branch.
+- **Candidate:** branch `codex/piping-load-states-20260925` in the load-state worktree (location given in the spawn request), at the records commit that the manager names in its spawn request (the candidate head). Review the frozen diff `a68326039..<head>`. `a68326039` is ROOT's merge of main into the CP3 branch.
 - **Paths:** relative to WORKING_ROOT = `projects/chirality-piping/`. `LSI` is `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION`.
 - **No writes** outside your return folder `LSI/REVIEW_CHECKPOINT_4/`. Make no Git writes. Never edit the reviewed bytes; run probes and mutants on a scratch copy only.
 
@@ -43,7 +43,7 @@
 
 ## Checks you may run
 
-Use `CARGO_TARGET_DIR=/home/user/wt/ls-review-target` (delete when done), `-j 2`, `+1.97.1 --locked --offline`, and the venv `/home/user/dec025-venv`. About 15 GB of disk is shared, so keep one scratch copy at a time.
+Use `CARGO_TARGET_DIR=<scratch>/ls-review-target` (a directory outside the worktree) (delete when done), `-j 2`, `+1.97.1 --locked --offline`, and the venv `the session DEC-025 venv (location given in the spawn request)`. About 15 GB of disk is shared, so keep one scratch copy at a time.
 
 - the product_physics crate (expect 415 passed, 1 ignored);
 - result_export (64);

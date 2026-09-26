@@ -2,7 +2,7 @@
 
 - **Role:** TASK (Type 2). You do not delegate.
 - **Manager:** the T1 WORKING_ITEMS manager (load/reference states) that requested this TASK. Report to it by `SendMessage`, never only as final text.
-- **Checkout:** `/home/user/wt/loadstate`, branch `codex/piping-load-states-20260925`, at the manager's commit `a819a2b1f` or later. Paths are relative to WORKING_ROOT = `projects/chirality-piping/`. `LSI` = `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION`.
+- **Checkout:** the load-state worktree (location given in the spawn request), branch `codex/piping-load-states-20260925`, at the manager's commit `a819a2b1f` or later. Paths are relative to WORKING_ROOT = `projects/chirality-piping/`. `LSI` = `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION`.
 - **No Git writes.** Do not stage, commit, push or change branches.
 - You did not write the join; keep it that way. You write tests only.
 
@@ -35,13 +35,13 @@ All inputs must be invented and marked as such, as in the existing witnesses. Do
 
 - `core/product_physics/src/source_receipt/load_state_join_tests.rs`
 - your return folder `LSI/CP4_JOIN_TESTS/` (RETURN.md; scripts and logs under `LSI/CP4_JOIN_TESTS/_run_records/`).
-- scratch copies and cargo targets under `/home/user/wt/ls-join-scratch/` (create; delete when done).
+- scratch copies and cargo targets under `<scratch>/ls-join-scratch/` (create; delete when done).
 
 Nothing else. Another TASK is editing the result_export and analysis_runs readers concurrently; do not touch them.
 
 ## Checks to run
 
-Use `CARGO_TARGET_DIR=/home/user/wt/ls-join-target` for the live checkout (delete when done), `-j 2`, toolchain `+1.97.1`, `--locked --offline`. Disk is limited (about 8 GB free): keep at most one scratch copy and one extra target at a time.
+Use `CARGO_TARGET_DIR=<scratch>/ls-join-target` (a directory outside the worktree) for the live checkout (delete when done), `-j 2`, toolchain `+1.97.1`, `--locked --offline`. Disk is limited (about 8 GB free): keep at most one scratch copy and one extra target at a time.
 
 1. `cargo test --lib source_receipt::load_state_join_tests` — all pass, both modes where relevant.
 2. The whole crate once at the end: `cargo test` in `core/product_physics` — baseline 407 passed, 1 ignored, plus your tests.

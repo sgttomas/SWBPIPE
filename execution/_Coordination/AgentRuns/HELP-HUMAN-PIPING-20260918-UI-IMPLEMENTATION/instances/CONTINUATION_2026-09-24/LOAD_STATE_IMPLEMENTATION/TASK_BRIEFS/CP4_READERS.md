@@ -2,7 +2,7 @@
 
 - **Role:** TASK (Type 2). You do not delegate.
 - **Manager:** the T1 WORKING_ITEMS manager (load/reference states) that requested this TASK. Report to it by `SendMessage`, never only as final text.
-- **Checkout:** `/home/user/wt/loadstate`, branch `codex/piping-load-states-20260925`. Start from the manager's commit `13f752115` or later. Paths below are relative to WORKING_ROOT = `projects/chirality-piping/`. `LSI` = `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION`.
+- **Checkout:** the load-state worktree (location given in the spawn request), branch `codex/piping-load-states-20260925`. Start from the manager's commit `13f752115` or later. Paths below are relative to WORKING_ROOT = `projects/chirality-piping/`. `LSI` = `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION`.
 - **No Git writes.** Do not stage, commit, push or change branches. The manager integrates and commits.
 
 ## Basis (read first)
@@ -49,7 +49,7 @@ Nothing else. Other writers are concurrently editing `core/product_physics/**`; 
 
 ## Checks to run
 
-Use `CARGO_TARGET_DIR=/home/user/wt/ls-target-readers` (create it; delete it when done) and `-j 2`. Keep runs targeted. The Python venv is `/home/user/dec025-venv`.
+Use `CARGO_TARGET_DIR=<scratch>/ls-target-readers` (a directory outside the worktree) (create it; delete it when done) and `-j 2`. Keep runs targeted. The Python venv is `the session DEC-025 venv (location given in the spawn request)`.
 
 1. `cargo +1.97.1 test --locked --offline -j 2` in `core/reporting/result_export` — all pass (baseline 64).
 2. `rustfmt +stable --edition 2021 --check` on each Rust file you touch — clean.
@@ -67,4 +67,4 @@ Use `CARGO_TARGET_DIR=/home/user/wt/ls-target-readers` (create it; delete it whe
 - check commands and counts, and the mutation results;
 - anything you could not do, or any design question.
 
-Keep absolute machine paths (`/home/user`, `/tmp`) out of RETURN.md; put them only under `_run_records/`, and prefer relative paths there too.
+Keep absolute machine paths (home or temporary directories) out of RETURN.md; put them only under `_run_records/`, and prefer relative paths there too.
