@@ -122,13 +122,29 @@ D1's note `DESIGN_NUMERICS/R5_4_CURVED.md` (commit `4bc3e0696`, sha256 `4843c4e9
 
 ## 7. What T3 completes and what remains
 
-To be filled from D1 §8 and D2 §8 when the follow-up lands, per group: M03, M32, M34, N05 ordinary accuracy, general retained-source recovery, the composite finding, the T1-routed items, the T0R carries, and the stage-1 findings (STAGE0_MAP §6). Nothing closes by design: every group closes only when fixed, verified and merged, with its paired validation evidence.
+This section is drawn from D1 §8 and D2 §8, at the final revisions. **Nothing closes by design.** A group closes only when it is fixed, verified and merged, with its paired validation evidence (the closure rule).
+
+| Group or item | T3 completes (when merged and verified) | Slice(s) | Remains, and where |
+|---|---|---|---|
+| **M03** | General accuracy for the W1a and W1b families, including generated equivalent-static loads formed exactly from their inputs (D-14). The S11 load-cancellation repair on every route, on both the force and recovery sides. The PHYS-R4 and formation range (W2, checked formation). The formation-error trigger (K-D5), including curved and joint re-formation (R5-4). The rigid-null witness. The SUP-17 wording. VP-ROBUST | S11-K, S11-F, K-D5, K1–K6, F1–F3, V-K, V-P | Curved bends in the method (W1c, with T4); components and releases (T4, T7); nonlinear mixed recovery, gap classification, the S11 audit inside the nonlinear loop, the friction fold (T5) |
+| **VP-ORACLES** (near-zero and finite-accuracy budgets) | The frozen R1 references (`c0f14201c`) and RF-ELOAD (a candidate, pending V3 and selection). Budgets are selected from the K6 and V-P measurements (D-8) | V-K, V-P, F3 | Curved references (W1c) |
+| **VP-ROBUST** | The harness: kernel and product lanes, both entries, and the no-Passed-breach gate with the pinned S11 exceptions (`GATE/S11_EXCEPTIONS.json`), which must be empty after S11-F. The skew and curved cases are K-D5's true positives | V-K, V-P | — |
+| **M32** | Sparse assembly, reduction, reactions and the gate in both modes; the parity and memory protocol; dense scrutiny kept, with a guard | K4, F-slices | Friction influence solves (T5); resource ceilings chosen by ROOT from measurement (P1 baseline: at n1000, sparse took 15–19 s and dense 204–487 s; every n10000 run aborted at 6 GiB) |
+| **M34** | Solve-side range (W2). Publication representability. Display range (S-B). Transport range requirement, references and fallback. The capture fix (S-H, after S11-F). The comparison policy is stated, with predicates unchanged | K-slices, S-B, S-H | Carrier adoption, persistence and canonical export of \|x\| ≥ 2^53 results (T6) |
+| **N05 ordinary accuracy** | Repaired on the ordinary and exact routes for W1a models | F2 | — |
+| **General retained-source recovery** | Order > 2, skewed, weakly coupled and larger systems up to the measured budgets; W1b producers; exact combinations over retained states | F2, F3 | Curved, pressure regions, components (W1c and later) |
+| **Composite SOURCE_BLOCKS_FINALIZATION_FAILED** | Closed: no `Err` (S-D, the F1 port of SF-1), and no fresh exact-block selection after F2 | F1, F2 | R-1a and R-1b in the pre-F2 window only |
+| **T1-routed: joined load-reference-source-1 eligibility** | Scheduled by R-3(a): S-E1 with F3; S-E2 conditional | F3 | Historical joined standing after F3, only if S-E2 is built (DD-10) |
+| **T1-routed: binding route** | Automatic for eligible identities | F2, F3 | Desktop export of the load-reference and successor identities (T6) |
+| **T1-routed: selected-UNAVAILABLE alignment** | Closed (S-A), built into S-G | S-A | — |
+| **T0R carries R-1, R-2** | Fresh results: moot after F2. Historical: containment kept by ruling (R-7 (i)) | F2 | None, unless a defect is found |
+| **Standing (D-15)** | Today's selected-case withholding restored by C (S-I1, S-I2), and proven zeros by B (S-J). Retirement proceeds domain by domain, only under gate condition 3 (row level and check level) | S-I, S-J, F2b | Rows a check cannot decide within ±b read indeterminate, never pass. Case-scoped standing and F-P2's whole-invocation blocking (T6) |
 
 **Routed elsewhere:**
-- T5: friction fold, nonlinear closed-gap prescribed solves, mixed recovery basis, gap classification.
-- T6: case-scoped standing, binary64 carriers, desktop export.
-- T4: curved null space, W1c.
-- T9: the comparison policy stays unchanged, plus the M32 baseline.
+- **T5:** the friction fold; the nonlinear closed-gap prescribed solves (option (c), legacy binary64 variants pinned); mixed recovery basis; gap classification.
+- **T6:** case-scoped standing and F-P2; binary64 carriers and F-P7; desktop and canonical export.
+- **T4:** the curved element's non-objectivity on binary64 inputs (R5-4 finding, for T4's graph row); curved null space; W1c.
+- **T9:** the comparison policy stays unchanged; the M32 baseline.
 
 ## 8. Findings on main recorded during stage 1
 
