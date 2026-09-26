@@ -1,6 +1,6 @@
-# T3 D2 — result standing, source envelopes and transport (revision 5a)
+# T3 D2 — result standing, source envelopes and transport (revision 5b)
 
-Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_ITEMS manager, 2026-09-26. **This is a proposal.** It becomes a basis only if ROOT selects it after V1's backcheck. Revision 1 is kept byte-for-byte as `_run_records/DESIGN_revision1.md` (sha256 prefix `185e178efe3b9855`), revision 2 as `_run_records/DESIGN_revision2.md` (`5c36da2cb8cf89e6`, also in `DESIGN_revision2.sha256`), revision 3 as `_run_records/DESIGN_revision3.md` (`43c7d672df4c5f83`), revision 4 as `_run_records/DESIGN_revision4.md` (`e12bd015fc1e5cd0`), and revision 5 as `_run_records/DESIGN_revision5.md` (`0d50f1f9afbdf66f`). Revisions 3 to 5a are narrow: §0.4, §0.3, §0.2 and §0.1 list every change.
+Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_ITEMS manager, 2026-09-26. **This is a proposal.** It becomes a basis only if ROOT selects it after V1's backcheck. Revision 1 is kept byte-for-byte as `_run_records/DESIGN_revision1.md` (sha256 prefix `185e178efe3b9855`), revision 2 as `_run_records/DESIGN_revision2.md` (`5c36da2cb8cf89e6`, also in `DESIGN_revision2.sha256`), revision 3 as `_run_records/DESIGN_revision3.md` (`43c7d672df4c5f83`), revision 4 as `_run_records/DESIGN_revision4.md` (`e12bd015fc1e5cd0`), revision 5 as `_run_records/DESIGN_revision5.md` (`0d50f1f9afbdf66f`), and revision 5a as `_run_records/DESIGN_revision5a.md` (`04a466b148605153`). Revisions 3 to 5b are narrow: §0.5, §0.4, §0.3, §0.2 and §0.1 list every change.
 
 - **Brief:** `T3/TASK_BRIEFS/D2_STANDING_DESIGN.md` with `_COMMON.md`. Revision inputs at `065c9ff60`: `T3/REVIEW/RETURN.md` (V1), `T3/ROOT_RULINGS_V1.md` (ROOT's early rulings, plus the further rulings on R-3(a), R-3(b) and R-7 relayed by the manager), and `T3/MANAGER_NOTES/V1_DISPOSITIONS.md`.
 - **Abbreviations:**
@@ -15,7 +15,22 @@ Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_IT
 - **Revision 4 inputs:** `T3/REVIEW/BACKCHECK_R3.md` at `ef9cf487e` (V1's combined backcheck of revision 3: R3B-1 to R3B-4, N-5), ROOT's confirmation of R3B-2, R3B-3 and R3B-4 as relayed by the manager, and D1 revision 3 (`48f351441d6b132e`) §4.1.6, §4.1.6.1 and §5 item 1. D1 revision 4 was not yet available. Where revision 4 mirrors D1's announced revision-4 changes (the stress factor k, the closed kind list, the section terms in the receipt), it is marked **[align D1-r4]**.
 - **Revision 5 inputs:** `T3/REVIEW/BACKCHECK_R4.md` at `e27181fb2` (R4-1 to R4-4), and ROOT's rulings at the end of `T3/ROOT_RULINGS_V1.md` at `c6a96f8a9`: D-15 and option C with its conservative-binding constraint; the BACKCHECK_R4 rulings; the hard S-H/S11-F ordering (`b6fe1eb75`). D1 revision 4 (`48f351441d6b132e`… as committed at `e94af71f2`) §4.1.6.1 and §8.1 were read. D1 revision 5 was not yet committed when revision 5 was written.
 - **Revision 5a inputs:** D1 revision 5 as committed at `490f02982` (DESIGN.md sha256 prefix `42bba414d5c3b592`): §4.1.6.1 (the closed table with rules 2a and 2b, item 7), §5 item 1, §6 (F2a, F2b), §4.3.1 (the zero-scale clause) and §8.1.2 to §8.1.3 (B and C), with `_run_records/b_proof.py` read as B's reference. Also D1's direct messages to D2 on B and the pressure carve-out, and the manager's and ROOT's instructions for revision 5a. Revision 5's **[align D1-r5]** marks are cleared wherever D1's final text matches (§0.4 item 6). Product lines are cited at the merged tree `303609725`.
+- **Revision 5b inputs:** `T3/REVIEW/BACKCHECK_R5.md` (R5-1, R5-2, R5-5 and N-1, as the manager assigned them to D2) with V1's `REVIEW/_run_records/r5_backcheck/b_proof_reaction_fix.diff.txt`; D1 revision 5a as committed at `16bcbf369` (DESIGN.md sha256 prefix `7decddea72389e49`): its revision-5a change table, §4.1.6 (N-1), §4.1.6.1 rule 2a (R5-2), §4.4.1 condition 3 (R5-5), §5 item 1 and §8.1.2 (R5-1 and the B pins); `PP` at `303609725`, lines 5169-5230, 5279-5298 and 10232-10250 (the support family rule, read to state it exactly); `T3/SELECTION_PACKAGE.md` §5 at `489feb5d7` (ROOT's rulings of 2026-09-26; sha256 prefix `e0242409d76d48e0`); and the manager's instruction for revision 5b.
 - **Citations after the main merge.** Main is merged into the T3 branch at `303609725` (T1's `5aa4285c2`). Revision-5 text cites product lines at that tree. Earlier sections keep their original bases: `c61a540ea` for files T1 did not change, and `f3270ea79` for files it did. Spot checks show T1's line numbers equal the merged tree's for the cited `PP` and test lines (`PP:1407`, `:1414`, `:1427`, `:1432`, `:2391`, `:2404`; `load_state_fallback_tests.rs:294`).
+
+## 0.5 Revision 5b — what changed and why
+
+| # | Input | What changed | Where |
+|---|---|---|---|
+| 1 | R5-1 (V1's fix; D1 r5a §8.1.2 step 5) | **Reaction rule.** A support reaction component at a restrained DOF is proven zero only if, in addition to revision 5a's conditions, the DOF lies in no family set of a member carrying a member load, a pressure region or a 0.4.0 element state term, and in no axial-family set of a member with an axial eigenstrain. Such a member puts an end force at the DOF. S-J's controls gain the negative "a loaded fixed-fixed member's reaction listed" (V1's probe B). | §4.12.2 step 5, §4.12.5 |
+| 2 | R5-2 (D1 r5a §4.1.6.1 rule 2a) | **`input_derived_dofs` is exactly the kernel's non-free DOFs.** The phrase "restraint sets" is replaced by the product's family rule, stated as `PP` applies it. Springs, spring hangers and constant-effort supports are free DOFs and never `input_derived`. 0.4.0 boundary motions add prescribed DOFs. A selected case with a nonlinear support is refused, since W1 never selects one. In B, a constant-effort node is seeded as loaded on all six DOFs, and a nonlinear support gives no proof. | G5c rule 2a, §4.12.2 step 3, §6.2 |
+| 3 | R5-5 (D1 r5a §4.4.1) | **Gate condition 3 gains a check-level comparison.** The committed rule packs, with the run fixtures that bind successor rows, run under both identities. Any check that is decided (pass or fail) under the retiring identity and undecided under the successor stops that domain's retirement. The gate report lists such checks beside the row counts, and F2b's precondition names both levels. | §4.5.2, §4.9.9, §4.11.6, §7 |
+| 4 | N-1 (D1 r5a §4.1.6, §5) | **b = fl↑(2^-64·S\*), rounded upward**, decided exactly in every language. b = 0 only when S\* = 0, the only exact-point case. For 0 < S\* < 2^-1011, b is at least 2^-1074 and C binds an interval. This corrects §0.4 row 5, which put b = 0 on N-2 bodies: an N-2 body with 0 < S\* < 2^-988 now has b > 0. | G5c, §4.9.9, §4.11.2, §6.2 |
+| 5 | D1 r5a B pins; ROOT's DD-15 ruling | **[align D1-B] marks cleared, I-11 closed.** D1 §8.1.2 pins the BFS order, the digest payload and domain, and the read-set table, as §4.12.3 proposed. ROOT ruled DD-15: build S-J after S-I. Under R5-5's check-level comparison, S-J is what keeps sign and equality checks on proven zeros decided, so it can be needed for a domain's retirement. This corrects "off every retirement's critical path" in §0.4 row 4 and §4.12. | §4.12, §5, §7 |
+| 6 | ROOT's rulings, `SELECTION_PACKAGE.md` §5 | **§9 statuses updated.** DD-1, DD-2, DD-3, DD-4, DD-5, DD-6, DD-8, DD-9, DD-10 (only if S-E2 is built), DD-12 and DD-15 are marked ruled, in ROOT's wording. | §9 |
+| 7 | D-14; the S11 exception re-pin; R5-4 | **No text change needed.** This design does not mention equivalent-static loads, the S11 exception list or D5C-2's demotion of curved bends. For R5-4, D1 leaves the `FormationCheck` record unchanged and keeps D5C-2's demotion only as the fail-closed default, so §0.4 row 5 ("readers are unaffected") still holds. Curved rows stay `not_covered` by rule 2b. | none |
+
+The rest of revision 5a stands.
 
 ## 0.4 Revision 5a — what changed and why
 
@@ -371,6 +386,12 @@ D1 defines the gate (ROOT ruling 3; dispositions R-4). Its four conditions, as V
 3. **Standing** (ROOT's final wording, revision 3, tightened to row level by D-15 and R4-2, revision 5): "the successor identity's standing is no worse than the retiring identity's, case by case, in all three languages".
    - **Envelope level.** Each language's standing is identical and fail-closed across the whole family. It does not require every case to become eligible: a declared out-of-scope subset reads `needs_recompute` under both identities, and passes. The H-a log-law cases under the joined identity are the example.
    - **Row level (revision 5).** For every case, `withheld(successor) ≤ withheld(retiring)`, identically in the three languages. Withheld counts are defined in §4.9.9. The gate report prints both counts side by side per case, with the rows involved.
+   - **Check level (revision 5b, R5-5; D1 §4.4.1).** The row count can pass while a check changes outcome. A zero row that C binds as [−b, b] and B does not prove makes a sign or equality check read `RULE_RESULT_INDETERMINATE`, where exact-block, publishing +0 as a point, decides it today. So the gate also runs the committed rule packs, with the run fixtures that bind successor rows, under both identities, and compares outcomes check by check.
+     - A check is *decided* when its status is `USER_RULE_CHECKED` or `USER_RULE_FAILED`. It is *undecided* when its status is `RULE_INPUTS_INCOMPLETE`, whether from `RULE_RESULT_INDETERMINATE` or from a withheld-row refusal.
+     - **Any check decided under the retiring identity and undecided under the successor stops that domain's retirement.**
+     - Languages: the Rust runner computes the outcomes. The Python reference evaluator (§4.11.5) recomputes them from the same formulas and bindings. TS, which never evaluates rules, must give the same binding decision for every bound row: a point, an interval with b's bits, or the same refusal code.
+     - The report lists every check whose outcome differs, with the rows it binds. A change between two decided outcomes is listed for review; it is not a condition-3 failure by itself.
+     - D1 names the candidates on the committed families: the 60 unproven zeros of mixed ordinary-pressure and the 7 cancellation zeros of eigen_motion (D1 §8.1.1), and more where S-J is not built.
    - **Consequence (D-15).** In a domain where the successor withholds rows that are reliable today, exact-block selection is not retired until C (S-I, §4.11), or a proof-carrying B, restores them. On V1's counts that includes every committed family until S-I lands, and in particular multicase `case:signed-companion` and T1's eigen_motion `case:join`, with 11 and 23 relied-upon non-zero values.
    - The successor standing comes from S-G (§4.9), so S-G is a precondition of the gate. Once S-I lands, the successor's withheld count is its `not_covered` count, which V1 found to be zero on every committed selected case.
 4. **Values:** the projections match exact-block within the unchanged 1e-9.
@@ -549,7 +570,15 @@ The recomputed S\* must equal the receipt's S\* bits exactly. Otherwise `RETAINE
 
 **G5c in detail (revisions 3–5, S8-R, R3B-2, R3B-4 (b), (c), R4-4).** **Classification recomputation.** R is read from its pinned bits in the receipt, which must equal the registered constant (`0x3DD0000000000000`, R = 2^-34). For every row of a selected case (and every retained-state combination output), the reader applies §4.9.10 in this order and assigns exactly one class:
 1. **Entity rules** (revision 5a, D1 rules 2a and 2b):
-   - **2a.** A displacement or rotation row at a DOF listed in the receipt's `input_derived_dofs` is `input_derived`. With an invocation, the list must equal, in both directions, the set of (node id, component) pairs that the invocation's supports rigidly restrain (their restraint sets) or that a 0.4.0 case prescribes (`boundary_motion`). Otherwise `RETAINED_PRECISION_INPUT_DOF_MISMATCH` (`unsupported`).
+   - **2a (revision 5b, R5-2; D1 r5a rule 2a).** A displacement or rotation row at a DOF listed in the receipt's `input_derived_dofs` is `input_derived`. The list is exactly the set of DOFs the kernel's `StructuralSystem` holds as restrained or prescribed (not free) for the case, as (node id, component) pairs. With an invocation, the reader derives that set and requires equality in both directions; otherwise `RETAINED_PRECISION_INPUT_DOF_MISMATCH` (`unsupported`). The derivation follows the product's family rule (`PP:5169-5230`, `:5279`, `:10232-10250` at `303609725`):
+     - a support's *hanger type* is `hanger.hanger_type`, trimmed, when present and non-empty; otherwise the support's `family`, trimmed;
+     - a support whose hanger type is `constant_effort_support` contributes nothing. Its node's DOFs are free and carry an applied force;
+     - a support whose `family` is exactly `spring` (untrimmed, as `PP` compares it), or whose hanger type is `variable_spring_hanger` or `spring_hanger`, contributes nothing, whatever restraints it lists. Its DOF is free and carries stiffness;
+     - every other support contributes (its node, each listed restraint component), as `rigid_linear_support_from_preview` maps it;
+     - each 0.4.0 `boundary_motion` entry contributes its (node, component) as prescribed;
+     - a selected case whose invocation has a support with a `nonlinear` member is refused with the same code. W1 never selects a nonlinear case (D1), and the reader does not derive the kernel's set for one.
+
+     Duplicate pairs collapse to one.
    - **2b.** A member-entity row (element-local actions and stresses, wall rows, stations, maxima) is covered only if its member appears in the receipt's per-member section terms; otherwise it is `not_covered`. This separates curved arc and station rows, which share straight-row kinds.
 2. **(kind, unit) lookup** in the closed table: mapped (translation, rotation, force, moment, stress with its k), `input_derived`, `non_quantity`, or `not_covered`. Any (kind, unit) the table does not name is `not_covered`.
 3. **Pressure conditions** (revision 5a, from D1's text):
@@ -559,7 +588,7 @@ The recomputed S\* must equal the receipt's S\* bits exactly. Otherwise `RETAINE
    - for a mapped row, `t = fl(R·S*)` for its body, kind and k, and the row is `absolute_verified` iff `abs(q) < t`, else `relative_verified`;
    - **N-2:** if the body's S\* for that kind and k is below 2^-988, every row of that body and kind is `absolute_verified` (D1:384).
 
-The receipt's `absolute_verified` list and its `not_covered` list must each **equal** the recomputed set exactly, in both directions. Each listed bound must equal `fl(2^-64·S*)` bit for bit. No id may appear in two lists, and no `input_derived` or `non_quantity` row may appear in either. Otherwise `RETAINED_PRECISION_CLASSIFICATION_MISMATCH` (`unsupported`). Rows of unselected cases are ordinary rows and carry no class.
+The receipt's `absolute_verified` list and its `not_covered` list must each **equal** the recomputed set exactly, in both directions. Each listed bound must equal `fl↑(2^-64·S*)` bit for bit (revision 5b, N-1). It is decided exactly in every language: form r = S\*·2^-64 in binary64 (round to nearest); r·2^64 is exact, so b = r when r·2^64 ≥ S\*, and b = next_up(r) otherwise. Thus b = 0 only when S\* = 0, and b ≥ 2^-1074 for every S\* > 0. No id may appear in two lists, and no `input_derived` or `non_quantity` row may appear in either. Otherwise `RETAINED_PRECISION_CLASSIFICATION_MISMATCH` (`unsupported`). Rows of unselected cases are ordinary rows and carry no class.
 
 #### 4.9.4 The standing basis
 
@@ -611,7 +640,7 @@ ROOT ruled that a quantity below the floor is withheld, or marked uncovered, and
 | Class (from G5c) | What readers show | Rule binding and reliance | Canonical and exported forms |
 |---|---|---|---|
 | `relative_verified` | The value, as today | Bindable, subject to the envelope's standing | As today |
-| `absolute_verified` | The value, marked "verified only to ±b (below the relative floor)", with b = `fl(2^-64·S*)` from the receipt | **Before S-I lands: withheld (option A).** `rule_binding_refusal` returns `RULE_QUANTITY_BELOW_VERIFIED_FLOOR`; the runner reports `RULE_INPUTS_INCOMPLETE` with that reason, never a pass; a headline naming such a row is refused the same way. **After S-I lands (option C, revision 5): bound as the interval [q − b, q + b]** under the conservative-binding rule of §4.11. Any binding path without interval support (a future headless or T6 path) still refuses with `RULE_QUANTITY_BELOW_VERIFIED_FLOOR` | The receipt travels with the document. `derive_document` copies it (the receipt-copy list of §4.9.7), and adds one `row_disclosures` entry per such row naming the class and bound. Every canonical-document consumer applies the same rule |
+| `absolute_verified` | The value, marked "verified only to ±b (below the relative floor)", with b = `fl↑(2^-64·S*)` (rounded upward, revision 5b) from the receipt | **Before S-I lands: withheld (option A).** `rule_binding_refusal` returns `RULE_QUANTITY_BELOW_VERIFIED_FLOOR`; the runner reports `RULE_INPUTS_INCOMPLETE` with that reason, never a pass; a headline naming such a row is refused the same way. **After S-I lands (option C, revision 5): bound as the interval [q − b, q + b]** under the conservative-binding rule of §4.11. Any binding path without interval support (a future headless or T6 path) still refuses with `RULE_QUANTITY_BELOW_VERIFIED_FLOOR` | The receipt travels with the document. `derive_document` copies it (the receipt-copy list of §4.9.7), and adds one `row_disclosures` entry per such row naming the class and bound. Every canonical-document consumer applies the same rule |
 | `not_covered` | The value, marked "uncovered: no verified accuracy for this quantity kind" | **Withheld.** `RULE_QUANTITY_NOT_COVERED`, as above | As above, with class `not_covered` |
 | `input_derived` (revision 4) | The value, as today, labelled "input-derived (independent of the solve)" | Bindable, subject to the envelope's standing | As today; no disclosure entry |
 
@@ -633,7 +662,7 @@ ROOT ruled that a quantity below the floor is withheld, or marked uncovered, and
 - **An indeterminate rule outcome (§4.11) is a property of a check, not of a row.** It never changes a row's count.
 
 Uses:
-- **The retirement gate** (D1 §4.4.1, R4-2) prints `withheld(retiring, c)` and `withheld(successor, c)` side by side for every case of every committed request in the family, in both modes. Pass: successor ≤ retiring for every case, with the same counts in Rust, Python and TS.
+- **The retirement gate** (D1 §4.4.1, R4-2) prints `withheld(retiring, c)` and `withheld(successor, c)` side by side for every case of every committed request in the family, in both modes. Pass: successor ≤ retiring for every case, with the same counts in Rust, Python and TS. Beside the counts it prints the check-level comparison of §4.5.2 condition 3 (revision 5b, R5-5): every committed check that is decided under the retiring identity and undecided under the successor, with the rows it binds. Any such check fails the gate for that domain, whatever the counts.
 - **The UI summary** shows "n quantities verified only to an absolute bound" and "n quantities uncovered" per case, linking to the labelled rows. This is text only; it changes no standing.
 
 **Exemption.** None is proposed. An exact structural zero cannot be told apart from noise below the floor (D1 §4.1.6), so no class of below-floor quantity can be exempted on evidence. A future exemption needs a ROOT ruling that names the quantity class and its reason.
@@ -702,8 +731,8 @@ ROOT's constraint: a rule bound to q ± b is satisfied only if it holds for **ev
 
 #### 4.11.2 The bound
 
-- **b** is the row's bound as listed in the validated receipt: `fl(2^-64·S*)`, with the row's k-inclusive S\* from G5b. The reader copies the listed bits; it never recomputes b independently of the verified receipt.
-- **Endpoints** are formed outward: `lo = next_down(fl(q − b))`, `hi = next_up(fl(q + b))`. When b = 0 (revision 5a), the row binds as the exact point q with no widening, because q ± 0 is exact. This happens for a body whose S\* is 0 under N-2, an unloaded, unmoving body, where D1's stop rule requires exact agreement.
+- **b** is the row's bound as listed in the validated receipt: `fl↑(2^-64·S*)`, rounded upward (revision 5b, N-1; G5c), with the row's k-inclusive S\* from G5b. The reader copies the listed bits; it never recomputes b independently of the verified receipt.
+- **Endpoints** are formed outward: `lo = next_down(fl(q − b))`, `hi = next_up(fl(q + b))`. Only when b = 0 does the row bind as the exact point q with no widening, and b = 0 only when S\* = 0: an unloaded, unmoving body, where D1's stop rule requires exact agreement (revision 5b, N-1). For every S\* > 0, b > 0. When 0 < S\* < 2^-1011, where rounding to nearest would give 0, b is at least the smallest positive subnormal 2^-1074, and the row binds as an interval like any other. A subnormal b needs no special case: `fl(q ± b)` and the outward step are ordinary binary64 operations.
 - **Unit conversion** to the rule declaration's unit (the runner's B2/B3 normalization) is applied to each endpoint, with one outward `next_down`/`next_up` step after every floating operation of the conversion.
 - **TS** forms the same bits with an explicit bit-level widening step (the `outward` helper pattern in `physicsSourceRecovery.ts:121-128`). Python uses `math.nextafter`, and Rust uses `f64::next_down` and `f64::next_up`.
 
@@ -801,14 +830,14 @@ A new interval mode in `expression_evaluator` covers the whole formula language 
   - The main review burden is the soundness table and its mutants.
 - **Ordering against D1** (confirmed against D1 revision 5 §6 and §8.1.3; revision 5a).
   - D1's F2 is split into F2a, the W1 wiring and successor identities (atomic with S-G1 and S-I2), and F2b, the per-domain retirement of exact-block selection.
-  - **F2b runs in a domain only after S-I1 and S-I2 have landed, and the gate's row-level condition passes there.**
+  - **F2b runs in a domain only after S-I1 and S-I2 have landed, and the gate's row-level and check-level conditions pass there** (check level: revision 5b, R5-5).
   - Until then the coexistence rule holds: no W1 attempt in any invocation where exact-block selects a case.
   - The same applies to F3's retirement of the joined identity.
   - A proof-carrying B (an exact zero by construction, proven from topology and restraints) may clear a row earlier, only where the proof is mechanical. The restrained and prescribed-DOF `input_derived` rule is the one such proof in this design.
 
-### 4.12 Option B: proof-carrying structural zeros (slice S-J; revision 5a; optional)
+### 4.12 Option B: proof-carrying structural zeros (slice S-J; revisions 5a–5b)
 
-ROOT permits B only as a proof-carrying exemption: a row is exempt only when it is exactly zero by construction, proven mechanically from topology, restraints and load patterns, and not merely observed as 0.0. B is **optional and off every retirement's critical path.** C (S-I) is the restorer in every domain; B adds exact-point binding for proven zeros, so that `equal` and `not_equal` on them are decidable.
+ROOT permits B only as a proof-carrying exemption: a row is exempt only when it is exactly zero by construction, proven mechanically from topology, restraints and load patterns, and not merely observed as 0.0. ROOT ruled DD-15: **build S-J, after S-I** (revision 5b). C (S-I) restores every `absolute_verified` row as an interval; B adds exact-point binding for proven zeros, so that `equal` and `not_equal` on them are decidable. Under the gate's check-level comparison (§4.5.2, R5-5), that is what keeps such checks decided. So in a B-covered domain S-J is likely what makes retirement possible; elsewhere it stays off the critical path.
 
 #### 4.12.1 What the receipt carries (D1 revision 5 §5 item 1, §8.1.2)
 
@@ -833,25 +862,27 @@ This follows D1 §8.1.2 step for step, with `b_proof.py` as the reference implem
    - free DOFs with a nodal load term;
    - every free DOF of a member with a member load, a pressure region or an unrecognized 0.4.0 element state;
    - the axial-family DOFs of a member with a uniform axial eigenstrain (0.4.0 `explicit_interval_strain` or `fit_strain`);
-   - free DOFs coupled to a non-zero prescribed DOF.
-   - **No proof for the case**, so `structural_zero` must be absent or empty for it, when there is a load term the producer cannot place, any component (joint, user or curved element), or a history other than independent equilibrium.
-4. **Reach.** Breadth-first search over the free-DOF coupling graph from the seeds, in ascending global DOF index order **[align D1-B]**. The unreached free DOFs are proven zero.
+   - free DOFs coupled to a non-zero prescribed DOF;
+   - a constant-effort support's node (hanger type `constant_effort_support`, rule 2a), seeded as loaded on all six DOFs, conservatively. It is never a restraint (revision 5b, R5-2).
+   - **Restraints** are exactly the rule-2a set: only the DOFs the kernel holds as restrained or prescribed. Springs and spring hangers leave their DOFs free (revision 5b, R5-2).
+   - **No proof for the case**, so `structural_zero` must be absent or empty for it, when there is a load term the producer cannot place, any component (joint, user or curved element), a nonlinear support (revision 5b), or a history other than independent equilibrium.
+4. **Reach.** Breadth-first search over the free-DOF coupling graph from the seeds, in ascending global DOF index order (pinned by D1 §8.1.2). The unreached free DOFs are proven zero.
 5. **Rows.** A row is proven zero when every DOF its formula reads is proven zero and no load term enters it, with D1's per-kind read sets:
    - nodal rows by DOF;
    - member end and station actions by the families they read, only on a member with no member load (an axial eigenstrain excludes only the axial-family rows);
    - stresses by the families they read, excluding pressure-bearing kinds when the case has pressure;
-   - support reaction components from the restrained DOF's element couplings when no load acts there; a spring reaction from its DOF; components with no restraint on them are zero;
+   - support reaction components from the restrained DOF's element couplings when no load acts there **and (revision 5b, R5-1, V1's fix) the DOF lies in no family set of a member carrying a member load, a pressure region or a 0.4.0 element state term, and in no axial-family set of a member with an axial eigenstrain**, since such a member puts an end force there; a spring reaction from its DOF; components with no restraint on them are zero;
    - magnitudes and resultants from all their components.
 
-   The read-set table is carried beside the closed table in the successor semantic table, so the three readers read the same bytes **[align D1-B]**.
+   The read-set table is carried beside the closed table in the successor semantic table, so the three readers read the same bytes (pinned by D1 §8.1.2).
 6. **Exemption.** A row is listed only if it is proven zero **and** published as ±0.0.
 
 **The check.** The reader's recomputed set must equal the receipt's `ids` in both directions, and the recomputed pattern digest must equal `pattern_digest`. Otherwise `RETAINED_PRECISION_STRUCTURAL_ZERO_MISMATCH` (`unsupported`). A listed row whose published value is not ±0.0 fails the same way. The reader never extends the list: a row it proves zero but the receipt does not list makes the sets unequal, which is also a mismatch. Parity therefore cannot drift.
 
-#### 4.12.3 Pinning for three languages [align D1-B]
+#### 4.12.3 Pinning for three languages (pinned by D1 revision 5a §8.1.2)
 
 - **BFS order:** ascending global DOF index (node order in the invocation × 6 + component), both for the queue and for neighbour expansion. The resulting set does not depend on the order; pinning it fixes only intermediate traces used in the parity cases.
-- **Pattern digest** (proposed; D1 pins it with the producer slice): sha256 over the checked canonical JSON of `{"ids": <sorted structural_zero ids>, "families": [{"member_id", "axial", "torsion", "xy", "xz"}]}`, where each family is its sorted list of global DOF indices, and members appear in invocation order. The hash domain is `retained_precision_structural_zero_v1`, using the `domain_hash` pattern (`source_blocks.rs`).
+- **Pattern digest** (as D1 §8.1.2 pins it; D1's producer slice implements it): sha256 over the checked canonical JSON of `{"ids": <sorted structural_zero ids>, "families": [{"member_id", "axial", "torsion", "xy", "xz"}]}`, where each family is its sorted list of global DOF indices, and members appear in invocation order. The hash domain is `retained_precision_structural_zero_v1`, using the `domain_hash` pattern (`source_blocks.rs`).
 - **Exact arithmetic per language:**
   - Python: `fractions.Fraction` and `int`.
   - TS: BigInt, over mantissa and exponent decompositions of the binary64 inputs.
@@ -869,7 +900,7 @@ This follows D1 §8.1.2 step for step, with `b_proof.py` as the reference implem
 
 #### 4.12.5 Coverage, controls, slice and cost
 
-- **Coverage (D1 §8.1.2, from `b_proof.py`).** Every withheld row in N05 and N06 (all identities), mixed `case`, fields, multicase `case` and rejected_stress_range. Partial coverage: signed-companion 46 of 57, eigen_motion 32 of 62 (seven rigid-motion zeros are cancellation zeros, which B does not claim), and the ordinary-pressure case 8 of 68 (pressure is seeded conservatively). Every family keeps at least one case that only C can restore, so B is on no critical path.
+- **Coverage (D1 §8.1.2, from `b_proof.py`).** Every withheld row in N05 and N06 (all identities), mixed `case`, fields, multicase `case` and rejected_stress_range. Partial coverage: signed-companion 46 of 57, eigen_motion 32 of 62 (seven rigid-motion zeros are cancellation zeros, which B does not claim), and the ordinary-pressure case 8 of 68 (pressure is seeded conservatively). Every family keeps at least one case that only C can restore, so B alone never enables a retirement. Under the check-level comparison (§4.5.2, R5-5) it can be necessary for one, where a sign or equality check binds a zero row that only B proves (revision 5b).
 - **Controls:**
   - every committed case's recomputed set matches `b_proof.py`'s output (`b_proof_main.json`), identically in the three languages;
   - negatives, each `unsupported`:
@@ -879,11 +910,13 @@ This follows D1 §8.1.2 step for step, with `b_proof.py` as the reference implem
     - a wrong pattern digest;
     - a case with a component, which must list nothing;
     - an eigenstrain member whose axial row is listed;
+    - a loaded fixed-fixed member's reaction listed (V1's probe B; revision 5b, R5-1): a uniform member load between two anchors, with an A-end reaction component listed, and the same with a uniform axial eigenstrain and an anchor's axial reaction listed;
+    - a free DOF of a constant-effort support's node listed (revision 5b, R5-2);
   - one mutant per seed rule, per language.
 - **Slice S-J.** New `result_export/src/structural_zero.rs`, `analysis_runs/structural_zero.py` and `features/results/structuralZero.ts`; the G-check wiring in the successor readers; the binding change in `rule_binding_interval` (a point for listed rows); a shared case file.
-  - **When:** after S-I, and after D1's producer slice pins §4.12.3.
+  - **When:** after S-I (DD-15), with or after D1's B producer slice, which implements the pins of D1 §8.1.2.
   - **Cost:** about 700 Rust lines (including the big-integer), 350 Python, 450 TS.
-  - **Optional.** If it is not built, nothing else changes.
+  - **Ruled to be built (DD-15).** Where it is not yet built, the check-level comparison decides, domain by domain, whether retirement can proceed on C alone.
 
 ## 5. Interface assumptions and requirements on D1
 
@@ -912,7 +945,7 @@ This follows D1 §8.1.2 step for step, with `b_proof.py` as the reference implem
   - the coexistence rule.
 
   If D1 revision 5 differs in a detail, D2 follows D1 and keeps the rules.
-- **I-11 (revision 5a) [align D1-B].** For option B, D1 pins the BFS order (ascending global DOF index) and the pattern-digest payload with its producer slice. D2 proposes both in §4.12.3. S-J follows D1's pinned text if it differs.
+- **I-11 (revision 5a): closed in revision 5b.** D1 revision 5a §8.1.2 (`16bcbf369`) pins the BFS order (ascending global DOF index, node order × 6 + component, for queue and expansion), the pattern-digest payload and hash domain, and the read-set table beside the closed table, as §4.12.3 proposed. It also states R5-1's reaction rule and the negative control that S-J mirrors.
 - **I-3 (retirement).** Replaced by the shared retirement gate (§4.5.2), defined by D1. S-G is its standing condition.
 - **I-4 (existing source identities).** Answered by ROOT: physics-source-1 is no longer emitted after F2 but stays eligible (R-3(b)); joined stays fresh until F3 (R-3(a)).
 - **I-5 (range).** Unchanged: §4.6 applies to whatever D1 publishes.
@@ -952,8 +985,8 @@ Sources are in `_run_records/d2_probe/`; the plan and predictions are in `_run_r
 | S-H | A 1e16 N/m spring (integer literal) solves on each route, both modes; every committed request byte-identical | The mutant restoring the early `?` fails; a sensitive case in such a request carries the capture `UNAVAILABLE`, never a selection |
 | S-E1 | Every committed joined and load-reference-1 witness re-derives to its published records, in 3 languages | One mutation per J4 row gives Mismatch; `Scope` cases (H-a law, i128 overflow) give identical outcomes ×3 |
 | S-E2 (if built) | Five joined witnesses eligible with their invocation; route documents minted | Revision 1's J4 controls; no invocation → `needs_recompute` |
-| S-I (revision 5) | Every existing evaluator and runner test is unchanged, and the committed rule-pack differential is byte-identical (points only). Interval T and F cases give `USER_RULE_CHECKED` with `RULE_INTERVAL_ALL_PASS`, and `USER_RULE_FAILED` with `RULE_INTERVAL_ALL_FAIL` | The §4.11.5 negative controls never read T. The two mutants are killed. A straddle in which some values pass gives `RULE_INPUTS_INCOMPLETE` with `RULE_RESULT_INDETERMINATE`. A `not_covered` row stays refused. A covered row never gets an interval |
-| S-G | §4.9.8 positives. Revision 4 adds: an envelope with every class present (relative, absolute, not_covered, input-derived, non-quantity), whose `classification_summary` counts agree in the three languages; an intensified row whose i comes from the invocation. Revision 3 adds: a weak-coupling case (D1's S8-W) whose below-floor rows are listed `absolute_verified`, shown uncovered and refused for binding identically in the three languages; a relative row in the same envelope still binds | §4.9.8 negatives. Revision 3 adds: an S\* entry off by one ulp; R's bits changed; a qualifying row missing from the `absolute_verified` list; an extra listed row; a bound off by one ulp; a row marked `not_covered` that is inside the mapping; (revision 4) a qualifying `not_covered` row omitted from the receipt's list; an `input_derived` row listed as `absolute_verified`; a stress row with the wrong k; a receipt section term one ulp off the published `pipe_sections` evidence (each `unsupported`); a headline pointing at an `absolute_verified` row (binding refused). Rust replay audit in the validation lane |
+| S-I (revision 5) | Every existing evaluator and runner test is unchanged, and the committed rule-pack differential is byte-identical (points only). Interval T and F cases give `USER_RULE_CHECKED` with `RULE_INTERVAL_ALL_PASS`, and `USER_RULE_FAILED` with `RULE_INTERVAL_ALL_FAIL` | The §4.11.5 negative controls never read T. The two mutants are killed. A straddle in which some values pass gives `RULE_INPUTS_INCOMPLETE` with `RULE_RESULT_INDETERMINATE`. A `not_covered` row stays refused. A covered row never gets an interval. (Revision 5b, N-1:) a row with S\* = 0 binds as a point; a row with 0 < S\* < 2^-1011 binds as an interval of half-width at least 2^-1074, never as a point |
+| S-G | §4.9.8 positives. Revision 4 adds: an envelope with every class present (relative, absolute, not_covered, input-derived, non-quantity), whose `classification_summary` counts agree in the three languages; an intensified row whose i comes from the invocation. Revision 3 adds: a weak-coupling case (D1's S8-W) whose below-floor rows are listed `absolute_verified`, shown uncovered and refused for binding identically in the three languages; a relative row in the same envelope still binds | §4.9.8 negatives. Revision 3 adds: an S\* entry off by one ulp; R's bits changed; a qualifying row missing from the `absolute_verified` list; an extra listed row; a bound off by one ulp; a row marked `not_covered` that is inside the mapping; (revision 4) a qualifying `not_covered` row omitted from the receipt's list; an `input_derived` row listed as `absolute_verified`; a stress row with the wrong k; a receipt section term one ulp off the published `pipe_sections` evidence (each `unsupported`); a headline pointing at an `absolute_verified` row (binding refused). Revision 5b adds (each `unsupported`): a spring-hanger, `spring`-family or constant-effort DOF listed in `input_derived_dofs`; a rigid restraint omitted from it; a selected case with a nonlinear support (R5-2); a subnormal bound rounded to nearest (0) instead of upward (N-1). Rust replay audit in the validation lane |
 | S-F | Historical raws keep their standing (all-selected Current, mixed `needs_recompute`); texts updated | A tampered historical raw is `unsupported` |
 
 ### 6.3 Pre-0.4 differential (S-D, S-H, and D1's F2)
@@ -984,7 +1017,7 @@ None is deleted, and none is weakened.
 | **S-H** | Capture without a required digest | `source_receipt.rs`; `PP` (attempt gate); tests | **T1** (merged) | **Never before S11-F** (ROOT, `b6fe1eb75`). In S11-F's PR, or after S11-F is on main; its tests re-run the 1e80 RF-CANCEL cases (F, M, ORTHO, INPLANE, UDL-W1e80) through the captured route and show them repaired |
 | **S-I1** | Option C: interval evaluator and runner outcomes; Python reference evaluator | §4.11.6 | disjoint | Any time; before F2b |
 | **S-I2** | Option C: binding wiring and UI | §4.11.6 | **T1** (merged) | With S-G1 and D1's F2a; before F2b |
-| **S-J** | Option B reader contract (optional) | §4.12.5 | new files plus successor readers | After S-I and D1's B producer slice; off every critical path |
+| **S-J** | Option B reader contract (DD-15: build) | §4.12.5 | new files plus successor readers | After S-I, with or after D1's B producer slice. Before F2b in any domain whose check-level comparison (R5-5) needs proven zeros |
 | **S-D** | Pre-0.4 composite fallback | `PP`; `load_state_fallback_tests.rs`; new `pre04_fallback_tests.rs` | **T1** | After S-H. Worth landing only if D1's F2 is not imminent (its reach is the pre-F2 window) |
 | **S-G1** | Readers for `<preview-retained>` and `<physics-retained>` | New `result_export/src/retained_precision.rs`, `analysis_runs/retained_precision.py`, `features/results/retainedPrecisionEvidence.ts`; `semantic_contract.rs`, `compatibility.py`, `numericalResultQuality.ts`, `knownSemanticLimitations.ts`; `derivative.rs`; tables, receipt schema, carrier schema branches; shared cases | **T1** | **One atomic PR with D1's F2**; after S-C; after ROOT's identity reservation and D-8 budgets |
 | **S-E1** | Resolved-case re-derivation core | New `load_reference_rederive.{rs,py}`, `loadReferenceRederive.ts`; shared cases | New files; consumers are T1 files | With D1's F3 |
@@ -996,11 +1029,11 @@ None is deleted, and none is weakened.
 - **Order** (revision 5):
   - S-A and S-B run in parallel, then S-C. S-I1 can run at any time.
   - After the main merge (`303609725`): S11-F, then S-H (or both together); then S-D (conditional on F2's timing); then S-G1, S-I2 and D1's F2a together.
-  - D1's F2b (retirement), per domain, only after S-I and the row-level gate pass.
+  - D1's F2b (retirement), per domain, only after S-I, and after the gate's row-level and check-level conditions pass (revision 5b).
   - S-E1 and S-G2 with F3, and the joined retirement under the same gate.
   - S-F with F2b.
   - S-E2 only if F3 misses T3.
-  - S-J (optional) after S-I and D1's B producer slice.
+  - S-J (DD-15) after S-I, with or after D1's B producer slice, and before F2b in any domain whose check-level comparison needs it.
 - **Merge gate:**
   - complete-diff independent review;
   - hosted CI, including the dual-viewport dispatch whenever TS changes;
@@ -1031,20 +1064,20 @@ Containment alone closes no group. Closure needs VP-ORACLES and VP-ROBUST on the
 
 | ID | Decision | Options (recommended first) | Status |
 |---|---|---|---|
-| DD-1 | Composite finalization policy | **F1** / F2 / F3 | Open |
-| DD-2 | Residuals R-1a and R-1b | **Accept as open until D1's F2** / close with F2 | Open |
-| DD-3 | TS position for joined and successor eligibility | **TS-a check-for-check** / TS-b native-delegated verdict | Open |
-| DD-4 | Host-rounded fields | **H-a: `needs_recompute` when a host-`exp` definition is used (decided from the invocation)** / H-b: exact bracketing with rational enclosures (Rust big-integer cost) / (withdrawn) one-ulp tolerance | Open; ROOT ruling 5 prefers H-a |
-| DD-5 | Selected-UNAVAILABLE direction | **Tighten** / relax | Open |
-| DD-6 | Re-homing | **R-B under the shared gate** / R-0 if the gate misses T3 | Open |
+| DD-1 | Composite finalization policy | **F1** / F2 / F3 | **Ruled: F1**, the port of SF-1 (ROOT, `SELECTION_PACKAGE.md` §5) |
+| DD-2 | Residuals R-1a and R-1b | **Accept as open until D1's F2** / close with F2 | **Ruled:** R-1a and R-1b open until W1 (ROOT, `SELECTION_PACKAGE.md` §5) |
+| DD-3 | TS position for joined and successor eligibility | **TS-a check-for-check** / TS-b native-delegated verdict | **Ruled: TS-a** (ROOT, `SELECTION_PACKAGE.md` §5) |
+| DD-4 | Host-rounded fields | **H-a: `needs_recompute` when a host-`exp` definition is used (decided from the invocation)** / H-b: exact bracketing with rational enclosures (Rust big-integer cost) / (withdrawn) one-ulp tolerance | **Ruled: H-a** (ROOT, `SELECTION_PACKAGE.md` §5) |
+| DD-5 | Selected-UNAVAILABLE direction | **Tighten** / relax | **Ruled: tighten** (ROOT, `SELECTION_PACKAGE.md` §5) |
+| DD-6 | Re-homing | **R-B under the shared gate** / R-0 if the gate misses T3 | **Ruled:** under the shared gate and D-15 (ROOT, `SELECTION_PACKAGE.md` §5) |
 | DD-7 | Historical all-selected source-blocks-1 | **(i) stays Current with the notice and summary refusal** / (ii) historical-only | **Ruled (i)** (R-7) |
-| DD-8 | Transport split | **T3: capture (S-H), requirement, references, fallback, display. T6: binary64 carriers, headless digest, persistence, export, with the integer-literal, negative-zero and size rules** / T3 adopts the carriers now | Open (ruling 4 assigns capture to T3) |
-| DD-9 | Eligible load-reference, joined and successor results are Current and rule-eligible; export and report package refused until T6 | **Confirm** / keep them off rule checks until T6 | Open |
-| DD-10 | Historical joined standing after F3, if S-E2 was built | **Keep eligibility (as R-3(b))** / `needs_recompute` | Open, only if S-E2 is built |
+| DD-8 | Transport split | **T3: capture (S-H), requirement, references, fallback, display. T6: binary64 carriers, headless digest, persistence, export, with the integer-literal, negative-zero and size rules** / T3 adopts the carriers now | **Ruled: as proposed** (ROOT, `SELECTION_PACKAGE.md` §5) |
+| DD-9 | Eligible load-reference, joined and successor results are Current and rule-eligible; export and report package refused until T6 | **Confirm** / keep them off rule checks until T6 | **Ruled: as proposed** (ROOT, `SELECTION_PACKAGE.md` §5) |
+| DD-10 | Historical joined standing after F3, if S-E2 was built | **Keep eligibility (as R-3(b))** / `needs_recompute` | **Ruled: keep eligibility**, only if S-E2 is built (ROOT, `SELECTION_PACKAGE.md` §5) |
 | DD-11 | Selected-case `numerical_quality` (IF-1) | **Ordinary attempt's outcome; precision-p outcome only in the receipt** / D1 writes `checks_passed` and S-G special-cases it | **Closed:** adopted by D1 (V1 backcheck) |
-| DD-12 | Capture fix | **H-1 fallible digest** / H-2 scientific profile at capture / H-3 normalized hashing | Open |
+| DD-12 | Capture fix | **H-1 fallible digest** / H-2 scientific profile at capture / H-3 normalized hashing | **Ruled: H-1** (S-H), under the S-H/S11-F ordering (ROOT, `SELECTION_PACKAGE.md` §5) |
 | DD-14 | Where the closed row-kind list lives (revision 4) | **In each successor's pinned semantic table, read by all three readers** / in the receipt per envelope / in reader code | **Adopted by D1** (revision 5 §4.1.6.1 item 2) |
-| DD-15 | Option B reader slice S-J (revision 5a) | **Build it, optional and after S-I, as §4.12 specifies** / do not build it (C alone restores every row except exact-point equality) | Open. ROOT permits B only as proof-carrying |
+| DD-15 | Option B reader slice S-J (revision 5a) | **Build it, optional and after S-I, as §4.12 specifies** / do not build it (C alone restores every row except exact-point equality) | **Ruled: build it, after S-I** (ROOT, `SELECTION_PACKAGE.md` §5). Under R5-5's check-level gate it is likely what makes retirement possible in the B-covered domains; otherwise it stays off the critical path. B only as proof-carrying |
 | DD-13 | Consumer rule for `absolute_verified` and `not_covered` quantities (revisions 3 and 5) | **C (S-I, §4.11): conservative interval binding for `absolute_verified`, with A until S-I lands; `not_covered` withheld** / A only / B only as a proof-carrying exact-zero exemption | **Ruled: C** (D-15, conservative-binding constraint); B only proof-carrying |
 
 **Owner-level question.** None. F3 would raise one (case-scoped Current), as in revision 1.
