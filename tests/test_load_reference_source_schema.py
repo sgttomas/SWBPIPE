@@ -59,8 +59,13 @@ LRS_SHA = "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337"
 LRS_PROFILE = "resolved_straight_load_state_source_v1"
 LRS_POLICY = "LOAD-REFERENCE-SOURCE-1"
 RETAINED = "retained_source_blocks_exact_v1"
-NEW_BRANCH = 5
-BRANCH_OF = {PRECISION_ID: 0, PHYSICS_ID: 1, SOURCE_BLOCKS_ID: 2, PS_ID: 3, LR_ID: 4, LRS_ID: NEW_BRANCH}
+PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+# Carrier order: every branch main carries (T0R's preview-physics-1 included),
+# then T1's appended identities. Positions are derived from this pinned order.
+CARRIER_ORDER = [PRECISION_ID, PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PREVIEW_ID, LR_ID, LRS_ID]
+BRANCH_OF = {contract_id: index for index, contract_id in enumerate(CARRIER_ORDER)}
+NEW_BRANCH = BRANCH_OF[LRS_ID]
+PS_BRANCH = BRANCH_OF[PS_ID]
 NEW_DEFS = ("LoadReferenceSourceRecovery", "LoadReferenceSourceReceiptBody", "LoadReferenceSourceContractEvidence",
             "LoadReferenceSourceExactCase", "LoadReferenceSourceStateRecord")
 LOCAL_EVIDENCE = {"$ref": "#/$defs/LoadReferenceSourceContractEvidence"}
@@ -279,7 +284,7 @@ def test_joined_table_identity_is_pinned_not_inferred():
 def test_joined_branches_are_appended_with_pinned_identities():
     results = schema(RESULTS)["$defs"]["ResultEnvelope"]
     ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] for branch in results["oneOf"]]
-    assert ids == [PRECISION_ID, PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, LR_ID, LRS_ID]
+    assert ids == CARRIER_ORDER
     branch = results["oneOf"][NEW_BRANCH]
     assert branch["required"] == ["source_block_recovery", "contract_evidence"]
     assert "not" not in branch
@@ -287,7 +292,7 @@ def test_joined_branches_are_appended_with_pinned_identities():
     assert branch["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": LRS_PROFILE}
     assert branch["properties"]["source_block_recovery"] == LOCAL_RECOVERY
     assert branch["properties"]["contract_evidence"] == LOCAL_EVIDENCE
-    assert branch["properties"]["result_sets"] == results["oneOf"][3]["properties"]["result_sets"]
+    assert branch["properties"]["result_sets"] == results["oneOf"][PS_BRANCH]["properties"]["result_sets"]
     props = results["properties"]
     assert props["contract_evidence"]["anyOf"][-1] == LOCAL_EVIDENCE
     assert props["source_block_recovery"]["oneOf"][-1] == LOCAL_RECOVERY
@@ -300,7 +305,7 @@ def test_joined_branches_are_appended_with_pinned_identities():
     assert run["SemanticContract"]["oneOf"][-1] == {"properties": {"id": {"const": LRS_ID}, "sha256": {"const": LRS_SHA}}}
     assert run["SemanticContract"]["properties"]["sha256"]["enum"][-1] == LRS_SHA
     branch = run["AnalysisRun"]["oneOf"][NEW_BRANCH]
-    assert len(run["AnalysisRun"]["oneOf"]) == 6
+    assert len(run["AnalysisRun"]["oneOf"]) == len(CARRIER_ORDER)
     assert branch["required"] == ["source_block_recovery", "contract_evidence"]
     assert branch["properties"]["source_block_recovery"] == REMOTE_RECOVERY
     assert branch["properties"]["contract_evidence"] == REMOTE_EVIDENCE
@@ -309,7 +314,7 @@ def test_joined_branches_are_appended_with_pinned_identities():
     assert run["AnalysisRun"]["properties"]["source_block_recovery"]["oneOf"][-1] == REMOTE_RECOVERY
 
     package = schema(PACKAGE)
-    assert len(package["oneOf"]) == 6
+    assert len(package["oneOf"]) == len(CARRIER_ORDER)
     branch = package["oneOf"][NEW_BRANCH]
     assert branch["properties"]["semantic_contract"]["properties"] == {"id": {"const": LRS_ID}, "sha256": {"const": LRS_SHA}}
     assert branch["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": LRS_PROFILE}
@@ -317,7 +322,7 @@ def test_joined_branches_are_appended_with_pinned_identities():
     assert branch["properties"]["source_block_recovery"] == REMOTE_RECOVERY
     assert branch["required"] == ["contract_evidence", "source_block_recovery", "source_annotations"]
     for key in ("export_profile", "manifest"):
-        assert branch["properties"][key] == package["oneOf"][3]["properties"][key]
+        assert branch["properties"][key] == package["oneOf"][PS_BRANCH]["properties"][key]
     assert schema(RUN_ROOT)["oneOf"][2]["allOf"][1] == {"$ref": RUN}
 
 

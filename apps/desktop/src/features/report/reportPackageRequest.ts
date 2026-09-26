@@ -1,4 +1,5 @@
 import { sourceContract } from "../results/numericalResultQuality";
+import { isFreshSemanticResult, N_P1, N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, REPORT_PACKAGE_PRECISION_1_HISTORICAL } from "../results/knownSemanticLimitations";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import type {
@@ -19,11 +20,15 @@ import { buildRenderableReportInput } from "./renderableReportInput";
 import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSections";
 
 export const SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE = "REPORT-PACKAGE-SOURCE-BLOCKS-UNAVAILABLE: This report package cannot preserve source-recovery evidence and signed support components. Use the supported result exports; report-package support for this method is unavailable.";
+/** T0R: the report package refuses every fresh identity until T6 (N-REPORT), and
+ * precision-1 is historical only (N-P1). The method-specific reasons stay first. */
 export function reportPackageUnavailableReason(result: MechanicsResult | null | undefined): string | null {
   if (!result) return null;
   const route = sourceContract(result);
-  if (route === "source_blocks" || route === "physics_source") return SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE;
-  if (route === "physics") return "REPORT-PACKAGE-PHYSICS-PROJECTION-UNAVAILABLE: this report transport does not preserve exact physical evidence; use canonical result export.";
+  if (route === "source_blocks" || route === "physics_source") return `${SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE} ${N_REPORT}`;
+  if (route === "physics") return `REPORT-PACKAGE-PHYSICS-PROJECTION-UNAVAILABLE: this report transport does not preserve exact physical evidence; use canonical result export. ${N_REPORT}`;
+  if (route === "preview_physics" || isFreshSemanticResult(result)) return `${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`;
+  if (route === "precision") return `${REPORT_PACKAGE_PRECISION_1_HISTORICAL}: ${N_P1}`;
   return null;
 }
 
@@ -204,15 +209,7 @@ export function projectReceivedReportResults(
   return { resultSets, semanticDisclosures };
 }
 
-export async function buildReportPackageRequest({
-  model,
-  result,
-  analysisRun,
-  inputManifest,
-  projectSummary,
-  comparison,
-  ruleCheckAggregate
-}: {
+type ReportPackageRequestInput = {
   model: PreviewModel;
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
@@ -220,9 +217,27 @@ export async function buildReportPackageRequest({
   projectSummary: LocalProjectSummary | null;
   comparison: PreviewComparison | null;
   ruleCheckAggregate: string | null;
-}) {
-  const unavailable = reportPackageUnavailableReason(result);
+};
+
+/** Public entry: the T0R availability gate (N-REPORT / N-P1), then assembly. */
+export async function buildReportPackageRequest(input: ReportPackageRequestInput) {
+  const unavailable = reportPackageUnavailableReason(input.result);
   if (unavailable) throw new Error(unavailable);
+  return assembleReportPackageRequestBelowAvailabilityGate(input);
+}
+
+/** Test seam only (T0R outage until T6): the unchanged assembly and binding checks
+ * that follow the availability gate. Production callers use
+ * `buildReportPackageRequest`; nothing else calls this. */
+export async function assembleReportPackageRequestBelowAvailabilityGate({
+  model,
+  result,
+  analysisRun,
+  inputManifest,
+  projectSummary,
+  comparison,
+  ruleCheckAggregate
+}: ReportPackageRequestInput) {
   const resultHashScope = analysisResultHashScope(analysisRun.schema_version);
   const strictAnalysis = resultHashScope === "received_result";
   if (resultHashScope === null) {

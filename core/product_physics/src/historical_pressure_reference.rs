@@ -1,6 +1,8 @@
 //! Private test-only execution of retained historical pressure premises.
 //! No request field, environment variable, Cargo feature, or normal-library symbol selects this route.
 //! This preserves named assertions under the test engine; it does not qualify Current or byte-faithful replay.
+//! T0R: the same scope also admits the refused user-stiffness joint premise (M07) for the named
+//! historical oracles that were frozen with it; the ordinary route refuses that element otherwise.
 
 use crate::{LinearStaticPreviewRequest, MechanicsEnvelope, PreviewSolverMode};
 use std::cell::Cell;
@@ -9,6 +11,8 @@ thread_local! { static ACTIVE: Cell<bool> = const { Cell::new(false) }; }
 
 pub(super) fn active() -> bool { ACTIVE.with(Cell::get) }
 
+/// Suspends, for the named in-crate test only, both refusals this scope covers:
+/// the legacy nonzero-pressure refusal and (T0R) the realized-joint refusal.
 pub(super) fn with_scope<T>(operation: impl FnOnce() -> T) -> T {
     struct Restore(bool);
     impl Drop for Restore { fn drop(&mut self) { ACTIVE.with(|active| active.set(self.0)); } }

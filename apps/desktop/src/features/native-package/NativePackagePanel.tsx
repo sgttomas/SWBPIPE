@@ -1,3 +1,4 @@
+import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download } from "lucide-react";
 import { usePackageHash } from "../../services/usePackageHash";
@@ -92,6 +93,7 @@ export function NativePackagePanel({
           <h2>Native JSON Package</h2>
         </div>
       </div>
+      <KnownSemanticNotices result={result} testIdPrefix="native-package" />
 
       {packet ? (
         <>

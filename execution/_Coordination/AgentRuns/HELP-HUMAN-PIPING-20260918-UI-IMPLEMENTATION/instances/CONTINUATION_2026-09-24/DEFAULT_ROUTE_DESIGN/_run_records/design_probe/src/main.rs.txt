@@ -1,0 +1,144 @@
+//! T0R design probe (read-only). Observes the current ordinary route on main for
+//! claims the design relies on that the T0 probe did not cover. Expectations are
+//! the hand statics in ../../references.py; nothing here changes product code.
+use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
+use serde_json::{json, Value};
+
+/// Revision 2 (N-8): every case goes through the captured value entry the desktop uses
+/// (`src-tauri` `solve_preview_mechanics_with_mode`). An entry error is printed and
+/// returned as {"entry_error": ...}.
+fn solve(wire: Value) -> Value {
+    match run_linear_static_preview_value_with_mode(wire, PreviewSolverMode::SparseInteractive) {
+        Ok(envelope) => serde_json::to_value(envelope).unwrap(),
+        Err(error) => json!({"entry_error": error}),
+    }
+}
+fn head(label: &str, v: &Value) {
+    if let Some(e) = v.get("entry_error") { println!("== {label}: ENTRY ERROR (no envelope): {e}"); return; }
+    println!("== {label}: mechanics={} producer={} numerical_quality={}", v["status"]["mechanics"], v["producer"]["semantic_contract_id"], v["numerical_quality"]["status"]);
+    println!("   summary.max_open_formula_stress={}", v["summary"]["max_open_formula_stress"]);
+    for d in v["diagnostics"].as_array().unwrap() { if d["severity"] == "blocking" { println!("   BLOCKING {} {}", d["code"], d["message"]); } }
+}
+fn rows<'a>(v: &'a Value, pred: impl Fn(&Value) -> bool) -> Vec<&'a Value> { v["results"].as_array().map(|a| a.iter().filter(|r| pred(r)).collect()).unwrap_or_default() }
+fn show(r: &Value) { println!("   {} [{}:{}] {} = {} {} (component={} location={})", r["kind"], r["basis_ref"]["ref_type"], r["basis_ref"]["ref_id"], r["id"], r["value"], r["unit"], r["metadata"]["component"], r["metadata"]["location"]); }
+
+fn fixture_model() -> Value {
+    let path = concat!(env!("CARGO_MANIFEST_DIR"), "/fixture/invented_preview_model.json");
+    serde_json::from_str(&std::fs::read_to_string(path).expect("copy fixtures/product_preview/invented_preview_model.json to fixture/")).unwrap()
+}
+
+fn base(nodes: Value, pipes: Value, supports: Value, components: Value, cases: Value, combinations: Value) -> Value {
+    json!({"model":{"schema_version":"0.2.0","document_kind":"openpipestress.product_preview.model",
+        "project":{"id":"project:t0r-probe","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
+        "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
+        "nodes":nodes,"pipe_segments":pipes,"supports":supports,"components":components,
+        "materials":[{"id":"material:m","elastic_modulus":{"value":200e9,"unit":"Pa"},"shear_modulus":{"value":76.923076923e9,"unit":"Pa"},"provenance":"t0r_invented"}],
+        "load_cases":cases,"combinations":combinations},"materials":[]})
+}
+fn node(id: &str, x: f64, y: f64, z: f64) -> Value { json!({"id":id,"position":{"x":x,"y":y,"z":z},"provenance":"t0r"}) }
+fn pipe(id: &str, from: &str, to: &str, yref: [f64; 3]) -> Value {
+    json!({"id":id,"from":from,"to":to,"section":{"outside_diameter":{"value":0.12,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"material":"material:m","y_reference":{"x":yref[0],"y":yref[1],"z":yref[2]},"provenance":"t0r"})
+}
+fn force(id: &str, node: &str, dir: &str, v: f64) -> Value {
+    json!({"id":id,"category":"concentrated_force","target":{"type":"node","node":node},"direction":dir,"magnitude":{"value":v,"unit":"N"},"dimension":"force","provenance":"t0r"})
+}
+fn anchor(node: &str) -> Value { json!({"id":"support:a","node":node,"family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"],"provenance":"t0r"}) }
+
+/// A. A consuming constant-effort support: what does the ordinary route publish as its reaction?
+fn constant_effort() {
+    let mut m = fixture_model();
+    for s in m["supports"].as_array_mut().unwrap() {
+        if s["id"] == "support:CE-120" { s["restraints"] = json!(["UY"]); }
+    }
+    // The fixture's legacy nonzero pressure loads are now refused on this route; drop them.
+    for c in m["load_cases"].as_array_mut().unwrap() {
+        c["primitive_loads"].as_array_mut().unwrap().retain(|l| l["category"] != "pressure" && l["dimension"] != "pressure");
+    }
+    let v = solve(json!({"model": m, "materials": []}));
+    head("A invented model, CE-120 consuming (restraints [UY], constant_load 375 N)", &v);
+    for r in rows(&v, |r| r["entity_ref"] == "support:CE-120" && r["basis_ref"]["ref_type"] == "load_case") { show(r); }
+    for d in v["diagnostics"].as_array().unwrap() { if d["code"].as_str().unwrap_or("").contains("CONSTANT_EFFORT") { println!("   diag {} {}", d["code"], d["severity"]); } }
+    // D. Categorical and count rows that pass through linear combination algebra.
+    let mut kinds = std::collections::BTreeMap::<String, usize>::new();
+    for r in rows(&v, |r| r["basis_ref"]["ref_type"] == "combination") { *kinds.entry(r["kind"].as_str().unwrap().to_string()).or_default() += 1; }
+    println!("   D combination row kinds: {kinds:?}");
+    let mut case_kinds = std::collections::BTreeSet::<String>::new();
+    for r in rows(&v, |r| r["basis_ref"]["ref_type"] == "load_case" && r["kind"].as_str().unwrap().starts_with("nonlinear")) { case_kinds.insert(r["kind"].as_str().unwrap().to_string()); }
+    println!("   D per-case nonlinear kinds: {case_kinds:?}");
+    for r in rows(&v, |r| r["basis_ref"]["ref_type"] == "combination" && (r["entity_ref"] == "support:CE-120" || r["kind"] == "nonlinear_support_final_reaction")) { show(r); }
+    println!("   D combination rows of non-physical kinds:");
+    for r in rows(&v, |r| r["basis_ref"]["ref_type"] == "combination" && ["nonlinear_support_active_set_state_code","nonlinear_support_active_set_iteration_count","nonlinear_support_active_set_converged_flag","nonlinear_support_active_set_final_residual_count"].contains(&r["kind"].as_str().unwrap())) { show(r); }
+}
+
+/// B. Curved-bend macro element, statically determinate: REF-B1 geometry, flexibility 2 and 4.
+fn macro_bend(k: f64) -> Value { macro_bend_with(k, [std::f64::consts::FRAC_1_SQRT_2, -std::f64::consts::FRAC_1_SQRT_2, 0.0]) }
+/// yref_bc (0,0,1) reproduces the first run: a kinked arc in the vertical plane that the route accepts.
+fn macro_bend_with(k: f64, yref_bc: [f64; 3]) -> Value {
+    let comp = json!({"id":"component:bend","label":"t0r arc","kind":"bend","node":"node:c",
+        "geometry":{"bend_pipe_ref":"pipe:b-c","bend_radius":{"value":0.2,"unit":"m"},"bend_angle":{"value":std::f64::consts::FRAC_PI_2,"unit":"rad"},"bend_plane_orientation":"global_xy_preview","bend_geometry_source_reference":"t0r"},
+        "modifiers":{"sif_user_value":{"value":1.3,"unit":"none"},"flexibility_factor_user_value":{"value":k,"unit":"none"},"source_reference":"t0r_invented"},
+        "mechanics_interface":{"solver_consumption":"curved_bend_macro_element","rule_check_consumption":"user_rule_pack_inputs_only"},"provenance":"t0r"});
+    solve(base(
+        json!([node("node:a",0.0,0.0,0.0), node("node:b",1.0,0.0,0.0), node("node:c",1.2,0.2,0.0), node("node:d",1.2,1.2,0.0)]),
+        json!([pipe("pipe:a-b","node:a","node:b",[0.0,1.0,0.0]), pipe("pipe:b-c","node:b","node:c",yref_bc), pipe("pipe:c-d","node:c","node:d",[1.0,0.0,0.0])]),
+        json!([anchor("node:a")]), json!([comp]),
+        json!([{"id":"case:z","primitive_loads":[force("load:z","node:d","global_z",1000.0)],"provenance":"t0r"}]), json!([])))
+}
+
+/// C. Geometry-only marker (T0 probe L model), flexibility 1.08 and 2.16 with identical actions.
+fn marker(k: f64) -> Value {
+    let comp = json!({"id":"component:bend","label":"t0r marker","kind":"bend","node":"node:b",
+        "geometry":{"bend_radius":{"value":0.2,"unit":"m"},"bend_angle":{"value":1.5707963268,"unit":"rad"},"bend_plane_orientation":"global_xy_preview","bend_geometry_source_reference":"t0r"},
+        "modifiers":{"sif_user_value":{"value":1.15,"unit":"none"},"flexibility_factor_user_value":{"value":k,"unit":"none"},"source_reference":"t0r_invented"},
+        "mechanics_interface":{"solver_consumption":"mechanics_geometry_only","rule_check_consumption":"user_rule_pack_inputs_only"},"provenance":"t0r"});
+    solve(base(
+        json!([node("node:a",0.0,0.0,0.0), node("node:b",1.0,0.0,0.0), node("node:c",1.0,1.0,0.0)]),
+        json!([pipe("pipe:a-b","node:a","node:b",[0.0,1.0,0.0]), pipe("pipe:b-c","node:b","node:c",[1.0,0.0,0.0])]),
+        json!([anchor("node:a")]), json!([comp]),
+        json!([{"id":"case:up","primitive_loads":[force("load:up","node:c","global_z",1000.0)],"provenance":"t0r"}]), json!([])))
+}
+
+fn dump_bend() {
+    let kinked = std::env::args().any(|a| a == "--kinked");
+    let v = if kinked { macro_bend_with(2.0, [0.0, 0.0, 1.0]) } else { macro_bend(2.0) };
+    head(if kinked { "B' kinked arc (y_reference 0,0,1)" } else { "B tangent-consistent arc" }, &v);
+    for r in rows(&v, |r| r["entity_ref"] == "pipe:b-c" || r["entity_ref"] == "component:bend") { show(r); }
+    for d in v["diagnostics"].as_array().unwrap() { if d["code"].as_str().unwrap_or("").contains("CURVED") || d["code"].as_str().unwrap_or("").contains("BEND") { println!("   diag {} {} {}", d["code"], d["severity"], d["message"]); } }
+}
+/// E. Legacy imposed displacement on a fresh 0.2.0 model, in the exact shape the typed
+/// create-primitive-load operation writes (operation_applier: target {type: support, support, dof}).
+fn imposed() {
+    let load = json!({"id":"load:imp","category":"imposed_displacement","target":{"type":"support","support":"support:a","dof":"UY"},
+        "direction":"UY","magnitude":{"value":-0.006,"unit":"m"},"dimension":"displacement","provenance":"t0r"});
+    let wire = base(json!([node("node:a",0.0,0.0,0.0), node("node:b",1.0,0.0,0.0)]),
+        json!([pipe("pipe:a-b","node:a","node:b",[0.0,1.0,0.0])]), json!([anchor("node:a")]), json!([]),
+        json!([{"id":"case:imp","primitive_loads":[load, force("load:f","node:b","global_y",100.0)],"provenance":"t0r"}]), json!([]));
+    let v = solve(wire.clone());
+    head("E imposed_displacement (support target, as authored by the typed operation)", &v);
+    for d in v["diagnostics"].as_array().map(|a| a.as_slice()).unwrap_or(&[]) { println!("   diag {} {}", d["code"], d["severity"]); }
+    // Same load with a node target: reaches the category parser instead of the target decoder.
+    let mut w2 = wire;
+    w2["model"]["load_cases"][0]["primitive_loads"][0]["target"] = json!({"type":"node","node":"node:b"});
+    let v2 = solve(w2);
+    head("E' imposed_displacement with a node target", &v2);
+    for d in v2["diagnostics"].as_array().map(|a| a.as_slice()).unwrap_or(&[]) { if d["severity"] == "blocking" || d["code"].as_str().unwrap_or("").contains("LOAD") { println!("   diag {} {} {}", d["code"], d["severity"], d["message"]); } }
+}
+
+fn main() {
+    if std::env::args().any(|a| a == "--imposed") { imposed(); return; }
+    if std::env::args().any(|a| a == "--dump-bend") { dump_bend(); return; }
+    constant_effort();
+    for k in [2.0, 4.0] {
+        let v = macro_bend(k);
+        head(&format!("B macro-bend cantilever, k={k}"), &v);
+        for r in rows(&v, |r| r["entity_ref"] == "pipe:b-c" && (r["kind"].as_str().unwrap().starts_with("element_local_bending_moment") || r["kind"] == "element_local_torsional_moment" || r["kind"] == "element_local_shear_force_z" || r["kind"] == "element_local_axial_force")) {
+            if ["end_i", "midspan", "end_j"].contains(&r["metadata"]["location"].as_str().unwrap_or("")) { show(r); }
+        }
+        for r in rows(&v, |r| ["open_formula_stress_summary", "component_user_stress_multiplier_review", "reaction_resultant"].contains(&r["kind"].as_str().unwrap())) { show(r); }
+    }
+    for k in [1.08, 2.16] {
+        let v = marker(k);
+        head(&format!("C geometry-only marker, k={k}"), &v);
+        for r in rows(&v, |r| ["open_formula_stress_summary", "component_user_stress_multiplier_review"].contains(&r["kind"].as_str().unwrap())) { show(r); }
+    }
+}

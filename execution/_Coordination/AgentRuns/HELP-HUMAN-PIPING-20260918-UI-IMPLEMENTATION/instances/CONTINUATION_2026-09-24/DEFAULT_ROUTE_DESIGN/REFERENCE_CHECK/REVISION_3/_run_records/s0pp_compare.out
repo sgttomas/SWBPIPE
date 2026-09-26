@@ -1,0 +1,52 @@
+case   quantity                                checker                   author  rel diff ok
+COMB2  A1/T envelope                              1000                     1000  0.00e+00 yes
+COMB2  A1/T sum control                           1500                     1500  0.00e+00 yes
+COMB2  A1/A2 envelope                             1000                     1000  0.00e+00 yes
+COMB2  A1/A2 sum control                          2000                     2000  0.00e+00 yes
+I-L    axial un-intensified         13382297.897533145       13382297.897533135  6.96e-16 yes
+I-L    axial intensified            13425703.791103661       13425703.791103652  6.94e-16 yes
+I-L    no-k variant bc              13092925.273729699       13092925.273729689  7.11e-16 yes
+I-T    header Pa                    13962950.695176601       13962950.695176592  6.67e-16 yes
+I-T    branch Pa                    29160218.142301127       29160218.142301109  6.39e-16 yes
+I-T    header bending Nm            943.39811320566025       943.39811320566037  1.21e-16 yes
+I-T    branch bending Nm            1280.6248474865697       1280.6248474865697  0.00e+00 yes
+I-T    control b-e-equal            7400349.0677602645       7400349.0677602598  6.29e-16 yes
+I-T    b-e bending                                 500                      500  0.00e+00 yes
+B2     k1 chord cut b[0]            1124.2009445115884       1124.2009445115905  1.82e-15 yes
+B2     k1 chord cut b[1]           -290.01261786150644       -290.0126178615044  2.05e-15 yes
+B2     k1 chord cut b[2]                             0                        0  0.00e+00 yes
+B2     k1 chord cut b[3]                             0                        0  0.00e+00 yes
+B2     k1 chord cut b[4]                             0                        0  0.00e+00 yes
+B2     k1 chord cut b[5]           -82.027955487813585       -82.02795548781306  5.26e-16 yes
+B2     k1 end_i[0]                 -1124.2009445115884      -1124.2009445115905  1.82e-15 yes
+B2     k1 end_i[1]                  290.01261786150644        290.0126178615044  2.05e-15 yes
+B2     k1 end_i[2]                                  -0                        0  0.00e+00 yes
+B2     k1 end_i[3]                                  -0                        0  0.00e+00 yes
+B2     k1 end_i[4]                                  -0                        0  0.00e+00 yes
+B2     k1 end_i[5]                  82.027955487813585        82.02795548781306  5.26e-16 yes
+B2     k2 chord cut b[0]             1140.423695693931       1140.4236956939317  5.98e-16 yes
+B2     k2 chord cut b[1]           -273.78986667916382      -273.78986667916325  5.68e-16 yes
+B2     k2 chord cut b[2]                             0                        0  0.00e+00 yes
+B2     k2 chord cut b[3]                             0                        0  0.00e+00 yes
+B2     k2 chord cut b[4]                             0                        0  0.00e+00 yes
+B2     k2 chord cut b[5]           -77.439468539598948      -77.439468539598863  8.53e-17 yes
+B2     k2 end_i[0]                  -1140.423695693931      -1140.4236956939317  5.98e-16 yes
+B2     k2 end_i[1]                  273.78986667916382       273.78986667916325  5.68e-16 yes
+B2     k2 end_i[2]                                  -0                        0  0.00e+00 yes
+B2     k2 end_i[3]                                  -0                        0  0.00e+00 yes
+B2     k2 end_i[4]                                  -0                        0  0.00e+00 yes
+B2     k2 end_i[5]                  77.439468539598948       77.439468539598863  8.53e-17 yes
+B2     k4 chord cut b[0]            1148.7648161749312       1148.7648161749305  5.94e-16 yes
+B2     k4 chord cut b[1]           -265.44874619816369      -265.44874619816449  7.96e-16 yes
+B2     k4 chord cut b[2]                             0                        0  0.00e+00 yes
+B2     k4 chord cut b[3]                             0                        0  0.00e+00 yes
+B2     k4 chord cut b[4]                             0                        0  0.00e+00 yes
+B2     k4 chord cut b[5]           -75.080243397675289      -75.080243397675559  2.70e-16 yes
+B2     k4 end_i[0]                 -1148.7648161749312      -1148.7648161749305  5.94e-16 yes
+B2     k4 end_i[1]                  265.44874619816369       265.44874619816449  7.96e-16 yes
+B2     k4 end_i[2]                                  -0                        0  0.00e+00 yes
+B2     k4 end_i[3]                                  -0                        0  0.00e+00 yes
+B2     k4 end_i[4]                                  -0                        0  0.00e+00 yes
+B2     k4 end_i[5]                  75.080243397675289       75.080243397675559  2.70e-16 yes
+TH     moment zero scale            49762.827632862296        49762.82763286234  8.77e-16 yes
+rows 50 disagreements 0 max rel diff 2.0463630789890884e-15

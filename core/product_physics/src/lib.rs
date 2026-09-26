@@ -90,6 +90,7 @@ mod membrane_publication_range;
 mod pressure_exact;
 mod pressure_material;
 mod pressure_runtime;
+mod preview_physics;
 pub use pressure_runtime::{PressureContractInput, PressureRegionInput, PressureTerminalInput};
 
 const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_POLICY_REF: &str =
@@ -961,11 +962,14 @@ fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
 }
 
 fn formulation_basis_for_model(model: &PreviewModel) -> FormulationBasis {
-    if !pressure_runtime::is_exact(model) {
-        return preview_formulation_basis();
-    }
+    // T1 (DESIGN 10.3): 0.4.0 is exact-route only. A 0.4.0 document without
+    // the exact contract never solves (pressure_runtime blocks it), and its
+    // blocked envelope stays on the load/reference-state identity and profile.
     if case_state::is_load_state(model) {
         return load_state_formulation_basis();
+    }
+    if !pressure_runtime::is_exact(model) {
+        return preview_formulation_basis();
     }
     exact_straight_pressure_formulation_basis()
 }
@@ -1314,6 +1318,7 @@ struct LoadCaseSolve {
     component_stress_modifier_count: usize,
     component_pressure_thrust_load_count: usize,
     support_force_vectors: HashMap<String, [f64; 3]>,
+    preview: Option<preview_physics::CaseRecord>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -1403,6 +1408,9 @@ pub fn run_linear_static_preview_value_with_mode(
     actual_request: serde_json::Value,
     solver_mode: PreviewSolverMode,
 ) -> Result<MechanicsEnvelope, String> {
+    if let Some(refused) = preview_physics::imposed_displacement_refusal(&actual_request) {
+        return refused;
+    }
     let (request, capture) = source_receipt::CapturedInvocation::parse(actual_request, solver_mode)
         .map_err(|error| error.0)?;
     // The composite profile pays for retained-source and physical evidence.
@@ -1521,6 +1529,9 @@ fn run_linear_static_preview_captured_once(
     if !load_state {
         pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
     }
+    // T0R (M07 routed to T4): the unqualified joint-coupling refusal applies
+    // to every route, the resolved load/reference-state route included.
+    preview_physics::refuse_unqualified_joint_elements(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
@@ -1790,12 +1801,15 @@ fn run_linear_static_preview_captured_once(
     let built = &basis_solve_states[0].2;
     let source_selected = load_case_solves.iter().any(|solve| solve.source_selected);
     let source_cases: Vec<_> = load_case_solves.iter_mut().filter_map(|solve| solve.source_case.take()).collect();
-    let max_displacement = if pressure_runtime::is_exact(&model) || source_selected {
+    let preview = (!pressure_runtime::is_exact(&model) && !source_selected).then(|| {
+        preview_physics::render(&model, built, &boundary.restrained_dofs, &mut load_case_solves, &mut diagnostics)
+    });
+    let max_displacement = if pressure_runtime::is_exact(&model) || source_selected || preview.is_some() {
         maximum_across_cases(&load_case_solves, false)
     } else {
         load_case_solves.first().and_then(|solve| solve.max_displacement.clone())
     };
-    let max_stress = if pressure_runtime::is_exact(&model) || source_selected {
+    let max_stress = if pressure_runtime::is_exact(&model) || source_selected || preview.is_some() {
         maximum_across_cases(&load_case_solves, true)
     } else {
         load_case_solves.first().and_then(|solve| solve.max_stress.clone())
@@ -1836,7 +1850,7 @@ fn run_linear_static_preview_captured_once(
             .map(|row| {
                 (
                     row.id.clone(),
-                    if is_default || (pressure_runtime::is_exact(&model) && row.kind.ends_with("_v2")) {
+                    if is_default || ((pressure_runtime::is_exact(&model) || preview.is_some()) && row.kind.ends_with("_v2")) {
                         row.id.clone()
                     } else {
                         qualified_load_case_result_id(&load_case_id, &row.id)
@@ -1850,7 +1864,7 @@ fn run_linear_static_preview_captured_once(
                 ref_type: "load_case".to_string(),
                 ref_id: load_case_id.clone(),
             });
-            if !is_default && !(pressure_runtime::is_exact(&model) && result.kind.ends_with("_v2")) {
+            if !is_default && !((pressure_runtime::is_exact(&model) || preview.is_some()) && result.kind.ends_with("_v2")) {
                 result.id = qualified_load_case_result_id(&load_case_id, &base_id);
             }
             for source_ref in &mut result.source_result_refs {
@@ -1865,13 +1879,19 @@ fn run_linear_static_preview_captured_once(
             results.push(result);
         }
     }
-    append_combination_results(
-        &model,
-        &rows_by_base_id,
-        &support_vectors_by_case,
-        &mut results,
-        &mut diagnostics,
-    );
+    let preview_gates = match &preview {
+        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, &mut results, &mut diagnostics),
+        None => {
+            append_combination_results(
+                &model,
+                &rows_by_base_id,
+                &support_vectors_by_case,
+                &mut results,
+                &mut diagnostics,
+            );
+            Vec::new()
+        }
+    };
     append_combination_modulus_basis_records(&model, &mut results);
     let component_user_stiffness_macro_element_count =
         append_expansion_joint_user_stiffness_results(&model, &mut results)
@@ -1948,6 +1968,11 @@ fn run_linear_static_preview_captured_once(
         professional_boundary: professional_boundary(),
         accepted_model_state_mutated: false,
     };
+    if let Some(rendered) = &preview {
+        envelope.producer.semantic_contract_id = preview_physics::ID.into();
+        envelope.formulation_basis = preview_physics::formulation_basis();
+        envelope.contract_evidence = Some(rendered.evidence(preview_gates));
+    }
     if source_selected {
         envelope.producer.semantic_contract_id = if joined_load_state {
             // The joined envelope has its own semantics and exclusive profile.
@@ -2160,6 +2185,7 @@ fn solve_load_case(
             component_stress_modifier_count: 0,
             component_pressure_thrust_load_count: 0,
             support_force_vectors: HashMap::new(),
+            preview: None,
         });
     }
 
@@ -2195,6 +2221,7 @@ fn solve_load_case(
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
                 support_force_vectors: HashMap::new(),
+                preview: None,
             });
         }
         None => build_thermal_element_loads(
@@ -2297,6 +2324,7 @@ fn solve_load_case(
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
                 support_force_vectors: HashMap::new(),
+                preview: None,
             });
         }
     }
@@ -2470,6 +2498,7 @@ fn solve_load_case(
                 component_stress_modifier_count: 0,
                 component_pressure_thrust_load_count: 0,
                 support_force_vectors: HashMap::new(),
+                preview: None,
             });
         }
     };
@@ -2549,6 +2578,7 @@ fn solve_load_case(
                     component_stress_modifier_count: 0,
                     component_pressure_thrust_load_count: 0,
                     support_force_vectors: HashMap::new(),
+                    preview: None,
                 });
             }
         }
@@ -2671,6 +2701,9 @@ fn solve_load_case(
                 .collect()
         });
     require_finite_mechanics(reactions.iter().copied())?;
+    // preview-physics-1 side record; rendered only when no case is source-selected.
+    let mut preview_record = (!pressure_runtime::is_exact(model) && selected_source.is_none())
+        .then(preview_physics::CaseRecord::default);
     let mut support_force_vectors = HashMap::new();
     for support in &model.supports {
         if let Some(index) = node_index(model, &support.node) {
@@ -2728,6 +2761,9 @@ fn solve_load_case(
                 }
             }
             require_finite_mechanics(vector)?;
+            if let Some(record) = preview_record.as_mut() {
+                record.support_vectors.push((support.id.clone(), vector));
+            }
             let force_vector = [vector[0], vector[1], vector[2]];
             let magnitude = if selected_source.is_some() {
                 source_receipt::scaled_norm(force_vector)
@@ -3070,6 +3106,17 @@ fn solve_load_case(
             .sections
             .get(&pipe.element_id)
             .expect("section exists for pipe");
+        if let Some(record) = preview_record.as_mut() {
+            record.members.push(preview_physics::MemberRecord {
+                pipe_id: pipe.element_id.clone(),
+                arc: macro_bend.is_some(),
+                maximum: macro_bend.is_none().then(|| {
+                    exact_straight_summary_extrema(pipe, &corrected_local_forces, &straight_loads, section, None)
+                }),
+                end_resultants: endpoint_resultants,
+                section_modulus: section.section_modulus,
+            });
+        }
         let pressure = pressure_for_pipe(model, load_case, pipe_index, &pipe.element_id);
         let pressure_thrust_active =
             pressure_thrust_for_pipe(pipe_index, &pressure_thrust_loads) != 0.0;
@@ -3473,6 +3520,7 @@ fn solve_load_case(
         component_stress_modifier_count,
         component_pressure_thrust_load_count,
         support_force_vectors,
+        preview: preview_record,
     })
 }
 
@@ -11280,11 +11328,15 @@ fn result_tail(base_id: &str) -> &str {
 }
 
 fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
-    MechanicsEnvelope {
+    // T1 routes every blocked 0.4.0 envelope to load-reference-1 (0.4.0 is
+    // exact-route only); it never publishes preview-physics-1.
+    let exact_namespace = pressure_runtime::is_exact(&model) || case_state::is_load_state(&model);
+    let preview = !exact_namespace;
+    let mut envelope = MechanicsEnvelope {
         // An admitted exact namespace with blocked inputs has no recovered
         // physical evidence. Retain the empty namespace for truthful inspection;
         // this does not invent case/material/region evidence or solved results.
-        contract_evidence: pressure_runtime::is_exact(&model).then(|| {
+        contract_evidence: exact_namespace.then(|| {
             if case_state::is_load_state(&model) {
                 serde_json::json!({"pressure": [], "connector": [], "exact_cases": [], "load_reference_states": []})
             } else {
@@ -11320,7 +11372,14 @@ fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> Mechan
         diagnostics,
         professional_boundary: professional_boundary(),
         accepted_model_state_mutated: false,
+    };
+    if preview {
+        envelope.producer.semantic_contract_id = preview_physics::ID.into();
+        envelope.formulation_basis = preview_physics::formulation_basis();
+        envelope.contract_evidence = Some(preview_physics::empty_evidence());
+        preview_physics::sanitize_blocked_diagnostics(&mut envelope.diagnostics);
     }
+    envelope
 }
 
 fn solver_blocked(
@@ -11959,7 +12018,9 @@ mod tests {
         let warnings = output
             .diagnostics
             .iter()
-            .filter(|d| d.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED")
+            // T0R: preview-physics-1 retires the SIF×k multiplier diagnostic; its
+            // case-scoped successor is the equal-factor intensification record.
+            .filter(|d| d.code == "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED")
             .collect::<Vec<_>>();
         assert!(!warnings.is_empty());
         assert_eq!(
@@ -12000,7 +12061,8 @@ mod tests {
         let diagnostics = output
             .diagnostics
             .iter()
-            .filter(|d| d.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED")
+            // T0R successor of the retired multiplier diagnostic (case scoped).
+            .filter(|d| d.code == "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED")
             .collect::<Vec<_>>();
         assert!(!diagnostics.is_empty());
         assert_eq!(
@@ -12214,9 +12276,11 @@ mod tests {
                 env!("CARGO_PKG_VERSION")
             );
             assert_eq!(env!("CARGO_PKG_VERSION"), "0.2.0");
+            // T0R: fresh ordinary-route solves (solved or blocked) publish
+            // preview-physics-1; precision-1 is historical only.
             assert_eq!(
                 encoded["producer"]["semantic_contract_id"],
-                "openpipestress.result_semantics/0.3.0/precision-1"
+                "openpipestress.result_semantics/0.3.0/preview-physics-1"
             );
             assert_eq!(
                 encoded["numerical_quality"]["value_representation"],
@@ -12246,26 +12310,11 @@ mod tests {
                 encoded["formulation_basis"]["profile_id"],
                 "product_preview_mechanics_v1"
             );
-            assert!(output
-                .formulation_basis
-                .limitations
-                .iter()
-                .any(|s| s.contains("Pressure")));
-            assert!(output
-                .formulation_basis
-                .limitations
-                .iter()
-                .any(|s| s.contains("Component")));
-            assert!(output
-                .formulation_basis
-                .limitations
-                .iter()
-                .any(|s| s.contains("stress")));
-            assert!(output
-                .formulation_basis
-                .limitations
-                .iter()
-                .any(|s| s.contains("Support")));
+            assert_eq!(
+                output.formulation_basis.limitations,
+                preview_physics::LIMITATIONS.map(str::to_string).to_vec()
+            );
+            assert!(output.contract_evidence.is_some());
         }
     }
 
@@ -12344,6 +12393,9 @@ mod tests {
             changed > 0 && changed <= 4,
             "expected named inherited fixture pressures for {purpose}"
         );
+        // T0R (M07 containment): omit the demo's realized joint C-150, which
+        // the ordinary route refuses (JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED).
+        input.model.components.retain(|component| component.id != "component:C-150");
         input
     }
 
@@ -12381,6 +12433,10 @@ mod tests {
     // Independent Decimal 30-DOF strain-energy/reference branch enumeration froze both
     // cases and reversal before product execution. Original historical constants remain
     // in their original test; this current companion tests the explicit pressure-free premise.
+    // T0R (R2 N4): despite the historical "current" name, this is now a retained
+    // historical premise. Its frozen oracle includes the refused joint C-150, so it
+    // runs inside `historical_pressure_reference::with_scope`, which suspends both
+    // the legacy-pressure refusal and the joint refusal for named tests only.
     #[test]
     fn current_composite_derived_normal_friction_and_reversal() {
         for mode in [
@@ -12392,6 +12448,11 @@ mod tests {
                     request(),
                     "tests::current_composite_derived_normal_friction_and_reversal",
                 );
+                // T0R: the frozen Decimal oracle includes the demo's joint C-150,
+                // which the ordinary route now refuses (M07). Keep the joint and
+                // run this oracle only inside the private historical test scope;
+                // it is retained evidence, not a Current qualification.
+                input.model.components = request_with_refused_joint().model.components;
                 input.model.supports.retain(|support| {
                     support.stiffness.is_none()
                         && support.family.as_deref() != Some("variable_spring_hanger")
@@ -12465,7 +12526,9 @@ mod tests {
                         }
                     }
                 }
-                let result = run_linear_static_preview_with_mode(input, mode);
+                let result = crate::historical_pressure_reference::with_scope(|| {
+                    run_linear_static_preview_with_mode(input, mode)
+                });
                 assert_eq!(
                     result.status.mechanics, "MECHANICS_SOLVED",
                     "{:?}",
@@ -12561,7 +12624,7 @@ mod tests {
                     // the current normal linkage but does not publish the signed source UY.
                     assert_eq!(
                         normal.value,
-                        result_value(&result, &format!("{prefix}reaction:support-S-130"))
+                        support_force_norm(&result, &format!("{prefix}reaction:support-S-130"))
                     );
                     assert_eq!(normal.basis_ref.as_ref().unwrap().ref_id, case);
                     let metadata = normal.metadata.as_ref().unwrap();
@@ -12727,7 +12790,9 @@ mod tests {
                     .and_then(|row| row.metadata.as_ref())
                     .unwrap();
                 assert_eq!(metadata.location, location);
-                assert_eq!(metadata.coordinate_system, "element_local");
+                // T0R (N-2): arc endpoint force rows are labelled with their
+                // actual chord frame on preview-physics-1; values unchanged.
+                assert_eq!(metadata.coordinate_system, "arc_chord_frame");
                 assert_eq!(metadata.basis, SECTION_RESULTANT_BASIS);
                 assert!(metadata.sign_convention.contains("force vector"));
             }
@@ -12792,7 +12857,8 @@ mod tests {
                 .and_then(|row| row.metadata.as_ref())
                 .unwrap();
             assert_eq!(metadata.coordinate_system, "element_local");
-            assert_eq!(metadata.basis, SECTION_RESULTANT_BASIS);
+            // T0R (N-2): arc stress components carry the nominal-basis discriminator.
+            assert_eq!(metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
             assert_eq!(
                 metadata.sign_convention,
                 CURVED_BEND_SECTION_SIGN_CONVENTION
@@ -12849,7 +12915,8 @@ mod tests {
                 .and_then(|row| row.metadata.as_ref())
                 .unwrap();
             assert_eq!(stress_metadata.coordinate_system, "element_local");
-            assert_eq!(stress_metadata.basis, SECTION_RESULTANT_BASIS);
+            // T0R (N-2): arc station stress rows carry the nominal-basis discriminator.
+            assert_eq!(stress_metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
             assert_eq!(
                 stress_metadata.sign_convention,
                 CURVED_BEND_SECTION_SIGN_CONVENTION
@@ -12932,7 +12999,7 @@ mod tests {
             .map(|item| item.id.as_str())
             .collect::<HashSet<_>>();
 
-        assert!(result_ids.contains("result:stress:pipe-P-120"));
+        assert!(has_member_maximum(&result, "pipe:P-120"));
         assert!(result_ids.contains("result:stress:pipe-P-120:end-i:axial-normal"));
         assert!(result_ids.contains("result:stress:pipe-P-120:end-i:torsional-shear"));
         assert!(result_ids.contains("result:stress:pipe-P-120:end-j:axial-normal"));
@@ -13502,6 +13569,26 @@ mod tests {
         serde_json::from_str(include_str!(
             "../../../fixtures/product_preview/invented_preview_model.json"
         ))
+        .map(|mut model: PreviewModel| {
+            // T0R (M07 containment): the ordinary route refuses a realized
+            // user-stiffness joint (JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED): its
+            // lateral springs act over a length without the moment coupling.
+            // This shared test basis omits the demo's joint C-150; the refusal and
+            // the joint-specific assertions use `request_with_refused_joint()`.
+            model.components.retain(|component| component.id != "component:C-150");
+            LinearStaticPreviewRequest {
+                model,
+                materials: invented_materials(),
+            }
+        })
+        .unwrap()
+    }
+
+    /// The unchanged invented demo, including its realized joint C-150.
+    fn request_with_refused_joint() -> LinearStaticPreviewRequest {
+        serde_json::from_str(include_str!(
+            "../../../fixtures/product_preview/invented_preview_model.json"
+        ))
         .map(|model| LinearStaticPreviewRequest {
             model,
             materials: invented_materials(),
@@ -13748,6 +13835,55 @@ mod tests {
             .unwrap_or_else(|| panic!("missing result {id}"))
     }
 
+    /// T0R: `reaction_resultant` is retired on preview-physics-1. Its legacy
+    /// id `…reaction:<support-suffix>` maps to the v2 force magnitude, which is
+    /// the same force norm computed from the signed components: the first case
+    /// for `result:reaction:…`, else the case or combination named in the prefix.
+    fn support_force_norm(envelope: &MechanicsEnvelope, legacy_id: &str) -> f64 {
+        let (prefix, support) = legacy_id.rsplit_once("reaction:").expect("legacy reaction id");
+        let scope = prefix
+            .strip_prefix("result:loadcase:")
+            .or_else(|| prefix.strip_prefix("result:combination:"))
+            .map(|s| s.trim_end_matches(':'));
+        envelope
+            .results
+            .iter()
+            .find(|row| {
+                row.kind == "support_reaction_force_magnitude_v2"
+                    && stable_suffix(&row.entity_ref) == support
+                    && scope.is_none_or(|scope| row.basis_ref.as_ref().is_some_and(|b| stable_suffix(&b.ref_id) == scope))
+            })
+            .unwrap_or_else(|| panic!("missing signed support force magnitude for {legacy_id}"))
+            .value
+    }
+
+    /// T0R: `open_formula_stress_summary` is retired; the member's certified
+    /// circular maximum (first case, Pa) is its successor, here in MPa.
+    fn member_maximum_mpa(envelope: &MechanicsEnvelope, pipe_id: &str) -> f64 {
+        envelope
+            .results
+            .iter()
+            .find(|row| row.kind == "pipe_elastic_normal_stress_maximum_v2" && row.entity_ref == pipe_id)
+            .unwrap_or_else(|| panic!("missing maximum for {pipe_id}"))
+            .value
+            / 1e6
+    }
+
+    fn has_member_maximum(envelope: &MechanicsEnvelope, pipe_id: &str) -> bool {
+        envelope
+            .results
+            .iter()
+            .any(|row| row.kind == "pipe_elastic_normal_stress_maximum_v2" && row.entity_ref == pipe_id)
+    }
+
+    fn legacy_value(envelope: &MechanicsEnvelope, id: &str) -> f64 {
+        if id.contains("reaction:support-") {
+            support_force_norm(envelope, id)
+        } else {
+            result_value(envelope, id)
+        }
+    }
+
     fn result_value(envelope: &MechanicsEnvelope, id: &str) -> f64 {
         envelope
             .results
@@ -13969,7 +14105,10 @@ mod tests {
             // Reference control for the historical nonlinear fixture: the former
             // nonlinear path omitted linear springs. Keep that exact no-spring
             // case explicit, rather than rewriting its friction oracle from output.
-            let mut input = request();
+            // T0R: this historical oracle includes the demo's joint C-150, which the
+            // ordinary route now refuses (M07); it stays a historical premise and
+            // runs only inside the private test-only historical scope.
+            let mut input = request_with_refused_joint();
             input.model.supports.retain(|support| {
                 support.stiffness.is_none()
                     && support.family.as_deref() != Some("variable_spring_hanger")
@@ -14052,9 +14191,10 @@ mod tests {
             assert!(result_ids.contains(
                 "result:loadcase:load-L-200:nonlinear-support:support-NL-140:uy-reaction"
             ));
-            assert!(result_ids.contains(
-            "result:combination:combination-C-OPER-ALT:nonlinear-support:support-NL-140:uy-reaction"
-        ));
+            // T0R (B-1): superposed nonlinear states are withheld; the case rows stay.
+            assert!(!result_ids.iter().any(|id| id.starts_with("result:combination:combination-C-OPER-ALT:")));
+            assert!(result.diagnostics.iter().any(|d| d.code == "NONLINEAR_COMBINATION_REQUIRES_SOLVE"
+                && d.affected_refs == vec!["combination:C-OPER-ALT".to_string()]));
             // DEC-067: the sliding-seeded friction support defers convergence one
             // iteration so the bounded sliding force is applied before the loop
             // converges.
@@ -15517,10 +15657,11 @@ mod tests {
 
     #[test]
     fn valid_invented_model_exposes_global_displacement_components() {
-        let result = run_linear_static_preview(mechanical_fixture_for_test(
-            request(),
-            "tests::valid_invented_model_exposes_global_displacement_components",
-        ));
+        // T0R (B-1): the fixture's nonlinear supports gate every mechanics
+        // combination; its linear companion keeps the combination algebra tested.
+        let mut input = mechanical_fixture_for_test(request(), "tests::valid_invented_model_exposes_global_displacement_components");
+        input.model.supports.retain(|support| support.nonlinear.is_none());
+        let result = run_linear_static_preview(input);
         let result_ids = result
             .results
             .iter()
@@ -15616,7 +15757,8 @@ mod tests {
                 .unwrap_or_else(|| panic!("missing result {id}"))
         };
         assert!(index_of("result:disp:node-N-140") < index_of("result:disp:node-N-100:ux"));
-        assert!(index_of("result:disp:node-N-140:rz") < index_of("result:reaction:support-S-100"));
+        // T0R: the signed support rows take the retired reaction rows' place.
+        assert!(index_of("result:disp:node-N-140:rz") < index_of("result:support-action:10:load:L-100:13:support:S-100:Fx"));
     }
 
     #[test]
@@ -15724,7 +15866,7 @@ mod tests {
             .map(|item| item.id.as_str())
             .collect::<HashSet<_>>();
 
-        assert!(result_ids.contains("result:stress:pipe-P-120"));
+        assert!(has_member_maximum(&result, "pipe:P-120"));
         assert!(result_ids.contains("result:stress:pipe-P-120:end-i:axial-normal"));
         assert!(result_ids.contains("result:stress:pipe-P-120:end-i:torsional-shear"));
         assert!(result_ids.contains("result:stress:pipe-P-120:end-i:pressure-hoop"));
@@ -15818,149 +15960,95 @@ mod tests {
 
     #[test]
     fn bend_component_user_multipliers_emit_stress_review_rows() {
+        // T0R (SF-8/M08): the SIF×k review row is retired; a geometry-only bend
+        // marker publishes the equal-factor measure i*hypot(My,Mz)/Z per case.
         let result = run_linear_static_preview(mechanical_fixture_for_test(
             request(),
             "tests::bend_component_user_multipliers_emit_stress_review_rows",
         ));
-        let default_row_id = "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier";
-        let combination_row_id =
-            "result:combination:combination-C-OPER-ALT:stress:component-C-110:pipe-P-100:end-j:user-multiplier";
+        assert!(!result.results.iter().any(|item| item.kind == "component_user_stress_multiplier_review"));
         let default_row = result
             .results
             .iter()
-            .find(|item| item.id == default_row_id)
-            .expect("bend user multiplier row should be emitted for adjacent pipe endpoint");
-        let combination_row = result
-            .results
-            .iter()
-            .find(|item| item.id == combination_row_id)
-            .expect("bend user multiplier row should participate in explicit combinations");
-
-        assert_eq!(result.summary.component_stress_modifier_count, 8);
-        assert_eq!(default_row.kind, "component_user_stress_multiplier_review");
+            .find(|item| item.id == "result:intensified-bending:component-C-110:pipe-P-100:end-j")
+            .expect("bend equal-factor row should be emitted for the adjacent pipe endpoint");
+        assert_eq!(default_row.kind, "component_equal_factor_intensified_bending_stress_v1");
         assert_eq!(default_row.entity_ref, "component:C-110");
+        assert_eq!(default_row.unit, "Pa");
         assert!(default_row.value > 0.0);
-        assert!(default_row
-            .source_result_refs
-            .contains(&"result:stress:pipe-P-100:end-j:axial-normal".to_string()));
-        assert!(default_row
-            .source_result_refs
-            .contains(&"result:stress:pipe-P-100:end-j:bending-normal-y".to_string()));
-        assert!(default_row
-            .source_result_refs
-            .contains(&"result:stress:pipe-P-100".to_string()));
-        let metadata = default_row
-            .metadata
-            .as_ref()
-            .expect("component multiplier row carries recovery metadata");
+        let refs = &default_row.source_result_refs;
+        assert_eq!(refs, &vec!["result:stress:pipe-P-100:end-j:bending-normal-y".to_string(), "result:stress:pipe-P-100:end-j:bending-normal-z".to_string()]);
+        // The measure equals i * hypot(sigma_by, sigma_bz) of the same end (MPa rows).
+        let hypot = result_value(&result, &refs[0]).hypot(result_value(&result, &refs[1])) * 1e6;
+        assert!((default_row.value - 1.15 * hypot).abs() <= 1e-9 * default_row.value);
+        let metadata = default_row.metadata.as_ref().expect("metadata");
+        assert_eq!(metadata.component, "equal_factor_intensified_bending_stress");
+        assert_eq!(metadata.coordinate_system, "pipe_section");
+        assert_eq!(metadata.location, "end_j");
+        assert_eq!(metadata.basis, "user_sif_times_member_section_bending_stress_v1");
+        assert!(metadata.sign_convention.contains("i=1.15 user-entered bend SIF"));
+        assert!(metadata.sign_convention.contains("source: invented_user_entered_preview_no_code_table"));
+        assert!(metadata.sign_convention.contains("no flexibility factor"));
+        // Never combined (the fixture's combination is gated by nonlinear supports anyway).
+        assert!(!result.results.iter().any(|item| item.kind == "component_equal_factor_intensified_bending_stress_v1"
+            && item.basis_ref.as_ref().is_some_and(|b| b.ref_type == "combination")));
         assert_eq!(
-            metadata.component,
-            "user_entered_component_stress_multiplier"
+            result.summary.component_stress_modifier_count,
+            result.results.iter().filter(|item| item.kind == "component_equal_factor_intensified_bending_stress_v1").count()
         );
-        assert_eq!(metadata.coordinate_system, "component_review");
-        assert_eq!(metadata.location, "pipe:P-100:end_j");
-        assert!(metadata.basis.contains("user_entered_sif=1.15"));
-        assert!(metadata.basis.contains("user_entered_flexibility=1.08"));
-        assert!(metadata
-            .basis
-            .contains("source=invented_user_entered_preview_no_code_table"));
-        assert!(metadata
-            .basis
-            .contains("solver_consumption=mechanics_geometry_only"));
-        assert!(metadata
-            .sign_convention
-            .contains("base frame stiffness unchanged"));
-
         assert_eq!(
-            combination_row
-                .basis_ref
-                .as_ref()
-                .map(|basis| basis.ref_id.as_str()),
-            Some("combination:C-OPER-ALT")
+            result.diagnostics.iter().filter(|d| d.code == "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED").count(),
+            result.summary.component_stress_modifier_count
         );
-        assert!(
-            result
-                .diagnostics
-                .iter()
-                .filter(|diagnostic| diagnostic.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED")
-                .count()
-                >= 4
-        );
+        assert!(!result.diagnostics.iter().any(|d| d.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED"));
     }
 
     #[test]
     fn branch_component_user_multipliers_emit_side_specific_stress_review_rows() {
+        // T0R (SF-8/M08): side-specific equal-factor rows replace the SIF×k rows.
         let result = run_linear_static_preview(mechanical_fixture_for_test(
             request(),
             "tests::branch_component_user_multipliers_emit_side_specific_stress_review_rows",
         ));
-        let branch_row_id = "result:stress:component-C-120:pipe-P-110:end-j:user-multiplier";
-        let header_row_id = "result:stress:component-C-120:pipe-P-120:end-i:user-multiplier";
-        let combination_row_id =
-            "result:combination:combination-C-OPER-ALT:stress:component-C-120:pipe-P-120:end-i:user-multiplier";
-        let branch_row = result
-            .results
-            .iter()
-            .find(|item| item.id == branch_row_id)
-            .expect(
-                "branch-side user multiplier row should be emitted for the branch pipe endpoint",
-            );
-        let header_row = result
-            .results
-            .iter()
-            .find(|item| item.id == header_row_id)
-            .expect(
-                "header-side user multiplier row should be emitted for the header pipe endpoint",
-            );
-        let combination_row = result
-            .results
-            .iter()
-            .find(|item| item.id == combination_row_id)
-            .expect("branch user multiplier row should participate in explicit combinations");
-
-        assert_eq!(branch_row.kind, "component_user_stress_multiplier_review");
-        assert_eq!(branch_row.entity_ref, "component:C-120");
-        assert_eq!(header_row.entity_ref, "component:C-120");
-        assert!(branch_row.value > 0.0);
-        assert!(header_row.value > 0.0);
-
-        let branch_metadata = branch_row
-            .metadata
-            .as_ref()
-            .expect("branch-side multiplier row carries recovery metadata");
-        assert_eq!(branch_metadata.coordinate_system, "component_review");
-        assert_eq!(branch_metadata.location, "pipe:P-110:end_j");
-        assert!(branch_metadata.basis.contains("component_family=branch"));
-        assert!(branch_metadata.basis.contains("component_side=branch"));
-        assert!(branch_metadata.basis.contains("user_entered_sif=1.31"));
-        assert!(branch_metadata
-            .basis
-            .contains("source=invented_user_entered_branch_modifiers_no_code_table"));
-
-        let header_metadata = header_row
-            .metadata
-            .as_ref()
-            .expect("header-side multiplier row carries recovery metadata");
-        assert_eq!(header_metadata.location, "pipe:P-120:end_i");
-        assert!(header_metadata.basis.contains("component_family=branch"));
-        assert!(header_metadata.basis.contains("component_side=header"));
-        assert!(header_metadata.basis.contains("user_entered_sif=1.22"));
-
-        assert_eq!(
-            combination_row
-                .basis_ref
-                .as_ref()
-                .map(|basis| basis.ref_id.as_str()),
-            Some("combination:C-OPER-ALT")
-        );
+        let row = |id: &str| result.results.iter().find(|item| item.id == id).unwrap_or_else(|| panic!("missing {id}"));
+        let branch_row = row("result:intensified-bending:component-C-120:pipe-P-110:end-j");
+        let header_row = row("result:intensified-bending:component-C-120:pipe-P-120:end-i");
+        for item in [branch_row, header_row] {
+            assert_eq!(item.kind, "component_equal_factor_intensified_bending_stress_v1");
+            assert_eq!(item.entity_ref, "component:C-120");
+            assert!(item.value > 0.0);
+        }
+        let branch_metadata = branch_row.metadata.as_ref().unwrap();
+        assert_eq!(branch_metadata.location, "end_j");
+        assert!(branch_metadata.sign_convention.contains("i=1.31 user-entered branch branch SIF"));
+        assert!(branch_metadata.sign_convention.contains("source: invented_user_entered_branch_modifiers_no_code_table"));
+        let header_metadata = header_row.metadata.as_ref().unwrap();
+        assert_eq!(header_metadata.location, "end_i");
+        assert!(header_metadata.sign_convention.contains("i=1.22 user-entered branch header SIF"));
+        assert!(!result.results.iter().any(|item| item.kind == "component_equal_factor_intensified_bending_stress_v1"
+            && item.basis_ref.as_ref().is_some_and(|b| b.ref_type == "combination")));
     }
 
     #[test]
     fn expansion_joint_user_stiffness_emits_macro_element_review_rows() {
-        let result = run_linear_static_preview(mechanical_fixture_for_test(
+        // T0R (M07 containment): the ordinary route refuses the realized joint.
+        let mut refused_input = request_with_refused_joint();
+        for case in &mut refused_input.model.load_cases {
+            // The demo's legacy nonzero pressure is refused first; remove it here.
+            case.primitive_loads.retain(|load| load.category != "pressure");
+        }
+        let refused = run_linear_static_preview(refused_input);
+        assert_eq!(refused.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(refused.results.is_empty());
+        assert!(refused.diagnostics.iter().any(|d| d.code == "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED"
+            && d.affected_refs == vec!["component:C-150".to_string(), "pipe:P-130".to_string()]));
+        // The retained review-row premise runs only in the private historical scope.
+        let mut input = mechanical_fixture_for_test(
             request(),
             "tests::expansion_joint_user_stiffness_emits_macro_element_review_rows",
-        ));
+        );
+        input.model.components = request_with_refused_joint().model.components;
+        let result = crate::historical_pressure_reference::with_scope(|| run_linear_static_preview(input));
         let axial = result
             .results
             .iter()
@@ -16025,7 +16113,8 @@ mod tests {
     #[test]
     fn expansion_joint_pressure_thrust_uses_user_effective_area_as_load_side_evidence_historical_pressure_premise(
     ) {
-        let result = historical_pressure_preview(request());
+        // T0R: historical premise with the demo's joint C-150 (refused on the ordinary route, M07).
+        let result = historical_pressure_preview(request_with_refused_joint());
         let default_row = result
             .results
             .iter()
@@ -16036,16 +16125,11 @@ mod tests {
             .iter()
             .find(|item| item.id == "result:loadcase:load-L-200:pressure-thrust:component-C-150")
             .expect("alternate load case expansion joint pressure-thrust row should be emitted");
-        let combination_row = result
-            .results
-            .iter()
-            .find(|item| {
-                item.id
-                    == "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150"
-            })
-            .expect(
-                "expansion joint pressure-thrust row should participate in explicit combinations",
-            );
+        // T0R: a load-side review row is never combined (and this fixture's
+        // mechanics combination is withheld for its nonlinear supports).
+        assert!(!result.results.iter().any(|item| {
+            item.id == "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150"
+        }));
 
         assert_eq!(result.summary.component_pressure_thrust_load_count, 2);
         assert_eq!(
@@ -16076,14 +16160,6 @@ mod tests {
 
         assert_eq!(alternate_row.value, 10_800.0);
         assert_eq!(alternate_row.source_result_refs, vec!["load:L-200-P-EJ"]);
-        assert_eq!(combination_row.value, 27_000.0);
-        assert_eq!(
-            combination_row.source_result_refs,
-            vec![
-                "result:pressure-thrust:component-C-150".to_string(),
-                "result:loadcase:load-L-200:pressure-thrust:component-C-150".to_string(),
-            ]
-        );
         assert!(result
             .results
             .iter()
@@ -16714,10 +16790,11 @@ mod tests {
 
     #[test]
     fn valid_invented_model_exposes_explicit_load_combination_results() {
-        let result = run_linear_static_preview(mechanical_fixture_for_test(
-            request(),
-            "tests::valid_invented_model_exposes_explicit_load_combination_results",
-        ));
+        // T0R (B-1): the fixture's nonlinear supports gate every mechanics
+        // combination; its linear companion keeps the combination algebra tested.
+        let mut input = mechanical_fixture_for_test(request(), "tests::valid_invented_model_exposes_explicit_load_combination_results");
+        input.model.supports.retain(|support| support.nonlinear.is_none());
+        let result = run_linear_static_preview(input);
         let combination_id = "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial";
         let alternate_load_case_id = "result:loadcase:load-L-200:force:pipe-P-120:axial";
         let quarter_combination_id =
@@ -16798,20 +16875,27 @@ mod tests {
 
     #[test]
     fn combination_stress_summary_rows_are_skipped_with_diagnostics() {
-        let result = run_linear_static_preview(mechanical_fixture_for_test(
+        // T0R: maxima are never combined. The fixture's mechanics combination is
+        // gated by its nonlinear supports, so drop them to reach an admitted one.
+        let mut input = mechanical_fixture_for_test(
             request(),
             "tests::combination_stress_summary_rows_are_skipped_with_diagnostics",
-        ));
-
-        assert!(!result
+        );
+        input.model.supports.retain(|support| support.nonlinear.is_none());
+        let result = run_linear_static_preview(input);
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
+        assert!(result
             .results
             .iter()
-            .any(|item| item.id == "result:combination:combination-C-OPER-ALT:stress:pipe-P-120"));
+            .any(|item| item.basis_ref.as_ref().is_some_and(|b| b.ref_type == "combination")));
+        assert!(!result.results.iter().any(|item| {
+            item.basis_ref.as_ref().is_some_and(|b| b.ref_type == "combination")
+                && matches!(item.kind.as_str(), "pipe_elastic_normal_stress_maximum_v2" | "open_formula_stress_summary")
+        }));
         assert!(result.diagnostics.iter().any(|item| item.code
-            == "COMBINATION_STRESS_SUMMARY_SKIPPED"
-            && item
-                .affected_refs
-                .contains(&"result:stress:pipe-P-120".to_string())));
+            == "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE"
+            && item.affected_refs == vec!["combination:C-OPER-ALT".to_string()]));
+        assert!(!result.diagnostics.iter().any(|item| item.code == "COMBINATION_STRESS_SUMMARY_SKIPPED"));
     }
 
     #[test]
@@ -18326,7 +18410,7 @@ mod tests {
         assert!((stress_i.value + expected_force / section.area / 1_000_000.0).abs() < 1.0e-6);
         assert!(result_ids.contains("result:stress:pipe-P-100:end-i:pressure-hoop"));
         assert!(!result_ids.contains("result:stress:pipe-P-100:end-i:pressure-longitudinal"));
-        assert!(result_ids.contains("result:stress:pipe-P-100"));
+        assert!(has_member_maximum(&result, "pipe:P-100"));
         assert!(!result
             .diagnostics
             .iter()
@@ -18899,14 +18983,14 @@ mod tests {
                 assert!((contact - expected_contact).abs() <= 1e-6);
                 assert!(contact <= 1e-6 && u <= gap_m + 0.5e-9 + 1e-12);
                 assert!(
-                    (result_value(&result, "result:reaction:support-S-100")
+                    (support_force_norm(&result, "result:reaction:support-S-100")
                         - bar_stiffness * expected_u)
                         .abs()
                         <= 1e-6
                 );
                 if spring {
                     assert!(
-                        (result_value(&result, "result:reaction:support-PARALLEL")
+                        (support_force_norm(&result, "result:reaction:support-PARALLEL")
                             - parallel_stiffness * expected_u)
                             .abs()
                             <= 1e-6
@@ -19071,7 +19155,7 @@ mod tests {
                                 <= 1e-6
                         );
                     }
-                    assert!(result_value(&result, "result:reaction:support-S-100").abs() <= 1e-6);
+                    assert!(support_force_norm(&result, "result:reaction:support-S-100").abs() <= 1e-6);
                 }
             }
         }
@@ -19152,7 +19236,7 @@ mod tests {
                     200e9 * inertia
                 };
                 assert!((result_value(&result, &id) - 250.0 * 2.0 / rigidity).abs() <= 1e-6);
-                assert!(result_value(&result, "result:reaction:support-S-100").abs() < 1e-6);
+                assert!(support_force_norm(&result, "result:reaction:support-S-100").abs() < 1e-6);
                 let mut reversed = input.clone();
                 reversed.model.load_cases[0].primitive_loads[0]
                     .magnitude
@@ -19193,7 +19277,7 @@ mod tests {
             assert_eq!(result_value(&result, "result:disp:node-N-110:uy"), 0.0);
             // Tip load is applied at the guided DOF: its ground reaction is 1 kN.
             assert!(
-                (result_value(&result, "result:reaction:support-NL-GAP-110") - 1000.0).abs() < 1e-6
+                (support_force_norm(&result, "result:reaction:support-NL-GAP-110") - 1000.0).abs() < 1e-6
             );
             let mut split = input.clone();
             let mut guide = split.model.supports[1].clone();
@@ -19213,7 +19297,7 @@ mod tests {
                 0.0
             );
             assert!(
-                (result_value(&split_result, "result:reaction:support-GUIDE") - 1000.0).abs()
+                (support_force_norm(&split_result, "result:reaction:support-GUIDE") - 1000.0).abs()
                     < 1e-6
             );
             // Activate the independent Z contact while retaining the Y guide.
@@ -19989,7 +20073,7 @@ mod tests {
                     1000.0 * tip_numerator / (200e9 * inertia),
                 );
                 p5_close(
-                    result_value(&result, "result:reaction:support-S-100"),
+                    support_force_norm(&result, "result:reaction:support-S-100"),
                     root_force,
                 );
                 p5_close(
@@ -20041,7 +20125,7 @@ mod tests {
                     1000.0 * tip_numerator / (200e9 * inertia),
                 );
                 p5_close(
-                    result_value(&other, "result:stress:pipe-P-100"),
+                    member_maximum_mpa(&other, "pipe:P-100"),
                     root_moment / (inertia / 0.084) / 1e6,
                 );
             }
@@ -20082,11 +20166,11 @@ mod tests {
                     "{:?}",
                     result.diagnostics
                 );
-                p5_close(result_value(&result, "result:reaction:support-S-100"), 75.0);
-                p5_close(result_value(&result, "result:reaction:support-tip"), 25.0);
+                p5_close(support_force_norm(&result, "result:reaction:support-S-100"), 75.0);
+                p5_close(support_force_norm(&result, "result:reaction:support-tip"), 25.0);
                 // Peak x=.75 (fraction .375) is not a public station sample.
                 p5_close(
-                    result_value(&result, "result:stress:pipe-P-100"),
+                    member_maximum_mpa(&result, "pipe:P-100"),
                     28.125 / (inertia / 0.084) / 1e6,
                 );
             }
@@ -20165,11 +20249,11 @@ mod tests {
                     "reaction:support-S-100",
                 ] {
                     p5_close(
-                        result_value(
+                        legacy_value(
                             &output,
                             &format!("result:combination:combination-p5:{tail}"),
                         ),
-                        result_value(&direct, &format!("result:{tail}")),
+                        legacy_value(&direct, &format!("result:{tail}")),
                     );
                 }
             }
@@ -20199,7 +20283,7 @@ mod tests {
                 "reaction:support-S-100",
             ] {
                 p5_close(
-                    result_value(
+                    legacy_value(
                         &output,
                         &format!("result:combination:combination-p5:{tail}"),
                     ),
@@ -20285,7 +20369,7 @@ mod tests {
                 r.id.starts_with("result:disp:")
                     || r.id.starts_with("result:force:")
                     || r.id.starts_with("result:moment:")
-                    || r.kind == "open_formula_stress_summary"
+                    || r.kind == "pipe_elastic_normal_stress_maximum_v2"
             }) {
                 p5_close(result_value(&split, &row.id), row.value);
             }
@@ -20302,22 +20386,24 @@ mod tests {
                 .map(|row| (row.id.as_str(), row))
                 .collect::<HashMap<_, _>>();
             let mut checked = 0;
+            let mut qualified_case_edges = 0;
             for row in &output.results {
                 let Some(basis) = row.basis_ref.as_ref().filter(|b| b.ref_type == "load_case")
                 else {
                     continue;
                 };
                 for source in &row.source_result_refs {
-                    if let Some(source) = by_id.get(source.as_str()) {
-                        assert_eq!(source.basis_ref.as_ref().unwrap().ref_id, basis.ref_id);
-                        checked += 1;
-                    }
+                    let source = by_id.get(source.as_str()).unwrap_or_else(|| panic!("unresolved case edge {source}"));
+                    assert_eq!(source.basis_ref.as_ref().unwrap().ref_id, basis.ref_id);
+                    checked += 1;
+                    qualified_case_edges += usize::from(source.id.starts_with("result:loadcase:"));
                 }
             }
-            assert!(
-                checked >= 20,
-                "only {checked} actual case source edges checked"
-            );
+            // T0R: the retired SIF×k rows carried three edges each (24); their
+            // equal-factor successors carry two each: 8 rows over two cases.
+            // Every edge must now resolve, and the non-first case must be exercised.
+            assert_eq!(checked, 16, "{checked} actual case source edges checked");
+            assert_eq!(qualified_case_edges, 8);
         }
     }
 
@@ -20451,7 +20537,7 @@ mod tests {
                 // Compare the independently balanced force in N using the
                 // analytic seed criterion; publication no longer quantizes it.
                 analytic_close!(
-                    result_value(&output, "result:reaction:support-spring-UY"),
+                    support_force_norm(&output, "result:reaction:support-spring-UY"),
                     350.0
                 );
             }
@@ -20833,55 +20919,21 @@ mod tests {
 
     #[test]
     fn curved_bend_macro_element_multiplier_applies_sif_only() {
+        // T0R (NOTE-1): a curved-bend macro-element publishes no stress
+        // multiplier or intensified row anywhere; its SIF is recorded as not
+        // applied until T4, and k enters stiffness only.
         let result = run_linear_static_preview(curved_bend_span_request());
-
-        let multiplier_row_id = "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier";
-        let multiplier_row = result
-            .results
-            .iter()
-            .find(|item| item.id == multiplier_row_id)
-            .expect("curved-bend SIF-only multiplier row is present");
-        // Reconstruct the end-j open-formula summary from the emitted
-        // endpoint stress rows (MPa) and check the multiplier is SIF-only.
-        let axial = result_value(&result, "result:stress:pipe-P-100:end-j:axial-normal");
-        let bending_y =
-            result_value(&result, "result:stress:pipe-P-100:end-j:bending-normal-y").abs();
-        let bending_z =
-            result_value(&result, "result:stress:pipe-P-100:end-j:bending-normal-z").abs();
-        let bending_total = bending_y + bending_z;
-        let summary = (axial + bending_total)
-            .abs()
-            .max((axial - bending_total).abs());
-        assert!(
-            (multiplier_row.value - summary * CURVED_BEND_TEST_SIF).abs() <= 1.0e-3,
-            "multiplier row {} must be the end-j summary {} times the user SIF only",
-            multiplier_row.value,
-            summary
-        );
-        let metadata = multiplier_row.metadata.as_ref().unwrap();
-        assert!(metadata
-            .basis
-            .contains("solver_consumption=curved_bend_macro_element"));
-        assert!(metadata
-            .basis
-            .contains("flexibility_realization=assembled_curved_bend_macro_element_stiffness"));
-        assert!(!metadata
-            .sign_convention
-            .contains("base frame stiffness unchanged"));
-        assert!(metadata
-            .sign_convention
-            .contains("multiplied by the user-entered SIF only"));
-        assert!(metadata
-            .sign_convention
-            .contains("enters the assembled curved-bend macro-element stiffness"));
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
+        assert!(!result.results.iter().any(|item| matches!(item.kind.as_str(),
+            "component_user_stress_multiplier_review" | "component_equal_factor_intensified_bending_stress_v1")));
         let diagnostic = result
             .diagnostics
             .iter()
-            .find(|item| item.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED")
-            .expect("multiplier diagnostic is present");
-        assert!(diagnostic
-            .message
-            .contains("enters the assembled curved-bend macro-element stiffness"));
+            .find(|item| item.code == "COMPONENT_STRESS_INTENSIFICATION_NOT_APPLIED")
+            .expect("not-applied diagnostic is present");
+        assert_eq!(diagnostic.affected_refs, vec!["component:C-110".to_string()]);
+        assert_eq!(result.summary.component_stress_modifier_count, 0);
+        assert!(!result.diagnostics.iter().any(|item| item.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED"));
     }
 
     #[test]
@@ -21010,7 +21062,7 @@ mod tests {
         let expected_tip_mm = 0.000012 * 10.0 * CURVED_BEND_TEST_CHORD_M * 1000.0;
         let ux_mm = result_value(&result, "result:disp:node-N-110:ux");
         assert!((ux_mm - expected_tip_mm).abs() <= 1.0e-6);
-        assert!(result_value(&result, "result:reaction:support-S-100").abs() <= 1.0e-6);
+        assert!(support_force_norm(&result, "result:reaction:support-S-100").abs() <= 1.0e-6);
         for row in [
             "result:force:pipe-P-100:axial",
             "result:force:pipe-P-100:axial:end-j",
@@ -21050,7 +21102,7 @@ mod tests {
         let result = run_linear_static_preview(request);
 
         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
-        assert!(result_value(&result, "result:reaction:support-S-100") > 1.0);
+        assert!(support_force_norm(&result, "result:reaction:support-S-100") > 1.0);
         assert!(
             result_value(&result, "result:force:pipe-P-100:axial").abs() > 1.0,
             "restrained thermal expansion must recover a nonzero axial end force"
@@ -21443,7 +21495,9 @@ mod tests {
                     .and_then(|row| row.metadata.as_ref())
                     .unwrap();
                 assert_eq!(metadata.location, location);
-                assert_eq!(metadata.coordinate_system, "element_local");
+                // T0R (N-2): arc endpoint force rows are labelled with their
+                // actual chord frame on preview-physics-1; values unchanged.
+                assert_eq!(metadata.coordinate_system, "arc_chord_frame");
                 assert_eq!(metadata.basis, SECTION_RESULTANT_BASIS);
                 assert!(metadata.sign_convention.contains("force vector"));
             }
@@ -21508,7 +21562,8 @@ mod tests {
                 .and_then(|row| row.metadata.as_ref())
                 .unwrap();
             assert_eq!(metadata.coordinate_system, "element_local");
-            assert_eq!(metadata.basis, SECTION_RESULTANT_BASIS);
+            // T0R (N-2): arc stress components carry the nominal-basis discriminator.
+            assert_eq!(metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
             assert_eq!(
                 metadata.sign_convention,
                 CURVED_BEND_SECTION_SIGN_CONVENTION
@@ -21565,7 +21620,8 @@ mod tests {
                 .and_then(|row| row.metadata.as_ref())
                 .unwrap();
             assert_eq!(stress_metadata.coordinate_system, "element_local");
-            assert_eq!(stress_metadata.basis, SECTION_RESULTANT_BASIS);
+            // T0R (N-2): arc station stress rows carry the nominal-basis discriminator.
+            assert_eq!(stress_metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
             assert_eq!(
                 stress_metadata.sign_convention,
                 CURVED_BEND_SECTION_SIGN_CONVENTION
@@ -21774,7 +21830,8 @@ mod tests {
                 .and_then(|row| row.metadata.as_ref())
                 .unwrap();
             assert_eq!(metadata.coordinate_system, "element_local");
-            assert_eq!(metadata.basis, SECTION_RESULTANT_BASIS);
+            // T0R (N-2): arc stress components carry the nominal-basis discriminator.
+            assert_eq!(metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
             assert_eq!(
                 metadata.sign_convention,
                 CURVED_BEND_SECTION_SIGN_CONVENTION
@@ -21908,8 +21965,8 @@ mod tests {
     #[test]
     fn legacy_bend_mode_keeps_multiplier_and_chord_realization_unchanged() {
         // The invented fixture bend stays on mechanics_geometry_only: the
-        // straight chord is assembled, the multiplier stays sif * flexibility,
-        // and the DEC-045 provenance wording is untouched.
+        // straight chord is assembled. T0R: the SIF×k multiplier is retired and
+        // the marker's equal-factor row uses the SIF only.
         let result = run_linear_static_preview(mechanical_fixture_for_test(
             request(),
             "tests::legacy_bend_mode_keeps_multiplier_and_chord_realization_unchanged",
@@ -21922,18 +21979,10 @@ mod tests {
         let row = result
             .results
             .iter()
-            .find(|item| {
-                item.id == "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier"
-            })
-            .expect("legacy bend multiplier row is present");
+            .find(|item| item.id == "result:intensified-bending:component-C-110:pipe-P-100:end-j")
+            .expect("marker equal-factor row is present");
         let metadata = row.metadata.as_ref().unwrap();
-        assert!(metadata
-            .basis
-            .contains("solver_consumption=mechanics_geometry_only"));
-        assert!(!metadata.basis.contains("flexibility_realization"));
-        assert_eq!(
-            metadata.sign_convention,
-            "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
-        );
+        assert!(metadata.sign_convention.contains("i=1.15"));
+        assert!(!metadata.sign_convention.contains("1.08"));
     }
 }

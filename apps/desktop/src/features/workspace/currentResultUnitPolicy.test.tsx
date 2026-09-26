@@ -3,8 +3,8 @@ import { isDeepStrictEqual } from "node:util";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
-import modelFixture from "../../../../../fixtures/product_preview/invented_preview_model.json";
-import sourceFixture from "../../../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json";
+import modelFixture from "../../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json";
+import sourceFixture from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { hasNativeMechanicsInvocation, loadDesignKnowledge } from "../../services/previewService";
 import { DesignWorkspacePanel } from "../design-workspace/DesignWorkspacePanel";
@@ -12,12 +12,15 @@ import { SolvePanel } from "../solve/SolvePanel";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
 
 // Unit transport replay of recorded producer bytes through mocked IPC: the
-// precision-1 sparse fixture is verbatim product stdout for the unchanged
-// invented_preview_model.json (fixtures/product_preview/PRECISION_FIXTURES.md).
+// preview-physics-1 sparse fixture is actual producer output (T0R S2a) for the
+// invented demo model without its legacy pressure (preview_physics_invented_model.json).
+// T0R: precision-1 is historical and never Current, so this Current witness moved.
 // This is NOT a native UI qualification witness. Current standing comes only
 // from the session's own solve path and qualification gate (handleRun).
 const modelUnits = "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC";
-const recordedUnits = "MPa,N,N*m,N*m/rad,N/m,boolean,count,m,mm,mode_code,rad,state_code";
+// A1: the derived model omits joint component:C-150 (refused on this route), so no
+// N*m/rad row remains in this Current witness.
+const recordedUnits = "MPa,N,N*m,N/m,Pa,boolean,count,m,mm,mode_code,rad,state_code";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -30,7 +33,7 @@ async function recordedProducerSession() {
   // Capture the real browser bootstrap records before installing the replay.
   const storage = await getLocalStorageCapability();
   const knowledge = await loadDesignKnowledge();
-  const jobId = "unit-transport-replay:invented-precision-1-sparse";
+  const jobId = "unit-transport-replay:invented-preview-physics-1-sparse";
   const scope = "unit_transport_replay_not_native_ui_qualification";
   invokeMock.mockImplementation(async (command: string, args?: unknown) => {
     if (command === "get_local_storage_capability") return storage;
@@ -78,24 +81,25 @@ it("reads results=none in the solve and design unit lines without a Current resu
   expect(line(design, "design-workspace-units")).toBe(`${modelUnits}; results=none; comparison=none; conversion=false`);
 });
 
-it("reports a qualified Current result's recorded units, including N*m/rad and N/m, unconverted in the solve and design unit lines", async () => {
+it("reports a qualified Current result's recorded units, including Pa, N*m and N/m, unconverted in the solve and design unit lines", async () => {
   const { result } = await recordedProducerSession();
   await act(async () => { await result.current.results.handleRun(); });
   await waitFor(() => expect(result.current.results.currentSolvedResult).not.toBeNull());
   const model = result.current.model.model, currentSolvedResult = result.current.results.currentSolvedResult;
   expect(result.current.results.result).toBe(currentSolvedResult);
   expect(hasNativeMechanicsInvocation(currentSolvedResult, model, "sparse_interactive")).toBe(true);
-  expect(currentSolvedResult!.results).toHaveLength(830);
+  expect(currentSolvedResult!.results).toHaveLength(625);
   expect([...new Set(currentSolvedResult!.results.map((row) => row.unit))].sort().join(",")).toBe(recordedUnits);
   expect(currentSolvedResult).toEqual(sourceFixture); // received producer bytes, unchanged
 
   const { solve, design, line } = renderPanels(result.current);
-  expect(line(solve, "solve-job-unit-policy")).toBe(`${modelUnits}; results=${recordedUnits}; rows=830; conversion=false`);
+  expect(line(solve, "solve-job-unit-policy")).toBe(`${modelUnits}; results=${recordedUnits}; rows=625; conversion=false`);
   expect(within(solve.container).getByTestId("solve-job-summary")).toHaveTextContent("state=completed");
-  expect(within(solve.container).getByTestId("solve-job-summary")).toHaveTextContent("result_rows=830");
+  expect(within(solve.container).getByTestId("solve-job-summary")).toHaveTextContent("result_rows=625");
   // comparison= lists only the units of rows matched between the default comparison bases (load:L-100 vs combination:C-OPER-ALT).
+  // T0R: that mechanics combination is withheld (NONLINEAR_COMBINATION_REQUIRES_SOLVE), so no rows are matched.
   expect(line(design, "design-workspace-units"))
-    .toBe(`${modelUnits}; results=${recordedUnits}; comparison=MPa,N,N*m,mm,rad; conversion=false`);
-  expect(within(design.container).getByTestId("design-workspace-current")).toHaveTextContent("result_rows=830");
+    .toBe(`${modelUnits}; results=${recordedUnits}; comparison=none; conversion=false`);
+  expect(within(design.container).getByTestId("design-workspace-current")).toHaveTextContent("result_rows=625");
   expect(currentSolvedResult).toEqual(sourceFixture);
 });

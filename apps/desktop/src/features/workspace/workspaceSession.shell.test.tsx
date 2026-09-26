@@ -267,7 +267,8 @@ describe("a stage or view switch is a presentation change", () => {
     // Exact captured producer pair through simulated native IPC, followed by
     // the real browser persistence adapter. This is no native UI witness.
     const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
-    const replay = createNativeMechanicsReplay({ profile: "precision" });
+    // T0R: the fresh ordinary route is preview-physics-1; precision-1 is never Current.
+    const replay = createNativeMechanicsReplay({ profile: "preview" });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockImplementation((command: string, args: Record<string, unknown>) => {
       if (command === "get_local_storage_capability") return Promise.resolve(storage);

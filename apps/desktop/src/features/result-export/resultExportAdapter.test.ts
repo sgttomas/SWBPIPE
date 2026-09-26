@@ -127,7 +127,8 @@ describe('reference projection contracts and simulated native Current boundaries
   const mixed=structuredClone(args);mixed.result.results[0].dimension='length';await expect(buildCurrentResultExport(mixed)).rejects.toThrow('MIXED');
  });
  it('rejects a rehashed 0.2 known explicit carrier dimension contradiction without mutating evidence',async()=>{
-  const args=await referenceSession(),row=args.result.results.find(item=>item.kind==='displacement_magnitude')!;(row as any).dimension='stress';await rehashV02ResultClaims(args);expect(await verifyAnalysisRunRecord(args.analysisRun)).toBe('match');const before=JSON.stringify(args.result);await expect(buildCurrentResultExport(args)).rejects.toThrow('CURRENT_CARRIER_DIMENSION_CONTRADICTION');expect(JSON.stringify(args.result)).toBe(before);
+  const args=await referenceSession(),row=args.result.results.find(item=>item.kind==='displacement_magnitude')!;(row as any).dimension='stress';await rehashV02ResultClaims(args);expect(await verifyAnalysisRunRecord(args.analysisRun)).toBe('match');const before=JSON.stringify(args.result);// T0R: this precision-1 reference is refused at its historical standing before the dimension check.
+  await expect(buildCurrentResultExport(args)).rejects.toThrow('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');expect(JSON.stringify(args.result)).toBe(before);
  });
  it('rejects checksum scope/type/algorithm/canonicalization/ref tampering',async()=>{
   const args=await current();const edits:Array<(a:typeof args)=>void>=[a=>{(a.analysisRun.analysis_run.hashes[0] as any).algorithm='TBD'},a=>{a.analysisRun.analysis_run.hashes[0].payload_ref.object_type='Wrong'},a=>{a.analysisRun.analysis_run.hashes[1].canonicalization='wrong'},a=>{a.analysisRun.analysis_run.result_refs[0].hash_refs[0].payload_scope='wrong'},a=>{a.analysisRun.analysis_run.result_refs[0].hash_refs[0].payload_ref.ref='wrong'},a=>{(a.analysisRun.analysis_run.reproducibility.input_manifest_hashes[0] as any).payload_scope='wrong'},a=>{a.analysisRun.analysis_run.reproducibility.input_manifest_refs[0].object_type='Wrong'}];
@@ -234,5 +235,25 @@ it('requires the registered exact source object for Current export in a native t
  expect(JSON.stringify(args.result)).toBe(before);
  await expect(buildCurrentResultExport({...args,result:structuredClone(args.result)})).rejects.toThrow('CURRENT_NATIVE_INVOCATION_REQUIRED');
  const reference=await referenceSession();
- await expect(buildCurrentResultExport(reference)).rejects.toThrow('CURRENT_NATIVE_INVOCATION_REQUIRED');
+ // T0R: the precision-1 reference is refused at its historical standing, ahead of the invocation gate.
+ await expect(buildCurrentResultExport(reference)).rejects.toThrow('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');
+});
+
+it('exports a registered preview-physics-1 Current result with its contract evidence; a registered precision-1 solve is refused',async()=>{
+ for(const profile of ['preview','precision'] as const){
+  const {model}=nativeMechanicsReplayPair('sparse_interactive',{profile});
+  (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={};
+  invokeMock.mockImplementation(createNativeMechanicsReplay({profile}).invoke);
+  const result=await runPreviewMechanics(model);
+  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'open_pipe_stress_product_physics@0.2.0',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
+  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
+  if(profile==='precision'){await expect(buildCurrentResultExport({model,result,inputManifest,analysisRun})).rejects.toThrow('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');continue;}
+  const doc=await buildCurrentResultExport({model,result,inputManifest,analysisRun});
+  expect(doc.schema_version).toBe('0.3.0');
+  expect(doc.result_envelope.contract_evidence).toEqual(result.contract_evidence);
+  expect(doc.result_envelope.semantic_contract_ref.ref_id).toBe('openpipestress.result_semantics/0.3.0/preview-physics-1');
+  // N-A: no notice text is written into the exported document.
+  expect(JSON.stringify(doc)).not.toContain('Rule checks cannot bind');
+  await validateResultDocument(doc,result);
+ }
 });

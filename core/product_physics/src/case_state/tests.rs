@@ -330,6 +330,57 @@ fn declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not() {
     assert!(envelope.results.is_empty());
 }
 
+/// T1 routing of blocked 0.4.0 envelopes (S6 §6, DESIGN 10.3): a 0.4.0
+/// document is exact-route only, so a blocked one keeps load-reference-1, its
+/// profile and the empty load/reference namespace; it never gets the preview id.
+#[test]
+fn blocked_load_state_envelopes_keep_the_load_reference_identity() {
+    let mut missing_contract = two_bar();
+    missing_contract["model"]
+        .as_object_mut()
+        .unwrap()
+        .remove("pressure_contract");
+    let mut legacy_contract = two_bar();
+    legacy_contract["model"]["pressure_contract"] = json!({"version": "1.0.0", "mode": "legacy"});
+    let mut blocked_exact = two_bar();
+    blocked_exact["model"]["load_cases"][0]["analysis_state"]["provenance"] = json!("");
+    for (label, request) in [
+        ("missing contract", missing_contract),
+        ("legacy contract", legacy_contract),
+        ("exact, blocked input", blocked_exact),
+    ] {
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            let envelope = run(&request, mode);
+            assert!(
+                !blocking_codes(&envelope).is_empty(),
+                "{label}: {:?}",
+                envelope.diagnostics
+            );
+            assert!(envelope.results.is_empty(), "{label}");
+            assert_eq!(
+                envelope.producer.semantic_contract_id,
+                crate::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID,
+                "{label}"
+            );
+            assert_eq!(
+                envelope.formulation_basis.profile_id,
+                crate::LOAD_STATE_PROFILE_ID,
+                "{label}"
+            );
+            assert_eq!(
+                envelope.contract_evidence,
+                Some(
+                    json!({"pressure": [], "connector": [], "exact_cases": [], "load_reference_states": []})
+                ),
+                "{label}"
+            );
+        }
+    }
+}
+
 #[test]
 fn older_documents_carrying_the_new_namespace_block_instead_of_ignoring_it() {
     let mut request = two_bar();

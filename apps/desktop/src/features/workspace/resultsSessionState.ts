@@ -1,6 +1,7 @@
 import { physicsSourceModeMatches } from "../results/physicsSourceRecovery";
 import { sourceBlockModeMatches } from "../results/sourceBlockRecovery";
 import { numericalResultStanding, currentSemanticContract, sourceContract } from "../results/numericalResultQuality";
+import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
 import { useMemo, useRef, useState } from "react";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { buildPreviewComparison, hasNativeMechanicsInvocation } from "../../services/previewService";
@@ -53,7 +54,9 @@ export function useResultsSessionState() {
   let numericallyEligible = false;
   try { numericallyEligible = !!result && numericalResultStanding(result, inputManifest?.manifest.model_basis.model_payload).eligible; }
   catch { /* Malformed retained carriers remain inspectable, never Current. */ }
-  const currentSolvedResult = result && currentContract && analysisRun?.schema_version === "0.3.0"
+  // T0R: Current only for the static fresh-identity set with Current standing;
+  // precision-1 and other historical identities stay readable, never Current.
+  const currentSolvedResult = result && currentContract && isFreshSemanticResult(result) && analysisRun?.schema_version === "0.3.0"
     && currentRecord?.run_id === result.run_id
     && inputManifest?.manifest.model_basis.model_ref === result.model_ref
     && currentRecord.reproducibility.input_manifest_refs.length === 1

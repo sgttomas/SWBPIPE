@@ -13,13 +13,14 @@ function source(): MechanicsResult {
 describe("numerical standing independent of authenticity and engineering acceptance", () => {
   it("requires complete requested cases and actual emitted evidence IDs", () => {
     const raw = source(), before = JSON.stringify(raw);
-    expect(numericalResultStanding(raw, model).eligible).toBe(true);
+    // T0R: precision-1 is historical; the only finding on complete evidence is its standing reason.
+    expect(numericalResultStanding(raw, model).findings).toEqual(["PRECISION_1_HISTORICAL_SEMANTICS"]);
     expect(JSON.stringify(raw)).toBe(before);
-    expect(numericalResultStanding(raw).eligible).toBe(false);
-    raw.numerical_quality!.cases.pop(); expect(numericalResultStanding(raw, model).eligible).toBe(false);
+    expect(numericalResultStanding(raw).findings).toContain("REQUESTED_NUMERICAL_BASIS_UNAVAILABLE");
+    raw.numerical_quality!.cases.pop(); expect(numericalResultStanding(raw, model).findings).toContain("NUMERICAL_CASE_COVERAGE_INCOMPLETE");
     raw.numerical_quality!.cases = source().numerical_quality!.cases;
     raw.numerical_quality!.cases[0].evidence_refs = ["invented"];
-    expect(numericalResultStanding(raw, model).eligible).toBe(false);
+    expect(numericalResultStanding(raw, model).findings).toContain("NUMERICAL_CASE_EVIDENCE_INCOMPLETE");
   });
   it("does not promote rounded legacy, unassessed, unknown or contradictory headers", () => {
     const raw = source(); raw.schema_version = "0.1.0"; delete raw.producer; delete raw.numerical_quality; delete raw.formulation_basis;
@@ -112,7 +113,7 @@ describe("aggregate consistency is distinct from numerical qualification", () =>
     const before = JSON.stringify({ raw, requested });
     const standing = numericalResultStanding(raw, requested);
     expect(standing).toEqual({ contract: "precision", status: "needs_recompute", eligible: false,
-      findings: ["NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"] });
+      findings: ["PRECISION_1_HISTORICAL_SEMANTICS", "NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"] });
     expect(JSON.stringify({ raw, requested })).toBe(before);
   });
 
@@ -120,7 +121,7 @@ describe("aggregate consistency is distinct from numerical qualification", () =>
     const { raw, requested } = aggregateFixture(["unresolved"], "unresolved");
     raw.numerical_quality!.cases[0].model_matrix_fidelity = "not_assessed";
     expect(numericalResultStanding(raw, requested)).toEqual({ contract: "precision", status: "needs_recompute", eligible: false,
-      findings: ["NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"] });
+      findings: ["PRECISION_1_HISTORICAL_SEMANTICS", "NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"] });
   });
 
   it.each<{ cases: QualityStatus[]; claim: QualityStatus }>([
@@ -143,15 +144,16 @@ describe("aggregate consistency is distinct from numerical qualification", () =>
     { cases: ["checks_passed", "checks_passed"], aggregate: "checks_passed" },
   ])("retains qualified $aggregate controls with complete evidence", ({ cases, aggregate }) => {
     const { raw, requested } = aggregateFixture(cases, aggregate);
-    expect(numericalResultStanding(raw, requested)).toEqual({ contract: "precision", status: "integrity_checked", eligible: true, findings: [] });
+    // T0R: complete precision-1 evidence is still historical only (retired Current standing).
+    expect(numericalResultStanding(raw, requested)).toEqual({ contract: "precision", status: "needs_recompute", eligible: false, findings: ["PRECISION_1_HISTORICAL_SEMANTICS"] });
   });
 
   it("defaults empty cases to not_assessed but still requires requested-case coverage", () => {
     const { raw } = aggregateFixture([], "not_assessed");
     expect(numericalResultStanding(raw, model)).toEqual({ contract: "precision", status: "needs_recompute", eligible: false,
-      findings: ["NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_COVERAGE_INCOMPLETE"] });
+      findings: ["PRECISION_1_HISTORICAL_SEMANTICS", "NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_COVERAGE_INCOMPLETE"] });
     raw.numerical_quality!.status = "checks_passed";
     expect(numericalResultStanding(raw, model)).toEqual({ contract: "precision", status: "needs_recompute", eligible: false,
-      findings: ["NUMERICAL_CASE_COVERAGE_INCOMPLETE", "NUMERICAL_AGGREGATE_CONTRADICTION"] });
+      findings: ["PRECISION_1_HISTORICAL_SEMANTICS", "NUMERICAL_CASE_COVERAGE_INCOMPLETE", "NUMERICAL_AGGREGATE_CONTRADICTION"] });
   });
 });

@@ -598,27 +598,34 @@ def test_raw_absent_optionals_are_null_and_admitted_values_are_accepted():
 
 # ---------------------------------------------------------------- carriers
 def test_carrier_branches_are_appended_after_the_existing_methods():
+    """T1's branches follow every branch main carries (T0R's preview-physics-1
+    included); positions are looked up by identity, the relative order is pinned."""
     results = schema("results.v0.3.schema.yaml")["$defs"]["ResultEnvelope"]
     ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] for branch in results["oneOf"]]
     assert ids == ["openpipestress.result_semantics/0.3.0/precision-1", PHYSICS_ID,
                    "openpipestress.result_semantics/0.3.0/source-blocks-1",
-                   "openpipestress.result_semantics/0.3.0/physics-source-1", LR_ID,
+                   "openpipestress.result_semantics/0.3.0/physics-source-1",
+                   "openpipestress.result_semantics/0.3.0/preview-physics-1", LR_ID,
                    "openpipestress.result_semantics/0.3.0/load-reference-source-1"]
-    assert results["properties"]["contract_evidence"]["anyOf"][2] == LR_EVIDENCE_REF
-    assert len(results["properties"]["contract_evidence"]["anyOf"]) == 4
-    assert results["oneOf"][4]["properties"]["contract_evidence"] == LR_EVIDENCE_REF
-    assert results["oneOf"][4]["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": LR_PROFILE}
+    lr = ids.index(LR_ID)
+    evidence = results["properties"]["contract_evidence"]["anyOf"]
+    assert evidence.count(LR_EVIDENCE_REF) == 1
+    assert evidence.index(LR_EVIDENCE_REF) == len(evidence) - 2, "LR evidence follows main's evidence kinds"
+    assert results["oneOf"][lr]["properties"]["contract_evidence"] == LR_EVIDENCE_REF
+    assert results["oneOf"][lr]["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": LR_PROFILE}
     run = schema("analysis_run.v0.3.schema.json")["$defs"]
-    assert run["SemanticContract"]["oneOf"][4] == {"properties": {"id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}}
-    assert len(run["SemanticContract"]["oneOf"]) == 6
-    assert len(run["AnalysisRun"]["oneOf"]) == 6
-    assert run["AnalysisRun"]["oneOf"][4]["not"] == {"anyOf": [{"required": ["source_block_recovery"]},
-                                                              {"required": ["contract_evidence"]}]}
+    contracts = run["SemanticContract"]["oneOf"]
+    assert [branch["properties"]["id"]["const"] for branch in contracts] == ids
+    assert contracts[lr] == {"properties": {"id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}}
+    assert len(run["AnalysisRun"]["oneOf"]) == len(ids)
+    assert run["AnalysisRun"]["oneOf"][lr]["not"] == {"anyOf": [{"required": ["source_block_recovery"]},
+                                                               {"required": ["contract_evidence"]}]}
     package = schema("stress_neutral_export.v0.3.schema.json")
-    assert len(package["oneOf"]) == 6
-    assert package["oneOf"][4]["properties"]["semantic_contract"]["properties"] == {
+    package_ids = [branch["properties"]["semantic_contract"]["properties"]["id"]["const"] for branch in package["oneOf"]]
+    assert package_ids == ids
+    assert package["oneOf"][lr]["properties"]["semantic_contract"]["properties"] == {
         "id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}
-    assert package["oneOf"][4]["properties"]["contract_evidence"] == LR_EVIDENCE_REF
+    assert package["oneOf"][lr]["properties"]["contract_evidence"] == LR_EVIDENCE_REF
 
 
 def _results_document(source, contract_id):

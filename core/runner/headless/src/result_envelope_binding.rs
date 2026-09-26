@@ -443,7 +443,13 @@ mod tests {
     }
 
 
- const PREVIEW_MODEL_FIXTURE:&str=include_str!("../../../../fixtures/product_preview/invented_preview_model.json");
+ // T0R A1: the derived joint-free invented model; the original demo's joint is refused.
+ const PREVIEW_MODEL_FIXTURE:&str=include_str!("../../../product_physics/tests/fixtures/preview_physics_invented_model.json");
+ fn realized_joint_ids(model: &Value) -> Vec<Value> {
+   model["components"].as_array().into_iter().flatten()
+     .filter(|c| c["kind"] == "expansion_joint" && c["mechanics_interface"]["solver_consumption"] == "mechanics_geometry_and_user_flexibility")
+     .map(|c| c["id"].clone()).collect()
+ }
  fn cases()->Value{serde_json::from_str(include_str!("../../../../fixtures/results/invented/result_export_v0_2.json")).unwrap()}
  // These tests exercise source/proof/derivative binding. Pressure is not an
  // oracle for those assertions. Keep the historical fixtures unchanged and
@@ -460,7 +466,20 @@ mod tests {
  }
  #[test] fn qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity(){
    for case in cases()["producer_cases"].as_array().unwrap(){
-     let model = unpressurized_binding_model(case["model"].clone());
+     let mut model = unpressurized_binding_model(case["model"].clone());
+     let joints = realized_joint_ids(&model);
+     if !joints.is_empty() && case["expected_status"] == "MECHANICS_SOLVED" {
+       // T0R A1: a realized user-stiffness joint is refused before solving.
+       let refused = run_preview_model_value(request(), serde_json::json!({"model":model,"materials":[]})).unwrap();
+       let blocked = refused.mechanics_envelope.as_ref().unwrap();
+       assert_eq!(blocked.status.mechanics, "MODEL_INCOMPLETE", "{}", case["case_id"]);
+       assert!(blocked.diagnostics.iter().any(|d| d.code == "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED"));
+       assert!(blocked.results.is_empty());
+       assert!(refused.result_envelope_document.is_none());
+       assert_eq!(refused.canonical_export_unavailability.as_deref(), Some("SOURCE_NOT_SOLVED"));
+       // The binding purpose continues on a joint-free copy of the same case.
+       model["components"].as_array_mut().unwrap().retain(|c| !joints.contains(&c["id"]));
+     }
      let output=run_preview_model_value(request(),serde_json::json!({"model":model,"materials":[]})).unwrap();
      let mechanics=output.mechanics_envelope.as_ref().unwrap();
      assert_eq!(mechanics.status.mechanics,case["expected_status"].as_str().unwrap(),"{}",case["case_id"]);

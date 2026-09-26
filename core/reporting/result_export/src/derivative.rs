@@ -99,6 +99,7 @@ pub fn derive_document(
                     | crate::semantic_contract::PHYSICS_SOURCE_ID
                     | crate::semantic_contract::LOAD_REFERENCE_ID
                     | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
+                    | crate::semantic_contract::PREVIEW_PHYSICS_ID
             )
         ) {
             e["contract_evidence"] = source["contract_evidence"].clone();

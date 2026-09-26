@@ -1,3 +1,4 @@
+import { N_INTENSIFIED, PREVIEW_INTENSIFIED_KIND } from "../results/knownSemanticLimitations";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileText } from "lucide-react";
 import type {
@@ -139,7 +140,7 @@ export function ReportPanel({
             />
             <ReportLine
               label="Component stress modifiers"
-              value={formatComponentStressModifierSummary(componentStressModifierEvidence)}
+              value={formatComponentStressModifierSummary(componentStressModifierEvidence, result)}
               testId="report-component-stress-modifiers"
             />
             <ReportLine
@@ -516,13 +517,24 @@ function formatComponentProvenanceSummary(records: ReturnType<typeof reportCompo
   ].join("; ");
 }
 
-function formatComponentStressModifierSummary(
-  records: ReturnType<typeof reportComponentStressModifierEvidence>
+// T0R: SIF×k review rows are historical precision-1 records, never presented as
+// stress; preview-physics-1 intensified measures carry their frozen label.
+export function formatComponentStressModifierSummary(
+  records: Pick<ReturnType<typeof reportComponentStressModifierEvidence>[number], "component_ref">[],
+  result: MechanicsResult | null
 ): string {
-  if (records.length === 0) return "none applied";
-  const components = [...new Set(records.map((item) => item.component_ref))].join(", ");
-  const units = [...new Set(records.map((item) => item.unit))].join(", ");
-  return `${records.length} user-entered multiplier row${records.length === 1 ? "" : "s"}; components=${components}; units=${units}`;
+  const intensified = result?.results.filter((item) => item.kind === PREVIEW_INTENSIFIED_KIND) ?? [];
+  if (records.length === 0 && intensified.length === 0) return "none applied";
+  const parts: string[] = [];
+  if (records.length > 0) {
+    const components = [...new Set(records.map((item) => item.component_ref))].join(", ");
+    parts.push(`${records.length} historical precision-1 SIF×k review row${records.length === 1 ? "" : "s"} (retired; not a stress); components=${components}`);
+  }
+  if (intensified.length > 0) {
+    const components = [...new Set(intensified.map((item) => item.entity_ref))].join(", ");
+    parts.push(`${intensified.length} intensified measure row${intensified.length === 1 ? "" : "s"} (${N_INTENSIFIED}); components=${components}`);
+  }
+  return parts.join("; ");
 }
 
 function formatComponentUserStiffnessSummary(records: ReturnType<typeof reportComponentUserStiffnessEvidence>): string {

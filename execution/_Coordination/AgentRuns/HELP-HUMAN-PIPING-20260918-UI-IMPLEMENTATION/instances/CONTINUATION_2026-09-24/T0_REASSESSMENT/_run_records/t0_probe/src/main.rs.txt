@@ -1,0 +1,95 @@
+//! T0 read-only probe: ordinary (non-exact) versus exact-profile publication on merged main.
+//! Expectations are hand statics for a 1 m cantilever (anchor at x=0, loads at tip x=1 m).
+use open_pipe_stress_product_physics::{run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewSolverMode};
+use serde_json::{json, Value};
+
+fn nodal(id: &str, dir: &str, v: f64, moment: bool) -> Value {
+    json!({"id":id,"category":if moment {"concentrated_moment"} else {"concentrated_force"},"target":{"type":"node","node":"node:b"},"direction":dir,"magnitude":{"value":v,"unit":if moment {"N*m"} else {"N"}},"dimension":if moment {"moment"} else {"force"},"provenance":"t0_probe_invented"})
+}
+fn model(exact: bool, cases: Vec<Value>) -> Value {
+    let mut m = json!({
+        "schema_version": if exact {"0.3.0"} else {"0.2.0"}, "document_kind":"openpipestress.product_preview.model",
+        "project":{"id":"project:t0-probe","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
+        "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
+        "nodes":[{"id":"node:a","position":{"x":0.0,"y":0.0,"z":0.0},"provenance":"t0"},{"id":"node:b","position":{"x":1.0,"y":0.0,"z":0.0},"provenance":"t0"}],
+        "pipe_segments":[{"id":"pipe:a-b","from":"node:a","to":"node:b","section":{"outside_diameter":{"value":0.12,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"material":"material:m","y_reference":{"x":0.0,"y":1.0,"z":0.0},"provenance":"t0"}],
+        "supports":[{"id":"support:a","node":"node:a","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"],"provenance":"t0"}],
+        "components":[], "load_cases": cases, "combinations":[]});
+    if exact {
+        m["pressure_contract"] = json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
+        m["materials"] = json!([{"id":"material:m","constitutive_basis":"homogeneous_isotropic_E_nu_v1","elastic_modulus":{"value":200e9,"unit":"Pa"},"poisson_ratio":{"value":0.3,"unit":"1"},"provenance":"t0"}]);
+        for c in m["load_cases"].as_array_mut().unwrap() { c["pressure_regions"] = json!([]); }
+    } else {
+        m["materials"] = json!([{"id":"material:m","elastic_modulus":{"value":200e9,"unit":"Pa"},"shear_modulus":{"value":76.923076923e9,"unit":"Pa"},"provenance":"t0"}]);
+    }
+    json!({"model": m, "materials": []})
+}
+fn run(label: &str, wire: Value) -> Value {
+    let request: LinearStaticPreviewRequest = serde_json::from_value(wire).unwrap();
+    let out = run_linear_static_preview_with_mode(request, PreviewSolverMode::SparseInteractive);
+    let v = serde_json::to_value(&out).unwrap();
+    println!("== {label}: mechanics={} producer={} numerical_quality={}", v["status"]["mechanics"], v["producer"]["semantic_contract_id"], v["numerical_quality"]["status"]);
+    println!("   summary.max_open_formula_stress={}", v["summary"]["max_open_formula_stress"]);
+    let mut kinds = std::collections::BTreeMap::<String, usize>::new();
+    for r in v["results"].as_array().unwrap() { *kinds.entry(r["kind"].as_str().unwrap().to_string()).or_default() += 1; }
+    let reaction: Vec<_> = kinds.iter().filter(|(k, _)| k.contains("reaction")).collect();
+    println!("   reaction row kinds={reaction:?}");
+    for r in v["results"].as_array().unwrap() {
+        let k = r["kind"].as_str().unwrap();
+        if k == "reaction_resultant" || k.starts_with("support_reaction") { println!("   {k} {} = {} {}", r["metadata"]["component"], r["value"], r["unit"]); }
+        if k == "open_formula_stress_summary" || k == "pipe_elastic_normal_stress_maximum_v2" { println!("   {k} basis_ref={} = {} {}", r["basis_ref"], r["value"], r["unit"]); }
+    }
+    for d in v["diagnostics"].as_array().unwrap() { let s = d["severity"].as_str().unwrap(); if s == "blocking" { println!("   BLOCKING {}", d["code"]); } }
+    v
+}
+fn main() {
+    let (d, t) = (0.12_f64, 0.01_f64);
+    let di = d - 2.0 * t;
+    let z = std::f64::consts::PI * (d.powi(4) - di.powi(4)) / (32.0 * d);
+    let area = std::f64::consts::PI * (d * d - di * di) / 4.0;
+    println!("independent section: A={area:.17e} m2, Z={z:.17e} m3");
+    // Case A: equal biaxial tip forces 1000 N in y and z -> root |My|=|Mz|=1000 N*m.
+    // Case B: tip Fy=3000 N only -> root M=3000 N*m (larger), listed second.
+    let case_a = json!({"id":"case:a","primitive_loads":[nodal("load:a-y","global_y",1000.0,false),nodal("load:a-z","global_z",1000.0,false)],"provenance":"t0"});
+    let case_b = json!({"id":"case:b","primitive_loads":[nodal("load:b-y","global_y",3000.0,false)],"provenance":"t0"});
+    println!("hand statics: case A root resultant-bending normal max = {:.17e} Pa; abs-sum bound = {:.17e} Pa", 2f64.sqrt() * 1000.0 / z, 2.0 * 1000.0 / z);
+    println!("hand statics: case B root normal max = {:.17e} Pa (governs over A)", 3000.0 / z);
+    run("ordinary 0.2 two cases (A first)", model(false, vec![case_a.clone(), case_b.clone()]));
+    run("exact 0.3 two cases (A first)", model(true, vec![case_a.clone(), case_b.clone()]));
+    // Pure tip torque: ordinary reaction publication cannot show the anchor moment.
+    let case_t = json!({"id":"case:t","primitive_loads":[nodal("load:t","rotation_x",500.0,true)],"provenance":"t0"});
+    println!("hand statics: pure torque 500 N*m -> anchor Mx=-500 N*m, force norm 0");
+    run("ordinary 0.2 pure torque", model(false, vec![case_t.clone()]));
+    run("exact 0.3 pure torque", model(true, vec![case_t]));
+    sif_combination();
+}
+
+/// M08/STR-03: equal and opposite states combined 1.0*A + 1.0*B are mechanically zero.
+fn sif_combination() {
+    let load = |id: &str, v: f64| json!({"id":id,"category":"concentrated_force","target":{"type":"node","node":"node:c"},"direction":"global_z","magnitude":{"value":v,"unit":"N"},"dimension":"force","provenance":"t0"});
+    let wire = json!({"model":{
+        "schema_version":"0.2.0","document_kind":"openpipestress.product_preview.model",
+        "project":{"id":"project:t0-sif","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
+        "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
+        "nodes":[{"id":"node:a","position":{"x":0.0,"y":0.0,"z":0.0},"provenance":"t0"},{"id":"node:b","position":{"x":1.0,"y":0.0,"z":0.0},"provenance":"t0"},{"id":"node:c","position":{"x":1.0,"y":1.0,"z":0.0},"provenance":"t0"}],
+        "pipe_segments":[
+          {"id":"pipe:a-b","from":"node:a","to":"node:b","section":{"outside_diameter":{"value":0.12,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"material":"material:m","y_reference":{"x":0.0,"y":1.0,"z":0.0},"provenance":"t0"},
+          {"id":"pipe:b-c","from":"node:b","to":"node:c","section":{"outside_diameter":{"value":0.12,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"material":"material:m","y_reference":{"x":1.0,"y":0.0,"z":0.0},"provenance":"t0"}],
+        "supports":[{"id":"support:a","node":"node:a","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"],"provenance":"t0"}],
+        "components":[{"id":"component:bend","label":"t0 bend marker","kind":"bend","node":"node:b",
+            "geometry":{"bend_radius":{"value":0.2,"unit":"m"},"bend_angle":{"value":1.5707963268,"unit":"rad"},"bend_plane_orientation":"global_xy_preview","bend_geometry_source_reference":"t0"},
+            "modifiers":{"sif_user_value":{"value":1.15,"unit":"none"},"flexibility_factor_user_value":{"value":1.08,"unit":"none"},"source_reference":"t0_invented"},
+            "mechanics_interface":{"solver_consumption":"mechanics_geometry_only","rule_check_consumption":"user_rule_pack_inputs_only"},"provenance":"t0"}],
+        "materials":[{"id":"material:m","elastic_modulus":{"value":200e9,"unit":"Pa"},"shear_modulus":{"value":76.923076923e9,"unit":"Pa"},"provenance":"t0"}],
+        "load_cases":[{"id":"case:up","primitive_loads":[load("load:up",1000.0)],"provenance":"t0"},{"id":"case:down","primitive_loads":[load("load:down",-1000.0)],"provenance":"t0"}],
+        "combinations":[{"id":"combination:cancel","label":"t0 A+B","basis":"mechanics","terms":[{"load_case":"case:up","factor":1.0},{"load_case":"case:down","factor":1.0}],"provenance":"t0"}]},"materials":[]});
+    println!("hand statics: combination A+B has zero load, so every signed section action and stress is zero");
+    let v = run("ordinary 0.2 bend modifier, equal/opposite cases combined", wire);
+    for r in v["results"].as_array().unwrap() {
+        let k = r["kind"].as_str().unwrap();
+        let comb = r["basis_ref"]["ref_type"] == "combination";
+        if k == "component_user_stress_multiplier_review" || (comb && (k == "element_local_bending_normal_stress_y" || k == "element_local_bending_normal_stress_z" || k == "reaction_resultant")) {
+            println!("   {} [{}] {} = {} {}", k, r["basis_ref"]["ref_id"], r["id"], r["value"], r["unit"]);
+        }
+    }
+}

@@ -1095,10 +1095,13 @@ mod tests {
         }
     }
 
+    // T0R A1: the invented demo keeps a realized user-stiffness joint, which the
+    // ordinary route now refuses (JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED). These
+    // bridge tests need a solved model, so they use the derived joint-free model.
     fn preview_request() -> LinearStaticPreviewRequest {
         LinearStaticPreviewRequest {
             model: serde_json::from_str(include_str!(
-                "../../../../fixtures/product_preview/invented_preview_model.json"
+                "../../../product_physics/tests/fixtures/preview_physics_invented_model.json"
             ))
             .expect("invented preview model fixture should parse"),
             materials: Vec::new(),
@@ -1455,15 +1458,16 @@ mod tests {
     }
 
     #[test]
-    fn rule_revisions_preserve_actual_physics_and_precision_producer_source() {
+    fn rule_revisions_preserve_actual_physics_and_preview_physics_producer_source() {
         use open_pipe_stress_result_export::derivative::{digest, validate_document};
         let exact: Value = serde_json::from_str(include_str!(
             "../../../product_physics/tests/fixtures/exact_pressure_connected_request.json"
         )).unwrap();
         // Pressure is incidental to the legacy source-binding control. Declare
         // zero pressure in a local input before solving; keep fixture bytes intact.
+        // T0R A1: the derived joint-free invented model (the original demo's joint is refused).
         let mut ordinary: Value = serde_json::json!({"model": serde_json::from_str::<Value>(include_str!(
-            "../../../../fixtures/product_preview/invented_preview_model.json"
+            "../../../product_physics/tests/fixtures/preview_physics_invented_model.json"
         )).unwrap(), "materials": []});
         for case in ordinary["model"]["load_cases"].as_array_mut().unwrap() {
             for load in case["primitive_loads"].as_array_mut().unwrap() {
@@ -1472,7 +1476,8 @@ mod tests {
                 }
             }
         }
-        for (payload, contract) in [(ordinary, open_pipe_stress_result_export::semantic_contract::PRECISION_ID),
+        // T0R: a fresh non-exact solve publishes preview-physics-1, never precision-1.
+        for (payload, contract) in [(ordinary, open_pipe_stress_result_export::semantic_contract::PREVIEW_PHYSICS_ID),
             (exact, open_pipe_stress_result_export::semantic_contract::PHYSICS_ID)] {
             for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
                 let baseline = run_preview_model_value_mode(request(), payload.clone(), None, mode).unwrap();

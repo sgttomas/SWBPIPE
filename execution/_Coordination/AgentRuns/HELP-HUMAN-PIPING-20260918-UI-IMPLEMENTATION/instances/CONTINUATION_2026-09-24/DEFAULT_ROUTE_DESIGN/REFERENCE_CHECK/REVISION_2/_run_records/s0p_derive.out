@@ -1,0 +1,97 @@
+R1T anchor F: (-10.0, 26.0, -30.0)
+R1T anchor M about node: (-4.0, 55.0, 52.0)
+R1T control M about global origin: (34.0, 185.0, 152.0)
+COMB2 envelope max |M|: 1000.0
+COMB2 control sum |M|: 2000.0
+COMB2 A1+A2 anchor: (0.0, -1000.0, -1000.0, 0.0, 1000.0, -1000.0)
+COMB2 A1+A2 |u| mm: 0.44725102640690817
+COMB2 A1-A2 |u| mm: 0.44725102640690817
+COMB2 control magnitude sum mm: 0.6325084673299367
+COMB2 control magnitude difference mm: 0.0
+X1 pin i on pipe: (0.0, 57.96238445873169, -231.84953783492676, 0.0, 0.0, 0.0)
+X1 roller j on pipe: (0.0, -57.96238445873169, -231.84953783492676, 0.0, 0.0, 0.0)
+TH wall axial force N: -829380.4605477056
+TH max normal Pa: 240000000.0
+TH anchor a on pipe: (829380.4605477056, 0.0, 0.0, 0.0, 0.0, 0.0)
+TH anchor b on pipe: (-829380.4605477056, 0.0, 0.0, 0.0, 0.0, 0.0)
+CE W1 anchor: (-0.0, 625.0, -0.0, -0.0, -0.0, 625.0)
+CE W1 tip uy: -0.00019765889604060524
+CE W2 anchor: (-0.0, 125.0, -0.0, -0.0, -0.0, 125.0)
+CE W2 tip uy: -3.9531779208121046e-05
+CE support on pipe: (0.0, 375.0, 0.0, 0.0, 0.0, 0.0)
+CE balance W1 Fy: 0.0
+CE 0.5/0.5 linear anchor Fy: 375.0
+CE 0.5/0.5 true anchor Fy: 375.0
+CE 0.5/0.5 applied: 375.0
+CE 1.0/0.5 linear anchor Fy (control): 687.5
+CE 1.0/0.5 applied (control): 562.5
+CE 1.0/0.5 true anchor Fy: 875.0
+CE W1-W2 anchor Fy: 500.0
+CE W1-W2 applied: 0.0
+CE non-consuming W1 anchor: (-0.0, 1000.0, -0.0, -0.0, -0.0, 1000.0)
+SPRING2 spring on pipe: (0.0, -240.2683505787423, 0.0, 0.0, 0.0, 0.0)
+SPRING2 guide on pipe: (-2000.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+SPRING2 anchor: (-0.0, -759.7316494212578, -0.0, -0.0, -0.0, -759.7316494212578)
+GAP tip uy: 8.40939227025598e-05
+GAP inactive (|u| < 1 mm): True
+GAP spring on pipe Fy: -84.0939227025598
+GAP gap on pipe: 0.0
+GAP anchor Fy, Mz: (-265.9060772974402, -265.9060772974402)
+ATTR tip nodal total on pipe Fy: 1000.0
+ATTR anchor: (-0.0, -0.0, -0.0, -0.0, -0.0, -0.0)
+ATTR zero-fill imbalance: -1000.0
+NLC3 case uy: 0.0002530033869319747
+NLC3 case stop active: False
+NLC3 superposed uy: 0.0005060067738639494
+NLC3 superposed penetrates: True
+NLC3 true uy: 0.0004
+NLC3 true stop on pipe Fy: -335.1947976647491
+C3 1d superposed u, true u, lambda: (0.0016, 0.001, 600.0)
+IL L1 ab end j T: 1000.0
+IL L1 ab end j Pa: 0.0
+IL L1 bc end i Pa: 13092925.27372969
+IL L1 ab axial N: 0.0
+IL L1 anchor: (-0.0, -0.0, -1000.0, -1000.0, 1000.0, -0.0)
+IL L2 ab end j T: 1000.0
+IL L2 ab end j Pa: 13092925.27372969
+IL L2 bc end i Pa: 18516192.493245997
+IL L2 ab axial N: 1000.0
+IL L2 anchor: (-1000.0, -0.0, -1000.0, -1000.0, 1000.0, 1000.0)
+IL L2 control abs-sum bc Pa: 26185850.54745938
+IL L2 control with k bc Pa: 19997487.892705675
+IL L2 control axial un-intensified ab Pa: 13382297.897533135
+IL L2 control axial intensified ab Pa: 13425703.791103652
+IT header ab end j Pa: 7400349.06776026
+IT branch bc end i Pa: 22770304.823877722
+IT be bending Nm (info): 500.0
+B1 bend-plane normal: (-0.0, 0.0, 1.0)
+B1 end_i_b (N,Vy,Vz,T,My,Mz): (0.0, 0.0, 1000.0, 1200.0, -199.99999999999994, 0.0)
+B1 quarter_1 (N,Vy,Vz,T,My,Mz): (0.0, 0.0, 1000.0, 1047.3428460382688, -567.4593388673469, 0.0)
+B1 midspan (N,Vy,Vz,T,My,Mz): (0.0, 0.0, 999.9999999999999, 765.685424949238, -848.5281374238567, 0.0)
+B1 quarter_3 (N,Vy,Vz,T,My,Mz): (0.0, 0.0, 999.9999999999999, 397.90752586283253, -1000.4162189843045, 0.0)
+B1 end_j_c (N,Vy,Vz,T,My,Mz): (0.0, 0.0, 1000.0, 6.123233995736766e-14, -1000.0, 0.0)
+B1 chord cut-face b: (0.0, 0.0, -1000.0, 707.1067811865476, 989.9494936611663, 0.0)
+B1 chord cut-face c: (0.0, 0.0, -1000.0, 707.1067811865474, 707.1067811865474, 0.0)
+B1 chord axes x,y,z: (0.7071067811865475, 0.7071067811865475, 0.0, 0.7071067811865475, -0.7071067811865475, 0.0, 0.0, 0.0, -1.0)
+B1 product end_i rows (node-on-element = -cut face): (-0.0, -0.0, 1000.0, -707.1067811865476, -989.9494936611663, -0.0)
+B1 product end_j rows (node-on-element = +cut face): (0.0, 0.0, -1000.0, 707.1067811865474, 707.1067811865474, 0.0)
+B1 end_i bending normal y Pa (My/Z): -2277030.4823877714
+B1 end_i torsional shear Pa (T ro/J): 6831091.447163317
+B1 end_j bending normal y Pa: -11385152.411938861
+B1T consistent centre: (1.0, 0.2, 0.0)
+B1T consistent angles b,c deg: (0.0, 0.0)
+B1T kinked (0,0,1) centre: (1.1, 0.1, -0.14142135623730953)
+B1T kinked (0,0,1) angles b,c deg: (60.00000000000002, 59.99999999999999)
+B2 k=1 roller on pipe Fx: 589.860222560932
+B2 k=1 section at b (N, Vy_inward, Mz): (589.860222560932, 1000.0, 82.0279554878136)
+B2 k=1 anchor on pipe: (-589.860222560932, -1000.0, -0.0, -0.0, -0.0, -82.02795548781353)
+B2 k=2 roller on pipe Fx: 612.802657302005
+B2 k=2 section at b (N, Vy_inward, Mz): (612.802657302005, 1000.0, 77.43946853959902)
+B2 k=2 anchor on pipe: (-612.802657302005, -1000.0, -0.0, -0.0, -0.0, -77.43946853959895)
+B2 k=4 roller on pipe Fx: 624.5987830116233
+B2 k=4 section at b (N, Vy_inward, Mz): (624.5987830116233, 1000.0, 75.08024339767535)
+B2 k=4 anchor on pipe: (-624.5987830116233, -1000.0, -0.0, -0.0, -0.0, -75.08024339767529)
+B2 k=2 quadrature n=40000: 612.8026573020019
+B2 sensitivity k1->k4: 0.05889286838137786
+TIE |u| mm at p and q: (0.31625423366496835, 0.31625423366496835)
+TIE anchor: (-0.0, -0.0, -2000.0, -0.0, -0.0, -0.0)

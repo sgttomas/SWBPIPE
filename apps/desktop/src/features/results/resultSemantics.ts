@@ -3,11 +3,12 @@ import contract from '../../../../../fixtures/results/semantic_contract_v0_2.jso
 import sourceBlocksContract from '../../../../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json';
 import physicsContract from '../../../../../fixtures/results/semantic_contract_v0_3_physics_1.json';
 import precisionContract from '../../../../../fixtures/results/semantic_contract_v0_3_precision_1.json';
+import previewPhysicsContract from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json';
 import { sourceContract } from './numericalResultQuality';
 import type { MechanicsResult } from '../../types';
 export type SourceRow = MechanicsResult['results'][number];
 export type SemanticSignature = (typeof contract.rows)[number] & { source_basis?: string };
-export { contract as resultSemanticContract };
+export { contract as resultSemanticContract, previewPhysicsContract as previewPhysicsSemanticContract };
 /** A new-method discriminator only; old table signatures omit this field. */
 export function semanticSourceBasisMatches(signature: { kind: string; source_basis?: string }, row: SourceRow): boolean {
   return !("source_basis" in signature) || signature.source_basis === row.metadata?.basis;
@@ -18,6 +19,8 @@ export function semanticContractForSource(source?: MechanicsResult) {
   if (sourceContract(source) === 'physics') return physicsContract;
   if (sourceContract(source) === 'physics_source') return physicsSourceContract;
   if (sourceContract(source) === 'source_blocks') return sourceBlocksContract;
+  // First variant in table order whose source_basis is absent or equals metadata.basis (S1 §1).
+  if (sourceContract(source) === 'preview_physics') return previewPhysicsContract;
   throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');
 }
 export function resultSemantics(row: SourceRow, source?: MechanicsResult): SemanticSignature | null {

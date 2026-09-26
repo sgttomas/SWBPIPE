@@ -651,6 +651,19 @@ fn stress_summary_observation(row: &Value, inputs: &[&Value]) -> Result<(), Stri
     Ok(())
 }
 
+/// T0R standing (non-composite only): a receipt case that qualified by an
+/// ordinary method keeps the retired precision-1 row semantics. Structural read
+/// of the received receipt; physics-source-1 never reaches this rule.
+pub fn has_ordinary_qualified_case(source: &Value) -> bool {
+    source["producer"]["semantic_contract_id"] == CONTRACT_ID
+        && source["source_block_recovery"]["body"]["cases"]
+            .as_array()
+            .is_some_and(|cases| {
+                cases.iter().any(|case| {
+                    case["outcome"] == "qualified" && case["selected_method"] != EXACT
+                })
+            })
+}
 /// `actual_invocation` is the independent original {request,solver_mode} Value.
 /// Without it, a supported consistent receipt returns false, never admission.
 pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<bool, String> {
