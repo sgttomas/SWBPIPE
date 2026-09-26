@@ -256,3 +256,26 @@ Input: [REVIEW/BACKCHECK_R4.md](REVIEW/BACKCHECK_R4.md). BLOCKING only through D
 ## Main merged into the T3 branch
 
 The manager merged origin/main (at `0883c2108`, which contains T1's `5aa4285c2`) into the T3 branch as `303609725`, after BACKCHECK_R4 returned and before any product-wiring slice. From here, D1, D2 and V1 cite product line numbers at the merged tree.
+
+## I1's S11-K stop-rule report (ROOT, 2026-09-26)
+
+Context: I1 stopped under the fixture stop rule.
+- **A (pre-registered):** T1's support-motion fixtures, as expected.
+- **B1 (unregistered):** 6 values per file in `fixtures/results/preview_physics_invented_{dense,sparse}.json` change, about 4 ulp from the live E4/E6 exact station sums, plus a near-zero stress moving at roundoff scale.
+- **B2 (unregistered):** T1's `load_reference_fallback_uz` raws change their Debug residual text, from KS1–KS3.
+- **B3 (informational):** a qualification input's Debug text changes.
+- **C (regression):** `validation/benchmarks/nonlinear` `multisupport_acceptance_inventory_uses_narrow_dec_046_policy` fails with a 2.6e-16 N residual against DEC-046's exact-zero limit. The nonlinear active-set loop prescribes nonzero closed-gap displacements, so KS1–KS3 are live on main there, contrary to S11 §4.6 and §8.1.
+
+**Rulings:**
+
+- **C: option (c), provided I1 confirms a clean separation.**
+  - The nonlinear loop's closed-gap prescribed solves call a named, unchanged binary64 legacy function. Linear callers get the exact KS1–KS3 path.
+  - A test pins the nonlinear loop to the legacy variant.
+  - If the separation isn't clean, option (a) applies: KS exact on the typed path only, with the S11B-1 fix going live with S11-F. (c) is tried first.
+  - **DEC-046's zero limits are not touched (option (b) rejected).** They are protected and T5-owned.
+  - **Recorded as T5 open work:** the nonlinear loop's closed-gap prescribed solves stay binary64 until T5 designs its residual policy, together with the friction fold. S11-F's design states the same.
+  - D1 corrects S11 §4.6 and §8.1 in revision 5: KS sites are live on main in the nonlinear loop. V1 covers this in its re-pass. **Lesson recorded:** both the design and its review missed the nonlinear loop's nonzero prescribed values. The checks must look for every caller of a changed kernel function, not only the product's linear path.
+- **B1: accepted as the intended repair.** Before regenerating, I1 lists every TS, Python and result_export test or fixture that pins these bytes, measures the diff of every derived document of A and B1, and reports both to ROOT. Regeneration is by the actual producer only, never by hand, and the S11-K change record discloses it with sizes.
+- **B2:** under (c), it is added to the pre-registered list (same class as A).
+- **A:** proceeds as pre-registered. Its derived documents are included in the measured diff report before regeneration.
+- **B3:** recorded as informational.
