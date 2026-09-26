@@ -1,0 +1,2145 @@
+{
+ "description": "Shared adversarial cases for the load-reference-source-1 readers (Rust result_export tests/load_reference_source_contract.rs and Python tests/test_load_reference_source_readers.py). Authored by LSI/T1_WP1_JOINED_READERS/_run_records/make_cases.py from the wire and the check order, not captured from either reader. 'dispatch' is the raw-dispatch outcome (Rust semantic_contract::for_source, Python compatibility._source_contract); an accepted case selects 'accept_contract' (default load-reference-source-1). 'joined' is validate_load_reference_source_evidence called directly and defaults to 'dispatch'. 'lr' (validate_load_reference_evidence) and 'ps' (physics-source-1 validator without an invocation) are checked where present. A value equal to SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE is compared by leading code, the inherited physics-source-1 detail being recorded separately. Keys suffixed _rust or _python replace a shared value where the languages cannot agree, with a note. Ops are those of load_reference_mutations.json plus 'reseal': in order it recomputes each case's physical_evidence_sha256 ('joined' over {exact_case, pressure, load_reference_state} with domain load_reference_source_case_evidence_v1, 'joined_without_record' without the record, 'physics' over {exact_case, pressure} with domain physics_source_case_evidence_v1, null to keep), then the publication_sha256, then the receipt_sha256, so that a check after the receipt can be reached. Transport cases run validate_load_reference_source_transport_metadata on {schema_version, producer, numerical_quality, formulation_basis, contract_evidence, source_block_recovery, carrier_evidence}. Table cases run the pinned-table verifier on the joined table bytes (or on 'file').",
+ "sources": {
+  "n05-sparse": "fixtures/product_preview/load_reference_source/n05-sparse_interactive.raw.json",
+  "n05-dense": "fixtures/product_preview/load_reference_source/n05-dense_scrutiny.raw.json",
+  "n06-sparse": "fixtures/product_preview/load_reference_source/n06-sparse_interactive.raw.json",
+  "n06-dense": "fixtures/product_preview/load_reference_source/n06-dense_scrutiny.raw.json",
+  "fields-sparse": "fixtures/product_preview/load_reference_source/fields-sparse_interactive.raw.json",
+  "fields-dense": "fixtures/product_preview/load_reference_source/fields-dense_scrutiny.raw.json",
+  "mixed-sparse": "fixtures/product_preview/load_reference_source/mixed-sparse_interactive.raw.json",
+  "mixed-dense": "fixtures/product_preview/load_reference_source/mixed-dense_scrutiny.raw.json",
+  "eigen_motion-sparse": "fixtures/product_preview/load_reference_source/eigen_motion-sparse_interactive.raw.json",
+  "eigen_motion-dense": "fixtures/product_preview/load_reference_source/eigen_motion-dense_scrutiny.raw.json",
+  "lr-connected-sparse": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "lr-fallback-sparse": "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
+  "lr-fallback-dense": "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json",
+  "ps-n05-sparse": "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
+ },
+ "cases": [
+  {
+   "id": "ACCEPT-n05-sparse",
+   "source": "n05-sparse",
+   "ops": [],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+  },
+  {
+   "id": "ACCEPT-n05-dense",
+   "source": "n05-dense",
+   "ops": [],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+  },
+  {
+   "id": "ACCEPT-n06-sparse",
+   "source": "n06-sparse",
+   "ops": [],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+  },
+  {
+   "id": "ACCEPT-n06-dense",
+   "source": "n06-dense",
+   "ops": [],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+  },
+  {
+   "id": "ACCEPT-fields-sparse",
+   "source": "fields-sparse",
+   "ops": [],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+  },
+  {
+   "id": "ACCEPT-fields-dense",
+   "source": "fields-dense",
+   "ops": [],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+  },
+  {
+   "id": "ACCEPT-mixed-sparse",
+   "source": "mixed-sparse",
+   "ops": [],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+  },
+  {
+   "id": "ACCEPT-mixed-dense",
+   "source": "mixed-dense",
+   "ops": [],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+  },
+  {
+   "id": "ACCEPT-eigen_motion-sparse",
+   "source": "eigen_motion-sparse",
+   "ops": [],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+  },
+  {
+   "id": "ACCEPT-eigen_motion-dense",
+   "source": "eigen_motion-dense",
+   "ops": [],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+  },
+  {
+   "id": "ACCEPT-lr-fallback-sparse",
+   "source": "lr-fallback-sparse",
+   "ops": [],
+   "dispatch": "accept",
+   "accept_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "lr": "accept"
+  },
+  {
+   "id": "ACCEPT-lr-fallback-dense",
+   "source": "lr-fallback-dense",
+   "ops": [],
+   "dispatch": "accept",
+   "accept_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "lr": "accept"
+  },
+  {
+   "id": "ACCEPT-not-joined-message-text",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+     },
+     "key": "message",
+     "value": "invented replacement text"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-selected-message-text",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "SOURCE_BLOCK_RECOVERY_SELECTED"
+     },
+     "key": "message",
+     "value": "invented replacement text"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-record-provenance-text-resealed",
+   "source": "eigen_motion-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/provenance",
+     "value": "invented_replacement_provenance"
+    },
+    {
+     "op": "reseal",
+     "physical": "joined",
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-integer-zero-literal",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/thermal_strain",
+     "value": 0
+    }
+   ],
+   "dispatch": "accept",
+   "note": "An integer literal 0 for the binary64 zero: the readers compare numbers by value and the checked canonical JSON encodes both as 0, so every hash is unchanged."
+  },
+  {
+   "id": "ID-reserved-successor",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-2"
+    }
+   ],
+   "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+  },
+  {
+   "id": "ID-producer-version",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/component_version",
+     "value": "0.3.0"
+    }
+   ],
+   "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH"
+  },
+  {
+   "id": "PROFILE-load-reference",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "resolved_straight_load_state_v1"
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+  },
+  {
+   "id": "PROFILE-physics-source",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "exact_straight_pressure_v2"
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+  },
+  {
+   "id": "PROFILE-empty-limitations",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/formulation_basis/limitations",
+     "value": []
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH"
+  },
+  {
+   "id": "PROFILE-record-joined-profile",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/profile",
+     "value": "resolved_straight_load_state_source_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE"
+  },
+  {
+   "id": "RELABEL-joined-as-load-reference",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "resolved_straight_load_state_v1"
+    }
+   ],
+   "dispatch": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+   "id": "RELABEL-joined-as-load-reference-id-only",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-1"
+    }
+   ],
+   "dispatch": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+  },
+  {
+   "id": "RELABEL-joined-as-load-reference-receipt-removed",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "resolved_straight_load_state_v1"
+    },
+    {
+     "op": "remove",
+     "path": "/source_block_recovery"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "lr": "SOURCE_LOAD_REFERENCE_CASE_SHAPE"
+  },
+  {
+   "id": "RELABEL-joined-as-physics-source",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/physics-source-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "exact_straight_pressure_v2"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+  },
+  {
+   "id": "RELABEL-joined-as-physics-source-resealed",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/physics-source-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "exact_straight_pressure_v2"
+    },
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/policy",
+     "value": "PHYSICS-SOURCE-1"
+    },
+    {
+     "op": "reseal",
+     "physical": "joined",
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "ps": "PHYSICS_SOURCE_PHYSICAL_SHAPE"
+  },
+  {
+   "id": "RELABEL-joined-as-physics-source-id-only",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/physics-source-1"
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+  },
+  {
+   "id": "RELABEL-load-reference-as-joined",
+   "source": "lr-connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "resolved_straight_load_state_source_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "lr": "accept"
+  },
+  {
+   "id": "RELABEL-load-reference-as-joined-id-only",
+   "source": "lr-connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+  },
+  {
+   "id": "RELABEL-fallback-as-joined",
+   "source": "lr-fallback-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "resolved_straight_load_state_source_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "lr": "accept"
+  },
+  {
+   "id": "RELABEL-load-reference-as-joined-with-grafted-receipt",
+   "source": "lr-connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "resolved_straight_load_state_source_v1"
+    },
+    {
+     "op": "graft",
+     "path": "/source_block_recovery",
+     "source": "n05-sparse",
+     "from": "/source_block_recovery"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CASE_SHAPE"
+  },
+  {
+   "id": "RELABEL-physics-source-as-joined",
+   "source": "ps-n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "resolved_straight_load_state_source_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "ps": "SOURCE_BLOCKS_PRODUCER"
+  },
+  {
+   "id": "RELABEL-physics-source-as-joined-id-only",
+   "source": "ps-n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+    }
+   ],
+   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+  },
+  {
+   "id": "NS-missing-load-reference-states",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+   "id": "NS-extra-evidence-key",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/source_recovery_states",
+     "value": []
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+   "id": "NS-connector-nonempty",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/connector",
+     "value": [
+      {
+       "invented": true
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED"
+  },
+  {
+   "id": "NS-carrier-evidence",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/carrier_evidence",
+     "value": {}
+    }
+   ],
+   "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "joined": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+   "id": "NS-receipt-removed",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/source_block_recovery"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED"
+  },
+  {
+   "id": "NS-exact-case-without-recovery-method",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/exact_cases/0/recovery_method"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CASE_SHAPE"
+  },
+  {
+   "id": "NS-exact-case-load-reference-basis-removed",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/material_basis",
+     "value": "base_material_common_E_nu"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS"
+  },
+  {
+   "id": "SEL-selected-record-not-joined-recovery",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery",
+     "value": {
+      "status": "not_joined",
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE"
+  },
+  {
+   "id": "SEL-selected-status-joined",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery/status",
+     "value": "joined"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY"
+  },
+  {
+   "id": "SEL-selected-method-ordinary",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery/method",
+     "value": "ordinary_sparse_structural_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY"
+  },
+  {
+   "id": "SEL-selected-extra-key",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery/code",
+     "value": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE"
+  },
+  {
+   "id": "SEL-ordinary-solve-with-selected-recovery",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/recovery_method",
+     "value": "ordinary_sparse_structural_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE"
+  },
+  {
+   "id": "SEL-ordinary-solve-wrong-mode",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/recovery_method",
+     "value": "ordinary_dense_structural_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE"
+  },
+  {
+   "id": "SEL-record-ordinary-exact-selected",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/recovery_method",
+     "value": "ordinary_sparse_structural_v1"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery",
+     "value": {
+      "status": "not_joined",
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD"
+  },
+  {
+   "id": "SEL-ordinary-case-claims-selected",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/solve/recovery_method",
+     "value": "retained_source_blocks_exact_v1"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/source_recovery",
+     "value": {
+      "status": "selected",
+      "method": "retained_source_blocks_exact_v1"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD"
+  },
+  {
+   "id": "SEL-ordinary-case-claims-selected-with-exact-case",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/solve/recovery_method",
+     "value": "retained_source_blocks_exact_v1"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/source_recovery",
+     "value": {
+      "status": "selected",
+      "method": "retained_source_blocks_exact_v1"
+     }
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/1/recovery_method",
+     "value": "retained_source_blocks_exact_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC"
+  },
+  {
+   "id": "SEL-no-case-selected",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/recovery_method",
+     "value": "ordinary_sparse_structural_v1"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery",
+     "value": {
+      "status": "not_joined",
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+     }
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/recovery_method",
+     "value": "ordinary_sparse_structural_v1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTION_REQUIRED"
+  },
+  {
+   "id": "SEL-selected-other-mode",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/requested_mode",
+     "value": "dense_scrutiny"
+    },
+    {
+     "op": "reseal",
+     "physical": "joined",
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE"
+  },
+  {
+   "id": "SEL-mixed-record-modes",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/requested_mode",
+     "value": "dense_scrutiny"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY"
+  },
+  {
+   "id": "SEL-unknown-mode",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/requested_mode",
+     "value": "exact_mode"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE"
+  },
+  {
+   "id": "DIAG-selected-missing",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "remove_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "SOURCE_BLOCK_RECOVERY_SELECTED"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-selected-duplicate",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "append_copy_where",
+     "path": "/diagnostics",
+     "match": {
+      "id": "diagnostic:source-recovery:case:selected"
+     },
+     "set": {
+      "id": "diagnostic:source-recovery:case:selected:copy"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-selected-warning",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "id": "diagnostic:source-recovery:case:selected"
+     },
+     "key": "severity",
+     "value": "warning"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-selected-affected-refs",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "id": "diagnostic:source-recovery:case:selected"
+     },
+     "key": "affected_refs",
+     "value": [
+      "case",
+      "case"
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-selected-wrong-id",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "id": "diagnostic:source-recovery:case:selected"
+     },
+     "key": "id",
+     "value": "diagnostic:source-recovery:case-selected"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-not-joined-on-selected-case",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:load-state:case:source-recovery-not-joined",
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
+      "severity": "info",
+      "message": "invented",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case"
+      ]
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-not-joined-missing",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "remove_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-not-joined-warning",
+   "source": "mixed-dense",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+     },
+     "key": "severity",
+     "value": "warning"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-unavailable-on-selected",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:source-recovery:case:unavailable",
+      "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
+      "severity": "info",
+      "message": "invented",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case"
+      ]
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-unavailable-on-selected-resealed",
+   "source": "eigen_motion-dense",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:source-recovery:case:join:unavailable",
+      "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
+      "severity": "info",
+      "message": "invented",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:join"
+      ]
+     }
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC"
+  },
+  {
+   "id": "DIAG-unavailable-among-refs-of-selected-resealed",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:source-recovery:case:unavailable",
+      "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
+      "severity": "info",
+      "message": "invented",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:ordinary-pressure",
+       "case"
+      ]
+     }
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC"
+  },
+  {
+   "id": "ACCEPT-unavailable-on-ordinary-case-resealed",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:source-recovery:case:ordinary-pressure:unavailable",
+      "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
+      "severity": "info",
+      "message": "invented",
+      "source": "core/product_physics",
+      "affected_refs": [
+       "case:ordinary-pressure"
+      ]
+     }
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "accept",
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+   "id": "NUM-unsafe-integer-in-publication",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/results/0/value",
+     "value": 1152921504606846976
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976",
+   "dispatch_python": "CHECKED-JSON-UNSAFE-INTEGER",
+   "joined_rust": "CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976",
+   "joined_python": "CHECKED-JSON-UNSAFE-INTEGER",
+   "note": "The checked canonical JSON profile refuses integral magnitudes above 2^53-1 at the R4 publication hash; the inherited detail differs: Rust's canonical_json error carries the literal and Python's adapter does not. Both refuse."
+  },
+  {
+   "id": "RCPT-policy-physics-source",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/policy",
+     "value": "PHYSICS-SOURCE-1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY"
+  },
+  {
+   "id": "RCPT-policy-source-blocks",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/policy",
+     "value": "SOURCE-BLOCKS-1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY"
+  },
+  {
+   "id": "RCPT-policy-missing",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/source_block_recovery/body/policy"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY"
+  },
+  {
+   "id": "RCPT-policy-physics-source-resealed",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/policy",
+     "value": "PHYSICS-SOURCE-1"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": false,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY"
+  },
+  {
+   "id": "RCPT-extra-body-key",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/invented",
+     "value": 1
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": false,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE"
+  },
+  {
+   "id": "RCPT-status-partial",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/status",
+     "value": "partial"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": false,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE"
+  },
+  {
+   "id": "RCPT-receipt-hash",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/receipt_sha256",
+     "value": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH"
+  },
+  {
+   "id": "RCPT-body-changed",
+   "source": "eigen_motion-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/invocation_work/publication_charged",
+     "value": 1
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH"
+  },
+  {
+   "id": "PUB-row-value",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/results/0/value",
+     "value": 1.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH"
+  },
+  {
+   "id": "PUB-row-value-resealed",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/results/0/value",
+     "value": 1.0
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE"
+  },
+  {
+   "id": "PUB-evidence-changed-receipt-only",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/provenance",
+     "value": "invented_replacement_provenance"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": false,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH"
+  },
+  {
+   "id": "HASH-physical-zero",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/cases/0/physical_evidence_sha256",
+     "value": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": false,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+  },
+  {
+   "id": "HASH-physical-physics-source-domain",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "reseal",
+     "physical": "physics",
+     "publication": false,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+  },
+  {
+   "id": "HASH-physical-without-record",
+   "source": "eigen_motion-sparse",
+   "ops": [
+    {
+     "op": "reseal",
+     "physical": "joined_without_record",
+     "publication": false,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+  },
+  {
+   "id": "HASH-record-changed-physical-stale",
+   "source": "eigen_motion-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/provenance",
+     "value": "invented_replacement_provenance"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+  },
+  {
+   "id": "HASH-ordinary-record-changed-physical-stale",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/provenance",
+     "value": "invented_replacement_provenance"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+  },
+  {
+   "id": "HASH-exact-case-changed-physical-stale",
+   "source": "mixed-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/1/pipe_materials/0/provenance",
+     "value": "invented_replacement_provenance"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/materials/0/provenance",
+     "value": "invented_replacement_provenance"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+  },
+  {
+   "id": "RCPT-requested-mode-mismatch",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/cases/1/requested_mode",
+     "value": "dense_scrutiny"
+    },
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/cases/1/ordinary_attempt/requested_mode",
+     "value": "dense_scrutiny"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": false,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE"
+  },
+  {
+   "id": "RCPT-selected-method-ordinary",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/cases/0/selected_method",
+     "value": "ordinary_sparse_structural_v1"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": false,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD"
+  },
+  {
+   "id": "REC-missing",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/0"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE"
+  },
+  {
+   "id": "REC-missing-ordinary",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE"
+  },
+  {
+   "id": "REC-extra",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "copy_append",
+     "path": "/contract_evidence/load_reference_states",
+     "from": "/contract_evidence/load_reference_states/0"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE"
+  },
+  {
+   "id": "REC-extra-renamed",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "copy_append",
+     "path": "/contract_evidence/load_reference_states",
+     "from": "/contract_evidence/load_reference_states/0"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/load_case_id",
+     "value": "case:invented"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE"
+  },
+  {
+   "id": "REC-order-swap",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/contract_evidence/load_reference_states/0",
+     "with": "/contract_evidence/load_reference_states/1"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH"
+  },
+  {
+   "id": "REC-order-swap-resealed",
+   "source": "mixed-dense",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/contract_evidence/load_reference_states/0",
+     "with": "/contract_evidence/load_reference_states/1"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER"
+  },
+  {
+   "id": "EXACT-order-swap-resealed",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/contract_evidence/exact_cases/0",
+     "with": "/contract_evidence/exact_cases/1"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER"
+  },
+  {
+   "id": "RCPT-case-order-swap-resealed",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/source_block_recovery/body/cases/0",
+     "with": "/source_block_recovery/body/cases/1"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": false,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER"
+  },
+  {
+   "id": "BIND-exact-E-forged",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/E_pa",
+     "value": 199999999999.0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "BIND-member-eigen-contribution",
+   "source": "eigen_motion-sparse",
+   "ops": [
+    {
+     "op": "set_where",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "match": {
+      "source_id": "member_state:member"
+     },
+     "key": "value",
+     "value": 0.0001
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING"
+  },
+  {
+   "id": "BIND-support-motion",
+   "source": "eigen_motion-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/support_components/0/prescribed_value",
+     "value": 0.002
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING"
+  },
+  {
+   "id": "BIND-region-temperature-basis",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/materials/0/temperature_basis",
+     "value": {
+      "selection": "base_material"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS"
+  },
+  {
+   "id": "BIND-resolved-eigenstrain",
+   "source": "eigen_motion-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_materials/0/resolved_eigenstrain",
+     "value": 0.0001
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+   "id": "PS-extremum-value-resealed",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/value_pa",
+     "value": 1.0
+    },
+    {
+     "op": "reseal",
+     "physical": "joined",
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE"
+  },
+  {
+   "id": "PS-selected-over-pressure-resealed",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/1/recovery_method",
+     "value": "retained_source_blocks_exact_v1"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/solve/recovery_method",
+     "value": "retained_source_blocks_exact_v1"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/1/source_recovery",
+     "value": {
+      "status": "selected",
+      "method": "retained_source_blocks_exact_v1"
+     }
+    },
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+     },
+     "key": "code",
+     "value": "SOURCE_BLOCK_RECOVERY_SELECTED"
+    },
+    {
+     "op": "set_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "SOURCE_BLOCK_RECOVERY_SELECTED",
+      "affected_refs": [
+       "case:ordinary-pressure"
+      ]
+     },
+     "key": "id",
+     "value": "diagnostic:source-recovery:case:ordinary-pressure:selected"
+    },
+    {
+     "op": "reseal",
+     "physical": "joined",
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD"
+  },
+  {
+   "id": "NUM-NONFINITE-member-E",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "nonfinite",
+     "path": "/contract_evidence/load_reference_states/0/members/0/selected_E_pa",
+     "value": "Infinity"
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "JSON_PARSE_REJECTED",
+   "dispatch_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "joined_rust": "JSON_PARSE_REJECTED",
+   "joined_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "note": "non-finite numbers are unrepresentable in serde_json Value; Rust rejects at the JSON text boundary",
+   "reused_from": "NONFINITE-member-E"
+  },
+  {
+   "id": "NUM-NONFINITE-region-pressure",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "nonfinite",
+     "path": "/contract_evidence/pressure/0/p_pa",
+     "value": "Infinity"
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "JSON_PARSE_REJECTED",
+   "dispatch_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "joined_rust": "JSON_PARSE_REJECTED",
+   "joined_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "note": "non-finite numbers are unrepresentable in serde_json Value; Rust rejects at the JSON text boundary",
+   "reused_from": "NONFINITE-region-pressure"
+  },
+  {
+   "id": "NUM-N2-integer-temperature-negative",
+   "source": "eigen_motion-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": -100000000000000000000
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+   "reused_from": "N2-integer-temperature-negative"
+  },
+  {
+   "id": "NUM-N2-integer-overflow-positive",
+   "source": "eigen_motion-dense",
+   "ops": [
+    {
+     "op": "json_text",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": "10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "JSON_PARSE_REJECTED",
+   "dispatch_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "joined_rust": "JSON_PARSE_REJECTED",
+   "joined_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "note": "an integer literal beyond binary64 range has no serde_json Value (the JSON text is refused as number out of range); Python holds it as an int and refuses it",
+   "reused_from": "N2-integer-overflow-positive"
+  },
+  {
+   "id": "NUM-N2-integer-first-overflow",
+   "source": "eigen_motion-dense",
+   "ops": [
+    {
+     "op": "json_text",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": "179769313486231580793728971405303415079934132710037826936173778980444968292764750946649017977587207096330286416692887910946555547851940402630657488671505820681908902000708383676273854845817711531764475730270069855571366959622842914819860834936475292719074168444365510704342711559699508093042880177904174497792"
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "JSON_PARSE_REJECTED",
+   "dispatch_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "joined_rust": "JSON_PARSE_REJECTED",
+   "joined_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "note": "an integer literal beyond binary64 range has no serde_json Value (the JSON text is refused as number out of range); Python holds it as an int and refuses it",
+   "reused_from": "N2-integer-first-overflow"
+  },
+  {
+   "id": "NUM-N3-segment-reviewer-example",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 3,
+       "start_k": 300,
+       "end_k": 300
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "reused_from": "N3-segment-reviewer-example"
+  },
+  {
+   "id": "NUM-N3-segment-non-adjacent",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 2,
+       "start_k": 293.15,
+       "end_k": 373.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "reused_from": "N3-segment-non-adjacent"
+  },
+  {
+   "id": "NUM-N3-segment-same-index",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consulted_law_segments",
+     "value": [
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 1,
+       "start_k": 300.0,
+       "end_k": 300.0
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "reused_from": "N3-segment-same-index"
+  },
+  {
+   "id": "NUM-N3-segment-descending-index",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consulted_law_segments",
+     "value": [
+      {
+       "use": "interpolation_sample",
+       "lower_index": 2,
+       "upper_index": 1,
+       "start_k": 300.0,
+       "end_k": 300.0
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "reused_from": "N3-segment-descending-index"
+  },
+  {
+   "id": "NUM-N3-interval-equal-ends",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 300.0,
+       "end_k": 300.0
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "reused_from": "N3-interval-equal-ends"
+  },
+  {
+   "id": "NUM-N3-interval-equal-ends-consulted",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consulted_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 323.15,
+       "end_k": 323.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "reused_from": "N3-interval-equal-ends-consulted"
+  },
+  {
+   "id": "NUM-N3-interval-reversed",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 373.15,
+       "end_k": 293.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "reused_from": "N3-interval-reversed"
+  },
+  {
+   "id": "NUM-N3-duplicate-consumed",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 293.15,
+       "end_k": 323.15
+      },
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 373.15,
+       "end_k": 373.15
+      },
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 293.15,
+       "end_k": 323.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "reused_from": "N3-duplicate-consumed"
+  },
+  {
+   "id": "NUM-N3-duplicate-consulted",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consulted_law_segments",
+     "value": [
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 373.15,
+       "end_k": 373.15
+      },
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 373.15,
+       "end_k": 373.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "reused_from": "N3-duplicate-consulted"
+  },
+  {
+   "id": "NUM-N3-duplicate-numeric-form",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 300,
+       "end_k": 400
+      },
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 300.0,
+       "end_k": 400.0
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "reused_from": "N3-duplicate-numeric-form"
+  }
+ ],
+ "table_cases": [
+  {
+   "id": "TABLEBYTES-pinned",
+   "find": null,
+   "replace": null,
+   "expect": "accept"
+  },
+  {
+   "id": "TABLEBYTES-id-edit",
+   "find": "0.3.0/load-reference-source-1\"",
+   "replace": "0.3.0/load-reference-source-2\"",
+   "expect": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+  },
+  {
+   "id": "TABLEBYTES-profile-edit",
+   "find": "\"resolved_straight_load_state_source_v1\"",
+   "replace": "\"resolved_straight_load_state_v1\"",
+   "expect": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+  },
+  {
+   "id": "TABLEBYTES-policy-edit",
+   "find": "\"LOAD-REFERENCE-SOURCE-1\"",
+   "replace": "\"PHYSICS-SOURCE-1\"",
+   "expect": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+  },
+  {
+   "id": "TABLEBYTES-physics-source-table",
+   "file": "fixtures/results/semantic_contract_v0_3_physics_source_1.json",
+   "find": null,
+   "replace": null,
+   "expect": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+  },
+  {
+   "id": "TABLEBYTES-load-reference-table",
+   "file": "fixtures/results/semantic_contract_v0_3_load_reference_1.json",
+   "find": null,
+   "replace": null,
+   "expect": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+  }
+ ],
+ "transport_cases": [
+  {
+   "id": "TRANSPORT-ACCEPT-n05-sparse",
+   "source": "n05-sparse",
+   "ops": [],
+   "expect": "accept"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-mixed-dense",
+   "source": "mixed-dense",
+   "ops": [],
+   "expect": "accept"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-eigen_motion-sparse",
+   "source": "eigen_motion-sparse",
+   "ops": [],
+   "expect": "accept"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-fields-dense",
+   "source": "fields-dense",
+   "ops": [],
+   "expect": "accept"
+  },
+  {
+   "id": "TRANSPORT-policy",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/policy",
+     "value": "PHYSICS-SOURCE-1"
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY"
+  },
+  {
+   "id": "TRANSPORT-receipt-hash",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/receipt_sha256",
+     "value": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH"
+  },
+  {
+   "id": "TRANSPORT-physical-hash",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/source_block_recovery/body/cases/1/physical_evidence_sha256",
+     "value": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+     "op": "reseal",
+     "physical": null,
+     "publication": false,
+     "receipt": true
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+  },
+  {
+   "id": "TRANSPORT-record-missing",
+   "source": "mixed-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/contract_evidence/load_reference_states/1"
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE"
+  },
+  {
+   "id": "TRANSPORT-selected-inconsistent",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery",
+     "value": {
+      "status": "not_joined",
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+     }
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE"
+  },
+  {
+   "id": "TRANSPORT-no-selection",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/solve/recovery_method",
+     "value": "ordinary_sparse_structural_v1"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/source_recovery",
+     "value": {
+      "status": "not_joined",
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
+     }
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/recovery_method",
+     "value": "ordinary_sparse_structural_v1"
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_JOIN_SELECTION_REQUIRED"
+  },
+  {
+   "id": "TRANSPORT-load-reference-relabel",
+   "source": "lr-connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/producer/semantic_contract_id",
+     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+    },
+    {
+     "op": "set",
+     "path": "/formulation_basis/profile_id",
+     "value": "resolved_straight_load_state_source_v1"
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED"
+  },
+  {
+   "id": "TRANSPORT-extremum-value-resealed",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/value_pa",
+     "value": 1.0
+    },
+    {
+     "op": "reseal",
+     "physical": "joined",
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "expect": "accept"
+  },
+  {
+   "id": "TRANSPORT-endpoint-link-resealed",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/endpoints/0/station_fraction",
+     "value": 0.25
+    },
+    {
+     "op": "reseal",
+     "physical": "joined",
+     "publication": true,
+     "receipt": true
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE"
+  },
+  {
+   "id": "TRANSPORT-no-diagnostic-binding",
+   "source": "n05-sparse",
+   "ops": [
+    {
+     "op": "remove_where",
+     "path": "/diagnostics",
+     "match": {
+      "code": "SOURCE_BLOCK_RECOVERY_SELECTED"
+     }
+    }
+   ],
+   "expect": "accept"
+  }
+ ]
+}

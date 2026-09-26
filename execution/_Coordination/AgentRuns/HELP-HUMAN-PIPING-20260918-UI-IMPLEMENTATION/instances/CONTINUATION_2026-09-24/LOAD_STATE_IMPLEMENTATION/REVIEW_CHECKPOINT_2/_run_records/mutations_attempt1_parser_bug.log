@@ -1,0 +1,26 @@
+M01_complete_u_omits_g {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": false, "killed_by_review_probes_only": false, "failed": {}}
+M02_observation_lane_uses_uncoupled_force {"exit": 0, "compile_error": false, "killed_by_reviewed_tests": false, "killed_by_review_probes_only": false, "failed": {}}
+M03_legacy_reduced_system_zero_boundary {"exit": 0, "compile_error": false, "killed_by_reviewed_tests": false, "killed_by_review_probes_only": false, "failed": {}}
+M04_eigenload_doubled_in_assembly_and_recovery {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": false, "killed_by_review_probes_only": false, "failed": {}}
+M05_eigenload_not_removed_in_recovery {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": false, "killed_by_review_probes_only": false, "failed": {}}
+M06_pressure_ignores_resolved_pairs {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": false, "killed_by_review_probes_only": false, "failed": {}}
+Traceback (most recent call last):
+  File "/home/user/wt/ls-review2/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/REVIEW_CHECKPOINT_2/_run_records/review2_mutations.py", line 126, in <module>
+    code, compile_error, groups, out = run_tests()
+                                       ^^^^^^^^^^^
+  File "/home/user/wt/ls-review2/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/REVIEW_CHECKPOINT_2/_run_records/review2_mutations.py", line 98, in run_tests
+    run = subprocess.run(cmd, cwd=root, env=env, capture_output=True, text=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 550, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 1209, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 2115, in _communicate
+    ready = selector.select(timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/selectors.py", line 415, in select
+    fd_event_list = self._selector.poll(timeout)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

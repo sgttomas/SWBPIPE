@@ -1,0 +1,74 @@
+[
+  {
+    "id": "TABLEBYTES-pinned",
+    "table": "accept"
+  },
+  {
+    "id": "TABLEBYTES-id-edit",
+    "table": "SOURCE_LOAD_REFERENCE_TABLE_HASH"
+  },
+  {
+    "id": "TABLEBYTES-profile-edit",
+    "table": "SOURCE_LOAD_REFERENCE_TABLE_HASH"
+  },
+  {
+    "id": "TABLEBYTES-trailing-space",
+    "table": "SOURCE_LOAD_REFERENCE_TABLE_HASH"
+  },
+  {
+    "id": "TRANSPORT-ACCEPT-connected-sparse",
+    "transport": "accept"
+  },
+  {
+    "id": "TRANSPORT-ACCEPT-connected-dense",
+    "transport": "accept"
+  },
+  {
+    "id": "TRANSPORT-ACCEPT-pressure-sparse",
+    "transport": "accept"
+  },
+  {
+    "id": "TRANSPORT-ACCEPT-pressure-dense",
+    "transport": "accept"
+  },
+  {
+    "id": "TRANSPORT-member-extra-key",
+    "transport": "SOURCE_LOAD_REFERENCE_TRANSPORT_SHAPE"
+  },
+  {
+    "id": "TRANSPORT-record-profile",
+    "transport": "SOURCE_LOAD_REFERENCE_TRANSPORT_SHAPE"
+  },
+  {
+    "id": "TRANSPORT-forged-case-E",
+    "transport": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "id": "TRANSPORT-forged-region-E",
+    "transport": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING"
+  },
+  {
+    "id": "TRANSPORT-record-swap",
+    "transport": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "id": "TRANSPORT-no-diagnostic-binding",
+    "transport": "accept"
+  },
+  {
+    "id": "TRANSPORT-receipt",
+    "transport": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+    "id": "TRANSPORT-N3-segment-non-adjacent",
+    "transport": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+    "id": "TRANSPORT-N3-duplicate",
+    "transport": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+  },
+  {
+    "id": "TRANSPORT-N2-integer-temperatures",
+    "transport": "accept"
+  }
+]

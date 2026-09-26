@@ -1,0 +1,129 @@
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.150
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.2
+   Compiling ryu v1.0.23
+   Compiling syn v2.0.117
+   Compiling serde_derive v1.0.228
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/serialization/canonical_json)
+    Finished `release` profile [optimized] target(s) in 18.27s
+   Compiling proc-macro2 v1.0.106
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.150
+   Compiling memchr v2.8.2
+   Compiling itoa v1.0.18
+   Compiling syn v2.0.117
+   Compiling serde_derive v1.0.228
+   Compiling open_pipe_stress_units v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/units)
+    Finished `release` profile [optimized] target(s) in 10.19s
+........................................................................ [ 23%]
+.................................FF..................................... [ 47%]
+........................................................................ [ 70%]
+.............................................sssssssssss................ [ 94%]
+..................                                                       [100%]
+=================================== FAILURES ===================================
+_ test_method_namespace_removal_substitution_and_relabel_are_rejected[physics] _
+
+path = PosixPath('/home/user/wt/loadstate/projects/chirality-piping/fixtures/results/physics_connected_mechanics_sparse.json')
+
+    @pytest.mark.parametrize("path", [ACTUAL_PATHS[0], ACTUAL_PATHS[4]], ids=["physics", "source_blocks"])
+    def test_method_namespace_removal_substitution_and_relabel_are_rejected(path):
+        raw, _, original = captured(path)
+        field = "contract_evidence" if raw["producer"]["semantic_contract_id"] == PHYSICS_CONTRACT_ID else "source_block_recovery"
+        for bad_value in [None, False, {}, []]:
+            packet = deepcopy(original); packet[field] = bad_value; rehash_packet(packet)
+            with pytest.raises((ValueError, KeyError, TypeError)):
+                sn.validate_stress_neutral_export_package_v0_3(packet)
+            with pytest.raises(AssertionError):
+                validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label="invalid namespace")
+        packet = deepcopy(original)
+        packet["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/unknown-method"
+>       rehash_packet(packet)
+
+tests/test_stress_neutral_physics_source.py:183: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_stress_neutral_precision.py:86: in rehash_packet
+    members = sn.materialized_members_v0_3(packet)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core/handoff/stress_neutral/package_v0_3.py:497: in materialized_members_v0_3
+    encoding, _ = _csv_policy(package)
+                  ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+package = {'schema_version': '0.3.0', 'deliverable_id': 'DEL-17-06', 'package_id': 'PKG-17', 'scope_items': ['SOW-046', 'SOW-074'], ...}
+
+    def _csv_policy(package: Mapping[str, Any]) -> tuple[str, str]:
+        """Method-bound CSV wire contract; precision-1 remains unchanged ASCII."""
+        profile = package.get("export_profile", {})
+        producer = package.get("producer", {})
+        if not isinstance(profile, Mapping) or not isinstance(producer, Mapping):
+            raise ValueError("SN-CSV-PROFILE-MISMATCH")
+        method = producer.get("semantic_contract_id")
+        if method == PRECISION_CONTRACT_ID:
+            if "csv_encoding" in profile or "csv_row_order" in profile:
+                raise ValueError("SN-CSV-PROFILE-MISMATCH")
+            return "ascii", "normalized_ascii_lf_text"
+        if not isinstance(method, str) or method not in SUPPORTED_METHODS or profile.get("csv_encoding") != "utf-8" or profile.get("csv_row_order") != UTF8_CSV_ROW_ORDER:
+>           raise ValueError("SN-CSV-PROFILE-MISMATCH")
+E           ValueError: SN-CSV-PROFILE-MISMATCH
+
+core/handoff/stress_neutral/package_v0_3.py:98: ValueError
+_ test_method_namespace_removal_substitution_and_relabel_are_rejected[source_blocks] _
+
+path = PosixPath('/home/user/wt/loadstate/projects/chirality-piping/fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.raw.json')
+
+    @pytest.mark.parametrize("path", [ACTUAL_PATHS[0], ACTUAL_PATHS[4]], ids=["physics", "source_blocks"])
+    def test_method_namespace_removal_substitution_and_relabel_are_rejected(path):
+        raw, _, original = captured(path)
+        field = "contract_evidence" if raw["producer"]["semantic_contract_id"] == PHYSICS_CONTRACT_ID else "source_block_recovery"
+        for bad_value in [None, False, {}, []]:
+            packet = deepcopy(original); packet[field] = bad_value; rehash_packet(packet)
+            with pytest.raises((ValueError, KeyError, TypeError)):
+                sn.validate_stress_neutral_export_package_v0_3(packet)
+            with pytest.raises(AssertionError):
+                validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label="invalid namespace")
+        packet = deepcopy(original)
+        packet["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/unknown-method"
+>       rehash_packet(packet)
+
+tests/test_stress_neutral_physics_source.py:183: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_stress_neutral_precision.py:86: in rehash_packet
+    members = sn.materialized_members_v0_3(packet)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core/handoff/stress_neutral/package_v0_3.py:497: in materialized_members_v0_3
+    encoding, _ = _csv_policy(package)
+                  ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+package = {'schema_version': '0.3.0', 'deliverable_id': 'DEL-17-06', 'package_id': 'PKG-17', 'scope_items': ['SOW-046', 'SOW-074'], ...}
+
+    def _csv_policy(package: Mapping[str, Any]) -> tuple[str, str]:
+        """Method-bound CSV wire contract; precision-1 remains unchanged ASCII."""
+        profile = package.get("export_profile", {})
+        producer = package.get("producer", {})
+        if not isinstance(profile, Mapping) or not isinstance(producer, Mapping):
+            raise ValueError("SN-CSV-PROFILE-MISMATCH")
+        method = producer.get("semantic_contract_id")
+        if method == PRECISION_CONTRACT_ID:
+            if "csv_encoding" in profile or "csv_row_order" in profile:
+                raise ValueError("SN-CSV-PROFILE-MISMATCH")
+            return "ascii", "normalized_ascii_lf_text"
+        if not isinstance(method, str) or method not in SUPPORTED_METHODS or profile.get("csv_encoding") != "utf-8" or profile.get("csv_row_order") != UTF8_CSV_ROW_ORDER:
+>           raise ValueError("SN-CSV-PROFILE-MISMATCH")
+E           ValueError: SN-CSV-PROFILE-MISMATCH
+
+core/handoff/stress_neutral/package_v0_3.py:98: ValueError
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_source_block_schema_contract.py:220: Actual source-block headless derivative artifacts unavailable; this is not a canonical schema pass
+SKIPPED [10] tests/test_source_block_schema_contract.py:237: Actual source-block headless derivative artifacts unavailable; this is not a canonical schema pass
+2 failed, 293 passed, 11 skipped in 359.21s (0:05:59)

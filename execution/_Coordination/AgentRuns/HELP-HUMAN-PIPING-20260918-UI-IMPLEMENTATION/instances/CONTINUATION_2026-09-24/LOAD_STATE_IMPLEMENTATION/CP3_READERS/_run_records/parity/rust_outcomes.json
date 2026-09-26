@@ -1,0 +1,932 @@
+[
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-connected-sparse",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-connected-dense",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-pressure-sparse",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-pressure-dense",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-member-order",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-contribution-order",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-support-component-order",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-record-order",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-record-provenance-text",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-not-joined-message-text",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-source-block-unavailable-info",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "accept",
+    "id": "ACCEPT-unsolved-empty-namespace",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+    "id": "UNKNOWN-evidence",
+    "validator": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE",
+    "id": "UNKNOWN-record",
+    "validator": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE",
+    "id": "UNKNOWN-reference-geometry",
+    "validator": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE",
+    "id": "UNKNOWN-history",
+    "validator": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE",
+    "id": "UNKNOWN-solve",
+    "validator": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+    "id": "UNKNOWN-source-recovery",
+    "validator": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+    "id": "UNKNOWN-member",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE",
+    "id": "UNKNOWN-material-point",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+    "id": "UNKNOWN-fit-input",
+    "validator": "SOURCE_LOAD_REFERENCE_FIT_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE",
+    "id": "UNKNOWN-support-component",
+    "validator": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+    "id": "UNKNOWN-member-state-contribution",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+    "id": "UNKNOWN-support-state-contribution",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+    "id": "UNKNOWN-stored-contribution",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+    "id": "UNKNOWN-pressure-region-contribution",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE",
+    "id": "UNKNOWN-excluded-source",
+    "validator": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+    "id": "UNKNOWN-exact-case",
+    "validator": "SOURCE_LOAD_REFERENCE_CASE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE",
+    "id": "UNKNOWN-case-material",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REGION_SHAPE",
+    "id": "UNKNOWN-region",
+    "validator": "SOURCE_LOAD_REFERENCE_REGION_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE",
+    "id": "UNKNOWN-region-material",
+    "validator": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_OVERRIDE_SHAPE",
+    "id": "UNKNOWN-override",
+    "validator": "SOURCE_LOAD_REFERENCE_OVERRIDE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_SHAPE",
+    "id": "UNKNOWN-law-segment",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_GEOMETRY_SHAPE",
+    "id": "UNKNOWN-case-section-inherited",
+    "validator": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_GEOMETRY_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_STRESS_COVERAGE_SHAPE",
+    "id": "UNKNOWN-maximum-coverage-inherited",
+    "validator": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_STRESS_COVERAGE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+    "id": "MISSING-load-reference-states",
+    "validator": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+    "id": "MISSING-contract-evidence",
+    "validator": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE",
+    "id": "MISSING-record-source-recovery",
+    "validator": "SOURCE_LOAD_REFERENCE_RECORD_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE",
+    "id": "MISSING-projection-sha256",
+    "validator": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE",
+    "id": "MISSING-history-kind",
+    "validator": "SOURCE_LOAD_REFERENCE_HISTORY_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE",
+    "id": "MISSING-solve-eigenload",
+    "validator": "SOURCE_LOAD_REFERENCE_SOLVE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+    "id": "MISSING-source-recovery-code",
+    "validator": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+    "id": "MISSING-member-null-optional",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE",
+    "id": "MISSING-member-datum",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE",
+    "id": "MISSING-material-point-flag",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_POINT_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+    "id": "MISSING-fit-length-change",
+    "validator": "SOURCE_LOAD_REFERENCE_FIT_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE",
+    "id": "MISSING-support-state-source",
+    "validator": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+    "id": "MISSING-member-state-refs",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+    "id": "MISSING-support-state-value",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+    "id": "MISSING-stored-applied-magnitude",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE",
+    "id": "MISSING-pressure-region-factor",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE",
+    "id": "MISSING-excluded-reason",
+    "validator": "SOURCE_LOAD_REFERENCE_EXCLUDED_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+    "id": "MISSING-case-material-basis",
+    "validator": "SOURCE_LOAD_REFERENCE_CASE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE",
+    "id": "MISSING-case-resolved-eigenstrain",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE",
+    "id": "MISSING-region-temperature-basis",
+    "validator": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "FORGE-case-E",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "FORGE-case-nu",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "FORGE-case-G-one-ulp",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "FORGE-case-consistent-E-G",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING",
+    "id": "FORGE-member-E-only",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "FORGE-member-consistent-pair",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING",
+    "id": "FORGE-member-G",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_RANGE",
+    "id": "FORGE-member-nu-range",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_RANGE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+    "id": "FORGE-region-E",
+    "validator": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+    "id": "FORGE-region-nu",
+    "validator": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+    "id": "FORGE-region-G",
+    "validator": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "FORGE-case-selection-kind",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "FORGE-case-resolved-eigenstrain",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "FORGE-case-thermal-consumed",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "FORGE-case-material-id",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_STRING_INVALID",
+    "id": "FORGE-case-null-provenance",
+    "validator": "SOURCE_LOAD_REFERENCE_STRING_INVALID"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "SWAP-record-case-ids",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "SWAP-record-members",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "SWAP-case-materials",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING",
+    "id": "SWAP-region-materials",
+    "validator": "SOURCE_LOAD_REFERENCE_REGION_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+    "id": "SWAP-record-contributions",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+    "id": "SWAP-pressure-record-case-ids",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+    "id": "SWAP-not-joined-affected-case",
+    "validator": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_NUMERICAL_EVIDENCE_CASE_BINDING",
+    "id": "SWAP-numerical-evidence-inherited",
+    "validator": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_NUMERICAL_EVIDENCE_CASE_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+    "id": "NOTJOINED-missing-one",
+    "validator": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+    "id": "NOTJOINED-missing-all",
+    "validator": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+    "id": "NOTJOINED-severity",
+    "validator": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+    "id": "NOTJOINED-extra-copy",
+    "validator": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+    "id": "NOTJOINED-wrong-id",
+    "validator": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+    "id": "RECOVERY-status-joined",
+    "validator": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+    "id": "RECOVERY-code",
+    "validator": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+    "id": "RECOVERY-status-recovered-second-case",
+    "validator": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY"
+  },
+  {
+    "dispatch": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+    "id": "RECEIPT-present",
+    "validator": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+    "dispatch": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+    "id": "RECEIPT-present-pressure",
+    "validator": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+    "id": "RECEIPT-inside-evidence",
+    "validator": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    "id": "CARRIER-present",
+    "validator": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+    "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+    "id": "PROFILE-exact",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+    "id": "PROFILE-source-successor",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+    "id": "PROFILE-preview",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE",
+    "id": "PROFILE-record",
+    "validator": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_CASE_PROFILE",
+    "id": "PROFILE-exact-case-mode-inherited",
+    "validator": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_CASE_PROFILE"
+  },
+  {
+    "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+    "id": "PROFILE-physics-envelope-claims-load-profile",
+    "validator": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+    "id": "CONTRACT-physics-envelope-relabelled",
+    "validator": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+    "id": "CONTRACT-physics-envelope-relabelled-keeps-profile",
+    "validator": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_CONTRACT",
+    "id": "CONTRACT-record-contract",
+    "validator": "SOURCE_LOAD_REFERENCE_RECORD_CONTRACT"
+  },
+  {
+    "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    "id": "TABLE-id-successor-2",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    "id": "TABLE-id-reserved-source-successor",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+    "id": "TABLE-id-physics-1",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+    "id": "TABLE-id-physics-1-exact-profile",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+    "id": "TABLE-id-physics-source-1-exact-profile",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+    "id": "TABLE-id-precision-1",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    "id": "TABLE-producer-version",
+    "validator": "accept"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+    "id": "PHYSICS1-with-load-reference-states",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+    "id": "PHYSICS1-with-empty-load-reference-states",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE",
+    "id": "DUPLICATE-stored-contribution",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE",
+    "id": "DUPLICATE-source-id-across-kinds",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP",
+    "id": "DUPLICATE-excluded-included",
+    "validator": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP",
+    "id": "DUPLICATE-excluded",
+    "validator": "SOURCE_LOAD_REFERENCE_EXCLUDED_OVERLAP"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_DUPLICATE",
+    "id": "DUPLICATE-member",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_DUPLICATE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DUPLICATE",
+    "id": "DUPLICATE-support-component",
+    "validator": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DUPLICATE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE",
+    "id": "DUPLICATE-record",
+    "validator": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CASE_DUPLICATE",
+    "id": "DUPLICATE-exact-case",
+    "validator": "SOURCE_LOAD_REFERENCE_CASE_DUPLICATE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+    "id": "FACTOR-zero",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+    "id": "FACTOR-negative-zero",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+    "id": "FACTOR-null",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+    "id": "FACTOR-string",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE",
+    "id": "FACTOR-changed-without-magnitude",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR",
+    "id": "FACTOR-pressure-region-nonnull",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+    "dispatch": "JSON_PARSE_REJECTED",
+    "id": "NONFINITE-member-E",
+    "validator": "JSON_PARSE_REJECTED"
+  },
+  {
+    "dispatch": "JSON_PARSE_REJECTED",
+    "id": "NONFINITE-factor",
+    "validator": "JSON_PARSE_REJECTED"
+  },
+  {
+    "dispatch": "JSON_PARSE_REJECTED",
+    "id": "NONFINITE-row-value",
+    "validator": "JSON_PARSE_REJECTED"
+  },
+  {
+    "dispatch": "JSON_PARSE_REJECTED",
+    "id": "NONFINITE-region-pressure",
+    "validator": "JSON_PARSE_REJECTED"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_HISTORY",
+    "id": "CLOSED-history-kind",
+    "validator": "SOURCE_LOAD_REFERENCE_HISTORY"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE",
+    "id": "CLOSED-solve-mode-method",
+    "validator": "SOURCE_LOAD_REFERENCE_SOLVE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY",
+    "id": "CLOSED-solve-mode-consistency",
+    "validator": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SOLVE",
+    "id": "CLOSED-solve-boundary-text",
+    "validator": "SOURCE_LOAD_REFERENCE_SOLVE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY",
+    "id": "CLOSED-geometry-hash",
+    "validator": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY",
+    "id": "CLOSED-geometry-kind",
+    "validator": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_CONSISTENCY",
+    "id": "CLOSED-geometry-consistency",
+    "validator": "SOURCE_LOAD_REFERENCE_REFERENCE_GEOMETRY_CONSISTENCY"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+    "id": "CLOSED-material-basis",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION_KIND",
+    "id": "CLOSED-selection-kind",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION_KIND"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_THERMAL_DEFINITION",
+    "id": "CLOSED-thermal-definition",
+    "validator": "SOURCE_LOAD_REFERENCE_THERMAL_DEFINITION"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_FIT_KIND",
+    "id": "CLOSED-fit-kind",
+    "validator": "SOURCE_LOAD_REFERENCE_FIT_KIND"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING",
+    "id": "CLOSED-fit-strain-stretch",
+    "validator": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING",
+    "id": "CLOSED-thermal-stretch",
+    "validator": "SOURCE_LOAD_REFERENCE_STRETCH_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+    "id": "CLOSED-fit-length-change",
+    "validator": "SOURCE_LOAD_REFERENCE_FIT_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_FIT_BINDING",
+    "id": "CLOSED-fit-none-input",
+    "validator": "SOURCE_LOAD_REFERENCE_FIT_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS",
+    "id": "CLOSED-reference-basis",
+    "validator": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS",
+    "id": "CLOSED-reference-basis-unknown",
+    "validator": "SOURCE_LOAD_REFERENCE_REFERENCE_BASIS"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING",
+    "id": "CLOSED-law-id-null",
+    "validator": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING",
+    "id": "CLOSED-law-datum-stretch-null",
+    "validator": "SOURCE_LOAD_REFERENCE_THERMAL_LAW_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+    "id": "CLOSED-exact-point-without-point",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+    "id": "CLOSED-exact-point-fraction",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+    "id": "CLOSED-exact-point-temperature",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_INDICES",
+    "id": "CLOSED-law-indices-order",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_INDICES"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_INTEGER_INVALID",
+    "id": "CLOSED-law-indices-integer",
+    "validator": "SOURCE_LOAD_REFERENCE_INTEGER_INVALID"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "id": "CLOSED-law-segment-use",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "id": "CLOSED-law-segment-sample",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+    "id": "CLOSED-temperature-range",
+    "validator": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_BOOLEAN_INVALID",
+    "id": "CLOSED-retained-flag-type",
+    "validator": "SOURCE_LOAD_REFERENCE_BOOLEAN_INVALID"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_BASIS",
+    "id": "CLOSED-g-basis-text",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_BASIS"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DOF",
+    "id": "CLOSED-support-dof",
+    "validator": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_DOF"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_UNIT",
+    "id": "CLOSED-support-unit",
+    "validator": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_UNIT"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_LAW",
+    "id": "CLOSED-support-law",
+    "validator": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_LAW"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_NODE",
+    "id": "CLOSED-support-node",
+    "validator": "SOURCE_LOAD_REFERENCE_SUPPORT_COMPONENT_NODE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING",
+    "id": "CLOSED-support-contribution-value",
+    "validator": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_COVERAGE",
+    "id": "CLOSED-support-contribution-missing",
+    "validator": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_COVERAGE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+    "id": "CLOSED-member-contribution-value",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+    "id": "CLOSED-member-contribution-refs",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_COVERAGE",
+    "id": "CLOSED-member-contribution-missing",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_COVERAGE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+    "id": "CLOSED-pressure-contribution-missing",
+    "validator": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+    "id": "CLOSED-pressure-contribution-unowned",
+    "validator": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_KIND",
+    "id": "CLOSED-contribution-kind",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_KIND"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_CLASSIFICATION",
+    "id": "CLOSED-contribution-classification",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_CLASSIFICATION"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE",
+    "id": "CLOSED-applied-magnitude",
+    "validator": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_EXCLUDED_CLASSIFICATION",
+    "id": "CLOSED-excluded-classification",
+    "validator": "SOURCE_LOAD_REFERENCE_EXCLUDED_CLASSIFICATION"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MEMBER_COVERAGE",
+    "id": "CLOSED-member-removed",
+    "validator": "SOURCE_LOAD_REFERENCE_MEMBER_COVERAGE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+    "id": "CLOSED-record-removed",
+    "validator": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+    "id": "CLOSED-exact-case-removed",
+    "validator": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED",
+    "id": "CLOSED-connector",
+    "validator": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS",
+    "id": "CLOSED-region-temperature-basis",
+    "validator": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE",
+    "id": "CLOSED-region-case-moved",
+    "validator": "SOURCE_LOAD_REFERENCE_PRESSURE_CONTRIBUTION_COVERAGE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_UNSOLVED_EVIDENCE",
+    "id": "CLOSED-unsolved-with-evidence",
+    "validator": "SOURCE_LOAD_REFERENCE_UNSOLVED_EVIDENCE"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_NUMERICAL_CASE_BASIS",
+    "id": "CLOSED-numerical-basis-type",
+    "validator": "SOURCE_LOAD_REFERENCE_NUMERICAL_CASE_BASIS"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_STRING_INVALID",
+    "id": "CLOSED-record-provenance-empty",
+    "validator": "SOURCE_LOAD_REFERENCE_STRING_INVALID"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_UNIT_CONTRADICTION: pipe_elastic_normal_stress_maximum_v2",
+    "id": "INHERITED-maximum-unit",
+    "validator": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_UNIT_CONTRADICTION: pipe_elastic_normal_stress_maximum_v2"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EXTREMA_BOUNDS",
+    "id": "INHERITED-extrema-gap",
+    "validator": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EXTREMA_BOUNDS"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_RHS_METHOD",
+    "id": "INHERITED-rhs-method",
+    "validator": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_RHS_METHOD"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_HEADLINE_RESULT_BINDING",
+    "id": "INHERITED-headline",
+    "validator": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_HEADLINE_RESULT_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_GEOMETRY_SOURCE_BINDING",
+    "id": "INHERITED-section-diameter",
+    "validator": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_GEOMETRY_SOURCE_BINDING"
+  },
+  {
+    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_RHS_PRESSURE_BINDING",
+    "id": "INHERITED-region-pressure-rhs",
+    "validator": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_RHS_PRESSURE_BINDING"
+  }
+]

@@ -493,10 +493,22 @@ fn precision_1_is_readable_but_never_fresh() {
     for id in [s::PREVIEW_PHYSICS_ID, s::PHYSICS_ID, s::PHYSICS_SOURCE_ID] {
         assert!(s::is_fresh_identity(id));
     }
+    // T1 activation (DESIGN 10.3): exactly the four T0R identities plus T1's
+    // two 0.4.0 exact-route identities; nothing else is fresh.
+    let mut fresh: Vec<&str> = s::FRESH_IDENTITIES.to_vec();
+    fresh.sort_unstable();
+    let mut expected = vec![
+        s::PREVIEW_PHYSICS_ID,
+        open_pipe_stress_result_export::source_blocks::CONTRACT_ID,
+        s::PHYSICS_ID,
+        s::PHYSICS_SOURCE_ID,
+        s::LOAD_REFERENCE_ID,
+        s::LOAD_REFERENCE_SOURCE_ID,
+    ];
+    expected.sort_unstable();
     assert_eq!(
-        s::FRESH_IDENTITIES.len(),
-        4,
-        "T1 extends the set only when it activates its identities"
+        fresh, expected,
+        "T1 extends the set only with its activated identities"
     );
     assert!(s::is_fresh_identity(
         "openpipestress.result_semantics/0.3.0/source-blocks-1"

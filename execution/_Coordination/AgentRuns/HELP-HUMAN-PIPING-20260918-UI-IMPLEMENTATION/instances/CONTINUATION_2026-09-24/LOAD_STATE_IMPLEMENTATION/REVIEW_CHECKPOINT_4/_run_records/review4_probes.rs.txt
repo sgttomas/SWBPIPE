@@ -1,0 +1,233 @@
+//! CP4 reviewer probes (scratch only; never committed). Invented inputs only.
+use super::*;
+
+const CASE: &str = "case:join";
+
+fn witness() -> Value {
+    serde_json::from_str(include_str!(
+        "../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+    ))
+    .unwrap()
+}
+fn fixture(name: &str) -> Value {
+    let text = match name {
+        "eigen_motion" => include_str!("../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"),
+        "fields" => include_str!("../../../../fixtures/product_preview/load_reference_source/fields.request.json"),
+        "mixed" => include_str!("../../../../fixtures/product_preview/load_reference_source/mixed.request.json"),
+        "n05" => include_str!("../../../../fixtures/product_preview/load_reference_source/n05.request.json"),
+        "n06" => include_str!("../../../../fixtures/product_preview/load_reference_source/n06.request.json"),
+        _ => unreachable!(),
+    };
+    serde_json::from_str(text).unwrap()
+}
+
+fn add_load(request: &mut Value, case: usize, id: &str, dir: &str, node: &str, value: f64) {
+    let case = &mut request["model"]["load_cases"][case];
+    let mut load = case["primitive_loads"][0].clone();
+    load["id"] = json!(id);
+    load["direction"] = json!(dir);
+    load["target"] = json!({"type": "node", "node": node});
+    if dir.starts_with('R') {
+        load["category"] = json!("concentrated_moment");
+        load["dimension"] = json!("moment");
+        load["magnitude"] = json!({"value": value, "unit": "N*m"});
+    } else {
+        load["category"] = json!("concentrated_force");
+        load["dimension"] = json!("force");
+        load["magnitude"] = json!({"value": value, "unit": "N"});
+    }
+    case["primitive_loads"].as_array_mut().unwrap().push(load);
+    case["analysis_state"]["load_sources"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({"source_ref": id, "factor": 1.0}));
+}
+
+fn copy_case(request: &mut Value, id: &str) {
+    let mut case = request["model"]["load_cases"][0].clone();
+    case["id"] = json!(id);
+    let mut map = std::collections::HashMap::new();
+    for load in case["primitive_loads"].as_array_mut().unwrap() {
+        let new = format!("{}:{id}", load["id"].as_str().unwrap());
+        map.insert(load["id"].as_str().unwrap().to_string(), new.clone());
+        load["id"] = json!(new);
+    }
+    for source in case["analysis_state"]["load_sources"].as_array_mut().unwrap() {
+        let old = source["source_ref"].as_str().unwrap().to_string();
+        source["source_ref"] = json!(map[&old]);
+    }
+    request["model"]["load_cases"].as_array_mut().unwrap().push(case);
+}
+
+fn charged_in(message: &str) -> Option<u64> {
+    let at = message.find("charged: ")? + "charged: ".len();
+    message[at..].split(|c: char| !c.is_ascii_digit()).next()?.parse().ok()
+}
+
+fn outcome(envelope: &MechanicsEnvelope) -> Value {
+    let diags: Vec<_> = envelope
+        .diagnostics
+        .iter()
+        .filter(|d| d.code.starts_with("SOURCE_") || d.code.contains("NOT_JOINED") || d.severity == "blocking")
+        .map(|d| json!({"code": d.code, "sev": d.severity, "refs": d.affected_refs,
+            "live_charged": charged_in(&d.message),
+            "withheld": d.message.contains("invocation join withheld"),
+            "reservation": d.message.contains("captured replay reservation"),
+            "msg_tail": d.message.chars().rev().take(260).collect::<String>().chars().rev().collect::<String>()}))
+        .collect();
+    json!({"label": envelope.producer.semantic_contract_id, "status": envelope.status.mechanics,
+        "quality": format!("{:?}", envelope.numerical_quality.status),
+        "receipt": envelope.source_block_recovery.as_ref().map(|r| r["body"]["status"].clone()),
+        "rows": envelope.results.len(), "diags": diags,
+        "records": envelope.contract_evidence.as_ref().map(|e| e["load_reference_states"].as_array().map(|a| a.iter().map(|r| json!([r["load_case_id"], r["source_recovery"]["status"], r["solve"]["recovery_method"]])).collect::<Vec<_>>()))})
+}
+
+fn run_private(request: &Value, mode: PreviewSolverMode, per_case: usize) -> (MechanicsEnvelope, SourceRecoveryBudget, Vec<Value>) {
+    let (typed, capture) = CapturedInvocation::parse(request.clone(), mode).unwrap();
+    let mut budget = SourceRecoveryBudget { per_case_limit: per_case, ..Default::default() };
+    composite::start_trace();
+    let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
+    (envelope, budget, composite::take_trace())
+}
+
+/// Live charge (first derived-recipe entry after selection) and captured
+/// replay charge, from the test-only work trace. Run at the public limit and
+/// at a private 64M limit (the latter never publishes a receipt).
+fn replay_measure(name: &str, request: &Value) {
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        for limit in [PHYSICS_SOURCE_WORK_LIMIT, 64_000_000] {
+            let (envelope, _budget, trace) = run_private(request, mode, limit);
+            let mut checks = vec![];
+            let mut live: Option<u64> = None;
+            let mut reserved = None;
+            let mut last = u64::MAX;
+            for t in &trace {
+                let charged = t["charged"].as_u64().unwrap();
+                // A new attempt ledger restarts below the previous case's charge.
+                if charged < last { live = None; }
+                last = charged;
+                match t["stage"].as_str().unwrap() {
+                    "derived_recipe_entry" if live.is_none() => live = Some(charged),
+                    "source_case_finalization_entry" if live.is_none() => live = Some(charged),
+                    "source_case_finalization_reserved" => reserved = Some(charged),
+                    "captured_source_replay_complete" => {
+                        let c = live.unwrap();
+                        let r = reserved.take().unwrap();
+                        checks.push(json!({"live_c": c, "pre_replay": r - c, "replay": charged - r,
+                            "replay_le_live": charged - r <= c, "charged_after_replay": charged,
+                            "reservation_passes_at_8M": c <= 8_000_000 - c}));
+                    }
+                    _ => {}
+                }
+            }
+            eprintln!("R4PROBE replay {}", json!({"name": name, "mode": mode.as_str(), "limit": limit, "label": envelope.producer.semantic_contract_id, "fallback": _budget.load_state_join_withheld, "checks": checks}));
+        }
+    }
+}
+
+#[test]
+fn r4_replay_bounded_by_live_charge() {
+    for name in ["eigen_motion", "fields", "mixed", "n05", "n06"] {
+        replay_measure(name, &fixture(name));
+    }
+    let mut two = witness();
+    copy_case(&mut two, "case:copy");
+    two["model"]["load_cases"][1]["analysis_state"]["support_states"][0]["boundary_motion"][0]["value"]["value"] = json!(2.0);
+    replay_measure("two_cases", &two);
+    for (dir, node) in [("UX", "tip"), ("UY", "tip"), ("UZ", "tip"), ("RY", "tip"), ("RZ", "tip"), ("UZ", "root"), ("RX", "tip")] {
+        let mut r = witness();
+        add_load(&mut r, 0, "extra:0", dir, node, 1.0e-6);
+        replay_measure(&format!("extra_{dir}_{node}"), &r);
+    }
+}
+
+/// Public-limit outcomes of single and paired extra loads: where does the live
+/// charge land relative to the reservation threshold L/2 and to the full
+/// finalization need?
+#[test]
+fn r4_public_band_scan() {
+    let dirs = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
+    let mut variants: Vec<(String, Value)> = vec![];
+    for node in ["tip", "root"] {
+        for dir in dirs {
+            let mut r = witness();
+            add_load(&mut r, 0, "extra:0", dir, node, 1.0e-6);
+            variants.push((format!("{dir}@{node}"), r));
+        }
+    }
+    for (a, b) in [("UX", "RX"), ("UX", "UZ"), ("RX", "RY"), ("UX", "RY"), ("RX", "RZ")] {
+        let mut r = witness();
+        add_load(&mut r, 0, "extra:0", a, "tip", 1.0e-6);
+        add_load(&mut r, 0, "extra:1", b, "tip", 1.0e-6);
+        variants.push((format!("{a}+{b}@tip"), r));
+    }
+    for (name, request) in variants {
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let result = run_linear_static_preview_value_with_mode(request.clone(), mode);
+            let summary = match &result {
+                Ok(envelope) => outcome(envelope),
+                Err(e) => json!({"err": e}),
+            };
+            eprintln!("R4PROBE band {}", json!({"name": name, "mode": mode.as_str(), "outcome": summary}));
+        }
+    }
+}
+
+/// Two cases: the witness (selectable) and a second case whose own attempt
+/// fails the replay reservation. CP3 blocked this; CP4 must publish both
+/// cases ordinarily. Records how the second case's attempt is attributed.
+#[test]
+fn r4_mixed_reservation_and_selected() {
+    let mut r = witness();
+    copy_case(&mut r, "case:heavy");
+    add_load(&mut r, 1, "extra:heavy", "UZ", "tip", 1.0e-6);
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let result = run_linear_static_preview_value_with_mode(r.clone(), mode);
+        let summary = match &result { Ok(e) => outcome(e), Err(e) => json!({"err": e}) };
+        eprintln!("R4PROBE mixed_reservation {}", json!({"mode": mode.as_str(), "outcome": summary}));
+        let envelope = result.unwrap();
+        assert_eq!(envelope.producer.semantic_contract_id, case_state::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID);
+        assert!(!envelope.results.is_empty());
+        let typed: LinearStaticPreviewRequest = serde_json::from_value(r.clone()).unwrap();
+        let ordinary = run_linear_static_preview_with_mode(typed, mode);
+        let bits = |e: &MechanicsEnvelope| e.results.iter().map(|x| (x.id.clone(), x.value.to_bits())).collect::<Vec<_>>();
+        assert_eq!(bits(&envelope), bits(&ordinary));
+    }
+}
+
+/// Many copies of the witness: the invocation limit is exhausted by joins,
+/// the fallback runs in a fresh ledger; record total executed vs published.
+#[test]
+fn r4_invocation_limit_exhaustion() {
+    let mut r = witness();
+    for i in 1..10 {
+        copy_case(&mut r, &format!("case:copy{i}"));
+    }
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let (typed, capture) = CapturedInvocation::parse(r.clone(), mode).unwrap();
+        let mut budget = SourceRecoveryBudget { per_case_limit: PHYSICS_SOURCE_WORK_LIMIT, ..Default::default() };
+        composite::start_trace();
+        let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
+        let trace = composite::take_trace();
+        let first_run_max = trace.iter().filter_map(|t| t["charged"].as_u64()).max();
+        let summary = outcome(&envelope);
+        eprintln!("R4PROBE exhaustion {}", json!({"mode": mode.as_str(), "fallback_cause": budget.load_state_join_withheld, "fallback_charged": budget.charged, "fallback_failed": budget.failed_charged, "attempts": budget.attempts, "first_run_trace_entries": trace.len(), "first_run_max_case_charge": first_run_max, "label": summary["label"], "status": summary["status"], "rows": summary["rows"], "blocking": summary["diags"].as_array().unwrap().iter().filter(|d| d["sev"] == "blocking").count()}));
+        let value = run_linear_static_preview_value_with_mode(r.clone(), mode).unwrap();
+        assert_eq!(value.producer.semantic_contract_id, case_state::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID);
+        assert_eq!(value.status.mechanics, "MECHANICS_SOLVED");
+    }
+}
+
+/// Only meaningful with the scratch fault injection applied to
+/// `composite_support_norms` (see RUNS): what does a selected 0.4.0 case whose
+/// derived support norm is unavailable publish?
+#[test]
+fn r4_support_norm_failure_outcome() {
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let (typed, capture) = CapturedInvocation::parse(witness(), mode).unwrap();
+        let mut budget = SourceRecoveryBudget { per_case_limit: PHYSICS_SOURCE_WORK_LIMIT, ..Default::default() };
+        let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
+        let value = run_linear_static_preview_value_with_mode(witness(), mode);
+        eprintln!("R4PROBE support_norm {}", json!({"mode": mode.as_str(), "fallback_cause": budget.load_state_join_withheld, "join_failure": budget.load_state_join_failure, "captured": outcome(&envelope), "value_route": match &value { Ok(e) => json!({"label": e.producer.semantic_contract_id, "status": e.status.mechanics, "rows": e.results.len()}), Err(e) => json!({"err": e}) }}));
+    }
+}

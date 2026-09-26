@@ -9,6 +9,8 @@
 pub mod benchmark_binding;
 pub mod redaction_binding;
 pub mod result_envelope_binding;
+#[cfg(test)]
+mod load_reference_route_tests;
 
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_product_physics::{

@@ -1,0 +1,204 @@
+--- /tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/ext_before.rs	2026-09-25 19:31:50.981747494 +0000
++++ tests/load_reference_state_runtime_extension.rs	2026-09-25 19:31:51.043261176 +0000
+@@ -1556,6 +1556,90 @@
+ // 6. Dilation datum consulted, not consumed (M17)
+ // ---------------------------------------------------------------------------
+ 
++fn within(actual: f64, expected: f64) -> bool {
++    actual.is_finite() && (actual - expected).abs() <= RELATIVE * expected.abs()
++}
++
++/// CP3_WIRE_ADDENDUM section 1: every entry is `{use, lower_index,
++/// upper_index, start_k, end_k}`, with upper = lower + 1 and
++/// T_lower <= start_k <= end_k <= T_upper. An interpolation_sample has
++/// start_k == end_k; an integration_interval has start_k < end_k. Entries are
++/// unique and their order carries no meaning, so the observed list must equal
++/// the expected entry set. Kelvin values use the protected relative criterion,
++/// since they are binary64 conversions.
++fn segments_match(
++    observed: &Value,
++    expected: &[(&str, u64, u64, f64, f64)],
++    table_k: &[f64],
++    context: &str,
++) {
++    let entries = observed
++        .as_array()
++        .unwrap_or_else(|| panic!("{context}: array expected, got {observed}"));
++    for s in entries {
++        let lower = s["lower_index"]
++            .as_u64()
++            .unwrap_or_else(|| panic!("{context}: lower_index {s}"));
++        let upper = s["upper_index"]
++            .as_u64()
++            .unwrap_or_else(|| panic!("{context}: upper_index {s}"));
++        let start = s["start_k"]
++            .as_f64()
++            .unwrap_or_else(|| panic!("{context}: start_k {s}"));
++        let end = s["end_k"]
++            .as_f64()
++            .unwrap_or_else(|| panic!("{context}: end_k {s}"));
++        assert_eq!(
++            upper,
++            lower + 1,
++            "{context}: upper_index = lower_index + 1: {s}"
++        );
++        let (t_lo, t_hi) = (table_k[lower as usize], table_k[upper as usize]);
++        assert!(
++            start <= end
++                && start >= t_lo - RELATIVE * t_lo.abs()
++                && end <= t_hi + RELATIVE * t_hi.abs(),
++            "{context}: start_k/end_k inside the segment: {s}"
++        );
++        match s["use"].as_str() {
++            Some("interpolation_sample") => assert_eq!(
++                start.to_bits(),
++                end.to_bits(),
++                "{context}: interpolation_sample has start_k == end_k: {s}"
++            ),
++            Some("integration_interval") => {
++                assert!(
++                    start < end,
++                    "{context}: integration_interval has start_k < end_k: {s}"
++                )
++            }
++            _ => panic!("{context}: unknown use label: {s}"),
++        }
++    }
++    assert_eq!(
++        entries.len(),
++        expected.len(),
++        "{context}: entry set size; observed {observed}"
++    );
++    let mut matched = vec![false; entries.len()];
++    for &(use_label, lower, upper, start, end) in expected {
++        let hit = entries.iter().enumerate().position(|(i, s)| {
++            !matched[i]
++                && s["use"] == use_label
++                && s["lower_index"] == lower
++                && s["upper_index"] == upper
++                && s["start_k"].as_f64().is_some_and(|v| within(v, start))
++                && s["end_k"].as_f64().is_some_and(|v| within(v, end))
++        });
++        let index = hit.unwrap_or_else(|| {
++            panic!(
++                "{context}: expected entry {{use: {use_label}, lower_index: {lower}, upper_index: {upper}, start_k: {start}, end_k: {end}}} missing; observed {observed}"
++            )
++        });
++        matched[index] = true;
++    }
++}
++
+ #[test]
+ fn dilation_datum_zero_is_consulted_not_consumed() {
+     let v = format!("{THERMAL}/annular_companion");
+@@ -1567,6 +1651,13 @@
+     let operating = q(&format!("{v}/inputs/operating_temperature"), "degC");
+     let d_install = q(&format!("{v}/expected/dilation_install"), "1");
+     let d_operating = q(&format!("{v}/expected/dilation_operating"), "1");
++    let install_k = q(&format!("{v}/expected/installation_temperature_K"), "K");
++    let operating_k = q(&format!("{v}/expected/operating_temperature_K"), "K");
++    let table_k = [
++        q(&format!("{v}/expected/datum_temperature_K"), "K"),
++        install_k,
++        operating_k,
++    ];
+     // engineering_dilation referred to the datum: lambda(T) = 1 + d(T), with
+     // d(T_m) = 0 by definition, so the datum point is a zero-consistency check.
+     let law = json!({"id": "law:t", "definition": "engineering_dilation",
+@@ -1647,46 +1738,56 @@
+                 consulted.contains(&0),
+                 "{ctx}: datum-zero point is consulted: {consulted:?}"
+             );
+-            // A dilation law's value is (1 + d(T))/(1 + d(T_install)) from
+-            // sampled dilations: no coefficient is integrated, so every consumed
+-            // segment is an interpolation sample. Consulted segments only
+-            // establish coverage or positivity; the wire assigns them no
+-            // specific label, so they need only a valid one.
+-            for segment in m["consumed_law_segments"]
+-                .as_array()
+-                .unwrap_or_else(|| panic!("{ctx}: consumed_law_segments[]"))
+-            {
+-                assert_eq!(
+-                    segment["use"], "interpolation_sample",
+-                    "{ctx}: consumed_law_segments use label {segment}"
+-                );
+-            }
+-            for segment in m["consulted_law_segments"]
+-                .as_array()
+-                .unwrap_or_else(|| panic!("{ctx}: consulted_law_segments[]"))
+-            {
+-                assert!(
+-                    segment["use"] == "interpolation_sample"
+-                        || segment["use"] == "integration_interval",
+-                    "{ctx}: consulted_law_segments use label {segment}"
+-                );
+-            }
+-            if interior {
+-                let found = m["consumed_law_segments"]
+-                    .as_array()
+-                    .unwrap()
+-                    .iter()
+-                    .any(|s| {
+-                        s["use"] == "interpolation_sample"
+-                            && s["lower_index"] == 1
+-                            && s["upper_index"] == 2
+-                    });
+-                assert!(
+-                    found,
+-                    "{ctx}: interior sample segment 1-2 consumed: {}",
+-                    m["consumed_law_segments"]
+-                );
+-            }
++            // CP3_WIRE_ADDENDUM.md (sha256 f69043b6...) section 2, engineering_dilation:
++            // - consumed: a sample at T_i and at T, plus one integration_interval
++            //   for every segment piece of [min(T_i,T), max(T_i,T)];
++            // - consulted: the datum sample, plus positivity samples at the
++            //   interval ends, T_m, T_i, T and the table points inside. There is
++            //   never a consulted integration_interval.
++            // Consumed and consulted are independent and may overlap (section 1).
++            //
++            // Table (fixture inputs): 0 = T_m (20 degC), 1 = T_i (50 degC),
++            // 2 = 150 degC. T_i is point 1, so [T_i, T] spans only segment 1-2.
++            // - T = 150 degC (point 2). Both samples are point indices.
++            //   Consumed segments: [integration 1-2 over T_i..T].
++            //   Consulted: the datum 0, T_i = 1 and T = 2 (the table points of
++            //   [20, 150]) as points; no segments.
++            // - T = 100 degC (inside 1-2). The T sample is interpolation_sample
++            //   1-2 at T. Consumed segments: [that sample, integration 1-2 over
++            //   T_i..T]. Consulted: the datum 0 and T_i = 1 as points, plus the
++            //   same sample at T (its segment endpoints 1 and 2 enter as points).
++            // Kelvin endpoints: the fixture's installation/operating K. The
++            // midpoint K is their mean, because T = (T_i + 150 degC)/2.
++            let ti_k = install_k;
++            let t_k = if interior {
++                (install_k + operating_k) / 2.0
++            } else {
++                operating_k
++            };
++            let sample = ("interpolation_sample", 1, 2, t_k, t_k);
++            let increment = ("integration_interval", 1, 2, ti_k, t_k);
++            let (want_consumed, want_consulted) = if interior {
++                (vec![sample, increment], vec![sample])
++            } else {
++                (vec![increment], vec![])
++            };
++            assert_eq!(
++                consulted,
++                vec![0, 1, 2],
++                "{ctx}: consulted points are the datum and positivity samples"
++            );
++            segments_match(
++                &m["consumed_law_segments"],
++                &want_consumed,
++                &table_k,
++                &format!("{ctx}: consumed_law_segments"),
++            );
++            segments_match(
++                &m["consulted_law_segments"],
++                &want_consulted,
++                &table_k,
++                &format!("{ctx}: consulted_law_segments"),
++            );
+         }
+     }
+ }

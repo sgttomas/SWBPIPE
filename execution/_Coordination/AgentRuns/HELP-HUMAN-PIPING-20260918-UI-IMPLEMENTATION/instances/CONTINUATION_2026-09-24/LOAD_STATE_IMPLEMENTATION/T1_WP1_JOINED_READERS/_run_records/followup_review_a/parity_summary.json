@@ -1,0 +1,2011 @@
+{
+ "case_ids": 136,
+ "comparisons": 282,
+ "exact": 272,
+ "same_inherited_leading_code": 0,
+ "declared_language_specific": 10,
+ "undeclared": 0,
+ "accepted_by_one_refused_by_other": [],
+ "accepted_ids": [
+  "ACCEPT-eigen_motion-dense",
+  "ACCEPT-eigen_motion-sparse",
+  "ACCEPT-fields-dense",
+  "ACCEPT-fields-sparse",
+  "ACCEPT-integer-zero-literal",
+  "ACCEPT-lr-fallback-dense",
+  "ACCEPT-lr-fallback-sparse",
+  "ACCEPT-mixed-dense",
+  "ACCEPT-mixed-sparse",
+  "ACCEPT-n05-dense",
+  "ACCEPT-n05-sparse",
+  "ACCEPT-n06-dense",
+  "ACCEPT-n06-sparse",
+  "ACCEPT-not-joined-message-text",
+  "ACCEPT-record-provenance-text-resealed",
+  "ACCEPT-selected-message-text",
+  "ACCEPT-unavailable-on-ordinary-case-resealed",
+  "TABLEBYTES-pinned",
+  "TRANSPORT-ACCEPT-eigen_motion-sparse",
+  "TRANSPORT-ACCEPT-fields-dense",
+  "TRANSPORT-ACCEPT-mixed-dense",
+  "TRANSPORT-ACCEPT-n05-sparse",
+  "TRANSPORT-extremum-value-resealed",
+  "TRANSPORT-no-diagnostic-binding"
+ ],
+ "rows": [
+  {
+   "id": "ACCEPT-eigen_motion-dense",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-eigen_motion-dense",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-eigen_motion-dense",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-eigen_motion-dense",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "python": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-eigen_motion-sparse",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-eigen_motion-sparse",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-eigen_motion-sparse",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-eigen_motion-sparse",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "python": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-fields-dense",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-fields-dense",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-fields-dense",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-fields-dense",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "python": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-fields-sparse",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-fields-sparse",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-fields-sparse",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-fields-sparse",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "python": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-integer-zero-literal",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-integer-zero-literal",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-lr-fallback-dense",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-lr-fallback-dense",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-lr-fallback-dense",
+   "kind": "lr",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-lr-fallback-sparse",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-lr-fallback-sparse",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-lr-fallback-sparse",
+   "kind": "lr",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-mixed-dense",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-mixed-dense",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-mixed-dense",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-mixed-dense",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "python": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-mixed-sparse",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-mixed-sparse",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-mixed-sparse",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-mixed-sparse",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "python": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n05-dense",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n05-dense",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n05-dense",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n05-dense",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "python": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n05-sparse",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n05-sparse",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n05-sparse",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n05-sparse",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "python": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n06-dense",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n06-dense",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n06-dense",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n06-dense",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "python": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n06-sparse",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n06-sparse",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n06-sparse",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-n06-sparse",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "python": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-not-joined-message-text",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-not-joined-message-text",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-record-provenance-text-resealed",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-record-provenance-text-resealed",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-selected-message-text",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-selected-message-text",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-unavailable-on-ordinary-case-resealed",
+   "kind": "dispatch",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-unavailable-on-ordinary-case-resealed",
+   "kind": "joined",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "ACCEPT-unavailable-on-ordinary-case-resealed",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "BIND-exact-E-forged",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "class": "exact"
+  },
+  {
+   "id": "BIND-exact-E-forged",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "class": "exact"
+  },
+  {
+   "id": "BIND-member-eigen-contribution",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "class": "exact"
+  },
+  {
+   "id": "BIND-member-eigen-contribution",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_CONTRIBUTION_BINDING",
+   "class": "exact"
+  },
+  {
+   "id": "BIND-region-temperature-basis",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS",
+   "class": "exact"
+  },
+  {
+   "id": "BIND-region-temperature-basis",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS",
+   "class": "exact"
+  },
+  {
+   "id": "BIND-resolved-eigenstrain",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "class": "exact"
+  },
+  {
+   "id": "BIND-resolved-eigenstrain",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_MEMBER_MATERIAL_BINDING",
+   "class": "exact"
+  },
+  {
+   "id": "BIND-support-motion",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING",
+   "class": "exact"
+  },
+  {
+   "id": "BIND-support-motion",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING",
+   "python": "SOURCE_LOAD_REFERENCE_SUPPORT_CONTRIBUTION_BINDING",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-not-joined-missing",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-not-joined-missing",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-not-joined-on-selected-case",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-not-joined-on-selected-case",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-not-joined-warning",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-not-joined-warning",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-selected-affected-refs",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-selected-affected-refs",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-selected-duplicate",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-selected-duplicate",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-selected-missing",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-selected-missing",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-selected-warning",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-selected-warning",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-selected-wrong-id",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-selected-wrong-id",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-unavailable-among-refs-of-selected-resealed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-unavailable-among-refs-of-selected-resealed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-unavailable-on-selected",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-unavailable-on-selected",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-unavailable-on-selected-resealed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "DIAG-unavailable-on-selected-resealed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "EXACT-order-swap-resealed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "class": "exact"
+  },
+  {
+   "id": "EXACT-order-swap-resealed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-exact-case-changed-physical-stale",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-exact-case-changed-physical-stale",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-ordinary-record-changed-physical-stale",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-ordinary-record-changed-physical-stale",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-physical-physics-source-domain",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-physical-physics-source-domain",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-physical-without-record",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-physical-without-record",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-physical-zero",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-physical-zero",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-record-changed-physical-stale",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "HASH-record-changed-physical-stale",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "ID-producer-version",
+   "kind": "dispatch",
+   "rust": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "python": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "class": "exact"
+  },
+  {
+   "id": "ID-producer-version",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "ID-reserved-successor",
+   "kind": "dispatch",
+   "rust": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "python": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "class": "exact"
+  },
+  {
+   "id": "ID-reserved-successor",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "NS-carrier-evidence",
+   "kind": "dispatch",
+   "rust": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "python": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "class": "exact"
+  },
+  {
+   "id": "NS-carrier-evidence",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "NS-connector-nonempty",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED",
+   "python": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED",
+   "class": "exact"
+  },
+  {
+   "id": "NS-connector-nonempty",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED",
+   "python": "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED",
+   "class": "exact"
+  },
+  {
+   "id": "NS-exact-case-load-reference-basis-removed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "class": "exact"
+  },
+  {
+   "id": "NS-exact-case-load-reference-basis-removed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "python": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
+   "class": "exact"
+  },
+  {
+   "id": "NS-exact-case-without-recovery-method",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "NS-exact-case-without-recovery-method",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "NS-extra-evidence-key",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "NS-extra-evidence-key",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "NS-missing-load-reference-states",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "NS-missing-load-reference-states",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "NS-receipt-removed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "class": "exact"
+  },
+  {
+   "id": "NS-receipt-removed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N2-integer-first-overflow",
+   "kind": "dispatch",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "class": "declared_language_specific"
+  },
+  {
+   "id": "NUM-N2-integer-first-overflow",
+   "kind": "joined",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "class": "declared_language_specific"
+  },
+  {
+   "id": "NUM-N2-integer-overflow-positive",
+   "kind": "dispatch",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "class": "declared_language_specific"
+  },
+  {
+   "id": "NUM-N2-integer-overflow-positive",
+   "kind": "joined",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "class": "declared_language_specific"
+  },
+  {
+   "id": "NUM-N2-integer-temperature-negative",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+   "python": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N2-integer-temperature-negative",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+   "python": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-duplicate-consulted",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-duplicate-consulted",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-duplicate-consumed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-duplicate-consumed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-duplicate-numeric-form",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-duplicate-numeric-form",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-interval-equal-ends",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-interval-equal-ends",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-interval-equal-ends-consulted",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-interval-equal-ends-consulted",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-interval-reversed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-interval-reversed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-segment-descending-index",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-segment-descending-index",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-segment-non-adjacent",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-segment-non-adjacent",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-segment-reviewer-example",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-segment-reviewer-example",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-segment-same-index",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-N3-segment-same-index",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "python": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+   "class": "exact"
+  },
+  {
+   "id": "NUM-NONFINITE-member-E",
+   "kind": "dispatch",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "class": "declared_language_specific"
+  },
+  {
+   "id": "NUM-NONFINITE-member-E",
+   "kind": "joined",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "class": "declared_language_specific"
+  },
+  {
+   "id": "NUM-NONFINITE-region-pressure",
+   "kind": "dispatch",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "class": "declared_language_specific"
+  },
+  {
+   "id": "NUM-NONFINITE-region-pressure",
+   "kind": "joined",
+   "rust": "JSON_PARSE_REJECTED",
+   "python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "class": "declared_language_specific"
+  },
+  {
+   "id": "NUM-unsafe-integer-in-publication",
+   "kind": "dispatch",
+   "rust": "CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976",
+   "python": "CHECKED-JSON-UNSAFE-INTEGER",
+   "class": "declared_language_specific"
+  },
+  {
+   "id": "NUM-unsafe-integer-in-publication",
+   "kind": "joined",
+   "rust": "CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976",
+   "python": "CHECKED-JSON-UNSAFE-INTEGER",
+   "class": "declared_language_specific"
+  },
+  {
+   "id": "PROFILE-empty-limitations",
+   "kind": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "class": "exact"
+  },
+  {
+   "id": "PROFILE-empty-limitations",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "PROFILE-load-reference",
+   "kind": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "class": "exact"
+  },
+  {
+   "id": "PROFILE-load-reference",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "PROFILE-physics-source",
+   "kind": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "class": "exact"
+  },
+  {
+   "id": "PROFILE-physics-source",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "PROFILE-record-joined-profile",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE",
+   "class": "exact"
+  },
+  {
+   "id": "PROFILE-record-joined-profile",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_PROFILE",
+   "class": "exact"
+  },
+  {
+   "id": "PS-extremum-value-resealed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_MAXIMUM_ROW",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_MAXIMUM_ROW",
+   "class": "exact"
+  },
+  {
+   "id": "PS-extremum-value-resealed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_MAXIMUM_ROW",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_MAXIMUM_ROW",
+   "class": "exact"
+  },
+  {
+   "id": "PS-selected-over-pressure-resealed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "class": "exact"
+  },
+  {
+   "id": "PS-selected-over-pressure-resealed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "class": "exact"
+  },
+  {
+   "id": "PUB-evidence-changed-receipt-only",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "PUB-evidence-changed-receipt-only",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "PUB-row-value",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "PUB-row-value",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "PUB-row-value-resealed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_DERIVED_NORM_VALUE",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_DERIVED_NORM_VALUE",
+   "class": "exact"
+  },
+  {
+   "id": "PUB-row-value-resealed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_DERIVED_NORM_VALUE",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_DERIVED_NORM_VALUE",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-body-changed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-body-changed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-case-order-swap-resealed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-case-order-swap-resealed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-extra-body-key",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-extra-body-key",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-policy-missing",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-policy-missing",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-policy-physics-source",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-policy-physics-source",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-policy-physics-source-resealed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-policy-physics-source-resealed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-policy-source-blocks",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-policy-source-blocks",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-receipt-hash",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-receipt-hash",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-requested-mode-mismatch",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-requested-mode-mismatch",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-selected-method-ordinary",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-selected-method-ordinary",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-status-partial",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "RCPT-status-partial",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "REC-extra",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE",
+   "class": "exact"
+  },
+  {
+   "id": "REC-extra",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE",
+   "python": "SOURCE_LOAD_REFERENCE_RECORD_DUPLICATE",
+   "class": "exact"
+  },
+  {
+   "id": "REC-extra-renamed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "class": "exact"
+  },
+  {
+   "id": "REC-extra-renamed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "class": "exact"
+  },
+  {
+   "id": "REC-missing",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "class": "exact"
+  },
+  {
+   "id": "REC-missing",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "class": "exact"
+  },
+  {
+   "id": "REC-missing-ordinary",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "class": "exact"
+  },
+  {
+   "id": "REC-missing-ordinary",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "class": "exact"
+  },
+  {
+   "id": "REC-order-swap",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "REC-order-swap",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "REC-order-swap-resealed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "class": "exact"
+  },
+  {
+   "id": "REC-order-swap-resealed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-fallback-as-joined",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-fallback-as-joined",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-fallback-as-joined",
+   "kind": "lr",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-load-reference",
+   "kind": "dispatch",
+   "rust": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "python": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-load-reference",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-load-reference",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "python": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-load-reference-id-only",
+   "kind": "dispatch",
+   "rust": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "python": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-load-reference-id-only",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-load-reference-receipt-removed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-load-reference-receipt-removed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-load-reference-receipt-removed",
+   "kind": "lr",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-physics-source",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-physics-source",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-physics-source",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "python": "PHYSICS_SOURCE_RECEIPT_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-physics-source-id-only",
+   "kind": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-physics-source-id-only",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-physics-source-resealed",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-physics-source-resealed",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-joined-as-physics-source-resealed",
+   "kind": "ps",
+   "rust": "PHYSICS_SOURCE_PHYSICAL_SHAPE",
+   "python": "PHYSICS_SOURCE_PHYSICAL_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-load-reference-as-joined",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-load-reference-as-joined",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-load-reference-as-joined",
+   "kind": "lr",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-load-reference-as-joined-id-only",
+   "kind": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-load-reference-as-joined-id-only",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-load-reference-as-joined-with-grafted-receipt",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-load-reference-as-joined-with-grafted-receipt",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-physics-source-as-joined",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-physics-source-as-joined",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-physics-source-as-joined",
+   "kind": "ps",
+   "rust": "SOURCE_BLOCKS_PRODUCER",
+   "python": "SOURCE_BLOCKS_PRODUCER",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-physics-source-as-joined-id-only",
+   "kind": "dispatch",
+   "rust": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "python": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+   "class": "exact"
+  },
+  {
+   "id": "RELABEL-physics-source-as-joined-id-only",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-mixed-record-modes",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-mixed-record-modes",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE_CONSISTENCY",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-no-case-selected",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTION_REQUIRED",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTION_REQUIRED",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-no-case-selected",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTION_REQUIRED",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTION_REQUIRED",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-ordinary-case-claims-selected",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-ordinary-case-claims-selected",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-ordinary-case-claims-selected-with-exact-case",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-ordinary-case-claims-selected-with-exact-case",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-ordinary-solve-with-selected-recovery",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-ordinary-solve-with-selected-recovery",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-ordinary-solve-wrong-mode",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-ordinary-solve-wrong-mode",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-record-ordinary-exact-selected",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-record-ordinary-exact-selected",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-selected-extra-key",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-selected-extra-key",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-selected-method-ordinary",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-selected-method-ordinary",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-selected-other-mode",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-selected-other-mode",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-selected-record-not-joined-recovery",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-selected-record-not-joined-recovery",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-selected-status-joined",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-selected-status-joined",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-unknown-mode",
+   "kind": "dispatch",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "class": "exact"
+  },
+  {
+   "id": "SEL-unknown-mode",
+   "kind": "joined",
+   "rust": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "python": "SOURCE_LOAD_REFERENCE_SOLVE",
+   "class": "exact"
+  },
+  {
+   "id": "TABLEBYTES-id-edit",
+   "kind": "table",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "TABLEBYTES-load-reference-table",
+   "kind": "table",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "TABLEBYTES-physics-source-table",
+   "kind": "table",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "TABLEBYTES-pinned",
+   "kind": "table",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "TABLEBYTES-policy-edit",
+   "kind": "table",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "TABLEBYTES-profile-edit",
+   "kind": "table",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-eigen_motion-sparse",
+   "kind": "transport",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-fields-dense",
+   "kind": "transport",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-mixed-dense",
+   "kind": "transport",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-ACCEPT-n05-sparse",
+   "kind": "transport",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-endpoint-link-resealed",
+   "kind": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_PHYSICAL_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_PHYSICAL_SHAPE",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-extremum-value-resealed",
+   "kind": "transport",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-load-reference-relabel",
+   "kind": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-no-diagnostic-binding",
+   "kind": "transport",
+   "rust": "accept",
+   "python": "accept",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-no-selection",
+   "kind": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_SELECTION_REQUIRED",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_SELECTION_REQUIRED",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-physical-hash",
+   "kind": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-policy",
+   "kind": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-receipt-hash",
+   "kind": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH",
+   "python": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-record-missing",
+   "kind": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "python": "SOURCE_LOAD_REFERENCE_CASE_COVERAGE",
+   "class": "exact"
+  },
+  {
+   "id": "TRANSPORT-selected-inconsistent",
+   "kind": "transport",
+   "rust": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "python": "SOURCE_LOAD_REFERENCE_SOURCE_RECOVERY_SHAPE",
+   "class": "exact"
+  }
+ ]
+}

@@ -1,0 +1,5 @@
+ulp_value DETECTED ['checks=2214 failures=1']
+consistent_wrong_triplet DETECTED ['checks=2214 failures=3']
+cp4_drop_pi DETECTED ['checks=2214 failures=1']
+cp1_path_changed DETECTED ['checks=2214 failures=1']
+identity_group_wrong DETECTED ['checks=2214 failures=1']

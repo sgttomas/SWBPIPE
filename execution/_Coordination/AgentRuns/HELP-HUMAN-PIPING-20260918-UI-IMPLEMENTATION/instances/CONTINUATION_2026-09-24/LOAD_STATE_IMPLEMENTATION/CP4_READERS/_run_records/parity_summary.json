@@ -1,0 +1,304 @@
+{
+ "total_ids_python": 228,
+ "total_ids_rust": 228,
+ "comparisons": {
+  "exact": 403,
+  "language_specific": 15,
+  "different": 0,
+  "accept_vs_reject": 0,
+  "same_leading_code": 20
+ },
+ "new_cases": [
+  {
+   "id": "N2-integer-temperatures-positive",
+   "python": {
+    "dispatch": "accept",
+    "validator": "accept"
+   },
+   "rust": {
+    "dispatch": "accept",
+    "validator": "accept"
+   }
+  },
+  {
+   "id": "N2-exponent-temperatures-positive",
+   "python": {
+    "dispatch": "accept",
+    "validator": "accept"
+   },
+   "rust": {
+    "dispatch": "accept",
+    "validator": "accept"
+   }
+  },
+  {
+   "id": "N2-integer-segment-negative",
+   "python": {
+    "dispatch": "accept",
+    "validator": "accept"
+   },
+   "rust": {
+    "dispatch": "accept",
+    "validator": "accept"
+   }
+  },
+  {
+   "id": "N2-exponent-segment-negative",
+   "python": {
+    "dispatch": "accept",
+    "validator": "accept"
+   },
+   "rust": {
+    "dispatch": "accept",
+    "validator": "accept"
+   }
+  },
+  {
+   "id": "N2-integer-binary64-equality",
+   "python": {
+    "dispatch": "accept",
+    "validator": "accept"
+   },
+   "rust": {
+    "dispatch": "accept",
+    "validator": "accept"
+   }
+  },
+  {
+   "id": "N2-integer-u64-rounding-equality",
+   "python": {
+    "dispatch": "accept",
+    "validator": "accept"
+   },
+   "rust": {
+    "dispatch": "accept",
+    "validator": "accept"
+   }
+  },
+  {
+   "id": "N2-integer-binary64-inequality",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION",
+    "validator": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION"
+   }
+  },
+  {
+   "id": "N2-integer-temperature-negative",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+    "validator": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE",
+    "validator": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE"
+   }
+  },
+  {
+   "id": "N2-integer-overflow-positive",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+    "validator": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID"
+   },
+   "rust": {
+    "dispatch": "JSON_PARSE_REJECTED",
+    "validator": "JSON_PARSE_REJECTED"
+   }
+  },
+  {
+   "id": "N2-integer-overflow-negative",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+    "validator": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID"
+   },
+   "rust": {
+    "dispatch": "JSON_PARSE_REJECTED",
+    "validator": "JSON_PARSE_REJECTED"
+   }
+  },
+  {
+   "id": "N2-integer-largest-finite",
+   "python": {
+    "dispatch": "accept",
+    "validator": "accept"
+   },
+   "rust": {
+    "dispatch": "accept",
+    "validator": "accept"
+   }
+  },
+  {
+   "id": "N2-integer-first-overflow",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+    "validator": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID"
+   },
+   "rust": {
+    "dispatch": "JSON_PARSE_REJECTED",
+    "validator": "JSON_PARSE_REJECTED"
+   }
+  },
+  {
+   "id": "N3-segment-reviewer-example",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   }
+  },
+  {
+   "id": "N3-segment-non-adjacent",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   }
+  },
+  {
+   "id": "N3-segment-same-index",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   }
+  },
+  {
+   "id": "N3-segment-descending-index",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   }
+  },
+  {
+   "id": "N3-interval-equal-ends",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   }
+  },
+  {
+   "id": "N3-interval-equal-ends-consulted",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   }
+  },
+  {
+   "id": "N3-interval-reversed",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   }
+  },
+  {
+   "id": "N3-duplicate-consumed",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+   }
+  },
+  {
+   "id": "N3-duplicate-consulted",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+   }
+  },
+  {
+   "id": "N3-duplicate-numeric-form",
+   "python": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+   },
+   "rust": {
+    "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE",
+    "validator": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+   }
+  },
+  {
+   "id": "ACCEPT-N3-consumed-consulted-overlap",
+   "python": {
+    "dispatch": "accept",
+    "validator": "accept"
+   },
+   "rust": {
+    "dispatch": "accept",
+    "validator": "accept"
+   }
+  },
+  {
+   "id": "ACCEPT-N3-distinct-entries",
+   "python": {
+    "dispatch": "accept",
+    "validator": "accept"
+   },
+   "rust": {
+    "dispatch": "accept",
+    "validator": "accept"
+   }
+  },
+  {
+   "id": "TRANSPORT-N3-segment-non-adjacent",
+   "python": {
+    "transport": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   },
+   "rust": {
+    "transport": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+   }
+  },
+  {
+   "id": "TRANSPORT-N3-duplicate",
+   "python": {
+    "transport": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+   },
+   "rust": {
+    "transport": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+   }
+  },
+  {
+   "id": "TRANSPORT-N2-integer-temperatures",
+   "python": {
+    "transport": "accept"
+   },
+   "rust": {
+    "transport": "accept"
+   }
+  }
+ ]
+}

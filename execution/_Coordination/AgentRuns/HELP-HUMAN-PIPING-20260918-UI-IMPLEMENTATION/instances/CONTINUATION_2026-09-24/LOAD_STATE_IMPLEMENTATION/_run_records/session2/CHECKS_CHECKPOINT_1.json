@@ -1,0 +1,89 @@
+{
+  "checkpoint": 1,
+  "candidate": "worktree /home/user/wt/loadstate over f2112be747b7b37dc4b30e96eacbb75c75a82820 plus uncommitted checkpoint-1 bytes (hashes in CHECKPOINT_1.md)",
+  "environment": {
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "rustfmt": "rustfmt 1.8.0-stable (e408947bfd 2026-03-25) (default toolchain; 1.97.1 has no rustfmt component; CI has no fmt gate)",
+    "python": "Python 3.11.15",
+    "cargo_target_dir": "/home/user/cargo-targets/loadstate/product_physics",
+    "jobs": 2,
+    "cpu": 4
+  },
+  "runs": [
+    {
+      "command": "cd core/product_physics && CARGO_TARGET_DIR=/home/user/cargo-targets/loadstate/product_physics cargo +1.97.1 test --locked --offline -j 2 --lib --no-run",
+      "attempt": 1,
+      "exit": 101,
+      "original_failure": "error: failed to download `cfg-if v1.0.5` / Caused by: attempting to make an HTTP request, but --offline was specified",
+      "note": "Log file build_lib_tests_1.log was later overwritten by attempt 2; failure text preserved here."
+    },
+    {
+      "command": "cd core/product_physics && CARGO_TARGET_DIR=/home/user/cargo-targets/loadstate/product_physics cargo +1.97.1 fetch --locked",
+      "exit": 0,
+      "log": "fetch.log"
+    },
+    {
+      "command": "cd core/product_physics && CARGO_TARGET_DIR=/home/user/cargo-targets/loadstate/product_physics cargo +1.97.1 test --locked --offline -j 2 --lib --no-run",
+      "attempt": 2,
+      "exit": 0,
+      "log": "build_lib_tests_1.log",
+      "warnings": "8, all pre-existing in source_recovery.rs/source_receipt.rs/lib.rs; none in case_state"
+    },
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 --lib case_state (material tests only; thermal had no tests yet)",
+      "exit": 0,
+      "result": "10 passed; 0 failed",
+      "log": "test_case_state_1.log"
+    },
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 --lib case_state (after adding thermal tests)",
+      "attempt": 1,
+      "exit": 101,
+      "result": "17 passed; 1 failed",
+      "original_failure": "case_state::thermal::tests::coverage_duplicate_datum_and_nonpositive_free_length_fail_explicitly panicked at src/case_state/thermal.rs:1111:9: assertion `left == right` failed; left: -0.8500000000000001; right: -0.85",
+      "diagnosis": "Test-author error: the expectation used the decimal -0.85 while the kernel correctly returns the rounded exact sum of binary64 terms -0.9 + 0.5 + (-0.9*0.5). Repaired by asserting the protected relative 1e-9 criterion and adding a fit-stretch-zero rejection control. Kernel unchanged.",
+      "note": "Log test_case_state_2.log was overwritten by attempt 2; failure text preserved here."
+    },
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 --lib case_state",
+      "attempt": 2,
+      "exit": 0,
+      "result": "18 passed; 0 failed",
+      "log": "test_case_state_2.log"
+    },
+    {
+      "command": "cargo +1.97.1 test --locked --offline -j 2 --lib",
+      "exit": 0,
+      "result": "286 passed; 0 failed; 1 ignored (pre-existing #[ignore] bounded resource measurement in source_receipt/tests.rs)",
+      "log": "test_lib_full_1.log"
+    },
+    {
+      "command": "rustfmt --edition 2021 src/case_state/thermal.rs src/case_state/mod.rs && rustfmt --edition 2021 --check src/case_state/material.rs",
+      "exit": 0,
+      "note": "Formatting touched only the new tests; kernel lines 1-689 unchanged (git numstat 440 added, 0 deleted)."
+    },
+    {
+      "command": "python3 independent_fixture_check.py core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
+      "exit": 0,
+      "result": "188 exact/projection checks; 0 failures",
+      "log": "fixture_check.log"
+    },
+    {
+      "command": "fixture checker mutation controls (5 single-value mutations in scratch copies)",
+      "exit": 0,
+      "result": "all 5 mutations detected (exit 1 each)",
+      "log": "fixture_check_mutations.log"
+    },
+    {
+      "command": "python3 tools/practitioner_harness/harness.py self-check (repo root)",
+      "exit": 1,
+      "result": "BLOCK=2 REVIEW=172 WARN=124 INFO=14; both BLOCKs are pre-existing receipt-contract COMMIT_NOT_FOUND findings in projects/chirality-piping/loop/LOOP_RECEIPTS.md:1139 (09dd651421fce167c6ad7dd850ecc4f3ff4fe68f) and projects/chirality-app-dev/loop/LOOP_RECEIPTS.md:1707 (8384fbc4bfd102ef3f793decdc3717259c01c10b), unresolvable in this clone; zero findings reference LOAD_STATE_IMPLEMENTATION or case_state",
+      "log": "harness_self_check_cp1.log"
+    }
+  ],
+  "not_run": [
+    "product_physics integration tests (tests/*.rs) - unaffected by a private dead module; to run at checkpoint 2",
+    "piping-pytest, evidence-sweep, desktop, native - not affected yet; scheduled by ROOT for mergeable candidates"
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "schema_version": "0.1.0",
+  "tolerance_profile": {
+    "profile_id": "load-reference-vp-static-thermal_datum_ratio.free-v1",
+    "profile_status": "reviewed",
+    "scope": "This case only. Comparison rules proposed per assertion family from the reference README consumer rule and admitted after the independent freeze named in ADMISSION.json; not a release criterion.",
+    "rules": [
+      {
+        "rule_id": "criterion:displacement:length:mm:relative_1e-9",
+        "dimension_id": "length",
+        "result_family": "displacement",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "mm"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
+      },
+      {
+        "rule_id": "criterion:force:force:N:zero_scale:case_force.annular_companion",
+        "dimension_id": "force",
+        "result_family": "force",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 0.00205260602021901,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N| = 2052606.020219010017053044619 N (zero-scale tag case_force.annular_companion)"
+      },
+      {
+        "rule_id": "criterion:reaction:force:N:zero_scale:case_force.annular_companion",
+        "dimension_id": "force",
+        "result_family": "reaction",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 0.00205260602021901,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N| = 2052606.020219010017053044619 N (zero-scale tag case_force.annular_companion)"
+      },
+      {
+        "rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+        "dimension_id": "moment",
+        "result_family": "reaction",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N*m"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 0.00205260602021901,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N| * |/cases/thermal_datum_ratio/variants/annular_companion/inputs/L| = 2052606.020219010017053044619 N*m (zero-scale tag case_moment.annular_companion)"
+      },
+      {
+        "rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+        "dimension_id": "dimensionless",
+        "result_family": "load_reference_strain",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "1"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
+      },
+      {
+        "rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+        "dimension_id": "temperature",
+        "result_family": "load_reference_temperature",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "K"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
+      },
+      {
+        "rule_id": "criterion:load_reference_material:stress:Pa:relative_1e-9",
+        "dimension_id": "stress",
+        "result_family": "load_reference_material",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "Pa"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
+      },
+      {
+        "rule_id": "criterion:force:force:N:zero_scale:case_force.verification_two_point",
+        "dimension_id": "force",
+        "result_family": "force",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 0.00205260602021901,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N| = 2052606.020219010017053044619 N (zero-scale tag case_force.verification_two_point)"
+      },
+      {
+        "rule_id": "criterion:reaction:force:N:zero_scale:case_force.verification_two_point",
+        "dimension_id": "force",
+        "result_family": "reaction",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 0.00205260602021901,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N| = 2052606.020219010017053044619 N (zero-scale tag case_force.verification_two_point)"
+      },
+      {
+        "rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.verification_two_point",
+        "dimension_id": "moment",
+        "result_family": "reaction",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N*m"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 0.00205260602021901,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N| * |/cases/thermal_datum_ratio/variants/annular_companion/inputs/L| = 2052606.020219010017053044619 N*m (zero-scale tag case_moment.verification_two_point)"
+      }
+    ]
+  }
+}

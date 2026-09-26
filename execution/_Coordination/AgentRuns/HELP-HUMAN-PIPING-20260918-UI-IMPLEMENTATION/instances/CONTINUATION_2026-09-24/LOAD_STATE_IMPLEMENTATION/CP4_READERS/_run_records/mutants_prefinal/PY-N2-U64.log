@@ -1,0 +1,113 @@
+........................................................................ [ 30%]
+........................................................................ [ 60%]
+...........................................F.F.F.FF..................... [ 90%]
+..........F..........s                                                   [100%]
+=================================== FAILURES ===================================
+________ test_shared_adversarial_case[N2-integer-temperatures-positive] ________
+
+case = {'id': 'N2-integer-temperatures-positive', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_eviden...tes/0/members/0/consumed_material_points/0/temperature_k', 'value': 100000000000000000000}], 'dispatch': 'accept', ...}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_NUMBER_INVALID', 'accept')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_NUMBER_INVALID', 'accept')
+E        +    where 'accept' = expected({'id': 'N2-integer-temperatures-positive', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_eviden...tes/0/members/0/consumed_material_points/0/temperature_k', 'value': 100000000000000000000}], 'dispatch': 'accept', ...}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+__________ test_shared_adversarial_case[N2-integer-segment-negative] ___________
+
+case = {'id': 'N2-integer-segment-negative', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_evidence/lo...n_interval', 'lower_index': 0, 'upper_index': 1, 'start_k': -100000000000000000000, ...}]}], 'dispatch': 'accept', ...}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_NUMBER_INVALID', 'accept')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_NUMBER_INVALID', 'accept')
+E        +    where 'accept' = expected({'id': 'N2-integer-segment-negative', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_evidence/lo...n_interval', 'lower_index': 0, 'upper_index': 1, 'start_k': -100000000000000000000, ...}]}], 'dispatch': 'accept', ...}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+__________ test_shared_adversarial_case[N2-integer-binary64-equality] __________
+
+case = {'id': 'N2-integer-binary64-equality', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_evidence/l...ad_reference_states/0/members/0/consumed_material_points/0/temperature_k', 'value': 1e+20}], 'dispatch': 'accept', ...}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_NUMBER_INVALID', 'accept')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_NUMBER_INVALID', 'accept')
+E        +    where 'accept' = expected({'id': 'N2-integer-binary64-equality', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_evidence/l...ad_reference_states/0/members/0/consumed_material_points/0/temperature_k', 'value': 1e+20}], 'dispatch': 'accept', ...}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+_________ test_shared_adversarial_case[N2-integer-binary64-inequality] _________
+
+case = {'id': 'N2-integer-binary64-inequality', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_evidence...rial_points/0/temperature_k', 'value': 100000000000000016384}], 'dispatch': 'SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_NUMBER_INVALID', 'SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_NUMBER_INVALID', 'SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION')
+E        +    where 'SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION' = expected({'id': 'N2-integer-binary64-inequality', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_evidence...rial_points/0/temperature_k', 'value': 100000000000000016384}], 'dispatch': 'SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION'}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+________ test_shared_adversarial_case[N2-integer-temperature-negative] _________
+
+case = {'id': 'N2-integer-temperature-negative', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_evidenc...s/0/operating_temperature_k', 'value': -100000000000000000000}], 'dispatch': 'SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_NUMBER_INVALID', 'SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_NUMBER_INVALID', 'SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE')
+E        +    where 'SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE' = expected({'id': 'N2-integer-temperature-negative', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_evidenc...s/0/operating_temperature_k', 'value': -100000000000000000000}], 'dispatch': 'SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE'}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+_______ test_transport_metadata_case[TRANSPORT-N2-integer-temperatures] ________
+
+case = {'id': 'TRANSPORT-N2-integer-temperatures', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_evide...nce_states/0/members/0/consumed_material_points/0/temperature_k', 'value': 100000000000000000000}], 'expect': 'accept'}
+
+    @pytest.mark.parametrize("case", CASES["transport_cases"], ids=lambda case: case["id"])
+    def test_transport_metadata_case(case):
+        meta = metadata(apply(source(case["source"]), case["ops"]))
+        result = outcome(lambda: validate_load_reference_transport_metadata(meta))
+        RESULTS.append({"id": case["id"], "transport": result})
+>       assert agrees(result, case["expect"]), result
+E       AssertionError: SOURCE_LOAD_REFERENCE_NUMBER_INVALID
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_NUMBER_INVALID', 'accept')
+
+tests/test_load_reference_readers.py:210: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N2-integer-temperatures-positive]
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N2-integer-segment-negative]
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N2-integer-binary64-equality]
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N2-integer-binary64-inequality]
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N2-integer-temperature-negative]
+FAILED tests/test_load_reference_readers.py::test_transport_metadata_case[TRANSPORT-N2-integer-temperatures]
+6 failed, 231 passed, 1 skipped in 45.86s

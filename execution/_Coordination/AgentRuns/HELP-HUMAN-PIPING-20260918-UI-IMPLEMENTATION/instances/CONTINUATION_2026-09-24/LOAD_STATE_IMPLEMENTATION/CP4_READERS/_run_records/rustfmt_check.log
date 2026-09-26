@@ -1,0 +1,3 @@
+fmt clean core/reporting/result_export/src/load_reference.rs
+fmt clean core/reporting/result_export/tests/load_reference_contract.rs
+rustfmt 1.8.0-stable (e408947bfd 2026-03-25)

@@ -1,0 +1,5 @@
+N5 (T1_WP7_FINAL_REVIEW) run on the candidate plus the N4 fix, toolchain 1.97.1, per-crate target
+headless cargo test with HEADLESS_LOAD_REFERENCE_OUTPUT_DIR and HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR set: 83 passed, 0 failed; artifacts 28 (load-reference-1) and 60 (load-reference-source-1)
+pytest -p no:cacheprovider -q -rs tests/test_load_reference_headless_artifacts.py with both set:
+...............                                                          [100%]
+15 passed in 68.69s (0:01:08)

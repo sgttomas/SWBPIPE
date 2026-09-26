@@ -1,0 +1,289 @@
+//! CP2 independent-review probes (scratch copy only; never in the snapshot).
+//! Public API only. Expected values are this reviewer's own derivations.
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_value_with_mode, LinearStaticPreviewRequest, MechanicsEnvelope,
+    PreviewSolverMode,
+};
+use serde_json::{json, Value};
+
+const MODES: [PreviewSolverMode; 2] = [
+    PreviewSolverMode::SparseInteractive,
+    PreviewSolverMode::DenseScrutiny,
+];
+
+fn node(id: &str, x: f64) -> Value {
+    json!({"id": id, "position": {"x": x, "y": 0, "z": 0}, "provenance": "invented"})
+}
+fn pipe(id: &str, from: &str, to: &str) -> Value {
+    json!({"id": id, "from": from, "to": to,
+        "section": {"outside_diameter": {"value": 0.2, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"}},
+        "material": "material:shared", "y_reference": {"x": 0, "y": 1, "z": 0}, "provenance": "invented"})
+}
+fn anchor(id: &str, node: &str) -> Value {
+    json!({"id": id, "node": node, "family": "anchor",
+        "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": "invented"})
+}
+fn material() -> Value {
+    json!({"id": "material:shared", "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus": {"value": 200, "unit": "GPa"}, "poisson_ratio": {"value": 0.3, "unit": "1"},
+        "provenance": "invented explicit test data",
+        "temperature_points": [
+            {"id": "point:stiff", "temperature": {"value": 20, "unit": "degC"},
+             "elastic_modulus": {"value": 200, "unit": "GPa"}, "poisson_ratio": {"value": 0.3, "unit": "1"}},
+            {"id": "point:soft", "temperature": {"value": 120, "unit": "degC"},
+             "elastic_modulus": {"value": 100, "unit": "GPa"}, "poisson_ratio": {"value": 0.25, "unit": "1"}}]})
+}
+fn element(pipe: &str, point: &str, thermal: Value) -> Value {
+    json!({"pipe_ref": pipe,
+        "material_selection": {"kind": "exact_point", "material_ref": "material:shared", "point_ref": point},
+        "thermal_state": thermal})
+}
+fn unchanged() -> Value {
+    json!({"kind": "unchanged_reference", "provenance": "invented"})
+}
+fn active(id: &str) -> Value {
+    json!({"support_ref": id, "participation": {"kind": "active_model_device"}})
+}
+
+/// Three nodes a(0) b(L1) c(L1+L2); anchors at a and c; one case.
+fn three_node(l1: f64, l2: f64, elements: Vec<Value>, root_motion_mm: Option<f64>, primitives: Vec<Value>, sources: Vec<Value>) -> Value {
+    let mut root = active("support:root");
+    if let Some(mm) = root_motion_mm {
+        root["boundary_motion"] = json!([{"dof": "UX", "value": {"value": mm, "unit": "mm"}, "meaning": "absolute_reference_displacement"}]);
+    }
+    json!({"model": {
+        "schema_version": "0.4.0", "document_kind": "openpipestress.product_preview.model",
+        "pressure_contract": {"version": "2.0.0", "mode": "exact_straight_pressure_v2"},
+        "project": {"id": "project:review2", "units": {"length": "m"}},
+        "analysis_status": {"mechanics": "ready", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
+        "nodes": [node("node:a", 0.0), node("node:b", l1), node("node:c", l1 + l2)],
+        "pipe_segments": [pipe("pipe:1", "node:a", "node:b"), pipe("pipe:2", "node:b", "node:c")],
+        "supports": [anchor("support:root", "node:a"), anchor("support:far", "node:c")],
+        "components": [], "materials": [material()],
+        "reference_configurations": [{"id": "reference:installed", "geometry_ref": {"kind": "authored_model_geometry"},
+            "member_references": [
+                {"pipe_ref": "pipe:1", "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": "invented"},
+                {"pipe_ref": "pipe:2", "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": "invented"}],
+            "provenance": "invented"}],
+        "load_cases": [{"id": "case:one", "primitive_loads": primitives, "pressure_regions": [], "provenance": "invented",
+            "analysis_state": {"contract": "openpipestress.load_reference_state/1.0.0",
+                "reference_configuration_ref": "reference:installed", "element_states": elements,
+                "support_states": [root, active("support:far")], "load_sources": sources,
+                "history": {"kind": "independent_equilibrium"}, "provenance": "invented"}}],
+        "combinations": []}, "materials": []})
+}
+
+fn run(request: &Value, mode: PreviewSolverMode) -> Result<MechanicsEnvelope, String> {
+    run_linear_static_preview_value_with_mode(request.clone(), mode)
+}
+fn blocking(out: &MechanicsEnvelope) -> Vec<String> {
+    out.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| d.code.clone()).collect()
+}
+fn row(out: &MechanicsEnvelope, case: &str, kind: &str, entity: &str, component: &str) -> f64 {
+    let matching: Vec<_> = out
+        .results
+        .iter()
+        .filter(|r| {
+            r.kind == kind
+                && r.entity_ref == entity
+                && r.basis_ref.as_ref().is_some_and(|b| b.ref_id == case)
+                && r.metadata.as_ref().is_some_and(|m| m.component == component)
+        })
+        .collect();
+    assert_eq!(matching.len(), 1, "one {kind} {entity} {component} for {case}");
+    matching[0].value
+}
+fn close(what: &str, actual: f64, expected: f64, scale: f64) {
+    let tol = 1e-9 * if expected == 0.0 { scale } else { expected.abs() };
+    let pass = (actual - expected).abs() <= tol;
+    println!("PROBE {what}: actual={actual:.17e} expected={expected:.17e} pass={pass}");
+    assert!(pass, "{what}");
+}
+
+fn area() -> f64 {
+    std::f64::consts::PI * (0.1f64 * 0.1 - 0.09 * 0.09)
+}
+
+/// Reviewer derivation: axial chain a-b-c, u_a = g, u_c = 0, P at b,
+/// eigenstrains e1, e2; N_i = k_i*du - E_i*A*e_i; R_a = -N1, R_c = N2.
+fn chain(e1: f64, e2: f64, l1: f64, l2: f64, g: f64, eps1: f64, eps2: f64, p: f64) -> (f64, f64, f64, f64, f64) {
+    let a = area();
+    let (k1, k2) = (e1 * a / l1, e2 * a / l2);
+    let ub = (k1 * g + e1 * a * eps1 - e2 * a * eps2 + p) / (k1 + k2);
+    let n1 = k1 * (ub - g) - e1 * a * eps1;
+    let n2 = k2 * (0.0 - ub) - e2 * a * eps2;
+    (ub, n1, n2, -n1, n2)
+}
+
+#[test]
+fn p01_prescribed_motion_eigenstrain_force_and_factor_against_own_derivation() {
+    // Member 1 stiff (200 GPa) with explicit strain 4e-4, member 2 soft (100 GPa),
+    // root prescribed +0.3 mm, middle force 5 kN included with factor 2.5, and an
+    // unreferenced 7 kN force that must be excluded.
+    let force = |id: &str, n: f64| json!({"id": id, "category": "concentrated_force", "target": {"type": "node", "node": "node:b"},
+        "direction": "global_x", "magnitude": {"value": n, "unit": "kN"}, "dimension": "force", "provenance": "invented"});
+    let request = three_node(
+        1.5,
+        2.5,
+        vec![
+            element("pipe:1", "point:stiff", json!({"kind": "explicit_interval_strain", "strain": {"value": 4e-4, "unit": "1"}, "interval_reference": "invented", "provenance": "invented"})),
+            element("pipe:2", "point:soft", unchanged()),
+        ],
+        Some(0.3),
+        vec![force("load:p", 5.0), force("load:unused", 7.0)],
+        vec![json!({"source_ref": "load:p", "factor": 2.5})],
+    );
+    let (ub, n1, n2, ra, rc) = chain(200e9, 100e9, 1.5, 2.5, 3e-4, 4e-4, 0.0, 12500.0);
+    for mode in MODES {
+        let out = run(&request, mode).unwrap();
+        assert!(blocking(&out).is_empty(), "{:?}", out.diagnostics);
+        let label = mode.as_str();
+        close(&format!("{label} u_a (complete u includes g)"), row(&out, "case:one", "global_nodal_displacement_x", "node:a", "nodal_displacement_x") / 1000.0, 3e-4, 3e-4);
+        close(&format!("{label} u_b"), row(&out, "case:one", "global_nodal_displacement_x", "node:b", "nodal_displacement_x") / 1000.0, ub, ub.abs());
+        close(&format!("{label} R_a"), row(&out, "case:one", "support_reaction_component_v2", "support:root", "Fx"), ra, ra.abs());
+        close(&format!("{label} R_c"), row(&out, "case:one", "support_reaction_component_v2", "support:far", "Fx"), rc, ra.abs());
+        let ev = &out.contract_evidence.as_ref().unwrap()["load_reference_states"][0];
+        println!("PROBE {label} contributions={}", ev["contributions"]);
+        println!("PROBE {label} excluded={}", ev["excluded_sources"]);
+        println!("PROBE {label} N1={n1} N2={n2}");
+        // wall/station axial rows for each member (no pressure region -> station rows)
+        let axial: Vec<_> = out.results.iter().filter(|r| r.kind.contains("axial")).map(|r| (r.kind.clone(), r.entity_ref.clone(), r.metadata.as_ref().map(|m| (m.component.clone(), m.location.clone())), r.value)).collect();
+        println!("PROBE {label} axial rows={axial:?}");
+    }
+}
+
+#[test]
+fn p02_two_cases_rebuild_stiffness_and_do_not_share_state() {
+    // Case one: pipe:1 stiff, pipe:2 soft; case two: swapped, plus root motion.
+    let mut request = three_node(1.0, 1.0,
+        vec![element("pipe:1", "point:stiff", unchanged()), element("pipe:2", "point:soft", unchanged())],
+        Some(0.1), vec![], vec![]);
+    let mut second = request["model"]["load_cases"][0].clone();
+    second["id"] = json!("case:two");
+    second["analysis_state"]["element_states"] = json!([element("pipe:1", "point:soft", unchanged()), element("pipe:2", "point:stiff", unchanged())]);
+    second["analysis_state"]["support_states"][0]["boundary_motion"][0]["value"]["value"] = json!(-0.2);
+    request["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    let (ub1, _, _, ra1, _) = chain(200e9, 100e9, 1.0, 1.0, 1e-4, 0.0, 0.0, 0.0);
+    let (ub2, _, _, ra2, _) = chain(100e9, 200e9, 1.0, 1.0, -2e-4, 0.0, 0.0, 0.0);
+    for mode in MODES {
+        let out = run(&request, mode).unwrap();
+        assert!(blocking(&out).is_empty(), "{:?}", out.diagnostics);
+        let label = mode.as_str();
+        close(&format!("{label} case one u_b"), row(&out, "case:one", "global_nodal_displacement_x", "node:b", "nodal_displacement_x") / 1000.0, ub1, ub1.abs());
+        close(&format!("{label} case one R_a"), row(&out, "case:one", "support_reaction_component_v2", "support:root", "Fx"), ra1, ra1.abs());
+        close(&format!("{label} case two u_b"), row(&out, "case:two", "global_nodal_displacement_x", "node:b", "nodal_displacement_x") / 1000.0, ub2, ub2.abs());
+        close(&format!("{label} case two R_a"), row(&out, "case:two", "support_reaction_component_v2", "support:root", "Fx"), ra2, ra2.abs());
+        let ids: Vec<_> = out.diagnostics.iter().map(|d| d.id.clone()).collect();
+        let mut unique = ids.clone();
+        unique.sort();
+        unique.dedup();
+        println!("PROBE {label} diagnostics={} unique_ids={}", ids.len(), unique.len());
+        println!("PROBE {label} linear-solve evidence rows={:?}", out.results.iter().filter(|r| r.kind.contains("solver") || r.kind.contains("sparse")).map(|r| (r.id.clone(), r.kind.clone(), r.basis_ref.as_ref().map(|b| b.ref_id.clone()), r.value)).collect::<Vec<_>>());
+        for d in &out.diagnostics {
+            println!("PROBE {label} diag {} {} {}", d.severity, d.code, d.id);
+        }
+    }
+}
+
+/// Unit variants of internally tagged unions: do extra fields reach the typed boundary?
+#[test]
+fn p03_unit_variant_extra_fields_at_the_typed_boundary() {
+    let base = || three_node(1.0, 1.0,
+        vec![element("pipe:1", "point:stiff", unchanged()), element("pipe:2", "point:soft", unchanged())],
+        None, vec![], vec![]);
+    let mut cases: Vec<(&str, Value)> = Vec::new();
+    let mut r = base();
+    r["model"]["reference_configurations"][0]["member_references"][0]["fit"] = json!({"kind": "none", "length_change": {"value": -2, "unit": "mm"}});
+    cases.push(("fit none + length_change", r));
+    let mut r = base();
+    r["model"]["reference_configurations"][0]["member_references"][0]["fit"] = json!({"kind": "none", "strain": {"value": -0.0002, "unit": "1"}});
+    cases.push(("fit none + strain", r));
+    let mut r = base();
+    r["model"]["reference_configurations"][0]["member_references"][0]["basis"] = json!({"kind": "direct_strain_reference", "installation_temperature": {"value": 20, "unit": "degC"}});
+    cases.push(("basis direct_strain_reference + installation_temperature", r));
+    let mut r = base();
+    r["model"]["load_cases"][0]["analysis_state"]["history"] = json!({"kind": "independent_equilibrium", "predecessor_case_ref": "case:elsewhere", "predecessor_state_hash": "forged"});
+    cases.push(("history independent_equilibrium + predecessor", r));
+    let mut r = base();
+    r["model"]["load_cases"][0]["analysis_state"]["support_states"][1]["participation"] = json!({"kind": "active_model_device", "components": [{"dof": "UX", "position_source": {"kind": "entered", "value": {"value": 1, "unit": "mm"}}}]});
+    cases.push(("participation active_model_device + components", r));
+    let mut r = base();
+    r["model"]["reference_configurations"][0]["geometry_ref"] = json!({"kind": "authored_model_geometry", "projection_sha256": "forged"});
+    cases.push(("geometry_ref authored_model_geometry + hash", r));
+    // Controls: struct variant with extra field, and an unknown top-level analysis_state field.
+    let mut r = base();
+    r["model"]["reference_configurations"][0]["member_references"][0]["fit"] = json!({"kind": "fit_strain", "strain": {"value": -0.0002, "unit": "1"}, "length_change": {"value": -2, "unit": "mm"}});
+    cases.push(("CONTROL fit_strain + length_change", r));
+    let mut r = base();
+    r["model"]["load_cases"][0]["analysis_state"]["element_states"][0]["operating_temperature"] = json!({"value": 20, "unit": "degC", "basis": "guessed"});
+    cases.push(("Quantity with unknown field in new namespace", r));
+    for (label, request) in cases {
+        match run(&request, PreviewSolverMode::DenseScrutiny) {
+            Err(e) => println!("PROBE unit-variant [{label}] => Err: {e}"),
+            Ok(out) => {
+                let ev = out.contract_evidence.as_ref().and_then(|e| e["load_reference_states"].get(0)).cloned().unwrap_or(Value::Null);
+                println!("PROBE unit-variant [{label}] => Ok status={} blocking={:?} fit_kind={} total_eigenstrain={} history={}",
+                    out.status.mechanics, blocking(&out), ev["members"][0]["fit_kind"], ev["members"][0]["total_eigenstrain"], ev["history"]);
+            }
+        }
+    }
+}
+
+#[test]
+fn p04_older_documents_with_null_or_malformed_new_keys() {
+    // A minimal 0.3.0 exact document derived from the 0.4.0 base by removing the namespace.
+    let base = || {
+        let mut r = three_node(1.0, 1.0, vec![], None, vec![], vec![]);
+        r["model"]["schema_version"] = json!("0.3.0");
+        r["model"].as_object_mut().unwrap().remove("reference_configurations");
+        r["model"]["load_cases"][0].as_object_mut().unwrap().remove("analysis_state");
+        r
+    };
+    let plain = run(&base(), PreviewSolverMode::DenseScrutiny);
+    println!("PROBE old plain => {:?}", plain.as_ref().map(|o| (o.status.mechanics.clone(), blocking(o))));
+    let mut variants: Vec<(&str, Value)> = Vec::new();
+    let mut r = base();
+    r["model"]["reference_configurations"] = Value::Null;
+    variants.push(("0.3.0 reference_configurations: null", r));
+    let mut r = base();
+    r["model"]["load_cases"][0]["analysis_state"] = Value::Null;
+    variants.push(("0.3.0 analysis_state: null", r));
+    let mut r = base();
+    r["model"]["materials"][0]["expansion_laws"] = Value::Null;
+    variants.push(("0.3.0 expansion_laws: null", r));
+    let mut r = base();
+    r["model"]["reference_configurations"] = json!({"legacy": "free-form note"});
+    variants.push(("0.3.0 reference_configurations: other shape", r));
+    let mut r = base();
+    r["model"]["materials"][0]["expansion_laws"] = json!([]);
+    variants.push(("0.3.0 expansion_laws: []", r));
+    for (label, request) in variants {
+        match run(&request, PreviewSolverMode::DenseScrutiny) {
+            Err(e) => println!("PROBE old [{label}] => Err: {e}"),
+            Ok(out) => println!("PROBE old [{label}] => Ok status={} blocking={:?}", out.status.mechanics, blocking(&out)),
+        }
+    }
+}
+
+#[test]
+fn p05_duplicate_key_inside_material_record_on_the_text_path() {
+    // The text path: a JSON document deserialized directly into the public request type.
+    let mut request = three_node(1.0, 1.0, vec![], None, vec![], vec![]);
+    request["model"]["schema_version"] = json!("0.3.0");
+    request["model"].as_object_mut().unwrap().remove("reference_configurations");
+    request["model"]["load_cases"][0].as_object_mut().unwrap().remove("analysis_state");
+    let text = serde_json::to_string(&request).unwrap();
+    let with_duplicate = text.replacen(
+        "\"elastic_modulus\":{\"unit\":\"GPa\",\"value\":200}",
+        "\"elastic_modulus\":{\"unit\":\"GPa\",\"value\":200},\"elastic_modulus\":{\"unit\":\"GPa\",\"value\":1}",
+        1,
+    );
+    assert_ne!(text, with_duplicate, "substitution applied");
+    let in_material = serde_json::from_str::<LinearStaticPreviewRequest>(&with_duplicate);
+    println!("PROBE duplicate key inside materials[0] (text path) => {:?}", in_material.as_ref().map(|r| r.model.materials[0].elastic_modulus.value).map_err(|e| e.to_string()));
+    // Control: the same duplication one level up (a pipe record) is still rejected.
+    let pipe_dup = text.replacen("\"material\":\"material:shared\"", "\"material\":\"material:shared\",\"material\":\"material:other\"", 1);
+    assert_ne!(text, pipe_dup);
+    let in_pipe = serde_json::from_str::<LinearStaticPreviewRequest>(&pipe_dup);
+    println!("PROBE duplicate key inside pipe_segments[0] (text path) => {:?}", in_pipe.as_ref().map(|_| "accepted").map_err(|e| e.to_string()));
+}

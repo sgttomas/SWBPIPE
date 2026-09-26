@@ -1,0 +1,306 @@
+   Compiling open_pipe_stress_product_physics v0.2.0 (/home/user/wt/loadstate/projects/chirality-piping/core/product_physics)
+warning: unused import: `ELEMENT_DOF`
+  --> src/source_recovery.rs:11:5
+   |
+11 |     ELEMENT_DOF,
+   |     ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:7933:4
+     |
+7933 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:64:9
+   |
+63 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+64 |     pub support_id: String,
+   |         ^^^^^^^^^^
+65 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+66 |     pub value: f64,
+   |         ^^^^^
+67 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:89:9
+    |
+ 88 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+ 89 |     pub dofs: usize,
+    |         ^^^^
+ 90 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+ 91 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 92 |     pub blocks: usize,
+    |         ^^^^^^
+ 93 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+ 94 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+ 95 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+ 96 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+ 97 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+ 98 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 99 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+100 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+101 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+102 |     pub max_relative_projection_error: f64,
+103 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:116:5
+    |
+110 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+116 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:142:12
+    |
+125 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+142 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+  --> src/source_receipt.rs:86:19
+   |
+64 | impl CapturedInvocation {
+   | ----------------------- method in this implementation
+...
+86 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+   |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:341:19
+    |
+276 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+341 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 8 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.76s
+     Running unittests src/lib.rs (/home/user/cargo-targets/loadstate/product_physics/debug/deps/open_pipe_stress_product_physics-9c364c63a58c3af4)
+
+running 4 tests
+test case_state::tests::older_documents_carrying_the_new_namespace_block_instead_of_ignoring_it ... ok
+test case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions ... FAILED
+test case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions ... FAILED
+test case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not ... FAILED
+
+failures:
+
+---- case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions stdout ----
+
+thread 'case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions' (1520) panicked at src/lib.rs:3158:56:
+validated exact G
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::panic_display::<&str>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:259:5
+   3: core::option::expect_failed
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/option.rs:2257:5
+   4: <core::option::Option<&open_pipe_stress_product_physics::Quantity>>::expect
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/option.rs:968:21
+   5: open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}
+             at ./src/lib.rs:3158:56
+   6: core::iter::adapters::map::map_fold::<&open_pipe_stress_product_physics::PreviewPipe, serde_json::value::Value, (), open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}, core::iter::traits::iterator::Iterator::for_each::call<serde_json::value::Value, <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>::{closure#0}>::{closure#0}
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/adapters/map.rs:88:28
+   7: <core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe> as core::iter::traits::iterator::Iterator>::fold::<(), core::iter::adapters::map::map_fold<&open_pipe_stress_product_physics::PreviewPipe, serde_json::value::Value, (), open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}, core::iter::traits::iterator::Iterator::for_each::call<serde_json::value::Value, <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>::{closure#0}>::{closure#0}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/slice/iter/macros.rs:279:27
+   8: <core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}> as core::iter::traits::iterator::Iterator>::fold::<(), core::iter::traits::iterator::Iterator::for_each::call<serde_json::value::Value, <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>::{closure#0}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/adapters/map.rs:128:19
+   9: <core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}> as core::iter::traits::iterator::Iterator>::for_each::<<alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/traits/iterator.rs:887:14
+  10: <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted::<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/mod.rs:4062:26
+  11: <alloc::vec::Vec<serde_json::value::Value> as alloc::vec::spec_extend::SpecExtend<serde_json::value::Value, core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>>::spec_extend
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/spec_extend.rs:27:14
+  12: <alloc::vec::Vec<serde_json::value::Value> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<serde_json::value::Value, core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>>::from_iter
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/spec_from_iter_nested.rs:60:16
+  13: <alloc::vec::Vec<serde_json::value::Value> as alloc::vec::spec_from_iter::SpecFromIter<serde_json::value::Value, core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>>::from_iter
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/spec_from_iter.rs:33:9
+  14: <alloc::vec::Vec<serde_json::value::Value> as core::iter::traits::collect::FromIterator<serde_json::value::Value>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/mod.rs:3926:9
+  15: <core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}> as core::iter::traits::iterator::Iterator>::collect::<alloc::vec::Vec<serde_json::value::Value>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/traits/iterator.rs:2090:9
+  16: open_pipe_stress_product_physics::solve_load_case::{closure#40}
+             at ./src/lib.rs:3161:12
+  17: <bool>::then::<serde_json::value::Value, open_pipe_stress_product_physics::solve_load_case::{closure#40}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/bool.rs:66:24
+  18: open_pipe_stress_product_physics::solve_load_case
+             at ./src/lib.rs:3145:65
+  19: open_pipe_stress_product_physics::run_linear_static_preview_captured
+             at ./src/lib.rs:1558:19
+  20: open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode
+             at ./src/lib.rs:1340:18
+  21: open_pipe_stress_product_physics::case_state::tests::run
+             at ./src/case_state/tests.rs:95:5
+  22: open_pipe_stress_product_physics::case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions
+             at ./src/case_state/tests.rs:185:24
+  23: open_pipe_stress_product_physics::case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions::{closure#0}
+             at ./src/case_state/tests.rs:170:78
+  24: <open_pipe_stress_product_physics::case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+  25: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions stdout ----
+
+thread 'case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions' (1523) panicked at src/lib.rs:3158:56:
+validated exact G
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::panic_display::<&str>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:259:5
+   3: core::option::expect_failed
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/option.rs:2257:5
+   4: <core::option::Option<&open_pipe_stress_product_physics::Quantity>>::expect
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/option.rs:968:21
+   5: open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}
+             at ./src/lib.rs:3158:56
+   6: core::iter::adapters::map::map_fold::<&open_pipe_stress_product_physics::PreviewPipe, serde_json::value::Value, (), open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}, core::iter::traits::iterator::Iterator::for_each::call<serde_json::value::Value, <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>::{closure#0}>::{closure#0}
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/adapters/map.rs:88:28
+   7: <core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe> as core::iter::traits::iterator::Iterator>::fold::<(), core::iter::adapters::map::map_fold<&open_pipe_stress_product_physics::PreviewPipe, serde_json::value::Value, (), open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}, core::iter::traits::iterator::Iterator::for_each::call<serde_json::value::Value, <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>::{closure#0}>::{closure#0}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/slice/iter/macros.rs:279:27
+   8: <core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}> as core::iter::traits::iterator::Iterator>::fold::<(), core::iter::traits::iterator::Iterator::for_each::call<serde_json::value::Value, <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>::{closure#0}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/adapters/map.rs:128:19
+   9: <core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}> as core::iter::traits::iterator::Iterator>::for_each::<<alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/traits/iterator.rs:887:14
+  10: <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted::<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/mod.rs:4062:26
+  11: <alloc::vec::Vec<serde_json::value::Value> as alloc::vec::spec_extend::SpecExtend<serde_json::value::Value, core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>>::spec_extend
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/spec_extend.rs:27:14
+  12: <alloc::vec::Vec<serde_json::value::Value> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<serde_json::value::Value, core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>>::from_iter
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/spec_from_iter_nested.rs:60:16
+  13: <alloc::vec::Vec<serde_json::value::Value> as alloc::vec::spec_from_iter::SpecFromIter<serde_json::value::Value, core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>>::from_iter
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/spec_from_iter.rs:33:9
+  14: <alloc::vec::Vec<serde_json::value::Value> as core::iter::traits::collect::FromIterator<serde_json::value::Value>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/mod.rs:3926:9
+  15: <core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}> as core::iter::traits::iterator::Iterator>::collect::<alloc::vec::Vec<serde_json::value::Value>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/traits/iterator.rs:2090:9
+  16: open_pipe_stress_product_physics::solve_load_case::{closure#40}
+             at ./src/lib.rs:3161:12
+  17: <bool>::then::<serde_json::value::Value, open_pipe_stress_product_physics::solve_load_case::{closure#40}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/bool.rs:66:24
+  18: open_pipe_stress_product_physics::solve_load_case
+             at ./src/lib.rs:3145:65
+  19: open_pipe_stress_product_physics::run_linear_static_preview_captured
+             at ./src/lib.rs:1558:19
+  20: open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode
+             at ./src/lib.rs:1340:18
+  21: open_pipe_stress_product_physics::case_state::tests::run
+             at ./src/case_state/tests.rs:95:5
+  22: open_pipe_stress_product_physics::case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions
+             at ./src/case_state/tests.rs:140:24
+  23: open_pipe_stress_product_physics::case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions::{closure#0}
+             at ./src/case_state/tests.rs:137:91
+  24: <open_pipe_stress_product_physics::case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+  25: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not stdout ----
+
+thread 'case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not' (1521) panicked at src/lib.rs:3158:56:
+validated exact G
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::panic_display::<&str>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:259:5
+   3: core::option::expect_failed
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/option.rs:2257:5
+   4: <core::option::Option<&open_pipe_stress_product_physics::Quantity>>::expect
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/option.rs:968:21
+   5: open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}
+             at ./src/lib.rs:3158:56
+   6: core::iter::adapters::map::map_fold::<&open_pipe_stress_product_physics::PreviewPipe, serde_json::value::Value, (), open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}, core::iter::traits::iterator::Iterator::for_each::call<serde_json::value::Value, <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>::{closure#0}>::{closure#0}
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/adapters/map.rs:88:28
+   7: <core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe> as core::iter::traits::iterator::Iterator>::fold::<(), core::iter::adapters::map::map_fold<&open_pipe_stress_product_physics::PreviewPipe, serde_json::value::Value, (), open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}, core::iter::traits::iterator::Iterator::for_each::call<serde_json::value::Value, <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>::{closure#0}>::{closure#0}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/slice/iter/macros.rs:279:27
+   8: <core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}> as core::iter::traits::iterator::Iterator>::fold::<(), core::iter::traits::iterator::Iterator::for_each::call<serde_json::value::Value, <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>::{closure#0}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/adapters/map.rs:128:19
+   9: <core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}> as core::iter::traits::iterator::Iterator>::for_each::<<alloc::vec::Vec<serde_json::value::Value>>::extend_trusted<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>::{closure#0}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/traits/iterator.rs:887:14
+  10: <alloc::vec::Vec<serde_json::value::Value>>::extend_trusted::<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/mod.rs:4062:26
+  11: <alloc::vec::Vec<serde_json::value::Value> as alloc::vec::spec_extend::SpecExtend<serde_json::value::Value, core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>>::spec_extend
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/spec_extend.rs:27:14
+  12: <alloc::vec::Vec<serde_json::value::Value> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<serde_json::value::Value, core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>>::from_iter
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/spec_from_iter_nested.rs:60:16
+  13: <alloc::vec::Vec<serde_json::value::Value> as alloc::vec::spec_from_iter::SpecFromIter<serde_json::value::Value, core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>>::from_iter
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/spec_from_iter.rs:33:9
+  14: <alloc::vec::Vec<serde_json::value::Value> as core::iter::traits::collect::FromIterator<serde_json::value::Value>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/mod.rs:3926:9
+  15: <core::iter::adapters::map::Map<core::slice::iter::Iter<open_pipe_stress_product_physics::PreviewPipe>, open_pipe_stress_product_physics::solve_load_case::{closure#40}::{closure#1}> as core::iter::traits::iterator::Iterator>::collect::<alloc::vec::Vec<serde_json::value::Value>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/iter/traits/iterator.rs:2090:9
+  16: open_pipe_stress_product_physics::solve_load_case::{closure#40}
+             at ./src/lib.rs:3161:12
+  17: <bool>::then::<serde_json::value::Value, open_pipe_stress_product_physics::solve_load_case::{closure#40}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/bool.rs:66:24
+  18: open_pipe_stress_product_physics::solve_load_case
+             at ./src/lib.rs:3145:65
+  19: open_pipe_stress_product_physics::run_linear_static_preview_captured
+             at ./src/lib.rs:1558:19
+  20: open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode
+             at ./src/lib.rs:1340:18
+  21: open_pipe_stress_product_physics::case_state::tests::run
+             at ./src/case_state/tests.rs:95:5
+  22: open_pipe_stress_product_physics::case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not
+             at ./src/case_state/tests.rs:219:20
+  23: open_pipe_stress_product_physics::case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not::{closure#0}
+             at ./src/case_state/tests.rs:200:78
+  24: <open_pipe_stress_product_physics::case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+  25: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions
+    case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not
+    case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 287 filtered out; finished in 0.12s
+
+error: test failed, to rerun pass `--lib`

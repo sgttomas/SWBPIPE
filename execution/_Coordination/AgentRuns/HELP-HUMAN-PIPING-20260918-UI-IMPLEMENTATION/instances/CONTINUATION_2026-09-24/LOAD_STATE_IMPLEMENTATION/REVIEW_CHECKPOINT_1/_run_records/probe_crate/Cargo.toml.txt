@@ -1,0 +1,14 @@
+[package]
+name = "lsreview_probe"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[features]
+# Selects a mutated scratch copy of thermal.rs instead of the reviewed bytes.
+mutant = []
+
+[dependencies]
+open_pipe_stress_units = { path = "/home/user/wt/ls-review/projects/chirality-piping/core/units" }
+
+[workspace]

@@ -1,0 +1,15 @@
+SURVIVED M15 run: table hash pin removed :: exit 0 :: 129 passed, 1 skipped, 2 deselected in 388.37s (0:06:28)
+KILLED  M16 run: row contract pin removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_analysis_run_joined_branch_refuses_relabels_and_mixups[mixed_rows]
+KILLED  M17 run: receipt no longer required :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_analysis_run_joined_branch_refuses_relabels_and_mixups[missing_receipt]
+KILLED  M18 run: evidence no longer required :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_analysis_run_joined_branch_refuses_relabels_and_mixups[missing_evidence]
+KILLED  M19 run: branch evidence override removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_analysis_run_joined_branch_refuses_relabels_and_mixups[physics_source_evidence]
+KILLED  M20 run: SemanticContract pairing removed for the joined ID :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_semantic_contract_pairs_the_joined_id_only_with_its_table_hash[pair0]
+KILLED  M21 package: table hash pin removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_stress_neutral_joined_branch_refuses_relabels_and_mixups[sha]
+KILLED  M22 package: profile pin removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_stress_neutral_joined_branch_refuses_relabels_and_mixups[profile]
+KILLED  M23 package: receipt no longer required :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_stress_neutral_joined_branch_refuses_relabels_and_mixups[missing_receipt]
+KILLED  M24 package: branch evidence override removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_stress_neutral_joined_branch_refuses_relabels_and_mixups[physics_source_evidence]
+KILLED  M25 package: branch receipt override removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_stress_neutral_joined_branch_refuses_relabels_and_mixups[physics_source_receipt]
+KILLED  M26 run: branch table hash pin and SemanticContract pairing both removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_analysis_run_joined_branch_refuses_relabels_and_mixups[reproducibility_hash_only]
+NOTE M15 alone is an expected equivalent mutant (see M26); it is not counted as a survivor.
+OVERALL PASS: all killed
+exit 0

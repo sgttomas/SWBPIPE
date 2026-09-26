@@ -1,0 +1,2059 @@
+{
+  "format": "openpipestress.first_static_selector_candidate/1",
+  "case_id": "multi_segment_free_length",
+  "producer_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "raw_schema_version": "0.2.0",
+  "row_namespace": "payload.mechanics_envelope.results",
+  "assertions": [
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/datum_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-length strain forward, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_install",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_operating",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:operating.thermal_strain",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:operating:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/datum_length_strain_reverse",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-length strain reverse, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:operating.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:operating:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_operating",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:operating.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:operating:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_install",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:split.thermal_strain",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:split:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/datum_length_strain_split_to_operating",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-length strain split_to_operating, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:split.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:split:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_split",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:split.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:split:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_operating",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:datum-length-b.evidence.member.pipe:install.thermal_strain",
+      "selector": {
+        "id": "evidence:case:datum-length-b:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/datum_length_strain_install_to_split",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-length strain install_to_split, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:datum-length-b.evidence.member.pipe:install.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-b:member:pipe:install:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_install",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:datum-length-b.evidence.member.pipe:install.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-b:member:pipe:install:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_split",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:datum-length-b.evidence.member.pipe:operating.thermal_strain",
+      "selector": {
+        "id": "evidence:case:datum-length-b:member:pipe:operating:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/datum_length_strain_operating_to_split",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-length strain operating_to_split, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:datum-length-b.evidence.member.pipe:operating.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-b:member:pipe:operating:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_operating",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:datum-length-b.evidence.member.pipe:operating.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-b:member:pipe:operating:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_split",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:datum-length-b.evidence.member.pipe:split.thermal_strain",
+      "selector": {
+        "id": "evidence:case:datum-length-b:member:pipe:split:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/datum_length_strain_split_to_install",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-length strain split_to_install, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:datum-length-b.evidence.member.pipe:split.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-b:member:pipe:split:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_split",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:datum-length-b.evidence.member.pipe:split.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:datum-length-b:member:pipe:split:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/integral_datum_to_install",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:install.thermal_strain",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/current_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "current-length strain forward, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:operating.thermal_strain",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:operating:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/current_length_strain_reverse",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "current-length strain reverse, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:split.thermal_strain",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:split:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/current_length_strain_split_to_operating",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "current-length strain split_to_operating, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:current-length-b.evidence.member.pipe:install.thermal_strain",
+      "selector": {
+        "id": "evidence:case:current-length-b:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/current_length_strain_install_to_split",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "current-length strain install_to_split, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:current-length-b.evidence.member.pipe:operating.thermal_strain",
+      "selector": {
+        "id": "evidence:case:current-length-b:member:pipe:operating:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/current_length_strain_operating_to_split",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "current-length strain operating_to_split, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:current-length-b.evidence.member.pipe:split.thermal_strain",
+      "selector": {
+        "id": "evidence:case:current-length-b:member:pipe:split:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/current_length_strain_split_to_install",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "current-length strain split_to_install, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:dilation-a.evidence.member.pipe:install.thermal_strain",
+      "selector": {
+        "id": "evidence:case:dilation-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "dilation strain forward, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:dilation-a.evidence.member.pipe:install.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-a:member:pipe:install:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_install",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:dilation-a.evidence.member.pipe:install.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-a:member:pipe:install:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_operating",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:dilation-a.evidence.member.pipe:operating.thermal_strain",
+      "selector": {
+        "id": "evidence:case:dilation-a:member:pipe:operating:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_strain_reverse",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "dilation strain reverse, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:dilation-a.evidence.member.pipe:operating.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-a:member:pipe:operating:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_operating",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:dilation-a.evidence.member.pipe:operating.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-a:member:pipe:operating:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_install",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:dilation-a.evidence.member.pipe:split.thermal_strain",
+      "selector": {
+        "id": "evidence:case:dilation-a:member:pipe:split:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_strain_split_to_operating",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "dilation strain split_to_operating, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:dilation-a.evidence.member.pipe:split.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-a:member:pipe:split:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_split",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:dilation-a.evidence.member.pipe:split.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-a:member:pipe:split:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_operating",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:dilation-b.evidence.member.pipe:install.thermal_strain",
+      "selector": {
+        "id": "evidence:case:dilation-b:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_strain_install_to_split",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "dilation strain install_to_split, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:dilation-b.evidence.member.pipe:install.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-b:member:pipe:install:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_install",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:dilation-b.evidence.member.pipe:install.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-b:member:pipe:install:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_split",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:dilation-b.evidence.member.pipe:operating.thermal_strain",
+      "selector": {
+        "id": "evidence:case:dilation-b:member:pipe:operating:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_strain_operating_to_split",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "dilation strain operating_to_split, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:dilation-b.evidence.member.pipe:operating.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-b:member:pipe:operating:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_operating",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:dilation-b.evidence.member.pipe:operating.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-b:member:pipe:operating:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:operating"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_split",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:dilation-b.evidence.member.pipe:split.thermal_strain",
+      "selector": {
+        "id": "evidence:case:dilation-b:member:pipe:split:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_strain_split_to_install",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "dilation strain split_to_install, spanning the consumed table segments (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:dilation-b.evidence.member.pipe:split.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-b:member:pipe:split:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_split",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + I(T_m,T_install) or 1 + d(T_install) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:dilation-b.evidence.member.pipe:split.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:dilation-b:member:pipe:split:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:split"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/variants/linear_dilation_table/expected/dilation_install",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + I(T_m,T) or 1 + d(T) (datum stretch lambda(T) of the expansion law)"
+      }
+    }
+  ],
+  "negative_assertions": [
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain.not.first_segment_only",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:datum-length-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "first_segment_only",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/first_segment_only/datum_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain.not.last_segment_only.interval_difference_form",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:datum-length-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "last_segment_only.interval_difference_form",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/last_segment_only/interval_difference_form/datum_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain.not.last_segment_only.datum_integral_form",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:datum-length-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "last_segment_only.datum_integral_form",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/last_segment_only/datum_integral_form/datum_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain.not.interior_breakpoints_skipped",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:datum-length-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "interior_breakpoints_skipped",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/interior_breakpoints_skipped/datum_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain.not.endpoint_alpha_times_interval",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:datum-length-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "endpoint_alpha_times_interval",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/endpoint_alpha_times_interval/strain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:install.thermal_strain.not.first_segment_only",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:current-length-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "first_segment_only",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/first_segment_only/current_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:install.thermal_strain.not.last_segment_only.interval_difference_form",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:current-length-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "last_segment_only.interval_difference_form",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/last_segment_only/interval_difference_form/current_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:install.thermal_strain.not.last_segment_only.datum_integral_form",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:current-length-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "last_segment_only.datum_integral_form",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/last_segment_only/datum_integral_form/current_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:install.thermal_strain.not.interior_breakpoints_skipped",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:current-length-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "interior_breakpoints_skipped",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/interior_breakpoints_skipped/current_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:install.thermal_strain.not.endpoint_alpha_times_interval",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:current-length-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "endpoint_alpha_times_interval",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/endpoint_alpha_times_interval/strain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:dilation-a.evidence.member.pipe:install.thermal_strain.not.first_segment_only",
+      "selector": {
+        "id": "evidence:case:dilation-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:dilation-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "first_segment_only",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/first_segment_only/dilation_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:dilation-a.evidence.member.pipe:install.thermal_strain.not.last_segment_only.interval_difference_form",
+      "selector": {
+        "id": "evidence:case:dilation-a:member:pipe:install:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:dilation-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:multi",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_dilation",
+          "expansion_law_id": "law:dilation"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:dilation-a.evidence.member.pipe:install.thermal_strain",
+        "discriminator": "last_segment_only.interval_difference_form",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/last_segment_only/interval_difference_form/dilation_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    }
+  ],
+  "gaps": [
+    {
+      "id": "dilation.last_segment_only.datum_integral_form",
+      "kind": "numerically_identical_discriminator",
+      "detail": "For engineering_dilation this discriminator equals first_segment_only on the same forward strain (the reference notes both give the same value); it is scored by the first_segment_only negative.",
+      "pointer": "/cases/multi_segment_free_length/wrong_result_discriminators/last_segment_only/datum_integral_form/dilation_strain_forward",
+      "covered_by": "case:dilation-a.evidence.member.pipe:install.thermal_strain.not.first_segment_only"
+    },
+    {
+      "id": "segment_integrals_install_to_operating",
+      "kind": "structural_expectation_not_scored",
+      "detail": "The reference lists the three consumed [T_install,T] segment integrals. The published consumed_law_segments entries (CP3_WIRE_ADDENDUM section 2) are structural records, not scored here; the forward strains and the segment-truncation negatives pin the same content numerically.",
+      "pointer": "/cases/multi_segment_free_length/variants/linear_coefficient_table/expected/segment_integrals_install_to_operating"
+    }
+  ],
+  "scoring_readiness": {
+    "status": "authoring_only_pending_independent_freeze",
+    "reference_case_key": "multi_segment_free_length",
+    "family": "reference_temperatures",
+    "load_state_decomposition": "six load cases in one request: for each of the three definitions, (a) forward, reverse and split-to-operating and (b) install-to-split, operating-to-split and split-to-install; each installation temperature is its own member",
+    "limits": [
+      "Free-length strains only; the reference allocates no mechanics companion values, so no reaction or member-force assertion is made.",
+      "Logarithmic datum stretches exp(I) are not asserted: the reference gives no value for them."
+    ],
+    "identification": "row ids and metadata were identified by running core/product_physics examples/physics_source_connected on this request in both modes; no observed value is used as a reference or criterion and none is committed"
+  }
+}

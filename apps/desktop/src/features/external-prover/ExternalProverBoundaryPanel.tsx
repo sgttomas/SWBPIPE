@@ -1,4 +1,5 @@
 import { Download, FileSearch } from "lucide-react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 
@@ -24,6 +25,7 @@ export function ExternalProverBoundaryPanel({
         External Prover Boundary
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="external-prover">
         <ControlledExportLink
           className="report-export-link"
           data-testid="external-prover-export-link"
@@ -33,6 +35,7 @@ export function ExternalProverBoundaryPanel({
           <Download size={14} aria-hidden="true" />
           Metadata JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="external-prover-summary">
           available; metadata={packet.metadata_contract_status}; refs={packet.external_references.length};
           diagnostics={packet.diagnostics.length}

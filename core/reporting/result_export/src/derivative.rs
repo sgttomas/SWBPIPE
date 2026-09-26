@@ -97,6 +97,8 @@ pub fn derive_document(
             Some(
                 crate::semantic_contract::PHYSICS_ID
                     | crate::semantic_contract::PHYSICS_SOURCE_ID
+                    | crate::semantic_contract::LOAD_REFERENCE_ID
+                    | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
                     | crate::semantic_contract::PREVIEW_PHYSICS_ID
             )
         ) {
@@ -104,7 +106,11 @@ pub fn derive_document(
         }
         if matches!(
             source["producer"]["semantic_contract_id"].as_str(),
-            Some(crate::source_blocks::CONTRACT_ID | crate::semantic_contract::PHYSICS_SOURCE_ID)
+            Some(
+                crate::source_blocks::CONTRACT_ID
+                    | crate::semantic_contract::PHYSICS_SOURCE_ID
+                    | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
+            )
         ) {
             e["source_block_recovery"] = source["source_block_recovery"].clone();
         } else if e.get("source_block_recovery").is_some() {
@@ -320,7 +326,11 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     let (table, version) = for_source(source)?;
     if matches!(
         source["producer"]["semantic_contract_id"].as_str(),
-        Some(crate::source_blocks::CONTRACT_ID | crate::semantic_contract::PHYSICS_SOURCE_ID)
+        Some(
+            crate::source_blocks::CONTRACT_ID
+                | crate::semantic_contract::PHYSICS_SOURCE_ID
+                | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
+        )
     ) {
         if doc["result_envelope"]["source_block_recovery"] != source["source_block_recovery"] {
             return Err("SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH".into());

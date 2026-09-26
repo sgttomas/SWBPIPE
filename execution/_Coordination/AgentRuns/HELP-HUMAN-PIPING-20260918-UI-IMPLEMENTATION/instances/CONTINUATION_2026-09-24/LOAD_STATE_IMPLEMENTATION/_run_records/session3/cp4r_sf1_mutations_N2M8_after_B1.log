@@ -1,0 +1,2 @@
+N2-M8 fallback ledger reset: KILLED; compile_error=False; failing=['a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back', 'a_fallback_after_invocation_limit_exhaustion_stays_within_the_invocation_limit']
+all restored and sha256-verified

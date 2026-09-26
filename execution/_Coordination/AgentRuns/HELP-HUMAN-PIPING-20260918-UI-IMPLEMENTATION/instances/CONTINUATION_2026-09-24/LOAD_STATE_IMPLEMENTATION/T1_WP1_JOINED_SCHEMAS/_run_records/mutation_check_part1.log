@@ -1,0 +1,27 @@
+KILLED  M01 results: producer pin removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_results_joined_branch_refuses_relabels_and_mixups[producer_id]
+KILLED  M02 results: profile pin removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_results_joined_branch_refuses_relabels_and_mixups[profile]
+KILLED  M03 results: semantic_contract_ref pin removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_results_joined_branch_refuses_relabels_and_mixups[ref_id]
+KILLED  M04 results: receipt no longer required :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_results_joined_branch_refuses_relabels_and_mixups[missing_receipt]
+KILLED  M05 results: branch evidence override removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_results_joined_branch_refuses_relabels_and_mixups[physics_source_evidence]
+KILLED  M06 results: branch receipt override removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_results_joined_branch_refuses_relabels_and_mixups[physics_source_receipt]
+KILLED  M07 receipt: policy pin loosened :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_physics_1_physics_source_1_and_source_blocks_1_carriers_keep_their_branch[physics_source/fields-dense_scrutiny.raw]
+KILLED  M08 receipt: body is the physics-source body :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_joined_raw_evidence_and_receipt_validate[eigen_motion-dense_scrutiny.raw]
+KILLED  M09 evidence: load_reference_states not required :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_joined_evidence_mutations_are_rejected[missing_load_reference_states]
+KILLED  M10 evidence: namespace opened :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_joined_evidence_mutations_are_rejected[extra_key]
+KILLED  M11 evidence: connector pin removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_joined_evidence_mutations_are_rejected[connector_nonempty]
+KILLED  M12 record: selected/retained pairing removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_joined_evidence_mutations_are_rejected[selected_with_ordinary_method]
+KILLED  M13 record: selected method pin removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_joined_evidence_mutations_are_rejected[selected_with_other_method]
+KILLED  M14 exact case: material_basis pin removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_joined_evidence_mutations_are_rejected[exact_material_basis]
+SURVIVED M15 run: table hash pin removed :: exit 0 :: 128 passed, 1 skipped, 2 deselected in 218.22s (0:03:38)
+KILLED  M16 run: row contract pin removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_analysis_run_joined_branch_refuses_relabels_and_mixups[mixed_rows]
+KILLED  M17 run: receipt no longer required :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_analysis_run_joined_branch_refuses_relabels_and_mixups[missing_receipt]
+KILLED  M18 run: evidence no longer required :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_analysis_run_joined_branch_refuses_relabels_and_mixups[missing_evidence]
+KILLED  M19 run: branch evidence override removed :: exit 1 :: FAILED tests/test_load_reference_source_schema.py::test_analysis_run_joined_branch_refuses_relabels_and_mixups[physics_source_evidence]
+Traceback (most recent call last):
+  File "<WORKING_ROOT>/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP1_JOINED_SCHEMAS/_run_records/mutation_check.py", line 106, in <module>
+    mutate(document)
+  File "<WORKING_ROOT>/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP1_JOINED_SCHEMAS/_run_records/mutation_check.py", line 47, in apply
+    assert path[-1] in parent, path
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: ['$defs', 'SemanticContract', 'oneOf', 5]
+exit 1

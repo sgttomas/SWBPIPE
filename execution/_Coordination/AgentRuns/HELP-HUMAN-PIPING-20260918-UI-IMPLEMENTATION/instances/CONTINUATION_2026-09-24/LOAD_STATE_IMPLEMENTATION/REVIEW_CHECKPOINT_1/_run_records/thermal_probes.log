@@ -1,0 +1,48 @@
+probe crate: /tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/probe (sources copied here with .txt suffix); reviewed thermal.rs included by #[path]
+Fri Sep 25 17:40:31 UTC 2026
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/home/user/cargo-targets/lsreview/probe/debug/deps/lsreview_probe-6b579f39847bbdad)
+
+running 20 tests
+test pressure_sum::tests::cancellation_retains_source_coefficients_and_is_order_independent ... ok
+test pressure_sum::tests::normal_subnormal_boundary_and_nonfinite_rejection ... ok
+test pressure_sum::tests::rounding_ties_and_sticky_bits_are_explicit ... ok
+test pressure_sum::tests::wide_range_cancellation_never_overflows_an_intermediate_float ... ok
+test probes::probe_consumed_segments_record_degenerate_samples ... split consumed points [0, 1] segments [ConsumedSegment { lower_index: 0, upper_index: 1, start_kelvin: 343.15, end_kelvin: 343.15 }, ConsumedSegment { lower_index: 0, upper_index: 1, start_kelvin: 293.15, end_kelvin: 343.15 }]
+ok
+test probes::probe_installation_below_datum_signs ... engineering_secant 1.00050025012506246e-3 li Some(0.9995)
+differential_per_datum_length 1.00050025012506246e-3 li Some(0.9995)
+engineering_dilation 1.00050025012506246e-3 li Some(0.9995)
+ok
+test probes::probe_multisegment_datum_integral ... datum multiseg 3.12304809494066190e-3 rel 0e0 segments [ConsumedSegment { lower_index: 2, upper_index: 3, start_kelvin: 550.0, end_kelvin: 550.0 }, ConsumedSegment { lower_index: 0, upper_index: 1, start_kelvin: 350.0, end_kelvin: 350.0 }, ConsumedSegment { lower_index: 0, upper_index: 1, start_kelvin: 300.0, end_kelvin: 350.0 }, ConsumedSegment { lower_index: 0, upper_index: 1, start_kelvin: 350.0, end_kelvin: 400.0 }, ConsumedSegment { lower_index: 1, upper_index: 2, start_kelvin: 400.0, end_kelvin: 500.0 }, ConsumedSegment { lower_index: 2, upper_index: 3, start_kelvin: 500.0, end_kelvin: 550.0 }, ConsumedSegment { lower_index: 0, upper_index: 1, start_kelvin: 300.0, end_kelvin: 400.0 }]
+ok
+test probes::probe_multisegment_dilation_difference ... dilation multiseg 1.99900049975012531e-3
+ok
+test probes::probe_multisegment_log_integral ... log multiseg 3.12988790273914866e-3
+ok
+test probes::probe_secant_table_interior_interpolation ... secant interior 1.43642268298775915e-3 points [0, 1, 2] segments [ConsumedSegment { lower_index: 1, upper_index: 2, start_kelvin: 475.0, end_kelvin: 475.0 }, ConsumedSegment { lower_index: 1, upper_index: 2, start_kelvin: 400.0, end_kelvin: 475.0 }, ConsumedSegment { lower_index: 0, upper_index: 1, start_kelvin: 350.0, end_kelvin: 350.0 }, ConsumedSegment { lower_index: 1, upper_index: 2, start_kelvin: 450.0, end_kelvin: 450.0 }]
+ok
+test probes::probe_temperature_units_exact_equality ... integer degC in [-50,600]: degF-equivalent mismatches 206 e.g. [(242.0, 515.15, 515.1500000000001), (247.0, 520.15, 520.1500000000001), (252.0, 525.15, 525.1500000000001), (257.0, 530.15, 530.1500000000001)]
+integer degC in [-50,600]: decimal-K-literal mismatches 33 e.g. [(-50.0, 223.14999999999998, 223.15), (-49.0, 224.14999999999998, 224.15), (-48.0, 225.14999999999998, 225.15), (-47.0, 226.14999999999998, 226.15)]
+68 degF -> 2.93149999999999977e2 K; 20 degC -> 2.93149999999999977e2 K
+ok
+test probes::probe_verification4_exact_inputs_without_datum_point ... verification4 two-point secant table: Err(OutsideTableCoverage)
+ok
+test thermal::tests::celsius_and_kelvin_normalized_inputs_and_constant_interval_need_no_absolute_temperature ... ok
+test thermal::tests::coverage_duplicate_datum_and_nonpositive_free_length_fail_explicitly ... ok
+test thermal::tests::datum_length_integral_and_logarithmic_definitions_remain_distinct ... ok
+test thermal::tests::engineering_dilation_table_requires_zero_at_datum_and_integrates_segment_slopes ... ok
+test thermal::tests::reversed_split_and_exact_endpoint_intervals_compose_as_free_length_ratios ... ok
+test thermal::tests::secant_datum_conversion_matches_43_over_25009_and_rejects_wrong_controls ... ok
+test thermal::tests::signed_fit_composes_with_thermal_state_without_accumulating_on_return ... ok
+test thermal::tests::small_interval_is_evaluated_directly_rather_than_from_rounded_long_stretches ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+   Doc-tests lsreview_probe
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit=0

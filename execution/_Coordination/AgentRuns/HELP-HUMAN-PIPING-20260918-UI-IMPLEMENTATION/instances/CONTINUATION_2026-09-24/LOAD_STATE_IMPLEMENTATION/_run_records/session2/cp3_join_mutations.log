@@ -1,0 +1,161 @@
+N1_M02_observation_uncoupled_force True 1 False
+N1_M03_zero_boundary_reduced True 1 False
+J1_member_end_offset_omitted True 1 False
+J2_member_end_offset_sign_flipped True 1 False
+J3_eigen_force_terms_unidentified True 4 False
+J4_prescribed_owner_zero True 5 False
+J5_captured_replay_skipped True 1 False
+J6_case_record_binding_skipped True 1 False
+J7_eigen_closure_skipped False 0 False
+J8_member_pair_formation_unchecked False 0 False
+J9_ownership_unchecked True 1 False
+J10_joined_semantics_not_selected True 2 False
+SFA_fit_none_unit_variant True 2 False
+SFA_quantity_open True 2 False
+N2_null_as_absent True 1 False
+N2_request_laws_ignored True 1 False
+N5_missing_section_dropped True 1 False
+{
+ "N1_M02_observation_uncoupled_force": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test case_state::tests::dense_observation_lanes_observe_the_prescribed_boundary_system ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "N1_M03_zero_boundary_reduced": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test case_state::tests::dense_observation_lanes_observe_the_prescribed_boundary_system ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "J1_member_end_offset_omitted": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "J2_member_end_offset_sign_flipped": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "J3_eigen_force_terms_unidentified": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test source_receipt::load_state_tests::a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay ... FAILED",
+   "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED",
+   "test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... FAILED",
+   "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "J4_prescribed_owner_zero": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test source_receipt::load_state_tests::a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay ... FAILED",
+   "test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... FAILED",
+   "test source_receipt::load_state_tests::source_closure_refuses_live_resolved_operands_that_did_not_reach_formation ... FAILED",
+   "test source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response ... FAILED",
+   "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "J5_captured_replay_skipped": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test source_receipt::load_state_tests::a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "J6_case_record_binding_skipped": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "J7_eigen_closure_skipped": {
+  "exit": 0,
+  "killed": false,
+  "failed_tests": [],
+  "compile_error": false
+ },
+ "J8_member_pair_formation_unchecked": {
+  "exit": 0,
+  "killed": false,
+  "failed_tests": [],
+  "compile_error": false
+ },
+ "J9_ownership_unchecked": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test source_receipt::load_state_tests::source_closure_refuses_live_resolved_operands_that_did_not_reach_formation ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "J10_joined_semantics_not_selected": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... FAILED",
+   "test source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "SFA_fit_none_unit_variant": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test case_state::tests::closed_namespace_refuses_sibling_keys_on_field_free_branches_and_quantities ... FAILED",
+   "test case_state::tests::public_route_refuses_sibling_fields_on_every_field_free_branch_and_quantity ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "SFA_quantity_open": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test case_state::tests::closed_namespace_refuses_sibling_keys_on_field_free_branches_and_quantities ... FAILED",
+   "test case_state::tests::public_route_refuses_sibling_fields_on_every_field_free_branch_and_quantity ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "N2_null_as_absent": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test case_state::tests::an_explicit_null_new_key_is_authored_presence_in_every_version ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "N2_request_laws_ignored": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test case_state::tests::an_explicit_null_new_key_is_authored_presence_in_every_version ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "N5_missing_section_dropped": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test source_receipt::load_state_tests::a_resolved_eigenload_without_its_built_section_blocks_instead_of_disappearing ... FAILED"
+  ],
+  "compile_error": false
+ }
+}

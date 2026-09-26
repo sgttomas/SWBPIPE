@@ -1,0 +1,70 @@
+$ git show HEAD:projects/chirality-piping/core/product_physics/tests/fixtures/load_reference_states/reference_cases.json > <scratch>/pre_from_git_HEAD.json; sha256sum
+5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891  /tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/pre_from_git_HEAD.json
+$ python3 execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/ANALYTICAL_REFERENCE/CP2_EXTENSION/_run_records/check_extension.py <scratch>/pre_from_git_HEAD.json core/product_physics/tests/fixtures/load_reference_states/reference_cases.json
+{
+ "pre": {
+  "path_arg": "/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/pre_from_git_HEAD.json",
+  "sha256": "5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891",
+  "bytes": 108985
+ },
+ "post": {
+  "path_arg": "core/product_physics/tests/fixtures/load_reference_states/reference_cases.json",
+  "sha256": "4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab",
+  "bytes": 156458
+ },
+ "valid_json_strict": true,
+ "machin_pi_matches_fixture_pi_string": true,
+ "stats": {
+  "pre_paths_preserved": 2656,
+  "added_paths": 1035,
+  "inserted_lines": 1360,
+  "comma_only_line_changes": 0,
+  "new_quantities_projected": 126
+ },
+ "checks": 1002,
+ "failures": [],
+ "mutations": {
+  "M1_consistent_last_segment_datum_strain": {
+   "detected": true,
+   "first_failure": "ms.datum.forward: fixture ('rational', Fraction(6, 8005)) != independent ('rational', Fraction(5, 1601))"
+  },
+  "M2_value_projection_off": {
+   "detected": true,
+   "first_failure": "ms.datum.forward: value 0.0031230480949406628 != float(exact) 0.003123048094940662"
+  },
+  "M3_consistent_log_last_only": {
+   "detected": true,
+   "first_failure": "ms.log.forward: fixture ('expm1', Fraction(3, 4000)) != independent ('expm1', Fraction(1, 320))"
+  },
+  "M4_dilation_reverse_by_negation": {
+   "detected": true,
+   "first_failure": "ms.dil.reverse: fixture ('rational', Fraction(-4, 2001)) != independent ('rational', Fraction(-4, 2005))"
+  },
+  "M5_two_point_gains_20C_point": {
+   "detected": true,
+   "first_failure": "v2 table differs from VERIFICATION 4"
+  },
+  "M6_identity_kelvin_binary64": {
+   "detected": true,
+   "first_failure": "tu.minus_50_degC.kelvin: fixture ('rational', Fraction(1962848157905715, 8796093022208)) != independent ('rational', Fraction(4463, 20))"
+  },
+  "M7_preexisting_value_changed": {
+   "detected": true,
+   "first_failure": "changed 'cases.thermal_datum_ratio.limits[0]': ('str', 'Added 20degC coefficient point is explicit invented coverage data; reviewed 50/150degC values and 43/25009 result are unchanged.') -> ('str', 'edited')"
+  },
+  "M8_preexisting_key_removed": {
+   "detected": true,
+   "first_failure": "missing pre-existing path 'cases.coefficient_definition.wrong_result_discriminators.reverse_by_negation'"
+  },
+  "M9_split_composition_broken": {
+   "detected": true,
+   "first_failure": "ms.datum.split_to_operating: fixture ('rational', Fraction(11, 8005)) != independent ('rational', Fraction(1, 729))"
+  },
+  "M10_non_equal_control_made_equal": {
+   "detected": true,
+   "first_failure": "tu non-equal control compares equal"
+  }
+ },
+ "all_mutations_detected": true
+}
+exit=0

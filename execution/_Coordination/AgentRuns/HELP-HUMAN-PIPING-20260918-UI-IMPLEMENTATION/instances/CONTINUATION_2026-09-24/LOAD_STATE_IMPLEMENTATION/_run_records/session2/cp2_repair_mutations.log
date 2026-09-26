@@ -1,0 +1,35 @@
+{
+ "SF1_integral_last_segment_only": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test case_state::thermal::tests::multi_segment_integrals_use_every_interior_segment_in_both_directions ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "SF1_dilation_last_segment_only": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test case_state::thermal::tests::multi_segment_integrals_use_every_interior_segment_in_both_directions ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "SF2_restore_secant_datum_coverage": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test case_state::thermal::tests::secant_datum_conversion_matches_43_over_25009_from_verification_two_point_table ... FAILED"
+  ],
+  "compile_error": false
+ },
+ "SF3_disable_identity_canonicalization": {
+  "exit": 101,
+  "killed": true,
+  "failed_tests": [
+   "test case_state::temperature::tests::exactly_equal_temperatures_share_a_representative_and_order_is_checked ... FAILED",
+   "test case_state::tests::temperature_identity_is_exact_across_authored_units ... FAILED"
+  ],
+  "compile_error": false
+ }
+}

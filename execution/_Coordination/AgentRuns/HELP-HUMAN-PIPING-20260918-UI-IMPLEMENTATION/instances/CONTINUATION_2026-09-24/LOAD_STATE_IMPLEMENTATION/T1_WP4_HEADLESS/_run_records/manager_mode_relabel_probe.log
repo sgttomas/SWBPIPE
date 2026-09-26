@@ -1,0 +1,10 @@
+Manager probe (ROOT's WP4 open-item-1 question), run on the WP4 working tree over 6810b67ff with a temporary in-crate test module (source kept here as manager_mode_relabel_probe.rs.txt; removed from the crate after the run).
+For each receipt-less identity and each mode: relabel QualifiedPreviewEvidence.actual_invocation.solver_mode to the other mode, re-digest invocation_digest, call build_result_export_document_with_evidence.
+PROBE physics "openpipestress.result_semantics/0.3.0/physics-1" sparse_interactive relabel_redigest_accepted=true
+PROBE physics "openpipestress.result_semantics/0.3.0/physics-1" dense_scrutiny relabel_redigest_accepted=true
+PROBE preview "openpipestress.result_semantics/0.3.0/preview-physics-1" sparse_interactive relabel_redigest_accepted=true
+PROBE preview "openpipestress.result_semantics/0.3.0/preview-physics-1" dense_scrutiny relabel_redigest_accepted=true
+PROBE load_reference "openpipestress.result_semantics/0.3.0/load-reference-1" sparse_interactive relabel_redigest_accepted=true
+PROBE load_reference "openpipestress.result_semantics/0.3.0/load-reference-1" dense_scrutiny relabel_redigest_accepted=true
+test result: ok. 1 passed
+Conclusion: the property is shared by physics-1, preview-physics-1 and load-reference-1 (the binding is identity-agnostic; only source-block receipts bind the invocation). Pre-existing proof-custody property; routed to T6 per ROOT.

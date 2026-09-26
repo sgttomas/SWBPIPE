@@ -1,0 +1,122 @@
+
+running 5 tests
+test pinned_table_identity_profile_and_policy ... ok
+test header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels ... FAILED
+test canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim ... FAILED
+test table_bytes_and_transport_cases_match_in_rust ... FAILED
+test shared_adversarial_cases_match_in_rust ... FAILED
+
+failures:
+
+---- header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels stdout ----
+
+thread 'header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels' (14938) panicked at tests/load_reference_source_contract.rs:630:41:
+called `Result::unwrap()` on an `Err` value: "SOURCE_FORMULATION_BASIS_UNSUPPORTED"
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1867:5
+   3: <core::result::Result<(&serde_json::value::Value, &str), alloc::string::String>>::unwrap
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1233:23
+   4: load_reference_source_contract::header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels
+             at ./tests/load_reference_source_contract.rs:630:41
+   5: load_reference_source_contract::header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels::{closure#0}
+             at ./tests/load_reference_source_contract.rs:625:81
+   6: <load_reference_source_contract::header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim stdout ----
+
+thread 'canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim' (14937) panicked at tests/load_reference_source_contract.rs:529:46:
+called `Result::unwrap()` on an `Err` value: "SOURCE_FORMULATION_BASIS_UNSUPPORTED"
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1867:5
+   3: <core::result::Result<serde_json::value::Value, alloc::string::String>>::unwrap
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1233:23
+   4: load_reference_source_contract::canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim
+             at ./tests/load_reference_source_contract.rs:529:46
+   5: load_reference_source_contract::canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim::{closure#0}
+             at ./tests/load_reference_source_contract.rs:526:80
+   6: <load_reference_source_contract::canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- table_bytes_and_transport_cases_match_in_rust stdout ----
+
+thread 'table_bytes_and_transport_cases_match_in_rust' (15014) panicked at tests/load_reference_source_contract.rs:517:47:
+called `Result::unwrap()` on an `Err` value: "SOURCE_FORMULATION_BASIS_UNSUPPORTED"
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1867:5
+   3: <core::result::Result<(&serde_json::value::Value, &str), alloc::string::String>>::unwrap
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1233:23
+   4: load_reference_source_contract::table_bytes_and_transport_cases_match_in_rust
+             at ./tests/load_reference_source_contract.rs:517:47
+   5: load_reference_source_contract::table_bytes_and_transport_cases_match_in_rust::{closure#0}
+             at ./tests/load_reference_source_contract.rs:468:51
+   6: <load_reference_source_contract::table_bytes_and_transport_cases_match_in_rust::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- shared_adversarial_cases_match_in_rust stdout ----
+
+thread 'shared_adversarial_cases_match_in_rust' (14940) panicked at tests/load_reference_source_contract.rs:427:17:
+ACCEPT-n05-sparse: dispatch SOURCE_FORMULATION_BASIS_UNSUPPORTED != accept
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: load_reference_source_contract::shared_adversarial_cases_match_in_rust
+             at ./tests/load_reference_source_contract.rs:427:17
+   3: load_reference_source_contract::shared_adversarial_cases_match_in_rust::{closure#0}
+             at ./tests/load_reference_source_contract.rs:393:44
+   4: <load_reference_source_contract::shared_adversarial_cases_match_in_rust::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim
+    header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels
+    shared_adversarial_cases_match_in_rust
+    table_bytes_and_transport_cases_match_in_rust
+
+test result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.42s
+
+
+--- stderr ---
+   Compiling open_pipe_stress_result_export v0.1.0 (<scratch-copy>/core/reporting/result_export)
+warning: function `derived` is never used
+   --> src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.98s
+     Running tests/load_reference_source_contract.rs (<scratch-target>/re/debug/deps/load_reference_source_contract-ae94915357182f1d)
+error: test failed, to rerun pass `--test load_reference_source_contract`

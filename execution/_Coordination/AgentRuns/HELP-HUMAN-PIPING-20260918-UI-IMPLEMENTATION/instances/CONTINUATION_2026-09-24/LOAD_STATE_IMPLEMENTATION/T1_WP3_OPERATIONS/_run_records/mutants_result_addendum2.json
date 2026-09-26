@@ -1,0 +1,350 @@
+[
+ {
+  "id": "M01-envelope",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M02-schema-version",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M03-model-target",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M04-before-value",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M05-explicit-null",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M06-typed-parse-reference-configurations",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused",
+   "typed_refusals_match_the_product_typed_boundary"
+  ]
+ },
+ {
+  "id": "M07-typed-parse-expansion-laws",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused",
+   "typed_refusals_match_the_product_typed_boundary"
+  ]
+ },
+ {
+  "id": "M08-typed-parse-analysis-state",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused",
+   "load_state_operations_apply_as_one_atomic_batch_or_not_at_all",
+   "point_ref_resolves_only_on_the_selected_material",
+   "typed_refusals_match_the_product_typed_boundary"
+  ]
+ },
+ {
+  "id": "M09-typed-parse-from-value-not-text",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "typed_refusals_match_the_product_typed_boundary"
+  ]
+ },
+ {
+  "id": "M10-unique-configuration-ids",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M11-unique-law-ids",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M12-member-pipe-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M13-reference-configuration-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M14-element-pipe-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M15-material-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M16-point-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused",
+   "point_ref_resolves_only_on_the_selected_material"
+  ]
+ },
+ {
+  "id": "M17-law-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M18-law-ref-any-material",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M19-support-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M20-source-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M21-source-ref-any-case",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "duplicate_ids_and_dangling_references_are_refused"
+  ]
+ },
+ {
+  "id": "M22-model-hash-required",
+  "file": "src/lib.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "M23-inverse-restores-absence",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "atomic_batch_removes_the_states_before_their_configuration_and_passes",
+   "expansion_laws_apply_undo_redo_and_resolve_as_closed_form_predicts",
+   "replacing_or_removing_owners_cannot_orphan_case_references",
+   "reference_configurations_apply_undo_redo_and_resolve_as_closed_form_predicts",
+   "analysis_state_apply_undo_redo_and_boundary_motion_moves_the_tip_rigidly"
+  ]
+ },
+ {
+  "id": "M24-entity-target",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "explicit_null_wrong_version_missing_hash_and_envelope_are_refused"
+  ]
+ },
+ {
+  "id": "N01-orphan-reference-configuration-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "replacing_or_removing_owners_cannot_orphan_case_references"
+  ]
+ },
+ {
+  "id": "N02-orphan-expansion-law-ref",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "replacing_or_removing_owners_cannot_orphan_case_references"
+  ]
+ },
+ {
+  "id": "N03-orphan-only-if-newly-unresolved",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "replacing_or_removing_owners_cannot_orphan_case_references"
+  ]
+ },
+ {
+  "id": "N04-orphan-law-scoped-to-selecting-material",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "replacing_or_removing_owners_cannot_orphan_case_references"
+  ]
+ },
+ {
+  "id": "N05-delete-pipe-load-state-references",
+  "file": "src/lib.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "delete_operations_refuse_targets_named_by_load_state_records"
+  ]
+ },
+ {
+  "id": "N06-delete-pipe-configuration-members",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "delete_operations_refuse_targets_named_by_load_state_records"
+  ]
+ },
+ {
+  "id": "N07-delete-pipe-element-states",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "delete_operations_refuse_targets_named_by_load_state_records"
+  ]
+ },
+ {
+  "id": "N08-delete-support-support-states",
+  "file": "src/lib.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "delete_operations_refuse_targets_named_by_load_state_records",
+   "support_deletion_scans_every_case_not_only_the_first"
+  ]
+ },
+ {
+  "id": "N09-delete-primitive-load-sources",
+  "file": "src/lib.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "delete_operations_refuse_targets_named_by_load_state_records",
+   "atomic_batch_removes_the_states_before_their_configuration_and_passes"
+  ]
+ },
+ {
+  "id": "R01-no-op-still-writes",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "an_unchanged_payload_is_a_true_no_op_with_no_write"
+  ]
+ },
+ {
+  "id": "R02-point-ref-resolved-on-any-material",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "point_ref_resolves_only_on_the_selected_material"
+  ]
+ },
+ {
+  "id": "R04-support-scan-first-case-only",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "support_deletion_scans_every_case_not_only_the_first"
+  ]
+ },
+ {
+  "id": "P01-pressure-profile-version-lock",
+  "file": "src/pressure_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "pressure_profile_cannot_change_a_0_4_0_model"
+  ]
+ },
+ {
+  "id": "P02-temperature-points-orphan-check",
+  "file": "src/rich_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "temperature_points_replacement_cannot_orphan_an_exact_point"
+  ]
+ },
+ {
+  "id": "P03-point-orphan-scoped-to-selecting-material",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "temperature_points_replacement_cannot_orphan_an_exact_point"
+  ]
+ },
+ {
+  "id": "P04-point-orphan-only-if-newly-unresolved",
+  "file": "src/load_state_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "temperature_points_replacement_cannot_orphan_an_exact_point"
+  ]
+ },
+ {
+  "id": "P05-exact-profile-includes-0-4-0",
+  "file": "src/rich_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "temperature_points_replacement_cannot_orphan_an_exact_point"
+  ]
+ },
+ {
+  "id": "P06-0-4-0-points-need-no-coefficient",
+  "file": "src/rich_authoring.rs",
+  "status": "KILLED",
+  "failing_tests": [
+   "temperature_points_replacement_cannot_orphan_an_exact_point"
+  ]
+ }
+]

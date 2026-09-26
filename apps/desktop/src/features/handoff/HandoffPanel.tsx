@@ -1,4 +1,5 @@
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { semanticDimension, semanticCategory } from "../results/resultSemantics";
 import { Download, Share2 } from "lucide-react";
 import type {
@@ -81,6 +82,7 @@ export function HandoffPanel({
       {handoffPackage ? (
         <>
           <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="handoff">
         <ControlledExportLink
               className="report-export-link"
               data-testid="handoff-export-link"
@@ -90,6 +92,7 @@ export function HandoffPanel({
               <Download size={14} aria-hidden="true" />
               Local package JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
             <span data-testid="handoff-export-summary">
               {handoffPackage.stable_id_map.entity_ref_count} entities; {handoffPackage.diagnostic_refs.length} diagnostics;{" "}
               {handoffPackage.loss_report.unsupported_behavior_refs.length} loss notes; no private payload

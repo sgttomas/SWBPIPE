@@ -1,0 +1,30 @@
+......................................................F
+=================================== FAILURES ===================================
+________________ test_shared_adversarial_case[SEL-unknown-mode] ________________
+
+case = {'id': 'SEL-unknown-mode', 'source': 'n05-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load_reference_states/0/solve/requested_mode', 'value': 'exact_mode'}], 'dispatch': 'SOURCE_LOAD_REFERENCE_SOLVE'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        joined = outcome(lambda: validate_load_reference_source_evidence(doc))
+        entry = {"id": case["id"], "dispatch": dispatch, "joined": joined}
+        if "lr" in case:
+            entry["lr"] = outcome(lambda: validate_load_reference_evidence(doc))
+        if "ps" in case:
+            entry["ps"] = outcome(lambda: validate_physics_source(doc))
+        RESULTS.append(entry)
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH', 'SOURCE_LOAD_REFERENCE_SOLVE')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH', 'SOURCE_LOAD_REFERENCE_SOLVE')
+E        +    where 'SOURCE_LOAD_REFERENCE_SOLVE' = expected({'id': 'SEL-unknown-mode', 'source': 'n05-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load_reference_states/0/solve/requested_mode', 'value': 'exact_mode'}], 'dispatch': 'SOURCE_LOAD_REFERENCE_SOLVE'}, 'dispatch')
+
+tests/test_load_reference_source_readers.py:212: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_source_readers.py::test_shared_adversarial_case[SEL-unknown-mode]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 54 passed in 48.33s
+
+--- stderr ---

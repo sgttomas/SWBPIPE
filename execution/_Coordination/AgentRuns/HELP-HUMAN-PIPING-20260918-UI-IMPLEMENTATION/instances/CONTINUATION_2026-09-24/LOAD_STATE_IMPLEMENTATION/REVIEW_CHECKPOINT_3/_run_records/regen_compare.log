@@ -1,0 +1,15 @@
+# examples/physics_source_connected built from a byte-identical scratch copy of 485cc2ed0 core (after all mutants restored); output compared with committed raws
+load_reference/connected-sparse_interactive rc=0 IDENTICAL 915965a446ff04c6
+load_reference/connected-dense_scrutiny rc=0 IDENTICAL 3824035cabf2d2a1
+load_reference/pressure-sparse_interactive rc=0 IDENTICAL 71be3e4fb1af54e9
+load_reference/pressure-dense_scrutiny rc=0 IDENTICAL b46eeb8a5dc82bb9
+load_reference_source/eigen_motion-sparse_interactive rc=0 IDENTICAL 27359b4fc79766ba
+load_reference_source/eigen_motion-dense_scrutiny rc=0 IDENTICAL f288fc3023500f0e
+load_reference_source/fields-sparse_interactive rc=0 IDENTICAL 618efe0d004f6248
+load_reference_source/fields-dense_scrutiny rc=0 IDENTICAL 59e93f24e1c7e298
+load_reference_source/mixed-sparse_interactive rc=0 IDENTICAL 5ef78254cd591856
+load_reference_source/mixed-dense_scrutiny rc=0 IDENTICAL 51af113d2b7507c3
+load_reference_source/n05-sparse_interactive rc=0 IDENTICAL 9552edcbfaa84885
+load_reference_source/n05-dense_scrutiny rc=0 IDENTICAL 1bb4474af5b51f8c
+load_reference_source/n06-sparse_interactive rc=0 IDENTICAL a5b6f848248b5f03
+load_reference_source/n06-dense_scrutiny rc=0 IDENTICAL 013104586e1c12ce

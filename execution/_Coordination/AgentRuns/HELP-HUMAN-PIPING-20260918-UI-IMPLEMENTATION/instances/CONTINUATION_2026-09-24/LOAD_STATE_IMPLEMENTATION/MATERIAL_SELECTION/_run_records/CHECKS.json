@@ -1,0 +1,17 @@
+{
+  "actor": "/root/physics_resume/exact_authoring",
+  "checkout": "/private/tmp/piping-load-states-20260925",
+  "command": [
+    "rustfmt",
+    "--edition",
+    "2021",
+    "--check",
+    "projects/chirality-piping/core/product_physics/src/case_state/material.rs"
+  ],
+  "exit_code": 0,
+  "source_path": "projects/chirality-piping/core/product_physics/src/case_state/material.rs",
+  "source_sha256": "1ae8ac998fce43bcdb2f2b1fdb8b0f03569fbe688fa28f420d5f578d37c239bd",
+  "in_module_test_count": 10,
+  "runtime_tests_executed": false,
+  "limit": "No compilation or Cargo/npm execution; parent owns integration and coordinated build target."
+}

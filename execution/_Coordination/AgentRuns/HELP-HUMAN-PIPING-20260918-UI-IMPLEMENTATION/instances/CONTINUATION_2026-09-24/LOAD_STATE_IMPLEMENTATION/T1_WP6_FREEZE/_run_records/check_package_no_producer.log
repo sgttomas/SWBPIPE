@@ -1,0 +1,7 @@
+$ python LSI/T1_WP6_STATIC_CASES/_run_records/check_package.py   (no --raw-dir, no --producer: no-producer mode)
+group A: 241 checks passed
+group B: 140 checks passed
+group C: 29 checks passed
+group D: 4079 checks passed
+total passed 4489, failed 0
+exit 0

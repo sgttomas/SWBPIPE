@@ -1,0 +1,3281 @@
+{
+  "format": "openpipestress.first_static_selector_candidate/1",
+  "case_id": "thermal_datum_ratio.fixed",
+  "producer_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "raw_schema_version": "0.2.0",
+  "row_namespace": "payload.mechanics_envelope.results",
+  "assertions": [
+    {
+      "id": "case:annular-three-point.axial.pipe:thermal.end_i",
+      "selector": {
+        "id": "result:force:pipe-thermal:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "negate",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:annular-three-point.axial.pipe:thermal.quarter_1",
+      "selector": {
+        "id": "result:force:pipe-thermal:quarter-1:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:annular-three-point.axial.pipe:thermal.midspan",
+      "selector": {
+        "id": "result:force:pipe-thermal:midspan:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:annular-three-point.axial.pipe:thermal.quarter_3",
+      "selector": {
+        "id": "result:force:pipe-thermal:quarter-3:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:annular-three-point.axial.pipe:thermal.end_j",
+      "selector": {
+        "id": "result:force:pipe-thermal:axial:end-j",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:root.Fx",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:12:support:root:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_root_Fx",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:root.Fy",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:12:support:root:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:root.Fz",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:12:support:root:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:root.Mx",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:12:support:root:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:root.My",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:12:support:root:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:root.Mz",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:12:support:root:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:far.Fx",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:11:support:far:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_far_Fx",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:far.Fy",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:11:support:far:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:far.Fz",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:11:support:far:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:far.Mx",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:11:support:far:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:far.My",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:11:support:far:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.reaction.support:far.Mz",
+      "selector": {
+        "id": "result:support-action:24:case:annular-three-point:11:support:far:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.evidence.member.pipe:thermal.thermal_strain",
+      "selector": {
+        "id": "evidence:case:annular-three-point:member:pipe:thermal:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/thermal_strain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-ratio strain (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.evidence.member.pipe:thermal.thermal_stretch",
+      "selector": {
+        "id": "evidence:case:annular-three-point:member:pipe:thermal:thermal_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_stretch",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/thermal_stretch",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-ratio stretch (resolved thermal stretch lambda_th)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.evidence.member.pipe:thermal.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:annular-three-point:member:pipe:thermal:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/dilation_install",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + alpha_sec(T_install)*(T_install - T_m) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.evidence.member.pipe:thermal.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:annular-three-point:member:pipe:thermal:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/dilation_operating",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + alpha_sec(T)*(T - T_m) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.evidence.member.pipe:thermal.installation_temperature_k",
+      "selector": {
+        "id": "evidence:case:annular-three-point:member:pipe:thermal:installation_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "installation_temperature_k",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/installation_temperature_K",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "absolute temperature conversion includes +273.15 (installation temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.evidence.member.pipe:thermal.operating_temperature_k",
+      "selector": {
+        "id": "evidence:case:annular-three-point:member:pipe:thermal:operating_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "operating_temperature_k",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/operating_temperature_K",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "absolute temperature conversion; K and degC authoring are identical (operating temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.evidence.member.pipe:thermal.coefficient_datum_k",
+      "selector": {
+        "id": "evidence:case:annular-three-point:member:pipe:thermal:coefficient_datum_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "coefficient_datum_k",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/datum_temperature_K",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "law datum temperature (expansion-law datum temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:annular-three-point.evidence.member.pipe:thermal.selected_E_pa",
+      "selector": {
+        "id": "evidence:case:annular-three-point:member:pipe:thermal:selected_E_pa",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "selected_E_pa",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "Pa",
+        "dimension": "stress"
+      },
+      "criterion_rule_id": "criterion:load_reference_material:stress:Pa:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_material",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/E",
+          "reference_unit": "Pa",
+          "transform": "identity"
+        },
+        "why_required": "explicit base modulus (member's selected elastic modulus)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.axial.pipe:thermal.end_i",
+      "selector": {
+        "id": "result:loadcase:case-verification-two-point:force:pipe-thermal:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "negate",
+          "zero_scale": {
+            "tag": "case_force.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:verification-two-point.axial.pipe:thermal.quarter_1",
+      "selector": {
+        "id": "result:loadcase:case-verification-two-point:force:pipe-thermal:quarter-1:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:verification-two-point.axial.pipe:thermal.midspan",
+      "selector": {
+        "id": "result:loadcase:case-verification-two-point:force:pipe-thermal:midspan:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:verification-two-point.axial.pipe:thermal.quarter_3",
+      "selector": {
+        "id": "result:loadcase:case-verification-two-point:force:pipe-thermal:quarter-3:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:verification-two-point.axial.pipe:thermal.end_j",
+      "selector": {
+        "id": "result:loadcase:case-verification-two-point:force:pipe-thermal:axial:end-j",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:root.Fx",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:12:support:root:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_root_Fx",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:root.Fy",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:12:support:root:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.verification_two_point",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:root.Fz",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:12:support:root:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.verification_two_point",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:root.Mx",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:12:support:root:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.verification_two_point",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:root.My",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:12:support:root:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.verification_two_point",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:root.Mz",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:12:support:root:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.verification_two_point",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:far.Fx",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:11:support:far:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_far_Fx",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:far.Fy",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:11:support:far:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.verification_two_point",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:far.Fz",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:11:support:far:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.verification_two_point",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:far.Mx",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:11:support:far:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.verification_two_point",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:far.My",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:11:support:far:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.verification_two_point",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.reaction.support:far.Mz",
+      "selector": {
+        "id": "result:support-action:27:case:verification-two-point:11:support:far:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.verification_two_point",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.verification_two_point",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.evidence.member.pipe:thermal.thermal_strain",
+      "selector": {
+        "id": "evidence:case:verification-two-point:member:pipe:thermal:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:two-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/thermal_strain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-ratio strain (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.evidence.member.pipe:thermal.thermal_stretch",
+      "selector": {
+        "id": "evidence:case:verification-two-point:member:pipe:thermal:thermal_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_stretch",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:two-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/thermal_stretch",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-ratio stretch (resolved thermal stretch lambda_th)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.evidence.member.pipe:thermal.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:verification-two-point:member:pipe:thermal:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:two-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/dilation_install",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + alpha_sec(T_install)*(T_install - T_m) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.evidence.member.pipe:thermal.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:verification-two-point:member:pipe:thermal:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:two-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/dilation_operating",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + alpha_sec(T)*(T - T_m) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.evidence.member.pipe:thermal.installation_temperature_k",
+      "selector": {
+        "id": "evidence:case:verification-two-point:member:pipe:thermal:installation_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "installation_temperature_k",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:two-point"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/installation_temperature_K",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "absolute temperature conversion includes +273.15 (installation temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.evidence.member.pipe:thermal.operating_temperature_k",
+      "selector": {
+        "id": "evidence:case:verification-two-point:member:pipe:thermal:operating_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "operating_temperature_k",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:two-point"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/operating_temperature_K",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "absolute temperature conversion; K and degC authoring are identical (operating temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.evidence.member.pipe:thermal.coefficient_datum_k",
+      "selector": {
+        "id": "evidence:case:verification-two-point:member:pipe:thermal:coefficient_datum_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "coefficient_datum_k",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:two-point"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/expected/datum_temperature_K",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "law datum temperature (expansion-law datum temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:verification-two-point.evidence.member.pipe:thermal.selected_E_pa",
+      "selector": {
+        "id": "evidence:case:verification-two-point:member:pipe:thermal:selected_E_pa",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "selected_E_pa",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:two-point"
+        },
+        "unit": "Pa",
+        "dimension": "stress"
+      },
+      "criterion_rule_id": "criterion:load_reference_material:stress:Pa:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_material",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/verification_two_point/inputs/E",
+          "reference_unit": "Pa",
+          "transform": "identity"
+        },
+        "why_required": "explicit base modulus (member's selected elastic modulus)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.axial.pipe:thermal.end_i",
+      "selector": {
+        "id": "result:loadcase:case-annular-three-point-kelvin:force:pipe-thermal:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "negate",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.axial.pipe:thermal.quarter_1",
+      "selector": {
+        "id": "result:loadcase:case-annular-three-point-kelvin:force:pipe-thermal:quarter-1:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.axial.pipe:thermal.midspan",
+      "selector": {
+        "id": "result:loadcase:case-annular-three-point-kelvin:force:pipe-thermal:midspan:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.axial.pipe:thermal.quarter_3",
+      "selector": {
+        "id": "result:loadcase:case-annular-three-point-kelvin:force:pipe-thermal:quarter-3:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.axial.pipe:thermal.end_j",
+      "selector": {
+        "id": "result:loadcase:case-annular-three-point-kelvin:force:pipe-thermal:axial:end-j",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:thermal",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "restrained thermal wall force"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:root.Fx",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:12:support:root:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_root_Fx",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:root.Fy",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:12:support:root:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:root.Fz",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:12:support:root:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:root.Mx",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:12:support:root:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:root.My",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:12:support:root:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:root.Mz",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:12:support:root:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:far.Fx",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:11:support:far:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_far_Fx",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:far.Fy",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:11:support:far:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:far.Fz",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:11:support:far:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:far.Mx",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:11:support:far:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:far.My",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:11:support:far:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.reaction.support:far.Mz",
+      "selector": {
+        "id": "result:support-action:31:case:annular-three-point-kelvin:11:support:far:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.annular_companion",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "straight bar on global X with axial eigenstrain only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.annular_companion",
+            "base": {
+              "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.thermal_strain",
+      "selector": {
+        "id": "evidence:case:annular-three-point-kelvin:member:pipe:thermal:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/thermal_strain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-ratio strain (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.thermal_stretch",
+      "selector": {
+        "id": "evidence:case:annular-three-point-kelvin:member:pipe:thermal:thermal_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_stretch",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/thermal_stretch",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-ratio stretch (resolved thermal stretch lambda_th)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.installation_datum_stretch",
+      "selector": {
+        "id": "evidence:case:annular-three-point-kelvin:member:pipe:thermal:installation_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "installation_datum_stretch",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/dilation_install",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T_install) = 1 + alpha_sec(T_install)*(T_install - T_m) (datum stretch lambda(T_install) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.operating_datum_stretch",
+      "selector": {
+        "id": "evidence:case:annular-three-point-kelvin:member:pipe:thermal:operating_datum_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "operating_datum_stretch",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/dilation_operating",
+          "reference_unit": "1",
+          "transform": "one_plus"
+        },
+        "why_required": "lambda(T) = 1 + alpha_sec(T)*(T - T_m) (datum stretch lambda(T) of the expansion law)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.installation_temperature_k",
+      "selector": {
+        "id": "evidence:case:annular-three-point-kelvin:member:pipe:thermal:installation_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "installation_temperature_k",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/installation_temperature_K",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "absolute temperature conversion includes +273.15 (installation temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.operating_temperature_k",
+      "selector": {
+        "id": "evidence:case:annular-three-point-kelvin:member:pipe:thermal:operating_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "operating_temperature_k",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/operating_temperature_K",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "absolute temperature conversion; K and degC authoring are identical (operating temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.coefficient_datum_k",
+      "selector": {
+        "id": "evidence:case:annular-three-point-kelvin:member:pipe:thermal:coefficient_datum_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "coefficient_datum_k",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/expected/datum_temperature_K",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "law datum temperature (expansion-law datum temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.selected_E_pa",
+      "selector": {
+        "id": "evidence:case:annular-three-point-kelvin:member:pipe:thermal:selected_E_pa",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "selected_E_pa",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "Pa",
+        "dimension": "stress"
+      },
+      "criterion_rule_id": "criterion:load_reference_material:stress:Pa:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_material",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/variants/annular_companion/inputs/E",
+          "reference_unit": "Pa",
+          "transform": "identity"
+        },
+        "why_required": "explicit base modulus (member's selected elastic modulus)"
+      }
+    }
+  ],
+  "negative_assertions": [
+    {
+      "id": "case:annular-three-point.evidence.member.pipe:thermal.thermal_strain.not.alpha_hot_times_operating_minus_install",
+      "selector": {
+        "id": "evidence:case:annular-three-point:member:pipe:thermal:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:annular-three-point.evidence.member.pipe:thermal.thermal_strain",
+        "discriminator": "alpha_hot_times_operating_minus_install",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/wrong_result_discriminators/alpha_hot_times_operating_minus_install",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:annular-three-point.evidence.member.pipe:thermal.thermal_strain.not.subtract_datum_dilations",
+      "selector": {
+        "id": "evidence:case:annular-three-point:member:pipe:thermal:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:annular-three-point.evidence.member.pipe:thermal.thermal_strain",
+        "discriminator": "subtract_datum_dilations",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/wrong_result_discriminators/subtract_datum_dilations",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:verification-two-point.evidence.member.pipe:thermal.thermal_strain.not.alpha_hot_times_operating_minus_install",
+      "selector": {
+        "id": "evidence:case:verification-two-point:member:pipe:thermal:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:two-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:verification-two-point.evidence.member.pipe:thermal.thermal_strain",
+        "discriminator": "alpha_hot_times_operating_minus_install",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/wrong_result_discriminators/alpha_hot_times_operating_minus_install",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:verification-two-point.evidence.member.pipe:thermal.thermal_strain.not.subtract_datum_dilations",
+      "selector": {
+        "id": "evidence:case:verification-two-point:member:pipe:thermal:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:verification-two-point"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:two-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:verification-two-point.evidence.member.pipe:thermal.thermal_strain",
+        "discriminator": "subtract_datum_dilations",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/wrong_result_discriminators/subtract_datum_dilations",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.thermal_strain.not.alpha_hot_times_operating_minus_install",
+      "selector": {
+        "id": "evidence:case:annular-three-point-kelvin:member:pipe:thermal:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.thermal_strain",
+        "discriminator": "alpha_hot_times_operating_minus_install",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/wrong_result_discriminators/alpha_hot_times_operating_minus_install",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.thermal_strain.not.subtract_datum_dilations",
+      "selector": {
+        "id": "evidence:case:annular-three-point-kelvin:member:pipe:thermal:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:annular-three-point-kelvin"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:thermal"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:thermal",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:three-point"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.thermal_strain",
+        "discriminator": "subtract_datum_dilations",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/thermal_datum_ratio/wrong_result_discriminators/subtract_datum_dilations",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    }
+  ],
+  "gaps": [],
+  "scoring_readiness": {
+    "status": "authoring_only_pending_independent_freeze",
+    "reference_case_key": "thermal_datum_ratio",
+    "family": "reference_temperatures",
+    "load_state_decomposition": "three load cases in one request: the three-point annular table, the reviewed two-point table, and the three-point table with the operating temperature authored in K",
+    "limits": [],
+    "identification": "row ids and metadata were identified by running core/product_physics examples/physics_source_connected on this request in both modes; no observed value is used as a reference or criterion and none is committed"
+  }
+}

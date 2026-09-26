@@ -1,0 +1,15 @@
+     Running unittests src/lib.rs (<CARGO_TARGET_DIR>/debug/deps/open_pipe_stress_operation_applier-c2c9d7d77c23ba55)
+test result: ok. 140 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+     Running tests/canonical_hash_parity.rs (<CARGO_TARGET_DIR>/debug/deps/canonical_hash_parity-a8fc9142d453a231)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/contract_corpus.rs (<CARGO_TARGET_DIR>/debug/deps/contract_corpus-e6baf84d63b9c568)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+     Running tests/create_pipe_section_inputs.rs (<CARGO_TARGET_DIR>/debug/deps/create_pipe_section_inputs-a1d8822560ca5650)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+     Running tests/exact_authoring.rs (<CARGO_TARGET_DIR>/debug/deps/exact_authoring-68aacd051fd1250f)
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+     Running tests/generated_self_weight.rs (<CARGO_TARGET_DIR>/debug/deps/generated_self_weight-44bdf28770dec90e)
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+     Running tests/support_authoring_conflicts.rs (<CARGO_TARGET_DIR>/debug/deps/support_authoring_conflicts-7c655748aad4ff86)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

@@ -1,0 +1,70 @@
+
+running 5 tests
+test pinned_table_identity_profile_and_policy ... ok
+test header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels ... ok
+test table_bytes_and_transport_cases_match_in_rust ... FAILED
+test canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim ... ok
+test shared_adversarial_cases_match_in_rust ... ok
+
+failures:
+
+---- table_bytes_and_transport_cases_match_in_rust stdout ----
+
+thread 'table_bytes_and_transport_cases_match_in_rust' (9066) panicked at tests/load_reference_source_contract.rs:490:9:
+assertion `left == right` failed: "TABLEBYTES-id-edit"
+  left: "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_IDENTITY"
+ right: "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed::<alloc::string::String, &str>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: load_reference_source_contract::table_bytes_and_transport_cases_match_in_rust
+             at ./tests/load_reference_source_contract.rs:490:9
+   5: load_reference_source_contract::table_bytes_and_transport_cases_match_in_rust::{closure#0}
+             at ./tests/load_reference_source_contract.rs:468:51
+   6: <load_reference_source_contract::table_bytes_and_transport_cases_match_in_rust::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    table_bytes_and_transport_cases_match_in_rust
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 37.28s
+
+
+--- stderr ---
+   Compiling open_pipe_stress_result_export v0.1.0 (<scratch-copy>/core/reporting/result_export)
+warning: unused import: `Sha256`
+  --> src/load_reference_source.rs:34:20
+   |
+34 | use sha2::{Digest, Sha256};
+   |                    ^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Digest`
+  --> src/load_reference_source.rs:34:12
+   |
+34 | use sha2::{Digest, Sha256};
+   |            ^^^^^^
+
+warning: function `derived` is never used
+   --> src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 3 warnings (run `cargo fix --lib -p open_pipe_stress_result_export` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.27s
+     Running tests/load_reference_source_contract.rs (<scratch-target>/re/debug/deps/load_reference_source_contract-ae94915357182f1d)
+error: test failed, to rerun pass `--test load_reference_source_contract`

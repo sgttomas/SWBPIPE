@@ -69,8 +69,9 @@ pub(crate) struct ExactPressurePipeState {
     pub eigenload_pair: [f64; 2],
 }
 
+/// Model 0.4.0 (load/reference state) reuses this exact straight route unchanged.
 pub(crate) fn is_exact(model: &PreviewModel) -> bool {
-    model.schema_version == "0.3.0"
+    matches!(model.schema_version.as_str(), "0.3.0" | "0.4.0")
         && model.pressure_contract.as_ref().is_some_and(|contract| {
             contract.version.as_deref() == Some(EXACT_VERSION)
                 && contract.mode.as_deref() == Some(EXACT_MODE)
@@ -111,6 +112,15 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                     "pressure contract namespaces require model document 0.3.0; old inputs are not reinterpreted");
             }
         }
+        "0.4.0" => {
+            if !model.pressure_contract.as_ref().is_some_and(|contract| {
+                contract.version.as_deref() == Some(EXACT_VERSION)
+                    && contract.mode.as_deref() == Some(EXACT_MODE)
+            }) {
+                problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED", &["pressure_contract"],
+                    "model document 0.4.0 requires the 2.0.0/exact_straight_pressure_v2 pressure contract; no legacy fallback is used");
+            }
+        }
         "0.3.0" => match &model.pressure_contract {
             None => problem(
                 diagnostics,
@@ -133,13 +143,13 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             diagnostics,
             "PREVIEW_SCHEMA_VERSION_UNSUPPORTED",
             &["schema_version"],
-            "direct mechanics solves support exactly model versions 0.1.0, 0.2.0 and 0.3.0",
+            "direct mechanics solves support exactly model versions 0.1.0, 0.2.0, 0.3.0 and 0.4.0",
         ),
     }
 
     for component in &model.components {
         if let Some(contract) = &component.objective_connector {
-            let code = if model.schema_version != "0.3.0" {
+            let code = if !matches!(model.schema_version.as_str(), "0.3.0" | "0.4.0") {
                 "PREVIEW_CONTRACT_VERSION_MISMATCH"
             } else if contract.get("version").and_then(Value::as_str) != Some("1.0.0") {
                 "OBJECTIVE_CONNECTOR_VERSION_UNSUPPORTED"
@@ -404,6 +414,20 @@ pub(crate) fn build_pressure_case(
     case: &PreviewLoadCase,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Option<ExactPressureCase> {
+    build_pressure_case_with_members(model, built, materials, case, None, diagnostics)
+}
+
+/// As `build_pressure_case`, but a resolved load/reference-state case supplies
+/// each member's own selected E/nu pair by pipe ID. Thermal strain is owned by
+/// the resolved member state and is never read from legacy primitives here.
+pub(crate) fn build_pressure_case_with_members(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    materials: &[MaterialInput],
+    case: &PreviewLoadCase,
+    member_pairs: Option<&HashMap<String, IsotropicENu>>,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Option<ExactPressureCase> {
     validate_profile(model, diagnostics);
     if has_blocking(diagnostics) || !is_exact(model) {
         return None;
@@ -508,6 +532,16 @@ pub(crate) fn build_pressure_case(
             } else {
                 first_bore = Some(annulus.inner_radius_m());
             }
+            let resolved_pair = member_pairs.map(|pairs| pairs.get(&pipe.element_id));
+            if resolved_pair == Some(None) {
+                problem(
+                    diagnostics,
+                    "LOAD_STATE_MEMBER_MATERIAL_MISSING",
+                    &[&case.id, id, &pipe.element_id],
+                    "the resolved case does not supply this pressure member's selected E/nu pair",
+                );
+                continue;
+            }
             let Some(material_input) = material_map.get(authored.material.as_str()) else {
                 problem(
                     diagnostics,
@@ -517,6 +551,9 @@ pub(crate) fn build_pressure_case(
                 );
                 continue;
             };
+            let material = if let Some(Some(&pair)) = resolved_pair {
+                pair
+            } else {
             let Some(nu) = &material_input.poisson_ratio else {
                 problem(
                     diagnostics,
@@ -534,7 +571,7 @@ pub(crate) fn build_pressure_case(
                     "region assembly requires a normalized common homogeneous_isotropic_E_nu_v1 material basis (E in Pa, nu in 1)");
                 continue;
             }
-            let material = match IsotropicENu::new(material_input.elastic_modulus.value, nu.value) {
+            match IsotropicENu::new(material_input.elastic_modulus.value, nu.value) {
                 Ok(value) => value,
                 Err(error) => {
                     problem(
@@ -545,8 +582,9 @@ pub(crate) fn build_pressure_case(
                     );
                     continue;
                 }
+            }
             };
-            let thermal_consumed = case.primitive_loads.iter().any(|load| {
+            let thermal_consumed = member_pairs.is_none() && case.primitive_loads.iter().any(|load| {
                 load.category == "thermal"
                     && is_temperature_change_dimension(&load.dimension)
                     && matches!(&load.target, LoadTargetInput::Element { pipe: target } if target == &pipe.element_id)
@@ -599,7 +637,7 @@ pub(crate) fn build_pressure_case(
             geometry.push(member_geometry);
             material_evidence.push(json!({"pipe_id":pipe.element_id,"material_id":material_input.id,
                 "E_pa":material.elastic_modulus_pa(),"nu":material.poisson_ratio(),"G_pa":material.shear_modulus_pa(),
-                "constitutive_basis":MATERIAL_BASIS,"temperature_basis":temperature_basis(case),"provenance":material_input.provenance,
+                "constitutive_basis":MATERIAL_BASIS,"temperature_basis":if member_pairs.is_some() { json!("resolved_member_state") } else { temperature_basis(case) },"provenance":material_input.provenance,
                 "thermal_consumed":thermal_consumed,"alpha_per_kelvin":alpha.map(|quantity|quantity.value)}));
             load_evidence.push(json!({"pipe_id":pipe.element_id,"eigenload_pair_local_n":eigen,
                 "mathematical_cap_pair_local_n":caps,"local_x_global":direction,"thermal_included":false}));

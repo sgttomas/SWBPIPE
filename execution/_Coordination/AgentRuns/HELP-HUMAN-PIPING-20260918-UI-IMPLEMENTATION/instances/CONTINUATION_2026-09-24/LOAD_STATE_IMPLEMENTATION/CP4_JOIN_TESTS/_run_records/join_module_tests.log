@@ -1,0 +1,10 @@
+     Running unittests src/lib.rs (<target>/debug/deps/open_pipe_stress_product_physics-9c364c63a58c3af4)
+test source_receipt::load_state_join_tests::a_resolved_motion_without_exactly_one_rigid_owner_is_refused_at_source_closure ... ok
+test source_receipt::load_state_join_tests::a_primitive_load_colliding_with_the_reserved_eigen_source_id_is_refused_at_closure ... ok
+test source_receipt::load_state_join_tests::a_zero_valued_pressure_region_is_not_joined ... ok
+test source_receipt::load_state_join_tests::post_capture_perturbations_accepted_live_are_refused_by_captured_replay ... ok
+test source_receipt::load_state_join_tests::a_selected_case_whose_member_pair_differs_from_the_base_qualifies_with_its_own_pair ... ok
+test source_receipt::load_state_join_tests::two_selected_cases_with_different_pairs_and_motions_each_bind_their_own_state ... ok
+test source_receipt::load_state_join_tests::the_mixed_joined_envelope_binds_its_ordinary_pressure_case_record ... ok
+test source_receipt::load_state_join_tests::joined_rows_agree_with_the_ordinary_route_and_closed_forms ... ok
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 317 filtered out; finished in 1.68s

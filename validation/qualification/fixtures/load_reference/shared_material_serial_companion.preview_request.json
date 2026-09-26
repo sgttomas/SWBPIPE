@@ -1,0 +1,299 @@
+{
+  "model": {
+    "schema_version": "0.4.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "pressure_contract": {
+      "version": "2.0.0",
+      "mode": "exact_straight_pressure_v2"
+    },
+    "project": {
+      "id": "project:lr-shared-material-serial",
+      "name": "Shared material, serial companion",
+      "description": "Invented VP-STATIC load/reference-state qualification request built from reference_cases.json; no libraries or code rules.",
+      "units": {
+        "length": "m",
+        "force": "N",
+        "angle": "rad",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "rule_check": "not_performed_user_rule_inputs_missing",
+      "professional_acceptance": "not_provided"
+    },
+    "nodes": [
+      {
+        "id": "node:root",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; coordinates from the reference lengths"
+      },
+      {
+        "id": "node:middle",
+        "position": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; coordinates from the reference lengths"
+      },
+      {
+        "id": "node:far",
+        "position": {
+          "x": 2.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; coordinates from the reference lengths"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "id": "pipe:1",
+        "from": "node:root",
+        "to": "node:middle",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          }
+        },
+        "material": "material:user-shared",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "provenance": "section from reference_cases.json geometry annulus_od_0p20_wall_0p01; y_reference is an authoring convention"
+      },
+      {
+        "id": "pipe:2",
+        "from": "node:middle",
+        "to": "node:far",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          }
+        },
+        "material": "material:user-shared",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "provenance": "section from reference_cases.json geometry annulus_od_0p20_wall_0p01; y_reference is an authoring convention"
+      }
+    ],
+    "supports": [
+      {
+        "id": "support:root",
+        "node": "node:root",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; rigid anchor representing the reference topology"
+      },
+      {
+        "id": "support:far",
+        "node": "node:far",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; rigid anchor representing the reference topology"
+      }
+    ],
+    "components": [],
+    "materials": [
+      {
+        "id": "material:user-shared",
+        "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus": {
+          "value": 170000000000.0,
+          "unit": "Pa"
+        },
+        "poisson_ratio": {
+          "value": 0.28,
+          "unit": "1"
+        },
+        "provenance": "base E/nu invented and selected by no member; the two points carry the reference data",
+        "temperature_points": [
+          {
+            "id": "point:user-cold",
+            "temperature": {
+              "value": 20.0,
+              "unit": "degC"
+            },
+            "elastic_modulus": {
+              "value": 200000000000.0,
+              "unit": "Pa"
+            },
+            "poisson_ratio": {
+              "value": 0.3,
+              "unit": "1"
+            },
+            "provenance": "E/nu from /cases/shared_material_serial_companion/variants/annular_companion/inputs/E1 and nu1; point temperature 20 degC invented (the reference gives none)"
+          },
+          {
+            "id": "point:user-hot",
+            "temperature": {
+              "value": 300.0,
+              "unit": "degC"
+            },
+            "elastic_modulus": {
+              "value": 100000000000.0,
+              "unit": "Pa"
+            },
+            "poisson_ratio": {
+              "value": 0.25,
+              "unit": "1"
+            },
+            "provenance": "E/nu from /cases/shared_material_serial_companion/variants/annular_companion/inputs/E2 and nu2; point temperature 300 degC invented (the reference gives none)"
+          }
+        ]
+      }
+    ],
+    "reference_configurations": [
+      {
+        "id": "reference:installed",
+        "label": "Installed reference",
+        "geometry_ref": {
+          "kind": "authored_model_geometry"
+        },
+        "member_references": [
+          {
+            "pipe_ref": "pipe:1",
+            "basis": {
+              "kind": "direct_strain_reference"
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "member reference from the reference case inputs"
+          },
+          {
+            "pipe_ref": "pipe:2",
+            "basis": {
+              "kind": "direct_strain_reference"
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "member reference from the reference case inputs"
+          }
+        ],
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "case:shared-material",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:1",
+              "material_selection": {
+                "kind": "exact_point",
+                "material_ref": "material:user-shared",
+                "point_ref": "point:user-cold"
+              },
+              "thermal_state": {
+                "kind": "unchanged_reference",
+                "provenance": "reference state unchanged (reference strain zero)"
+              }
+            },
+            {
+              "pipe_ref": "pipe:2",
+              "material_selection": {
+                "kind": "exact_point",
+                "material_ref": "material:user-shared",
+                "point_ref": "point:user-hot"
+              },
+              "thermal_state": {
+                "kind": "explicit_interval_strain",
+                "strain": {
+                  "value": 0.001,
+                  "unit": "1"
+                },
+                "interval_reference": "reference_cases.json shared_material_serial_companion epsilon2",
+                "provenance": "direct strain input; not a temperature inferred from a property point"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:root",
+              "participation": {
+                "kind": "active_model_device"
+              },
+              "boundary_motion": [
+                {
+                  "dof": "UX",
+                  "value": {
+                    "value": 0.0,
+                    "unit": "m"
+                  },
+                  "meaning": "absolute_reference_displacement"
+                }
+              ]
+            },
+            {
+              "support_ref": "support:far",
+              "participation": {
+                "kind": "active_model_device"
+              },
+              "boundary_motion": [
+                {
+                  "dof": "UX",
+                  "value": {
+                    "value": 0.0,
+                    "unit": "m"
+                  },
+                  "meaning": "absolute_reference_displacement"
+                }
+              ]
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      }
+    ],
+    "combinations": []
+  },
+  "materials": []
+}

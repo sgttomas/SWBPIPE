@@ -1,0 +1,13 @@
+{
+ "python": "/home/user/dec025-venv/bin/python",
+ "python_version": "3.11.15",
+ "jsonschema": "4.26.0",
+ "pytest": "9.1.1",
+ "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+ "cargo_target_dir": "/home/user/cargo-targets/lscp3readers/result_export (deleted after the final run); HEAD-mirror target /home/user/cargo-targets/lscp3readers/result_export_head (deleted)",
+ "cargo_flags": "--locked --offline -j 1",
+ "OPENPIPESTRESS_CHECKED_JSON_BIN": "/home/user/wt/loadstate/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson (pre-existing build, not rebuilt; set to keep conftest from invoking cargo)",
+ "OPENPIPESTRESS_UNITS_BIN": "/home/user/wt/loadstate/projects/chirality-piping/core/units/target/units-authority/release/openpipestress_units (pre-existing build, not rebuilt)",
+ "checkout": "/home/user/wt/loadstate (branch codex/piping-load-states-20260925, HEAD d92ca3b7cbbd20a9adcfda50f10202f42b0d997e)",
+ "head_mirrors": "read-only git archive of HEAD core/analysis_runs, core/handoff, tests and core/reporting/result_export into the session scratchpad, with symlinks to the worktree fixtures/schemas/other core dirs; deleted after use"
+}

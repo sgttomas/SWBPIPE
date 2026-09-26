@@ -1,0 +1,48 @@
+CP3_SCHEMAS command ledger (machine paths allowed here only)
+
+PY=/home/user/dec025-venv/bin/python
+WR=/home/user/wt/loadstate/projects/chirality-piping          (WORKING_ROOT; cwd for every command unless noted)
+R=$WR/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/CP3_SCHEMAS/_run_records
+SP=/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad   (session scratch; outside the repository)
+HELPERS (set for every pytest run after the first):
+  OPENPIPESTRESS_CHECKED_JSON_BIN=$WR/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson
+  OPENPIPESTRESS_UNITS_BIN=$WR/core/units/target/units-authority/release/openpipestress_units
+  PYTHONDONTWRITEBYTECODE=1
+
+1. Input verification
+   sha256sum <brief> <9 frozen inputs> core/product_physics/src/case_state/input.rs     -> all match the brief (see RETURN.md)
+   sha256sum schemas/{results.v0.3.schema.yaml,analysis_run.v0.3.schema.json,stress_neutral_export.v0.3.schema.json} -> pre_edit_carrier_sha256.txt
+   git show HEAD:<carrier> | sha256sum      -> HEAD bytes == pre-edit bytes (baseline for the preservation check)
+
+2. New schema (frozen first)
+   $PY $R/gen_load_reference_state_schema.py        -> schemas/load_reference_state.schema.json (atomic tmp+rename)
+   recorded in FROZEN_load_reference_state.txt; sha256 sent to the manager before any carrier edit
+
+3. Carrier edits
+   $PY $R/edit_carriers.py                           -> three carriers rewritten atomically (tmp+rename)
+   $PY $R/preservation_check.py                      -> preservation_check.log   (PASS)
+
+4. Existing required tests
+   a) worktree, first run (conftest built the helpers with cargo; see RETURN.md):
+      $PY -m pytest -q -p no:cacheprovider tests/test_results_schema.py tests/test_analysis_run_schema.py tests/test_stress_neutral_*.py tests/test_source_block_schema_contract.py -rs
+      -> existing_tests_post_edit.log
+   b) isolated trees from `git archive HEAD` (404cd9c6b) of schemas/ tests/ core/ tools/ fixtures/ requirements-dev.txt:
+      $SP/base = pristine HEAD; $SP/cand = HEAD + the four candidate schema files
+      (cd $SP/<tree>/projects/chirality-piping && $PY -m pytest -q -p no:cacheprovider -rs tests/test_results_schema.py tests/test_analysis_run_schema.py tests/test_stress_neutral_export_package.py tests/test_stress_neutral_physics_source.py tests/test_stress_neutral_precision.py tests/test_source_block_schema_contract.py)
+      -> existing_tests_isolated_base.log, existing_tests_isolated_cand.log
+
+5. New tests
+   worktree:  $PY -m pytest -q -p no:cacheprovider tests/test_load_reference_schema.py   -> new_tests_worktree.log
+   isolated:  $SP/mut = HEAD + candidate schemas + new test + untracked load_reference fixtures + load-reference table
+              (cd $SP/mut/projects/chirality-piping && $PY -m pytest -q -p no:cacheprovider tests/test_load_reference_schema.py)
+              -> new_tests_isolated_head_plus_candidate.log
+
+6. Test-the-tests
+   (cd $SP/mut/projects/chirality-piping && $PY $R/mutation_check.py)   -> mutation_check.log
+
+7. Closed-shape checker cross-check (read-only import of core.analysis_runs.source_blocks._shape)
+   $PY $R/shape_checker_crosscheck.py                -> shape_checker_crosscheck.log
+
+8. Environment: environment.txt
+
+9. Cleanup: the scratch trees $SP/base, $SP/cand and $SP/mut (about 73 MB) were deleted after their logs were captured. Re-create them with the git archive commands in step 4b.

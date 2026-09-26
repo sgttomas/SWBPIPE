@@ -1,0 +1,2 @@
+lr: 228 entries; 438 compared outcomes agree, 0 disagree; per key {'dispatch': 210, 'validator': 210, 'table': 4, 'transport': 14}
+lrs: 136 entries; 282 compared outcomes agree, 0 disagree; per key {'dispatch': 116, 'joined': 116, 'lr': 17, 'ps': 13, 'table': 6, 'transport': 14}

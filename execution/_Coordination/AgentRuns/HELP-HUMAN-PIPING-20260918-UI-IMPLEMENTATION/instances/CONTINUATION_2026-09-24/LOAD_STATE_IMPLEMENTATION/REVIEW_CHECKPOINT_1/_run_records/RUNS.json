@@ -1,0 +1,27 @@
+{
+  "reviewer": "Type 2 TASK, fresh-context non-author reviewer dispatched by HELP_HUMAN ROOT for the load-state WORKING_ITEMS manager; Claude Code delegated subagent; no further delegation",
+  "role_text_sha256": {"agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"},
+  "instructions_read": ["AGENTS.md (identical bytes to /home/user/chirality/AGENTS.md)", "projects/chirality-piping/AGENTS.md"],
+  "candidate": {"checkout": "/home/user/wt/ls-review (detached worktree)", "head": "be1b9294a", "base": "c278f64ba122eb8b848b9f14e58a0e533e94439a", "diff_reviewed": "c278f64ba122..be1b9294a, files listed in RETURN.md"},
+  "design_basis": "git 9e8a55daecdeb9669131fd3e53c0e0303ee550d6 CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES DESIGN/INTERFACE/VERIFICATION/REFERENCES; sha256 match fixture sources block",
+  "reviewed_file_sha256_confirmed": {
+    "case_state/material.rs": "1ae8ac998fce43bcdb2f2b1fdb8b0f03569fbe688fa28f420d5f578d37c239bd",
+    "case_state/mod.rs": "0e52838884b2cb4ccc0df98c4a5c1df829110cb29697588e0c8294fa89b57198",
+    "case_state/thermal.rs": "4dd284d16f346ab82c2e7e1e207a00f30b6348c398804cae27a89f8efa191b1b",
+    "lib.rs": "5a4d70153cc53d3d6ee97770f87990df6e2b39314d28496db69d8f33598bc28e",
+    "reference_cases.json": "5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891"
+  },
+  "environment": {"cargo": "cargo 1.97.1 (c980f4866 2026-06-30)", "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)", "python": "Python 3.11.15", "cpus": 4, "jobs": 1},
+  "runs": [
+    {"cmd": "cd core/product_physics && CARGO_TARGET_DIR=/home/user/cargo-targets/lsreview/product_physics cargo +1.97.1 test --locked --offline -j 1 --lib case_state", "exit": 0, "result": "18 passed; 0 failed; 269 filtered out; no warnings in case_state", "log": "test_case_state_review_1.log"},
+    {"cmd": "python3 review_fixture_recompute.py core/product_physics/tests/fixtures/load_reference_states/reference_cases.json", "attempt": 1, "exit": 1, "result": "false positives only: substring vocabulary check matched 'a53' inside a sha256 and 'sif' inside 'classification'; check made word-bounded"},
+    {"cmd": "same, attempt 2", "exit": 0, "result": "324 quantities scanned, 886 checks, 0 failures", "log": "fixture_recompute.log"},
+    {"cmd": "python3 fixture_mutations.py <fixture> review_fixture_recompute.py", "exit": 0, "result": "9/9 mutations detected, including 3 internally consistent exact/decimal/value mutations caught only by independent derivation", "log": "fixture_mutations.log"},
+    {"cmd": "probe crate (scratchpad /tmp/claude-0/.../scratchpad/probe, sources copied to probe_crate/*.txt): CARGO_TARGET_DIR=/home/user/cargo-targets/lsreview/probe cargo +1.97.1 test --offline -j 1 -- --nocapture --test-threads 1", "exit": 0, "result": "8 reviewer probes + 8 original thermal tests + 4 pressure_sum tests pass on reviewed bytes", "log": "thermal_probes.log"},
+    {"cmd": "python3 thermal_mutations.py <reviewed thermal.rs> <probe crate> <target>", "exit": 0, "result": "13 mutants: 10 killed by original tests; T1/T2 (single-segment accumulation) and T14 (secant datum-coverage policy) survive the original tests and are killed by reviewer probes", "log": "thermal_mutations.log"},
+    {"cmd": "scratch copy of product_physics (include paths rewritten to absolute, reviewer probe appended to material.rs copy): CARGO_TARGET_DIR=/home/user/cargo-targets/lsreview/pp_probe cargo +1.97.1 test --locked --offline -j 1 --lib reviewer_probes -- --nocapture", "exit": 0, "result": "demonstrates unit-equivalence refusals / two-point interpolation", "log": "material_units_probe.log", "probe_source": "material_units_probe.rs.txt"},
+    {"cmd": "python3 material_mutations.py <reviewed material.rs> <scratch crate> <target>", "exit": 0, "result": "4/4 mutants killed; MM1 (no sort) killed only by the duplicate-temperature control", "log": "material_mutations.log"}
+  ],
+  "not_run": ["whole-workspace or integration tests, pytest, evidence sweep, desktop/native: outside this review's scope and host allocation"],
+  "writes": "Only LOAD_STATE_IMPLEMENTATION/REVIEW_CHECKPOINT_1/ in the snapshot; scratch crates under the session scratchpad and cargo targets under /home/user/cargo-targets/lsreview/. No git writes; /home/user/wt/loadstate not touched."
+}

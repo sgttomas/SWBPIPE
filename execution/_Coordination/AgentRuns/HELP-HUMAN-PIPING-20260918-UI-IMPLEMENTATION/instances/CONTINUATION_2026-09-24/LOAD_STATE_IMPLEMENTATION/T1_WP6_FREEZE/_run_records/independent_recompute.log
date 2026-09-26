@@ -1,0 +1,23 @@
+$ python LSI/T1_WP6_FREEZE/_run_records/independent_recompute.py
+prescribed_translation_two_bar: positives 27 (zero expectations 12), negatives 1
+prescribed_translation_all_fixed: positives 21 (zero expectations 12), negatives 0
+prescribed_rotation_all_fixed: positives 24 (zero expectations 14), negatives 0
+prescribed_rotation_free_tip: positives 17 (zero expectations 13), negatives 3
+shared_material_serial_companion: positives 35 (zero expectations 14), negatives 1
+thermal_datum_ratio.fixed: positives 75 (zero expectations 30), negatives 6
+thermal_datum_ratio.free: positives 60 (zero expectations 33), negatives 6
+coefficient_definition: positives 8 (zero expectations 0), negatives 4
+constant_alpha_interval: positives 4 (zero expectations 0), negatives 0
+multi_segment_free_length: positives 42 (zero expectations 0), negatives 12
+temperature_unit_identity: positives 9 (zero expectations 0), negatives 1
+signed_fit_states.fixed: positives 66 (zero expectations 32), negatives 4
+signed_fit_states.released: positives 51 (zero expectations 35), negatives 0
+persistent_source_once: positives 28 (zero expectations 10), negatives 2
+smallest negative separations (|correct-wrong| / tolerance around wrong):
+  4.481  temperature_unit_identity case:non-equal-control.evidence.member.pipe:identity.operating_temperature_k.not.non_equal_control.snapped_to_223p15_K
+  2.667e+05  signed_fit_states.fixed case:hot.axial.pipe:fit.midspan.not.hot_additive_strains
+  3.599e+05  thermal_datum_ratio.fixed case:annular-three-point-kelvin.evidence.member.pipe:thermal.thermal_strain.not.subtract_datum_dilations
+  3.599e+05  thermal_datum_ratio.fixed case:annular-three-point.evidence.member.pipe:thermal.thermal_strain.not.subtract_datum_dilations
+  3.599e+05  thermal_datum_ratio.fixed case:verification-two-point.evidence.member.pipe:thermal.thermal_strain.not.subtract_datum_dilations
+checks passed 3154, failed 0
+exit 0

@@ -1,0 +1,423 @@
+{
+  "format": "openpipestress.qualification_reference_values/1",
+  "case_id": "thermal_datum_ratio.fixed",
+  "readiness": "ready",
+  "basis": "generate_reference_values.py evaluating core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab) at the pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to binary64; no observed producer value",
+  "reference_kind": "analytical",
+  "independent_review_ref": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_FREEZE/RETURN.md#sha256=795b04214006160755fe39a427005022beecf94830c81e37110a8032d2574c49",
+  "values": [
+    {
+      "assertion_id": "case:annular-three-point.axial.pipe:thermal.end_i",
+      "value": 2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point.axial.pipe:thermal.quarter_1",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point.axial.pipe:thermal.midspan",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point.axial.pipe:thermal.quarter_3",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point.axial.pipe:thermal.end_j",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:root.Fx",
+      "value": 2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:root.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:root.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:far.Fx",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:far.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:far.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:far.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:far.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point.reaction.support:far.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point.evidence.member.pipe:thermal.thermal_strain",
+      "value": 0.0017193810228317806,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:annular-three-point.evidence.member.pipe:thermal.thermal_stretch",
+      "value": 1.0017193810228318,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:annular-three-point.evidence.member.pipe:thermal.installation_datum_stretch",
+      "value": 1.00036,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:annular-three-point.evidence.member.pipe:thermal.operating_datum_stretch",
+      "value": 1.00208,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:annular-three-point.evidence.member.pipe:thermal.installation_temperature_k",
+      "value": 323.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:annular-three-point.evidence.member.pipe:thermal.operating_temperature_k",
+      "value": 423.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:annular-three-point.evidence.member.pipe:thermal.coefficient_datum_k",
+      "value": 293.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:annular-three-point.evidence.member.pipe:thermal.selected_E_pa",
+      "value": 200000000000.0,
+      "unit": "Pa"
+    },
+    {
+      "assertion_id": "case:verification-two-point.axial.pipe:thermal.end_i",
+      "value": 2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:verification-two-point.axial.pipe:thermal.quarter_1",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:verification-two-point.axial.pipe:thermal.midspan",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:verification-two-point.axial.pipe:thermal.quarter_3",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:verification-two-point.axial.pipe:thermal.end_j",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:root.Fx",
+      "value": 2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:root.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:root.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:far.Fx",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:far.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:far.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:far.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:far.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:verification-two-point.reaction.support:far.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:verification-two-point.evidence.member.pipe:thermal.thermal_strain",
+      "value": 0.0017193810228317806,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:verification-two-point.evidence.member.pipe:thermal.thermal_stretch",
+      "value": 1.0017193810228318,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:verification-two-point.evidence.member.pipe:thermal.installation_datum_stretch",
+      "value": 1.00036,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:verification-two-point.evidence.member.pipe:thermal.operating_datum_stretch",
+      "value": 1.00208,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:verification-two-point.evidence.member.pipe:thermal.installation_temperature_k",
+      "value": 323.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:verification-two-point.evidence.member.pipe:thermal.operating_temperature_k",
+      "value": 423.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:verification-two-point.evidence.member.pipe:thermal.coefficient_datum_k",
+      "value": 293.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:verification-two-point.evidence.member.pipe:thermal.selected_E_pa",
+      "value": 200000000000.0,
+      "unit": "Pa"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.axial.pipe:thermal.end_i",
+      "value": 2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.axial.pipe:thermal.quarter_1",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.axial.pipe:thermal.midspan",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.axial.pipe:thermal.quarter_3",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.axial.pipe:thermal.end_j",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:root.Fx",
+      "value": 2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:root.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:root.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:far.Fx",
+      "value": -2052606.02021901,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:far.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:far.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:far.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:far.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.reaction.support:far.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.thermal_strain",
+      "value": 0.0017193810228317806,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.thermal_stretch",
+      "value": 1.0017193810228318,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.installation_datum_stretch",
+      "value": 1.00036,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.operating_datum_stretch",
+      "value": 1.00208,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.installation_temperature_k",
+      "value": 323.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.operating_temperature_k",
+      "value": 423.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.coefficient_datum_k",
+      "value": 293.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.selected_E_pa",
+      "value": 200000000000.0,
+      "unit": "Pa"
+    }
+  ],
+  "wrong_values": [
+    {
+      "assertion_id": "case:annular-three-point.evidence.member.pipe:thermal.thermal_strain.not.alpha_hot_times_operating_minus_install",
+      "value": 0.0016,
+      "unit": "1",
+      "discriminator": "/cases/thermal_datum_ratio/wrong_result_discriminators/alpha_hot_times_operating_minus_install"
+    },
+    {
+      "assertion_id": "case:annular-three-point.evidence.member.pipe:thermal.thermal_strain.not.subtract_datum_dilations",
+      "value": 0.00172,
+      "unit": "1",
+      "discriminator": "/cases/thermal_datum_ratio/wrong_result_discriminators/subtract_datum_dilations"
+    },
+    {
+      "assertion_id": "case:verification-two-point.evidence.member.pipe:thermal.thermal_strain.not.alpha_hot_times_operating_minus_install",
+      "value": 0.0016,
+      "unit": "1",
+      "discriminator": "/cases/thermal_datum_ratio/wrong_result_discriminators/alpha_hot_times_operating_minus_install"
+    },
+    {
+      "assertion_id": "case:verification-two-point.evidence.member.pipe:thermal.thermal_strain.not.subtract_datum_dilations",
+      "value": 0.00172,
+      "unit": "1",
+      "discriminator": "/cases/thermal_datum_ratio/wrong_result_discriminators/subtract_datum_dilations"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.thermal_strain.not.alpha_hot_times_operating_minus_install",
+      "value": 0.0016,
+      "unit": "1",
+      "discriminator": "/cases/thermal_datum_ratio/wrong_result_discriminators/alpha_hot_times_operating_minus_install"
+    },
+    {
+      "assertion_id": "case:annular-three-point-kelvin.evidence.member.pipe:thermal.thermal_strain.not.subtract_datum_dilations",
+      "value": 0.00172,
+      "unit": "1",
+      "discriminator": "/cases/thermal_datum_ratio/wrong_result_discriminators/subtract_datum_dilations"
+    }
+  ]
+}

@@ -229,6 +229,17 @@ pub(crate) fn resolve(
     }
     let current = match object_type {
         "Model" => {
+            // D3 / review B F1: a 0.4.0 model keeps its version; this profile
+            // operation would rewrite it to 0.3.0 and strand the
+            // load/reference-state records, so it is refused on 0.4.0.
+            if model.get("schema_version").and_then(Value::as_str)
+                == Some(open_pipe_stress_product_physics::LOAD_STATE_MODEL_VERSION)
+            {
+                return Err(RichError {
+                    code: "OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED",
+                    message: "pressure_profile cannot change a 0.4.0 model's schema_version or pressure contract; no operation changes the version".into(),
+                });
+            }
             if model.pointer("/project/id").and_then(Value::as_str) != Some(target) {
                 return Err(err("Profile target must be the current project ID"));
             }

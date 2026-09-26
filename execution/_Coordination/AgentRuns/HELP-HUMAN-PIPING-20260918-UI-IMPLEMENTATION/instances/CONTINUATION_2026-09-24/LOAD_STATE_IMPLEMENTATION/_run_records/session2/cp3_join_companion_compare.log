@@ -1,0 +1,9 @@
+n05 sparse results True nq True summary True diag True exact True pressure True receipt_cases True LOAD-REFERENCE-SOURCE-1 qualified
+n05 dense results True nq True summary True diag True exact True pressure True receipt_cases True LOAD-REFERENCE-SOURCE-1 qualified
+n06 sparse results True nq True summary True diag True exact True pressure True receipt_cases True LOAD-REFERENCE-SOURCE-1 qualified
+n06 dense results True nq True summary True diag True exact True pressure True receipt_cases True LOAD-REFERENCE-SOURCE-1 qualified
+fields sparse results True nq True summary True diag True exact True pressure True receipt_cases True LOAD-REFERENCE-SOURCE-1 qualified
+fields dense results True nq True summary True diag True exact True pressure True receipt_cases True LOAD-REFERENCE-SOURCE-1 qualified
+mixed sparse results True nq True summary True diag True exact True pressure True receipt_cases True LOAD-REFERENCE-SOURCE-1 qualified
+mixed dense results True nq True summary True diag True exact True pressure True receipt_cases True LOAD-REFERENCE-SOURCE-1 qualified
+ALL_MATCH

@@ -15,6 +15,7 @@ import pytest
 from core.analysis_runs.compatibility import (
     FRESH_CONTRACT_IDS, PRECISION_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_SHA256,
     PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, _source_contract,
+    LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID,
     build_analysis_run, is_fresh_contract_id, numerical_use_standing, rule_binding_refusal,
     standing_reason, validate_analysis_run_v0_3, verify_analysis_run_record,
 )
@@ -156,7 +157,9 @@ def test_table_identity_and_registry():
     table = PROJECT / "fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
     assert hashlib.sha256(table.read_bytes()).hexdigest() == PREVIEW_PHYSICS_CONTRACT_SHA256
     assert json.loads(table.read_text())["semantic_contract_id"] == PREVIEW_PHYSICS_CONTRACT_ID
-    assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID}
+    # T1 activation (DESIGN 10.3): T0R's four plus T1's two 0.4.0 exact-route identities.
+    assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
+                                  LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}
     assert not is_fresh_contract_id(PRECISION_CONTRACT_ID) and is_fresh_contract_id(PREVIEW_PHYSICS_CONTRACT_ID)
 
 

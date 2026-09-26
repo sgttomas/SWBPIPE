@@ -1,4 +1,5 @@
 import { Download, FileJson } from "lucide-react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 
@@ -20,6 +21,7 @@ export function AdapterFrameworkPanel({
         Adapter Framework
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="adapter-framework">
         <ControlledExportLink
           className="report-export-link"
           data-testid="adapter-framework-export-link"
@@ -29,6 +31,7 @@ export function AdapterFrameworkPanel({
           <Download size={14} aria-hidden="true" />
           Adapter JSON
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="adapter-framework-summary">
           available; capabilities={packet.adapter_declaration.capabilities.length}; parse=
           {packet.operation_result.parse_status}; diagnostics={packet.operation_result.diagnostics.length}

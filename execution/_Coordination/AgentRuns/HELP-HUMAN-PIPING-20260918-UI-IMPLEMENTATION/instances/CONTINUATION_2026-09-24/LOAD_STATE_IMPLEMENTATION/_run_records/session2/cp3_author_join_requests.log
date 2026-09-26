@@ -1,0 +1,7 @@
+{
+ "n05": "fixtures/product_preview/load_reference_source/n05.request.json",
+ "n06": "fixtures/product_preview/load_reference_source/n06.request.json",
+ "fields": "fixtures/product_preview/load_reference_source/fields.request.json",
+ "mixed": "fixtures/product_preview/load_reference_source/mixed.request.json",
+ "eigen_motion": "fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+}

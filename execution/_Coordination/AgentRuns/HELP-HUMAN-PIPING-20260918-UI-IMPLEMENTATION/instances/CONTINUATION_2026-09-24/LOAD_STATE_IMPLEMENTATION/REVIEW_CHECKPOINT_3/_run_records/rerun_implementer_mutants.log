@@ -1,0 +1,166 @@
+N1_M02_observation_uncoupled_force killed= True 1 compile_error= False
+N1_M03_zero_boundary_reduced killed= True 1 compile_error= False
+J1_member_end_offset_omitted killed= True 1 compile_error= False
+J2_member_end_offset_sign_flipped killed= True 1 compile_error= False
+J3_eigen_force_terms_unidentified killed= True 4 compile_error= False
+J4_prescribed_owner_zero killed= True 5 compile_error= False
+J5_captured_replay_skipped killed= True 1 compile_error= False
+J6_case_record_binding_skipped killed= True 1 compile_error= False
+J7_eigen_closure_skipped killed= True 1 compile_error= False
+J8_member_pair_formation_unchecked killed= True 1 compile_error= False
+J9_ownership_unchecked killed= True 1 compile_error= False
+J10_joined_semantics_not_selected killed= True 2 compile_error= False
+SFA_fit_none_unit_variant killed= True 2 compile_error= False
+SFA_quantity_open killed= True 2 compile_error= False
+N2_null_as_absent killed= True 1 compile_error= False
+N2_request_laws_ignored killed= True 1 compile_error= False
+N5_missing_section_dropped killed= True 1 compile_error= False
+{
+ "N1_M02_observation_uncoupled_force": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "case_state::tests::dense_observation_lanes_observe_the_prescribed_boundary_system"
+  ]
+ },
+ "N1_M03_zero_boundary_reduced": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "case_state::tests::dense_observation_lanes_observe_the_prescribed_boundary_system"
+  ]
+ },
+ "J1_member_end_offset_omitted": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response"
+  ]
+ },
+ "J2_member_end_offset_sign_flipped": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response"
+  ]
+ },
+ "J3_eigen_force_terms_unidentified": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record",
+   "source_receipt::load_state_tests::a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay",
+   "source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material",
+   "source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response"
+  ]
+ },
+ "J4_prescribed_owner_zero": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "source_receipt::load_state_tests::a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay",
+   "source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record",
+   "source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material",
+   "source_receipt::load_state_tests::source_closure_refuses_live_resolved_operands_that_did_not_reach_formation",
+   "source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response"
+  ]
+ },
+ "J5_captured_replay_skipped": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "source_receipt::load_state_tests::a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay"
+  ]
+ },
+ "J6_case_record_binding_skipped": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material"
+  ]
+ },
+ "J7_eigen_closure_skipped": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "source_receipt::load_state_tests::source_closure_refuses_live_resolved_operands_that_did_not_reach_formation"
+  ]
+ },
+ "J8_member_pair_formation_unchecked": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "source_receipt::load_state_tests::source_closure_refuses_live_resolved_operands_that_did_not_reach_formation"
+  ]
+ },
+ "J9_ownership_unchecked": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "source_receipt::load_state_tests::source_closure_refuses_live_resolved_operands_that_did_not_reach_formation"
+  ]
+ },
+ "J10_joined_semantics_not_selected": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record",
+   "source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material"
+  ]
+ },
+ "SFA_fit_none_unit_variant": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "case_state::tests::closed_namespace_refuses_sibling_keys_on_field_free_branches_and_quantities",
+   "case_state::tests::public_route_refuses_sibling_fields_on_every_field_free_branch_and_quantity"
+  ]
+ },
+ "SFA_quantity_open": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "case_state::tests::closed_namespace_refuses_sibling_keys_on_field_free_branches_and_quantities",
+   "case_state::tests::public_route_refuses_sibling_fields_on_every_field_free_branch_and_quantity"
+  ]
+ },
+ "N2_null_as_absent": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "case_state::tests::an_explicit_null_new_key_is_authored_presence_in_every_version"
+  ]
+ },
+ "N2_request_laws_ignored": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "case_state::tests::an_explicit_null_new_key_is_authored_presence_in_every_version"
+  ]
+ },
+ "N5_missing_section_dropped": {
+  "exit": 101,
+  "compile_error": false,
+  "killed": true,
+  "failed_tests": [
+   "source_receipt::load_state_tests::a_resolved_eigenload_without_its_built_section_blocks_instead_of_disappearing"
+  ]
+ }
+}
+exit 0

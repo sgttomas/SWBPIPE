@@ -1,0 +1,29 @@
+core/analysis_runs/source_blocks.py differs from HEAD: False
+OK  expected=True  jsonschema=True  _shape=True   connected reference
+OK  expected=True  jsonschema=True  _shape=True   connected laws
+OK  expected=True  jsonschema=True  _shape=True   connected case:cold
+OK  expected=True  jsonschema=True  _shape=True   connected case:hot
+OK  expected=True  jsonschema=True  _shape=True   pressure reference
+OK  expected=True  jsonschema=True  _shape=True   pressure laws
+OK  expected=True  jsonschema=True  _shape=True   pressure case:cold-pressure
+OK  expected=True  jsonschema=True  _shape=True   pressure case:hot-pressure
+OK  expected=True  jsonschema=True  _shape=True   connected-dense_scrutiny.raw
+OK  expected=False jsonschema=False _shape=False  connected-dense_scrutiny.raw member extra key
+OK  expected=False jsonschema=False _shape=False  connected-dense_scrutiny.raw status joined
+OK  expected=False jsonschema=False _shape=False  connected-dense_scrutiny.raw missing solve
+OK  expected=True  jsonschema=True  _shape=True   connected-sparse_interactive.raw
+OK  expected=False jsonschema=False _shape=False  connected-sparse_interactive.raw member extra key
+OK  expected=False jsonschema=False _shape=False  connected-sparse_interactive.raw status joined
+OK  expected=False jsonschema=False _shape=False  connected-sparse_interactive.raw missing solve
+OK  expected=True  jsonschema=True  _shape=True   pressure-dense_scrutiny.raw
+OK  expected=False jsonschema=False _shape=False  pressure-dense_scrutiny.raw member extra key
+OK  expected=False jsonschema=False _shape=False  pressure-dense_scrutiny.raw status joined
+OK  expected=False jsonschema=False _shape=False  pressure-dense_scrutiny.raw missing solve
+OK  expected=True  jsonschema=True  _shape=True   pressure-sparse_interactive.raw
+OK  expected=False jsonschema=False _shape=False  pressure-sparse_interactive.raw member extra key
+OK  expected=False jsonschema=False _shape=False  pressure-sparse_interactive.raw status joined
+OK  expected=False jsonschema=False _shape=False  pressure-sparse_interactive.raw missing solve
+OK  expected=False jsonschema=False _shape=False  history continuation
+OK  expected=False jsonschema=False _shape=False  fit length_change+strain
+OK  expected=False jsonschema=False _shape=False  physics-1 evidence
+CROSSCHECK PASS

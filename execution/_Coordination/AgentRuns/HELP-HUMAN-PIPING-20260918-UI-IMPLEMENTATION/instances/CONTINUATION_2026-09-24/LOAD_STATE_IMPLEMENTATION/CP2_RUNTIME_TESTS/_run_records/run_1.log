@@ -1,0 +1,313 @@
+# run 1 2026-09-25T17:50:49Z
+# cwd=/home/user/wt/loadstate/projects/chirality-piping/core/product_physics
+# HEAD=5511596af66085ec1d70fab1277431b9023744ff (working tree has uncommitted implementer changes)
+# test_sha256=734f59a3fccfb175d41ae0cd286fce294143c949bd12dcb1168e122495dee1af
+# fixture_sha256=5478bba846bcc515187f38366eeda3ac9fb87b339039a5cf3ec2d56dced4b891
+cargo 1.97.1 (c980f4866 2026-06-30)
+rustc 1.97.1 (8bab26f4f 2026-07-14)
+# cmd: CARGO_TARGET_DIR=/home/user/cargo-targets/loadstate/product_physics_tests cargo +1.97.1 test --locked --offline -j 1 --test load_reference_state_runtime -- --nocapture
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.106
+   Compiling generic-array v0.14.7
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/solver/linear_supports)
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling serde_core v1.0.228
+   Compiling typenum v1.20.1
+   Compiling zmij v1.0.21
+   Compiling syn v2.0.117
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling serde_json v1.0.149
+   Compiling serde v1.0.228
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/solver/diagnostics)
+   Compiling serde_derive v1.0.228
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling memchr v2.8.0
+   Compiling itoa v1.0.18
+   Compiling digest v0.10.7
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling cpufeatures v0.2.17
+   Compiling ryu v1.0.23
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (/home/user/wt/loadstate/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_product_physics v0.2.0 (/home/user/wt/loadstate/projects/chirality-piping/core/product_physics)
+warning: unused import: `ELEMENT_DOF`
+  --> src/source_recovery.rs:11:5
+   |
+11 |     ELEMENT_DOF,
+   |     ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:7933:4
+     |
+7933 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `as_str` is never used
+  --> src/case_state/thermal.rs:82:19
+   |
+81 | impl SegmentUse {
+   | --------------- method in this implementation
+82 |     pub(crate) fn as_str(self) -> &'static str {
+   |                   ^^^^^^
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:56:9
+   |
+55 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+56 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:64:9
+   |
+63 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+64 |     pub support_id: String,
+   |         ^^^^^^^^^^
+65 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+66 |     pub value: f64,
+   |         ^^^^^
+67 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:89:9
+    |
+ 88 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+ 89 |     pub dofs: usize,
+    |         ^^^^
+ 90 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+ 91 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 92 |     pub blocks: usize,
+    |         ^^^^^^
+ 93 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+ 94 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+ 95 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+ 96 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+ 97 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+ 98 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 99 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+100 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+101 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+102 |     pub max_relative_projection_error: f64,
+103 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:116:5
+    |
+110 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+116 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:142:12
+    |
+125 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+142 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+  --> src/source_receipt.rs:86:19
+   |
+64 | impl CapturedInvocation {
+   | ----------------------- method in this implementation
+...
+86 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+   |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:341:19
+    |
+276 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+341 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `expected_primary` is never used
+  --> src/source_receipt/rows.rs:55:15
+   |
+55 | pub(super) fn expected_primary(
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `derived` is never used
+   --> src/source_receipt/rows.rs:329:15
+    |
+329 | pub(super) fn derived(
+    |               ^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib) generated 12 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 46.39s
+     Running tests/load_reference_state_runtime.rs (/home/user/cargo-targets/loadstate/product_physics_tests/debug/deps/load_reference_state_runtime-e90e401cd33a5472)
+
+running 20 tests
+OBSERVED_BLOCK control=boundary_motion_on_unrestrained_dof mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED"]
+OBSERVED_BLOCK control=boundary_motion_duplicate_dof mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_DUPLICATE"]
+OBSERVED_BLOCK control=boundary_motion_on_unrestrained_dof mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED"]
+OBSERVED_BLOCK control=boundary_motion_duplicate_dof mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_DUPLICATE"]
+test negative_boundary_motion_on_unrestrained_dof_blocks ... ok
+OBSERVED_BLOCK control=duplicate_source_ref factors=(1.0, 0.5) mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_DUPLICATE"]
+OBSERVED_BLOCK control=duplicate_source_ref factors=(1.0, 0.5) mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_DUPLICATE"]
+OBSERVED_BLOCK control=free_length_state_without_operating_temperature mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_OPERATING_TEMPERATURE_REQUIRED"]
+OBSERVED_BLOCK control=free_length_state_without_operating_temperature mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_OPERATING_TEMPERATURE_REQUIRED"]
+OBSERVED_BLOCK control=duplicate_source_ref factors=(1.0, 1.0) mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_DUPLICATE"]
+OBSERVED_BLOCK control=duplicate_source_ref factors=(1.0, 1.0) mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_DUPLICATE"]
+OBSERVED_BLOCK control=free_length_state_with_direct_strain_reference mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_FREE_LENGTH_REQUIRES_TEMPERATURE_REFERENCE"]
+test duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply ... ok
+OBSERVED_BLOCK control=same_member_legacy_thermal_plus_resolved_thermal mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED"]
+OBSERVED_BLOCK control=same_member_legacy_thermal_plus_resolved_thermal mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED"]
+OBSERVED_BLOCK control=referenced_legacy_thermal_with_unchanged_reference mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED"]
+OBSERVED_BLOCK control=referenced_legacy_thermal_with_unchanged_reference mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_LEGACY_THERMAL_PRIMITIVE_UNSUPPORTED"]
+test negative_legacy_thermal_referenced_with_resolved_state_blocks ... ok
+OBSERVED_BLOCK control=free_length_state_with_direct_strain_reference mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_FREE_LENGTH_REQUIRES_TEMPERATURE_REFERENCE"]
+OBSERVED_BLOCK control=0.3.0_with_all_load_state_owners mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"]
+OBSERVED_BLOCK control=0.3.0_with_all_load_state_owners mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"]
+OBSERVED_BLOCK control=free_length_state_law_not_on_material mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_EXPANSION_LAW_UNRESOLVED"]
+OBSERVED_BLOCK control=0.3.0_with_analysis_state mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"]
+OBSERVED_BLOCK control=free_length_state_law_not_on_material mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_EXPANSION_LAW_UNRESOLVED"]
+OBSERVED_BLOCK control=0.3.0_with_analysis_state mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"]
+test negative_free_length_state_without_operating_temperature_blocks ... ok
+OBSERVED_BLOCK control=0.3.0_with_reference_configurations mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"]
+OBSERVED_BLOCK control=0.3.0_with_reference_configurations mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"]
+OBSERVED_BLOCK control=0.3.0_with_expansion_laws mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"]
+OBSERVED_BLOCK control=0.3.0_with_expansion_laws mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH"]
+OBSERVED_BLOCK control=0.2.0_with_analysis_state mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH", "LOAD_INPUT_MISSING", "MATERIAL_INPUT_MISSING"]
+OBSERVED_BLOCK control=0.2.0_with_analysis_state mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_VERSION_MISMATCH", "LOAD_INPUT_MISSING", "MATERIAL_INPUT_MISSING"]
+test negative_legacy_version_documents_carrying_load_state_block ... ok
+OBSERVED_BLOCK control=duplicate_temperature mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_BLOCK control=duplicate_temperature mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_BLOCK control=spring_boundary_motion mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED"]
+test constant_alpha_interval_needs_no_absolute_temperature ... ok
+OBSERVED_REJECT control=unknown_coefficient_definition mode=sparse_interactive error=request: materials[0].expansion_laws: unknown variant `engineering_unreviewed_coefficient`, expected one of `engineering_secant`, `engineering_dilation`, `differential_per_datum_length`, `logarithmic_per_current_length`
+OBSERVED_REJECT control=unknown_coefficient_definition mode=dense_scrutiny error=request: materials[0].expansion_laws: unknown variant `engineering_unreviewed_coefficient`, expected one of `engineering_secant`, `engineering_dilation`, `differential_per_datum_length`, `logarithmic_per_current_length`
+OBSERVED_BLOCK control=missing_thermal_interval_bracket/operating_above_table mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_both_without_kind mode=sparse_interactive error=request: missing field `kind`
+OBSERVED_BLOCK control=spring_boundary_motion mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED"]
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_both_without_kind mode=dense_scrutiny error=request: missing field `kind`
+OBSERVED_BLOCK control=missing_thermal_interval_bracket/operating_above_table mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_BLOCK control=material_ref_not_pipe_material mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_REFERENCE_MISMATCH"]
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_length_with_extra_strain mode=sparse_interactive error=request: unknown field `strain`, expected `length_change`
+OBSERVED_BLOCK control=material_ref_not_pipe_material mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_REFERENCE_MISMATCH"]
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_length_with_extra_strain mode=dense_scrutiny error=request: unknown field `strain`, expected `length_change`
+OBSERVED_BLOCK control=missing_thermal_interval_bracket/installation_below_table mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_strain_with_extra_length mode=sparse_interactive error=request: unknown field `length_change`, expected `strain`
+OBSERVED_BLOCK control=missing_support_state mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_STATE_MISSING"]
+OBSERVED_BLOCK control=missing_thermal_interval_bracket/installation_below_table mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_BLOCK control=datum_outside_thermal_coverage mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_REJECT control=same_member_fit_length_and_fit_strain/fit_strain_with_extra_length mode=dense_scrutiny error=request: unknown field `length_change`, expected `strain`
+OBSERVED_BLOCK control=missing_support_state mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_STATE_MISSING"]
+OBSERVED_REJECT control=unknown_analysis_state_field mode=sparse_interactive error=request: unknown field `unreviewed_field`, expected one of `contract`, `reference_configuration_ref`, `element_states`, `support_states`, `load_sources`, `history`, `provenance`
+OBSERVED_BLOCK control=datum_outside_thermal_coverage mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_BLOCK control=duplicate_support_state mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_DUPLICATE"]
+OBSERVED_BLOCK control=missing_element_state mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_ELEMENT_MISSING"]
+OBSERVED_REJECT control=unknown_analysis_state_field mode=dense_scrutiny error=request: unknown field `unreviewed_field`, expected one of `contract`, `reference_configuration_ref`, `element_states`, `support_states`, `load_sources`, `history`, `provenance`
+OBSERVED_BLOCK control=missing_element_state mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_ELEMENT_MISSING"]
+OBSERVED_BLOCK control=duplicate_support_state mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_DUPLICATE"]
+OBSERVED_BLOCK control=nonpositive_free_stretch/cut_equals_length mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_REJECT control=unknown_thermal_state_kind mode=sparse_interactive error=request: unknown variant `ambient_guess`, expected one of `unchanged_reference`, `explicit_interval_strain`, `constant_alpha_interval`, `free_length_state`
+OBSERVED_REJECT control=unknown_thermal_state_kind mode=dense_scrutiny error=request: unknown variant `ambient_guess`, expected one of `unchanged_reference`, `explicit_interval_strain`, `constant_alpha_interval`, `free_length_state`
+OBSERVED_REJECT control=unknown_member_basis_kind mode=sparse_interactive error=request: unknown variant `assumed_ambient_reference`, expected `temperature_reference` or `direct_strain_reference`
+OBSERVED_REJECT control=unknown_member_basis_kind mode=dense_scrutiny error=request: unknown variant `assumed_ambient_reference`, expected `temperature_reference` or `direct_strain_reference`
+test negative_typed_boundary_rejections_return_err ... ok
+OBSERVED_BLOCK control=nonpositive_free_stretch/cut_equals_length mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_BLOCK control=unknown_source_ref mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_UNRESOLVED"]
+OBSERVED_BLOCK control=rotation_with_length_units mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID"]
+OBSERVED_BLOCK control=unknown_source_ref mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_UNRESOLVED"]
+OBSERVED_BLOCK control=duplicate_element_state_and_missing_second mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_ELEMENT_DUPLICATE", "LOAD_STATE_ELEMENT_MISSING"]
+OBSERVED_BLOCK control=rotation_with_length_units mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID"]
+OBSERVED_BLOCK control=translation_with_angle_units mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID"]
+OBSERVED_BLOCK control=duplicate_element_state_and_missing_second mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_ELEMENT_DUPLICATE", "LOAD_STATE_ELEMENT_MISSING"]
+test negative_missing_element_state_blocks ... ok
+OBSERVED_BLOCK control=zero_source_factor mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_FACTOR_INVALID"]
+OBSERVED_BLOCK control=translation_with_angle_units mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID"]
+test negative_unit_dimension_controls_block ... ok
+OBSERVED_BLOCK control=nonpositive_free_stretch/fit_strain_minus_one mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_BLOCK control=zero_source_factor mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_FACTOR_INVALID"]
+OBSERVED_BLOCK control=source_ref_from_other_case mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_UNRESOLVED"]
+OBSERVED_BLOCK control=source_ref_from_other_case mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SOURCE_UNRESOLVED"]
+test persistent_source_counted_once_and_unreferenced_excluded ... ok
+OBSERVED_BLOCK control=nonpositive_free_stretch/fit_strain_minus_one mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"]
+test prescribed_rotation_all_fixed_reproduces_signed_end_actions ... ok
+OBSERVED_BLOCK control=nonpositive_free_stretch/fit_strain_below_minus_one mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"]
+OBSERVED_BLOCK control=modulus_basis_ref_present mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED"]
+test prescribed_rotation_free_tip_is_rigid_radian_rotation ... ok
+OBSERVED_BLOCK control=nonpositive_free_stretch/fit_strain_below_minus_one mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED", "LOAD_STATE_STRAIN_UNRESOLVED"]
+test negative_thermal_law_coverage_controls_block ... ok
+OBSERVED_BLOCK control=modulus_basis_ref_present mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED"]
+OBSERVED_BLOCK control=modulus_basis_temperature_present mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED"]
+OBSERVED_BLOCK control=modulus_basis_temperature_present mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED"]
+OBSERVED_BLOCK control=request_level_materials_non_empty mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_REQUEST_MATERIALS_UNSUPPORTED"]
+test prescribed_translation_all_fixed_single_bar_has_nonzero_reactions ... ok
+OBSERVED_BLOCK control=request_level_materials_non_empty mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_REQUEST_MATERIALS_UNSUPPORTED"]
+OBSERVED_BLOCK control=mass_state_ref_not_implemented mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_MASS_STATE_UNSUPPORTED"]
+OBSERVED_BLOCK control=mass_state_ref_not_implemented mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_MASS_STATE_UNSUPPORTED"]
+OBSERVED_BLOCK control=inactive_participation_not_implemented mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED"]
+OBSERVED_BLOCK control=inactive_participation_not_implemented mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED"]
+OBSERVED_BLOCK control=base_motion_not_implemented mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_REFERENCE_UNSUPPORTED"]
+OBSERVED_BLOCK control=base_motion_not_implemented mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_SUPPORT_REFERENCE_UNSUPPORTED"]
+OBSERVED_BLOCK control=missing_member_reference mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_MEMBER_MISSING"]
+OBSERVED_BLOCK control=missing_member_reference mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_MEMBER_MISSING"]
+OBSERVED_BLOCK control=duplicate_member_reference mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_MEMBER_DUPLICATE"]
+OBSERVED_BLOCK control=duplicate_member_reference mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_MEMBER_DUPLICATE"]
+OBSERVED_BLOCK control=unknown_reference_configuration_ref mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_CONFIGURATION_UNRESOLVED"]
+OBSERVED_BLOCK control=unknown_reference_configuration_ref mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_REFERENCE_CONFIGURATION_UNRESOLVED"]
+OBSERVED_REJECT control=history_not_independent_equilibrium mode=sparse_interactive error=request: unknown variant `continuation`, expected `independent_equilibrium`
+OBSERVED_REJECT control=history_not_independent_equilibrium mode=dense_scrutiny error=request: unknown variant `continuation`, expected `independent_equilibrium`
+OBSERVED_BLOCK control=analysis_state_missing_on_0.4.0_case mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_ANALYSIS_STATE_REQUIRED"]
+OBSERVED_BLOCK control=analysis_state_missing_on_0.4.0_case mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_ANALYSIS_STATE_REQUIRED"]
+OBSERVED_BLOCK control=unknown_load_state_contract mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_UNSUPPORTED"]
+OBSERVED_BLOCK control=unknown_load_state_contract mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_CONTRACT_UNSUPPORTED"]
+OBSERVED_BLOCK control=selected_point_temperature_mismatch_without_override mode=sparse_interactive status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED"]
+OBSERVED_BLOCK control=selected_point_temperature_mismatch_without_override mode=dense_scrutiny status=MODEL_INCOMPLETE codes=["LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED"]
+test negative_additional_wire_rules_block ... ok
+test shared_material_serial_companion_selects_point_per_member ... ok
+test prescribed_translation_two_bar_couples_prescribed_root_motion ... ok
+test signed_fit_baselines_cut_long_and_direct_fit_strain ... ok
+test signed_fit_cold_hot_return_fixed_and_released ... ok
+test thermal_datum_ratio_secant_table_fixed_and_free ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s
+
+# exit=0

@@ -1,4 +1,5 @@
 import { Download, FileOutput } from "lucide-react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
@@ -48,6 +49,7 @@ export function CaepipeExternalHarnessPanel({
         External prover run
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="caepipe-external">
         <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-external-export-link"
@@ -66,6 +68,7 @@ export function CaepipeExternalHarnessPanel({
           <Download size={14} aria-hidden="true" />
           Parser CSV
         </ControlledExportLink>
+        </LoadReferenceOutputGate>
         <span data-testid="caepipe-external-summary">
           available; status={packet.package_status}; rows={packet.parsed_csv.row_count}; sections=
           {packet.parser_coverage.length}; external_invoked={String(packet.execution_result.attempted)};

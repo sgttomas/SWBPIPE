@@ -1,0 +1,164 @@
+{
+  "format": "openpipestress.qualification_reference_values/1",
+  "case_id": "persistent_source_once",
+  "readiness": "ready",
+  "basis": "generate_reference_values.py evaluating core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab) at the pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to binary64; no observed producer value",
+  "reference_kind": "analytical",
+  "independent_review_ref": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_FREEZE/RETURN.md#sha256=795b04214006160755fe39a427005022beecf94830c81e37110a8032d2574c49",
+  "values": [
+    {
+      "assertion_id": "case:combined.disp.node:tip.ux",
+      "value": -0.0005863603166543512,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:combined.reaction.support:root.Fx",
+      "value": 700.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:combined.reaction.support:root.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:combined.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:combined.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:combined.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:combined.reaction.support:root.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:combined.axial.pipe:cantilever.end_i",
+      "value": 700.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:combined.axial.pipe:cantilever.quarter_1",
+      "value": -700.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:combined.axial.pipe:cantilever.midspan",
+      "value": -700.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:combined.axial.pipe:cantilever.quarter_3",
+      "value": -700.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:combined.axial.pipe:cantilever.end_j",
+      "value": -700.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:combined.evidence.contribution.stored_primitive:source:preload.applied_magnitude",
+      "value": 100.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:combined.evidence.contribution.stored_primitive:source:weight.applied_magnitude",
+      "value": -1000.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:combined.evidence.contribution.stored_primitive:source:independent.applied_magnitude",
+      "value": 200.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.reaction.support:root.Fx",
+      "value": -400.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.reaction.support:root.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.reaction.support:root.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.axial.pipe:cantilever.end_i",
+      "value": -400.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.axial.pipe:cantilever.quarter_1",
+      "value": 400.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.axial.pipe:cantilever.midspan",
+      "value": 400.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.axial.pipe:cantilever.quarter_3",
+      "value": 400.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.axial.pipe:cantilever.end_j",
+      "value": 400.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.evidence.contribution.stored_primitive:source:action-a.applied_magnitude",
+      "value": 200.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:two-equal-actions.evidence.contribution.stored_primitive:source:action-b.applied_magnitude",
+      "value": 200.0,
+      "unit": "N"
+    }
+  ],
+  "wrong_values": [
+    {
+      "assertion_id": "case:combined.disp.node:tip.ux.not.naive_total_sum_displacement",
+      "value": -0.0005025945571323011,
+      "unit": "mm",
+      "discriminator": "/cases/persistent_source_once/variants/annular_companion/expected/naive_total_sum_displacement"
+    },
+    {
+      "assertion_id": "case:combined.reaction.support:root.Fx.not.naive_total_sum_rhs",
+      "value": 600.0,
+      "unit": "N",
+      "discriminator": "/cases/persistent_source_once/variants/annular_companion/expected/naive_total_sum_rhs"
+    }
+  ]
+}

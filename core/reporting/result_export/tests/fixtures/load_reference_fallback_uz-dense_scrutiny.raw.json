@@ -1,0 +1,2051 @@
+{
+  "contract_evidence": {
+    "connector": [],
+    "exact_cases": [
+      {
+        "load_case_id": "case:join",
+        "material_basis": "resolved_per_member_load_reference_state_v1",
+        "pipe_materials": [
+          {
+            "E_pa": 200000000000.0,
+            "G_pa": 80000000000.0,
+            "alpha_per_kelvin": null,
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "material_id": "material",
+            "material_selection_kind": "explicit_base_properties",
+            "nu": 0.25,
+            "pipe_id": "member",
+            "provenance": "invented_load_reference_source_companion_not_library_data",
+            "resolved_eigenstrain": 0.00010000240000000001,
+            "thermal_consumed": false
+          }
+        ],
+        "pipe_sections": [
+          {
+            "Ai_m2": 0.02544690049407733,
+            "As_m2": 0.005969026041820607,
+            "I_m4": 0.000027009842839238257,
+            "J_m4": 0.000054019685678476514,
+            "Z_m3": 0.0002700984283923826,
+            "effective_wall_thickness_m": 0.01,
+            "geometry_basis": "authored_normalized_od_wall_v1",
+            "outside_diameter_m": 0.2,
+            "pipe_id": "member",
+            "ri_m": 0.09000000000000001,
+            "ro_m": 0.1
+          }
+        ],
+        "pipe_stress_extrema": [
+          {
+            "approximation": "piecewise_quadratic_straight_section_statics",
+            "certified_gap_pa": 3.725290298461915e-9,
+            "coefficient_basis": "j_side_section_equilibrium_binary64",
+            "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+            "global_upper_bound_pa": 15000480.007404711,
+            "local_fraction": 0.0,
+            "pipe_id": "member",
+            "result_id": "result:elastic-maximum:9:case:join:6:member",
+            "span_index": 0,
+            "station_fraction": 0.0,
+            "subdivisions": 0,
+            "value_lower_pa": 15000480.007404707,
+            "value_upper_pa": 15000480.007404711
+          }
+        ],
+        "pressure_rhs_assembly": {
+          "assembled_pressure_rhs_global": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "cancellation_screen": 0.0,
+          "dof_order": [
+            "Fx",
+            "Fy",
+            "Fz",
+            "Mx",
+            "My",
+            "Mz"
+          ],
+          "dof_units": [
+            "N",
+            "N",
+            "N",
+            "N*m",
+            "N*m",
+            "N*m"
+          ],
+          "groups": [],
+          "load_case_id": "case:join",
+          "method": "source_factor_grouped_pressure_rhs_v1",
+          "node_order": [
+            "root",
+            "tip"
+          ],
+          "rounded_cap_and_eigen_ledgers_are_observational": true,
+          "rounded_cap_rhs_global": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rounded_poisson_rhs_global": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "screen_is_not_numerical_qualification": true,
+          "screen_limit": 1e-9,
+          "screen_roundoff_multiplier": 32
+        },
+        "profile_mode": "exact_straight_pressure_v2",
+        "stress_maximum_coverage": {
+          "complete": true,
+          "unavailable_pipe_ids": []
+        }
+      }
+    ],
+    "load_reference_states": [
+      {
+        "contract": "openpipestress.load_reference_state/1.0.0",
+        "contributions": [
+          {
+            "classification": "eigenstrain",
+            "consumed_input_refs": [
+              "reference:join:member",
+              "case:join:element_state:member"
+            ],
+            "owner_kind": "resolved_member_state",
+            "source_id": "member_state:member",
+            "value": 0.00010000240000000001
+          },
+          {
+            "classification": "prescribed_boundary",
+            "owner_kind": "support_state",
+            "source_id": "support_state:anchor:UY",
+            "value": 0.001
+          },
+          {
+            "classification": "prescribed_boundary",
+            "owner_kind": "support_state",
+            "source_id": "support_state:anchor:RZ",
+            "value": 0.0001
+          },
+          {
+            "classification": "prescribed_boundary",
+            "owner_kind": "support_state",
+            "source_id": "support_state:stop:UX",
+            "value": 0.00005
+          },
+          {
+            "applied_magnitude": 1e-8,
+            "authored_normalized_magnitude": 1e-8,
+            "category": "concentrated_moment",
+            "classification": "ordinary_applied",
+            "dimension": "moment",
+            "factor": 1.0,
+            "owner_kind": "stored_primitive",
+            "source_id": "torque"
+          },
+          {
+            "applied_magnitude": 1e-6,
+            "authored_normalized_magnitude": 1e-6,
+            "category": "concentrated_force",
+            "classification": "ordinary_applied",
+            "dimension": "force",
+            "factor": 1.0,
+            "owner_kind": "stored_primitive",
+            "source_id": "extra:0"
+          }
+        ],
+        "excluded_sources": [],
+        "history": {
+          "kind": "independent_equilibrium"
+        },
+        "load_case_id": "case:join",
+        "members": [
+          {
+            "G_basis": "E/[2(1+nu)] from the selected pair",
+            "analysis_basis_override": null,
+            "applicability_reference": "invented_load_reference_source_companion_not_library_data",
+            "coefficient_datum_k": null,
+            "consulted_law_point_indices": [],
+            "consulted_law_segments": [],
+            "consumed_law_point_indices": [],
+            "consumed_law_segments": [],
+            "consumed_material_points": [],
+            "derived_G_pa": 80000000000.0,
+            "eigenstrain_composition": "lambda_fit*lambda_thermal-1",
+            "expansion_law_id": null,
+            "fit_input": {
+              "strain": 0.00004
+            },
+            "fit_kind": "fit_strain",
+            "fit_strain": 0.00004,
+            "fit_stretch": 1.00004,
+            "installation_datum_stretch": null,
+            "installation_temperature_k": null,
+            "interpolation_fraction": null,
+            "material_id": "material",
+            "material_selection_kind": "explicit_base_properties",
+            "material_selection_temperature_k": null,
+            "operating_datum_stretch": null,
+            "operating_temperature_k": null,
+            "pipe_id": "member",
+            "reference_basis": "direct_strain_reference",
+            "reference_length_m": 2.0,
+            "retained_G_ignored": false,
+            "selected_E_pa": 200000000000.0,
+            "selected_nu": 0.25,
+            "thermal_definition": "explicit_interval_strain",
+            "thermal_strain": 0.00006,
+            "thermal_stretch": 1.00006,
+            "total_eigenstrain": 0.00010000240000000001
+          }
+        ],
+        "profile": "resolved_straight_load_state_v1",
+        "provenance": "invented_load_reference_source_companion_not_library_data",
+        "reference_configuration_id": "reference:join",
+        "reference_geometry": {
+          "kind": "authored_model_geometry",
+          "projection_sha256": "fda3bf265cccaaec8d55334770ac58fa682857dbe678a426dfb2e42f431dddc3"
+        },
+        "solve": {
+          "boundary": "every restrained DOF prescribed; reduced K_ff u_f = f_f - K_fc g_c; complete u includes g; reactions from unreduced K u - f",
+          "eigenload": "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery",
+          "recovery_method": "ordinary_dense_structural_v1",
+          "requested_mode": "dense_scrutiny"
+        },
+        "source_recovery": {
+          "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
+          "status": "not_joined"
+        },
+        "support_components": [
+          {
+            "dof": "UY",
+            "global_dof": 1,
+            "law_kind": "rigid_prescribed",
+            "meaning": "absolute_reference_displacement",
+            "node_id": "root",
+            "physical_state_source": "support_state.boundary_motion",
+            "prescribed_value": 0.001,
+            "support_id": "anchor",
+            "unit": "m"
+          },
+          {
+            "dof": "RZ",
+            "global_dof": 5,
+            "law_kind": "rigid_prescribed",
+            "meaning": "absolute_reference_displacement",
+            "node_id": "root",
+            "physical_state_source": "support_state.boundary_motion",
+            "prescribed_value": 0.0001,
+            "support_id": "anchor",
+            "unit": "rad"
+          },
+          {
+            "dof": "UX",
+            "global_dof": 6,
+            "law_kind": "rigid_prescribed",
+            "meaning": "absolute_reference_displacement",
+            "node_id": "tip",
+            "physical_state_source": "support_state.boundary_motion",
+            "prescribed_value": 0.00005,
+            "support_id": "stop",
+            "unit": "m"
+          }
+        ]
+      }
+    ],
+    "pressure": []
+  },
+  "schema_version": "0.2.0",
+  "producer": {
+    "component_name": "open_pipe_stress_product_physics",
+    "component_version": "0.2.0",
+    "semantic_contract_id": "openpipestress.result_semantics/0.3.0/load-reference-1"
+  },
+  "numerical_quality": {
+    "value_representation": "finite_binary64",
+    "publication_quantization": "none",
+    "integrity_policy": "M03-INTEGRITY-v1",
+    "status": "sensitive",
+    "cases": [
+      {
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:join"
+        },
+        "structural_status": "passive_model_basis",
+        "solve_quality": "sensitive",
+        "model_matrix_fidelity": "represented_equations_retained",
+        "accuracy_evidence": "not_claimed",
+        "evidence_refs": [
+          "diagnostic:numerical-integrity:case:join"
+        ]
+      }
+    ]
+  },
+  "formulation_basis": {
+    "profile_id": "resolved_straight_load_state_v1",
+    "limitations": [
+      "Independently solved linear small-displacement straight circular members on the exact straight-pressure route; one resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition.",
+      "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints.",
+      "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.",
+      "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.",
+      "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented. Combinations remain unsupported.",
+      "Retained-source recovery is not joined for these inputs; only ordinary structural recovery is published. No code compliance or professional acceptance is produced."
+    ]
+  },
+  "document_kind": "openpipestress.product_preview.mechanics_result",
+  "run_id": "run:preview-linear-static-001",
+  "model_ref": "synthetic:load-reference-join",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED",
+    "rule_check": "RULE_INPUTS_INCOMPLETE",
+    "professional_acceptance": "NOT_PROVIDED"
+  },
+  "summary": {
+    "node_count": 2,
+    "segment_count": 1,
+    "support_count": 3,
+    "load_case_count": 1,
+    "component_stress_modifier_count": 0,
+    "component_user_stiffness_macro_element_count": 0,
+    "component_pressure_thrust_load_count": 0,
+    "spring_hanger_user_input_count": 0,
+    "max_displacement": {
+      "value": 1.2010412149464307,
+      "unit": "mm",
+      "location_ref": "tip",
+      "result_ref": "result:disp:tip"
+    },
+    "max_open_formula_stress": {
+      "value": 15000480.00740471,
+      "unit": "Pa",
+      "location_ref": "member",
+      "result_ref": "result:elastic-maximum:9:case:join:6:member"
+    }
+  },
+  "results": [
+    {
+      "id": "result:solver-mode:linear-solve-basis",
+      "kind": "linear_solver_mode_basis",
+      "value": 2.0,
+      "unit": "mode_code",
+      "entity_ref": "solver:linear_static_preview",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "linear_solver_mode",
+        "coordinate_system": "reduced_system",
+        "location": "case:join",
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=10; original_profile_entries=15; ordered_profile_entries=9; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=108039554887.24281; max_abs_sparse_residual=0.000000000000009054521551611288; dense_fallback=false; dense_fallback_message=none",
+        "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+      }
+    },
+    {
+      "id": "result:sparse-live:dense-parity-relative-delta",
+      "kind": "sparse_live_path_dense_parity_relative_delta",
+      "value": 3.8566200652572396e-12,
+      "unit": "unitless",
+      "entity_ref": "solver:sparse_direct",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "sparse_live_path",
+        "coordinate_system": "reduced_system",
+        "location": "load_case",
+        "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=6; sparse_entry_count=10; original_profile_entries=15; ordered_profile_entries=9; original_half_bandwidth=4; ordered_half_bandwidth=1; max_abs_dense_sparse_delta=0.000000000000004627944078308688; max_abs_sparse_residual=0.000000000000009054521551611288; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
+        "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
+      }
+    },
+    {
+      "id": "result:disp:root",
+      "kind": "displacement_magnitude",
+      "value": 1.0,
+      "unit": "mm",
+      "entity_ref": "root",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      }
+    },
+    {
+      "id": "result:disp:tip",
+      "kind": "displacement_magnitude",
+      "value": 1.2010412149464307,
+      "unit": "mm",
+      "entity_ref": "tip",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      }
+    },
+    {
+      "id": "result:disp:root:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "root",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:root:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 1.0,
+      "unit": "mm",
+      "entity_ref": "root",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:root:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "root",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:root:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.00010000016986889825,
+      "unit": "rad",
+      "entity_ref": "root",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:disp:root:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "root",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:disp:root:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0001,
+      "unit": "rad",
+      "entity_ref": "root",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:disp:tip:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.05,
+      "unit": "mm",
+      "entity_ref": "tip",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:tip:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 1.1999999999999993,
+      "unit": "mm",
+      "entity_ref": "tip",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:tip:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": 4.936472016032417e-10,
+      "unit": "mm",
+      "entity_ref": "tip",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:tip:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.0001000001698735262,
+      "unit": "rad",
+      "entity_ref": "tip",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:disp:tip:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": -3.702354012024312e-13,
+      "unit": "rad",
+      "entity_ref": "tip",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:disp:tip:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.00009999999999999926,
+      "unit": "rad",
+      "entity_ref": "tip",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:anchor:Fx",
+      "kind": "support_reaction_component_v2",
+      "value": 89538.2557598092,
+      "unit": "N",
+      "entity_ref": "anchor",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:anchor:Fy",
+      "kind": "support_reaction_component_v2",
+      "value": 1.0231815394945443e-12,
+      "unit": "N",
+      "entity_ref": "anchor",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:anchor:Fz",
+      "kind": "support_reaction_component_v2",
+      "value": -9.99999999999999e-7,
+      "unit": "N",
+      "entity_ref": "anchor",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:anchor:Mx",
+      "kind": "support_reaction_component_v2",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "anchor",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:anchor:My",
+      "kind": "support_reaction_component_v2",
+      "value": 1.999999999999998e-6,
+      "unit": "N*m",
+      "entity_ref": "anchor",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:anchor:Mz",
+      "kind": "support_reaction_component_v2",
+      "value": 3.183231456205249e-12,
+      "unit": "N*m",
+      "entity_ref": "anchor",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:anchor:force_magnitude",
+      "kind": "support_reaction_force_magnitude_v2",
+      "value": 89538.2557598092,
+      "unit": "N",
+      "entity_ref": "anchor",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "force_magnitude",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:anchor:moment_magnitude",
+      "kind": "support_reaction_moment_magnitude_v2",
+      "value": 2.000000000002531e-6,
+      "unit": "N*m",
+      "entity_ref": "anchor",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "moment_magnitude",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:spring:Fx",
+      "kind": "support_reaction_component_v2",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "spring",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:spring:Fy",
+      "kind": "support_reaction_component_v2",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "spring",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:spring:Fz",
+      "kind": "support_reaction_component_v2",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "spring",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:spring:Mx",
+      "kind": "support_reaction_component_v2",
+      "value": -1.0000016986889825e-8,
+      "unit": "N*m",
+      "entity_ref": "spring",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:spring:My",
+      "kind": "support_reaction_component_v2",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "spring",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:spring:Mz",
+      "kind": "support_reaction_component_v2",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "spring",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:spring:force_magnitude",
+      "kind": "support_reaction_force_magnitude_v2",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "spring",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "force_magnitude",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:6:spring:moment_magnitude",
+      "kind": "support_reaction_moment_magnitude_v2",
+      "value": 1.0000016986889825e-8,
+      "unit": "N*m",
+      "entity_ref": "spring",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "moment_magnitude",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:4:stop:Fx",
+      "kind": "support_reaction_component_v2",
+      "value": -89538.2557598092,
+      "unit": "N",
+      "entity_ref": "stop",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:4:stop:Fy",
+      "kind": "support_reaction_component_v2",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "stop",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:4:stop:Fz",
+      "kind": "support_reaction_component_v2",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "stop",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:4:stop:Mx",
+      "kind": "support_reaction_component_v2",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "stop",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:4:stop:My",
+      "kind": "support_reaction_component_v2",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "stop",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:4:stop:Mz",
+      "kind": "support_reaction_component_v2",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "stop",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:4:stop:force_magnitude",
+      "kind": "support_reaction_force_magnitude_v2",
+      "value": 89538.2557598092,
+      "unit": "N",
+      "entity_ref": "stop",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "force_magnitude",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:support-action:9:case:join:4:stop:moment_magnitude",
+      "kind": "support_reaction_moment_magnitude_v2",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "stop",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "moment_magnitude",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "recovered_from_assembled_support_law",
+        "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+      }
+    },
+    {
+      "id": "result:force:member:axial",
+      "kind": "element_local_axial_force",
+      "value": 89538.2557598092,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      }
+    },
+    {
+      "id": "result:force:member:axial:end-j",
+      "kind": "element_local_axial_force",
+      "value": -89538.2557598092,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      }
+    },
+    {
+      "id": "result:force:member:shear-y",
+      "kind": "element_local_shear_force_y",
+      "value": 1.0231815394945443e-12,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      }
+    },
+    {
+      "id": "result:force:member:shear-y:end-j",
+      "kind": "element_local_shear_force_y",
+      "value": -1.0231815394945443e-12,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      }
+    },
+    {
+      "id": "result:force:member:shear-z",
+      "kind": "element_local_shear_force_z",
+      "value": -9.99999999999999e-7,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      }
+    },
+    {
+      "id": "result:force:member:shear-z:end-j",
+      "kind": "element_local_shear_force_z",
+      "value": 9.99999999999999e-7,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      }
+    },
+    {
+      "id": "result:moment:member:torsion",
+      "kind": "element_local_torsional_moment",
+      "value": -1.0000007932831068e-8,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      }
+    },
+    {
+      "id": "result:moment:member:torsion:end-j",
+      "kind": "element_local_torsional_moment",
+      "value": 1.0000007932831068e-8,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      }
+    },
+    {
+      "id": "result:moment:member:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "value": 1.999999999999998e-6,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      }
+    },
+    {
+      "id": "result:moment:member:bending-y:end-j",
+      "kind": "element_local_bending_moment_y",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      }
+    },
+    {
+      "id": "result:moment:member:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "value": 3.183231456205249e-12,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      }
+    },
+    {
+      "id": "result:moment:member:bending-z:end-j",
+      "kind": "element_local_bending_moment_z",
+      "value": -9.094947017729282e-13,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      }
+    },
+    {
+      "id": "result:force:member:quarter-1:axial",
+      "kind": "element_local_axial_force",
+      "value": -89538.2557598092,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:force:member:quarter-1:shear-y",
+      "kind": "element_local_shear_force_y",
+      "value": -1.0231815394945443e-12,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:force:member:quarter-1:shear-z",
+      "kind": "element_local_shear_force_z",
+      "value": 9.99999999999999e-7,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:moment:member:quarter-1:torsion",
+      "kind": "element_local_torsional_moment",
+      "value": 1.0000007932831068e-8,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:moment:member:quarter-1:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "value": -1.4999999999999983e-6,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:moment:member:quarter-1:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "value": -2.6716406864579767e-12,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:force:member:midspan:axial",
+      "kind": "element_local_axial_force",
+      "value": -89538.2557598092,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:force:member:midspan:shear-y",
+      "kind": "element_local_shear_force_y",
+      "value": -1.0231815394945443e-12,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:force:member:midspan:shear-z",
+      "kind": "element_local_shear_force_z",
+      "value": 9.99999999999999e-7,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:moment:member:midspan:torsion",
+      "kind": "element_local_torsional_moment",
+      "value": 1.0000007932831068e-8,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:moment:member:midspan:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "value": -9.99999999999999e-7,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:moment:member:midspan:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "value": -2.1600499167107046e-12,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:force:member:quarter-3:axial",
+      "kind": "element_local_axial_force",
+      "value": -89538.2557598092,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:force:member:quarter-3:shear-y",
+      "kind": "element_local_shear_force_y",
+      "value": -1.0231815394945443e-12,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:force:member:quarter-3:shear-z",
+      "kind": "element_local_shear_force_z",
+      "value": 9.99999999999999e-7,
+      "unit": "N",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:moment:member:quarter-3:torsion",
+      "kind": "element_local_torsional_moment",
+      "value": 1.0000007932831068e-8,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:moment:member:quarter-3:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "value": -4.999999999999994e-7,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:moment:member:quarter-3:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "value": -1.6484591469634324e-12,
+      "unit": "N*m",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:end-i:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "value": -15.000480000000001,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:member:end-i:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": -7.404708024048624e-9,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:member:end-i:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": -1.1785449753083509e-14,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:member:end-i:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 1.8511784745196042e-11,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:member:end-j:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "value": -15.000480000000001,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:member:end-j:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": -0.0,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:member:end-j:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": -4.209089197529825e-15,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:member:end-j:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 1.8511784745196042e-11,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:member:quarter-1:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "value": -15.000480000000001,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:quarter-1:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": -5.553531018036468e-9,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:quarter-1:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": -9.891359614195087e-15,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:quarter-1:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 1.8511784745196042e-11,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:midspan:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "value": -15.000480000000001,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:midspan:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": -3.702354012024312e-9,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:midspan:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": -7.997269475306666e-15,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:midspan:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 1.8511784745196042e-11,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:quarter-3:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "value": -15.000480000000001,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:quarter-3:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": -1.851177006012156e-9,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:quarter-3:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": -6.103179336418246e-15,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:member:quarter-3:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 1.8511784745196042e-11,
+      "unit": "MPa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:elastic-maximum:9:case:join:6:member",
+      "kind": "pipe_elastic_normal_stress_maximum_v2",
+      "value": 15000480.00740471,
+      "unit": "Pa",
+      "entity_ref": "member",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:join"
+      },
+      "metadata": {
+        "component": "maximum_absolute_normal_stress",
+        "coordinate_system": "pipe_section",
+        "location": "governing_station",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "diagnostic:load:torque:category-mapping",
+      "code": "LOAD_CATEGORY_PREVIEW_MAPPED",
+      "severity": "warning",
+      "message": "authored load category concentrated_moment is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "torque",
+        "case:join"
+      ]
+    },
+    {
+      "id": "diagnostic:load:extra-0:category-mapping",
+      "code": "LOAD_CATEGORY_PREVIEW_MAPPED",
+      "severity": "warning",
+      "message": "authored load category concentrated_force is applied under the equivalent-static preview category occasional; the preview classification is not a user-selected engineering classification",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "extra:0",
+        "case:join"
+      ]
+    },
+    {
+      "id": "diagnostic:source-recovery:case:join",
+      "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
+      "severity": "info",
+      "message": "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"captured replay reservation\", helper_stage: Replay, error: Exact(Budget), work: WorkReport { charged: 4061151, rejected: 4061151, limit: 8000000 } }",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "case:join"
+      ]
+    },
+    {
+      "id": "diagnostic:load-state:case-join:source-recovery-not-joined",
+      "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
+      "severity": "info",
+      "message": "requested_mode=dense_scrutiny; the published response for this case is the ordinary structural route; no retained-source response is joined into it; retained_source_attempt=unavailable",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "case:join"
+      ]
+    },
+    {
+      "id": "diagnostic:numerical-integrity:case:join",
+      "code": "NUMERICAL_INTEGRITY_SENSITIVE",
+      "severity": "warning",
+      "message": "M03-INTEGRITY-v1 represented original-equation structural evidence for load case case:join: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Sensitive, factorization: \"positive dense Cholesky\", scale_exponents: [-10, -11, -11, -10, -11, -11], pivots: [PivotEvidence { ordered_index: 0, global_dof: 3, pivot: 2.0606874725714306, cancellation_scale: 2.0606874725714306, operation_count: 2, screen: 2.928413028614942e-14 }, PivotEvidence { ordered_index: 1, global_dof: 7, pivot: 1.9318945054463093, cancellation_scale: 1.9318945054463093, operation_count: 4, screen: 5.490774428398908e-14 }, PivotEvidence { ordered_index: 2, global_dof: 8, pivot: 1.9318945054463093, cancellation_scale: 1.9318945054463093, operation_count: 6, screen: 8.236161642598364e-14 }, PivotEvidence { ordered_index: 3, global_dof: 9, pivot: 9.536726963688125e-11, cancellation_scale: 4.121374944856759, operation_count: 8, screen: 2.342730422729325e-13 }, PivotEvidence { ordered_index: 4, global_dof: 10, pivot: 0.6439648351487703, cancellation_scale: 4.507753846041388, operation_count: 10, screen: 3.202951749899365e-13 }, PivotEvidence { ordered_index: 5, global_dof: 11, pivot: 0.6439648351487703, cancellation_scale: 4.507753846041388, operation_count: 12, screen: 3.843542099879239e-13 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0578136350861028e-11, residual_rows: [ResidualRow { global_dof: 3, residual: 0.0, denominator: 432.1582195489713, row_scale_exponent: 8, normalized_residual: 0.0, normalized_denominator: 1.6881180451131692, normalized_evaluation_allowance: 1.124512513181911e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 2.878752033745692e-13, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 7, residual: -1.0231815394945443e-12, denominator: 19447.08684425153, row_scale_exponent: 13, normalized_residual: -1.249000902703301e-16, normalized_denominator: 2.3739119682924232, normalized_evaluation_allowance: 2.6355717256314785e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 2.159060357637307e-11, guarded_ratio: 1.162836639594284e-15, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 8, residual: -8.470329472543003e-22, denominator: 7.999999999999991e-6, row_scale_exponent: -18, normalized_residual: -2.220446049250313e-16, normalized_denominator: 2.0971519999999977, normalized_evaluation_allowance: 2.328306436538699e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 8.881784197001262e-21, guarded_ratio: 1.216102143031949e-15, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 9, residual: 0.0, denominator: 432.1582195489713, row_scale_exponent: 8, normalized_residual: 0.0, normalized_denominator: 1.6881180451131692, normalized_evaluation_allowance: 1.124512513181911e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 2.878752033745692e-13, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 10, residual: 0.0, denominator: 7.999999999999991e-6, row_scale_exponent: -18, normalized_residual: 0.0, normalized_denominator: 2.0971519999999977, normalized_evaluation_allowance: 2.328306436538699e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 8.881784197001262e-21, guarded_ratio: 1.110223024625161e-15, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 11, residual: -9.094947017729282e-13, denominator: 19447.08684425153, row_scale_exponent: 13, normalized_residual: -1.1102230246251565e-16, normalized_denominator: 2.3739119682924232, normalized_evaluation_allowance: 2.6355717256314785e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 2.159060357637307e-11, guarded_ratio: 1.1569906823754927e-15, target: 7.10542735760101e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [ContributionRounding { row: 3, col: 3, accumulated_high: 2160787.4272390604, accumulated_low: 1.6987323761465545e-10, stored_difference_high: 1.6987323761465545e-10, stored_difference_low: -0.0, accumulated_expansion: [1.6987323761465545e-10, 2160787.4272390604], difference_expansion: [1.6987323761465545e-10] }], assembly_relative_perturbation_estimate: 3.593890644675312e-17, assembly_amplification_estimate: 3.3974705236076674e-6, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 3, residual: 1.3608977744808753e-14, denominator: 432.1582195489714, row_scale_exponent: 8, normalized_residual: 5.316006931565919e-17, normalized_denominator: 1.6881180451131694, normalized_evaluation_allowance: 1.8367037715304922e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 98, evaluation_allowance: 4.70196165511806e-12, guarded_ratio: 1.0911676371178137e-14, target: 6.963318810449058e-13, passed: true }, ResidualRow { global_dof: 7, residual: -3.294464657039343e-13, denominator: 19447.08684425153, row_scale_exponent: 13, normalized_residual: -4.0215633020499794e-17, normalized_denominator: 2.3739119682924232, normalized_evaluation_allowance: 3.478954677833646e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 132, evaluation_allowance: 2.849959672081323e-10, guarded_ratio: 1.467188458399781e-14, target: 9.37916411203346e-13, passed: true }, ResidualRow { global_dof: 8, residual: -5.530031731785626e-22, denominator: 7.999999999999991e-6, row_scale_exponent: -18, normalized_residual: -1.449664638297211e-16, normalized_denominator: 2.0971519999999977, normalized_evaluation_allowance: 1.4435499906540097e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 62, evaluation_allowance: 5.506706202140845e-20, guarded_ratio: 6.95250814932344e-15, target: 4.4053649617126514e-13, passed: true }, ResidualRow { global_dof: 9, residual: 3.377912080394245e-15, denominator: 432.1582195489713, row_scale_exponent: 8, normalized_residual: 1.319496906404002e-17, normalized_denominator: 1.6881180451131692, normalized_evaluation_allowance: 1.0870287627425266e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 58, evaluation_allowance: 2.782793632620868e-12, guarded_ratio: 6.4471099210125274e-15, target: 4.121147867408608e-13, passed: true }, ResidualRow { global_dof: 10, residual: 3.1558704086976354e-22, denominator: 7.999999999999991e-6, row_scale_exponent: -18, normalized_residual: 8.272924924176329e-17, normalized_denominator: 2.0971519999999977, normalized_evaluation_allowance: 1.0244548320770352e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 44, evaluation_allowance: 3.9079850466805846e-20, guarded_ratio: 4.924429688459485e-15, target: 3.126388037344456e-13, passed: true }, ResidualRow { global_dof: 11, residual: -1.590705233914117e-12, denominator: 19447.08684425153, row_scale_exponent: 13, normalized_residual: -1.9417788499928186e-16, normalized_denominator: 2.3739119682924232, normalized_evaluation_allowance: 3.478954677833646e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 132, evaluation_allowance: 2.849959672081323e-10, guarded_ratio: 1.4736740507062863e-14, target: 9.37916411203346e-13, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"root:UX\", \"root:UY\", \"root:UZ\", \"root:RX\", \"root:RY\", \"root:RZ\", \"tip:UX\", \"tip:UY\", \"tip:UZ\", \"tip:RX\", \"tip:RY\", \"tip:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "case:join"
+      ]
+    },
+    {
+      "id": "diagnostic:physics:rule-inputs-missing",
+      "code": "RULE_CHECK_INPUTS_MISSING",
+      "severity": "warning",
+      "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
+      "source": "core/product_physics"
+    }
+  ],
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false
+  },
+  "accepted_model_state_mutated": false
+}

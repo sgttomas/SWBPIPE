@@ -1,0 +1,30 @@
+........................................................................ [ 48%]
+.........................................F
+=================================== FAILURES ===================================
+_______________ test_table_bytes_are_pinned[TABLEBYTES-id-edit] ________________
+
+case = {'id': 'TABLEBYTES-id-edit', 'find': '0.3.0/load-reference-source-1"', 'replace': '0.3.0/load-reference-source-2"', 'expect': 'SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH'}
+
+    @pytest.mark.parametrize("case", CASES["table_cases"], ids=lambda case: case["id"])
+    def test_table_bytes_are_pinned(case):
+        data = (PROJECT / case.get("file", "fixtures/results/semantic_contract_v0_3_load_reference_source_1.json")).read_text()
+        if case["find"] is not None:
+            assert case["find"] in data
+            data = data.replace(case["find"], case["replace"], 1)
+        result = outcome(lambda: verify_table(data.encode()))
+        RESULTS.append({"id": case["id"], "table": result})
+>       assert result == case["expect"]
+E       AssertionError: assert 'SOURCE_LOAD_...ABLE_IDENTITY' == 'SOURCE_LOAD_...CE_TABLE_HASH'
+E         
+E         - SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH
+E         ?                                    ^^^^
+E         + SOURCE_LOAD_REFERENCE_SOURCE_TABLE_IDENTITY
+E         ?                                    ^^^^^^^^
+
+tests/test_load_reference_source_readers.py:243: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_source_readers.py::test_table_bytes_are_pinned[TABLEBYTES-id-edit]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 113 passed in 42.05s
+
+--- stderr ---

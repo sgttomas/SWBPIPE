@@ -1,0 +1,266 @@
+{
+  "format": "openpipestress.qualification_reference_values/1",
+  "case_id": "signed_fit_states.released",
+  "readiness": "ready",
+  "basis": "generate_reference_values.py evaluating core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab) at the pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to binary64; no observed producer value",
+  "reference_kind": "analytical",
+  "independent_review_ref": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/T1_WP6_FREEZE/RETURN.md#sha256=795b04214006160755fe39a427005022beecf94830c81e37110a8032d2574c49",
+  "values": [
+    {
+      "assertion_id": "case:cold.disp.node:far.ux",
+      "value": -2.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:cold.axial.pipe:fit.end_i",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:cold.axial.pipe:fit.quarter_1",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:cold.axial.pipe:fit.midspan",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:cold.axial.pipe:fit.quarter_3",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:cold.axial.pipe:fit.end_j",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:cold.reaction.support:root.Fx",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:cold.reaction.support:root.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:cold.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:cold.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:cold.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:cold.reaction.support:root.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:cold.evidence.member.pipe:fit.selected_E_pa",
+      "value": 200000000000.0,
+      "unit": "Pa"
+    },
+    {
+      "assertion_id": "case:cold.evidence.member.pipe:fit.thermal_strain",
+      "value": 0.0,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:cold.evidence.member.pipe:fit.fit_strain",
+      "value": -0.0002,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:cold.evidence.member.pipe:fit.total_eigenstrain",
+      "value": -0.0002,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:cold.evidence.member.pipe:fit.reference_length_m",
+      "value": 10.0,
+      "unit": "m"
+    },
+    {
+      "assertion_id": "case:hot.disp.node:far.ux",
+      "value": 5.9984,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:hot.axial.pipe:fit.end_i",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:hot.axial.pipe:fit.quarter_1",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:hot.axial.pipe:fit.midspan",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:hot.axial.pipe:fit.quarter_3",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:hot.axial.pipe:fit.end_j",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:hot.reaction.support:root.Fx",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:hot.reaction.support:root.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:hot.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:hot.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:hot.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:hot.reaction.support:root.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:hot.evidence.member.pipe:fit.selected_E_pa",
+      "value": 150000000000.0,
+      "unit": "Pa"
+    },
+    {
+      "assertion_id": "case:hot.evidence.member.pipe:fit.thermal_strain",
+      "value": 0.0008,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:hot.evidence.member.pipe:fit.fit_strain",
+      "value": -0.0002,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:hot.evidence.member.pipe:fit.total_eigenstrain",
+      "value": 0.00059984,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:hot.evidence.member.pipe:fit.reference_length_m",
+      "value": 10.0,
+      "unit": "m"
+    },
+    {
+      "assertion_id": "case:return.disp.node:far.ux",
+      "value": -2.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:return.axial.pipe:fit.end_i",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:return.axial.pipe:fit.quarter_1",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:return.axial.pipe:fit.midspan",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:return.axial.pipe:fit.quarter_3",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:return.axial.pipe:fit.end_j",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:return.reaction.support:root.Fx",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:return.reaction.support:root.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:return.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:return.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:return.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:return.reaction.support:root.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:return.evidence.member.pipe:fit.selected_E_pa",
+      "value": 200000000000.0,
+      "unit": "Pa"
+    },
+    {
+      "assertion_id": "case:return.evidence.member.pipe:fit.thermal_strain",
+      "value": 0.0,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:return.evidence.member.pipe:fit.fit_strain",
+      "value": -0.0002,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:return.evidence.member.pipe:fit.total_eigenstrain",
+      "value": -0.0002,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:return.evidence.member.pipe:fit.reference_length_m",
+      "value": 10.0,
+      "unit": "m"
+    }
+  ],
+  "wrong_values": []
+}

@@ -1,4 +1,5 @@
 import { MaterialConstitutiveForm } from "../pressure-authoring/PressureAuthoringPanel";
+import { ExpansionLawsEditor } from "./ExpansionLawsEditor";
 import { useEffect, useState } from "react";
 import { clone, parseQuantities, QueueFeedback, QuantityField, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 type Material = NonNullable<RichFormProps["model"]["materials"]>[number] & {
@@ -10,7 +11,7 @@ export function MaterialTemperatureForm(props: RichFormProps) {
     key={material.id}
     {...props}
     material={material}
-  /></> : null;
+  /><ExpansionLawsEditor {...props} material={material} /></> : null;
 }
 function TemperatureEditor(props: RichFormProps & {
   material: Material;

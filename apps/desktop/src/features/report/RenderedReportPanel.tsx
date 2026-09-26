@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
+import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
 import { FileCheck, Printer } from "lucide-react";
 import type {
   AnalysisRunEnvelope,
@@ -65,7 +67,7 @@ export function RenderedReportPanel({
     : null;
 
   async function onRender() {
-    if (!result || !analysisRun) return;
+    if (!result || !analysisRun || loadReferenceOutputRefusal(result)) return;
     setRendering(true);
     setRenderError(null);
     setPrintRequested(false);
@@ -102,6 +104,7 @@ export function RenderedReportPanel({
         Rendered Report (FR-016)
       </div>
       <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="rendered-report">
         <button
           type="button"
           data-testid="rendered-report-render"
@@ -117,6 +120,7 @@ export function RenderedReportPanel({
         >
           {rendering ? "Rendering…" : "Render report"}
         </button>
+        </LoadReferenceOutputGate>
         {!result || !analysisRun ? (
           <span data-testid="rendered-report-precondition">
             Solve first: rendering needs a mechanics result and analysis-run record.

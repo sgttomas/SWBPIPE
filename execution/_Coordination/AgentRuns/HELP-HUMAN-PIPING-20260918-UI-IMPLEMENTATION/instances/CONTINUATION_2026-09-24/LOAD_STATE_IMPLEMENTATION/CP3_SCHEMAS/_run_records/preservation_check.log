@@ -1,0 +1,27 @@
+== schemas/results.v0.3.schema.yaml
+   pre-edit sha256  a527f083dabc9e64ab7103e16c51103e85b6a67f5cef1427d1e8e908d7f5cc9f
+   post-edit sha256 c303219b89c63f41bdda71b49af1ed15175c106b035ff4f5b50e2eaf2cdc57ed
+   baseline pointers compared: 2192; failures: 0; extended lists: 5
+   EXTENDED /$defs/ResultEnvelope/properties/producer/properties/semantic_contract_id/enum += ['openpipestress.result_semantics/0.3.0/load-reference-1']
+   EXTENDED /$defs/ResultEnvelope/properties/semantic_contract_ref/properties/ref_id/enum += ['openpipestress.result_semantics/0.3.0/load-reference-1']
+   EXTENDED /$defs/ResultEnvelope/properties/formulation_basis/properties/profile_id/enum += ['resolved_straight_load_state_v1']
+   EXTENDED /$defs/ResultEnvelope/properties/contract_evidence/anyOf += ['<branch/ref {"$ref": "load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence"}...>']
+   EXTENDED /$defs/ResultEnvelope/oneOf += ['<branch/ref {"required": ["contract_evidence"], "properties": {"producer": {"properties": {"semantic_c...>']
+== schemas/analysis_run.v0.3.schema.json
+   pre-edit sha256  f81f1c8e04ba3ecce5da51d72f303d41f6d710b26ea1a77f9163cfe94cae6abe
+   post-edit sha256 2045d3651709ec32c53b17a16f504c4818c9f14d7898bdfacf7dbc4068477410
+   baseline pointers compared: 614; failures: 0; extended lists: 4
+   EXTENDED /$defs/SemanticContract/properties/id/enum += ['openpipestress.result_semantics/0.3.0/load-reference-1']
+   EXTENDED /$defs/SemanticContract/properties/sha256/enum += ['44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d']
+   EXTENDED /$defs/SemanticContract/oneOf += ['<branch/ref {"properties": {"id": {"const": "openpipestress.result_semantics/0.3.0/load-reference-1"},...>']
+   EXTENDED /$defs/AnalysisRun/oneOf += ['<branch/ref {"properties": {"reproducibility": {"properties": {"semantic_contract": {"properties": {"i...>']
+== schemas/stress_neutral_export.v0.3.schema.json
+   pre-edit sha256  af3d229289c72349f2daa5b7826bd7f0be4924d6b854c6358d480c89d1d991dd
+   post-edit sha256 80acc90bcf7170c7f07da2f1569a258fc56c4de455c8e936bf8da476e6478e60
+   baseline pointers compared: 2134; failures: 0; extended lists: 5
+   EXTENDED /properties/producer/properties/semantic_contract_id/enum += ['openpipestress.result_semantics/0.3.0/load-reference-1']
+   EXTENDED /properties/formulation_basis/properties/profile_id/enum += ['resolved_straight_load_state_v1']
+   EXTENDED /properties/semantic_contract_ref/properties/ref_id/enum += ['openpipestress.result_semantics/0.3.0/load-reference-1']
+   EXTENDED /properties/semantic_contract/properties/id/enum += ['openpipestress.result_semantics/0.3.0/load-reference-1']
+   EXTENDED /oneOf += ['<branch/ref {"properties": {"producer": {"properties": {"semantic_contract_id": {"const": "openpipestr...>']
+PRESERVATION PASS

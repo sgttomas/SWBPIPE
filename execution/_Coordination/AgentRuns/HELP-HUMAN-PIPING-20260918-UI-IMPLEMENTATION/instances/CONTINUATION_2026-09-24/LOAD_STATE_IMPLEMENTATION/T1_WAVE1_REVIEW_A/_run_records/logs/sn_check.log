@@ -1,0 +1,55 @@
+{
+ "package_v0_3_sha256": "75e90a212b3e9e131ac6e56c92d0103f8c72b4530f1c04b62baeeb4ca658927b",
+ "outputs": {
+  "load_reference_source_eigen_motion_sparse.stress_neutral.json": {
+   "sha256": "9962f11f7b3c0c7cc247f71354878da64ef98fd78a45cd01e2058633475cbffe",
+   "rows": 89,
+   "raw_sha256": "27359b4fc79766baa4b4bb66f69d2f9a42160185ad25a6f3d588e856383780f6"
+  },
+  "load_reference_source_eigen_motion_dense.stress_neutral.json": {
+   "sha256": "993db7d2e3006c8edef52320701901a0664e3bd38068a9c1b50c89b975be4f8b",
+   "rows": 90,
+   "raw_sha256": "f288fc3023500f0e025f00d5778867e40d826a8baf1d1963b638f8778f7dc648"
+  },
+  "load_reference_source_fields_sparse.stress_neutral.json": {
+   "sha256": "2824bc8ae7c4b9c565c6a53dcf0489e4d87f000d964d1cf36152d680b5afccd3",
+   "rows": 81,
+   "raw_sha256": "618efe0d004f6248ec754e22eac494ebd2d7a1fe590a3a6e558884e696f76910"
+  },
+  "load_reference_source_fields_dense.stress_neutral.json": {
+   "sha256": "115e10efb046b2d557508e9b2526b860fa58da84858d6b72c328220cfdbd6379",
+   "rows": 82,
+   "raw_sha256": "59e93f24e1c7e29835f9e124f66ec7b1c23010a5e23c51b7431d0bc5a3876a80"
+  },
+  "load_reference_source_mixed_sparse.stress_neutral.json": {
+   "sha256": "a6fc6f6de1dabb0746943ef8e3e53e4cbba8271f8e7fe3d4aa136740c97b0696",
+   "rows": 190,
+   "raw_sha256": "5ef78254cd591856269b9c37e11a9b374d9134289400b2ea215ea1a637772611"
+  },
+  "load_reference_source_mixed_dense.stress_neutral.json": {
+   "sha256": "e9e53fdd385de5947366a1e083cd58faed60af726c3d08f98d048c275ac23376",
+   "rows": 192,
+   "raw_sha256": "51af113d2b7507c392b856fde5759101e1d6a10981ff0fc6dc1f4c7b37ddee1f"
+  },
+  "load_reference_source_n05_sparse.stress_neutral.json": {
+   "sha256": "5133c8da46f8425a143c5fae81982da8bb2260555fcd1f8e83cdb77bedcaf2e9",
+   "rows": 81,
+   "raw_sha256": "9552edcbfaa8488535af1c7b78f800b12549b2f986a28dbeae89bed1b90aafa0"
+  },
+  "load_reference_source_n05_dense.stress_neutral.json": {
+   "sha256": "714a7285c5f987214db7035e274adde9acecae2fd9a879304e03ee000c31a1cb",
+   "rows": 82,
+   "raw_sha256": "1bb4474af5b51f8cb863636bb0881c4c8048bccf4ea6961b1d1341f4596b226c"
+  },
+  "load_reference_source_n06_sparse.stress_neutral.json": {
+   "sha256": "0d6202b3071cfb82bc236007c03b1eca1ffecd9819c6d1e5666fb599f27d9670",
+   "rows": 81,
+   "raw_sha256": "a5b6f848248b5f035de82c95dc9427b9813f24780c8c72b2062386d4e7e1d83f"
+  },
+  "load_reference_source_n06_dense.stress_neutral.json": {
+   "sha256": "bbd0657b22578728fc4b144d29a05c9c77aaf6a4a1e67265b4d8abb49d292716",
+   "rows": 81,
+   "raw_sha256": "013104586e1c12ce63beae0c0122bb3192aabc16b1ab27ff4433fa6e895fb93d"
+  }
+ }
+}

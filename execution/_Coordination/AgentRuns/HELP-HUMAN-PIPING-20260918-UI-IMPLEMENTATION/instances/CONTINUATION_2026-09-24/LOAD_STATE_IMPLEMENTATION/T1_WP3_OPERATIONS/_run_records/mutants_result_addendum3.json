@@ -1,0 +1,36 @@
+{
+ "with_head_tests": [
+  {
+   "id": "B09-f9-relaxation-not-limited-to-0-4-0",
+   "file": "src/rich_authoring.rs",
+   "status": "SURVIVED",
+   "failing_tests": []
+  }
+ ],
+ "with_addendum3_test": [
+  {
+   "id": "P05-exact-profile-includes-0-4-0",
+   "file": "src/rich_authoring.rs",
+   "status": "KILLED",
+   "failing_tests": [
+    "temperature_points_replacement_cannot_orphan_an_exact_point"
+   ]
+  },
+  {
+   "id": "P06-0-4-0-points-need-no-coefficient",
+   "file": "src/rich_authoring.rs",
+   "status": "KILLED",
+   "failing_tests": [
+    "temperature_points_replacement_cannot_orphan_an_exact_point"
+   ]
+  },
+  {
+   "id": "B09-f9-relaxation-not-limited-to-0-4-0",
+   "file": "src/rich_authoring.rs",
+   "status": "KILLED",
+   "failing_tests": [
+    "exact_0_3_0_points_still_demand_the_expansion_coefficient"
+   ]
+  }
+ ]
+}

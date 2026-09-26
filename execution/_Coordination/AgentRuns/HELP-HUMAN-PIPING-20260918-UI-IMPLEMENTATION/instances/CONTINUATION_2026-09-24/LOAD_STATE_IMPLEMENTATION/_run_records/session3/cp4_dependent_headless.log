@@ -1,0 +1,260 @@
+   Compiling open_pipe_stress_result_export v0.1.0 (projects/chirality-piping/core/reporting/result_export)
+   Compiling open_pipe_stress_report_generator v0.1.0 (projects/chirality-piping/core/reporting/report_generator)
+warning: function `derived` is never used
+   --> projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling open_pipe_stress_report_sections v0.1.0 (projects/chirality-piping/core/reporting/report_sections)
+   Compiling open_pipe_stress_protected_content_linter v0.1.0 (projects/chirality-piping/core/reporting/protected_content_linter)
+   Compiling open_pipe_stress_report_renderer v0.1.0 (projects/chirality-piping/core/reporting/report_renderer)
+   Compiling open_pipe_stress_pdf_emitter v0.1.0 (projects/chirality-piping/core/reporting/pdf_emitter)
+   Compiling open_pipe_stress_user_loads v0.1.0 (projects/chirality-piping/core/loads/user_loads)
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+   Compiling open_pipe_stress_audit_manifest v0.1.0 (projects/chirality-piping/core/reporting/audit_manifest)
+   Compiling open_pipe_stress_report_package v0.1.0 (projects/chirality-piping/core/reporting/report_package)
+   Compiling open_pipe_stress_mechanics_benchmarks v0.1.0 (projects/chirality-piping/validation/benchmarks/mechanics)
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling open_pipe_stress_product_physics v0.2.0 (projects/chirality-piping/core/product_physics)
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+   Compiling open_pipe_stress_stress_benchmarks v0.1.0 (projects/chirality-piping/validation/benchmarks/stress)
+warning: unused import: `ELEMENT_DOF`
+  --> projects/chirality-piping/core/product_physics/src/source_recovery.rs:12:39
+   |
+12 |     ThermalElementLoad, DOF_PER_NODE, ELEMENT_DOF,
+   |                                       ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling open_pipe_stress_nonlinear_benchmarks v0.1.0 (projects/chirality-piping/validation/benchmarks/nonlinear)
+warning: function `is_exact_pressure_result_kind` is never used
+    --> projects/chirality-piping/core/product_physics/src/lib.rs:8116:4
+     |
+8116 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `stage` is never read
+  --> projects/chirality-piping/core/product_physics/src/source_recovery.rs:61:9
+   |
+60 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+61 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> projects/chirality-piping/core/product_physics/src/source_recovery.rs:69:9
+   |
+68 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+69 |     pub support_id: String,
+   |         ^^^^^^^^^^
+70 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+71 |     pub value: f64,
+   |         ^^^^^
+72 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> projects/chirality-piping/core/product_physics/src/source_recovery.rs:94:9
+    |
+ 93 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+ 94 |     pub dofs: usize,
+    |         ^^^^
+ 95 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+ 96 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 97 |     pub blocks: usize,
+    |         ^^^^^^
+ 98 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+ 99 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+100 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+101 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+102 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+103 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+104 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+105 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+106 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+107 |     pub max_relative_projection_error: f64,
+108 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> projects/chirality-piping/core/product_physics/src/source_recovery.rs:121:5
+    |
+115 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+121 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> projects/chirality-piping/core/product_physics/src/source_recovery.rs:147:12
+    |
+130 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+147 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> projects/chirality-piping/core/product_physics/src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> projects/chirality-piping/core/product_physics/src/source_receipt.rs:512:19
+    |
+447 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+512 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `expected_primary` is never used
+  --> projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs:55:15
+   |
+55 | pub(super) fn expected_primary(
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `derived` is never used
+   --> projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs:329:15
+    |
+329 | pub(super) fn derived(
+    |               ^^^^^^^
+
+   Compiling open_pipe_stress_headless_runner v0.1.0 (projects/chirality-piping/core/runner/headless)
+warning: `open_pipe_stress_product_physics` (lib) generated 11 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 30.36s
+     Running unittests src/lib.rs (<local>
+
+running 44 tests
+test benchmark_binding::tests::incomplete_suite_observations_fail_closed_at_runner_seam ... ok
+test benchmark_binding::tests::expected_observed_name_mismatch_fails_closed_at_runner_seam ... ok
+test benchmark_binding::tests::duplicate_suite_observation_names_fail_closed_at_runner_seam ... ok
+test benchmark_binding::tests::non_finite_suite_observation_fails_closed_at_runner_seam ... ok
+test benchmark_binding::tests::stress_and_nonlinear_whole_suites_remain_matched ... ok
+test benchmark_binding::tests::suite_execution_error_fails_closed_at_runner_seam ... ok
+test redaction_binding::tests::every_private_named_runner_field_preserves_null_tbd_and_unknown_as_warning_only ... ok
+test redaction_binding::tests::canonical_parity_corpus_matches_rust_contract_mirror ... ok
+test benchmark_binding::tests::unknown_mechanics_fixture_id_fails_closed ... ok
+test redaction_binding::tests::source_intent_is_not_authoritative ... ok
+test redaction_binding::tests::unknown_local_value_stays_unknown_and_warning_only ... ok
+test redaction_binding::tests::wrapper_intent_retains_known_private_with_warning ... ok
+test redaction_binding::tests::report_package_without_intent_blocks_once_and_withholds_payload ... ok
+test redaction_binding::tests::report_package_is_classified_once_without_scalar_descent_at_all_sizes ... ok
+test result_envelope_binding::tests::actual_value_stress_publication_range_refusal_cannot_qualify_export ... ok
+test benchmark_binding::tests::mechanics_whole_suite_is_25_cases_206_values_and_preserves_original_11_91 ... ok
+test result_envelope_binding::tests::headless_invalid_runner_request_cannot_execute_the_value_producer ... ok
+test result_envelope_binding::tests::ordinary_sensitive_typed_source_cannot_mint_qualified_canonical_export ... ok
+test result_envelope_binding::tests::public_nonzero_legacy_pressure_refuses_before_opaque_proof_or_export ... ok
+test result_envelope_binding::tests::actual_pressure_thermal_headless_route_retains_physics_identity ... ok
+test result_envelope_binding::tests::connected_physics_actual_solve_preserves_case_evidence_and_qualified_export ... ok
+test result_envelope_binding::tests::source_block_capture_retains_material_overrides_order_and_extra_request_fields ... ok
+test result_envelope_binding::tests::typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes ... ok
+test tests::analysis_status_for_rule_check_maps_the_runner_vocabulary ... ok
+test tests::blocked_exact_inputs_remain_interpretable_without_source_promotion ... ok
+test tests::full_payload_validation_blocks_envelope_ref_mismatch_and_missing_checksum ... ok
+test tests::preview_bridge_blocks_invalid_runner_metadata_before_solve ... ok
+test tests::preview_bridge_blocks_unrecognized_rule_check_aggregate ... ok
+test tests::preview_bridge_drives_user_rule_checked_into_analysis_status ... ok
+test tests::preview_bridge_executes_product_physics_with_deterministic_refs ... ok
+test tests::preview_bridge_incomplete_aggregate_equals_the_no_aggregate_default ... ok
+test tests::preview_bridge_preserves_producer_and_drives_user_rule_failed_into_analysis_status ... ok
+test tests::privacy_and_professional_boundary_violations_are_blocking ... ok
+test tests::reference_level_validation_still_accepts_without_full_payload ... ok
+test tests::request_requires_load_basis_and_d33_policy ... ok
+test tests::result_requires_human_review_and_result_export_compatibility ... ok
+test tests::result_requires_schema_vocabulary_and_result_envelope_checksum ... ok
+test result_envelope_binding::tests::source_block_rule_revisions_leave_producer_bytes_and_receipt_unchanged ... ok
+test tests::tp_phys_015_result_envelope_payload_validates_when_supplied ... ok
+test tests::valid_request_has_no_blocking_diagnostics ... ok
+test tests::valid_result_has_no_blocking_diagnostics ... ok
+test result_envelope_binding::tests::qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity ... ok
+test result_envelope_binding::tests::actual_source_blocks_bind_exact_invocation_and_canonical_source_both_modes ... ok
+test tests::rule_revisions_preserve_actual_physics_and_precision_producer_source ... ok
+
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 36.04s
+
+     Running unittests src/bin/headless_preview_runner.rs (<local>
+
+running 1 test
+test tests::provisional_request_is_schema_complete ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/openpipestress-runner.rs (<local>
+
+running 18 tests
+test tests::export_results_blocks_when_its_payload_is_missing ... ok
+test tests::run_benchmark_blocks_missing_payload_without_executing_cases ... ok
+test tests::run_benchmark_multi_case_stress_run_matches_recorded_values ... ok
+test tests::run_benchmark_rejects_unsupported_suite_names ... ok
+test tests::run_benchmark_unknown_case_blocks_with_structured_diagnostic ... ok
+test tests::run_benchmark_executes_named_mechanics_case_and_matches_recorded_values ... ok
+test tests::run_benchmark_whole_suite_default_reports_every_case_without_silent_skips ... ok
+test tests::run_regression_blocks_missing_payload_without_executing_cases ... ok
+test tests::run_regression_executes_full_nonlinear_inventory_and_matches ... ok
+test tests::run_regression_rejects_benchmark_suites ... ok
+test tests::run_regression_named_case_reports_recorded_and_observed_outcome ... ok
+test tests::solve_blocks_missing_payload_without_running_solver ... ok
+test tests::solver_mode_cli_is_closed_solve_only_and_defaults_to_sparse ... ok
+test tests::original_legacy_nonzero_pressure_fixture_is_not_a_current_cli_solve ... ok
+test tests::stable_verbs_map_to_runner_operations ... ok
+test tests::validate_input_accepts_d33_policy_request ... ok
+test tests::solve_runs_invented_preview_model_with_stdout_json_contract ... ok
+test tests::explicit_cli_modes_execute_and_bind_actual_source_invocations ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.59s
+
+     Running tests/physics_source_connected.rs (<local>
+
+running 1 test
+test actual_composite_invocations_preserve_canonical_evidence_and_maximum_methods ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.57s
+
+   Doc-tests open_pipe_stress_headless_runner
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,8 @@
+T1_WAVE2_REVIEW F2/F3 repairs: mutant evidence (manager)
+F2 (perturbation now also flips booleans, adds one element to every array, and runs with the committed invented proposal):
+  M-F2a: ReviewGeometry packet gains `leak: result?.accepted_model_state_mutated, leakCount: result?.results.length` -> 2 tests fail (killed)
+  M-F2b: OperationLedger analysis_run_ref gains `leakCount: run?.result_refs?.length` -> 2 tests fail (killed)
+  (these two were run in the live worktree and reverted immediately; files confirmed equal to HEAD)
+F3 (hash-consistent origin reaches deriveResultDocument's own refusal):
+  M-F3: resultExportAdapter.ts deriveResultDocument without refuseLoadReferenceOutput(source) -> fails at loadReferenceOutputRefusal.test.tsx:202 (killed); unmutated control 64/64
+  (run on a git-archive scratch copy of HEAD plus the repaired test)

@@ -1,0 +1,7 @@
+T1_WAVE2_REVIEW F1 repair: mutant evidence for the new forged-proof assertion (manager, in place, restored after each run; file hashes confirmed restored)
+Mutant M-F1: result_envelope_binding.rs standing gate bypassed for load-reference-source-1
+  (`... != "numerically_eligible" && source["producer"]["semantic_contract_id"] != ".../load-reference-source-1"`).
+Run 1 (full test): killed, first at the pre-existing runner-output assertion (load_reference_route_tests.rs:544, result_envelope_document.is_none()).
+Run 2 (pre-existing runner-output assertions at :544-550 removed for the run): killed by the new assertion alone:
+  panicked at src/load_reference_route_tests.rs:571:18: "n05/sparse_interactive actual: joined document minted: ..."
+Conclusion: the new assertion can fail and detects the joined document being minted from a digest-consistent in-crate proof.

@@ -1,0 +1,722 @@
+{
+ "load_reference/connected.request.json|dense": {
+  "exit": 0,
+  "label": "load-reference-1",
+  "stderr": "",
+  "stdout_sha256": "3824035cabf2d2a151756e04b46112ccbdcf4ce8237f49e68b5d3b36b8dfb2bf"
+ },
+ "load_reference/connected.request.json|sparse": {
+  "exit": 0,
+  "label": "load-reference-1",
+  "stderr": "",
+  "stdout_sha256": "915965a446ff04c6c4b7f0209ffff34c4ac040a0d4b8243d875dc7217a9cb74c"
+ },
+ "load_reference/pressure.request.json|dense": {
+  "exit": 0,
+  "label": "load-reference-1",
+  "stderr": "",
+  "stdout_sha256": "b46eeb8a5dc82bb9e0398b8d58db07eb73906eb25110d68b0032fd12df1d0707"
+ },
+ "load_reference/pressure.request.json|sparse": {
+  "exit": 0,
+  "label": "load-reference-1",
+  "stderr": "",
+  "stdout_sha256": "71be3e4fb1af54e962d5e4939a518fcab6f7896842ab4f08212a8212ae47f134"
+ },
+ "load_reference_source/eigen_motion.request.json|dense": {
+  "exit": 0,
+  "label": "load-reference-source-1",
+  "stderr": "",
+  "stdout_sha256": "f288fc3023500f0e025f00d5778867e40d826a8baf1d1963b638f8778f7dc648"
+ },
+ "load_reference_source/eigen_motion.request.json|sparse": {
+  "exit": 0,
+  "label": "load-reference-source-1",
+  "stderr": "",
+  "stdout_sha256": "27359b4fc79766baa4b4bb66f69d2f9a42160185ad25a6f3d588e856383780f6"
+ },
+ "load_reference_source/fields.request.json|dense": {
+  "exit": 0,
+  "label": "load-reference-source-1",
+  "stderr": "",
+  "stdout_sha256": "59e93f24e1c7e29835f9e124f66ec7b1c23010a5e23c51b7431d0bc5a3876a80"
+ },
+ "load_reference_source/fields.request.json|sparse": {
+  "exit": 0,
+  "label": "load-reference-source-1",
+  "stderr": "",
+  "stdout_sha256": "618efe0d004f6248ec754e22eac494ebd2d7a1fe590a3a6e558884e696f76910"
+ },
+ "load_reference_source/mixed.request.json|dense": {
+  "exit": 0,
+  "label": "load-reference-source-1",
+  "stderr": "",
+  "stdout_sha256": "51af113d2b7507c392b856fde5759101e1d6a10981ff0fc6dc1f4c7b37ddee1f"
+ },
+ "load_reference_source/mixed.request.json|sparse": {
+  "exit": 0,
+  "label": "load-reference-source-1",
+  "stderr": "",
+  "stdout_sha256": "5ef78254cd591856269b9c37e11a9b374d9134289400b2ea215ea1a637772611"
+ },
+ "load_reference_source/n05.request.json|dense": {
+  "exit": 0,
+  "label": "load-reference-source-1",
+  "stderr": "",
+  "stdout_sha256": "1bb4474af5b51f8cb863636bb0881c4c8048bccf4ea6961b1d1341f4596b226c"
+ },
+ "load_reference_source/n05.request.json|sparse": {
+  "exit": 0,
+  "label": "load-reference-source-1",
+  "stderr": "",
+  "stdout_sha256": "9552edcbfaa8488535af1c7b78f800b12549b2f986a28dbeae89bed1b90aafa0"
+ },
+ "load_reference_source/n06.request.json|dense": {
+  "exit": 0,
+  "label": "load-reference-source-1",
+  "stderr": "",
+  "stdout_sha256": "013104586e1c12ce63beae0c0122bb3192aabc16b1ab27ff4433fa6e895fb93d"
+ },
+ "load_reference_source/n06.request.json|sparse": {
+  "exit": 0,
+  "label": "load-reference-source-1",
+  "stderr": "",
+  "stdout_sha256": "a5b6f848248b5f035de82c95dc9427b9813f24780c8c72b2062386d4e7e1d83f"
+ },
+ "physics_source/fields.request.json+extra1|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "141b93997123d59210faed76b479b85e83170a5c57a40bd1f707d1c0bc1edba2"
+ },
+ "physics_source/fields.request.json+extra1|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "66e99872a8c1095ef04f6eecf93faa21177f1831a76a55fa9b97708401479b0e"
+ },
+ "physics_source/fields.request.json+extra2|dense": {
+  "exit": 1,
+  "label": "physics-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "8c969aa64ac4476a4d14941aa69593c16be50605d779364976a76b36aba7b374"
+ },
+ "physics_source/fields.request.json+extra2|sparse": {
+  "exit": 1,
+  "label": "physics-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "214e86d7b574c5847cc7c7eb03df3cfe86d99bb7160030869ac8a7b5cb99ae94"
+ },
+ "physics_source/fields.request.json+extra3|dense": {
+  "exit": 1,
+  "label": "physics-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "8a8ea61bf207a3b90727bc401ba47cf1cc28d25ac2980bd4a27813aa829aeb13"
+ },
+ "physics_source/fields.request.json+extra3|sparse": {
+  "exit": 1,
+  "label": "physics-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "2dfd7c3577faf6faea6dcbafbf0144f7a74f5210ce73fc4ed6b9dc04cd9fd894"
+ },
+ "physics_source/fields.request.json|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "bbe505b3b7459931b9f49a708b62a9082748ff269696e0a620f3193620d60be9"
+ },
+ "physics_source/fields.request.json|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "820ed6df0e166b32cc938988d1abf08840e1a3944ba696416460c712a19ce244"
+ },
+ "physics_source/mixed.request.json+P12|dense": {
+  "exit": 1,
+  "label": null,
+  "stderr": "Error: \"SOURCE_BLOCKS_FINALIZATION_FAILED\"\n",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ },
+ "physics_source/mixed.request.json+P12|sparse": {
+  "exit": 1,
+  "label": null,
+  "stderr": "Error: \"SOURCE_BLOCKS_FINALIZATION_FAILED\"\n",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ },
+ "physics_source/mixed.request.json+extra1|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "a6b504ae174b7eed35fae7052092c6294763904bf8a980798b0833fdcb670d26"
+ },
+ "physics_source/mixed.request.json+extra1|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "583ccb34fc5e4961827c6910ead396f32cb2053be6492f0b8637b9e8281dfe4a"
+ },
+ "physics_source/mixed.request.json+extra2|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "a1b4c930853822cf6dbf0e2007b50c3301149825fcec5c6b611418ec59c17452"
+ },
+ "physics_source/mixed.request.json+extra2|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "675d53d41a12cecd75b7f200ddd349d4ae04cbb89f7933a5608cbfae28074718"
+ },
+ "physics_source/mixed.request.json+extra3|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "bbaa920877ce102c8048668f75d3c6d06d85c975bb8f4186cb10df7a38948681"
+ },
+ "physics_source/mixed.request.json+extra3|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "740969dbaaf41ee9a35f50445be096c6a0f3503d0d3f16301424d6e815be20bd"
+ },
+ "physics_source/mixed.request.json|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "a240ba6cc38196a806a4720ffd24ac215f4bafca4e70ed2cb3959ca29e506030"
+ },
+ "physics_source/mixed.request.json|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "4134fc480d7c77aa412664e0484e08eb3e0c2f44174bbfd6f42023548c4ff4d1"
+ },
+ "physics_source/mixed_units.request.json+extra1|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "703463e51df1af4b778a91bb79a87a6d5cd939e1b3ab6eb0a77d951076ab516f"
+ },
+ "physics_source/mixed_units.request.json+extra1|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "cf15c44c47faad8fa559edf8319576e8bf437aa1b2a6339558b4a15abe0392b0"
+ },
+ "physics_source/mixed_units.request.json+extra2|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "856dc0cc6d8bbbb770635829a39ba741c0484d4ac40f1ce641f4adf2d7490f89"
+ },
+ "physics_source/mixed_units.request.json+extra2|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "e9f48a5a57a0b06ceb9afae0f0fe463e4da8e8c854a204c8527d04c1a6308be0"
+ },
+ "physics_source/mixed_units.request.json+extra3|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "f0865b804befc3694570b8143527100bd18bba082104c82b7a30d907689fd19d"
+ },
+ "physics_source/mixed_units.request.json+extra3|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "19222268352020565ba895271deb984c46fbf95d3724301269b29a0468eddb86"
+ },
+ "physics_source/mixed_units.request.json|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "c0481764c0f5057dda96cf78529b0df0788f301dd8b1497501ae4bff0d7e1706"
+ },
+ "physics_source/mixed_units.request.json|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "0fc195a0e5ca8ded8c0393bded4329d63bc31e6776a3175a70bde9928adbdfb9"
+ },
+ "physics_source/n05.request.json+extra1|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "cfadbb029cce078d5691bf275346fd2fceaba596e6a8006a21ec25ee1eb120a0"
+ },
+ "physics_source/n05.request.json+extra1|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "af010a32df12a3af4c4da3b37aa5b81706897deb5b583959d6826f3d70f3de69"
+ },
+ "physics_source/n05.request.json+extra2|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "d92b144e9925c1f9b3f5a8a447d8eb85af5a0ed4eecff9629261a5cb81504d87"
+ },
+ "physics_source/n05.request.json+extra2|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "60ee3c12e2b2e932b8f4c99a2a23eff06c6b5ec9ef5a2f5cbb374d9967eb59b1"
+ },
+ "physics_source/n05.request.json+extra3|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "11e12a82bd0cde78b53483e7c322dc6461dfc5379aabadf4f2a62cca7c8861a3"
+ },
+ "physics_source/n05.request.json+extra3|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "2ff0205642b1601912ab754903bc3a8a245db75cab775f5f710c1eff2ee71304"
+ },
+ "physics_source/n05.request.json|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "d7b0380b65113d3850808543c48c98a64e8f7f4b087dfee84c4a6e4f0fde3727"
+ },
+ "physics_source/n05.request.json|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "831bb4a3833b47128a2044eb24bd0540a8a76166fad7446aead7e0b0b848ae6e"
+ },
+ "physics_source/n05_unicode.request.json+extra1|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "b14481a21ffecdcb5b16d176bbd1f508911d3340a694e45608fb6c06ea4d3971"
+ },
+ "physics_source/n05_unicode.request.json+extra1|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "aec4f57b57554b9a4af9d56f547a9d9aacaedc564a22d5358bfc688106c1c8ea"
+ },
+ "physics_source/n05_unicode.request.json+extra2|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "237e29f8c46bd9b1a464e8a52ea7e0dff451340dc30dc488d0723f18541f971d"
+ },
+ "physics_source/n05_unicode.request.json+extra2|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "42460a843ce426af4665808a931368838bc844e0021b5c8e9087cedf7d732d82"
+ },
+ "physics_source/n05_unicode.request.json+extra3|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "99b241004b30eeec9bc5ae77de4b4c2d41982d188de1be528baa694a4c9c8a2a"
+ },
+ "physics_source/n05_unicode.request.json+extra3|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "98ccf66ddac30bf4928ed728a6567e38b53451b8da6fc010216efde1bbb21da4"
+ },
+ "physics_source/n05_unicode.request.json|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "8bb7f19dbac1444ac352a1ad793ee893a2f7bb41f32ff20b92f005ef5608cd43"
+ },
+ "physics_source/n05_unicode.request.json|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "468e2ce76a179b1419fc501fe6d38b7bca80adf21d0ee94fd65b85ead1a1c9a5"
+ },
+ "physics_source/n05_units.request.json+extra1|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "2831ae0a9087d830fb4978f6fa9f5169457f809089444f63adfd8f686c0bdb4b"
+ },
+ "physics_source/n05_units.request.json+extra1|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "428449a8bc91941ea68bfd98949a3e22f5f45cbf4290cde4c5836f90147f27b3"
+ },
+ "physics_source/n05_units.request.json+extra2|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "b01233c516585b339f940bc6c207009609c44e8240f1f0f2e5913f29858c09cc"
+ },
+ "physics_source/n05_units.request.json+extra2|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "4ecba164e7dfd2e6935d11425540d63352753dafa45a31078f1444a2cc93d76c"
+ },
+ "physics_source/n05_units.request.json+extra3|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "c96515bb1b8bc5bcc93ed149cbd8c9458cc8699797cac5233d945195a84f4783"
+ },
+ "physics_source/n05_units.request.json+extra3|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "27b82b6c714c91b45b4f274f6afd362f3227135e6784f7c19aca9758ca4b95be"
+ },
+ "physics_source/n05_units.request.json|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "02d761ab7e64cf3d41a2336a1049a5b20093aa94951ccc0a4739f1250ec32642"
+ },
+ "physics_source/n05_units.request.json|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "2b6849285aea5074224bbcd505ad5db8f4208268c72cd97911843ff9af47cefe"
+ },
+ "physics_source/n06.request.json+extra1|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "2b4f5c9dde1e8bb5a76536ad89c08de3125acb8f4bc5a86203b6d75daae6691a"
+ },
+ "physics_source/n06.request.json+extra1|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "e67bcaa316a7e1504675be80000cbac6dfdd1075b7ff784694d8c6a5d0adc2bf"
+ },
+ "physics_source/n06.request.json+extra2|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "eb6e981903971375884fdf6bb2a95f5cda9965fa001d7b3b0df9f4f784a07826"
+ },
+ "physics_source/n06.request.json+extra2|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "a20440831edf25d83d91bc8cfc578a0d2ec5e1f39ee7cd3b40fcb06963686078"
+ },
+ "physics_source/n06.request.json+extra3|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "d84041d69afcbb06da74ceb770b8b7dab39d1bf8157ade217d4c43067cc8d895"
+ },
+ "physics_source/n06.request.json+extra3|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "3c1a793c60a5355507837b78fdad8ee8f1d73b19ae010098b81d60b4ba6ef912"
+ },
+ "physics_source/n06.request.json|dense": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "e2379dd030de824638d26c4488f45050846bf8e814defc683fd97cd1d607f0b8"
+ },
+ "physics_source/n06.request.json|sparse": {
+  "exit": 0,
+  "label": "physics-source-1",
+  "stderr": "",
+  "stdout_sha256": "233c6bf3f99ecf54e6ff80966bcf02d2ffc19c1bc6e647263eb5de08cc31c222"
+ },
+ "source_blocks/multicase-dense_scrutiny.request.json+extra1|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "1e7d7a93e9775a1adc4ea18b02e1d22751f152d4ccbe3e8f33640e13d60ffe22"
+ },
+ "source_blocks/multicase-dense_scrutiny.request.json+extra1|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "e98afe160a5abe27deb0005a4368ca7c4f7e3b84d3d9c05ccafbf1eff902b469"
+ },
+ "source_blocks/multicase-dense_scrutiny.request.json+extra2|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "9e8716938324f92caca7eec228b3487e1451bcec27a269e5fab0909ae3a70591"
+ },
+ "source_blocks/multicase-dense_scrutiny.request.json+extra2|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "709036c1dfb795d5568a549c4f3f6b6f039a6b95929e14c51f76a986cb7e3122"
+ },
+ "source_blocks/multicase-dense_scrutiny.request.json+extra3|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "7fda0e79517ca90936174596af6377e3bef72ae74d68851e22d67b8bed28fdf7"
+ },
+ "source_blocks/multicase-dense_scrutiny.request.json+extra3|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "5bc9908fdf5f3e6c0dbf3f9aff24c61dc04d6281c73e526de6a327c3b38ba586"
+ },
+ "source_blocks/multicase-dense_scrutiny.request.json|dense": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "73d23575e49e60b4885abeefeaae72e31ab4f5338bce84ed6d39853c13fd7801"
+ },
+ "source_blocks/multicase-dense_scrutiny.request.json|sparse": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "bd88ef632407f3dfab09f108389e438dee45d264a6fa35eef8ae2ace6c8e9f74"
+ },
+ "source_blocks/multicase-sparse_interactive.request.json+extra1|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "1e7d7a93e9775a1adc4ea18b02e1d22751f152d4ccbe3e8f33640e13d60ffe22"
+ },
+ "source_blocks/multicase-sparse_interactive.request.json+extra1|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "e98afe160a5abe27deb0005a4368ca7c4f7e3b84d3d9c05ccafbf1eff902b469"
+ },
+ "source_blocks/multicase-sparse_interactive.request.json+extra2|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "9e8716938324f92caca7eec228b3487e1451bcec27a269e5fab0909ae3a70591"
+ },
+ "source_blocks/multicase-sparse_interactive.request.json+extra2|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "709036c1dfb795d5568a549c4f3f6b6f039a6b95929e14c51f76a986cb7e3122"
+ },
+ "source_blocks/multicase-sparse_interactive.request.json+extra3|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "7fda0e79517ca90936174596af6377e3bef72ae74d68851e22d67b8bed28fdf7"
+ },
+ "source_blocks/multicase-sparse_interactive.request.json+extra3|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "5bc9908fdf5f3e6c0dbf3f9aff24c61dc04d6281c73e526de6a327c3b38ba586"
+ },
+ "source_blocks/multicase-sparse_interactive.request.json|dense": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "73d23575e49e60b4885abeefeaae72e31ab4f5338bce84ed6d39853c13fd7801"
+ },
+ "source_blocks/multicase-sparse_interactive.request.json|sparse": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "bd88ef632407f3dfab09f108389e438dee45d264a6fa35eef8ae2ace6c8e9f74"
+ },
+ "source_blocks/n05-dense_scrutiny.request.json+extra1|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "d6b5ef934f22b68a6fe93a681cea52aaccd613a6bf69bc360934d89d076424d5"
+ },
+ "source_blocks/n05-dense_scrutiny.request.json+extra1|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "b6424c058dabb518d908e361c425c22d450e972c98ddba83f974b012b12c4c3f"
+ },
+ "source_blocks/n05-dense_scrutiny.request.json+extra2|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "7ae592c49d5647754047d9844b0393ff5c1cbe0a7f776510b5b1a3e4aff2852f"
+ },
+ "source_blocks/n05-dense_scrutiny.request.json+extra2|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "706ae4a220fed02159aa6c26a7d5169a7013e13ee9905a76e4c2fb90cf5510ad"
+ },
+ "source_blocks/n05-dense_scrutiny.request.json+extra3|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "04d9bcd82f0a0f8dbb46e18c5cee0707208b0914045f47e73c6bc8c9de5c8254"
+ },
+ "source_blocks/n05-dense_scrutiny.request.json+extra3|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "a2494b533e2a23ab184a23b3e2d5f95f991dfe5a32f65616578113d1b4cf115c"
+ },
+ "source_blocks/n05-dense_scrutiny.request.json|dense": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "213cecb20eda950f1f0328eef3cdf3d93b0d2715a731af723c792e0907c4dd94"
+ },
+ "source_blocks/n05-dense_scrutiny.request.json|sparse": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "fa1ac692657622ad6293ec0f7ab9fc9909d9759841e067334c6334e28d5b6137"
+ },
+ "source_blocks/n05-sparse_interactive.request.json+extra1|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "d6b5ef934f22b68a6fe93a681cea52aaccd613a6bf69bc360934d89d076424d5"
+ },
+ "source_blocks/n05-sparse_interactive.request.json+extra1|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "b6424c058dabb518d908e361c425c22d450e972c98ddba83f974b012b12c4c3f"
+ },
+ "source_blocks/n05-sparse_interactive.request.json+extra2|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "7ae592c49d5647754047d9844b0393ff5c1cbe0a7f776510b5b1a3e4aff2852f"
+ },
+ "source_blocks/n05-sparse_interactive.request.json+extra2|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "706ae4a220fed02159aa6c26a7d5169a7013e13ee9905a76e4c2fb90cf5510ad"
+ },
+ "source_blocks/n05-sparse_interactive.request.json+extra3|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "04d9bcd82f0a0f8dbb46e18c5cee0707208b0914045f47e73c6bc8c9de5c8254"
+ },
+ "source_blocks/n05-sparse_interactive.request.json+extra3|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "a2494b533e2a23ab184a23b3e2d5f95f991dfe5a32f65616578113d1b4cf115c"
+ },
+ "source_blocks/n05-sparse_interactive.request.json|dense": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "213cecb20eda950f1f0328eef3cdf3d93b0d2715a731af723c792e0907c4dd94"
+ },
+ "source_blocks/n05-sparse_interactive.request.json|sparse": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "fa1ac692657622ad6293ec0f7ab9fc9909d9759841e067334c6334e28d5b6137"
+ },
+ "source_blocks/n06-dense_scrutiny.request.json+extra1|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "7a920337b87b816c2c853bd597df22d5c39f0da8b4c3384cc6017b142c6ed940"
+ },
+ "source_blocks/n06-dense_scrutiny.request.json+extra1|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "af03b78741454d2b745991b783a3c511475a158b921df57c3948fe9d5fc535c9"
+ },
+ "source_blocks/n06-dense_scrutiny.request.json+extra2|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "921968eb5c537ae999b581a3621a70a17ca48e2ac78a0120aa51499f20249be9"
+ },
+ "source_blocks/n06-dense_scrutiny.request.json+extra2|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "a060a517e9c62923f37e85d1b9f9ebfbcb76ee12c7ca59ab128b93a1a4f39e94"
+ },
+ "source_blocks/n06-dense_scrutiny.request.json+extra3|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "f41662ed71817458f18e24c916a91395c4ef6b6375d3e372143f9f7f850f2284"
+ },
+ "source_blocks/n06-dense_scrutiny.request.json+extra3|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "efc890da8751a1922c27c002ecc89e010380fdadecd2b7ff2457a314c0979322"
+ },
+ "source_blocks/n06-dense_scrutiny.request.json|dense": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "8cf53a95cac2db221797abac8ac08931666fab08f5d6352904190d8c80fb00b0"
+ },
+ "source_blocks/n06-dense_scrutiny.request.json|sparse": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "c5a9bf69704a18963a88603d7936b70444b2807acd7cfb53b01e5824190bf241"
+ },
+ "source_blocks/n06-sparse_interactive.request.json+extra1|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "7a920337b87b816c2c853bd597df22d5c39f0da8b4c3384cc6017b142c6ed940"
+ },
+ "source_blocks/n06-sparse_interactive.request.json+extra1|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "af03b78741454d2b745991b783a3c511475a158b921df57c3948fe9d5fc535c9"
+ },
+ "source_blocks/n06-sparse_interactive.request.json+extra2|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "921968eb5c537ae999b581a3621a70a17ca48e2ac78a0120aa51499f20249be9"
+ },
+ "source_blocks/n06-sparse_interactive.request.json+extra2|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "a060a517e9c62923f37e85d1b9f9ebfbcb76ee12c7ca59ab128b93a1a4f39e94"
+ },
+ "source_blocks/n06-sparse_interactive.request.json+extra3|dense": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "f41662ed71817458f18e24c916a91395c4ef6b6375d3e372143f9f7f850f2284"
+ },
+ "source_blocks/n06-sparse_interactive.request.json+extra3|sparse": {
+  "exit": 1,
+  "label": "precision-1",
+  "stderr": "Error: \"mechanics did not solve; emitted diagnostics retain the actual failure\"\n",
+  "stdout_sha256": "efc890da8751a1922c27c002ecc89e010380fdadecd2b7ff2457a314c0979322"
+ },
+ "source_blocks/n06-sparse_interactive.request.json|dense": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "8cf53a95cac2db221797abac8ac08931666fab08f5d6352904190d8c80fb00b0"
+ },
+ "source_blocks/n06-sparse_interactive.request.json|sparse": {
+  "exit": 0,
+  "label": "source-blocks-1",
+  "stderr": "",
+  "stdout_sha256": "c5a9bf69704a18963a88603d7936b70444b2807acd7cfb53b01e5824190bf241"
+ }
+}

@@ -535,7 +535,8 @@ pub(super) fn derived_for(
                 });
             }
         }
-        // No distributed/thermal/pressure terms enter this selected source. Its
+        // No distributed or pressure terms enter this selected source; a
+        // resolved eigen axial load is a constant offset. Its
         // normal components are affine along a straight span: sum of absolute
         // affine components is convex, hence its maximum is at an endpoint.
         // Evaluated five points remain checked binary64 recipes, no exact-max claim.

@@ -1,0 +1,43 @@
+........................................................................ [ 30%]
+........................................................................ [ 60%]
+...............................................FF....................... [ 90%]
+.....................s                                                   [100%]
+=================================== FAILURES ===================================
+__________ test_shared_adversarial_case[N2-integer-binary64-equality] __________
+
+case = {'id': 'N2-integer-binary64-equality', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_evidence/l...ad_reference_states/0/members/0/consumed_material_points/0/temperature_k', 'value': 1e+20}], 'dispatch': 'accept', ...}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION', 'accept')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION', 'accept')
+E        +    where 'accept' = expected({'id': 'N2-integer-binary64-equality', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_evidence/l...ad_reference_states/0/members/0/consumed_material_points/0/temperature_k', 'value': 1e+20}], 'dispatch': 'accept', ...}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+________ test_shared_adversarial_case[N2-integer-u64-rounding-equality] ________
+
+case = {'id': 'N2-integer-u64-rounding-equality', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_eviden...states/0/members/0/consumed_material_points/0/temperature_k', 'value': 9007199254740992.0}], 'dispatch': 'accept', ...}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION', 'accept')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION', 'accept')
+E        +    where 'accept' = expected({'id': 'N2-integer-u64-rounding-equality', 'source': 'pressure-dense', 'ops': [{'op': 'set', 'path': '/contract_eviden...states/0/members/0/consumed_material_points/0/temperature_k', 'value': 9007199254740992.0}], 'dispatch': 'accept', ...}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N2-integer-binary64-equality]
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N2-integer-u64-rounding-equality]
+2 failed, 235 passed, 1 skipped in 48.73s
