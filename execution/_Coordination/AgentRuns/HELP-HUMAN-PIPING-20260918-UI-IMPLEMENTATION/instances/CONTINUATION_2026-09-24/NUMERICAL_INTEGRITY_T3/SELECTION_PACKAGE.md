@@ -1,7 +1,7 @@
 # T3 selection package (DRAFT)
 
-T3 WORKING_ITEMS manager for ROOT, 2026-09-26. **Status: DRAFT.** Three things are still pending:
-- D1's and D2's narrow final follow-up (R5-1, R5-2, R5-3, R5-5, N-1 to N-6, and R5-4's curved bound);
+T3 WORKING_ITEMS manager for ROOT, 2026-09-26. **Status: DRAFT.** R5-4 is pre-accepted. Three things are still pending:
+- D1's and D2's narrow final follow-up (R5-1, R5-2, R5-3, R5-5, N-1 to N-6, adopting R5-4, the D-14 pin and the exception re-pin);
 - V1's verification of those items;
 - I1's S11-K pre-regeneration report.
 
@@ -15,7 +15,7 @@ The hashes in §2 are the latest committed revisions and will be updated when th
    - both at the revisions in §2, with ROOT's rulings (`ROOT_RULINGS_V1.md`, `ROOT_RULINGS_V2.md`) as binding amendments. Where a design and a ruling differ, the ruling wins.
 2. **The slice plan and ordering** in §4, including the hard constraints.
 3. **The decisions** in §5. ROOT ruled on all of them on 2026-09-26, subject to the follow-ups.
-4. **R5-4**, curved bends under K-D5. It is open: either ROOT selects D1's bound, or ROOT takes owner options forward (§6).
+4. **R5-4**, curved bends under K-D5: pre-accepted (curved re-formation in EF), pending V1's verification (§6).
 
 The references are already frozen (`ROOT_SELECTION_REFERENCES.md`). The S11 containment is already selected (`ROOT_SELECTION_S11.md`), and its kernel half, S11-K, is being implemented.
 
@@ -106,20 +106,19 @@ ROOT ruled on these before the final package, to save a round. They become final
 - P1's own S11-PROBE-A cases are not in the gate. They become S11-K/F test cases with exact expected nets.
 - The typed-entry result for RF-SKEW-T-CANT-OFF-122-r1e-04 goes into K-D5's tests: K-D5 must fire on both entries.
 
-Items left for the final package: R5-4, and anything the follow-ups change. The exception triples are pinned (§4).
+Items left for the final package: V1's verification of R5-4, and anything the follow-ups change. The exception triples are pinned (§4).
 
-## 6. R5-4: curved bends under K-D5 (OPEN)
+## 6. R5-4: curved bends under K-D5 (pre-accepted, pending V1)
 
-D5C-2 demotes any Passed invocation containing a contribution EF cannot re-form. Realized DEC-070 curved bends are user-selectable (`modelView.ts:154`). ROOT asked D1 for four things, with V1 to check the result:
-- how a user realizes a curved bend today;
-- the committed and realistic models affected;
-- a conservative formation-error bound for curved contributions entered into EF, and its cost;
-- whether T4's null-space confirmation is a prerequisite.
-
-**Pending D1's note.** If a sound bound exists within T3, ROOT selects it. Otherwise ROOT takes owner options forward with numbers:
-- (a) demote until W1c: ROOT's lean, if few models are affected;
-- (b) exempt with a caveat: ROOT recommends against it;
-- (c) delay K-D5: only if (a) would demote most realistic models.
+D1's note `DESIGN_NUMERICS/R5_4_CURVED.md` (commit `4bc3e0696`, sha256 `4843c4e9`) found a sound design within T3, so no owner options are needed.
+- **Design.** EF re-forms each curved contribution (and each user-stiffness joint, without the arctangent) in `Wide<2>` from its binary64 inputs, as an objective element built from the actual chord x_j − x_i. It then enters the exact residual like a frame. The cost is a Wide arctangent added to K3a, O(6³) Wide operations per element, and no extra solve.
+- **Data.**
+  - Realized curved bends are opt-in and cannot be set from the desktop; no committed model uses one.
+  - Six realistic elbow models (12 case-modes, all Passed): revision 5's D5C-2 demotes 12 of 12; the re-formed check demotes 0, with its largest reading at 0.0019 of the criterion.
+  - Four curved Passed breaches on main (up to 1.48×): all caught, with EF equal to the actual error to three digits. A check reusing the product's binary64 curved matrix misses 2.
+  - T4's null-space confirmation is not a prerequisite.
+- **ROOT (2026-09-26):** pre-accepted. Options (a), (b) and (c) fall away. Final acceptance depends on V1's targeted verification (`ROOT_RULINGS_V1.md`).
+- **Findings:** the curved Passed breaches (M03, under the no-interim ruling, fixed by K-D5), and the product's curved element not being rotation-consistent on binary64 inputs (routed to T4 and W1c).
 
 ## 7. What T3 completes and what remains
 

@@ -330,3 +330,16 @@ Input: [REVIEW/BACKCHECK_R5.md](REVIEW/BACKCHECK_R5.md). Verdict FINDINGS, nothi
 - **RF-SKEW-T-CANT-OFF-122-r1e-04 is not an exception.** It is K-D5's required true positive on both entries.
 - The list must be empty after S11-F, and any triple outside it is a gate failure. That is unchanged.
 - The 106/168 figures in `DESIGN_NUMERICS/DESIGN.md` (D5C-5 row, §4.10), `S11_CONTAINMENT.md` (the D5C-5 row, §8) and `D5_TRIGGER.md` are superseded here, and D1 corrects them in revision 5a.
+
+## R5-4: curved bends under K-D5 (ROOT, 2026-09-26, on D1's note `4bc3e0696`)
+
+- **Pre-accepted.** EF re-forms curved contributions in `Wide<2>` from their binary64 inputs, as an objective element built from the actual chord. The Wide arctangent is added to K3a. No owner question arises, and options (a), (b) and (c) fall away.
+- **Final acceptance depends on V1's targeted verification:**
+  - the re-formation is sound and rotation-consistent by construction;
+  - it misses none of the 4 curved Passed breaches on main;
+  - it demotes none of the 12 realistic elbow case-modes (E1–E6);
+  - reusing the product's binary64 curved matrix misses 2 of the 4, so re-formation is required.
+- **Findings recorded** (STAGE0_MAP §6):
+  - Main publishes curved-bend Passed breaches (4, up to 1.48×). This is an M03 extension in the skew class, under the no-interim ruling; K-D5 is the fix.
+  - The product's curved element is not rotation-consistent on binary64 inputs. It is routed to T4 and W1c, and goes into T4's graph row in the next records PR.
+- D5C-2's demotion stays as the fail-closed default for any future family EF cannot re-form.
