@@ -554,14 +554,33 @@ fn joined_actual_solve_retains_invocation_bound_receipt_without_canonical_export
             assert_eq!(reloaded, raw, "{ctx}");
             let mut reparsed = mechanics.clone();
             reparsed.source_block_recovery = Some(reloaded["source_block_recovery"].clone());
-            assert!(
-                build_result_export_document(&request, &output.runner_result, &reparsed).is_err(),
-                "{ctx}"
-            );
-            assert!(
-                build_result_export_document(&request, &output.runner_result, mechanics).is_err(),
-                "{ctx}"
-            );
+            // T1_WAVE2_REVIEW F1: a crate-internal, digest-consistent proof over the
+            // actual invocation (and over the reparsed receipt) still cannot mint a
+            // joined document: the binding refuses on standing, never on a digest.
+            for (label, source) in [("actual", mechanics), ("reparsed", &reparsed)] {
+                let forged = crate::QualifiedPreviewEvidence {
+                    solve_payload: payload.clone(),
+                    solve_payload_digest: digest(&payload).unwrap(),
+                    actual_invocation: actual.clone(),
+                    invocation_digest: digest(&actual).unwrap(),
+                    mechanics_digest: digest(&serde_json::to_value(source).unwrap()).unwrap(),
+                    runner_digest: digest(&serde_json::to_value(&output.runner_result).unwrap())
+                        .unwrap(),
+                    request_digest: digest(&serde_json::to_value(&request).unwrap()).unwrap(),
+                    run_id: output.runner_result.run_id.clone(),
+                };
+                let refusal = build_result_export_document_with_evidence(
+                    &request,
+                    &output.runner_result,
+                    source,
+                    &forged,
+                )
+                .expect_err(&format!("{ctx} {label}: joined document minted"));
+                assert!(
+                    format!("{refusal:?}").contains("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE"),
+                    "{ctx} {label}: {refusal:?}"
+                );
+            }
             assert_wire_excludes_library_evidence(&output);
             write_artifacts(
                 "HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR",

@@ -156,3 +156,13 @@ A digest-consistent, crate-internal relabel of the solver mode in `QualifiedPrev
 - **C1.** The blank 0.4.0 model offer widens WP3's write set. It covers the builder in `services/projectService.ts`, the control in `App.tsx`, and a generalized or sibling handler in `features/workspace/workspaceSession.ts`. It includes no native IPC change. The existing blank path must stay byte-identical.
 - **C2.** Browser solve always refuses, and the browser fixture is 0.1.0. The Chromium e2e therefore runs: blank 0.4.0, then the existing authoring, then the 0.4.0 fields, then Review/Apply and Undo/Redo with the bytes restored. It asserts the browser solve refusal in both modes. The resolved-state block is proven in vitest over the committed raws. There is no fake Tauri backend. The 0.4.0 solve and block display in the native app remain owner's-Mac witness 4.
 - **C3.** Field refusals are pre-checked through the engine's own validate-only path, with the current model hash, and shown in the field group. Case labels come from WP2 standing ("integrity checked" or "needs recompute — not Current"). The word "Current" is never used for a case.
+
+## 16. T1_WAVE2_REVIEW dispositions (ROOT, 2026-09-26)
+
+- **Verdict:** FINDINGS, nothing blocking. Explicit items 1–4 are CLEAR.
+- **Surviving desktop mutants.** The 32 survivors are accepted as unreachable or equivalent. The reviewer checked all 8 reader survivors and a sample of 10 of the 24 ledger survivors, covering every stated reason.
+- **§13** is confirmed by code reading and remains routed to T6.
+- **F1 (should fix, repaired in T1).** WP4's "reparsed receipt" assertion used `build_result_export_document`, which always errors, so it proved nothing. It is replaced by an in-crate, digest-consistent forged-proof check over the actual output and over the reparsed receipt, which must refuse with `CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE`. Mutant M-F1 is killed by the new assertion alone (`_run_records/session6/f1_mutant.log`). The same vacuous pattern in T0R's `result_envelope_binding.rs:674` is main code and is not changed in T1; it is open work routed to **T6**.
+- **F2 (note, taken).** The §14 invariance now also flips booleans, changes counts and runs with a proposal present. Leak mutants are killed.
+- **F3 (note, taken).** A hash-consistent input now reaches `deriveResultDocument`'s own refusal. Its mutant is killed.
+- **F4 (host load).** Resolved by ROOT with the owner's approval. WP7's quiet-host sweep records `/proc/loadavg`.

@@ -15,7 +15,7 @@ import { LOAD_REFERENCE_OUTPUT_REFUSAL, loadReferenceOutputRefusal } from "./loa
 import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "./knownSemanticLimitations";
 import { reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { buildStressNeutralExportPacket, validateStressNeutralExportPacket, StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportPanel";
-import { buildCurrentResultExport, deriveResultDocument, validateResultDocument } from "../result-export/resultExportAdapter";
+import { buildCurrentResultExport, deriveResultDocument, resultDigest, validateResultDocument } from "../result-export/resultExportAdapter";
 import { ResultExportPanel } from "../result-export/ResultExportPanel";
 import { PcfExportPanel } from "../pcf-export/PcfExportPanel";
 import { CaepipeMbfExportPanel } from "../caepipe-mbf/CaepipeMbfExportPanel";
@@ -128,14 +128,22 @@ const INTENT = {
   professional_boundary: { human_review_required: true, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_makes_authentication_claim: false },
   rationale: "invented",
 } as unknown as EditorOperationIntent;
+/** Perturbs every value outside the kept identifiers: numbers, strings and
+ * booleans change, and every array gains one more element (so counts change),
+ * per T1_WAVE2_REVIEW F2. */
 function perturbed(value: Json, keep: (path: string[]) => boolean, path: string[] = []): Json {
   if (keep(path)) return value;
   if (typeof value === "number") return value + 1;
   if (typeof value === "string") return `${value}:perturbed`;
-  if (Array.isArray(value)) return value.map((item, index) => perturbed(item, keep, [...path, String(index)]));
+  if (typeof value === "boolean") return !value;
+  if (Array.isArray(value)) {
+    const items = value.map((item, index) => perturbed(item, keep, [...path, String(index)]));
+    return [...items, items.length ? structuredClone(items[items.length - 1]) : "perturbed:extra"];
+  }
   if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, perturbed(item, keep, [...path, key])]));
   return value;
 }
+const PROPOSAL = json("fixtures/product_preview/invented_agent_proposal.json");
 const RESULT_IDENTIFIERS = new Set(["run_id"]);
 const keepResultIdentifier = (path: string[]) => path.length === 1 && RESULT_IDENTIFIERS.has(path[0]);
 const keepRunIdentifiers = (path: string[]) => path.length === 0 ? false
@@ -159,9 +167,14 @@ describe("identifier-only downloads are not gated and carry no result values", (
   it.each([["load-reference-1", ordinary], ["load-reference-source-1", joined]] as const)("%s: diff preview and review ledger packets are invariant under every AnalysisRun value", async (_id, make) => {
     const { model, analysisRun } = await make();
     const changedRun = perturbed(analysisRun, keepRunIdentifiers) as AnalysisRunEnvelope;
-    const args = { model, editorIntents: [INTENT], proposal: null, selectedReviewTarget: null };
-    expect(JSON.stringify(buildDiffPreviewPacket({ ...args, analysisRun: changedRun }))).toBe(JSON.stringify(buildDiffPreviewPacket({ ...args, analysisRun })));
-    expect(JSON.stringify(buildOperationReviewLedger({ ...args, analysisRun: changedRun }))).toBe(JSON.stringify(buildOperationReviewLedger({ ...args, analysisRun })));
+    for (const proposal of [null, PROPOSAL]) {
+      const args = { model, editorIntents: [INTENT], proposal, selectedReviewTarget: null };
+      const diff = buildDiffPreviewPacket({ ...args, analysisRun });
+      const ledger = buildOperationReviewLedger({ ...args, analysisRun });
+      if (proposal) expect(ledger.records.length).toBe(2);
+      expect(JSON.stringify(buildDiffPreviewPacket({ ...args, analysisRun: changedRun }))).toBe(JSON.stringify(diff));
+      expect(JSON.stringify(buildOperationReviewLedger({ ...args, analysisRun: changedRun }))).toBe(JSON.stringify(ledger));
+    }
   });
   it.each(EDITING)("%s shows its download for a load-reference result", async (_label, Panel, prefix) => {
     const { props } = await ordinary();
@@ -182,8 +195,11 @@ describe("stress-neutral and result export keep their own refusal points", () =>
     cleanup();
     await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest: null })).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
     await expect(validateResultDocument({ schema_version: "0.3.0", result_envelope: { schema_version: "0.3.0" } }, result)).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
-    const origin = { received_carrier_checksum: { value: "x" }, authentic_producer_available: false, original_producer_checksum: null };
-    await expect(deriveResultDocument({ result_envelope: {} }, model, result, origin)).rejects.toThrow();
+    // T1_WAVE2_REVIEW F3: a hash-consistent origin passes every earlier gate, so
+    // deriveResultDocument reaches its own load/reference-state refusal.
+    expect(model.project.id).toBe(result.model_ref);
+    const origin = { origin_id: "source-origin:invented", received_carrier_checksum: { value: await resultDigest(result) }, authentic_producer_available: true, original_producer_checksum: null };
+    await expect(deriveResultDocument({ result_envelope: {} }, model, result, origin)).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
     render(<ResultExportPanel model={model} result={result} analysisRun={analysisRun} inputManifest={null} />);
     expect(await screen.findByText(LOAD_REFERENCE_OUTPUT_REFUSAL, { exact: false })).toBeTruthy();
   });
