@@ -14,7 +14,7 @@ The hashes in §2 are the latest committed revisions and will be updated when th
    - D2's standing, envelope and transport design (`DESIGN_STANDING/DESIGN.md`);
    - both at the revisions in §2, with ROOT's rulings (`ROOT_RULINGS_V1.md`, `ROOT_RULINGS_V2.md`) as binding amendments. Where a design and a ruling differ, the ruling wins.
 2. **The slice plan and ordering** in §4, including the hard constraints.
-3. **The decisions** in §5. ROOT ruled on them on 2026-09-26, subject to the follow-ups; D-14's owner is still open.
+3. **The decisions** in §5. ROOT ruled on all of them on 2026-09-26, subject to the follow-ups.
 4. **R5-4**, curved bends under K-D5. It is open: either ROOT selects D1's bound, or ROOT takes owner options forward (§6).
 
 The references are already frozen (`ROOT_SELECTION_REFERENCES.md`). The S11 containment is already selected (`ROOT_SELECTION_S11.md`), and its kernel half, S11-K, is being implemented.
@@ -87,8 +87,8 @@ ROOT ruled on these before the final package, to save a round. They become final
 | D-8 | Budgets | Deferred until the K6 and V-P measurements |
 | D-9 | W4 | As proposed. T4 confirms the curved construction |
 | D-10 | Serialization | As in §4 |
-| D-11 | RF-ELOAD | Commission it now: a product-code-blind author, then a V2-style refutation. It lands before F3 |
-| D-14 | Equivalent-static owner | **Open.** ROOT asked for a definition and the producing slice first (sent 2026-09-26); the owner is assigned in the final package |
+| D-11 | RF-ELOAD | Commission it now: a product-code-blind author, then a V2-style refutation. It lands before F3. Brief: `TASK_BRIEFS/R1_ADDENDUM_ELOAD.md`, including D-14's generated loads |
+| D-14 | Equivalent-static owner | **T3, as a W1b extension in F2b** (ROOT, 2026-09-26). The generated magnitude is computed exactly from the user's inputs (mass_per_length × g_factor × g; pressure × shape_factor × exposed_diameter) as the intended source, the same principle as re-forming stiffness from inputs. It is not the rounded binary64 product treated as input. D1 pins this in revision 5a. RF-ELOAD covers generated loads |
 | DD-1, DD-2 | Composite finalization | F1 port of SF-1, with R-1a and R-1b open until W1 |
 | DD-3 | TS position | TS-a |
 | DD-4 | Host-rounded exp fields | H-a |
@@ -100,7 +100,12 @@ ROOT ruled on these before the final package, to save a round. They become final
 | DD-12 | Capture fix | H-1 (S-H), under the S-H/S11-F ordering |
 | DD-15 | S-J | Build it, after S-I. Under R5-5's check-level gate, proven exact zeros are what let equality and sign checks stay decided rather than indeterminate, so S-J is likely what makes retirement possible in the B-covered domains. Otherwise it stays off the critical path |
 
-Items left for the final package: R5-4, D-14's owner, and anything the follow-ups change.
+**Exception pin and test routing (ROOT, 2026-09-26):**
+- The VP-ROBUST exception list pins frozen-reference cases only, per entry. It is re-pinned from P1's typed-entry follow-up on the 15 captured S11 cases and the skew case.
+- P1's own S11-PROBE-A cases are not in the gate. They become S11-K/F test cases with exact expected nets.
+- The typed-entry result for RF-SKEW-T-CANT-OFF-122-r1e-04 goes into K-D5's tests: K-D5 must fire on both entries.
+
+Items left for the final package: R5-4, the re-pinned exception triples, and anything the follow-ups change.
 
 ## 6. R5-4: curved bends under K-D5 (OPEN)
 
