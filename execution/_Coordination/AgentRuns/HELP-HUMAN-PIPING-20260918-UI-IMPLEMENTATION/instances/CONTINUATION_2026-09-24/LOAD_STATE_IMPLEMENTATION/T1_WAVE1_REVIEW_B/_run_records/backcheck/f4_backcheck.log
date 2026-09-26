@@ -1,0 +1,18 @@
+changed package files: 18 ['MANIFEST.json', 'PROVENANCE.json', 'README.md'] ...
+non-criteria changed: ['MANIFEST.json', 'PROVENANCE.json', 'README.md', 'generate_reference_values.py']
+criteria files differing beyond rule review text: 0 ; review = reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion
+reference files unchanged: True
+selectors files unchanged: True
+runner_input files unchanged: True
+preview_request files unchanged: True
+manifest bindings verified: 84
+PROVENANCE status: admitted_after_independent_freeze ; generator current: True ; outputs stale: 0 of 28
+PROVENANCE admission record current: True
+PROVENANCE admission independent_freeze current: True
+PROVENANCE admission freeze_change_R1_script current: True
+authoring record kept: author_package.py True
+authoring record kept: check_package.py True
+authoring record kept: mutations.py True
+authoring record kept: write_provenance.py True
+generator with ADMISSION.json reproduces cad59d01e : 28 of 28
+generator without ADMISSION.json reproduces 6824b6b6b: 28 of 28
