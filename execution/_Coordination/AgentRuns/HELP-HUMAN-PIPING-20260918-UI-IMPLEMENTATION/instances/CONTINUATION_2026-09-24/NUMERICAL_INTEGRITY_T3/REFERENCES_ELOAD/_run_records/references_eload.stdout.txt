@@ -62,11 +62,10 @@ RF-ELOAD-TH-FF-RES-122                   basis=intended    values=  37 zeros= 28
     NC-EIGEN-RECOVERY-OMITTED          FAIL  worst 1E+9 at N.M1.i
     NC-ALPHA-TIMES-INTERVAL            FAIL  worst 8.73558E+6 at N.M1.i
     NC-SUBTRACT-DILATIONS              FAIL  worst 115000 at N.M1.i
-RF-ELOAD-TH-SPRING-LEG-r1e-06            basis=intended    values=  37 zeros= 30 finite=2.53343E-17 NC 3/4
+RF-ELOAD-TH-SPRING-LEG-r1e-06            basis=intended    values=  37 zeros= 30 finite=2.53343E-17 NC 3/3
     NC-EIGEN-SIGN                      FAIL  worst 2E+9 at R.N0.UX
     NC-EIGEN-OMITTED                   FAIL  worst 1E+9 at u.N1.UX
     NC-EIGEN-RECOVERY-OMITTED          FAIL  worst 9.94839E+14 at N.M1.i
-    NC-LOST-SOFT                       pass  worst 0 at None
 RF-ELOAD-TH-SPRING-LEG-r1e-12            basis=intended    values=  37 zeros= 30 finite=7.32559E-17 NC 4/4
     NC-EIGEN-SIGN                      FAIL  worst 2E+9 at R.N0.UX
     NC-EIGEN-OMITTED                   FAIL  worst 1E+9 at u.N1.UX
@@ -251,6 +250,11 @@ RF-ELOAD-CANCEL-SEIS-G1e8                basis=represented values=  31 zeros= 23
     NC-FLOAT-SUM-BIN64                 FAIL  worst 90.9051 at Mb.M1.mid
     NC-FLOAT-SUM                       pass  worst 0.240477 at Mb.M1.q1
     NC-NET-DROPPED                     FAIL  worst 1E+9 at u.N1.UZ
+RF-ELOAD-CANCEL-SEIS-G1e8-R              basis=represented values=  31 zeros= 23 finite=8.55448E-9 NC 4/4
+    NC-BIN64-PRODUCT                   FAIL  worst 89.6350 at R.N0.RY
+    NC-FLOAT-SUM-BIN64                 FAIL  worst 89.6350 at R.N0.RY
+    NC-FLOAT-SUM                       FAIL  worst 9.43619 at th.N1.RY
+    NC-NET-DROPPED                     FAIL  worst 1E+9 at u.N1.UZ
 RF-ELOAD-COMB-B-NODAL                    basis=intended    values=  56 zeros= 27 finite=1.92626E-16 NC 0/0
 RF-ELOAD-COMB-SUM                        basis=intended    values=  56 zeros= 27 finite=1.92626E-16 NC 3/3
     NC-MAG-SUM                         FAIL  worst 1.96577E+7 at Mb.M1.i
@@ -260,6 +264,6 @@ RF-ELOAD-COMB-DIFF                       basis=intended    values=  56 zeros= 27
     NC-MAG-SUM                         FAIL  worst 2.25838E+7 at Mb.M1.i
     NC-WRONG-DIFFERENCE                FAIL  worst 2E+9 at tw.M1
     NC-B-DROPPED                       FAIL  worst 1E+9 at tw.M1
-summary: 48 cases, 2111 expected values, 382 represented values, 213 negative controls (190 discriminate)
-represented basis: RF-ELOAD-CANCEL-SEIS-G1e7, RF-ELOAD-CANCEL-SEIS-G1e8
+summary: 49 cases, 2142 expected values, 413 represented values, 216 negative controls (194 discriminate)
+represented basis: RF-ELOAD-CANCEL-SEIS-G1e7, RF-ELOAD-CANCEL-SEIS-G1e8, RF-ELOAD-CANCEL-SEIS-G1e8-R
 checks: route A == route B exactly and equilibrium residual zero for every intended, represented, net-state and gross-state model; closed forms, rotations and combination linearity asserted

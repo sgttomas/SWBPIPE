@@ -2,7 +2,7 @@
 
 This is the return of a Type 2 TASK for tranche T3 (numerical integrity), dated 2026-09-26. The author is a fresh, product-code-blind reference author. The brief is `T3/TASK_BRIEFS/R1_ADDENDUM_ELOAD.md` at `3bf587cf4`, read with `_COMMON.md` and `R1_REFERENCES.md`.
 
-**Status: candidate.** The package is frozen only when ROOT selects it after a separate V2-style refutation. It proposes no tolerance. Every comparison uses the unchanged form
+**Status: candidate, revision 1.** V3 refuted revision 0 (`T3/REFERENCE_CHECK_ELOAD/RETURN.md`, at `3bb46bc62`): no value is wrong, with 1 SHOULD-FIX and 8 NOTEs. This revision applies ROOT's rulings on V3 (`ROOT_RULINGS_V1.md`, last section); see §0. The package is frozen only when ROOT selects it after V3 re-checks the delta. It proposes no tolerance. Every comparison uses the unchanged form
 
 ```
 |observed - expected| <= 1e-9 * max(|expected|, scale)
@@ -12,17 +12,33 @@ Here `scale` is the class scale of the value (§4). The exception is the cancell
 
 The package sits beside the frozen `T3/REFERENCES/**` (R1). That package was read for conventions only and was not touched.
 
+## 0. Revision 1 (after V3)
+
+Every pre-existing case and value is byte-identical. A check against the revision-0 JSON (`c20eb4c4…`) confirms it: across the 48 pre-existing cases, all 2111 expected rows (value, class and, for cancellation cases, the scale columns) and all 382 represented rows are unchanged. So are all other case fields (inputs, model, classes, zero lists, `finite_input`, generated intensities, per-quantity tables), apart from the one added label below. Every surviving control keeps its result fields (`discriminates`, counts, worst key and ratio). Only its `defect` text or its new `label` changed.
+
+| V3 item | Change |
+|---|---|
+| F1 (SHOULD-FIX) | **New case `RF-ELOAD-CANCEL-SEIS-G1e8-R`**, added rather than editing G1e8. It is G1e8 with gen.g_factor.Z = −0.23 and D = 143.44076231504138435. The script asserts that this D is −w_s(1 − 1e-8) at 20 significant digits, from its own derivation. Basis: represented, with finite_input = 8.55448e-9. NC-FLOAT-SUM fails by 9.43619×, NC-BIN64-PRODUCT by 89.6350× and NC-FLOAT-SUM-BIN64 by 89.6350×. V3 expected about 9.44×, 89.6× and 8.55e-9 |
+| F1 (text) | The NC-FLOAT-SUM text now says what it rounds. w_s is formed exactly on the case's basis (from the decoded binary64 inputs when the basis is represented), rounded once to binary64, and summed in binary64 with fl(D). This is the rounded-once generation defect. Finding 3 (§7) is reworded to match. G1e8's NC-FLOAT-SUM is labelled as the benign-rounding case: it passes only because w_rep lies 0.021 ulp from a binary64 value |
+| F8 | NC-LOST-SOFT is retired from `TH-SPRING-LEG-r1e-06`, because its defect model equals the reference (fl(EA/L) + 200 is exact). It stays in r1e-12 and RES-r1e-08 |
+| F4–F6 | Control texts now state the defect exactly. NC-LEVER-RULE applies the lever rule to every element load, so a full-span load is lumped 50/50. In TH-SERIAL-RES-FIT, NC-ALPHA-TIMES-INTERVAL and NC-SUBTRACT-DILATIONS replace ε* entirely and so also drop the fit. NC-MAG-SUM is Mb_A + Mb_B in COMB-SUM and \|Mb_A − Mb_B\| in COMB-DIFF |
+| §6.2 | V3's labels are attached as a `label` field to the 21 kept non-discriminating controls, plus the relabelled G1e8 NC-FLOAT-SUM (22 in all). The script asserts that every non-discriminating control carries a label and that no labelled control discriminates. V3's one re-scale decision (G1e8) is carried out by the new G1e8-R case |
+| F9 | CANCEL-FEM's `gross_scale` column is **labelled review-only**, not made symmetric, so that every pre-existing value stays byte-identical. A `cancellation.gross_scale_status` field says that the column is the span-A response alone, that span-B rows show about a tenth of \|expected\|, and that it never enters a binding comparison |
+| F10 | Harness-mapping note added (§3) |
+| F7 | No change to the rule. §4 now calls it an extension: R1 refuses that case |
+| F3 and D-14 | §2 states ROOT's clarification: "exact from the user's inputs" means exact from the binary64 inputs as the document stores them (D1 §4.2). The represented basis presumes exactly that |
+
 ## 1. Summary
 
 | | |
 |---|---|
-| Cases | 48, in 8 families. Item 2 (generated self-weight) was dropped by ruling; see §2 |
-| Published expected values | 2111, at 40 significant digits. 1275 of them are exact zeros, each with its derived zero scale |
-| Represented-input values | 382: every generated-load case, plus the 2 cases on the represented basis |
-| Negative controls | 213. 190 discriminate under the criterion; the other 23 are reported as non-discriminating (§7) |
+| Cases | 49, in 8 families. Item 2 (generated self-weight) was dropped by ruling; see §2 |
+| Published expected values | 2142, at 40 significant digits. 1298 of them are exact zeros, each with its derived zero scale |
+| Represented-input values | 413: every generated-load case, which includes the 3 cases on the represented basis |
+| Negative controls | 216. 194 discriminate under the criterion; the other 22 are reported and labelled as non-discriminating (§7) |
 | Arithmetic | Exact rationals. π → PI_Q, the rational of a 190-digit Machin value, with \|PI_Q − π\| = 5.5e-191, checked against Gauss–Legendre at 230 digits |
 | Independent routes | Route A (tree integration plus force method) produces the values. Route B (direct stiffness with consistent loads) must agree exactly, and it does for every intended, represented, net-state and gross-state model |
-| Represented basis | `RF-ELOAD-CANCEL-SEIS-G1e7` and `RF-ELOAD-CANCEL-SEIS-G1e8` (§7, finding 1) |
+| Represented basis | `RF-ELOAD-CANCEL-SEIS-G1e7`, `-G1e8` and `-G1e8-R` (§7, finding 1) |
 | Python | 3.11.15 (CPython), standard library only, about 3 s |
 
 Files. The hashes are in `_run_records/SHA256SUMS`. Its paths are relative to the `REFERENCES_ELOAD/` root, so verify it from there: `cd REFERENCES_ELOAD && sha256sum -c _run_records/SHA256SUMS`.
@@ -39,7 +55,7 @@ Files. The hashes are in `_run_records/SHA256SUMS`. Its paths are relative to th
   - `finite_input`;
   - the negative controls with their results;
   - where relevant, `expected_represented`, the per-quantity represented-versus-intended table, `generated_intensities` and `cancellation`.
-- `_run_records/references_eload.stdout.txt`, `PYTHON_VERSION.txt` and `SHA256SUMS`.
+- `_run_records/references_eload.stdout.txt`, `PYTHON_VERSION.txt` and `SHA256SUMS` (revision 1). `SHA256SUMS.revision0` keeps the revision-0 hashes. `preserve_check_rev1.py` and its stdout are the revision-1 preservation check.
 
 ## 2. Theory and adopted definitions
 
@@ -60,8 +76,8 @@ These are references for that theory. They are not physical validation. Curved b
 | Pressure thrust (straight members) | F_p = p·π/4·ID², with ID = OD − 2·t_eff. The cap pair {−F_p·e at i, +F_p·e at j} enters as nodal loads, and recovery subtracts the same pair. So the published N is the **effective** force EA·ext/L − F_p: 0 at a free end and −F_p when both ends are restrained. Reactions follow R = K·d − f, so the anchor of a free-ended member carries nothing | tp_phys_008; curved_bend_pressure_thrust_arc §7 (the straight limit); manager Q1 |
 | Section, effective wall | A single effective wall t_eff = t_nom − m (m is the absolute mill tolerance, zero if none) for A, I, J, the thrust area and the mass | Manager Q6 |
 | Constant effort | A positive nodal force along the + axis of the declared translational DOF, in every solved case, with no stiffness and no restraint row | constant_effort_support_applied_load; manager Q10 |
-| Generated seismic (D-14) | For each global axis, w = g_factor · g · m′. Mass per length m′ = ρ_m·π/4(OD² − ID²) + ρ_c·π/4·ID² + ρ_ins·π/4((OD + 2t_ins)² − OD²). It is computed **exactly** from the inputs | tp_pmm_p3_occloadgen; ROOT D-14; manager Q6 |
-| Generated wind (D-14) | w = p · Cs · (OD + 2 t_ins) along a global axis, per unit member length with no projection, on marked spans or sub-span extents only. It is computed exactly | tp_pmm_p3_occloadgen, tp_pmm_p3_subspan_wind_exposure; manager Q4 |
+| Generated seismic (D-14) | For each global axis, w = g_factor · g · m′. Mass per length m′ = ρ_m·π/4(OD² − ID²) + ρ_c·π/4·ID² + ρ_ins·π/4((OD + 2t_ins)² − OD²). It is computed **exactly** from the inputs. ROOT's clarification: "exact from the user's inputs" means exact from the **binary64 inputs as the document stores them** (D1 §4.2), not from the authored decimal text. In the represented variant, the intensity is the exact product of the decoded binary64 inputs | tp_pmm_p3_occloadgen; ROOT D-14 and its V3 clarification; manager Q6 |
+| Generated wind (D-14) | w = p · Cs · (OD + 2 t_ins) along a global axis, per unit member length with no projection, on marked spans or sub-span extents only. It is computed exactly, from the binary64 inputs as stored (as for seismic) | tp_pmm_p3_occloadgen, tp_pmm_p3_subspan_wind_exposure; manager Q4 |
 | Generated self-weight (item 2) | **Dropped as a solve-time family.** Self-weight is generated at authoring time: a model operation writes a distributed_force intensity into the document, and the solve reads it as an ordinary input. Item 1's user-given intensity covers it (`RF-ELOAD-UDL-WEIGHT-SKEW`). D-14's exact-from-inputs rule applies only to the solve-time seismic and wind generators | Manager Q2; ROOT D-14 scope ruling (`edea3364d`) |
 | Prescribed motion (0.4.0) | Prescribed values on restrained DOFs, rotations in radians, in the same state as the loads. Reactions are signed, R = K·d − f, and act on the structure | T1 `generate_references.py` (prescribed_translation, prescribed_rotation); manager Q8 |
 | Item 8a, "opposing" | Opposing **fixed-end moments** at the shared node, produced by loads in the same global direction (−Y) on the two adjacent spans, as in R1's CANCEL item 4 | Manager Q9 |
@@ -98,7 +114,12 @@ The thrust pressure is 2.5e6 Pa. None of these values is material, component, ca
   - `T.<m>.i|mid|j`: torque, with the sign of (θj − θi)·e.
   - `Mb.<m>.i|q1|mid|q3|j`: bending magnitude hypot(My, Mz) at the fractions 0, 1/4, 1/2, 3/4 and 1.
   - `tw.<m>` = (θj − θi)·e and `ext.<m>` = (uj − ui)·e.
-- N, T, Mb, tw and ext do not change when i and j are swapped.
+- N, T, Mb, tw and ext do not change when i and j are swapped, **provided the station labels mirror too** (i ↔ j, q1 ↔ q3; mid stays). Stations are keyed from the authored end i.
+
+**Harness-mapping notes (V3 F10).**
+
+- Station keys are measured from the authored end i. A product that reports stations from j, or that reverses a member, must map i ↔ j and q1 ↔ q3 before comparing.
+- The package's N is tension-positive. tp_phys_008's station table prints the local end force, +12 N, for a member in compression. The package publishes that state as N = −12 N. The conventions differ; the physics agrees.
 
 **Route A (the derivation).** An exact Euler–Bernoulli tree integration from a fully restrained root, which generalizes R1 M1 and M2.
 
@@ -143,7 +164,7 @@ Each value belongs to a class: translation, rotation, force, moment, twist or ex
   - Force: moment scale/L_c, or, when moments are also all zero, max(F_ref, M_ref/L_c).
   - Moment: force scale·L_c, or, when forces are also all zero, max(M_ref, F_ref·L_c).
   - Translation: rotation scale·L_c. Rotation: translation scale/L_c.
-  - **When translations and rotations are both all zero** (for example the fixed-fixed thermal, thrust and prescribed-free cases), the translation scale is the largest of force scale·max(L/EA), the largest prescribed translation, the largest prescribed rotation·L_c and max|ε*|L. When moments are nonzero, moment scale·max(L²/(2EI)) is included too. The rotation scale is then translation/L_c. For example, TH-FF-LEG-AX has translation scale 5.4e-3 m (εL) and rotation scale 9e-4 rad.
+  - **When translations and rotations are both all zero** — an **extension** of R1's rules, since R1's code refuses that case (V3 F7 ruled it sound, and ROOT accepts it). It applies only in TH-FF-LEG-AX, TH-FF-RES-122 and PT-FF-AX, where every such row is an exact zero at a restrained DOF (for example the fixed-fixed thermal, thrust and prescribed-free cases), the translation scale is the largest of force scale·max(L/EA), the largest prescribed translation, the largest prescribed rotation·L_c and max|ε*|L. When moments are nonzero, moment scale·max(L²/(2EI)) is included too. The rotation scale is then translation/L_c. For example, TH-FF-LEG-AX has translation scale 5.4e-3 m (εL) and rotation scale 9e-4 rad.
   - Twist: moment scale·max(L/GJ). Extension: force scale·max(L/EA).
 - Each case lists every zero-valued key with its scale (`zero_valued`), each class's derivation (`classes`) and `nonzero_below_class_scale`.
 - **Cancellation cases.** Each row is `[key, expected, class, recommended_scale, gross_scale, governed_by]`.
@@ -180,7 +201,7 @@ Each value belongs to a class: translation, rotation, force, moment, twist or ex
 | `UDL-WEIGHT-SKEW` | 1 | 53 | 21 | 2/2 | 1.92626E-16 | intended |
 | `TH-FF-LEG-AX` | 3 | 37 | 32 | 3/3 | 1.03488E-16 | intended |
 | `TH-FF-RES-122` | 3 | 37 | 28 | 5/5 | 6.25106E-17 | intended |
-| `TH-SPRING-LEG-r1e-06` | 3 | 37 | 30 | 3/4 | 2.53343E-17 | intended |
+| `TH-SPRING-LEG-r1e-06` | 3 | 37 | 30 | 3/3 | 2.53343E-17 | intended |
 | `TH-SPRING-LEG-r1e-12` | 3 | 37 | 30 | 4/4 | 7.32559E-17 | intended |
 | `TH-SPRING-RES-r1e-08` | 3 | 37 | 30 | 6/6 | 1.56433E-17 | intended |
 | `TH-SERIAL-RES-FIT` | 3 | 56 | 45 | 7/7 | 2.54885E-17 | intended |
@@ -212,6 +233,7 @@ Each value belongs to a class: translation, rotation, force, moment, twist or ex
 | `CANCEL-SEIS-G1e5` | 8 | 31 | 23 | 1/4 | 1.42347E-11 | intended |
 | `CANCEL-SEIS-G1e7` | 8 | 31 | 23 | 3/4 | 1.12034E-9 | represented |
 | `CANCEL-SEIS-G1e8` | 8 | 31 | 23 | 3/4 | 1.27288E-8 | represented |
+| `CANCEL-SEIS-G1e8-R` (rev. 1) | 8 | 31 | 23 | 4/4 | 8.55448E-9 | represented |
 | `COMB-B-NODAL` | 9 | 56 | 27 | 0/0 | 1.92626E-16 | intended |
 | `COMB-SUM` | 9 | 56 | 27 | 3/3 | 1.92626E-16 | intended |
 | `COMB-DIFF` | 9 | 56 | 27 | 3/3 | 1.92626E-16 | intended |
@@ -256,49 +278,53 @@ Each case's `purpose` in the JSON gives its full definition. In brief:
   - Differential settlement of a two-span beam.
   - The same settlement combined with element loads.
   - A skew fixed-fixed member with prescribed axial, transverse and torsional motion.
-- **RF-ELOAD-CANCEL (item 8, 6 cases).**
+- **RF-ELOAD-CANCEL (item 8, 7 cases).**
   - **FEM.** S0 and S2 are fixed and S1 is translation-pinned. The spans are 2 m and 3 m, with w_A = 9s and w_B = 4s + 0.25 N/m, both along −Y, and M_z = −0.2 N·m at S1. The net at S1 is −0.3875 N·m. The gross/net ratios are 9.68e4, 9.68e6 and 9.68e7, for s = 12500, 1.25e6 and 1.25e7; w_A and w_B are exact in binary64.
-  - **Generated seismic cancelled.** The seismic intensity w_s = −0.2·g·m′ (about −124.73 N/m) is cancelled by an authored (0, 0, D) N/m. D is −w_s(1 − 1/r), printed to 20 significant digits, for r = 1e5, 1e7 and 1e8. Every value is proportional to the net intensity.
+  - **Generated seismic cancelled.** The seismic intensity w_s = −0.2·g·m′ (about −124.73 N/m) is cancelled by an authored (0, 0, D) N/m. D is −w_s(1 − 1/r), printed to 20 significant digits, for r = 1e5, 1e7 and 1e8. Every value is proportional to the net intensity. **G1e8-R** (revision 1) repeats r = 1e8 with g_factor.Z = −0.23 (w_s ≈ −143.44 N/m) and D = 143.44076231504138435.
 - **RF-ELOAD-COMB (item 9, 3 cases).** The nodal case B on the continuous-beam structure, and the combinations A + B and A − B, with A = UDL-CONT2-AX.
 
 ## 7. Negative controls and findings
 
-The controls are listed with each case. Each reports `discriminates`, the number of failing values, and the worst key with its ratio to the criterion (above 1 fails). The cancellation cases also report the result under the class scale and under the gross scale.
+The controls are listed with each case. Every non-discriminating control carries a `label` (V3 §6.2). Each reports `discriminates`, the number of failing values, and the worst key with its ratio to the criterion (above 1 fails). The cancellation cases also report the result under the class scale and under the gross scale.
 
 The defects modelled:
 
 - lumped 50/50 loads;
-- the lever rule;
+- the lever rule, applied to every element load (so a full-span load is lumped 50/50);
 - the fixed-end correction omitted in recovery;
 - a partial load integrated over the full span;
 - local applied as global, global applied as local, and a transposed frame;
 - the thermal eigen term with its sign reversed, omitted, or omitted from recovery only;
-- α·(T − T_install) and λ(T) − λ(T_install) in place of the datum ratio;
+- α·(T − T_install) and λ(T) − λ(T_install) in place of the datum ratio (these replace ε* entirely, so in TH-SERIAL-RES-FIT they also drop the fit);
 - the fit treated as additive, or omitted;
 - the spring lost in a binary64 addition;
 - the thrust recovered as wall force without correction, with its sign reversed, omitted, or computed on the steel area, the OD area or the nominal wall;
 - the effort with its sign reversed, omitted, or modelled as a restraint;
 - the prescribed motion omitted, or with its sign reversed;
-- the binary64 left-to-right product (the D-14 hazard);
+- the binary64 left-to-right product (the D-14 hazard), and rounded-once generation (the exact intensity on the case's basis rounded once to binary64 before the sum);
 - insulation omitted from the mass or from the diameter;
 - the nominal wall used for the mass, or everywhere;
 - wind applied to unmarked spans;
 - the projected wind form;
 - float left-to-right sums of the cancelling contributions, in every order;
 - the small contribution dropped;
-- summed magnitudes in a combination, the wrong difference, and case B dropped.
+- combined magnitudes formed from the component magnitudes (Mb_A + Mb_B for the sum, \|Mb_A − Mb_B\| for the difference), the wrong difference, and case B dropped.
 
 Findings the designers should see:
 
 1. **D-14 under cancellation: input rounding alone moves the basis.**
    - In `CANCEL-SEIS`, decoding the binary64 inputs (g = 9.80665, the densities, the section, D) moves the net response by 1.4e-11 of its scale at r = 1e5, by 1.12e-9 at r = 1e7 and by 1.27e-8 at r = 1e8.
    - By R1's rule, the r = 1e7 and 1e8 cases therefore cannot discriminate at 1e-9 on intended inputs, and their represented expectation (the exact product of the decoded inputs) is the frozen basis. An intended-input comparison would need the product to read the authored decimals exactly.
-   - The D-14 hazard (NC-BIN64-PRODUCT) still fails against that basis, by 9.1× at 1e7 and 90.9× at 1e8. At r = 1e5 it stays inside the criterion (0.099).
+   - The D-14 hazard (NC-BIN64-PRODUCT) still fails against that basis, by 9.1× at 1e7, 90.9× at 1e8 and 89.6× in G1e8-R (1.27e-8 there becomes 8.55e-9). At r = 1e5 it stays inside the criterion (0.099).
+   - The represented basis presumes that generation reads the binary64 operands, as D1 §4.2 says and ROOT has confirmed. A generation exact from the authored decimals would fail G1e8 (V3 measured 8.57×).
 2. **Without cancellation, the D-14 hazard cannot be detected at 1e-9.**
    - In all six non-cancelling generated cases, the binary64 product differs from the exact intensity by about 1e-15 relative (1e-7 to 1e-6 of the criterion).
    - D-14's exact-from-inputs rule is observable only where the generated load nearly cancels another contribution.
-3. **Summing two nearly cancelling binary64 values is exact (Sterbenz).**
-   - NC-FLOAT-SUM in CANCEL-SEIS, which uses the correctly rounded generated intensity plus the binary64 authored load, never discriminates: the maximum is 0.24 of the criterion at 1e8. The loss comes from the product and from input rounding, not from the final sum.
+3. **Summing two nearly cancelling binary64 values is exact (Sterbenz); rounding the generated intensity once is not.**
+   - NC-FLOAT-SUM in CANCEL-SEIS forms w_s exactly on the case's basis, rounds it once to binary64, and adds fl(D) in binary64. The sum itself is exact, so the control measures only the single rounding of the generated intensity before the ledger (rounded-once generation, excluded by D1 §4.2).
+   - At r = 1e5 and 1e7 that defect is structurally inside the criterion (0.0026 and 0.024; at 1e7 the bound, half an ulp of w_s relative to the net, is 0.57).
+   - At r = 1e8 it is detectable in principle (bound 5.70). It passes G1e8 (0.24) only because the represented intensity there lies 0.021 ulp from a binary64 value. In G1e8-R it fails by 9.44×.
+   - Revision 0 credited the G1e8 pass to Sterbenz. That is true of the sum, but the pass comes from the input coincidence.
    - Three-contribution orders do lose the net. In CE-CANCEL, (−G, n, +G) and (n, −G, +G) fail by 9.9× at G = 1e8, and (−G, +G, n) is exact. In CANCEL-FEM, orders (A, n, B) and (n, A, B) fail by 7.7× at 9.7e7. They pass at 9.7e6 (0.48) and at 9.7e4, and (A, B, n) is exact.
 4. **Only the shared-node rotation is net-governed in CANCEL-FEM.** Its 15 reactions and bending values are `mixed`.
    - Every cancellation control that discriminates does so under the recommended scale and also under the class scale here: the only nonzero rotation is the net-governed one.
@@ -307,12 +333,14 @@ Findings the designers should see:
    - N = −k·u ≈ −kε*L is proportional to the soft spring.
    - The lost-spring control fails by 537× at k/(EA/L) = 1e-8 and by 1.7e4× at 1e-12. It does not fail at 1e-6, where the binary64 addition happens to be exact.
    - Omitting the eigen term from recovery fails by 1e15 to 1e21×.
-6. **Non-discriminating controls (23), reported rather than hidden:**
-   - NC-LOST-SOFT at r1e-06;
-   - NC-BIN64-PRODUCT in the six non-cancelling generated cases and in CANCEL-SEIS-G1e5;
-   - float sums at the lower ratios and in the exact orders;
-   - NC-FLOAT-SUM in all three CANCEL-SEIS cases;
-   - NC-FLOAT-SUM-BIN64 at G1e5.
+6. **Non-discriminating controls (22), reported and labelled rather than hidden.** NC-LOST-SOFT at r1e-06 is retired (F8). The rest carry V3's labels:
+   - "D-14 not observable without cancellation": NC-BIN64-PRODUCT in the six non-cancelling generated cases (not mutation tests; F3 carries a required kernel-level D-14 test);
+   - "benign order (exact)": CE-CANCEL (−G, +G, n) at G1e5 and G1e8, and CANCEL-FEM (A, B, n) at all three ratios;
+   - "lossy order within the criterion at G = 1e5": CE-CANCEL-G1e5 (−G, n, +G) and (n, −G, +G);
+   - "within the criterion at this ratio": CANCEL-FEM (A, n, B) and (n, A, B) at 9.7e4 and 9.7e6 (bound 0.60 at 9.7e6);
+   - "within the criterion at r = 1e5": the three product and sum controls of CANCEL-SEIS-G1e5;
+   - rounded-once generation "structurally below the criterion at r = 1e7": NC-FLOAT-SUM in G1e7;
+   - "benign rounding": NC-FLOAT-SUM in G1e8, which G1e8-R now covers.
 
    A harness should use the discriminating controls of a case as its mutation tests.
 
@@ -323,7 +351,8 @@ Findings the designers should see:
 - Constant efforts are kept out of the combination, because they apply in every solved case.
 - The defect models are models. For example, the lost-spring control uses a single rounded addition in the frame of the spring, and the binary64 product follows the formula order of the records (areas with `math.pi`, then m′·g_factor·g, and p·Cs·(OD + 2t_ins)). The product's own rounding differs in detail, not in order of magnitude.
 - The resolved thermal cases take α_sec at table points exactly, with no interpolation. Temperatures enter only as differences.
-- The zero scales of fully restrained axial cases are derived from the axial compliance and εL (§4). They are a choice about the comparison, not a tolerance.
+- The zero scales of fully restrained axial cases are derived from the axial compliance and εL (§4). They are an extension of R1's rules, which refuse that case, and a choice about the comparison, not a tolerance.
+- CANCEL-FEM's `gross_scale` column is asymmetric (the span-A response alone) and review-only (§0, F9).
 
 ## 9. Independence, what was read and what was run
 
@@ -373,6 +402,8 @@ Findings the designers should see:
 
 The other validation-manual mechanics pages were listed but not read. They are generated boilerplate that points to the hand calcs. The T1 files were read with `git show f3270ea79:<path>`; T1's worktree and branch were not touched.
 
+**Read for revision 1:** `C/NUMERICAL_INTEGRITY_T3/REFERENCE_CHECK_ELOAD/RETURN.md` (V3, at `3bb46bc62`; sha256 `3bced78a7b14226544cb7010a1e61fefc796497bd72561be4abc291f7488f84e`) and the last section of `C/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md` (at `35677f223`; whole-file sha256 `b31b29add020001bee35c34f9ec257bc6c0a4ed7f0b740c5940aeb72e0271fcd`). V3's scripts and outputs were not read.
+
 **Definition questions asked** (batch 1, 11 questions, all answered in `RF_ELOAD_DEFINITIONS.md`):
 
 - Q1: thrust N convention and area;
@@ -392,6 +423,9 @@ The other validation-manual mechanics pages were listed but not read. They are g
 - `python3 -B references_eload.py` in this directory: about 3 s, exit 0. The stdout is in `_run_records/references_eload.stdout.txt`.
 - The same run repeated in `<scratch>`: `references_eload.json` was byte-identical, which confirms determinism.
 - `sha256sum`.
+- Revision 1:
+  - `python3 -B references_eload.py`, about 3 s, exit 0, run twice with byte-identical JSON and stdout;
+  - `python3 _run_records/preserve_check_rev1.py <revision-0 JSON from git show> references_eload.json`. The output is in `_run_records/preserve_check_rev1.stdout.txt`: 48 pre-existing cases, 2111 expected rows and 382 represented rows identical; the only non-control field change is `gross_scale_status` in the three CANCEL-FEM cases; 36 control changes (1 retired, 22 labelled, 16 texts reworded, overlapping); no control result changed.
 
 **Not done.**
 

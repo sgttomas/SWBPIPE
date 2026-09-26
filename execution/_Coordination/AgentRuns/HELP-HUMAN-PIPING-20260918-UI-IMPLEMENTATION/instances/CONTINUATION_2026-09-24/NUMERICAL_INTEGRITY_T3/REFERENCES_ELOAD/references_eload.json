@@ -18,14 +18,15 @@
  },
  "units": "m, N, Pa, N*m, rad, kg/m^3, m/s^2, 1/K, degC (differences only)",
  "summary": {
-  "cases": 48,
-  "expected_values": 2111,
-  "represented_values": 382,
-  "negative_controls": 213,
-  "negative_controls_discriminating": 190,
+  "cases": 49,
+  "expected_values": 2142,
+  "represented_values": 413,
+  "negative_controls": 216,
+  "negative_controls_discriminating": 194,
   "represented_basis_cases": [
    "RF-ELOAD-CANCEL-SEIS-G1e7",
-   "RF-ELOAD-CANCEL-SEIS-G1e8"
+   "RF-ELOAD-CANCEL-SEIS-G1e8",
+   "RF-ELOAD-CANCEL-SEIS-G1e8-R"
   ]
  },
  "cases": [
@@ -820,7 +821,7 @@
     },
     {
      "id": "NC-LEVER-RULE",
-     "defect": "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+     "defect": "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50.",
      "discriminates": true,
      "values_failing": 10,
      "worst_key": "th.N1.RZ",
@@ -1637,7 +1638,7 @@
     },
     {
      "id": "NC-LEVER-RULE",
-     "defect": "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+     "defect": "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50.",
      "discriminates": true,
      "values_failing": 12,
      "worst_key": "th.N1.RZ",
@@ -2053,7 +2054,7 @@
     },
     {
      "id": "NC-LEVER-RULE",
-     "defect": "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+     "defect": "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50.",
      "discriminates": true,
      "values_failing": 12,
      "worst_key": "th.N1.RX",
@@ -2989,7 +2990,7 @@
     },
     {
      "id": "NC-LEVER-RULE",
-     "defect": "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+     "defect": "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50.",
      "discriminates": true,
      "values_failing": 12,
      "worst_key": "Mb.M1.i",
@@ -3682,7 +3683,7 @@
     },
     {
      "id": "NC-LEVER-RULE",
-     "defect": "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+     "defect": "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50.",
      "discriminates": true,
      "values_failing": 21,
      "worst_key": "Mb.M1.j",
@@ -4345,7 +4346,7 @@
     },
     {
      "id": "NC-LEVER-RULE",
-     "defect": "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+     "defect": "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50.",
      "discriminates": true,
      "values_failing": 27,
      "worst_key": "Mb.M1.j",
@@ -4926,7 +4927,7 @@
     },
     {
      "id": "NC-LEVER-RULE",
-     "defect": "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+     "defect": "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50.",
      "discriminates": true,
      "values_failing": 13,
      "worst_key": "th.N1.RY",
@@ -7071,16 +7072,6 @@
      "worst_ratio_to_criterion": "9.94839E+14",
      "worst_observed": "1074423.607528794890706393336399969158506",
      "worst_expected": "-1.079998914396847830700681620827889410835"
-    },
-    {
-     "id": "NC-LOST-SOFT",
-     "defect": "NC-LOST-SOFT: the axial spring k after one rounded binary64 addition into the member axial stiffness EA/L (k_eff = fl(fl(EA/L) + fl(k)) - fl(EA/L)).",
-     "discriminates": false,
-     "values_failing": 0,
-     "worst_key": null,
-     "worst_ratio_to_criterion": "0",
-     "worst_observed": null,
-     "worst_expected": null
     }
    ],
    "notes": []
@@ -8839,7 +8830,7 @@
     },
     {
      "id": "NC-ALPHA-TIMES-INTERVAL",
-     "defect": "NC-ALPHA-TIMES-INTERVAL: eps* = alpha_sec(T)*(T - T_install), ignoring the datum ratio.",
+     "defect": "NC-ALPHA-TIMES-INTERVAL: eps* = alpha_sec(T)*(T - T_install), ignoring the datum ratio; the defect replaces eps* entirely, so the fit is dropped as well.",
      "discriminates": true,
      "values_failing": 11,
      "worst_key": "R.N0.UX",
@@ -8849,7 +8840,7 @@
     },
     {
      "id": "NC-SUBTRACT-DILATIONS",
-     "defect": "NC-SUBTRACT-DILATIONS: eps* = lambda(T) - lambda(T_install) instead of their ratio minus one.",
+     "defect": "NC-SUBTRACT-DILATIONS: eps* = lambda(T) - lambda(T_install) instead of their ratio minus one; the defect replaces eps* entirely, so the fit is dropped as well.",
      "discriminates": true,
      "values_failing": 11,
      "worst_key": "R.N0.UX",
@@ -14515,6 +14506,7 @@
      "worst_ratio_to_criterion": "0.00970128",
      "worst_observed": "1.110706203618070429280020733827917340807E-7",
      "worst_expected": "1.110706203607295160934344379453429685614E-7",
+     "label": "lossy order within the criterion at G = 1e5 (bound ulp(1e5)/2 relative to the net, 0.024)",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -14527,6 +14519,7 @@
      "worst_ratio_to_criterion": "3.70074E-8",
      "worst_observed": "4.627942515030396332624823686775930675157E-8",
      "worst_expected": "4.627942515030396503893101581055957023392E-8",
+     "label": "benign order (exact): the gross cancels first, exactly; the residual is the decoding of 0.3",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -14539,6 +14532,7 @@
      "worst_ratio_to_criterion": "0.00970128",
      "worst_observed": "1.110706203618070429280020733827917340807E-7",
      "worst_expected": "1.110706203607295160934344379453429685614E-7",
+     "label": "lossy order within the criterion at G = 1e5 (bound ulp(1e5)/2 relative to the net, 0.024)",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -15358,6 +15352,7 @@
      "worst_ratio_to_criterion": "3.70074E-8",
      "worst_observed": "4.627942515030396332624823686775930675157E-8",
      "worst_expected": "4.627942515030396503893101581055957023392E-8",
+     "label": "benign order (exact): the gross cancels first, exactly; the residual is the decoding of 0.3",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -16121,7 +16116,8 @@
      "worst_key": "Mb.M1.i",
      "worst_ratio_to_criterion": "9.81036E-7",
      "worst_observed": "1247.310989125644891828414984047413079555",
-     "worst_expected": "1247.310989125643668171088161603443100864"
+     "worst_expected": "1247.310989125643668171088161603443100864",
+     "label": "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
     },
     {
      "id": "NC-NO-INSULATION-MASS",
@@ -17369,7 +17365,8 @@
      "worst_key": "Mb.M1.j",
      "worst_ratio_to_criterion": "9.66946E-7",
      "worst_observed": "7618.773722415162135603710108578467100002",
-     "worst_expected": "7618.773722415154768658758123995600858761"
+     "worst_expected": "7618.773722415154768658758123995600858761",
+     "label": "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
     },
     {
      "id": "NC-NO-INSULATION-MASS",
@@ -18588,7 +18585,8 @@
      "worst_key": "ext.M1",
      "worst_ratio_to_criterion": "0.00000101346",
      "worst_observed": "0.000005024644948430620114929321264906563101109",
-     "worst_expected": "0.000005024644948430615022662387987232941354801"
+     "worst_expected": "0.000005024644948430615022662387987232941354801",
+     "label": "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
     },
     {
      "id": "NC-NO-INSULATION-MASS",
@@ -19851,7 +19849,8 @@
      "worst_key": "R.N0.UY",
      "worst_ratio_to_criterion": "1.09961E-7",
      "worst_observed": "-244.1111111111111379538366842704514662425",
-     "worst_expected": "-244.1111111111111111111111111111111111111"
+     "worst_expected": "-244.1111111111111111111111111111111111111",
+     "label": "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
     },
     {
      "id": "NC-NO-INSULATION-DIAMETER",
@@ -21110,7 +21109,8 @@
      "worst_key": "th.N2.RZ",
      "worst_ratio_to_criterion": "1.09961E-7",
      "worst_observed": "-0.00001269231025623165558183115107382140178397",
-     "worst_expected": "-0.00001269231025623165418617079154865160982677"
+     "worst_expected": "-0.00001269231025623165418617079154865160982677",
+     "label": "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
     },
     {
      "id": "NC-NO-INSULATION-DIAMETER",
@@ -21144,7 +21144,7 @@
     },
     {
      "id": "NC-LEVER-RULE",
-     "defect": "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+     "defect": "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50.",
      "discriminates": true,
      "values_failing": 15,
      "worst_key": "th.N2.RZ",
@@ -21937,7 +21937,8 @@
      "worst_key": "th.N1.RX",
      "worst_ratio_to_criterion": "1.09961E-7",
      "worst_observed": "0.00003800479766273110311178728096219795363590",
-     "worst_expected": "0.00003800479766273109893273803785011531062076"
+     "worst_expected": "0.00003800479766273109893273803785011531062076",
+     "label": "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
     },
     {
      "id": "NC-NO-INSULATION-DIAMETER",
@@ -24155,7 +24156,7 @@
     },
     {
      "id": "NC-LEVER-RULE",
-     "defect": "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+     "defect": "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50.",
      "discriminates": true,
      "values_failing": 21,
      "worst_key": "R.N0.RZ",
@@ -25205,6 +25206,7 @@
     "net": "the net nodal moment at S1 (both fixed-end moments plus M_z) on unloaded spans",
     "gross": "the span-A load alone",
     "gross_over_net": "96774.1935484",
+    "gross_scale_status": "review-only and asymmetric (V3 F9): the gross column is the response to span A alone, so span-B rows (R.S2.*, Mb.M2.*) show about one tenth of |expected|; it never enters a binding comparison",
     "float_model": "fixed-end moments in binary64 as w*L*L/12.0 (w_A*2.0*2.0/12.0 and w_B*3.0*3.0/12.0) plus M_z, summed in the stated order",
     "recommended_scale": "binding (as ROOT ruled for RF-CANCEL): the magnitude of the value's response to the net contribution alone, or the class scale where the net does not affect the value or the value is zero",
     "governed_by_counts": {
@@ -25473,6 +25475,7 @@
      "worst_ratio_to_criterion": "2.86509E-8",
      "worst_observed": "-2.151993269489134435966872277131829501242E-8",
      "worst_expected": "-2.151993269489134374310292235191020015877E-8",
+     "label": "benign order (exact): A + B is exact (Sterbenz); the residual is fl(-0.2) and one rounding",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -25485,6 +25488,7 @@
      "worst_ratio_to_criterion": "0.00751067",
      "worst_observed": "-2.151993269472971471791777703629288533088E-8",
      "worst_expected": "-2.151993269489134374310292235191020015877E-8",
+     "label": "within the criterion at this ratio (bound 0.0094)",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -25497,6 +25501,7 @@
      "worst_ratio_to_criterion": "0.00751067",
      "worst_observed": "-2.151993269472971471791777703629288533088E-8",
      "worst_expected": "-2.151993269489134374310292235191020015877E-8",
+     "label": "within the criterion at this ratio (bound 0.0094)",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -26187,6 +26192,7 @@
     "net": "the net nodal moment at S1 (both fixed-end moments plus M_z) on unloaded spans",
     "gross": "the span-A load alone",
     "gross_over_net": "9677419.35484",
+    "gross_scale_status": "review-only and asymmetric (V3 F9): the gross column is the response to span A alone, so span-B rows (R.S2.*, Mb.M2.*) show about one tenth of |expected|; it never enters a binding comparison",
     "float_model": "fixed-end moments in binary64 as w*L*L/12.0 (w_A*2.0*2.0/12.0 and w_B*3.0*3.0/12.0) plus M_z, summed in the stated order",
     "recommended_scale": "binding (as ROOT ruled for RF-CANCEL): the magnitude of the value's response to the net contribution alone, or the class scale where the net does not affect the value or the value is zero",
     "governed_by_counts": {
@@ -26455,6 +26461,7 @@
      "worst_ratio_to_criterion": "2.86509E-8",
      "worst_observed": "-2.151993269489134435966872277131829501242E-8",
      "worst_expected": "-2.151993269489134374310292235191020015877E-8",
+     "label": "benign order (exact): A + B is exact (Sterbenz); the residual is fl(-0.2) and one rounding",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -26467,6 +26474,7 @@
      "worst_ratio_to_criterion": "0.480683",
      "worst_observed": "-2.151993270523560135495222255141834914426E-8",
      "worst_expected": "-2.151993269489134374310292235191020015877E-8",
+     "label": "within the criterion at this ratio (bound 0.60: structurally non-discriminating)",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -26479,6 +26487,7 @@
      "worst_ratio_to_criterion": "0.480683",
      "worst_observed": "-2.151993270523560135495222255141834914426E-8",
      "worst_expected": "-2.151993269489134374310292235191020015877E-8",
+     "label": "within the criterion at this ratio (bound 0.60: structurally non-discriminating)",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -27169,6 +27178,7 @@
     "net": "the net nodal moment at S1 (both fixed-end moments plus M_z) on unloaded spans",
     "gross": "the span-A load alone",
     "gross_over_net": "96774193.5484",
+    "gross_scale_status": "review-only and asymmetric (V3 F9): the gross column is the response to span A alone, so span-B rows (R.S2.*, Mb.M2.*) show about one tenth of |expected|; it never enters a binding comparison",
     "float_model": "fixed-end moments in binary64 as w*L*L/12.0 (w_A*2.0*2.0/12.0 and w_B*3.0*3.0/12.0) plus M_z, summed in the stated order",
     "recommended_scale": "binding (as ROOT ruled for RF-CANCEL): the magnitude of the value's response to the net contribution alone, or the class scale where the net does not affect the value or the value is zero",
     "governed_by_counts": {
@@ -27437,6 +27447,7 @@
      "worst_ratio_to_criterion": "2.86509E-8",
      "worst_observed": "-2.151993269489134435966872277131829501242E-8",
      "worst_expected": "-2.151993269489134374310292235191020015877E-8",
+     "label": "benign order (exact): A + B is exact (Sterbenz); the residual is fl(-0.2) and one rounding",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -28350,6 +28361,7 @@
      "worst_ratio_to_criterion": "0.0994708",
      "worst_observed": "0.005612899451623731648289030417799949645996",
      "worst_expected": "0.005612899451065411989672721549395388643674",
+     "label": "within the criterion at r = 1e5 (bound about 0.1)",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -28362,18 +28374,20 @@
      "worst_ratio_to_criterion": "0.105140",
      "worst_observed": "0.005612899451655550819850759580731391906738",
      "worst_expected": "0.005612899451065411989672721549395388643674",
+     "label": "within the criterion at r = 1e5 (bound about 0.1)",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
     {
      "id": "NC-FLOAT-SUM",
-     "defect": "NC-FLOAT-SUM: the net intensity as fl(fl(w_s) + fl(D)), the correctly rounded generated intensity summed in binary64 with the authored load.",
+     "defect": "NC-FLOAT-SUM: rounded-once generation. w_s formed exactly on the case's basis (the exact product of the intended inputs on the intended basis, of the decoded binary64 inputs on the represented basis), rounded once to binary64, then summed in binary64 with fl(D): fl(fl(w_s) + fl(D)). The two-term sum is exact (Sterbenz), so the defect measured is the single rounding of the generated intensity before the ledger, which D1 section 4.2 excludes.",
      "discriminates": false,
      "values_failing": 0,
      "worst_key": "Mb.M1.q1",
      "worst_ratio_to_criterion": "0.00260101",
      "worst_observed": "0.00561289945108001120388507843017578125",
      "worst_expected": "0.005612899451065411989672721549395388643674",
+     "label": "within the criterion at r = 1e5 (bound about 0.1)",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -29256,13 +29270,14 @@
     },
     {
      "id": "NC-FLOAT-SUM",
-     "defect": "NC-FLOAT-SUM: the net intensity as fl(fl(w_s) + fl(D)), the correctly rounded generated intensity summed in binary64 with the authored load.",
+     "defect": "NC-FLOAT-SUM: rounded-once generation. w_s formed exactly on the case's basis (the exact product of the intended inputs on the intended basis, of the decoded binary64 inputs on the represented basis), rounded once to binary64, then summed in binary64 with fl(D): fl(fl(w_s) + fl(D)). The two-term sum is exact (Sterbenz), so the defect measured is the single rounding of the generated intensity before the ledger, which D1 section 4.2 excludes.",
      "discriminates": false,
      "values_failing": 0,
      "worst_key": "R.N0.UZ",
      "worst_ratio_to_criterion": "0.0240477",
      "worst_observed": "0.00004989243961972533725202083587646484375",
      "worst_expected": "0.00004989243962092513659044834881611196837165",
+     "label": "rounded-once generation structurally below the criterion at r = 1e7: the bound, half an ulp of w_s relative to the net, is 0.57",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -30145,13 +30160,14 @@
     },
     {
      "id": "NC-FLOAT-SUM",
-     "defect": "NC-FLOAT-SUM: the net intensity as fl(fl(w_s) + fl(D)), the correctly rounded generated intensity summed in binary64 with the authored load.",
+     "defect": "NC-FLOAT-SUM: rounded-once generation. w_s formed exactly on the case's basis (the exact product of the intended inputs on the intended basis, of the decoded binary64 inputs on the represented basis), rounded once to binary64, then summed in binary64 with fl(D): fl(fl(w_s) + fl(D)). The two-term sum is exact (Sterbenz), so the defect measured is the single rounding of the generated intensity before the ledger, which D1 section 4.2 excludes.",
      "discriminates": false,
      "values_failing": 0,
      "worst_key": "Mb.M1.q1",
      "worst_ratio_to_criterion": "0.240477",
      "worst_observed": "0.000005612899521167946659261360764503479003906",
      "worst_expected": "0.000005612899522517720914992312821606494203264",
+     "label": "benign rounding: passes only because the represented intensity w_rep lies 0.021 ulp from a binary64 value (bound 5.70); the rounded-once defect is caught by RF-ELOAD-CANCEL-SEIS-G1e8-R",
      "discriminates_under_class_scale": false,
      "discriminates_under_gross_scale": false
     },
@@ -30164,6 +30180,895 @@
      "worst_ratio_to_criterion": "1E+9",
      "worst_observed": "0",
      "worst_expected": "-8.285416526711977038679023048542382113128E-12",
+     "discriminates_under_class_scale": true,
+     "discriminates_under_gross_scale": true
+    }
+   ],
+   "notes": []
+  },
+  {
+   "id": "RF-ELOAD-CANCEL-SEIS-G1e8-R",
+   "family": "RF-ELOAD-CANCEL",
+   "brief_item": 8,
+   "purpose": "Variant of RF-ELOAD-CANCEL-SEIS-G1e8 (added after V3 finding F1, ROOT ruling): the same cantilever and section, with the other inputs unchanged except seismic g-factor Z = -0.23 (w_s = -0.23 * g * m', about -143.44076 N/m) plus an authored (0, 0, 143.44076231504138435) N/m, D = -w_s(1 - 1e-8) to 20 significant digits. Gross/net about 1e8; every value is proportional to the net intensity. With these inputs the represented intensity does not sit next to a binary64 value, so the rounded-once generation defect is visible.",
+   "inputs": {
+    "X.N0": "0",
+    "X.N1": "4",
+    "Y.N0": "0",
+    "Y.N1": "0",
+    "Z.N0": "0",
+    "Z.N1": "0",
+    "gen.g": "9.80665",
+    "gen.g_factor.Z": "-0.23",
+    "gen.rho_contents": "900",
+    "gen.rho_insulation": "150",
+    "gen.rho_metal": "7000",
+    "gen.t_insulation": "0.03",
+    "sec.G.E": "200e9",
+    "sec.G.G": "80e9",
+    "sec.G.OD": "0.2",
+    "sec.G.mill_tolerance": "0.00125",
+    "sec.G.wall": "0.01",
+    "w.M1#2.x": "0",
+    "w.M1#2.y": "0",
+    "w.M1#2.z": "143.44076231504138435"
+   },
+   "model": {
+    "nodes": {
+     "N0": [
+      "0",
+      "0",
+      "0"
+     ],
+     "N1": [
+      "4",
+      "0",
+      "0"
+     ]
+    },
+    "members": [
+     {
+      "name": "M1",
+      "i": "N0",
+      "j": "N1",
+      "section": "G",
+      "L_m": "4",
+      "y_reference": [
+       "0",
+       "0",
+       "1"
+      ],
+      "EA_over_pi": "334687500",
+      "EI_over_pi": "1533417.8466796875",
+      "GJ_over_pi": "1226734.27734375"
+     }
+    ],
+    "restraints": {
+     "N0": {
+      "UX": "0",
+      "UY": "0",
+      "UZ": "0",
+      "RX": "0",
+      "RY": "0",
+      "RZ": "0"
+     }
+    },
+    "springs": [],
+    "nodal_loads_in_authored_order": [],
+    "constant_efforts": [],
+    "element_loads": [
+     {
+      "member": "M1",
+      "key": "w.M1#1",
+      "source": "generated seismic",
+      "frame": "global",
+      "y_reference": null,
+      "authored": [
+       "generated (see generated_intensities)"
+      ],
+      "global_intensity": [
+       "0",
+       "0",
+       "-143.4407637494490218396751385843959565993"
+      ],
+      "extent": [
+       "0",
+       "1"
+      ]
+     },
+     {
+      "member": "M1",
+      "key": "w.M1#2",
+      "source": "authored",
+      "frame": "global",
+      "y_reference": null,
+      "authored": [
+       "0",
+       "0",
+       "143.44076231504138435"
+      ],
+      "global_intensity": [
+       "0",
+       "0",
+       "143.44076231504138435"
+      ],
+      "extent": [
+       "0",
+       "1"
+      ]
+     }
+    ],
+    "eigen": [],
+    "thrust": [],
+    "root_for_route_A": "N0"
+   },
+   "method": "Route A (derivation): exact Euler-Bernoulli tree integration from the fully fixed root N0, element loads, eigenstrains and prescribed values carried exactly, redundant restraints and springs by the force method. Route B (cross-check): exact direct stiffness with consistent (Hermite) equivalent loads and fixed-end-corrected recovery. The two agree exactly for every value; global equilibrium residual exactly zero.",
+   "closed_form_checks": [],
+   "reference_accuracy": "exact rationals with pi -> PI_Q (|PI_Q - pi| < 1e-189); each nonzero value rounded once to 40 significant digits; bending magnitudes are square roots of exact rationals evaluated at 80 digits; zeros exact.",
+   "basis": "represented",
+   "expected_columns": [
+    "key",
+    "expected",
+    "class",
+    "recommended_scale (binding, net-governed)",
+    "gross_scale",
+    "governed_by"
+   ],
+   "expected": [
+    [
+     "u.N0.UX",
+     "0",
+     "translation",
+     "9.528228965901244212412011E-12",
+     "9.528228965901244212412011E-12",
+     "zero"
+    ],
+    [
+     "u.N0.UY",
+     "0",
+     "translation",
+     "9.528228965901244212412011E-12",
+     "9.528228965901244212412011E-12",
+     "zero"
+    ],
+    [
+     "u.N0.UZ",
+     "0",
+     "translation",
+     "9.528228965901244212412011E-12",
+     "9.528228965901244212412011E-12",
+     "zero"
+    ],
+    [
+     "th.N0.RX",
+     "0",
+     "rotation",
+     "3.176076321967081404137337E-12",
+     "3.176076321967081404137337E-12",
+     "zero"
+    ],
+    [
+     "th.N0.RY",
+     "0",
+     "rotation",
+     "3.176076321967081404137337E-12",
+     "3.176076321967081404137337E-12",
+     "zero"
+    ],
+    [
+     "th.N0.RZ",
+     "0",
+     "rotation",
+     "3.176076321967081404137337E-12",
+     "3.176076321967081404137337E-12",
+     "zero"
+    ],
+    [
+     "u.N1.UX",
+     "0",
+     "translation",
+     "9.528228965901244212412011E-12",
+     "9.528228965901244212412011E-12",
+     "zero"
+    ],
+    [
+     "u.N1.UY",
+     "0",
+     "translation",
+     "9.528228965901244212412011E-12",
+     "9.528228965901244212412011E-12",
+     "zero"
+    ],
+    [
+     "u.N1.UZ",
+     "-9.528228965901244212412011313563718543988E-12",
+     "translation",
+     "9.528228965901244212412011E-12",
+     "0.0009528228884424226402691699",
+     "net"
+    ],
+    [
+     "th.N1.RX",
+     "0",
+     "rotation",
+     "3.176076321967081404137337E-12",
+     "3.176076321967081404137337E-12",
+     "zero"
+    ],
+    [
+     "th.N1.RY",
+     "3.176076321967081404137337104521239514663E-12",
+     "rotation",
+     "3.176076321967081404137337E-12",
+     "0.0003176076294808075467563900",
+     "net"
+    ],
+    [
+     "th.N1.RZ",
+     "0",
+     "rotation",
+     "3.176076321967081404137337E-12",
+     "3.176076321967081404137337E-12",
+     "zero"
+    ],
+    [
+     "R.N0.UX",
+     "0",
+     "force",
+     "0.000005737630599041122159884509",
+     "0.000005737630599041122159884509",
+     "zero"
+    ],
+    [
+     "R.N0.UY",
+     "0",
+     "force",
+     "0.000005737630599041122159884509",
+     "0.000005737630599041122159884509",
+     "zero"
+    ],
+    [
+     "R.N0.UZ",
+     "0.000005737630599041122159884509176804536512079",
+     "force",
+     "0.000005737630599041122159884509",
+     "573.7630549977961295818115",
+     "net"
+    ],
+    [
+     "R.N0.RX",
+     "0",
+     "moment",
+     "0.00001147526119808224431976902",
+     "0.00001147526119808224431976902",
+     "zero"
+    ],
+    [
+     "R.N0.RY",
+     "-0.00001147526119808224431976901835360907302416",
+     "moment",
+     "0.00001147526119808224431976902",
+     "1147.526109995592259163623",
+     "net"
+    ],
+    [
+     "R.N0.RZ",
+     "0",
+     "moment",
+     "0.00001147526119808224431976902",
+     "0.00001147526119808224431976902",
+     "zero"
+    ],
+    [
+     "N.M1.i",
+     "0",
+     "force",
+     "0.000005737630599041122159884509",
+     "0.000005737630599041122159884509",
+     "zero"
+    ],
+    [
+     "N.M1.mid",
+     "0",
+     "force",
+     "0.000005737630599041122159884509",
+     "0.000005737630599041122159884509",
+     "zero"
+    ],
+    [
+     "N.M1.j",
+     "0",
+     "force",
+     "0.000005737630599041122159884509",
+     "0.000005737630599041122159884509",
+     "zero"
+    ],
+    [
+     "T.M1.i",
+     "0",
+     "moment",
+     "0.00001147526119808224431976902",
+     "0.00001147526119808224431976902",
+     "zero"
+    ],
+    [
+     "T.M1.mid",
+     "0",
+     "moment",
+     "0.00001147526119808224431976902",
+     "0.00001147526119808224431976902",
+     "zero"
+    ],
+    [
+     "T.M1.j",
+     "0",
+     "moment",
+     "0.00001147526119808224431976902",
+     "0.00001147526119808224431976902",
+     "zero"
+    ],
+    [
+     "Mb.M1.i",
+     "0.00001147526119808224431976901835360907302416",
+     "moment",
+     "0.00001147526119808224431976902",
+     "1147.526109995592259163623",
+     "net"
+    ],
+    [
+     "Mb.M1.q1",
+     "0.000006454834423921262429870072823905103576088",
+     "moment",
+     "0.000006454834423921262429870073",
+     "645.4834368725206457795380",
+     "net"
+    ],
+    [
+     "Mb.M1.mid",
+     "0.000002868815299520561079942254588402268256039",
+     "moment",
+     "0.000002868815299520561079942255",
+     "286.8815274988980647909058",
+     "net"
+    ],
+    [
+     "Mb.M1.q3",
+     "7.172038248801402699855636471005670640098E-7",
+     "moment",
+     "7.172038248801402699855636E-7",
+     "71.72038187472451619772644",
+     "net"
+    ],
+    [
+     "Mb.M1.j",
+     "0",
+     "moment",
+     "0.00001147526119808224431976902",
+     "0.00001147526119808224431976902",
+     "zero"
+    ],
+    [
+     "ext.M1",
+     "0",
+     "extension",
+     "2.182746045723744260013766E-14",
+     "2.182746045723744260013766E-14",
+     "zero"
+    ],
+    [
+     "tw.M1",
+     "0",
+     "twist",
+     "1.191028620737655526551501E-11",
+     "1.191028620737655526551501E-11",
+     "zero"
+    ]
+   ],
+   "cancellation": {
+    "net": "the net uniform intensity w_s + D alone",
+    "gross": "the generated seismic load alone",
+    "gross_over_net": "100000000.000",
+    "recommended_scale": "binding (as ROOT ruled for RF-CANCEL): the magnitude of the value's response to the net contribution alone, or the class scale where the net does not affect the value or the value is zero",
+    "governed_by_counts": {
+     "net": 8,
+     "mixed": 0,
+     "other loads only": 0,
+     "zero": 23
+    }
+   },
+   "classes": {
+    "extension": {
+     "scale": "2.182746045723744260013766E-14",
+     "derivation": "all zero: force scale * max(L/EA)"
+    },
+    "force": {
+     "scale": "0.000005737630599041122159884509",
+     "derivation": "largest magnitude in the class (nodal vectors as norms, member values as absolutes)"
+    },
+    "moment": {
+     "scale": "0.00001147526119808224431976902",
+     "derivation": "largest magnitude in the class (nodal vectors as norms, member values as absolutes)"
+    },
+    "rotation": {
+     "scale": "3.176076321967081404137337E-12",
+     "derivation": "largest magnitude in the class (nodal vectors as norms, member values as absolutes)"
+    },
+    "translation": {
+     "scale": "9.528228965901244212412011E-12",
+     "derivation": "largest magnitude in the class (nodal vectors as norms, member values as absolutes)"
+    },
+    "twist": {
+     "scale": "1.191028620737655526551501E-11",
+     "derivation": "all zero: moment scale * max(L/GJ)"
+    }
+   },
+   "zero_valued": [
+    [
+     "u.N0.UX",
+     "translation",
+     "9.528228965901244212412011E-12"
+    ],
+    [
+     "u.N0.UY",
+     "translation",
+     "9.528228965901244212412011E-12"
+    ],
+    [
+     "u.N0.UZ",
+     "translation",
+     "9.528228965901244212412011E-12"
+    ],
+    [
+     "th.N0.RX",
+     "rotation",
+     "3.176076321967081404137337E-12"
+    ],
+    [
+     "th.N0.RY",
+     "rotation",
+     "3.176076321967081404137337E-12"
+    ],
+    [
+     "th.N0.RZ",
+     "rotation",
+     "3.176076321967081404137337E-12"
+    ],
+    [
+     "u.N1.UX",
+     "translation",
+     "9.528228965901244212412011E-12"
+    ],
+    [
+     "u.N1.UY",
+     "translation",
+     "9.528228965901244212412011E-12"
+    ],
+    [
+     "th.N1.RX",
+     "rotation",
+     "3.176076321967081404137337E-12"
+    ],
+    [
+     "th.N1.RZ",
+     "rotation",
+     "3.176076321967081404137337E-12"
+    ],
+    [
+     "R.N0.UX",
+     "force",
+     "0.000005737630599041122159884509"
+    ],
+    [
+     "R.N0.UY",
+     "force",
+     "0.000005737630599041122159884509"
+    ],
+    [
+     "R.N0.RX",
+     "moment",
+     "0.00001147526119808224431976902"
+    ],
+    [
+     "R.N0.RZ",
+     "moment",
+     "0.00001147526119808224431976902"
+    ],
+    [
+     "N.M1.i",
+     "force",
+     "0.000005737630599041122159884509"
+    ],
+    [
+     "N.M1.mid",
+     "force",
+     "0.000005737630599041122159884509"
+    ],
+    [
+     "N.M1.j",
+     "force",
+     "0.000005737630599041122159884509"
+    ],
+    [
+     "T.M1.i",
+     "moment",
+     "0.00001147526119808224431976902"
+    ],
+    [
+     "T.M1.mid",
+     "moment",
+     "0.00001147526119808224431976902"
+    ],
+    [
+     "T.M1.j",
+     "moment",
+     "0.00001147526119808224431976902"
+    ],
+    [
+     "Mb.M1.j",
+     "moment",
+     "0.00001147526119808224431976902"
+    ],
+    [
+     "ext.M1",
+     "extension",
+     "2.182746045723744260013766E-14"
+    ],
+    [
+     "tw.M1",
+     "twist",
+     "1.191028620737655526551501E-11"
+    ]
+   ],
+   "nonzero_below_class_scale": 3,
+   "finite_input": {
+    "max_normalized_difference": "8.55448E-9",
+    "worst_key": "R.N0.UZ",
+    "rule": "max |rep - int| / max(|int|, scale); above 1e-9 the represented-input solution is the basis (R1 RF-FINITE)"
+   },
+   "expected_represented": [
+    [
+     "u.N0.UX",
+     "0"
+    ],
+    [
+     "u.N0.UY",
+     "0"
+    ],
+    [
+     "u.N0.UZ",
+     "0"
+    ],
+    [
+     "th.N0.RX",
+     "0"
+    ],
+    [
+     "th.N0.RY",
+     "0"
+    ],
+    [
+     "th.N0.RZ",
+     "0"
+    ],
+    [
+     "u.N1.UX",
+     "0"
+    ],
+    [
+     "u.N1.UY",
+     "0"
+    ],
+    [
+     "u.N1.UZ",
+     "-9.528228965901244212412011313563718543988E-12"
+    ],
+    [
+     "th.N1.RX",
+     "0"
+    ],
+    [
+     "th.N1.RY",
+     "3.176076321967081404137337104521239514663E-12"
+    ],
+    [
+     "th.N1.RZ",
+     "0"
+    ],
+    [
+     "R.N0.UX",
+     "0"
+    ],
+    [
+     "R.N0.UY",
+     "0"
+    ],
+    [
+     "R.N0.UZ",
+     "0.000005737630599041122159884509176804536512079"
+    ],
+    [
+     "R.N0.RX",
+     "0"
+    ],
+    [
+     "R.N0.RY",
+     "-0.00001147526119808224431976901835360907302416"
+    ],
+    [
+     "R.N0.RZ",
+     "0"
+    ],
+    [
+     "N.M1.i",
+     "0"
+    ],
+    [
+     "N.M1.mid",
+     "0"
+    ],
+    [
+     "N.M1.j",
+     "0"
+    ],
+    [
+     "T.M1.i",
+     "0"
+    ],
+    [
+     "T.M1.mid",
+     "0"
+    ],
+    [
+     "T.M1.j",
+     "0"
+    ],
+    [
+     "Mb.M1.i",
+     "0.00001147526119808224431976901835360907302416"
+    ],
+    [
+     "Mb.M1.q1",
+     "0.000006454834423921262429870072823905103576088"
+    ],
+    [
+     "Mb.M1.mid",
+     "0.000002868815299520561079942254588402268256039"
+    ],
+    [
+     "Mb.M1.q3",
+     "7.172038248801402699855636471005670640098E-7"
+    ],
+    [
+     "Mb.M1.j",
+     "0"
+    ],
+    [
+     "ext.M1",
+     "0"
+    ],
+    [
+     "tw.M1",
+     "0"
+    ]
+   ],
+   "represented_vs_intended_per_quantity": [
+    [
+     "u.N0.UX",
+     null,
+     "0"
+    ],
+    [
+     "u.N0.UY",
+     null,
+     "0"
+    ],
+    [
+     "u.N0.UZ",
+     null,
+     "0"
+    ],
+    [
+     "th.N0.RX",
+     null,
+     "0"
+    ],
+    [
+     "th.N0.RY",
+     null,
+     "0"
+    ],
+    [
+     "th.N0.RZ",
+     null,
+     "0"
+    ],
+    [
+     "u.N1.UX",
+     null,
+     "0"
+    ],
+    [
+     "u.N1.UY",
+     null,
+     "0"
+    ],
+    [
+     "u.N1.UZ",
+     "8.55448E-9",
+     "8.55448E-9"
+    ],
+    [
+     "th.N1.RX",
+     null,
+     "0"
+    ],
+    [
+     "th.N1.RY",
+     "8.55448E-9",
+     "8.55448E-9"
+    ],
+    [
+     "th.N1.RZ",
+     null,
+     "0"
+    ],
+    [
+     "R.N0.UX",
+     null,
+     "0"
+    ],
+    [
+     "R.N0.UY",
+     null,
+     "0"
+    ],
+    [
+     "R.N0.UZ",
+     "8.55448E-9",
+     "8.55448E-9"
+    ],
+    [
+     "R.N0.RX",
+     null,
+     "0"
+    ],
+    [
+     "R.N0.RY",
+     "8.55448E-9",
+     "8.55448E-9"
+    ],
+    [
+     "R.N0.RZ",
+     null,
+     "0"
+    ],
+    [
+     "N.M1.i",
+     null,
+     "0"
+    ],
+    [
+     "N.M1.mid",
+     null,
+     "0"
+    ],
+    [
+     "N.M1.j",
+     null,
+     "0"
+    ],
+    [
+     "T.M1.i",
+     null,
+     "0"
+    ],
+    [
+     "T.M1.mid",
+     null,
+     "0"
+    ],
+    [
+     "T.M1.j",
+     null,
+     "0"
+    ],
+    [
+     "Mb.M1.i",
+     "8.55448E-9",
+     "8.55448E-9"
+    ],
+    [
+     "Mb.M1.q1",
+     "8.55448E-9",
+     "4.81189E-9"
+    ],
+    [
+     "Mb.M1.mid",
+     "8.55448E-9",
+     "2.13862E-9"
+    ],
+    [
+     "Mb.M1.q3",
+     "8.55448E-9",
+     "5.34655E-10"
+    ],
+    [
+     "Mb.M1.j",
+     null,
+     "0"
+    ],
+    [
+     "ext.M1",
+     null,
+     "0"
+    ],
+    [
+     "tw.M1",
+     null,
+     "0"
+    ]
+   ],
+   "generated_intensities": [
+    {
+     "member": "M1",
+     "kind": "seismic",
+     "axis": "Z",
+     "intended_exact": "-143.4407637494490218396751385843959565993",
+     "intended_over_pi": "-45.658613183203125",
+     "represented_exact_product": "-143.4407637494490323954528800587198959773",
+     "represented_rel_diff": "7.35898E-17",
+     "binary64_product": "-143.44076374944916",
+     "binary64_product_rel_diff": "9.69940E-16",
+     "mass_per_length_intended": "63.59516191184775984516058805012124940034",
+     "mass_per_length_over_pi": "20.24296875"
+    }
+   ],
+   "negative_controls": [
+    {
+     "id": "NC-BIN64-PRODUCT",
+     "defect": "NC-BIN64-PRODUCT: the generated intensity taken as the binary64 left-to-right product of the binary64 inputs (the D-14 hazard): seismic m' = A_metal*rho_m + A_contents*rho_c + A_ins*rho_i with each A = math.pi/4*(D1*D1 - D2*D2), ID = OD - 2*(t - m), then w = m' * g_factor * g; wind w = p * Cs * (OD + 2*t_ins); the rest of the model exact. The authored load is kept exact.",
+     "discriminates": true,
+     "values_failing": 8,
+     "worst_key": "R.N0.RY",
+     "worst_ratio_to_criterion": "89.6350",
+     "worst_observed": "-0.000011475262226667837239801883697509765625",
+     "worst_expected": "-0.00001147526119808224431976901835360907302416",
+     "discriminates_under_class_scale": true,
+     "discriminates_under_gross_scale": false
+    },
+    {
+     "id": "NC-FLOAT-SUM-BIN64",
+     "defect": "NC-FLOAT-SUM-BIN64: the net intensity as fl(w_s_bin64 + fl(D)), the binary64 product summed left to right with the binary64 authored load.",
+     "discriminates": true,
+     "values_failing": 8,
+     "worst_key": "R.N0.RY",
+     "worst_ratio_to_criterion": "89.6350",
+     "worst_observed": "-0.000011475262226667837239801883697509765625",
+     "worst_expected": "-0.00001147526119808224431976901835360907302416",
+     "discriminates_under_class_scale": true,
+     "discriminates_under_gross_scale": false
+    },
+    {
+     "id": "NC-FLOAT-SUM",
+     "defect": "NC-FLOAT-SUM: rounded-once generation. w_s formed exactly on the case's basis (the exact product of the intended inputs on the intended basis, of the decoded binary64 inputs on the represented basis), rounded once to binary64, then summed in binary64 with fl(D): fl(fl(w_s) + fl(D)). The two-term sum is exact (Sterbenz), so the defect measured is the single rounding of the generated intensity before the ledger, which D1 section 4.2 excludes.",
+     "discriminates": true,
+     "values_failing": 8,
+     "worst_key": "th.N1.RY",
+     "worst_ratio_to_criterion": "9.43619",
+     "worst_observed": "3.176076291997010889570354613573568436189E-12",
+     "worst_expected": "3.176076321967081404137337104521239514663E-12",
+     "discriminates_under_class_scale": true,
+     "discriminates_under_gross_scale": false
+    },
+    {
+     "id": "NC-NET-DROPPED",
+     "defect": "NC-NET-DROPPED: the net intensity lost (zero response).",
+     "discriminates": true,
+     "values_failing": 8,
+     "worst_key": "u.N1.UZ",
+     "worst_ratio_to_criterion": "1E+9",
+     "worst_observed": "0",
+     "worst_expected": "-9.528228965901244212412011313563718543988E-12",
      "discriminates_under_class_scale": true,
      "discriminates_under_gross_scale": true
     }
@@ -31405,7 +32310,7 @@
    "negative_controls": [
     {
      "id": "NC-MAG-SUM",
-     "defect": "NC-MAG-SUM: combined bending magnitudes taken as the sum of the component magnitudes; other values correct.",
+     "defect": "NC-MAG-SUM: combined bending magnitudes taken as Mb_A + Mb_B, the sum of the component magnitudes instead of the magnitude of the combined moment vector; other values correct.",
      "discriminates": true,
      "values_failing": 9,
      "worst_key": "Mb.M1.i",
@@ -32079,7 +32984,7 @@
    "negative_controls": [
     {
      "id": "NC-MAG-SUM",
-     "defect": "NC-MAG-SUM: combined bending magnitudes taken as the absolute difference of the component magnitudes; other values correct.",
+     "defect": "NC-MAG-SUM: combined bending magnitudes taken as |Mb_A - Mb_B|, the difference of the component magnitudes instead of the magnitude of the combined moment vector; other values correct.",
      "discriminates": true,
      "values_failing": 9,
      "worst_key": "Mb.M1.i",

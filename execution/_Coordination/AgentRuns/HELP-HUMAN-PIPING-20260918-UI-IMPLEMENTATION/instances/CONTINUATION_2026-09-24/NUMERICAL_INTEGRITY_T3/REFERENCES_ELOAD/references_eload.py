@@ -961,7 +961,7 @@ def case(**kw):
 
 NC_TEXT = {
     'lumped5050': 'NC-LUMPED-5050: each element load replaced by half its resultant at each end node, no fixed-end moments (the primitive-load 50/50 cross-check used as the solve); member actions then follow from the lumped nodal loads.',
-    'lever': 'NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).',
+    'lever': 'NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50.',
     'no_fec': 'NC-NO-FEC: the correct nodal solution, but member end actions recovered as K_e u_e without subtracting the element-load fixed-end forces; station values then follow by statics from those uncorrected i-end actions and the span load.',
     'partial_as_full': 'NC-PARTIAL-AS-FULL: each partial-span load integrated over the full span.',
     'local_as_global': 'NC-LOCAL-AS-GLOBAL: the local load components applied as global components.',
@@ -1239,7 +1239,7 @@ for tag, k, note in (('r1e-06', '200', 'k/(EA/L) = 1.0e-6'), ('r1e-12', '0.0002'
     case(id='RF-ELOAD-TH-SPRING-LEG-%s' % tag, family='RF-ELOAD-TH', item=3,
          purpose='Member along X (L = 6 m), N0 fixed, N1 on a soft axial spring k = %s N/m (%s), other N1 DOFs fixed; legacy thermal alpha = 1.2e-5, DeltaT = 75. N = -k u is proportional to the soft spring.' % (k, note),
          build=(lambda k: lambda inp, pi, fl: b_axial(inp, pi, fl, ('6', '0', '0'), lambda b: eps_legacy(b, 'M1', '1.2e-5', '75'), spring=k, far='spring'))(k),
-         ncs=TH_NC + [LOST_SOFT],
+         ncs=TH_NC + ([LOST_SOFT] if k != '200' else []),
          closed_forms=[('u.N1.UX', 'EA eps/(EA/L + k)', (lambda k: lambda m: (m['members'][0]['EA'] * Fr(9, 10000)) / (m['members'][0]['EA'] / 6 + parse_input(k)))(k)),
                        ('N.M1.mid', '-k u', (lambda k: lambda m: -parse_input(k) * (m['members'][0]['EA'] * Fr(9, 10000)) / (m['members'][0]['EA'] / 6 + parse_input(k)))(k))])
 
@@ -1268,7 +1268,8 @@ def b_serial(inp, pi, fl):
 case(id='RF-ELOAD-TH-SERIAL-RES-FIT', family='RF-ELOAD-TH', item=3,
      purpose='Two members in series, N0 (fixed) -> N1 (4,0,0) free -> N2 (10,0,0) fixed; M1 (N section) resolved thermal composed with a fit delta_L = -0.002 m (cut short); M2 (OD 0.25, wall 0.012) cold. The restraint of M1 comes from M2.',
      build=b_serial,
-     ncs=TH_NC + RES_NC + [ncf('fit_additive', 'NC-FIT-ADDITIVE: eps* = eps_fit + eps_thermal instead of lambda_fit*lambda_thermal - 1.'),
+     ncs=TH_NC + [ncf('legacy_form', 'NC-ALPHA-TIMES-INTERVAL: eps* = alpha_sec(T)*(T - T_install), ignoring the datum ratio; the defect replaces eps* entirely, so the fit is dropped as well.'),
+                  ncf('subtract_dilations', 'NC-SUBTRACT-DILATIONS: eps* = lambda(T) - lambda(T_install) instead of their ratio minus one; the defect replaces eps* entirely, so the fit is dropped as well.')] + [ncf('fit_additive', 'NC-FIT-ADDITIVE: eps* = eps_fit + eps_thermal instead of lambda_fit*lambda_thermal - 1.'),
                            ncf('fit_omit', 'NC-FIT-OMITTED: the fit length change dropped.')],
      closed_forms=[('N.M1.mid', '-(eps* L1)/(L1/EA1 + L2/EA2)', lambda m: -(m['eigen']['M1'] * 4) / (Fr(4) / m['members'][0]['EA'] + Fr(6) / m['members'][1]['EA']))])
 
@@ -1441,11 +1442,11 @@ GEN_TEXT = dict(GEN_INPUTS)
 
 
 def gin(b, name):
-    return b.inp(name, GEN_TEXT[name])
+    return b.inp(name, getattr(b, 'gen_over', {}).get(name, GEN_TEXT[name]))
 
 
 def gfl(b, name):
-    return b.inp.f(name, GEN_TEXT[name])
+    return b.inp.f(name, getattr(b, 'gen_over', {}).get(name, GEN_TEXT[name]))
 
 
 def mass_per_length(b, sec):
@@ -1706,18 +1707,24 @@ for s, tag in ((Fr(12500), 'G1e5'), (Fr(1250000), 'G1e7'), (Fr(12500000), 'G1e8'
          ncs=cancel_ncs(['A,B,n', 'A,n,B', 'n,A,B'], 'A,B,n', [nc('lumped5050'), nc('no_fec')]),
          cancel={'net': 'the net nodal moment at S1 (both fixed-end moments plus M_z) on unloaded spans',
                  'gross': 'the span-A load alone', 'gross_over_net': dec_str(ratio, 12),
+                 'gross_scale_status': ('review-only and asymmetric (V3 F9): the gross column is the response to span A alone, so span-B rows '
+                                        '(R.S2.*, Mb.M2.*) show about one tenth of |expected|; it never enters a binding comparison'),
                  'float_model': 'fixed-end moments in binary64 as w*L*L/12.0 (w_A*2.0*2.0/12.0 and w_B*3.0*3.0/12.0) plus M_z, summed in the stated order'},
          closed_forms=[('th.S1.RZ', 'net/(4EI/L_A + 4EI/L_B)', lambda m: Fr(-3875, 10000) / (4 * m['members'][0]['EI'] / 2 + 4 * m['members'][0]['EI'] / 3))])
 
 
-def _seis_ws(pi):
+def _seis_ws(pi, gz=None):
     b = Builder(Inp(), pi, ())
+    if gz:
+        b.gen_over = {'gen.g_factor.Z': gz}
     b.section('G', mill='0.00125')
     return mass_per_length(b, 'G') * gin(b, 'gen.g_factor.Z') * gin(b, 'gen.g')
 
 
-def _seisc(inp, pi, fl, D):
+def _seisc(inp, pi, fl, D, gz=None):
     b = Builder(inp, pi, fl)
+    if gz:
+        b.gen_over = {'gen.g_factor.Z': gz}
     b.section('G', mill='0.00125')
     b.node('N0', '0', '0', '0')
     b.node('N1', '4', '0', '0')
@@ -1746,6 +1753,9 @@ def _seisc(inp, pi, fl, D):
     return b.done()
 
 
+FLOAT_SUM_TEXT = ('NC-FLOAT-SUM: rounded-once generation. w_s formed exactly on the case\'s basis (the exact product of the intended inputs on the intended basis, of the decoded binary64 inputs on the represented basis), rounded once to binary64, then summed in binary64 with fl(D): fl(fl(w_s) + fl(D)). The two-term sum is exact (Sterbenz), so the defect measured is the single rounding of the generated intensity before the ledger, which D1 section 4.2 excludes.')
+
+
 SEIS_WS = None
 for ratio, tag in ((10 ** 5, 'G1e5'), (10 ** 7, 'G1e7'), (10 ** 8, 'G1e8')):
     if SEIS_WS is None:
@@ -1758,10 +1768,28 @@ for ratio, tag in ((10 ** 5, 'G1e5'), (10 ** 7, 'G1e7'), (10 ** 8, 'G1e8')):
          build=(lambda D: lambda inp, pi, fl: _seisc(inp, pi, fl, D))(D),
          ncs=[ncf('bin64', BIN64_TEXT + ' The authored load is kept exact.'),
               ncf('float_sum_bin64', 'NC-FLOAT-SUM-BIN64: the net intensity as fl(w_s_bin64 + fl(D)), the binary64 product summed left to right with the binary64 authored load.'),
-              ncf('float_sum_exactgen', 'NC-FLOAT-SUM: the net intensity as fl(fl(w_s) + fl(D)), the correctly rounded generated intensity summed in binary64 with the authored load.'),
+              ncf('float_sum_exactgen', FLOAT_SUM_TEXT),
               ncf('drop_small', 'NC-NET-DROPPED: the net intensity lost (zero response).')],
          cancel={'net': 'the net uniform intensity w_s + D alone', 'gross': 'the generated seismic load alone',
                  'gross_over_net': dec_str(SEIS_WS / (SEIS_WS + parse_input(D)), 12)})
+
+# RF-ELOAD-CANCEL-SEIS-G1e8-R (ROOT ruling after V3 F1): G1e8 with g_factor.Z = -0.23, so that the
+# rounded-once generation defect (NC-FLOAT-SUM) is not hidden by an input coincidence.
+SEIS_WS_R = _seis_ws(PI_Q, '-0.23')
+D_R = '143.44076231504138435'
+assert D_R == dec_str(-SEIS_WS_R * (1 - Fr(1, 10 ** 8)), 20), 'D of G1e8-R is not -w_s(1 - 1e-8) at 20 digits'
+case(id='RF-ELOAD-CANCEL-SEIS-G1e8-R', family='RF-ELOAD-CANCEL', item=8, generated=True,
+     purpose=('Variant of RF-ELOAD-CANCEL-SEIS-G1e8 (added after V3 finding F1, ROOT ruling): the same cantilever and section, with the other inputs unchanged except seismic g-factor Z = -0.23 '
+              '(w_s = -0.23 * g * m\', about -%s N/m) plus an authored (0, 0, %s) N/m, D = -w_s(1 - 1e-8) to 20 significant digits. Gross/net about 1e8; every value is '
+              'proportional to the net intensity. With these inputs the represented intensity does not sit next to a binary64 value, so the rounded-once generation defect is visible.')
+     % (dec_str(-SEIS_WS_R, 8), D_R),
+     build=lambda inp, pi, fl: _seisc(inp, pi, fl, D_R, gz='-0.23'),
+     ncs=[ncf('bin64', BIN64_TEXT + ' The authored load is kept exact.'),
+          ncf('float_sum_bin64', 'NC-FLOAT-SUM-BIN64: the net intensity as fl(w_s_bin64 + fl(D)), the binary64 product summed left to right with the binary64 authored load.'),
+          ncf('float_sum_exactgen', FLOAT_SUM_TEXT),
+          ncf('drop_small', 'NC-NET-DROPPED: the net intensity lost (zero response).')],
+     cancel={'net': 'the net uniform intensity w_s + D alone', 'gross': 'the generated seismic load alone',
+             'gross_over_net': dec_str(SEIS_WS_R / (SEIS_WS_R + parse_input(D_R)), 12)})
 
 
 # ----- family 9: one combination ---------------------------------------------
@@ -2136,6 +2164,12 @@ def run_case(cs, results):
             obs = ncd['arg'](exp)
         r = {'id': ncd['id'], 'defect': ncd['text']}
         r.update(compare(exp, obs, cmp_scales))
+        lab = nc_label(cs['id'], ncd['id'])
+        if lab:
+            assert not r['discriminates'], (cs['id'], ncd['id'])
+            r['label'] = lab
+        else:
+            assert r['discriminates'], ('unlabelled non-discriminating control', cs['id'], ncd['id'])
         if cancel:
             r['discriminates_under_class_scale'] = compare(exp, obs, scales)['discriminates']
             r['discriminates_under_gross_scale'] = compare(exp, obs, gsc)['discriminates']
@@ -2145,6 +2179,36 @@ def run_case(cs, results):
     rec['_exp'] = expI
     rec['_seconds'] = round(time.time() - t0, 2)
     return rec
+
+
+NC_LABELS = {
+    ('RF-ELOAD-CE-CANCEL-G1e5', 'NC-FLOAT-SUM-GmnGp'): 'lossy order within the criterion at G = 1e5 (bound ulp(1e5)/2 relative to the net, 0.024)',
+    ('RF-ELOAD-CE-CANCEL-G1e5', 'NC-FLOAT-SUM-nGmGp'): 'lossy order within the criterion at G = 1e5 (bound ulp(1e5)/2 relative to the net, 0.024)',
+    ('RF-ELOAD-CE-CANCEL-G1e5', 'NC-FLOAT-SUM-GmGpn'): 'benign order (exact): the gross cancels first, exactly; the residual is the decoding of 0.3',
+    ('RF-ELOAD-CE-CANCEL-G1e8', 'NC-FLOAT-SUM-GmGpn'): 'benign order (exact): the gross cancels first, exactly; the residual is the decoding of 0.3',
+    ('RF-ELOAD-CANCEL-FEM-G1e5', 'NC-FLOAT-SUM-ABn'): 'benign order (exact): A + B is exact (Sterbenz); the residual is fl(-0.2) and one rounding',
+    ('RF-ELOAD-CANCEL-FEM-G1e7', 'NC-FLOAT-SUM-ABn'): 'benign order (exact): A + B is exact (Sterbenz); the residual is fl(-0.2) and one rounding',
+    ('RF-ELOAD-CANCEL-FEM-G1e8', 'NC-FLOAT-SUM-ABn'): 'benign order (exact): A + B is exact (Sterbenz); the residual is fl(-0.2) and one rounding',
+    ('RF-ELOAD-CANCEL-FEM-G1e5', 'NC-FLOAT-SUM-AnB'): 'within the criterion at this ratio (bound 0.0094)',
+    ('RF-ELOAD-CANCEL-FEM-G1e5', 'NC-FLOAT-SUM-nAB'): 'within the criterion at this ratio (bound 0.0094)',
+    ('RF-ELOAD-CANCEL-FEM-G1e7', 'NC-FLOAT-SUM-AnB'): 'within the criterion at this ratio (bound 0.60: structurally non-discriminating)',
+    ('RF-ELOAD-CANCEL-FEM-G1e7', 'NC-FLOAT-SUM-nAB'): 'within the criterion at this ratio (bound 0.60: structurally non-discriminating)',
+    ('RF-ELOAD-CANCEL-SEIS-G1e5', 'NC-BIN64-PRODUCT'): 'within the criterion at r = 1e5 (bound about 0.1)',
+    ('RF-ELOAD-CANCEL-SEIS-G1e5', 'NC-FLOAT-SUM-BIN64'): 'within the criterion at r = 1e5 (bound about 0.1)',
+    ('RF-ELOAD-CANCEL-SEIS-G1e5', 'NC-FLOAT-SUM'): 'within the criterion at r = 1e5 (bound about 0.1)',
+    ('RF-ELOAD-CANCEL-SEIS-G1e7', 'NC-FLOAT-SUM'): ('rounded-once generation structurally below the criterion at r = 1e7: the bound, half an ulp of w_s '
+                                                   'relative to the net, is 0.57'),
+    ('RF-ELOAD-CANCEL-SEIS-G1e8', 'NC-FLOAT-SUM'): ('benign rounding: passes only because the represented intensity w_rep lies 0.021 ulp from a binary64 '
+                                                   'value (bound 5.70); the rounded-once defect is caught by RF-ELOAD-CANCEL-SEIS-G1e8-R'),
+}
+for _c in ('RF-ELOAD-GEN-SEIS-CANT-AX', 'RF-ELOAD-GEN-SEIS-CONT2-Q9', 'RF-ELOAD-GEN-SEIS-WIND-LFRAME-FF',
+           'RF-ELOAD-GEN-WIND-MARKED-CONT2', 'RF-ELOAD-GEN-WIND-SUBSPAN', 'RF-ELOAD-GEN-WIND-SKEW-PROP'):
+    NC_LABELS[(_c, 'NC-BIN64-PRODUCT')] = ('D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); '
+                                          'not a mutation test; D-14 is enforced by a kernel-level test in F3')
+
+
+def nc_label(case_id, nc_id):
+    return NC_LABELS.get((case_id, nc_id))
 
 
 def comb_ncs(cs, results):
@@ -2170,8 +2234,8 @@ def comb_ncs(cs, results):
 
     def aonly(exp):
         return dict(A)
-    txt = ('NC-MAG-SUM: combined bending magnitudes taken as %s of the component magnitudes; other values correct.'
-           % ('the sum' if sgn > 0 else 'the absolute difference'))
+    txt = ('NC-MAG-SUM: combined bending magnitudes taken as %s of the component magnitudes instead of the magnitude of the combined moment vector; other values correct.'
+           % ('Mb_A + Mb_B, the sum' if sgn > 0 else '|Mb_A - Mb_B|, the difference'))
     return [{'id': 'NC-MAG-SUM', 'text': txt, 'kind': 'out', 'arg': magsum},
             {'id': 'NC-WRONG-DIFFERENCE', 'text': 'NC-WRONG-DIFFERENCE: components combined as %s (bending magnitudes left correct).' % ('B - A' if sgn < 0 else 'A - B'),
              'kind': 'out', 'arg': reversed_},
