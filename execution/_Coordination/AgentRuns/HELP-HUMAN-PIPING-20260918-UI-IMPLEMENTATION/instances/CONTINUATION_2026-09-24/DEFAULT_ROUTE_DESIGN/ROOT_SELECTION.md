@@ -46,7 +46,7 @@ It found that the remaining T1 overlap in `lib.rs` is adjacent only, apart from 
    - The completeness check applies to result-namespace references: every `affected_refs` entry that begins with `result:`, and every summary `result_ref`. Those must resolve to an emitted row.
    - Other reference classes are allowed and are not resolved by the readers: model entity ids, field or category tokens, decision ids, and user source-reference strings.
    - The tamper tests change to match. A dangling `result:` reference is refused. The hanger, nonlinear and intensification diagnostics on the invented demo model are accepted, and a positive control proves it.
-2. **N-A.** The source-blocks-1 notice on Current exports is a UI or export-manifest label, never a new field in an exported results or stress-neutral document. Existing source-blocks-1 export bytes, schemas and fixtures stay unchanged.
+2. **N-A.** The source-blocks-1 notice on Current exports is shown in the export UI, or goes in a sidecar outside the exported package. It is never a new field in an exported results or stress-neutral document, and never an addition to the stress-neutral `manifest` (for example `manifest.boundary_notes`), which is part of the document and its checksums. Existing source-blocks-1 export bytes, schemas and fixtures stay unchanged.
 
 ## On N-B (T1)
 

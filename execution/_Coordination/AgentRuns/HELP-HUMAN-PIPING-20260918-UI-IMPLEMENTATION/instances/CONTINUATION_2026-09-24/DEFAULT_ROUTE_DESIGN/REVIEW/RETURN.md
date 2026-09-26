@@ -1,6 +1,6 @@
 # Independent design review of T0R (first draft)
 
-HELP_HUMAN (ROOT) records this review. A fresh-context TASK that did not write the design reviewed [DESIGN.md](../DESIGN.md) read-only, at main `652223552`. The reviewer wrote nothing in the repository, so ROOT records its result here.
+HELP_HUMAN (ROOT) records this review. A fresh-context TASK that did not write the design reviewed the first draft (archived as [_run_records/DESIGN_revision1.md](../_run_records/DESIGN_revision1.md)) read-only, at main `652223552`. The reviewer wrote nothing in the repository, so ROOT records its result here.
 
 **Verdict: BLOCKING.** The reviewer found the core of option (d) sound:
 
@@ -27,7 +27,7 @@ The hand-statics references are correct. The two blocking findings, B-1 and B-2 
 - **SF-4:** `fresh_route_identities` copies `pressure_runtime::is_exact` into three languages. Use a static rule instead, and list the helper in the T1 conflicts.
 - **SF-5:** the consumer inventory misses several sites:
   - the packaged self-test in production `src-tauri` code;
-  - the `physics_audit_regression` benchmark, whose `pure_moment_does_not_become_force` asserts the M05 defect as correct;
+  - the `physics_audit_regression` benchmark. The review said its `pure_moment_does_not_become_force` asserts the M05 defect as correct; ROOT_RULINGS R-3 later corrected this, because the test asserts correct physics;
   - the self-weight tests;
   - the TS `analysisRunCompatibility.ts`, which would build analysis records without a preview-evidence check;
   - `ResultsPanel.tsx` and `ComparisonPanel.tsx`;
