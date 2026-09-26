@@ -1,0 +1,35 @@
+"""T3 V1 review probe for D1 D-5 (standard library only; no product code).
+Question: near the ordinary Passed/Sensitive boundary (equilibrated rcond vs sqrt(eps),
+an approximation of M03's radix-equilibrated Hager-Higham screen), does the ordinary
+binary64 method already miss 1e-9 on D1's own pin cases? Reuses D1's emulation
+unchanged. Run from this folder: python3 v1_passed_boundary_probe.py.txt
+The rcond here is the exact 1-norm reciprocal condition of the diagonally equilibrated
+free matrix, not the product's estimator; it is a proxy only."""
+import importlib.util, os, sys
+from fractions import Fraction as Fr
+D1=os.path.abspath("../../DESIGN_NUMERICS/_run_records/probe_skew_precision.py")
+spec=importlib.util.spec_from_file_location("d1",D1); d1=importlib.util.module_from_spec(spec); spec.loader.exec_module(d1)
+import math
+def rcond_equil(case):
+    K,f,el=d1.represented_f64(case); n=case["n"]; free=[d for d in range(n) if d not in case["restrained"]]
+    A=[[Fr(K[a][b]) for b in free] for a in free]; m=len(A)
+    s=[1/Fr(math.sqrt(float(A[i][i]))) for i in range(m)]
+    B=[[s[i]*A[i][j]*s[j] for j in range(m)] for i in range(m)]
+    # exact inverse via Gauss-Jordan
+    M=[row[:]+[Fr(int(i==j)) for j in range(m)] for i,row in enumerate(B)]
+    for c in range(m):
+        p=max(range(c,m),key=lambda r:abs(M[r][c])); M[c],M[p]=M[p],M[c]
+        pv=M[c][c]; M[c]=[x/pv for x in M[c]]
+        for r in range(m):
+            if r!=c and M[r][c]!=0:
+                fct=M[r][c]; M[r]=[x-fct*y for x,y in zip(M[r],M[c])]
+    Inv=[row[m:] for row in M]
+    n1=lambda X:max(sum(abs(X[i][j]) for i in range(m)) for j in range(m))
+    return float(1/(n1(B)*n1(Inv)))
+for k in [0.03,0.1,1.0,10.0]:
+    for dirn,yref in (((5,0,0),(0.,0.,1.)),((3,4,0),(0.,0.,1.))):
+        case=d1.pin_case(dirn,k,(1e-8*k/1e-4,2e-8*k/1e-4,0.0),yref=yref)
+        ref,_,_=d1.method_exact_reference(case)
+        pub,err=d1.method_binary64(case)
+        c=d1.compare(pub,ref,case)
+        print(dirn,k,"rcond_equil=%.3g"%rcond_equil(case),"sqrt(eps)=%.3g"%math.sqrt(2**-52),"ordinary err=%.3g fails=%d at %s"%(c['max_scaled_error'],c['failing'],c['at']))
