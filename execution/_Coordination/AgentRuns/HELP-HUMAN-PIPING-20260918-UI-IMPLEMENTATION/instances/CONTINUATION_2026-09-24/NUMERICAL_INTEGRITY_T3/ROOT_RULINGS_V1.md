@@ -366,7 +366,7 @@ Input: [REVIEW/BACKCHECK_R5.md](REVIEW/BACKCHECK_R5.md). Verdict FINDINGS, nothi
 ## RF-ELOAD refutation (V3) rulings (ROOT, 2026-09-26, after `3bb46bc62`)
 
 - **D-14 clarification (V3 Q2 / F3).** "Computed exactly from the user's inputs" means exact from the **binary64 inputs as the document stores them** (D1 §4.2). It is the same principle as re-forming stiffness from binary64 primitives. The authored decimal text is not the source. The represented basis for RF-ELOAD-CANCEL-SEIS-G1e7 and -G1e8 stands.
-- **V3 Q1 / F1: add a variant; do not edit G1e8.** The author adds RF-ELOAD-CANCEL-SEIS-G1e8b with V3's inputs (gen.g_factor.Z = −0.23, D = 143.44076231504138435), on the represented basis. Expected: NC-FLOAT-SUM fails about 9.44×, NC-BIN64-PRODUCT about 89.6×, finite_input about 8.55e-9. Every existing case and value stays byte-identical.
+- **V3 Q1 / F1: add a variant; do not edit G1e8.** The author adds RF-ELOAD-CANCEL-SEIS-G1e8-R (ROOT's second message; its first said "G1e8b") with V3's inputs (gen.g_factor.Z = −0.23, D = 143.44076231504138435), on the represented basis. Expected: NC-FLOAT-SUM fails about 9.44×, NC-BIN64-PRODUCT about 89.6×, finite_input about 8.55e-9. Every existing case and value stays byte-identical. G1e8's NC-FLOAT-SUM control is relabelled as the benign-rounding case.
 - **In the same revision:**
   - F1 text: the NC-FLOAT-SUM control text and README finding 3 say what the control rounds.
   - F8: retire NC-LOST-SOFT at r1e-06.
