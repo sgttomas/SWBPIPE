@@ -1,0 +1,17 @@
+fixtures/product_preview/invented_preview_model.json FINAL exit 1 blocked False mech MODEL_INCOMPLETE results 0 diag [] meblock ['PRESSURE_MODEL_REAUTHOR_REQUIRED', 'PRESSURE_MODEL_REAUTHOR_REQUIRED', 'PRESSURE_MODEL_REAUTHOR_REQUIRED', 'PRESSURE_MODEL_REAUTHOR_REQUIRED']
+   COMPAT exit 1 blocked False mech MODEL_INCOMPLETE results 0 
+fixtures/model_operations/exact_pressure_authoring_model.json FINAL exit 0 blocked False mech MECHANICS_SOLVED results 175 diag [] meblock []
+   COMPAT exit 0 blocked False mech MECHANICS_SOLVED results 175 
+fixtures/model_operations/physics_thermal_ui_model.json FINAL exit 0 blocked False mech MECHANICS_SOLVED results 175 diag [] meblock []
+   COMPAT exit 0 blocked False mech MECHANICS_SOLVED results 175 
+fixtures/model_operations/precision_connected_ui_model.json FINAL exit 0 blocked False mech MECHANICS_SOLVED results 67 diag [] meblock []
+   COMPAT exit 0 blocked False mech MECHANICS_SOLVED results 67 
+fixtures/product_preview/numerical_sensitive_torsion_model.json FINAL exit 0 blocked False mech MECHANICS_SOLVED results 79 diag [] meblock []
+   COMPAT exit 0 blocked False mech MECHANICS_SOLVED results 68 
+fixtures/product_preview/physics_source/fields.request.json FINAL exit 0 blocked False mech MECHANICS_SOLVED results 81 diag [] meblock []
+fixtures/product_preview/physics_source/mixed.request.json FINAL exit 0 blocked False mech MECHANICS_SOLVED results 191 diag [] meblock []
+fixtures/product_preview/physics_source/mixed_units.request.json FINAL exit 0 blocked False mech MECHANICS_SOLVED results 191 diag [] meblock []
+fixtures/product_preview/physics_source/n05.request.json FINAL exit 0 blocked False mech MECHANICS_SOLVED results 81 diag [] meblock []
+fixtures/product_preview/physics_source/n05_unicode.request.json FINAL exit 0 blocked False mech MECHANICS_SOLVED results 81 diag [] meblock []
+fixtures/product_preview/physics_source/n05_units.request.json FINAL exit 0 blocked False mech MECHANICS_SOLVED results 81 diag [] meblock []
+fixtures/product_preview/physics_source/n06.request.json FINAL exit 0 blocked False mech MECHANICS_SOLVED results 81 diag [] meblock []

@@ -1,0 +1,674 @@
+test file swapped to HEAD blob: e0a3c0e07cc86611ee73edbe5fc983b9ef53136372ed46db4ee61582f84fd585
+test file restored to repaired bytes: d144f800733aa028df36250a4a2a6f34d2207214d59f7baeb00696ec2f7ce2ee (expected d144f800733aa028df36250a4a2a6f34d2207214d59f7baeb00696ec2f7ce2ee)
+date: 2026-09-25T20:09:38.891617Z
+target: apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx
+sha256 before: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+sha256 HEAD blob: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+--- replaced (exactly once) ---
+        projectId
+      });
+      if (!isCurrent()) return;
+      if (route.route === "unavailable_browser_preview") {
+--- with ---
+        projectId
+      });
+      if (route.route === "unavailable_browser_preview") {
+---
+sha256 mutated: 8df759865de0b96bda49501c69d274205627969dd41bb4774d13dac5fff879e5
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx (23 tests | 5 failed) 5608ms
+     × renders per-check outcomes and the aggregate from a desktop run 1046ms
+     × omits caller-supplied solver bindings when a solver_result_ref is authored in the pack 1023ms
+     × lifts the worst-of aggregate to onAggregateChange on a desktop run 1026ms
+     × retires a completed same-ID result basis before paint while retaining pack and binding drafts 1028ms
+     × lets a new-basis run publish while a late old run cannot publish or clear its busy state 1032ms
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 18 passed (23)
+   Start at  20:09:39
+   Duration  6.92s (transform 527ms, setup 171ms, import 615ms, tests 5.61s, environment 379ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/rule-check/RuleCheckRunPanel.test.tsx > RuleCheckRunPanel > renders per-check outcomes and the aggregate from a desktop run
+TestingLibraryElementError: Unable to find an element by: [data-testid="rule-check-run-result"]
+
+Ignored nodes: comments, script, style
+  "schema_version": "0.4.0",
+  "rule_pack_kind": "open_pipe_stress_rule_pack",
+  "grammar_version": "1.0.0",
+  "metadata": {
+    "rule_pack_id": "invented_demo_rule_pack",
+    "name": "Invented Demonstration Rule Pack",
+    "schema_version": "0.4.0",
+    "rule_pack_version": "0.2.0",
+    "lifecycle_status": "accepted_public_example",
+    "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
+    "status": "active"
+  },
+  "classification": {
+    "privacy_class": "public_invented_example",
+    "redistribution_status": "invented_non_engineering_example",
+    "public_repository_policy": "invented_non_engineering_examples_only",
+    "protected_content_review_required": true,
+    "private_values_allowed": true
+  },
+  "required_inputs": [
+    {
+      "input_id": "demo_actual_quantity",
+      "name": "Invented actual demonstration quantity",
+      "source_kind": "solver_result",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": true
+    },
+    {
+      "input_id": "demo_limit_quantity",
+      "name": "Invented training limit",
+      "source_kind": "user_supplied_rule_value",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": ...
+
+Ignored nodes: comments, script, style
+  "schema_version": "0.4.0",
+  "rule_pack_kind": "open_pipe_stress_rule_pack",
+  "grammar_version": "1.0.0",
+  "metadata": {
+    "rule_pack_id": "invented_demo_rule_pack",
+    "name": "Invented Demonstration Rule Pack",
+    "schema_version": "0.4.0",
+    "rule_pack_version": "0.2.0",
+    "lifecycle_status": "accepted_public_example",
+    "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
+    "status": "active"
+  },
+  "classification": {
+    "privacy_class": "public_invented_example",
+    "redistribution_status": "invented_non_engineering_example",
+    "public_repository_policy": "invented_non_engineering_examples_only",
+    "protected_content_review_required": true,
+    "private_values_allowed": true
+  },
+  "required_inputs": [
+    {
+      "input_id": "demo_actual_quantity",
+      "name": "Invented actual demonstration quantity",
+      "source_kind": "solver_result",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": true
+    },
+    {
+      "input_id": "demo_limit_quantity",
+      "name": "Invented training limit",
+      "source_kind": "user_supplied_rule_value",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": ...
+ ❯ waitForWrapper ../../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx:345:18
+    343|     fireEvent.click(screen.getByTestId("rule-check-run"));
+    344|
+    345|     await screen.findByTestId("rule-check-run-result");
+       |                  ^
+    346|     expect(screen.getByTestId("rule-check-aggregate-status").textConte…
+    347|     expect(screen.getByTestId("rule-check-aggregate-status")).toHaveAt…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/features/rule-check/RuleCheckRunPanel.test.tsx > RuleCheckRunPanel > omits caller-supplied solver bindings when a solver_result_ref is authored in the pack
+TestingLibraryElementError: Unable to find an element by: [data-testid="rule-check-run-result"]
+
+Ignored nodes: comments, script, style
+
+Ignored nodes: comments, script, style
+ ❯ waitForWrapper ../../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx:397:18
+    395|     fireEvent.click(screen.getByTestId("rule-check-run"));
+    396|
+    397|     await screen.findByTestId("rule-check-run-result");
+       |                  ^
+    398|     const [, args] = invokeMock.mock.calls[0];
+    399|     expect(args).not.toHaveProperty("solverResultBindings");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/features/rule-check/RuleCheckRunPanel.test.tsx > RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001) > lifts the worst-of aggregate to onAggregateChange on a desktop run
+TestingLibraryElementError: Unable to find an element by: [data-testid="rule-check-run-result"]
+
+Ignored nodes: comments, script, style
+  "schema_version": "0.4.0",
+  "rule_pack_kind": "open_pipe_stress_rule_pack",
+  "grammar_version": "1.0.0",
+  "metadata": {
+    "rule_pack_id": "invented_demo_rule_pack",
+    "name": "Invented Demonstration Rule Pack",
+    "schema_version": "0.4.0",
+    "rule_pack_version": "0.2.0",
+    "lifecycle_status": "accepted_public_example",
+    "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
+    "status": "active"
+  },
+  "classification": {
+    "privacy_class": "public_invented_example",
+    "redistribution_status": "invented_non_engineering_example",
+    "public_repository_policy": "invented_non_engineering_examples_only",
+    "protected_content_review_required": true,
+    "private_values_allowed": true
+  },
+  "required_inputs": [
+    {
+      "input_id": "demo_actual_quantity",
+      "name": "Invented actual demonstration quantity",
+      "source_kind": "solver_result",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": true
+    },
+    {
+      "input_id": "demo_limit_quantity",
+      "name": "Invented training limit",
+      "source_kind": "user_supplied_rule_value",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": ...
+
+Ignored nodes: comments, script, style
+  "schema_version": "0.4.0",
+  "rule_pack_kind": "open_pipe_stress_rule_pack",
+  "grammar_version": "1.0.0",
+  "metadata": {
+    "rule_pack_id": "invented_demo_rule_pack",
+    "name": "Invented Demonstration Rule Pack",
+    "schema_version": "0.4.0",
+    "rule_pack_version": "0.2.0",
+    "lifecycle_status": "accepted_public_example",
+    "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
+    "status": "active"
+  },
+  "classification": {
+    "privacy_class": "public_invented_example",
+    "redistribution_status": "invented_non_engineering_example",
+    "public_repository_policy": "invented_non_engineering_examples_only",
+    "protected_content_review_required": true,
+    "private_values_allowed": true
+  },
+  "required_inputs": [
+    {
+      "input_id": "demo_actual_quantity",
+      "name": "Invented actual demonstration quantity",
+      "source_kind": "solver_result",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": true
+    },
+    {
+      "input_id": "demo_limit_quantity",
+      "name": "Invented training limit",
+      "source_kind": "user_supplied_rule_value",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": ...
+ ❯ waitForWrapper ../../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx:438:18
+    436|     fireEvent.click(screen.getByTestId("rule-check-run"));
+    437|
+    438|     await screen.findByTestId("rule-check-run-result");
+       |                  ^
+    439|     expect(onAggregateChange).toHaveBeenCalledWith("USER_RULE_FAILED");
+    440|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/features/rule-check/RuleCheckRunPanel.test.tsx > RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001) > retires a completed same-ID result basis before paint while retaining pack and binding drafts
+TestingLibraryElementError: Unable to find an element by: [data-testid="rule-check-run-result"]
+
+Ignored nodes: comments, script, style
+  "schema_version": "0.4.0",
+  "rule_pack_kind": "open_pipe_stress_rule_pack",
+  "grammar_version": "1.0.0",
+  "metadata": {
+    "rule_pack_id": "invented_demo_rule_pack",
+    "name": "Invented Demonstration Rule Pack",
+    "schema_version": "0.4.0",
+    "rule_pack_version": "0.2.0",
+    "lifecycle_status": "accepted_public_example",
+    "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
+    "status": "active"
+  },
+  "classification": {
+    "privacy_class": "public_invented_example",
+    "redistribution_status": "invented_non_engineering_example",
+    "public_repository_policy": "invented_non_engineering_examples_only",
+    "protected_content_review_required": true,
+    "private_values_allowed": true
+  },
+  "required_inputs": [
+    {
+      "input_id": "demo_actual_quantity",
+      "name": "Invented actual demonstration quantity",
+      "source_kind": "solver_result",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": true
+    },
+    {
+      "input_id": "demo_limit_quantity",
+      "name": "Invented training limit",
+      "source_kind": "user_supplied_rule_value",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": ...
+
+Ignored nodes: comments, script, style
+  "schema_version": "0.4.0",
+  "rule_pack_kind": "open_pipe_stress_rule_pack",
+  "grammar_version": "1.0.0",
+  "metadata": {
+    "rule_pack_id": "invented_demo_rule_pack",
+    "name": "Invented Demonstration Rule Pack",
+    "schema_version": "0.4.0",
+    "rule_pack_version": "0.2.0",
+    "lifecycle_status": "accepted_public_example",
+    "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
+    "status": "active"
+  },
+  "classification": {
+    "privacy_class": "public_invented_example",
+    "redistribution_status": "invented_non_engineering_example",
+    "public_repository_policy": "invented_non_engineering_examples_only",
+    "protected_content_review_required": true,
+    "private_values_allowed": true
+  },
+  "required_inputs": [
+    {
+      "input_id": "demo_actual_quantity",
+      "name": "Invented actual demonstration quantity",
+      "source_kind": "solver_result",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": true
+    },
+    {
+      "input_id": "demo_limit_quantity",
+      "name": "Invented training limit",
+      "source_kind": "user_supplied_rule_value",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": ...
+ ❯ waitForWrapper ../../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx:480:18
+    478|     });
+    479|     fireEvent.click(screen.getByTestId("rule-check-run"));
+    480|     await screen.findByTestId("rule-check-run-result");
+       |                  ^
+    481|     onAggregateChange.mockClear();
+    482|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/features/rule-check/RuleCheckRunPanel.test.tsx > RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001) > lets a new-basis run publish while a late old run cannot publish or clear its busy state
+AssertionError: expected +0 to be 1 // Object.is equality
+
+Ignored nodes: comments, script, style
+  "schema_version": "0.4.0",
+  "rule_pack_kind": "open_pipe_stress_rule_pack",
+  "grammar_version": "1.0.0",
+  "metadata": {
+    "rule_pack_id": "invented_demo_rule_pack",
+    "name": "Invented Demonstration Rule Pack",
+    "schema_version": "0.4.0",
+    "rule_pack_version": "0.2.0",
+    "lifecycle_status": "accepted_public_example",
+    "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
+    "status": "active"
+  },
+  "classification": {
+    "privacy_class": "public_invented_example",
+    "redistribution_status": "invented_non_engineering_example",
+    "public_repository_policy": "invented_non_engineering_examples_only",
+    "protected_content_review_required": true,
+    "private_values_allowed": true
+  },
+  "required_inputs": [
+    {
+      "input_id": "demo_actual_quantity",
+      "name": "Invented actual demonstration quantity",
+      "source_kind": "solver_result",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": true
+    },
+    {
+      "input_id": "demo_limit_quantity",
+      "name": "Invented training limit",
+      "source_kind": "user_supplied_rule_value",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_...
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx:523:42
+    521|     await screen.findByTestId("rule-check-binding-plan");
+    522|     fireEvent.click(screen.getByTestId("rule-check-run"));
+    523|     await waitFor(() => expect(runCount).toBe(1));
+       |                                          ^
+    524|
+    525|     view.rerender(<RuleCheckRunPanel
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+exit=1
+sha256 restored: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: FAIL-as-expected
+interpretation: this probe runs the MK2 mutation (panel stale-run guard removed) against the HEAD (unrepaired) test file.
+  The 5 failures are the pre-existing RULE_NATIVE_INVOCATION_REQUIRED regressions, so the harness verdict line is not the point.
+  The point: "prevents an old-pack request from reviving findings after a reset to a new pack" is NOT among the failures,
+  i.e. on HEAD it passed even with the stale guard removed (its run never reached run_rule_checks). With the repaired
+  test file the same mutation fails that test (mutation-MK2-rule-panel-stale-guard.log).

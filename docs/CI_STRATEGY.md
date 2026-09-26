@@ -1,10 +1,13 @@
 # Desktop CI selection and integration cadence
 
 Repository-wide selection and full-run commands are documented in
-[`docs/CI_SELECTION.md`](../../../docs/CI_SELECTION.md). Root agent/workflow
-packages and project AGENTS prose are not desktop runtime inputs; changes
-limited to those surfaces receive an explicit not-applicable source result.
-Mixed changes still select the coverage required by their product paths.
+[`docs/CI_SELECTION.md`](../../../docs/CI_SELECTION.md). Root directories other
+than the Piping workflow and setup action (agent/workflow packages, execution
+records, root tools, exports) and project AGENTS prose are not desktop runtime
+inputs; changes limited to those surfaces receive an explicit not-applicable
+source result. Piping `validation/`, Python `tests/` and non-CI `tools/` feed
+only the independent numerical suite. Mixed changes still select the coverage
+required by their product paths.
 
 The Piping desktop workflow runs a cheap selector when a pull request opens,
 receives a new head, or reopens. Its
@@ -27,6 +30,7 @@ artifact, and partial CI is not DEC093 full surface4 evidence.
 | Reviewed instrumentation module | Lean plus its transitive literal-import source-spec consumers; shared benchmark harness reaches UI-foundation and workspace-layout as well as instrument contracts |
 | Only added/modified source specs | Complete changed files plus accessibility |
 | Shared application/session state, dependencies/configuration, native/build/WASM/solver, schemas, CI policy/duration hints, unknown inputs or deleted/renamed test inputs | Full source coverage |
+| Validation, Python tests or non-CI project tools only | Not applicable (numerical suite still selected) |
 | No relevant Piping/shared inputs | Not applicable |
 
 The maintained router enumerates actual ownership paths. Unknown instrument
@@ -45,6 +49,17 @@ timeout or permanent skip was changed to obtain a reduced run.
 
 ## Exact coverage and duration assignment
 
+Pull-request runs use the compact (1280x800) profile only where the window size
+is the subject: B3 accessibility, workspace layout, C3 viewport visibility, B4 table
+editing and Sections, compact linear authoring, the R2 journey both lanes must
+complete, and the named UI-foundation layout cases. Other compact identities
+repeat their desktop counterpart's code path at a second window size; they are
+omitted from pull-request selection with an explicit reason in the collection
+artifact, and every desktop-profile identity still runs. Pull-request full
+coverage is therefore not a DEC093 surface-4 CI binding. Manual full dispatch,
+the Playwright configuration and local DEC-025 evidence sweeps keep both
+profiles in full, so the dual-viewport CI binding path is unchanged.
+
 The explicit appearance matrix sets its viewport before navigation and retains
 all twelve theme/density/window combinations once. Explicit-start workspace cases
 also run once. They carry `@explicit-viewport`; the compact project excludes that
@@ -55,13 +70,19 @@ prevent reintroducing repetitions. Collection also rejects a compact tagged test
 or an incomplete appearance matrix. Removed repetitions map to their retained
 same-title desktop counterparts in the implementation evidence.
 
-Full CI starts with accessibility. Four isolated runners then execute exact
-Playwright 1.60 `--test-list` partitions with one worker each. Duration hints use successful PR832 source logs, with earlier provenance retained,
-and are checked into `tools/ci/e2e_duration_hints.json`. Reporter tags are resolved
-through the canonical collected identities. The data includes 435 observed passing
-durations, with positive scheduling floors for 20 existing skips and one passing
-case rounded to zero milliseconds. Those floors are not measured execution times. New or untimed tests use a conservative 30-second
-scheduling weight. These values
+Full CI starts four isolated runners at once, each executing an exact
+Playwright 1.60 `--test-list` partition with one worker. Accessibility is
+balanced into those partitions as an ordinary atomic file group; a separate
+barrier runner repeating the whole browser setup and delaying every shard is
+used only by partial modes. A failing shard cancels the others (fail-fast
+matrix). Duration hints are checked into `tools/ci/e2e_duration_hints.json`;
+their `basis` records the source run, log and collection hashes, with earlier
+provenance retained. Refresh them from any successful full run with
+`python3 tools/ci/refresh_duration_hints.py --run <id> --apply`, which
+launches no browser or test. Reporter tags are resolved through the canonical
+collected identities. Skips and passes rounded to zero milliseconds use positive
+scheduling floors, not measured execution times. New or untimed tests use a
+conservative 30-second scheduling weight. These values
 are scheduling hints, not acceptance limits or a speed guarantee. Assignment is
 deterministic, using the lightest estimated bin first. Files/projects remain
 atomic except the independently set-up UI-foundation and workspace-layout cases;

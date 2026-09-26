@@ -3,7 +3,7 @@
   "actual_harness_parent": "/root",
   "role": "WORKING_ITEMS Type1",
   "mechanism": "delegated-harness-native collaboration",
-  "checkout": "/private/tmp/piping-engine-integration-20260925",
+  "checkout": "{REPO_ROOT}",
   "branch": "codex/piping-engine-integration-20260925",
   "dependencies": {
     "ordinary_NUM": "0a438a68672269e5750900792c9565ae9e5555b0",
@@ -77,5 +77,12 @@
     "sealed_manifest_sha256": "0b8c8d84431a94ccc401afad1e7d569858de55ca8c44667e7b294ad1ad47a71d",
     "details": "SOURCE_BLOCK_FANIN/FANIN_01.json",
     "coverage": "Imported selected subset, not whole NUM frontend/native adoption or composite qualification"
+  },
+  "working_root": "{WORKING_ROOT}",
+  "portable_view": {
+    "meaning": "Current dependency lookup view; original observed machine coordinates are preserved in the byte-identical raw capture, not reinterpreted as a new execution.",
+    "original_capture": "_run_records/DEPENDENCIES.json",
+    "original_git_blob": "c278f64ba122eb8b848b9f14e58a0e533e94439a:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/DEPENDENCIES.json",
+    "root_resolution": "REPO_ROOT=git rev-parse --show-toplevel; WORKING_ROOT={REPO_ROOT}/projects/chirality-piping"
   }
 }

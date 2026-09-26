@@ -1,0 +1,24 @@
+head: 6d9c0915f1c46563bc123fc7196109f835d6708a
+recorded source inputs: 128 differing now: 13
+   core/loads/stress_recovery/src/lib.rs
+   core/product_physics/Cargo.lock
+   core/product_physics/Cargo.toml
+   core/product_physics/src/lib.rs
+   core/product_physics/src/pressure_exact.rs
+   core/product_physics/src/self_weight.rs
+   core/product_physics/src/validation.rs
+   core/solver/frame_kernel/src/structural/exact_boundary.rs
+   core/units/Cargo.lock
+   core/units/Cargo.toml
+   schemas/analysis_run.v0.3.schema.json
+   schemas/results.v0.3.schema.yaml
+   schemas/stress_neutral_export.v0.3.schema.json
+recipe tools/serialization/generate_product_preview_mechanics.mjs matches
+generator core/product_physics/examples/preview_result.rs matches
+input_model fixtures/product_preview/invented_preview_model.json matches
+pressure_runtime.rs in record: False
+fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json {'component_name': 'open_pipe_stress_product_physics', 'component_version': '0.2.0', 'semantic_contract_id': 'openpipestress.result_semantics/0.3.0/precision-1'} MECHANICS_SOLVED
+
+git log (fixture, refusal module):
+22452ecd1 2026-09-25 01:46:07 -0600 Checkpoint joined pressure and source-recovery integration
+0a438a686 2026-09-24 21:26:08 -0600 Preserve numerical integrity and contain unqualified result use

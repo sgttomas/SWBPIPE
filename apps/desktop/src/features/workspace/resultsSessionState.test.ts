@@ -113,3 +113,35 @@ it.each(["unknown method", "Sensitive", "broken physical case"])("keeps actual-s
  expect(result.current.currentSolvedResultRef.current).toBeNull();
  expect(JSON.stringify(source)).toBe(before);
 });
+
+// The session always writes a manifest for the mode it actually requested, so a
+// mode-mismatched manifest is only reachable through these direct setters. It is
+// the control for the gate's physics-source and source-blocks mode clauses.
+const retainedSourceFixtures = import.meta.glob("../../../../../fixtures/product_preview/{physics_source,source_blocks/ui}/n05*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+it.each([["physics_source", "physics_source", "n05.request.json"], ["source_blocks", "source_blocks/ui", "n05-sparse_interactive.request.json"]] as const)("refuses a %s result whose manifest records the other solver mode", async (_family, folder, requestName) => {
+ const prefix = `../../../../../fixtures/product_preview/${folder}/`;
+ const mode = "sparse_interactive";
+ const request = JSON.parse(retainedSourceFixtures[`${prefix}${requestName}`]);
+ const original = JSON.parse(retainedSourceFixtures[`${prefix}n05-${mode}.raw.json`]) as MechanicsResult;
+ const model = request.model as PreviewModel;
+ (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+ // Unit transport replay of the captured producer bytes; not a native UI witness.
+ invokeMock.mockImplementation(async (command: string, args: { model: unknown; solverMode: string }) => {
+   expect(command).toBe("run_preview_mechanics_with_solver_mode");
+   expect(args.solverMode).toBe(mode);
+   expect(args.model).toEqual(request.model);
+   return structuredClone(original);
+ });
+ const source = await runPreviewMechanics(model, mode);
+ const manifest = await buildCurrentSessionInputManifest({model,solver:{solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:"test:retained-source-mode-control",solver_mode:mode,settings:{}},active_rule_packs:[],external_assets:[]});
+ const analysis = await buildAnalysisRunPreview(source,{inputManifest:manifest});
+ const {result} = renderHook(() => useResultsSessionState());
+ act(()=>{result.current.setResult(source);result.current.setInputManifest(manifest);result.current.setAnalysisRun(analysis);});
+ expect(result.current.currentSolvedResult).toBe(source);
+ const otherMode = structuredClone(manifest);
+ otherMode.manifest.solver_basis.solver_mode = "dense_scrutiny";
+ act(()=>result.current.setInputManifest(otherMode));
+ expect(result.current.currentSolvedResult).toBeNull();
+ act(()=>result.current.setInputManifest(manifest));
+ expect(result.current.currentSolvedResult).toBe(source);
+});

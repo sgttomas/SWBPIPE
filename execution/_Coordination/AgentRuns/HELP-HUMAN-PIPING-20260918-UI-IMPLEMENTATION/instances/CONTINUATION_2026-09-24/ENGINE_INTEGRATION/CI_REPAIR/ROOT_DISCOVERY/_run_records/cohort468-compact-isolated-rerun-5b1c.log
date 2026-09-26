@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium-compact] › e2e/ui-foundation/full-cohort-controller.spec.ts:468:1 › actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix (7.6s)
+
+  1 passed (9.6s)

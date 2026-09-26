@@ -100,7 +100,8 @@ async function expectBackendRefusal(page: Page, edited = false): Promise<void> {
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
   await expect(page.getByTestId("solve-job-error")).toHaveAttribute("role", "status");
   await expect(page.getByTestId("solve-job-error")).toContainText(edited ? "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL" : "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
-  await expectStatusChip(page, "status-pill-mechanics", "Solve job state: failed", "Solver · Not solved");
+  // The recorded job state is shown under its own source, never as a solver token.
+  await expectStatusChip(page, "status-pill-mechanics", "failed", "Solver · Not solved", "Solve job state");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
 }
 

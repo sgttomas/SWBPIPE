@@ -1,0 +1,19 @@
+cmd: cargo +1.97.1 fetch --locked --manifest-path apps/desktop/src-tauri/Cargo.toml (cwd projects/chirality-piping, CARGO_NET_OFFLINE unset)
+lock_before 23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c  apps/desktop/src-tauri/Cargo.lock
+  Downloaded winnow v0.5.40
+  Downloaded toml_datetime v0.6.3
+  Downloaded gdk-pixbuf-sys v0.18.0
+  Downloaded memoffset v0.9.1
+  Downloaded atk v0.18.2
+  Downloaded tray-icon v0.23.1
+  Downloaded cairo-sys-rs v0.18.2
+  Downloaded png v0.18.1
+  Downloaded winapi-i686-pc-windows-gnu v0.4.0
+  Downloaded fdeflate v0.3.7
+  Downloaded unicode-segmentation v1.13.2
+  Downloaded glib v0.18.5
+  Downloaded objc2-core-graphics v0.3.2
+  Downloaded atk-sys v0.18.2
+  Downloaded webview2-com-sys v0.38.2
+exit=0
+lock_after 23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c  apps/desktop/src-tauri/Cargo.lock

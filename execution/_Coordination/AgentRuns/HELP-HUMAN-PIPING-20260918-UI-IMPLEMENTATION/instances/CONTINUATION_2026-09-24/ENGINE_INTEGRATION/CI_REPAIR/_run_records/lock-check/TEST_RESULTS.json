@@ -1,0 +1,54 @@
+[
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "core/reporting/report_package/Cargo.toml"
+    ],
+    "exit_code": 0,
+    "seconds": 11.28548924997449,
+    "log": "report_package-tests.log"
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "validation/benchmarks/mechanics/Cargo.toml"
+    ],
+    "exit_code": 0,
+    "seconds": 10.969090499915183,
+    "log": "mechanics-tests.log"
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "validation/benchmarks/numerical_integrity/Cargo.toml"
+    ],
+    "exit_code": 0,
+    "seconds": 12.679227250162512,
+    "log": "numerical_integrity-tests.log"
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "validation/benchmarks/stress/Cargo.toml"
+    ],
+    "exit_code": 0,
+    "seconds": 8.791212250012904,
+    "log": "stress-tests.log"
+  }
+]

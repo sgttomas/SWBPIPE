@@ -229,7 +229,8 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
   await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
-  await expectStatusChip(page, "status-pill-mechanics", "failed", "Solver · Not solved");
+  // The recorded job state is shown under its own source, never as a solver token.
+  await expectStatusChip(page, "status-pill-mechanics", "failed", "Solver · Not solved", "Solve job state");
   // Slice B3: the Analyze page lies over the stage's surfaces; close it to reach the canvas.
   await showCanvas(page);
   await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
@@ -243,9 +244,11 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await projectCommand(page, "save-local");
   await projectCommand(page, "open-local");
   await openWorkspaceSection(page, "results");
-  await expect(page.getByTestId("historical-run-context")).toBeVisible();
-  await expect(page.getByTestId("historical-run-context")).toContainText("HISTORICAL_INPUT_MANIFEST_MISSING");
-  await expect(page.getByTestId("historical-run-context")).toContainText("MODEL_INCOMPLETE");
+  // A refused browser Run produced no result, so the reopened project carries no saved run to
+  // show as Historical. The saved-run reopen path stays covered by unit tests: the manifest
+  // finding in App.test.tsx and HistoricalRunContext.test.tsx, the recorded status in App.shell.test.tsx.
+  await expect(page.getByTestId("results-panel")).toContainText("Run the bounded preview mechanics path to populate result summaries.");
+  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
   expect(await currentModelHash(page)).toBe(baseline350Hash);
   await page.getByTestId("viewport-deformation-status").locator(":scope > summary").click();
   await expect(page.getByTestId("viewport-deformation-summary")).toBeVisible();

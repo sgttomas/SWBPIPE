@@ -1,0 +1,8 @@
+success as-recorded exit 1 blocked False pkg None None [('HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID', 'export_results payload is invalid: REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: request identi')]
+success rebound-0.2.0 exit 0 blocked False pkg 28997 79f5b27c2b99af16 []
+producer_blocked as-recorded exit 1 blocked False pkg None None [('HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID', 'export_results payload is invalid: REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: request identi')]
+producer_blocked rebound-0.2.0 exit 1 blocked False pkg None None [('HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED', 'report-package producer blocked export: package: package_id must not be empty')]
+missing_payload as-recorded exit 1 blocked False pkg None None [('HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING', 'export-results requires the export_results report-package payload')]
+missing_payload rebound-0.2.0 exit 1 blocked False pkg None None [('HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING', 'export-results requires the export_results report-package payload')]
+binding_mismatch as-recorded exit 1 blocked False pkg None None [('HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH', 'runner model_ref does not equal package source_model_ref')]
+binding_mismatch rebound-0.2.0 exit 1 blocked False pkg None None [('HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH', 'runner model_ref does not equal package source_model_ref')]

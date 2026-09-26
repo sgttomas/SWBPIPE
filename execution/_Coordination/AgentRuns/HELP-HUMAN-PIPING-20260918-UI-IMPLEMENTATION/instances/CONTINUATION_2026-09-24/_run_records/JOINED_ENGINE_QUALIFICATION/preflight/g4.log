@@ -1,0 +1,1 @@
+G4 OPERATIONAL (exit 2): PyYAML is not importable, so tranche manifests cannot be observed; this guard asserts nothing.

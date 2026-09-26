@@ -1,0 +1,52 @@
+mutation m5-issues-reference-leak: projects/chirality-piping/apps/desktop/src/App.tsx: replace '<IssuesHome\n          model={model}\n          knowledge={knowledge}\n          result={result}' -> '<IssuesHome\n          model={model}\n          knowledge={knowledge}\n          result={result ?? historicalRun?.mechanicsResult ?? null}'
+head 8e216efbf2066a7d7a9e083dbcaadf07924b5a01; original blob 715fbcb77cc8fe59464e349a217338f333a2c931
+start 2026-09-25T18:48:44.717172Z; load (4.47998046875, 4.74609375, 4.4658203125)
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --workers=1 --timeout=180000 --reporter=list e2e/r2-smoke.spec.ts:1703
+
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium-desktop] › e2e/r2-smoke.spec.ts:1703:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (22.4s)
+
+
+  1) [chromium-desktop] › e2e/r2-smoke.spec.ts:1703:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByTestId('issues-home').getByTestId('missing-data-status-separation')
+    Expected substring: [32m"rule_check=not_performed_user_rule_inputs_missing"[39m
+    Received string:    [31m"Status separationmechanics=MECHANICS_SOLVED; rule_check=RULE_INPUTS_INCOMPLETE; mechanics_reviewable=true; mechanics_qualified=true"[39m
+    Timeout: 10000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('issues-home').getByTestId('missing-data-status-separation')[22m
+    [2m    24 × locator resolved to <div class="report-line" data-testid="missing-data-status-separation">…</div>[22m
+    [2m       - unexpected value "Status separationmechanics=MECHANICS_SOLVED; rule_check=RULE_INPUTS_INCOMPLETE; mechanics_reviewable=true; mechanics_qualified=true"[22m
+
+
+      1752 |   // missing and the rule check blocked. A bundled reference never lends its recorded status.
+      1753 |   const issues = page.getByTestId("issues-home");
+    > 1754 |   await expect(issues.getByTestId("missing-data-status-separation")).toContainText(
+           |                                                                      ^
+      1755 |     `rule_check=${referenceModel.analysis_status.rule_check}`
+      1756 |   );
+      1757 |   await expect(issues.getByTestId("missing-data-summary")).toContainText("rule_blocked=true");
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:1754:70
+
+    Error Context: test-results/r2-smoke-R3-guided-flow-ro-33033-ing-and-blocked-check-steps-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/r2-smoke-R3-guided-flow-ro-33033-ing-and-blocked-check-steps-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/r2-smoke-R3-guided-flow-ro-33033-ing-and-blocked-check-steps-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/r2-smoke.spec.ts:1703:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps 
+
+playwright_rc=1 (non-zero means the mutation was caught)
+restored_blob=715fbcb77cc8fe59464e349a217338f333a2c931 equals_HEAD=True
+end 2026-09-25T18:49:10.445176Z

@@ -1,0 +1,2 @@
+cmd: ../../node_modules/.bin/tsc -p tsconfig.e2e.review.json (copy in this folder); head 8e216efbf2066a7d7a9e083dbcaadf07924b5a01
+rc=0

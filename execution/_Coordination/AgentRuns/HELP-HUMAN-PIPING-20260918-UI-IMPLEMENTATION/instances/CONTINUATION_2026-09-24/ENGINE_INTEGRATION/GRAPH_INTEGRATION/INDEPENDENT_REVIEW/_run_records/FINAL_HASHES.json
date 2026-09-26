@@ -1,0 +1,47 @@
+{
+  "status": "CLEAR",
+  "checked_at_utc": "2026-09-25T13:12:17.734282+00:00",
+  "candidate_graph_sha256": "8051e6735c7075597c6bf89c294080554abfa3499accf30027cc27542ba9f57f",
+  "source_commit": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6",
+  "source_graph_sha256": "b0dda7eec9f9883a7385eda82281d8e59a3135391fff7ae566437f44490f89d6",
+  "reviewer": "/root/numerical_resume/n05_admission",
+  "original_parent": "/root/numerical_resume",
+  "cross_manager_assignment": "/root",
+  "outputs": [
+    {
+      "path": "RETURN.md",
+      "sha256": "8208f1aaec733883d822573831783c0d4a7849bfcc6922e24fdf28eb34258cb2",
+      "bytes": 2247
+    },
+    {
+      "path": "_run_records/CHECKED_BASIS.json",
+      "sha256": "7d7f1abe0ffa0d15652cf726de3eadd0c8fa949438220aaefe4953db6a7bc955",
+      "bytes": 26285
+    },
+    {
+      "path": "_run_records/SOURCE_TO_CANDIDATE.patch",
+      "sha256": "a141b76b8fe9cabb60f673302c27c5bb81a9f73046be005df457b5cbfdfd63ab",
+      "bytes": 38145
+    },
+    {
+      "path": "_run_records/APPENDED_CHECKPOINT.md",
+      "sha256": "1c5b6525e84d0c288c16d39308502aa4ded047d7878bc380ec3a302c0484415c",
+      "bytes": 643
+    },
+    {
+      "path": "_run_records/practitioner-repaired.log",
+      "sha256": "f117fb3c63d7fd6de33bf95b4933f1d6157bad28fa3895b39f860f9a1206460f",
+      "bytes": 511
+    },
+    {
+      "path": "_run_records/self-check-repaired.log",
+      "sha256": "3469febef41a4ac4f8f65b7b4d3b22111464bc498a748485dc853214de525678",
+      "bytes": 2459
+    },
+    {
+      "path": "_run_records/verify_integration.py",
+      "sha256": "2188d83dfaa8ce272dba0c24cf65b31cbf5caf156d6bb4a3aebcfeb1c581eb4a",
+      "bytes": 5572
+    }
+  ]
+}

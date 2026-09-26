@@ -1,0 +1,55 @@
+mutation m2b-popover-source-span-dropped: projects/chirality-piping/apps/desktop/src/features/workspace/shell/ShellStatusBar.tsx: replace '{chip.source ? <span>{chip.source}</span> : null}' -> '{null}'
+head 8e216efbf2066a7d7a9e083dbcaadf07924b5a01; original blob 748bd99e7a74e0bcdcebe61bf44852d21976060b
+start 2026-09-25T18:45:56.645119Z; load (3.1337890625, 4.294921875, 4.26513671875)
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --workers=1 --timeout=180000 --reporter=list e2e/linear-authoring.spec.ts:60
+
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (55.8s)
+
+
+  1) [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByTestId('status-pill-mechanics-popover').locator(':scope > span').first()
+    Expected: [32m"Solve[7m job state[27m"[39m
+    Received: [31m"Solve[7mr[27m"[39m
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('status-pill-mechanics-popover').locator(':scope > span').first()[22m
+    [2m    23 × locator resolved to <span>Solver</span>[22m
+    [2m       - unexpected value "Solver"[22m
+
+
+       at workspace-driver.ts:291
+
+      289 |     const popover = page.getByTestId(`${testId}-popover`);
+      290 |     await expect(popover).toHaveAccessibleName(`${face}: ${source}`);
+    > 291 |     await expect(popover.locator(":scope > span").first()).toHaveText(source);
+          |                                                            ^
+      292 |   }
+      293 |   await chip.click();
+      294 |   await expect(page.getByTestId(`${testId}-popover`)).toHaveCount(0);
+        at expectStatusChip (/home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts:291:60)
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts:233:3
+
+    Error Context: test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review 
+
+playwright_rc=1 (non-zero means the mutation was caught)
+restored_blob=748bd99e7a74e0bcdcebe61bf44852d21976060b equals_HEAD=True
+end 2026-09-25T18:46:57.008842Z

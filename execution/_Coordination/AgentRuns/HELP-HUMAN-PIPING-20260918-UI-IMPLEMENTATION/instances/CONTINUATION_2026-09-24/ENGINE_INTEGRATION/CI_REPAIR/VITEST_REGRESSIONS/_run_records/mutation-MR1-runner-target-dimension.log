@@ -1,0 +1,70 @@
+date: 2026-09-25T20:08:17.131624Z
+target: apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx
+sha256 before: 35f6e719aade8625af744e7aa7dd9bdd7d5b132b8d59c17828481b7d6f40ce35
+sha256 HEAD blob: 35f6e719aade8625af744e7aa7dd9bdd7d5b132b8d59c17828481b7d6f40ce35
+--- replaced (exactly once) ---
+        target_quantity: {
+          value: item.value,
+          unit: item.unit,
+          dimension
+        },
+        target_quantity_policy: "headless_runner_handoff_preserves_received_value_unit_and_declared_dimension",
+--- with ---
+        target_quantity: {
+          value: item.value,
+          unit: item.unit,
+          dimension: "dimension_not_preserved"
+        },
+        target_quantity_policy: "headless_runner_handoff_preserves_received_value_unit_and_declared_dimension",
+---
+sha256 mutated: f3475da3caa2955ff5d819ae1027f73035ea12067a1026fe4e67ea1e96c7315d
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/headless-runner/HeadlessRunnerPanel.test.tsx
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/headless-runner/HeadlessRunnerPanel.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/headless-runner/HeadlessRunnerPanel.test.tsx (2 tests | 1 failed) 445ms
+   × keeps received declarations as reference evidence and reports unavailable witnesses 432ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  20:08:17
+   Duration  1.63s (transform 412ms, setup 139ms, import 485ms, tests 445ms, environment 392ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/headless-runner/HeadlessRunnerPanel.test.tsx > keeps received declarations as reference evidence and reports unavailable witnesses
+AssertionError: expected { value: +0, unit: 'mm', …(1) } to deeply equal { value: +0, unit: 'mm', …(1) }
+
+- Expected
++ Received
+
+  {
+-   "dimension": "length",
++   "dimension": "dimension_not_preserved",
+    "unit": "mm",
+    "value": 0,
+  }
+
+ ❯ src/features/headless-runner/HeadlessRunnerPanel.test.tsx:32:211
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/headless-runner/HeadlessRunnerPanel.test.tsx
+exit=1
+sha256 restored: 35f6e719aade8625af744e7aa7dd9bdd7d5b132b8d59c17828481b7d6f40ce35
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: FAIL-as-expected

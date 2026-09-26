@@ -1,0 +1,2 @@
+[1m[91merror[0m: cannot update the lock file /home/runner/work/chirality/chirality/projects/chirality-piping/core/reporting/report_package/Cargo.lock because --locked was passed to prevent this
+help: to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.

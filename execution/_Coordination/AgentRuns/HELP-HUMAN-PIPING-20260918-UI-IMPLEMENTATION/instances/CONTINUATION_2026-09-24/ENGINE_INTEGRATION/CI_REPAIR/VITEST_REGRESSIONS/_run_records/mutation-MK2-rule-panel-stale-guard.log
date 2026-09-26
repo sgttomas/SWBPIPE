@@ -1,0 +1,115 @@
+date: 2026-09-25T20:08:53.652628Z
+target: apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx
+sha256 before: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+sha256 HEAD blob: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+--- replaced (exactly once) ---
+        projectId
+      });
+      if (!isCurrent()) return;
+      if (route.route === "unavailable_browser_preview") {
+--- with ---
+        projectId
+      });
+      if (route.route === "unavailable_browser_preview") {
+---
+sha256 mutated: 8df759865de0b96bda49501c69d274205627969dd41bb4774d13dac5fff879e5
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx (24 tests | 2 failed) 1128ms
+     × lets a new-basis run publish while a late old run cannot publish or clear its busy state 123ms
+     × prevents an old-pack request from reviving findings after a reset to a new pack 77ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 22 passed (24)
+   Start at  20:08:54
+   Duration  2.46s (transform 537ms, setup 140ms, import 665ms, tests 1.13s, environment 365ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/rule-check/RuleCheckRunPanel.test.tsx > RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001) > lets a new-basis run publish while a late old run cannot publish or clear its busy state
+AssertionError: expected "vi.fn()" to not be called with arguments: [ 'USER_RULE_CHECKED' ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   "USER_RULE_CHECKED",
++   null,
+  ]
+
+  2nd vi.fn() call:
+
+  [
+-   "USER_RULE_CHECKED",
++   null,
+  ]
+
+  3rd vi.fn() call:
+
+  [
+-   "USER_RULE_CHECKED",
++   null,
+  ]
+
+  4th vi.fn() call:
+
+  [
+-   "USER_RULE_CHECKED",
++   null,
+  ]
+
+  5th vi.fn() call:
+
+Compared values have no visual difference.
+
+
+Number of calls: 5
+
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx:603:35
+    601|     expect(screen.getByTestId("rule-check-run")).toBeDisabled();
+    602|     expect(screen.queryByTestId("rule-check-run-result")).not.toBeInTh…
+    603|     expect(onAggregateChange).not.toHaveBeenCalledWith("USER_RULE_CHEC…
+       |                                   ^
+    604|
+    605|     await act(async () => runB.resolve(passingRun));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/features/rule-check/RuleCheckRunPanel.test.tsx > RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001) > prevents an old-pack request from reviving findings after a reset to a new pack
+Error: [2mexpect([22m[31melement[39m[2m).not.toHaveTextContent()[22m
+
+Expected element not to have text content:
+[32m  aggregate=USER_RULE_FAILED[39m
+Received:
+[31m  Ran 1 check(s); aggregate=USER_RULE_FAILED (grammar 1.0.0).[39m
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx:649:61
+    647|     expect(screen.getByTestId("rule-check-pack-json")).toHaveValue(new…
+    648|     expect(screen.queryByTestId("rule-check-run-result")).not.toBeInTh…
+    649|     expect(screen.getByTestId("rule-check-run-status")).not.toHaveText…
+       |                                                             ^
+    650|     expect(onAggregateChange).not.toHaveBeenCalledWith("USER_RULE_FAIL…
+    651|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+exit=1
+sha256 restored: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: FAIL-as-expected

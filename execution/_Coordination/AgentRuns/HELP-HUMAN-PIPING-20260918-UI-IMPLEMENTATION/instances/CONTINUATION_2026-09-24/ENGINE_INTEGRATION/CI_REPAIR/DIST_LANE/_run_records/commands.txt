@@ -1,0 +1,14 @@
+host: Linux cloud container, 4 vCPU; worktree /home/user/wt/engine-full (detached); Node v24.21.0 (/opt/node24); Rust 1.97.1; wasm-bindgen 0.2.123
+browser: PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome (Chromium 141.0.7390.37); @playwright/test 1.60.0; CI=true PLAYWRIGHT_WORKERS=1
+
+main-aa312755-dist-build.log / main-aa312755-ui-foundation-dist.log  (2026-09-25 ~18:20-18:35 UTC, HEAD aa312755e)
+  cd projects/chirality-piping && CARGO_BUILD_JOBS=2 npm run build:wasm:desktop && npm run build:desktop
+  cd apps/desktop && ../../node_modules/.bin/playwright test --config playwright.dist.config.ts --workers=1 --timeout=180000 --reporter=list e2e/ui-foundation-dist.spec.ts
+  result: 4 failed (production appearance 1024x768 x4), 45 passed
+
+candidate-dist-build.log / candidate-contrast-repaired.log  (2026-09-25 ~18:40-18:45 UTC, HEAD 8e216efbf + the ui-foundation-dist.spec.ts change later committed as 347e214fe)
+  cd projects/chirality-piping && CARGO_BUILD_JOBS=2 npm run build:wasm:desktop && npm run build:desktop
+  cd apps/desktop && ../../node_modules/.bin/playwright test --config playwright.dist.config.ts --workers=1 --timeout=180000 --reporter=list -g "populated Results title and entered values retain resolved contrast" e2e/ui-foundation-dist.spec.ts
+  result: 2 passed
+
+The unrepaired-candidate dist failures (6) and the base-stylesheet A/B control are in ../../BROWSER_REPAIR/_run_records/run9-dist-specs.log and run10-dist-ab-base-css.log.

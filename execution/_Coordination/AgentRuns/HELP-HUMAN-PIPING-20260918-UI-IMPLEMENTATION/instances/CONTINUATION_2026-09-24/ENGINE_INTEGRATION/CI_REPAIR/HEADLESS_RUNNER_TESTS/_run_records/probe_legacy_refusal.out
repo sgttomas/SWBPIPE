@@ -1,0 +1,11 @@
+ARGS ['--explicit-local-private-intent'] exit 1 blocked False payload keys ['artifact', 'command', 'deliverable_id', 'diagnostics', 'mechanics_envelope', 'operation', 'package_id', 'policy', 'request_validation', 'result_validation', 'runner_result', 'schema_version', 'suite_run']
+ command solve op solve
+ diagnostics []
+  request_validation {"diagnostics": []}
+  result_validation {"diagnostics": [{"affected_object": {"ref_id": "run:headless-preview:subprocess-solve", "ref_type": "runner_result"}, "class": "RUNNER_BLOCKING", "code": "HEADLESS_RUNNER_RESULT_REFS_MISSING", "message": "runner result must include deterministic references for computed result rows", "provenance": {"contributor": "OpenPipeStress", "contributor_certification": "diagnostic metadata only", "redistribution_status": "invented_non_engineering_example", "review_status": "accepted", "source_license": "project", "source_location": "core/runner/headless", "source_name": "OpenPipeStress headless runner validator"}, "remediation": "Provide explicit schema-first runner metadata before relying on this request or result.", "severity": "blocking", "source": {"ref_id": "DEL-10-05", "ref_type": "headless_ru
+ runner_result.analysis_status ['HUMAN_REVIEW_REQUIRED', 'MODEL_INCOMPLETE', 'RULE_INPUTS_INCOMPLETE'] job COMPLETED diag [] result_refs 0
+ mech {'mechanics': 'MODEL_INCOMPLETE', 'professional_acceptance': 'NOT_PROVIDED', 'rule_check': 'RULE_INPUTS_INCOMPLETE'} 0 [('PRESSURE_MODEL_REAUTHOR_REQUIRED', 'blocking', 'core/product_physics/src/pressure_runtime.rs')]
+ other keys {'artifact': 'str', 'command': 'str', 'deliverable_id': 'str', 'diagnostics': 'list', 'mechanics_envelope': 'dict', 'operation': 'str', 'package_id': 'str', 'policy': 'dict', 'request_validation': 'dict', 'result_validation': 'dict', 'runner_result': 'dict', 'schema_version': 'str', 'suite_run': 'NoneType'}
+ summary {'decision_count': 179, 'finding_count': 148, 'redacted_count': 0, 'omitted_count': 0, 'warning_count': 148, 'blocking_count': 0, 'cloud_transmission_attempted': False, 'professional_claims_made': False}
+ARGS [] exit 1 blocked True payload keys None
+ summary {'decision_count': 179, 'finding_count': 148, 'redacted_count': 0, 'omitted_count': 0, 'warning_count': 3, 'blocking_count': 145, 'cloud_transmission_attempted': False, 'professional_claims_made': False}

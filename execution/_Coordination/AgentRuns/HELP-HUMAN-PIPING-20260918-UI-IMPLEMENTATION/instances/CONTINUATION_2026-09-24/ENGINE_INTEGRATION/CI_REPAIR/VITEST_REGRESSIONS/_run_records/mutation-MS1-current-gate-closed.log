@@ -1,0 +1,120 @@
+date: 2026-09-25T20:10:24.152056Z
+target: apps/desktop/src/features/workspace/resultsSessionState.ts
+sha256 before: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380
+sha256 HEAD blob: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380
+--- replaced (exactly once) ---
+    && numericallyEligible
+    && (sourceContract(result) !== "physics_source"
+--- with ---
+    && numericallyEligible && false
+    && (sourceContract(result) !== "physics_source"
+---
+sha256 mutated: e49c3a8fc56294bb9efbd4eee92d9e569d6ecd0f50f7182c5356127f85a69312
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/results/physicsSourceIntegration.test.tsx src/features/results/sourceBlockRecovery.test.ts
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/results/physicsSourceIntegration.test.tsx src/features/results/sourceBlockRecovery.test.ts
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/results/sourceBlockRecovery.test.ts (49 tests | 8 failed) 11963ms
+     × 'n05-dense_scrutiny' connects Current, exports, rule revision and saved history 1206ms
+     × 'n05-sparse_interactive' connects Current, exports, rule revision and saved history 1170ms
+     × 'n06-dense_scrutiny' connects Current, exports, rule revision and saved history 1155ms
+     × 'n06-sparse_interactive' connects Current, exports, rule revision and saved history 1145ms
+     × 'multicase-dense_scrutiny' connects Current, exports, rule revision and saved history 1243ms
+     × 'multicase-sparse_interactive' connects Current, exports, rule revision and saved history 1230ms
+     × accepts initial negative zero through the direct native boundary without changing dispatch or source 1447ms
+     × accepts initial negative zero through the job native boundary without changing dispatch or source 1434ms
+ ❯ src/features/results/physicsSourceIntegration.test.tsx (17 tests | 14 failed) 28524ms
+     × n05 sparse_interactive binds actual input, Current gates and portable evidence 1959ms
+     × n05 dense_scrutiny binds actual input, Current gates and portable evidence 1404ms
+     × n06 sparse_interactive binds actual input, Current gates and portable evidence 1474ms
+     × n06 dense_scrutiny binds actual input, Current gates and portable evidence 1375ms
+     × mixed sparse_interactive binds actual input, Current gates and portable evidence 1623ms
+     × mixed dense_scrutiny binds actual input, Current gates and portable evidence 1603ms
+     × fields sparse_interactive binds actual input, Current gates and portable evidence 1400ms
+     × fields dense_scrutiny binds actual input, Current gates and portable evidence 1386ms
+     × n05_units sparse_interactive binds actual input, Current gates and portable evidence 1381ms
+     × n05_units dense_scrutiny binds actual input, Current gates and portable evidence 1407ms
+     × mixed_units sparse_interactive binds actual input, Current gates and portable evidence 1588ms
+     × mixed_units dense_scrutiny binds actual input, Current gates and portable evidence 1606ms
+     × n05_unicode sparse_interactive binds actual input, Current gates and portable evidence 1394ms
+     × n05_unicode dense_scrutiny binds actual input, Current gates and portable evidence 1395ms
+
+ Test Files  2 failed (2)
+      Tests  22 failed | 44 passed (66)
+   Start at  20:10:24
+   Duration  31.76s (transform 4.03s, setup 344ms, import 5.70s, tests 40.49s, environment 829ms)
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 22 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05 sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05 dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n06 sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n06 dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > fields sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > fields dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05_units sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05_units dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed_units sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed_units dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05_unicode sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05_unicode dense_scrutiny binds actual input, Current gates and portable evidence
+AssertionError: expected null not to be null
+
+Ignored nodes: comments, script, style
+ ❯ src/features/results/physicsSourceIntegration.test.tsx:80:83
+     78|   act(() => hook.result.current.results.setSolverMode(mode as "sparse_…
+     79|   await act(async () => { await hook.result.current.results.handleRun(…
+     80|   await waitFor(() => expect(hook.result.current.results.currentSolved…
+       |                                                                                   ^
+     81|   expect(started).toEqual([mode]);
+     82|   const { result: source, inputManifest, analysisRun } = hook.result.c…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/22]⎯
+
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'n05-dense_scrutiny' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'n05-sparse_interactive' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'n06-dense_scrutiny' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'n06-sparse_interactive' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'multicase-dense_scrutiny' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'multicase-sparse_interactive' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > FE02 caller representation and serialized invocation binding > accepts initial negative zero through the direct native boundary without changing dispatch or source
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > FE02 caller representation and serialized invocation binding > accepts initial negative zero through the job native boundary without changing dispatch or source
+AssertionError: expected null not to be null
+
+Ignored nodes: comments, script, style
+ ❯ src/features/results/sourceBlockRecovery.test.ts:203:80
+    201|  act(()=>hook.result.current.results.setSolverMode(mode));
+    202|  await act(async()=>{await hook.result.current.results.handleRun();});
+    203|  await waitFor(()=>expect(hook.result.current.results.currentSolvedRes…
+       |                                                                                ^
+    204|  expect(starts).toHaveLength(1);
+    205|  return {hook,starts};
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/22]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/results/physicsSourceIntegration.test.tsx src/features/results/sourceBlockRecovery.test.ts
+exit=1
+sha256 restored: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: FAIL-as-expected

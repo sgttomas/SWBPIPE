@@ -1,0 +1,842 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_CAPTURE_01.json",
+    "line": 16,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_CAPTURE_01.json:16` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 17 machine-absolute-path hit line(s); first hit at line 16. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_CAPTURE_02.json",
+    "line": 16,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_CAPTURE_02.json:16` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 17 machine-absolute-path hit line(s); first hit at line 16. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_UNICODE_CAPTURE.json",
+    "line": 9,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_UNICODE_CAPTURE.json:9` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 4 machine-absolute-path hit line(s); first hit at line 9. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_UNIT_CAPTURE.json",
+    "line": 9,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_UNIT_CAPTURE.json:9` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 8 machine-absolute-path hit line(s); first hit at line 9. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/INPUT_ORIGINS.json",
+    "line": 8,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/INPUT_ORIGINS.json:8` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 12 machine-absolute-path hit line(s); first hit at line 8. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/namespace-01.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/namespace-01.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/product-check-01.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/product-check-01.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/product-regression-01.json",
+    "line": 13,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/product-regression-01.json:13` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 13. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-01.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-01.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-02.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-02.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-03.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-03.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-04.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-04.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-05.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-05.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/resource-measurement-01.json",
+    "line": 15,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/resource-measurement-01.json:15` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 15. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/source-layer-01.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/source-layer-01.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/source-layer-02.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/source-layer-02.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/EXECUTION.json",
+    "line": 10,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/EXECUTION.json:10` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 28 machine-absolute-path hit line(s); first hit at line 10. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/POLICY_RECORD_REVIEW.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/POLICY_RECORD_REVIEW.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 3 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/BRIEF.md",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_PROJECT_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/BRIEF.md:3` | SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `BRIEF.md`) carries 2 machine-absolute-path hit line(s); first hit at line 3. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/DIAGNOSIS.md",
+    "line": 21,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/DIAGNOSIS.md:21` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 21. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/basis_and_red_control.json",
+    "line": 8,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/basis_and_red_control.json:8` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 8. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/red-command.json",
+    "line": 21,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/red-command.json:21` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 21. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/verification.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/verification.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 4 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/DEPENDENCIES.json",
+    "line": 6,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/DEPENDENCIES.json:6` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 6. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/EXACT_AUTHORING/BATCH_JOIN_REPAIR/focused-01.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/EXACT_AUTHORING/BATCH_JOIN_REPAIR/focused-01.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/EXACT_AUTHORING/BRIEF.md",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_PROJECT_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/EXACT_AUTHORING/BRIEF.md:3` | SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `BRIEF.md`) carries 1 machine-absolute-path hit line(s); first hit at line 3. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/EXACT_AUTHORING/UI_ACCESSIBILITY_REPAIR/BINDING.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/EXACT_AUTHORING/UI_ACCESSIBILITY_REPAIR/BINDING.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json",
+    "line": 318,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json:318` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 16 machine-absolute-path hit line(s); first hit at line 318. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/PROVENANCE.json",
+    "line": 9,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/PROVENANCE.json:9` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 15 machine-absolute-path hit line(s); first hit at line 9. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/SEMANTIC_PROBE_REPAIRED.json",
+    "line": 8,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/SEMANTIC_PROBE_REPAIRED.json:8` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 8. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_SUPPORT_REVIEW/INDEPENDENT_REVIEW/EXECUTION.json",
+    "line": 8,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_SUPPORT_REVIEW/INDEPENDENT_REVIEW/EXECUTION.json:8` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 29 machine-absolute-path hit line(s); first hit at line 8. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/MEMBRANE_RANGE_JOIN/BRIEF.md",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_PROJECT_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/MEMBRANE_RANGE_JOIN/BRIEF.md:3` | SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `BRIEF.md`) carries 2 machine-absolute-path hit line(s); first hit at line 3. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/MEMBRANE_RANGE_JOIN/range_probe.json",
+    "line": 38,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/MEMBRANE_RANGE_JOIN/range_probe.json:38` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 3 machine-absolute-path hit line(s); first hit at line 38. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_OBSERVATION_DIAGNOSIS/EVIDENCE.json",
+    "line": 82,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_OBSERVATION_DIAGNOSIS/EVIDENCE.json:82` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 82. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_SOURCE_REVIEW/EXECUTION.json",
+    "line": 7,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_SOURCE_REVIEW/EXECUTION.json:7` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 12 machine-absolute-path hit line(s); first hit at line 7. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BRIEF.md",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_PROJECT_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BRIEF.md:3` | SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `BRIEF.md`) carries 2 machine-absolute-path hit line(s); first hit at line 3. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/APP_TESTS/EXECUTION.json",
+    "line": 37,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/APP_TESTS/EXECUTION.json:37` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 37. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_FOUNDATION_TESTS/BASIS.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_FOUNDATION_TESTS/BASIS.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_FOUNDATION_TESTS/TRANSPILE.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_FOUNDATION_TESTS/TRANSPILE.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_JOURNEY_TESTS/PREMISE_PREIMAGES.json",
+    "line": 5,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_JOURNEY_TESTS/PREMISE_PREIMAGES.json:5` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 5. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_JOURNEY_TESTS/SOURCE_MANIFEST.json",
+    "line": 75,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_JOURNEY_TESTS/SOURCE_MANIFEST.json:75` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 75. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/CHECKPOINT_01/CHECKS.json",
+    "line": 2,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/CHECKPOINT_01/CHECKS.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/CHECKPOINT_02/CHECKS.json",
+    "line": 2,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/CHECKPOINT_02/CHECKS.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/FINAL_CHECKS/CHECKS.json",
+    "line": 2,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/FINAL_CHECKS/CHECKS.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/PANEL_SUPPLEMENT/TS02_OUTCOME.json",
+    "line": 2,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/PANEL_SUPPLEMENT/TS02_OUTCOME.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/CHECKPOINT_SOURCE_MANIFEST.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/CHECKPOINT_SOURCE_MANIFEST.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/EXECUTION.json",
+    "line": 21,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/EXECUTION.json:21` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 10 machine-absolute-path hit line(s); first hit at line 21. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/ACTUAL_TS_AFTER.json",
+    "line": 7,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/ACTUAL_TS_AFTER.json:7` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 6 machine-absolute-path hit line(s); first hit at line 7. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/EXECUTION_BASIS.json",
+    "line": 23,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/EXECUTION_BASIS.json:23` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 17 machine-absolute-path hit line(s); first hit at line 23. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/PROBE_EXECUTION.json",
+    "line": 2,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/PROBE_EXECUTION.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/python-focused-01.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/python-focused-01.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 5 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/rust-focused-01.json",
+    "line": 15,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/rust-focused-01.json:15` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 15. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CHECKS/CONNECTED_RUNS_01.json",
+    "line": 134,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CHECKS/CONNECTED_RUNS_01.json:134` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 79 machine-absolute-path hit line(s); first hit at line 134. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CHECKS/READER_ATTEMPTS.json",
+    "line": 2,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CHECKS/READER_ATTEMPTS.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CLI_CAPTURE/MANIFEST.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CLI_CAPTURE/MANIFEST.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 8 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CLI_CAPTURE/ORDINARY_PHYSICS/MANIFEST.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CLI_CAPTURE/ORDINARY_PHYSICS/MANIFEST.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 3 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_TS/CR01_CR03.json",
+    "line": 20,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_TS/CR01_CR03.json:20` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 20. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_TS/EXECUTION.json",
+    "line": 14,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_TS/EXECUTION.json:14` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 14 machine-absolute-path hit line(s); first hit at line 14. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_TS/SHAPE_DIAGNOSIS_01.json",
+    "line": 7,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_TS/SHAPE_DIAGNOSIS_01.json:7` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 7. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_VALIDATOR/REVIEW_REPAIR/SOURCE_HASHES.json",
+    "line": 90,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_VALIDATOR/REVIEW_REPAIR/SOURCE_HASHES.json:90` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 3 machine-absolute-path hit line(s); first hit at line 90. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/EXECUTION_BASIS.json",
+    "line": 11,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/EXECUTION_BASIS.json:11` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 10 machine-absolute-path hit line(s); first hit at line 11. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/FINAL_INTEROP_CHECK.json",
+    "line": 13,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/FINAL_INTEROP_CHECK.json:13` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 4 machine-absolute-path hit line(s); first hit at line 13. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/FINAL_OWNED_SOURCE_MANIFEST.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/FINAL_OWNED_SOURCE_MANIFEST.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/HEADLESS_TASK/EXECUTION_BASIS.json",
+    "line": 20,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/HEADLESS_TASK/EXECUTION_BASIS.json:20` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 19 machine-absolute-path hit line(s); first hit at line 20. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/SCHEMA_TASK/EXECUTION.json",
+    "line": 18,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/SCHEMA_TASK/EXECUTION.json:18` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 22 machine-absolute-path hit line(s); first hit at line 18. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/ACTUAL_ANNOTATION_ONLY.json",
+    "line": 30,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/ACTUAL_ANNOTATION_ONLY.json:30` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 30. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/EXECUTION_BASIS.json",
+    "line": 29,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/EXECUTION_BASIS.json:29` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 29. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/mixed-roundtrip-01.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/mixed-roundtrip-01.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 4 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/pure-values-01.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/pure-values-01.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 3 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/EXECUTION_BASIS.json",
+    "line": 30,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/EXECUTION_BASIS.json:30` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 6 machine-absolute-path hit line(s); first hit at line 30. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/P1_REGRESSION_01.json",
+    "line": 2,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/P1_REGRESSION_01.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/UTF8_CSV/EXECUTION_BASIS.json",
+    "line": 22,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/UTF8_CSV/EXECUTION_BASIS.json:22` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 22. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/UTF8_CSV/actual-unicode-01.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/UTF8_CSV/actual-unicode-01.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 4 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/UTF8_CSV/pure-utf8-01.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/UTF8_CSV/pure-utf8-01.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 7 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/EXECUTION_BASIS.json",
+    "line": 24,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/EXECUTION_BASIS.json:24` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 24. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/FOCUSED_TEST_RESULT.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/FOCUSED_TEST_RESULT.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 42 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/FOCUSED_TEST_START.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/FOCUSED_TEST_START.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 23 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/focused-01.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/focused-01.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 3 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FANIN/CANDIDATES.json",
+    "line": 11,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FANIN/CANDIDATES.json:11` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 23 machine-absolute-path hit line(s); first hit at line 11. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/ANALYSIS_SIGNATURE_DELTA/MANIFEST.json",
+    "line": 24,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/ANALYSIS_SIGNATURE_DELTA/MANIFEST.json:24` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 5 machine-absolute-path hit line(s); first hit at line 24. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/APP_COMMAND.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/APP_COMMAND.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 4 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/CHECKS.json",
+    "line": 2,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/CHECKS.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 13 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/EXECUTION_PROVENANCE.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/EXECUTION_PROVENANCE.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 61 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/FINAL_RUNTIME.json",
+    "line": 5,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/FINAL_RUNTIME.json:5` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 4 machine-absolute-path hit line(s); first hit at line 5. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/INTEROP_RESULT.json",
+    "line": 245,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/INTEROP_RESULT.json:245` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 8 machine-absolute-path hit line(s); first hit at line 245. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/SUPPORT_INTEROP_DELTA/CAUSE.json",
+    "line": 2,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/SUPPORT_INTEROP_DELTA/CAUSE.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/SUPPORT_INTEROP_DELTA/MANIFEST.json",
+    "line": 17,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/SUPPORT_INTEROP_DELTA/MANIFEST.json:17` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 17. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/headless-immutability-execution.json",
+    "line": 15,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/headless-immutability-execution.json:15` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 5 machine-absolute-path hit line(s); first hit at line 15. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/solve-lifecycle-execution.json",
+    "line": 13,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/solve-lifecycle-execution.json:13` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 13. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/state-and-history-execution.json",
+    "line": 16,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/state-and-history-execution.json:16` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 16. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/tsc-execution.json",
+    "line": 8,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/tsc-execution.json:8` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 8. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RUST_TASK/EXECUTION_BASIS.json",
+    "line": 7,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RUST_TASK/EXECUTION_BASIS.json:7` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 20 machine-absolute-path hit line(s); first hit at line 7. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RUST_TASK/cargo-consumer-tests-01.json",
+    "line": 17,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RUST_TASK/cargo-consumer-tests-01.json:17` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 17. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/TS_TASK/EXECUTION.json",
+    "line": 7,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/TS_TASK/EXECUTION.json:7` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 20 machine-absolute-path hit line(s); first hit at line 7. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/headless-connected-execution.json",
+    "line": 16,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/headless-connected-execution.json:16` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 3 machine-absolute-path hit line(s); first hit at line 16. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PRECISION_UI_COMPANION.json",
+    "line": 59,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PRECISION_UI_COMPANION.json:59` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 4 machine-absolute-path hit line(s); first hit at line 59. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_MAIN_UNION/INDEPENDENT_REVIEW/FINAL_CHECKED_BASIS.json",
+    "line": 14,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_MAIN_UNION/INDEPENDENT_REVIEW/FINAL_CHECKED_BASIS.json:14` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 14 machine-absolute-path hit line(s); first hit at line 14. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/FANIN_01.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/FANIN_01.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/READER_RESOLUTION/EXECUTION_BASIS.json",
+    "line": 9,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/READER_RESOLUTION/EXECUTION_BASIS.json:9` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 9. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/existing-public-01.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/existing-public-01.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/product-check-01.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/product-check-01.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/reader-union-01.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/reader-union-01.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/BRIEF.md",
+    "line": 9,
+    "finding": "| REVIEW | ABS_PATH_IN_PROJECT_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/BRIEF.md:9` | SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `BRIEF.md`) carries 1 machine-absolute-path hit line(s); first hit at line 9. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/CHECKS.json",
+    "line": 10,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/CHECKS.json:10` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 3 machine-absolute-path hit line(s); first hit at line 10. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/INDEPENDENT_REVIEW/EXECUTION.json",
+    "line": 8,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/INDEPENDENT_REVIEW/EXECUTION.json:8` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 9 machine-absolute-path hit line(s); first hit at line 8. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/INDEPENDENT_REVIEW/ORIGIN_COMPARISON.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/INDEPENDENT_REVIEW/ORIGIN_COMPARISON.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 18 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/INPUT_ORIGINS.json",
+    "line": 9,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/INPUT_ORIGINS.json:9` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 28 machine-absolute-path hit line(s); first hit at line 9. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/STANDALONE_EXECUTION.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/STANDALONE_EXECUTION.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 3 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/BRIEF.md",
+    "line": 5,
+    "finding": "| REVIEW | ABS_PATH_IN_PROJECT_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/BRIEF.md:5` | SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `BRIEF.md`) carries 2 machine-absolute-path hit line(s); first hit at line 5. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/FOCUSED_EVIDENCE_CHECK.json",
+    "line": 5,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/FOCUSED_EVIDENCE_CHECK.json:5` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 5. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REVIEW_EXECUTION.json",
+    "line": 9,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REVIEW_EXECUTION.json:9` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 7 machine-absolute-path hit line(s); first hit at line 9. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/ACTUAL_THERMAL_TS_FROZEN.json",
+    "line": 58,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/ACTUAL_THERMAL_TS_FROZEN.json:58` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 4 machine-absolute-path hit line(s); first hit at line 58. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BRIEF.md",
+    "line": 5,
+    "finding": "| REVIEW | ABS_PATH_IN_PROJECT_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BRIEF.md:5` | SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `BRIEF.md`) carries 2 machine-absolute-path hit line(s); first hit at line 5. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+    "line": 285,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_FINAL_HASHES_AND_CHECKS.json:285` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 285. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/FINDINGS.md",
+    "line": 114,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/FINDINGS.md:114` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 114. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/PROBES_FROZEN_PYTHON.json",
+    "line": 10,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/PROBES_FROZEN_PYTHON.json:10` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 10 machine-absolute-path hit line(s); first hit at line 10. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/REPAIR_ACTUAL_PYTHON_AND_BINDINGS.json",
+    "line": 54,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/REPAIR_ACTUAL_PYTHON_AND_BINDINGS.json:54` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 54. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/PRODUCER/BRIEF.md",
+    "line": 5,
+    "finding": "| REVIEW | ABS_PATH_IN_PROJECT_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/PRODUCER/BRIEF.md:5` | SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `BRIEF.md`) carries 2 machine-absolute-path hit line(s); first hit at line 5. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/PRODUCER/REVIEW_EXECUTION.json",
+    "line": 6,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/PRODUCER/REVIEW_EXECUTION.json:6` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 6. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/PRODUCER/verification.json",
+    "line": 65,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/PRODUCER/verification.json:65` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 15 machine-absolute-path hit line(s); first hit at line 65. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/THERMAL_UI_CAPTURE.json",
+    "line": 56,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/THERMAL_UI_CAPTURE.json:56` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 4 machine-absolute-path hit line(s); first hit at line 56. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/UI_PRODUCER_CAPTURE.json",
+    "line": 17,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/UI_PRODUCER_CAPTURE.json:17` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 17. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/WORKSPACE_DISPATCH_OBSERVATION.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/WORKSPACE_DISPATCH_OBSERVATION.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/joined-raw-execution.json",
+    "line": 15,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/joined-raw-execution.json:15` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 15. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/product-check-02.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/product-check-02.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/product-regressions-01.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/product-regressions-01.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/product-regressions-02.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/product-regressions-02.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/product-regressions-03.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/product-regressions-03.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/product-regressions-04.json",
+    "line": 12,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/product-regressions-04.json:12` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 12. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/POST_CONTAINMENT_PROVENANCE.json",
+    "line": 7,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/POST_CONTAINMENT_PROVENANCE.json:7` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 7. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/PROBE_SOURCE_FREEZE.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/PROBE_SOURCE_FREEZE.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 7 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/PROVENANCE.json",
+    "line": 10,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/PROVENANCE.json:10` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 29 machine-absolute-path hit line(s); first hit at line 10. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/STAGES.json",
+    "line": 17,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/STAGES.json:17` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 5 machine-absolute-path hit line(s); first hit at line 17. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_01/STAGES.json",
+    "line": 28,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_01/STAGES.json:28` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 28. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/CONTAINMENT_CHECK_EVIDENCE.json",
+    "line": 22,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/CONTAINMENT_CHECK_EVIDENCE.json:22` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 22. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/FINAL_RUNTIME_EVIDENCE.json",
+    "line": 7,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/FINAL_RUNTIME_EVIDENCE.json:7` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 7. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json",
+    "line": 5,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json:5` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 35 machine-absolute-path hit line(s); first hit at line 5. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/PROVENANCE.json",
+    "line": 13,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/PROVENANCE.json:13` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 16 machine-absolute-path hit line(s); first hit at line 13. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/WIRE_BASIS.json",
+    "line": 9,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/WIRE_BASIS.json:9` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 9. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY/INVENTORY.md",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY/INVENTORY.md:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY/SOURCES.json",
+    "line": 9,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY/SOURCES.json:9` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 35 machine-absolute-path hit line(s); first hit at line 9. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/INDEPENDENT_REVIEW/CHECKER_RUN.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/INDEPENDENT_REVIEW/CHECKER_RUN.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/INDEPENDENT_REVIEW/FINDINGS.md",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/INDEPENDENT_REVIEW/FINDINGS.md:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/INDEPENDENT_REVIEW/PROVENANCE.json",
+    "line": 7,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/INDEPENDENT_REVIEW/PROVENANCE.json:7` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 16 machine-absolute-path hit line(s); first hit at line 7. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/dense_scrutiny/ledger.json",
+    "line": 1104,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/dense_scrutiny/ledger.json:1104` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 41 machine-absolute-path hit line(s); first hit at line 1104. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/sparse_interactive/ledger.json",
+    "line": 1104,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/sparse_interactive/ledger.json:1104` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 41 machine-absolute-path hit line(s); first hit at line 1104. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/FIXTURE_PROMOTION/CHECKS.json",
+    "line": 153,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/FIXTURE_PROMOTION/CHECKS.json:153` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 153. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/FOCUSED_CHECKS_01.json",
+    "line": 114,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/FOCUSED_CHECKS_01.json:114` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 114. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/FOCUSED_CHECKS_02.json",
+    "line": 114,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/FOCUSED_CHECKS_02.json:114` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 114. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/BUILD_RESULT.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/BUILD_RESULT.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 26 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/BUILD_STARTED.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/BUILD_STARTED.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 24 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/DEPENDENCY_CROSSCHECK.json",
+    "line": 5,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/DEPENDENCY_CROSSCHECK.json:5` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 34 machine-absolute-path hit line(s); first hit at line 5. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/SOURCE_AFTER.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/SOURCE_AFTER.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1347 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/SOURCE_BEFORE.json",
+    "line": 4,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/SOURCE_BEFORE.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1347 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/metadata.json",
+    "line": 1,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/metadata.json:1` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 1. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/FINAL_CHECKED_BASIS.json",
+    "line": 78,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/FINAL_CHECKED_BASIS.json:78` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 9 machine-absolute-path hit line(s); first hit at line 78. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/FIXTURE_PROMOTION_FINAL_BASIS_03.json",
+    "line": 8,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/FIXTURE_PROMOTION_FINAL_BASIS_03.json:8` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 9 machine-absolute-path hit line(s); first hit at line 8. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/PROVENANCE.json",
+    "line": 13,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/PROVENANCE.json:13` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 10 machine-absolute-path hit line(s); first hit at line 13. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/REPAIR_BOUNDARIES_02.json",
+    "line": 3433,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/REPAIR_BOUNDARIES_02.json:3433` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 3433. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/REPAIR_FINAL_CHECKED_BASIS_02.json",
+    "line": 10,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/REPAIR_FINAL_CHECKED_BASIS_02.json:10` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 10 machine-absolute-path hit line(s); first hit at line 10. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/RECEIVED_READER_CHECK_01/RESULT.json",
+    "line": 2,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/RECEIVED_READER_CHECK_01/RESULT.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 21 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/STRUCTURE_TASK/CHECKS.json",
+    "line": 2,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/STRUCTURE_TASK/CHECKS.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 3 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/STRUCTURE_TASK/PROVENANCE.json",
+    "line": 7,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/STRUCTURE_TASK/PROVENANCE.json:7` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 4 machine-absolute-path hit line(s); first hit at line 7. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/SOURCE_FREEZE_01.json",
+    "line": 29,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/SOURCE_FREEZE_01.json:29` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 29. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/SOURCE_FREEZE_02.json",
+    "line": 29,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/SOURCE_FREEZE_02.json:29` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 29. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json",
+    "line": 11,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json:11` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 10 machine-absolute-path hit line(s); first hit at line 11. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW/PRIVATE_SOURCE_HASHES.json",
+    "line": 3,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW/PRIVATE_SOURCE_HASHES.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 61 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW/PROVENANCE.json",
+    "line": 13,
+    "finding": "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW/PROVENANCE.json:13` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 16 machine-absolute-path hit line(s); first hit at line 13. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+  }
+]

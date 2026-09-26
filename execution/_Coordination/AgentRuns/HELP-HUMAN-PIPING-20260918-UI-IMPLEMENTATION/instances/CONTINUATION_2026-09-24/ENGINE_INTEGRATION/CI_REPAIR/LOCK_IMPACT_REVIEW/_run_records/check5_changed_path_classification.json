@@ -1,0 +1,405 @@
+{
+  "old": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+  "new": "5b1ccd356c0d9656f7b9f42c6558f7a4c73f9295",
+  "src_tauri_path_package_dirs": [
+    "projects/chirality-piping/apps/desktop/src-tauri/",
+    "projects/chirality-piping/core/library_import/library_import_document/",
+    "projects/chirality-piping/core/loads/load_case_algebra/",
+    "projects/chirality-piping/core/loads/primitive_loads/",
+    "projects/chirality-piping/core/loads/self_weight_wasm/",
+    "projects/chirality-piping/core/loads/stress_recovery/",
+    "projects/chirality-piping/core/model_operations/operation_applier/",
+    "projects/chirality-piping/core/product_physics/",
+    "projects/chirality-piping/core/reporting/audit_manifest/",
+    "projects/chirality-piping/core/reporting/pdf_emitter/",
+    "projects/chirality-piping/core/reporting/protected_content_linter/",
+    "projects/chirality-piping/core/reporting/report_generator/",
+    "projects/chirality-piping/core/reporting/report_package/",
+    "projects/chirality-piping/core/reporting/report_renderer/",
+    "projects/chirality-piping/core/reporting/report_sections/",
+    "projects/chirality-piping/core/reporting/result_export/",
+    "projects/chirality-piping/core/rules/completeness_checker/",
+    "projects/chirality-piping/core/rules/expression_evaluator/",
+    "projects/chirality-piping/core/rules/rule_check_runner/",
+    "projects/chirality-piping/core/rules/rule_pack_document/",
+    "projects/chirality-piping/core/rules/rule_pack_lifecycle/",
+    "projects/chirality-piping/core/serialization/canonical_json/",
+    "projects/chirality-piping/core/solver/curved_bend/",
+    "projects/chirality-piping/core/solver/diagnostics/",
+    "projects/chirality-piping/core/solver/frame_kernel/",
+    "projects/chirality-piping/core/solver/linear_supports/",
+    "projects/chirality-piping/core/solver/nonlinear_integration/",
+    "projects/chirality-piping/core/solver/nonlinear_supports/",
+    "projects/chirality-piping/core/solver/sparse_direct/",
+    "projects/chirality-piping/core/solver/straight_pipe/",
+    "projects/chirality-piping/core/units/"
+  ],
+  "wasm_path_package_dirs": [
+    "projects/chirality-piping/core/loads/load_case_algebra/",
+    "projects/chirality-piping/core/loads/primitive_loads/",
+    "projects/chirality-piping/core/loads/self_weight_wasm/",
+    "projects/chirality-piping/core/loads/stress_recovery/",
+    "projects/chirality-piping/core/model_operations/operation_applier/",
+    "projects/chirality-piping/core/product_physics/",
+    "projects/chirality-piping/core/serialization/canonical_json/",
+    "projects/chirality-piping/core/solver/curved_bend/",
+    "projects/chirality-piping/core/solver/diagnostics/",
+    "projects/chirality-piping/core/solver/frame_kernel/",
+    "projects/chirality-piping/core/solver/linear_supports/",
+    "projects/chirality-piping/core/solver/nonlinear_integration/",
+    "projects/chirality-piping/core/solver/nonlinear_supports/",
+    "projects/chirality-piping/core/solver/sparse_direct/",
+    "projects/chirality-piping/core/solver/straight_pipe/",
+    "projects/chirality-piping/core/units/"
+  ],
+  "changed_count": 820,
+  "category_counts": {
+    "recorded native input": 1,
+    "execution evidence record": 784,
+    "tests/": 6,
+    "tools/validation": 6,
+    "validation/benchmarks": 3,
+    "validation/qualification": 20
+  },
+  "non_evidence_paths": [
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/core/reporting/report_package/Cargo.lock",
+      "recorded_native_input": true,
+      "inside_src_tauri_path_package": [
+        "projects/chirality-piping/core/reporting/report_package/"
+      ],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "recorded native input"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tests/qualification_fixture_support.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tests/"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tests/test_first_static_selection.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tests/"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tests/test_qualification_gate.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tests/"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tests/test_qualification_physics.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tests/"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tests/test_qualification_physics_integration.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tests/"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tests/test_qualification_physics_structure.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tests/"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tools/validation/build_first_static_selection.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tools/validation"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tools/validation"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tools/validation/qualification_physics.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tools/validation"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tools/validation"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_structure.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tools/validation"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/tools/validation/qualification_process.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "tools/validation"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/benchmarks"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/benchmarks"
+    },
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/validation/benchmarks/stress/Cargo.lock",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/benchmarks"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/HARNESS_CUT.md",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/README.md",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/check_inventory.py",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/INPUT_REFERENCE_BINDINGS.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/PROVENANCE.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/README.md",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_EXPECTATIONS.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.criteria.candidate.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.reference.candidate.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.selectors.candidate.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.criteria.candidate.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.reference.candidate.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.selectors.candidate.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/section.reference.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    },
+    {
+      "status": "A",
+      "path": "projects/chirality-piping/validation/qualification/fixtures/ordinary_physics_1_semantics.json",
+      "recorded_native_input": false,
+      "inside_src_tauri_path_package": [],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "validation/qualification"
+    }
+  ],
+  "closure_candidates": [
+    {
+      "status": "M",
+      "path": "projects/chirality-piping/core/reporting/report_package/Cargo.lock",
+      "recorded_native_input": true,
+      "inside_src_tauri_path_package": [
+        "projects/chirality-piping/core/reporting/report_package/"
+      ],
+      "inside_wasm_crate_graph": [],
+      "inside_apps_desktop": false,
+      "category": "recorded native input"
+    }
+  ]
+}

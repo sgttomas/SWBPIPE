@@ -1,0 +1,65 @@
+{
+  "source_commit": "9e8a55daecdeb9669131fd3e53c0e0303ee550d6",
+  "source_graph_sha256": "b0dda7eec9f9883a7385eda82281d8e59a3135391fff7ae566437f44490f89d6",
+  "candidate_graph_sha256": "8051e6735c7075597c6bf89c294080554abfa3499accf30027cc27542ba9f57f",
+  "link_updates": [
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/RESUME_VALIDATION_COURSE/OWNER_RESUMPTION.md",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/RESUME_VALIDATION_COURSE/OWNER_RESUMPTION.md"
+    },
+    {
+      "old": "../../../../docs/references/validation-programme/README.md",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/docs/references/validation-programme/README.md"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_PROGRAMME_INCORPORATION/BRIEF.md",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_PROGRAMME_INCORPORATION/BRIEF.md"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_PROGRAMME_INCORPORATION/REVIEW/RETURN.md",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_PROGRAMME_INCORPORATION/REVIEW/RETURN.md"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/PAN_A0_QUALIFICATION/CUSTODY.json",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/PAN_A0_QUALIFICATION/CUSTODY.json"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/PIPES/RESUME_CHECKPOINT.md",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/PIPES/RESUME_CHECKPOINT.md"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/PIPES/_run_records/FINAL_CHECKS_R3/",
+      "new": "https://github.com/sgttomas/chirality/tree/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/PIPES/_run_records/FINAL_CHECKS_R3"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/RAW02_INTERFACE_ALIGNMENT.md",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/RAW02_INTERFACE_ALIGNMENT.md"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/M35_3C17_QUALIFICATION/RETURN.md",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/M35_3C17_QUALIFICATION/RETURN.md"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/M35_NATIVE/RETURN.md",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/M35_NATIVE/RETURN.md"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/RETURN.md",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/RETURN.md"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/RETURN.md",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/RETURN.md"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/SCIENTIFIC_JSON_INTEGRATION/RETURN.md",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/SCIENTIFIC_JSON_INTEGRATION/RETURN.md"
+    },
+    {
+      "old": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/SCIENTIFIC_JSON_INTEGRATION/MERGED_STATE.json",
+      "new": "https://github.com/sgttomas/chirality/blob/9e8a55daecdeb9669131fd3e53c0e0303ee550d6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/SCIENTIFIC_JSON_INTEGRATION/MERGED_STATE.json"
+    }
+  ],
+  "missing_links": [],
+  "changes": "Exact reviewed primary graph plus current link relocation and truthful current check paragraph; no implementation state promoted"
+}

@@ -1,0 +1,11 @@
+host: Linux cloud container (4 vCPU, 15 GiB), Claude Code remote session
+worktrees: /home/user/wt/engine (5b1ccd356, repair in progress), /home/user/wt/engine-full (clean 5b1ccd356 for discovery), /home/user/wt/main (aa312755e baseline; removed after use)
+node: v24.21.0 (/opt/node24); npm 11.19.0
+rust: 1.97.1 (rustup override), wasm32-unknown-unknown; wasm-bindgen-cli 0.2.123
+playwright: @playwright/test 1.60.0 (package-lock); browser override PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome (Chromium 141.0.7390.37); CI's pinned Playwright uses Chromium 1223 (148.0.7778.96)
+env: CI=true PLAYWRIGHT_WORKERS=1; discovery used an uncommitted alternate-port config (baseURL/webServer port 5184) importing the committed playwright.config.ts unchanged
+command (repro): ../../node_modules/.bin/playwright test --project=chromium-desktop --project=chromium-compact --workers=1 --timeout=180000 --reporter=list e2e/ui-foundation.spec.ts:677 e2e/gui-workflow-validation.spec.ts:107 e2e/r2-smoke.spec.ts:338 e2e/r2-smoke.spec.ts:1680
+command (main baseline): same projects/options with -g "task and analysis dock preserve usable canvas|DEL-09-04 invented fixture exposes warnings|R2 desktop preview smoke covers solve|R3 guided flow routes private library" over the three spec files (main line numbers differ)
+command (full discovery): ../../node_modules/.bin/playwright test --config playwright.altport.config.ts --project=chromium-desktop --project=chromium-compact --workers=1 --timeout=180000 --reporter=list,json
+self-check: tools/practitioner_harness/harness.py self-check after `git fetch --unshallow origin main` (the initial shallow clone caused COMMIT_NOT_FOUND receipt findings)
+load: other agents ran cargo and a second browser lane concurrently (load average 4-7); a disk-full window occurred ~17:50-17:58 UTC

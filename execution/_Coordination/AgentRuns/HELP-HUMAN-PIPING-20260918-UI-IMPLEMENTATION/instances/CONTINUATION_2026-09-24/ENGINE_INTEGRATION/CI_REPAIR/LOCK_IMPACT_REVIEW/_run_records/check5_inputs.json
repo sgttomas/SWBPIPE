@@ -1,0 +1,208 @@
+{
+  "recorded_count": 1092,
+  "recorded_unique_paths": 1092,
+  "pre_equals_post": true,
+  "recorded_cargo_lock_inputs": [
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+    "projects/chirality-piping/core/gui/viewport_editor/Cargo.lock",
+    "projects/chirality-piping/core/library_import/library_import_document/Cargo.lock",
+    "projects/chirality-piping/core/loads/load_case_algebra/Cargo.lock",
+    "projects/chirality-piping/core/loads/primitive_loads/Cargo.lock",
+    "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+    "projects/chirality-piping/core/loads/stress_recovery/Cargo.lock",
+    "projects/chirality-piping/core/loads/user_loads/Cargo.lock",
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+    "projects/chirality-piping/core/product_physics/Cargo.lock",
+    "projects/chirality-piping/core/reporting/audit_manifest/Cargo.lock",
+    "projects/chirality-piping/core/reporting/pdf_emitter/Cargo.lock",
+    "projects/chirality-piping/core/reporting/protected_content_linter/Cargo.lock",
+    "projects/chirality-piping/core/reporting/report_generator/Cargo.lock",
+    "projects/chirality-piping/core/reporting/report_package/Cargo.lock",
+    "projects/chirality-piping/core/reporting/report_renderer/Cargo.lock",
+    "projects/chirality-piping/core/reporting/report_sections/Cargo.lock",
+    "projects/chirality-piping/core/reporting/result_export/Cargo.lock",
+    "projects/chirality-piping/core/rules/completeness_checker/Cargo.lock",
+    "projects/chirality-piping/core/rules/expression_evaluator/Cargo.lock",
+    "projects/chirality-piping/core/rules/rule_check_runner/Cargo.lock",
+    "projects/chirality-piping/core/rules/rule_pack_document/Cargo.lock",
+    "projects/chirality-piping/core/rules/rule_pack_lifecycle/Cargo.lock",
+    "projects/chirality-piping/core/runner/headless/Cargo.lock",
+    "projects/chirality-piping/core/serialization/canonical_json/Cargo.lock",
+    "projects/chirality-piping/core/solver/curved_bend/Cargo.lock",
+    "projects/chirality-piping/core/solver/diagnostics/Cargo.lock",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+    "projects/chirality-piping/core/solver/linear_supports/Cargo.lock",
+    "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.lock",
+    "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.lock",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock",
+    "projects/chirality-piping/core/solver/straight_pipe/Cargo.lock",
+    "projects/chirality-piping/core/units/Cargo.lock"
+  ],
+  "changed_leaf_locks_in_recorded_inputs": [
+    "projects/chirality-piping/core/reporting/report_package/Cargo.lock"
+  ],
+  "any_validation_benchmarks_path_in_inputs": true,
+  "native_8b98": {
+    "rev": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+    "differing_paths": [],
+    "missing_paths": [],
+    "tracked_paths_not_in_recorded_set": [],
+    "differing_detail": {}
+  },
+  "pr905_e650": {
+    "rev": "e65001ad50072d3399bf204da02055b0f360353a",
+    "differing_paths": [],
+    "missing_paths": [],
+    "tracked_paths_not_in_recorded_set": [],
+    "differing_detail": {}
+  },
+  "handoff_5b1c": {
+    "rev": "5b1ccd356c0d9656f7b9f42c6558f7a4c73f9295",
+    "differing_paths": [
+      "projects/chirality-piping/core/reporting/report_package/Cargo.lock"
+    ],
+    "missing_paths": [],
+    "tracked_paths_not_in_recorded_set": [],
+    "differing_detail": {
+      "projects/chirality-piping/core/reporting/report_package/Cargo.lock": {
+        "recorded": "946819d8c31b2227afa8e46ce552d3211483faea0c163becf41abc95b0e2836a",
+        "at_rev": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c"
+      }
+    }
+  },
+  "named_inputs": {
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock": {
+      "recorded": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+      "native_8b98": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+      "pr905_e650": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+      "handoff_5b1c": "23d4365621021f95648e4ae6fad72e10f6eacd254104752c50ce9ce25f34c80c",
+      "blob_ids": {
+        "native_8b98": "8b2ae3b5f54d885a43dcb64e21d5c17eb9173902",
+        "pr905_e650": "8b2ae3b5f54d885a43dcb64e21d5c17eb9173902",
+        "handoff_5b1c": "8b2ae3b5f54d885a43dcb64e21d5c17eb9173902"
+      }
+    },
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml": {
+      "recorded": "ae8eb2d1193fb96d742820614eebb6b69eaefa2256d23d79193c3b4b3dcb0b16",
+      "native_8b98": "ae8eb2d1193fb96d742820614eebb6b69eaefa2256d23d79193c3b4b3dcb0b16",
+      "pr905_e650": "ae8eb2d1193fb96d742820614eebb6b69eaefa2256d23d79193c3b4b3dcb0b16",
+      "handoff_5b1c": "ae8eb2d1193fb96d742820614eebb6b69eaefa2256d23d79193c3b4b3dcb0b16",
+      "blob_ids": {
+        "native_8b98": "91277df5d165e6a7261dd3ca995c581eb69ac610",
+        "pr905_e650": "91277df5d165e6a7261dd3ca995c581eb69ac610",
+        "handoff_5b1c": "91277df5d165e6a7261dd3ca995c581eb69ac610"
+      }
+    },
+    "projects/chirality-piping/core/reporting/report_package/Cargo.lock": {
+      "recorded": "946819d8c31b2227afa8e46ce552d3211483faea0c163becf41abc95b0e2836a",
+      "native_8b98": "946819d8c31b2227afa8e46ce552d3211483faea0c163becf41abc95b0e2836a",
+      "pr905_e650": "946819d8c31b2227afa8e46ce552d3211483faea0c163becf41abc95b0e2836a",
+      "handoff_5b1c": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c",
+      "blob_ids": {
+        "native_8b98": "b4e26cded5b3b124e64ea50788a0ffb7ac9b7f71",
+        "pr905_e650": "b4e26cded5b3b124e64ea50788a0ffb7ac9b7f71",
+        "handoff_5b1c": "08f7e4f89d981fb7a605479882065ac8c7341577"
+      }
+    },
+    "projects/chirality-piping/core/reporting/report_package/Cargo.toml": {
+      "recorded": "9a0be8e6ac326f7dd50471b10287aa82cd0b4a81aecf806f31a6f86134478c85",
+      "native_8b98": "9a0be8e6ac326f7dd50471b10287aa82cd0b4a81aecf806f31a6f86134478c85",
+      "pr905_e650": "9a0be8e6ac326f7dd50471b10287aa82cd0b4a81aecf806f31a6f86134478c85",
+      "handoff_5b1c": "9a0be8e6ac326f7dd50471b10287aa82cd0b4a81aecf806f31a6f86134478c85",
+      "blob_ids": {
+        "native_8b98": "b85887064c0b4d9c48251f3ab9d6578fda48f68e",
+        "pr905_e650": "b85887064c0b4d9c48251f3ab9d6578fda48f68e",
+        "handoff_5b1c": "b85887064c0b4d9c48251f3ab9d6578fda48f68e"
+      }
+    },
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock": {
+      "recorded": "40af164db9c5f70cae7ca2a7d3305d28da2326323af16b949395ff701fb4e159",
+      "native_8b98": "40af164db9c5f70cae7ca2a7d3305d28da2326323af16b949395ff701fb4e159",
+      "pr905_e650": "40af164db9c5f70cae7ca2a7d3305d28da2326323af16b949395ff701fb4e159",
+      "handoff_5b1c": "40af164db9c5f70cae7ca2a7d3305d28da2326323af16b949395ff701fb4e159",
+      "blob_ids": {
+        "native_8b98": "1b8694393871e787f20e36dacb7bef050ba7f50a",
+        "pr905_e650": "1b8694393871e787f20e36dacb7bef050ba7f50a",
+        "handoff_5b1c": "1b8694393871e787f20e36dacb7bef050ba7f50a"
+      }
+    },
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml": {
+      "recorded": "cfa2c68fe4f25365bdec83be7471d8904c823120c90081ce1e8ada06eef60fb3",
+      "native_8b98": "cfa2c68fe4f25365bdec83be7471d8904c823120c90081ce1e8ada06eef60fb3",
+      "pr905_e650": "cfa2c68fe4f25365bdec83be7471d8904c823120c90081ce1e8ada06eef60fb3",
+      "handoff_5b1c": "cfa2c68fe4f25365bdec83be7471d8904c823120c90081ce1e8ada06eef60fb3",
+      "blob_ids": {
+        "native_8b98": "6d0c3d78145d92afb0d70e8fa6071960ed7613e7",
+        "pr905_e650": "6d0c3d78145d92afb0d70e8fa6071960ed7613e7",
+        "handoff_5b1c": "6d0c3d78145d92afb0d70e8fa6071960ed7613e7"
+      }
+    },
+    "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock": {
+      "recorded": "4b56e2f3a78771b5c41639fb74625a901f8f94b1adc9af9ba3792040baa2714c",
+      "native_8b98": "4b56e2f3a78771b5c41639fb74625a901f8f94b1adc9af9ba3792040baa2714c",
+      "pr905_e650": "4b56e2f3a78771b5c41639fb74625a901f8f94b1adc9af9ba3792040baa2714c",
+      "handoff_5b1c": "4b56e2f3a78771b5c41639fb74625a901f8f94b1adc9af9ba3792040baa2714c",
+      "blob_ids": {
+        "native_8b98": "cc0a182f897d2f0510955f5e16756e82ee1615e8",
+        "pr905_e650": "cc0a182f897d2f0510955f5e16756e82ee1615e8",
+        "handoff_5b1c": "cc0a182f897d2f0510955f5e16756e82ee1615e8"
+      }
+    },
+    "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml": {
+      "recorded": "9d6527f2f1ab3e303df12f6e03352e96fd39334bcf9b111230fe136a4cb9d391",
+      "native_8b98": "9d6527f2f1ab3e303df12f6e03352e96fd39334bcf9b111230fe136a4cb9d391",
+      "pr905_e650": "9d6527f2f1ab3e303df12f6e03352e96fd39334bcf9b111230fe136a4cb9d391",
+      "handoff_5b1c": "9d6527f2f1ab3e303df12f6e03352e96fd39334bcf9b111230fe136a4cb9d391",
+      "blob_ids": {
+        "native_8b98": "26aa2269bf6a8ff582a8d311b787b42847ee0a68",
+        "pr905_e650": "26aa2269bf6a8ff582a8d311b787b42847ee0a68",
+        "handoff_5b1c": "26aa2269bf6a8ff582a8d311b787b42847ee0a68"
+      }
+    },
+    "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json": {
+      "recorded": "b3de0965f205e1ed34f07744939314c9ac40dd00af2ee8c0de336c6e2bfba5d0",
+      "native_8b98": "b3de0965f205e1ed34f07744939314c9ac40dd00af2ee8c0de336c6e2bfba5d0",
+      "pr905_e650": "b3de0965f205e1ed34f07744939314c9ac40dd00af2ee8c0de336c6e2bfba5d0",
+      "handoff_5b1c": "b3de0965f205e1ed34f07744939314c9ac40dd00af2ee8c0de336c6e2bfba5d0",
+      "blob_ids": {
+        "native_8b98": "ee5be1d3fe9bd463b791e507ea0f18c09ca84151",
+        "pr905_e650": "ee5be1d3fe9bd463b791e507ea0f18c09ca84151",
+        "handoff_5b1c": "ee5be1d3fe9bd463b791e507ea0f18c09ca84151"
+      }
+    },
+    "projects/chirality-piping/apps/desktop/package.json": {
+      "recorded": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa",
+      "native_8b98": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa",
+      "pr905_e650": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa",
+      "handoff_5b1c": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa",
+      "blob_ids": {
+        "native_8b98": "bc154c963df739f3535ae1056638d11f179dccd4",
+        "pr905_e650": "bc154c963df739f3535ae1056638d11f179dccd4",
+        "handoff_5b1c": "bc154c963df739f3535ae1056638d11f179dccd4"
+      }
+    },
+    "projects/chirality-piping/package-lock.json": {
+      "recorded": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+      "native_8b98": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+      "pr905_e650": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+      "handoff_5b1c": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+      "blob_ids": {
+        "native_8b98": "490bae945bd016ee6c43b879b36b71c184b8cb67",
+        "pr905_e650": "490bae945bd016ee6c43b879b36b71c184b8cb67",
+        "handoff_5b1c": "490bae945bd016ee6c43b879b36b71c184b8cb67"
+      }
+    },
+    "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs": {
+      "recorded": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5",
+      "native_8b98": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5",
+      "pr905_e650": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5",
+      "handoff_5b1c": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5",
+      "blob_ids": {
+        "native_8b98": "1f96fb21095d3062b8929420af7029f68b9f47d5",
+        "pr905_e650": "1f96fb21095d3062b8929420af7029f68b9f47d5",
+        "handoff_5b1c": "1f96fb21095d3062b8929420af7029f68b9f47d5"
+      }
+    }
+  }
+}

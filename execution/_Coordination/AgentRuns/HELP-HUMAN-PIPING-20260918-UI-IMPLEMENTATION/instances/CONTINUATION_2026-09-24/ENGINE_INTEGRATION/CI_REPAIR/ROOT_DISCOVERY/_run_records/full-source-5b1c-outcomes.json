@@ -1,0 +1,5142 @@
+{
+ "source_json_sha256": "acd9989ada55d6dbbf5f4c57c6768c368a0b20d8f16c5379129d96aa8e57fe68",
+ "source_json_bytes": 22053626,
+ "stats": {
+  "startTime": "2026-09-25T17:12:31.912Z",
+  "duration": 3169706.3170000003,
+  "expected": 466,
+  "skipped": 20,
+  "unexpected": 13,
+  "flaky": 0
+ },
+ "status_counts": {
+  "expected": 466,
+  "unexpected": 13,
+  "skipped": 20
+ },
+ "identities": 499,
+ "unexpected": [
+  {
+   "file": "gui-workflow-validation.spec.ts",
+   "line": 107,
+   "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "gui-workflow-validation.spec.ts",
+   "line": 107,
+   "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+   "project": "chromium-compact",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "linear-authoring.spec.ts",
+   "line": 60,
+   "title": "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "linear-authoring.spec.ts",
+   "line": 60,
+   "title": "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review",
+   "project": "chromium-compact",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 338,
+   "title": "R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1680,
+   "title": "R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 338,
+   "title": "R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals",
+   "project": "chromium-compact",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1680,
+   "title": "R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps",
+   "project": "chromium-compact",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 468,
+   "title": "actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix",
+   "project": "chromium-compact",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas light comfortable 1280x800",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas light compact 1280x800",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas dark comfortable 1280x800",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas dark compact 1280x800",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 29,
+   "title": "disabled rail and Agent reasons escape clipping under keyboard focus",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 56,
+   "title": "covered pages exclude retained stage controls from Tab and accessibility",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 90,
+   "title": "Both inspector Escape closes from property tab and input to opener",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 103,
+   "title": "Model inspector stays docked on Escape",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 113,
+   "title": "toolkit child consumes first Escape before inspector close",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 129,
+   "title": "portalled routing Escape closes explicitly and supersedes automatic restore",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 146,
+   "title": "keyboard page Close restores visible focus and retained state: libraries",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 146,
+   "title": "keyboard page Close restores visible focus and retained state: project",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 146,
+   "title": "keyboard page Close restores visible focus and retained state: solve",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 202,
+   "title": "compact routing selector owns popup Escape before configured shell consumers",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 202,
+   "title": "compact routing selector owns popup Escape before narrow shell consumers",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 282,
+   "title": "support family popup dismissal does not invent a missing engineering choice",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 307,
+   "title": "Agent reason preserves hover and lets focused page Close receive the pointer",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 326,
+   "title": "disabled reasons own only visible unconsumed Escape and reset on reentry",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 378,
+   "title": "simultaneous hovered and focused reasons dismiss before the page",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 29,
+   "title": "disabled rail and Agent reasons escape clipping under keyboard focus",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 56,
+   "title": "covered pages exclude retained stage controls from Tab and accessibility",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 90,
+   "title": "Both inspector Escape closes from property tab and input to opener",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 103,
+   "title": "Model inspector stays docked on Escape",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 113,
+   "title": "toolkit child consumes first Escape before inspector close",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 129,
+   "title": "portalled routing Escape closes explicitly and supersedes automatic restore",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 146,
+   "title": "keyboard page Close restores visible focus and retained state: libraries",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 146,
+   "title": "keyboard page Close restores visible focus and retained state: project",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 146,
+   "title": "keyboard page Close restores visible focus and retained state: solve",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 202,
+   "title": "compact routing selector owns popup Escape before configured shell consumers",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 202,
+   "title": "compact routing selector owns popup Escape before narrow shell consumers",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 282,
+   "title": "support family popup dismissal does not invent a missing engineering choice",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 307,
+   "title": "Agent reason preserves hover and lets focused page Close receive the pointer",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 326,
+   "title": "disabled reasons own only visible unconsumed Escape and reset on reentry",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3-accessibility.spec.ts",
+   "line": 378,
+   "title": "simultaneous hovered and focused reasons dismiss before the page",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3a-session-status.spec.ts",
+   "line": 5,
+   "title": "canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3a-session-status.spec.ts",
+   "line": 5,
+   "title": "canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3b-project-persistence.spec.ts",
+   "line": 16,
+   "title": "B3B blank/create/save/open snapshot evidence",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b3b-project-persistence.spec.ts",
+   "line": 16,
+   "title": "B3B blank/create/save/open snapshot evidence",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-sections.spec.ts",
+   "line": 17,
+   "title": "B4 Sections mixed-unit direct editing preserves no-op, rejection, shared-pipe rejection and history",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-sections.spec.ts",
+   "line": 36,
+   "title": "B4 Sections enum explicit completion, passive cancellation and raw review retention",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-sections.spec.ts",
+   "line": 95,
+   "title": "B4 Sections Apply Tab accepts the next actual key during unrelated quantity reconversion",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-sections.spec.ts",
+   "line": 121,
+   "title": "B4 Sections moved review row preserves text Undo, input ownership and virtual hidden lifetimes",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-sections.spec.ts",
+   "line": 149,
+   "title": "B4 diagnostic clipped Section enum dismisses its detached options after real body scroll",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-sections.spec.ts",
+   "line": 17,
+   "title": "B4 Sections mixed-unit direct editing preserves no-op, rejection, shared-pipe rejection and history",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-sections.spec.ts",
+   "line": 36,
+   "title": "B4 Sections enum explicit completion, passive cancellation and raw review retention",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-sections.spec.ts",
+   "line": 95,
+   "title": "B4 Sections Apply Tab accepts the next actual key during unrelated quantity reconversion",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-sections.spec.ts",
+   "line": 121,
+   "title": "B4 Sections moved review row preserves text Undo, input ownership and virtual hidden lifetimes",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-sections.spec.ts",
+   "line": 149,
+   "title": "B4 diagnostic clipped Section enum dismisses its detached options after real body scroll",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 7,
+   "title": "B4 node coordinates apply through one operation with keyboard, history and saved-state ownership",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 51,
+   "title": "B4 virtualized invalid editor survives scrolling and a filter threshold without changing the model",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 81,
+   "title": "B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 176,
+   "title": "B4 short Grid keeps vertical chrome fixed and retains alternate review drafts",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 209,
+   "title": "B4 virtual Grid confines body scrolling and boundary wheel without moving chrome",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 261,
+   "title": "B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 324,
+   "title": "B4 character-start direct label appends ordinary keys and preserves intentional selection",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 324,
+   "title": "B4 character-start direct x appends ordinary keys and preserves intentional selection",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 324,
+   "title": "B4 character-start review label appends ordinary keys and preserves intentional selection",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 324,
+   "title": "B4 character-start review x appends ordinary keys and preserves intentional selection",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 363,
+   "title": "B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 454,
+   "title": "B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 507,
+   "title": "B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 554,
+   "title": "B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 618,
+   "title": "B4 Node review retained editor stays contained through hidden families and page resize",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer model comfortable 180 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer model comfortable 280 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer model comfortable 500 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer both comfortable 180 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer both comfortable 280 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer both comfortable 500 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer model compact 180 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer model compact 280 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer model compact 500 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer both compact 180 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer both compact 280 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 651,
+   "title": "B4 compact drawer both compact 500 @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 717,
+   "title": "B4 Details owns traversed Escape and preserves editor ownership in model @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 717,
+   "title": "B4 Details owns traversed Escape and preserves editor ownership in both @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 7,
+   "title": "B4 node coordinates apply through one operation with keyboard, history and saved-state ownership",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 51,
+   "title": "B4 virtualized invalid editor survives scrolling and a filter threshold without changing the model",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 81,
+   "title": "B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 176,
+   "title": "B4 short Grid keeps vertical chrome fixed and retains alternate review drafts",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 209,
+   "title": "B4 virtual Grid confines body scrolling and boundary wheel without moving chrome",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 261,
+   "title": "B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 324,
+   "title": "B4 character-start direct label appends ordinary keys and preserves intentional selection",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 324,
+   "title": "B4 character-start direct x appends ordinary keys and preserves intentional selection",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 324,
+   "title": "B4 character-start review label appends ordinary keys and preserves intentional selection",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 324,
+   "title": "B4 character-start review x appends ordinary keys and preserves intentional selection",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 363,
+   "title": "B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 454,
+   "title": "B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 507,
+   "title": "B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 554,
+   "title": "B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 618,
+   "title": "B4 Node review retained editor stays contained through hidden families and page resize",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 783,
+   "title": "classic scrollbar allocation > B4 classic scrollbar compact comfortable 1 preserves tracks and nonmutating pans @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 783,
+   "title": "classic scrollbar allocation > B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 783,
+   "title": "classic scrollbar allocation > B4 classic scrollbar compact comfortable 160 preserves tracks and nonmutating pans @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 783,
+   "title": "classic scrollbar allocation > B4 classic scrollbar compact compact 1 preserves tracks and nonmutating pans @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 783,
+   "title": "classic scrollbar allocation > B4 classic scrollbar compact compact 5 preserves tracks and nonmutating pans @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "b4-table-editing.spec.ts",
+   "line": 783,
+   "title": "classic scrollbar allocation > B4 classic scrollbar compact compact 160 preserves tracks and nonmutating pans @explicit-viewport",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 78,
+   "title": "C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 153,
+   "title": "C3 dimmed geometry remains available to hover, click and box selection",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 188,
+   "title": "C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 227,
+   "title": "C3 isolation remains clearable when every drawable entity belongs to the snapshot",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 244,
+   "title": "C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 279,
+   "title": "C3 visibility never gives bundled references a current overlay or saved-model association",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 78,
+   "title": "C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 153,
+   "title": "C3 dimmed geometry remains available to hover, click and box selection",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 188,
+   "title": "C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 227,
+   "title": "C3 isolation remains clearable when every drawable entity belongs to the snapshot",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 244,
+   "title": "C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "c3-viewport-visibility.spec.ts",
+   "line": 279,
+   "title": "C3 visibility never gives bundled references a current overlay or saved-model association",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "gui-workflow-validation.spec.ts",
+   "line": 107,
+   "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "gui-workflow-validation.spec.ts",
+   "line": 324,
+   "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "gui-workflow-validation.spec.ts",
+   "line": 324,
+   "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "gui-workflow-validation.spec.ts",
+   "line": 107,
+   "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+   "project": "chromium-compact",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "gui-workflow-validation.spec.ts",
+   "line": 324,
+   "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "gui-workflow-validation.spec.ts",
+   "line": 324,
+   "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "linear-authoring.spec.ts",
+   "line": 60,
+   "title": "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "linear-authoring.spec.ts",
+   "line": 60,
+   "title": "compact blank-to-straight authoring keeps the canvas and exact Add/Apply review",
+   "project": "chromium-compact",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 66,
+   "title": "recorded reference sources retain the original row, quantity, unit and diagnostic oracles",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 93,
+   "title": "pure recorded-source projections retain quantity and comparison unit oracles",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 235,
+   "title": "guided workbench shell keeps journey steps, details, and compact status reachable",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 313,
+   "title": "DEC-077 solve temperature queues an explicit unit-bearing operation",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 338,
+   "title": "R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 886,
+   "title": "viewport gesture placeholders record unit validation",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 923,
+   "title": "R2 from-blank GUI journey authors the A12 rehearsal script",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1142,
+   "title": "reference result detail retains linked diagnostics and MPa units without current diagnostic state",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1165,
+   "title": "rule-pack manager drafts privately and reports the desktop-only backend seam",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1388,
+   "title": "library manager loads an invented private sample and reports the desktop-only backend seam",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1552,
+   "title": "run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1680,
+   "title": "R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 66,
+   "title": "recorded reference sources retain the original row, quantity, unit and diagnostic oracles",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 93,
+   "title": "pure recorded-source projections retain quantity and comparison unit oracles",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 235,
+   "title": "guided workbench shell keeps journey steps, details, and compact status reachable",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 313,
+   "title": "DEC-077 solve temperature queues an explicit unit-bearing operation",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 338,
+   "title": "R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals",
+   "project": "chromium-compact",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 886,
+   "title": "viewport gesture placeholders record unit validation",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 923,
+   "title": "R2 from-blank GUI journey authors the A12 rehearsal script",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1142,
+   "title": "reference result detail retains linked diagnostics and MPa units without current diagnostic state",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1165,
+   "title": "rule-pack manager drafts privately and reports the desktop-only backend seam",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1388,
+   "title": "library manager loads an invented private sample and reports the desktop-only backend seam",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1552,
+   "title": "run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "r2-smoke.spec.ts",
+   "line": 1680,
+   "title": "R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps",
+   "project": "chromium-compact",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "result-compatibility.spec.ts",
+   "line": 7,
+   "title": "browser references remain inspectable and cannot publish qualified result or stress-neutral exports",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "result-compatibility.spec.ts",
+   "line": 7,
+   "title": "browser references remain inspectable and cannot publish qualified result or stress-neutral exports",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 117,
+   "title": "nonzero canvas origin and prescribed orbit start retain client coordinates",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 127,
+   "title": "overlay target and observer overflow fail closed",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 136,
+   "title": "RAF callback percentile cannot be diluted by cheap registrations",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 154,
+   "title": "invalid samples fail and crossing samples are charged in full",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 169,
+   "title": "forced derivation failure preserves immutable earlier journals and a terminal failure",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 186,
+   "title": "observer setup failure still invokes the original RAF callback exactly once and restore removes listeners",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 378,
+   "title": "actual elementFromPoint rejects an intercepting overlay",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 386,
+   "title": "candidate diagnostics without same-callback DOM and positive submission cannot emit qualifying feedback",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 416,
+   "title": "clear sentinel retains original WebGL clear work separately from observer cost",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 448,
+   "title": "source-bound page-edge uncertainty retains possibly intersecting observer work",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 462,
+   "title": "candidate point feedback requires product-shaped compact heading: valid",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 462,
+   "title": "candidate point feedback requires product-shaped compact heading: wrong-label",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 462,
+   "title": "candidate point feedback requires product-shaped compact heading: wrong-typed-identity",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 529,
+   "title": "raw zero costs remain uncertain rather than a true-overhead pass",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 539,
+   "title": "missing, malformed, negative and nonfinite observer readings fail structurally",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 551,
+   "title": "expected RAF and action operation populations cannot disappear",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 567,
+   "title": "bad or missing observer windows cannot receive structural validity",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 576,
+   "title": "extra or unknown observer RAF, product observation RAF, and incomplete restore fail closed",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 588,
+   "title": "instrumented preflight still requires complete causal and pixel evidence above raw overhead references",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 627,
+   "title": "exact observation coverage accepts extra unrelated callbacks and shared pointer action listener",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 637,
+   "title": "unrelated RAF cost cannot substitute for missing saved feedback cost",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 649,
+   "title": "missing or non-enclosing pointer and action cost records fail",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 665,
+   "title": "malformed or duplicate expected observation identities and boundaries fail",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 685,
+   "title": "duplicate ambiguous enclosures and illegal reuse across distinct callbacks fail",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 701,
+   "title": "zero RAF DOM class requires exact input and mutation records without fabricated callbacks",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 721,
+   "title": "real input DOM observer binds stopped publication and pending mutation: complete",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 721,
+   "title": "real input DOM observer binds stopped publication and pending mutation: pending-mutation",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 776,
+   "title": "box feedback checks full membership even when primary is unchanged: complete",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 776,
+   "title": "box feedback checks full membership even when primary is unchanged: same-primary-missing-member",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 810,
+   "title": "assignment retains original product start and reconciles stopped identity: complete",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 810,
+   "title": "assignment retains original product start and reconciles stopped identity: stopped-model-drift",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 847,
+   "title": "baseline null outside hit records limitation and continues before label lookup",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 868,
+   "title": "secondary inspector capture uses phase-specific exact independently supplied typed heading",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: two-epochs",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: same-epoch",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: no-clear",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: stale-submission",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: wrong-model",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: unready-tree",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: final-without-frame",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: pending-at-stop",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: capacity",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 1005,
+   "title": "box callback consumes actual unavailable or active union and rejects numerical and ordered-state faults",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 1058,
+   "title": "Box producer phases are reevaluated only on a fresh genuine callback and retain bounded failed facts",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 117,
+   "title": "nonzero canvas origin and prescribed orbit start retain client coordinates",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 127,
+   "title": "overlay target and observer overflow fail closed",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 136,
+   "title": "RAF callback percentile cannot be diluted by cheap registrations",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 154,
+   "title": "invalid samples fail and crossing samples are charged in full",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 169,
+   "title": "forced derivation failure preserves immutable earlier journals and a terminal failure",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 186,
+   "title": "observer setup failure still invokes the original RAF callback exactly once and restore removes listeners",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 378,
+   "title": "actual elementFromPoint rejects an intercepting overlay",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 386,
+   "title": "candidate diagnostics without same-callback DOM and positive submission cannot emit qualifying feedback",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 416,
+   "title": "clear sentinel retains original WebGL clear work separately from observer cost",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 448,
+   "title": "source-bound page-edge uncertainty retains possibly intersecting observer work",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 462,
+   "title": "candidate point feedback requires product-shaped compact heading: valid",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 462,
+   "title": "candidate point feedback requires product-shaped compact heading: wrong-label",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 462,
+   "title": "candidate point feedback requires product-shaped compact heading: wrong-typed-identity",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 529,
+   "title": "raw zero costs remain uncertain rather than a true-overhead pass",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 539,
+   "title": "missing, malformed, negative and nonfinite observer readings fail structurally",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 551,
+   "title": "expected RAF and action operation populations cannot disappear",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 567,
+   "title": "bad or missing observer windows cannot receive structural validity",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 576,
+   "title": "extra or unknown observer RAF, product observation RAF, and incomplete restore fail closed",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 588,
+   "title": "instrumented preflight still requires complete causal and pixel evidence above raw overhead references",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 627,
+   "title": "exact observation coverage accepts extra unrelated callbacks and shared pointer action listener",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 637,
+   "title": "unrelated RAF cost cannot substitute for missing saved feedback cost",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 649,
+   "title": "missing or non-enclosing pointer and action cost records fail",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 665,
+   "title": "malformed or duplicate expected observation identities and boundaries fail",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 685,
+   "title": "duplicate ambiguous enclosures and illegal reuse across distinct callbacks fail",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 701,
+   "title": "zero RAF DOM class requires exact input and mutation records without fabricated callbacks",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 721,
+   "title": "real input DOM observer binds stopped publication and pending mutation: complete",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 721,
+   "title": "real input DOM observer binds stopped publication and pending mutation: pending-mutation",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 776,
+   "title": "box feedback checks full membership even when primary is unchanged: complete",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 776,
+   "title": "box feedback checks full membership even when primary is unchanged: same-primary-missing-member",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 810,
+   "title": "assignment retains original product start and reconciles stopped identity: complete",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 810,
+   "title": "assignment retains original product start and reconciles stopped identity: stopped-model-drift",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 847,
+   "title": "baseline null outside hit records limitation and continues before label lookup",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 868,
+   "title": "secondary inspector capture uses phase-specific exact independently supplied typed heading",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: two-epochs",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: same-epoch",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: no-clear",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: stale-submission",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: wrong-model",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: unready-tree",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: final-without-frame",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: pending-at-stop",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 889,
+   "title": "assignment epoch history requires genuine eligible advancing frames: capacity",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 1005,
+   "title": "box callback consumes actual unavailable or active union and rejects numerical and ordered-state faults",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/causal-method-contract.spec.ts",
+   "line": 1058,
+   "title": "Box producer phases are reevaluated only on a fresh genuine callback and retain bounded failed facts",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/fresh-demo-policy.spec.ts",
+   "line": 16,
+   "title": "fresh policy requires exact one-run authorization and all prospective bindings",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/fresh-demo-policy.spec.ts",
+   "line": 23,
+   "title": "fresh hash and exclusive entry reject policy drift and output replay",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/fresh-demo-policy.spec.ts",
+   "line": 35,
+   "title": "fresh smoke is explicit, keeps both-size controls and never consumes timed entry",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/fresh-demo-policy.spec.ts",
+   "line": 41,
+   "title": "single demonstration retains target failure and invalid/incomplete disposition",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/fresh-demo-policy.spec.ts",
+   "line": 16,
+   "title": "fresh policy requires exact one-run authorization and all prospective bindings",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/fresh-demo-policy.spec.ts",
+   "line": 23,
+   "title": "fresh hash and exclusive entry reject policy drift and output replay",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/fresh-demo-policy.spec.ts",
+   "line": 35,
+   "title": "fresh smoke is explicit, keeps both-size controls and never consumes timed entry",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/fresh-demo-policy.spec.ts",
+   "line": 41,
+   "title": "single demonstration retains target failure and invalid/incomplete disposition",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 12,
+   "title": "frozen controller recipe retains prescribed workload and bounded independent segments",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 16,
+   "title": "tree oracle is independently derived with complete typed order and ARIA groups",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 32,
+   "title": "only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: assignment",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 32,
+   "title": "only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: tree-filter",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 45,
+   "title": "presented gap bounds widen outward and never subtract observer work",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 81,
+   "title": "paired cue permits contrasting rim replacing orange and rejects unchanged/outside changes",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 90,
+   "title": "exact four distinct paired witnesses and actual contrast boundary remain mandatory",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 102,
+   "title": "cue plan rejects wrong typed winner anchor camera DPR clip and corrupt PNG mappings",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 114,
+   "title": "geometry pairing is deterministic conservative and one-to-one",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 122,
+   "title": "real caller observer requirements retain complete observations and DOM zero RAF class",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 132,
+   "title": "actual product pre-box unavailable and status-less active union is strict",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 146,
+   "title": "stopped box rejection persists exact fields before throwing and never overwrites evidence",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 266,
+   "title": "cross-action camera accepts finite sub-nanounit 7 to 8 publication and rejects incomplete or changed geometry",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 293,
+   "title": "first applied tuple binds same or later submission only for the exact unchanged application and pointer",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 325,
+   "title": "actual first callback copies application and capture rejects replacement drift or later backfill",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 415,
+   "title": "winner plan requires geometry provenance even when the altered plan is rehashed and self-consistent",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 424,
+   "title": "cue at the wrong attachment location cannot qualify the frozen winner center",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 456,
+   "title": "actual ReturnAsStream beyond former64MiB preserves EOF exact hash and unsafe identifiers",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 468,
+   "title": "actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 480,
+   "title": "tree oracle restores accepted project restraint provenance and component vocabulary",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 550,
+   "title": "tree oracle matches all 40 independently frozen ordered query memberships",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 565,
+   "title": "runtime geometry pin rejects old and mutated plan sources after valid selfhash rebinding",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 577,
+   "title": "runtime geometry pin checks self-contained manifests and actual disk source",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 634,
+   "title": "orbit constructor preserves full qualified sequence and unchanged interval gaps",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 674,
+   "title": "same-trace integer arithmetic matches independent rational bounds and translation",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 683,
+   "title": "same-trace boundary rejects mixed raw clock source document action epoch process and lineage",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 880,
+   "title": "actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 900,
+   "title": "source-shaped extractor still rejects overlap missing pair and mismatched track endpoints",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 909,
+   "title": "actual action lifecycle persists once before host tail and blocks next action through finalization",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 931,
+   "title": "actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 959,
+   "title": "assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 984,
+   "title": "characterization rejects malformed/conflicting modes and every partial/reordered plan",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 994,
+   "title": "real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1013,
+   "title": "attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1026,
+   "title": "required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1035,
+   "title": "keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1041,
+   "title": "reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1055,
+   "title": "product inventory rejects omission duplicates split overlap and wrong final provenance",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1063,
+   "title": "frozen actual product/profile inputs validate read-only when explicitly supplied",
+   "project": "chromium-desktop",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1078,
+   "title": "uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1100,
+   "title": "continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1130,
+   "title": "continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates",
+   "project": "chromium-desktop",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1197,
+   "title": "phase label rejection preserves actual boundary metadata: point-selection-1-stopped",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1197,
+   "title": "phase label rejection preserves actual boundary metadata: orbit-1-ready",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1215,
+   "title": "captured scrollable inspector dimensions remain observations while true layout drift rejects",
+   "project": "chromium-desktop",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: target-miss",
+   "project": "chromium-desktop",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: invalid,valid",
+   "project": "chromium-desktop",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid",
+   "project": "chromium-desktop",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: interrupted,valid",
+   "project": "chromium-desktop",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: empty-exit0,valid",
+   "project": "chromium-desktop",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: stale-success",
+   "project": "chromium-desktop",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1333,
+   "title": "explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates",
+   "project": "chromium-desktop",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1382,
+   "title": "fresh demonstration provenance accepts only its bound revision and internal120 profile",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1400,
+   "title": "first profile repair: historical geometry preserves its pinned preimage",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1408,
+   "title": "first profile repair: D-70 inventory retains the original acceptance independently of later inventories",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1421,
+   "title": "first profile repair: generator checks and preflight failures never write",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 12,
+   "title": "frozen controller recipe retains prescribed workload and bounded independent segments",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 16,
+   "title": "tree oracle is independently derived with complete typed order and ARIA groups",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 32,
+   "title": "only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: assignment",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 32,
+   "title": "only one unchanged final DOM epoch can enter the extractor and earlier epochs stay explicit: tree-filter",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 45,
+   "title": "presented gap bounds widen outward and never subtract observer work",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 81,
+   "title": "paired cue permits contrasting rim replacing orange and rejects unchanged/outside changes",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 90,
+   "title": "exact four distinct paired witnesses and actual contrast boundary remain mandatory",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 102,
+   "title": "cue plan rejects wrong typed winner anchor camera DPR clip and corrupt PNG mappings",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 114,
+   "title": "geometry pairing is deterministic conservative and one-to-one",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 122,
+   "title": "real caller observer requirements retain complete observations and DOM zero RAF class",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 132,
+   "title": "actual product pre-box unavailable and status-less active union is strict",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 146,
+   "title": "stopped box rejection persists exact fields before throwing and never overwrites evidence",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 266,
+   "title": "cross-action camera accepts finite sub-nanounit 7 to 8 publication and rejects incomplete or changed geometry",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 293,
+   "title": "first applied tuple binds same or later submission only for the exact unchanged application and pointer",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 325,
+   "title": "actual first callback copies application and capture rejects replacement drift or later backfill",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 415,
+   "title": "winner plan requires geometry provenance even when the altered plan is rehashed and self-consistent",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 424,
+   "title": "cue at the wrong attachment location cannot qualify the frozen winner center",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 456,
+   "title": "actual ReturnAsStream beyond former64MiB preserves EOF exact hash and unsafe identifiers",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 468,
+   "title": "actual ReturnAsStream beyond fixed256MiB fails closed preserving exact bounded prefix",
+   "project": "chromium-compact",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 480,
+   "title": "tree oracle restores accepted project restraint provenance and component vocabulary",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 550,
+   "title": "tree oracle matches all 40 independently frozen ordered query memberships",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 565,
+   "title": "runtime geometry pin rejects old and mutated plan sources after valid selfhash rebinding",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 577,
+   "title": "runtime geometry pin checks self-contained manifests and actual disk source",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 634,
+   "title": "orbit constructor preserves full qualified sequence and unchanged interval gaps",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 674,
+   "title": "same-trace integer arithmetic matches independent rational bounds and translation",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 683,
+   "title": "same-trace boundary rejects mixed raw clock source document action epoch process and lineage",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 880,
+   "title": "actual extractor and binder retain reusable tracks distinct raw pairs and tied timestamps",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 900,
+   "title": "source-shaped extractor still rejects overlap missing pair and mismatched track endpoints",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 909,
+   "title": "actual action lifecycle persists once before host tail and blocks next action through finalization",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 931,
+   "title": "actual lifecycle retains injected work stop persistence tail and finalization failures without replacement stop",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 959,
+   "title": "assignment diagnostics freeze ten fresh identities and cannot qualify full or focused workload",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 984,
+   "title": "characterization rejects malformed/conflicting modes and every partial/reordered plan",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 994,
+   "title": "real driver execution gate continues ten target-miss callbacks in order, strict stops first, invalid never retries",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1013,
+   "title": "attempt separates complete characterization from FAIL_COHORT and lists failed/unattempted runs",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1026,
+   "title": "required metadata rejects missing fields and profile/model/binding drift while allowing legitimate camera/labels transitions",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1035,
+   "title": "keyboard adapter focuses before arm and inserts exactly one whole query without fill, clipboard or synthetic handlers",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1041,
+   "title": "reference profile and external main online 60 Hz display binding fail closed including ambiguous profiles",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1055,
+   "title": "product inventory rejects omission duplicates split overlap and wrong final provenance",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1063,
+   "title": "frozen actual product/profile inputs validate read-only when explicitly supplied",
+   "project": "chromium-compact",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1078,
+   "title": "uninstrumented smoke canvas guard accepts observed exact canvas without weakening timed epochs",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1100,
+   "title": "continuation metadata allows truthful inner content heights but preserves outer geometry and rejected evidence",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1130,
+   "title": "continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates",
+   "project": "chromium-compact",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1197,
+   "title": "phase label rejection preserves actual boundary metadata: point-selection-1-stopped",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1197,
+   "title": "phase label rejection preserves actual boundary metadata: orbit-1-ready",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1215,
+   "title": "captured scrollable inspector dimensions remain observations while true layout drift rejects",
+   "project": "chromium-compact",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: target-miss",
+   "project": "chromium-compact",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: invalid,valid",
+   "project": "chromium-compact",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid",
+   "project": "chromium-compact",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: interrupted,valid",
+   "project": "chromium-compact",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: empty-exit0,valid",
+   "project": "chromium-compact",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1246,
+   "title": "owner one-success transition preserves history and bounded dispatch: stale-success",
+   "project": "chromium-compact",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1333,
+   "title": "explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates",
+   "project": "chromium-compact",
+   "status": "skipped",
+   "outcomes": [
+    "skipped"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1382,
+   "title": "fresh demonstration provenance accepts only its bound revision and internal120 profile",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1400,
+   "title": "first profile repair: historical geometry preserves its pinned preimage",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1408,
+   "title": "first profile repair: D-70 inventory retains the original acceptance independently of later inventories",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/full-cohort-controller.spec.ts",
+   "line": 1421,
+   "title": "first profile repair: generator checks and preflight failures never write",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 40,
+   "title": "all exact owner boundaries pass despite raw observer reference exceedance",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 47,
+   "title": "each target rejects tiny excess and scores upper rather than lower endpoint",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 63,
+   "title": "nearest rank uses the 190th of 200 and retains all tail samples",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 71,
+   "title": "all twenty box and filter rows are required and nineteenth upper is scored",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 80,
+   "title": "missing duplicate reordered sparse or unqualified action populations fail without survivor p95",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 93,
+   "title": "invalid duration intervals and absent assignment never qualify",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 103,
+   "title": "settled owned RAF must be observed exact zero",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 110,
+   "title": "orbit requires exact windows complete contiguous brackets correct modes and current OD",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 125,
+   "title": "run identity bindings freshness and qualification are mandatory",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 136,
+   "title": "exact ten-run cohort preserves each result without pooling sizes or modes",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 146,
+   "title": "missing repeated mixed-binding or nonfresh cohort cannot pass",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 160,
+   "title": "outside orbit brackets survive exact left right and both boundary alignment: centerline",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 175,
+   "title": "boundary endpoints cannot replace missing left right or both outside brackets: centerline",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 160,
+   "title": "outside orbit brackets survive exact left right and both boundary alignment: actual-od",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 175,
+   "title": "boundary endpoints cannot replace missing left right or both outside brackets: actual-od",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 197,
+   "title": "qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: centerline",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 221,
+   "title": "tied coordinates do not waive identity population interval or window guards: centerline",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 197,
+   "title": "qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: actual-od",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 221,
+   "title": "tied coordinates do not waive identity population interval or window guards: actual-od",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 259,
+   "title": "uncertain right boundary is qualified rather than nominally rejected",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 266,
+   "title": "independent dyadic1199 versus1200 dilution must fail using maximum population p95",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 281,
+   "title": "all left right both-edge cuts retain ties and no omitted candidates",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 298,
+   "title": "endpoint and envelope defects never become a favorable boundary population",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 333,
+   "title": "same-trace scorer independently rejects narrow bounds and false carried context",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 349,
+   "title": "same-trace complete populations retain ties and prevent boundary dilution",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 367,
+   "title": "same capture forbids every raw event reuse while tracks and raw index order may repeat",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 40,
+   "title": "all exact owner boundaries pass despite raw observer reference exceedance",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 47,
+   "title": "each target rejects tiny excess and scores upper rather than lower endpoint",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 63,
+   "title": "nearest rank uses the 190th of 200 and retains all tail samples",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 71,
+   "title": "all twenty box and filter rows are required and nineteenth upper is scored",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 80,
+   "title": "missing duplicate reordered sparse or unqualified action populations fail without survivor p95",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 93,
+   "title": "invalid duration intervals and absent assignment never qualify",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 103,
+   "title": "settled owned RAF must be observed exact zero",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 110,
+   "title": "orbit requires exact windows complete contiguous brackets correct modes and current OD",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 125,
+   "title": "run identity bindings freshness and qualification are mandatory",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 136,
+   "title": "exact ten-run cohort preserves each result without pooling sizes or modes",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 146,
+   "title": "missing repeated mixed-binding or nonfresh cohort cannot pass",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 160,
+   "title": "outside orbit brackets survive exact left right and both boundary alignment: centerline",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 175,
+   "title": "boundary endpoints cannot replace missing left right or both outside brackets: centerline",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 160,
+   "title": "outside orbit brackets survive exact left right and both boundary alignment: actual-od",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 175,
+   "title": "boundary endpoints cannot replace missing left right or both outside brackets: actual-od",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 197,
+   "title": "qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: centerline",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 221,
+   "title": "tied coordinates do not waive identity population interval or window guards: centerline",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 197,
+   "title": "qualified tied timestamps preserve all1201 upper endpoints and nearest rank1141: actual-od",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 221,
+   "title": "tied coordinates do not waive identity population interval or window guards: actual-od",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 259,
+   "title": "uncertain right boundary is qualified rather than nominally rejected",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 266,
+   "title": "independent dyadic1199 versus1200 dilution must fail using maximum population p95",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 281,
+   "title": "all left right both-edge cuts retain ties and no omitted candidates",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 298,
+   "title": "endpoint and envelope defects never become a favorable boundary population",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 333,
+   "title": "same-trace scorer independently rejects narrow bounds and false carried context",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 349,
+   "title": "same-trace complete populations retain ties and prevent boundary dilution",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation/performance-targets.spec.ts",
+   "line": 367,
+   "title": "same capture forbids every raw event reuse while tracks and raw index order may repeat",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 38,
+   "title": "[preflight] maintained fixture supports typed selection and a keyboard-authored measurement",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 82,
+   "title": "a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 242,
+   "title": "typed raw-ID collisions remain distinct through ordered selection and an ABA membership change",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 270,
+   "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 270,
+   "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 309,
+   "title": "virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 349,
+   "title": "Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 398,
+   "title": "real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 483,
+   "title": "Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas light comfortable 1024x768",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas light comfortable 1280x800",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas light comfortable 1440x920",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas light compact 1024x768",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas light compact 1280x800",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas light compact 1440x920",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas dark comfortable 1024x768",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas dark comfortable 1280x800",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas dark comfortable 1440x920",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas dark compact 1024x768",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas dark compact 1280x800",
+   "project": "chromium-desktop",
+   "status": "unexpected",
+   "outcomes": [
+    "failed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 677,
+   "title": "task and analysis dock preserve usable canvas dark compact 1440x920",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 979,
+   "title": "selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1053,
+   "title": "a property task keeps its typed target and entered value through filter, collapse, and selection ABA",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1109,
+   "title": "live Properties routes follow catalogue target B while frozen Task A remains unchanged",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1178,
+   "title": "an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1221,
+   "title": "a prepared direct review is rejected after selection membership leaves and returns to the same primary",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1246,
+   "title": "selected-pipe actions copy a stable draft target snapshot instead of following later selection",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1283,
+   "title": "filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1353,
+   "title": "node visibility owns attached symbols while connected spans remain independent, and isolate is bounded",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1389,
+   "title": "Actual OD uses valid spans and explains the independently injected centerline fallback",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1400,
+   "title": "ordinary typed edit preserves view state and same-ID project replacement clears it",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1436,
+   "title": "keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1744,
+   "title": "narrow canvas fits visible and selected envelopes in every view preset",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1780,
+   "title": "standard 1000 camera recipe compares legacy and corrected fit without changing targets",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1780,
+   "title": "standard 10000 camera recipe compares legacy and corrected fit without changing targets",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1800,
+   "title": "filtered tree collapse controls retain typed selection and frozen draft across search changes",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1848,
+   "title": "empty ordered selection publishes independently from project inspector",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1982,
+   "title": "decorative viewport overlays pass real canvas gestures while view controls stay interactive",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 38,
+   "title": "[preflight] maintained fixture supports typed selection and a keyboard-authored measurement",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 82,
+   "title": "a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 242,
+   "title": "typed raw-ID collisions remain distinct through ordered selection and an ABA membership change",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 270,
+   "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 270,
+   "title": "Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 309,
+   "title": "virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 349,
+   "title": "Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 398,
+   "title": "real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 483,
+   "title": "Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 979,
+   "title": "selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1053,
+   "title": "a property task keeps its typed target and entered value through filter, collapse, and selection ABA",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1109,
+   "title": "live Properties routes follow catalogue target B while frozen Task A remains unchanged",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1178,
+   "title": "an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1221,
+   "title": "a prepared direct review is rejected after selection membership leaves and returns to the same primary",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1246,
+   "title": "selected-pipe actions copy a stable draft target snapshot instead of following later selection",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1283,
+   "title": "filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1353,
+   "title": "node visibility owns attached symbols while connected spans remain independent, and isolate is bounded",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1389,
+   "title": "Actual OD uses valid spans and explains the independently injected centerline fallback",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1400,
+   "title": "ordinary typed edit preserves view state and same-ID project replacement clears it",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1436,
+   "title": "keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1744,
+   "title": "narrow canvas fits visible and selected envelopes in every view preset",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1780,
+   "title": "standard 1000 camera recipe compares legacy and corrected fit without changing targets",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1780,
+   "title": "standard 10000 camera recipe compares legacy and corrected fit without changing targets",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1800,
+   "title": "filtered tree collapse controls retain typed selection and frozen draft across search changes",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1848,
+   "title": "empty ordered selection publishes independently from project inspector",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 1982,
+   "title": "decorative viewport overlays pass real canvas gestures while view controls stay interactive",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2149,
+   "title": "captured Box lifetime > ordinary real Box applies independent empty Components membership",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2157,
+   "title": "captured Box lifetime > Escape retires captured Box before delayed pointer up",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2173,
+   "title": "captured Box lifetime > same-ID Open retires old captured Box before delayed pointer up",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2209,
+   "title": "captured Box lifetime > Select retires captured Box before delayed pointer up",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2209,
+   "title": "captured Box lifetime > New blank retires captured Box before delayed pointer up",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2238,
+   "title": "captured Box lifetime > Measure cannot revive a captured Box through a mode ABA",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2238,
+   "title": "captured Box lifetime > palette Node and Select cannot revive a captured Box through a mode ABA",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2261,
+   "title": "captured Box lifetime > workspace Escape event ownership body idle",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2261,
+   "title": "captured Box lifetime > workspace Escape event ownership body captured",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2285,
+   "title": "captured Box lifetime > workspace Escape event ownership consumed palette",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2285,
+   "title": "captured Box lifetime > workspace Escape event ownership consumed drawer",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2149,
+   "title": "captured Box lifetime > ordinary real Box applies independent empty Components membership",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2157,
+   "title": "captured Box lifetime > Escape retires captured Box before delayed pointer up",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2173,
+   "title": "captured Box lifetime > same-ID Open retires old captured Box before delayed pointer up",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2209,
+   "title": "captured Box lifetime > Select retires captured Box before delayed pointer up",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2209,
+   "title": "captured Box lifetime > New blank retires captured Box before delayed pointer up",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2238,
+   "title": "captured Box lifetime > Measure cannot revive a captured Box through a mode ABA",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2238,
+   "title": "captured Box lifetime > palette Node and Select cannot revive a captured Box through a mode ABA",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2261,
+   "title": "captured Box lifetime > workspace Escape event ownership body idle",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2261,
+   "title": "captured Box lifetime > workspace Escape event ownership body captured",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2285,
+   "title": "captured Box lifetime > workspace Escape event ownership consumed palette",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "ui-foundation.spec.ts",
+   "line": 2285,
+   "title": "captured Box lifetime > workspace Escape event ownership consumed drawer",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 27,
+   "title": "workspace preserves the visible model during discovery, routing, property editing and analysis navigation",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 128,
+   "title": "D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 211,
+   "title": "routing uses the inspector without changing the D2 pane allocation, 1440 x 900, native-runtime class",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 211,
+   "title": "routing uses the inspector without changing the D2 pane allocation, 1280 x 800, native-runtime class",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 282,
+   "title": "the table strip clears DOM readouts and the painted orientation frame in Model and narrow Both views",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 340,
+   "title": "a switch to Table view hides the canvas without resizing its renderer",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 360,
+   "title": "browser native-class structural review captures retain pane and drawn-canvas geometry",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 403,
+   "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 403,
+   "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1440",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 403,
+   "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1280",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 403,
+   "title": "the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 523,
+   "title": "below 1280 px the expanded table drawer is in flow, its splitter remains operable, and the inspector stays a focus-restoring slide-over",
+   "project": "chromium-desktop",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  },
+  {
+   "file": "workspace-layout.spec.ts",
+   "line": 27,
+   "title": "workspace preserves the visible model during discovery, routing, property editing and analysis navigation",
+   "project": "chromium-compact",
+   "status": "expected",
+   "outcomes": [
+    "passed"
+   ]
+  }
+ ]
+}

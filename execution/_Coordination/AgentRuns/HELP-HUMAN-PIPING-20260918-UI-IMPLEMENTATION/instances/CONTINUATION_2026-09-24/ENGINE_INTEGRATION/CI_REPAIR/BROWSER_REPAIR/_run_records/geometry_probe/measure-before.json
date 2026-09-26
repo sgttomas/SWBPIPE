@@ -1,0 +1,252 @@
+{
+ "viewport": "1280x800",
+ "label": {
+  "l": 90,
+  "r": 177.7,
+  "w": 87.7,
+  "t": 426.5,
+  "h": 32
+ },
+ "toggles": {
+  "tree": "true",
+  "inspector": "true"
+ },
+ "section": {
+  "l": 64,
+  "r": 396,
+  "w": 332,
+  "t": -818,
+  "h": 37518.6
+ },
+ "context": {
+  "l": 64,
+  "r": 396,
+  "w": 332,
+  "t": -778,
+  "h": 36223.2
+ },
+ "nestedResultsPanel": {
+  "l": 77,
+  "r": 383,
+  "w": 306,
+  "t": -393.9,
+  "h": 35826.1
+ },
+ "row": {
+  "l": 90,
+  "r": 370,
+  "w": 280,
+  "t": 426.5,
+  "h": 32
+ },
+ "rowScrollW": 280,
+ "rowClientW": 280,
+ "rowDisplay": "grid",
+ "rowCols": "87.6719px 144.328px 32px",
+ "labelCols": "16px 59.9062px 0px",
+ "labelText": {
+  "l": 112,
+  "r": 171.9,
+  "w": 59.9,
+  "t": 434.8,
+  "h": 15.4
+ },
+ "input": {
+  "l": 177.9,
+  "r": 195.9,
+  "w": 18,
+  "t": 426.5,
+  "h": 32
+ },
+ "summary": {
+  "l": 185.7,
+  "r": 330,
+  "w": 144.3,
+  "t": 434.8,
+  "h": 15.4
+ },
+ "clear": {
+  "l": 338,
+  "r": 370,
+  "w": 32,
+  "t": 426.5,
+  "h": 32
+ },
+ "pageRow": {
+  "l": 90,
+  "r": 370,
+  "w": 280,
+  "t": 466.5,
+  "h": 32
+ },
+ "inputCenterOwner": "result-filter-summary",
+ "docOverflowX": 0
+}
+{
+ "viewport": "1440x920",
+ "label": {
+  "l": 90,
+  "r": 265.7,
+  "w": 175.7,
+  "t": 486,
+  "h": 32
+ },
+ "toggles": {
+  "tree": "true",
+  "inspector": "true"
+ },
+ "section": {
+  "l": 64,
+  "r": 484,
+  "w": 420,
+  "t": -547,
+  "h": 37121.8
+ },
+ "context": {
+  "l": 64,
+  "r": 484,
+  "w": 420,
+  "t": -507,
+  "h": 35895
+ },
+ "nestedResultsPanel": {
+  "l": 77,
+  "r": 471,
+  "w": 394,
+  "t": -162.1,
+  "h": 35537
+ },
+ "row": {
+  "l": 90,
+  "r": 458,
+  "w": 368,
+  "t": 486,
+  "h": 32
+ },
+ "rowScrollW": 368,
+ "rowClientW": 368,
+ "rowDisplay": "grid",
+ "rowCols": "175.672px 144.328px 32px",
+ "labelCols": "16px 59.9062px 87.7656px",
+ "labelText": {
+  "l": 112,
+  "r": 171.9,
+  "w": 59.9,
+  "t": 494.3,
+  "h": 15.4
+ },
+ "input": {
+  "l": 177.9,
+  "r": 265.7,
+  "w": 87.8,
+  "t": 486,
+  "h": 32
+ },
+ "summary": {
+  "l": 273.7,
+  "r": 418,
+  "w": 144.3,
+  "t": 494.3,
+  "h": 15.4
+ },
+ "clear": {
+  "l": 426,
+  "r": 458,
+  "w": 32,
+  "t": 486,
+  "h": 32
+ },
+ "pageRow": {
+  "l": 90,
+  "r": 458,
+  "w": 368,
+  "t": 526,
+  "h": 32
+ },
+ "inputCenterOwner": "result-filter-input",
+ "docOverflowX": 0
+}
+{
+ "viewport": "1024x768",
+ "label": {
+  "l": 90,
+  "r": 753.7,
+  "w": 663.7,
+  "t": 614.7,
+  "h": 32
+ },
+ "toggles": {
+  "tree": "true",
+  "inspector": "true"
+ },
+ "section": {
+  "l": 64,
+  "r": 972,
+  "w": 908,
+  "t": 2,
+  "h": 4705.7
+ },
+ "context": {
+  "l": 64,
+  "r": 972,
+  "w": 908,
+  "t": 42,
+  "h": 4003.7
+ },
+ "nestedResultsPanel": {
+  "l": 77,
+  "r": 959,
+  "w": 882,
+  "t": 291.8,
+  "h": 3740.9
+ },
+ "row": {
+  "l": 90,
+  "r": 946,
+  "w": 856,
+  "t": 614.7,
+  "h": 32
+ },
+ "rowScrollW": 856,
+ "rowClientW": 856,
+ "rowDisplay": "grid",
+ "rowCols": "663.672px 144.328px 32px",
+ "labelCols": "16px 59.9062px 575.766px",
+ "labelText": {
+  "l": 112,
+  "r": 171.9,
+  "w": 59.9,
+  "t": 623,
+  "h": 15.4
+ },
+ "input": {
+  "l": 177.9,
+  "r": 753.7,
+  "w": 575.8,
+  "t": 614.7,
+  "h": 32
+ },
+ "summary": {
+  "l": 761.7,
+  "r": 906,
+  "w": 144.3,
+  "t": 623,
+  "h": 15.4
+ },
+ "clear": {
+  "l": 914,
+  "r": 946,
+  "w": 32,
+  "t": 614.7,
+  "h": 32
+ },
+ "pageRow": {
+  "l": 90,
+  "r": 946,
+  "w": 856,
+  "t": 654.7,
+  "h": 32
+ },
+ "inputCenterOwner": "result-filter-input",
+ "docOverflowX": 0
+}

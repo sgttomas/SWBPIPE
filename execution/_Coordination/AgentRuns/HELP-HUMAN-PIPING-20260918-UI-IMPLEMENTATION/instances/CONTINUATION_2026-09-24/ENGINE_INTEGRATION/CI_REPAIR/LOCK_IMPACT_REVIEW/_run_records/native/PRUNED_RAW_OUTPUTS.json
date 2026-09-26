@@ -1,0 +1,95 @@
+{
+  "purpose": "Raw outputs pruned after hashing to keep evidence small; identical-content variants are recoverable by rerunning check_src_tauri_resolve.py. tree-macos logs are retained uncompressed.",
+  "files": {
+    "metadata-leaf-5b1c.log": {
+      "bytes": 2487017,
+      "sha256": "3af4ec4043423d18d19d5e07be87b48fdb759c5a66a57929c5cf0565e93e78d7",
+      "retained_as": null
+    },
+    "metadata-leaf-absent.log": {
+      "bytes": 2487017,
+      "sha256": "3af4ec4043423d18d19d5e07be87b48fdb759c5a66a57929c5cf0565e93e78d7",
+      "retained_as": null
+    },
+    "metadata-leaf-e650.log": {
+      "bytes": 2487017,
+      "sha256": "3af4ec4043423d18d19d5e07be87b48fdb759c5a66a57929c5cf0565e93e78d7",
+      "retained_as": "metadata-leaf-e650.log.gz"
+    },
+    "metadata-leaf-invalid-toml.log": {
+      "bytes": 2487017,
+      "sha256": "3af4ec4043423d18d19d5e07be87b48fdb759c5a66a57929c5cf0565e93e78d7",
+      "retained_as": null
+    },
+    "metadata-worktree-5b1c.log": {
+      "bytes": 2475852,
+      "sha256": "50fd6f24ceecf02825441cef7903329cefdea40cd6431e96169d9b449e12ffb5",
+      "retained_as": "metadata-worktree-5b1c.log.gz"
+    },
+    "resolve-leaf-5b1c.normalised.json": {
+      "bytes": 452781,
+      "sha256": "8afbe87403c6ba2723242c345eec393ad425994b3f6ce25a516af8698b6d017c",
+      "retained_as": null
+    },
+    "resolve-leaf-absent.normalised.json": {
+      "bytes": 452781,
+      "sha256": "8afbe87403c6ba2723242c345eec393ad425994b3f6ce25a516af8698b6d017c",
+      "retained_as": null
+    },
+    "resolve-leaf-e650.normalised.json": {
+      "bytes": 452781,
+      "sha256": "8afbe87403c6ba2723242c345eec393ad425994b3f6ce25a516af8698b6d017c",
+      "retained_as": null
+    },
+    "resolve-leaf-invalid-toml.normalised.json": {
+      "bytes": 452781,
+      "sha256": "8afbe87403c6ba2723242c345eec393ad425994b3f6ce25a516af8698b6d017c",
+      "retained_as": null
+    },
+    "resolve-worktree-5b1c.normalised.json": {
+      "bytes": 452781,
+      "sha256": "8afbe87403c6ba2723242c345eec393ad425994b3f6ce25a516af8698b6d017c",
+      "retained_as": "resolve-worktree-5b1c.normalised.json.gz"
+    },
+    "tree-macos-leaf-5b1c.log": {
+      "bytes": 27821,
+      "sha256": "bb2ef0b1eb9a222f82e436090932b804403e58c2d1b6483632968c89a51aac09"
+    },
+    "tree-macos-leaf-5b1c.normalised.log": {
+      "bytes": 24768,
+      "sha256": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833"
+    },
+    "tree-macos-leaf-absent.log": {
+      "bytes": 27821,
+      "sha256": "bb2ef0b1eb9a222f82e436090932b804403e58c2d1b6483632968c89a51aac09"
+    },
+    "tree-macos-leaf-absent.normalised.log": {
+      "bytes": 24768,
+      "sha256": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833"
+    },
+    "tree-macos-leaf-e650.log": {
+      "bytes": 27821,
+      "sha256": "bb2ef0b1eb9a222f82e436090932b804403e58c2d1b6483632968c89a51aac09"
+    },
+    "tree-macos-leaf-e650.normalised.log": {
+      "bytes": 24768,
+      "sha256": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833"
+    },
+    "tree-macos-leaf-invalid-toml.log": {
+      "bytes": 27821,
+      "sha256": "bb2ef0b1eb9a222f82e436090932b804403e58c2d1b6483632968c89a51aac09"
+    },
+    "tree-macos-leaf-invalid-toml.normalised.log": {
+      "bytes": 24768,
+      "sha256": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833"
+    },
+    "tree-macos-worktree-5b1c.log": {
+      "bytes": 25762,
+      "sha256": "a30b19457885366ef2338b2031666d21772c9a9b78f4bd56f31ea9deb7336563"
+    },
+    "tree-macos-worktree-5b1c.normalised.log": {
+      "bytes": 24768,
+      "sha256": "d572df81102a410fda77bec4064b56c0666dd582600a20de934d558f923d4833"
+    }
+  }
+}

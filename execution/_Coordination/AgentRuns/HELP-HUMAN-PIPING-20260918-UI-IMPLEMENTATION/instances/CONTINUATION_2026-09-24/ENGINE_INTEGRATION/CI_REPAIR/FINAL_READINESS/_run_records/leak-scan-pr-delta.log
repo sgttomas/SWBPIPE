@@ -1,0 +1,6 @@
+WARN: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/BROWSER_REPAIR/_run_records/run6-full-specs.json: 5.1 MB run-record file; keep large evidence as CI artifacts
+WARN: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_SUPPORT_REVIEW/CANDIDATE.patch: 5.9 MB run-record file; keep large evidence as CI artifacts
+WARN: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/HEADLESS_PRECISION/straight-full.document.json: 6.1 MB run-record file; keep large evidence as CI artifacts
+WARN: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/HEADLESS_OUTPUTS/straight-full.document.json: 5.9 MB run-record file; keep large evidence as CI artifacts
+PASS: 3170 changed run-record file(s) scanned; 0 possible credential(s).
+exit=0

@@ -1,0 +1,6 @@
+checkout: /home/user/wt/engine-full, detached at 6d9c0915f1c46563bc123fc7196109f835d6708a, `git status --porcelain` empty before the run
+command (from projects/chirality-piping): env -u CARGO_TARGET_DIR -u OPENPIPESTRESS_CHECKED_JSON_BIN -u OPENPIPESTRESS_BINARY64_JSON_BIN PATH=/home/user/dec025-venv/bin:/opt/node24/bin:$PATH CARGO_BUILD_JOBS=2 CARGO_NET_OFFLINE=true VITEST_MAX_WORKERS=2 python tools/release/run_evidence_sweep.py --execute --require-capability host --surface4-ci-binding surface4-ci-binding.json --output-dir out
+environment: Linux 4 vCPU container; Python 3.11.15 venv (jsonschema 4.26.0, pytest 9.1.1, pytest-xdist 3.8.0); Node v24.21.0; Rust 1.97.1; wasm-bindgen 0.2.123
+started 2026-09-25T21:32:52Z; exit 0
+surface 4 binding: manual full dual-viewport dispatch run 36190876950 attempt 1 of .github/workflows/piping-desktop-e2e.yml on the same head (conclusion success; all four source shards and the numerical suite passed). The PR-event run 36190875867 also succeeded but omits compact duplicates and is not a DEC-093 binding under docs/CI_STRATEGY.md.
+observed counts in sweep.log: pytest 1750 passed, 15 skipped, 130 subtests; desktop vitest 118 files, 2059 tests passed; cargo crate sweep and production build passed.

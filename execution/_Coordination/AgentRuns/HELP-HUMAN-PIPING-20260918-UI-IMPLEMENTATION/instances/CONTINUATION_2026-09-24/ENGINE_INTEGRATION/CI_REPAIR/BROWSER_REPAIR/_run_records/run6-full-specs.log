@@ -1,0 +1,170 @@
+cmd: PLAYWRIGHT_JSON_OUTPUT_NAME=_run_records/run6-full-specs.json ../../node_modules/.bin/playwright test --project=chromium-desktop --project=chromium-compact --workers=1 --timeout=180000 --reporter=list,json e2e/ui-foundation.spec.ts e2e/gui-workflow-validation.spec.ts e2e/r2-smoke.spec.ts e2e/linear-authoring.spec.ts e2e/result-compatibility.spec.ts
+candidate: 5b1ccd356c0d9656f7b9f42c6558f7a4c73f9295 + working-tree repair (see RETURN.md)
+2026-09-25T17:37:07Z
+
+Running 120 tests using 1 worker
+
+  ✓    1 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:108:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (33.2s)
+  ✓    2 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:325:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home (7.8s)
+  ✓    3 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:325:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer (8.6s)
+  ✓    4 [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.1m)
+  ✓    5 [chromium-desktop] › e2e/r2-smoke.spec.ts:66:1 › recorded reference sources retain the original row, quantity, unit and diagnostic oracles (21ms)
+  ✓    6 [chromium-desktop] › e2e/r2-smoke.spec.ts:106:1 › pure recorded-source projections retain quantity and comparison unit oracles (2.7s)
+  ✓    7 [chromium-desktop] › e2e/r2-smoke.spec.ts:248:1 › guided workbench shell keeps journey steps, details, and compact status reachable (11.1s)
+  ✓    8 [chromium-desktop] › e2e/r2-smoke.spec.ts:326:1 › DEC-077 solve temperature queues an explicit unit-bearing operation (5.4s)
+  ✓    9 [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (48.7s)
+  ✓   10 [chromium-desktop] › e2e/r2-smoke.spec.ts:909:1 › viewport gesture placeholders record unit validation (7.6s)
+  ✓   11 [chromium-desktop] › e2e/r2-smoke.spec.ts:946:1 › R2 from-blank GUI journey authors the A12 rehearsal script (41.2s)
+  ✓   12 [chromium-desktop] › e2e/r2-smoke.spec.ts:1165:1 › reference result detail retains linked diagnostics and MPa units without current diagnostic state (6.3s)
+  ✓   13 [chromium-desktop] › e2e/r2-smoke.spec.ts:1188:1 › rule-pack manager drafts privately and reports the desktop-only backend seam (9.0s)
+  ✓   14 [chromium-desktop] › e2e/r2-smoke.spec.ts:1411:1 › library manager loads an invented private sample and reports the desktop-only backend seam (7.9s)
+  ✓   15 [chromium-desktop] › e2e/r2-smoke.spec.ts:1575:1 › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam (4.6s)
+  ✓   16 [chromium-desktop] › e2e/r2-smoke.spec.ts:1703:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (9.8s)
+  ✓   17 [chromium-desktop] › e2e/result-compatibility.spec.ts:7:1 › browser references remain inspectable and cannot publish qualified result or stress-neutral exports (10.5s)
+  ✓   18 [chromium-desktop] › e2e/ui-foundation.spec.ts:38:1 › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement (11.5s)
+  ✓   19 [chromium-desktop] › e2e/ui-foundation.spec.ts:82:1 › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change (3.6s)
+  ✓   20 [chromium-desktop] › e2e/ui-foundation.spec.ts:242:1 › typed raw-ID collisions remain distinct through ordered selection and an ABA membership change (4.7s)
+  ✓   21 [chromium-desktop] › e2e/ui-foundation.spec.ts:270:3 › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture (5.7s)
+  ✓   22 [chromium-desktop] › e2e/ui-foundation.spec.ts:270:3 › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture (15.1s)
+  ✓   23 [chromium-desktop] › e2e/ui-foundation.spec.ts:309:1 › virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus (9.0s)
+  ✓   24 [chromium-desktop] › e2e/ui-foundation.spec.ts:349:1 › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft (6.8s)
+  ✓   25 [chromium-desktop] › e2e/ui-foundation.spec.ts:398:1 › real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures (6.3s)
+  ✓   26 [chromium-desktop] › e2e/ui-foundation.spec.ts:483:1 › Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags (24.0s)
+  ✓   27 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1024x768 @explicit-viewport (25.4s)
+  ✓   28 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1280x800 @explicit-viewport (23.8s)
+  ✓   29 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1440x920 @explicit-viewport (24.0s)
+  ✓   30 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light compact 1024x768 @explicit-viewport (24.4s)
+  ✓   31 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light compact 1280x800 @explicit-viewport (21.2s)
+  ✓   32 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light compact 1440x920 @explicit-viewport (22.3s)
+  ✓   33 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark comfortable 1024x768 @explicit-viewport (21.8s)
+  ✓   34 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark comfortable 1280x800 @explicit-viewport (23.0s)
+  ✓   35 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark comfortable 1440x920 @explicit-viewport (23.0s)
+  ✓   36 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark compact 1024x768 @explicit-viewport (24.3s)
+  ✓   37 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark compact 1280x800 @explicit-viewport (21.3s)
+  ✓   38 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark compact 1440x920 @explicit-viewport (21.6s)
+  ✓   39 [chromium-desktop] › e2e/ui-foundation.spec.ts:979:1 › selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths (40.4s)
+  ✓   40 [chromium-desktop] › e2e/ui-foundation.spec.ts:1053:1 › a property task keeps its typed target and entered value through filter, collapse, and selection ABA (8.7s)
+  ✓   41 [chromium-desktop] › e2e/ui-foundation.spec.ts:1109:1 › live Properties routes follow catalogue target B while frozen Task A remains unchanged (8.1s)
+  ✓   42 [chromium-desktop] › e2e/ui-foundation.spec.ts:1178:1 › an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled (6.8s)
+  ✓   43 [chromium-desktop] › e2e/ui-foundation.spec.ts:1221:1 › a prepared direct review is rejected after selection membership leaves and returns to the same primary (6.4s)
+  ✓   44 [chromium-desktop] › e2e/ui-foundation.spec.ts:1246:1 › selected-pipe actions copy a stable draft target snapshot instead of following later selection (8.8s)
+  ✓   45 [chromium-desktop] › e2e/ui-foundation.spec.ts:1283:1 › filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles (8.5s)
+  ✓   46 [chromium-desktop] › e2e/ui-foundation.spec.ts:1353:1 › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded (22.5s)
+  ✓   47 [chromium-desktop] › e2e/ui-foundation.spec.ts:1389:1 › Actual OD uses valid spans and explains the independently injected centerline fallback (5.5s)
+  ✓   48 [chromium-desktop] › e2e/ui-foundation.spec.ts:1400:1 › ordinary typed edit preserves view state and same-ID project replacement clears it (11.0s)
+  ✓   49 [chromium-desktop] › e2e/ui-foundation.spec.ts:1436:1 › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls (7.7s)
+  ✓   50 [chromium-desktop] › e2e/ui-foundation.spec.ts:1744:1 › narrow canvas fits visible and selected envelopes in every view preset (6.3s)
+  ✓   51 [chromium-desktop] › e2e/ui-foundation.spec.ts:1780:3 › standard 1000 camera recipe compares legacy and corrected fit without changing targets (4.1s)
+  ✓   52 [chromium-desktop] › e2e/ui-foundation.spec.ts:1780:3 › standard 10000 camera recipe compares legacy and corrected fit without changing targets (14.7s)
+  ✓   53 [chromium-desktop] › e2e/ui-foundation.spec.ts:1800:1 › filtered tree collapse controls retain typed selection and frozen draft across search changes (10.7s)
+  ✓   54 [chromium-desktop] › e2e/ui-foundation.spec.ts:1848:1 › empty ordered selection publishes independently from project inspector (20.2s)
+  ✓   55 [chromium-desktop] › e2e/ui-foundation.spec.ts:1982:1 › decorative viewport overlays pass real canvas gestures while view controls stay interactive (13.6s)
+  ✓   56 [chromium-desktop] › e2e/ui-foundation.spec.ts:2149:1 › captured Box lifetime › ordinary real Box applies independent empty Components membership (5.9s)
+  ✓   57 [chromium-desktop] › e2e/ui-foundation.spec.ts:2157:1 › captured Box lifetime › Escape retires captured Box before delayed pointer up (5.9s)
+  ✓   58 [chromium-desktop] › e2e/ui-foundation.spec.ts:2173:1 › captured Box lifetime › same-ID Open retires old captured Box before delayed pointer up (8.0s)
+  ✓   59 [chromium-desktop] › e2e/ui-foundation.spec.ts:2209:55 › captured Box lifetime › Select retires captured Box before delayed pointer up (4.9s)
+  ✓   60 [chromium-desktop] › e2e/ui-foundation.spec.ts:2209:55 › captured Box lifetime › New blank retires captured Box before delayed pointer up (5.1s)
+  ✓   61 [chromium-desktop] › e2e/ui-foundation.spec.ts:2238:70 › captured Box lifetime › Measure cannot revive a captured Box through a mode ABA (5.5s)
+  ✓   62 [chromium-desktop] › e2e/ui-foundation.spec.ts:2238:70 › captured Box lifetime › palette Node and Select cannot revive a captured Box through a mode ABA (6.5s)
+  ✓   63 [chromium-desktop] › e2e/ui-foundation.spec.ts:2261:39 › captured Box lifetime › workspace Escape event ownership body idle (4.2s)
+  ✓   64 [chromium-desktop] › e2e/ui-foundation.spec.ts:2261:39 › captured Box lifetime › workspace Escape event ownership body captured (5.5s)
+  ✓   65 [chromium-desktop] › e2e/ui-foundation.spec.ts:2285:55 › captured Box lifetime › workspace Escape event ownership consumed palette (5.0s)
+  ✓   66 [chromium-desktop] › e2e/ui-foundation.spec.ts:2285:55 › captured Box lifetime › workspace Escape event ownership consumed drawer (5.4s)
+  ✓   67 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:108:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (26.3s)
+  ✓   68 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:325:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home (7.4s)
+  ✓   69 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:325:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer (7.4s)
+  ✓   70 [chromium-compact] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.0m)
+  ✓   71 [chromium-compact] › e2e/r2-smoke.spec.ts:66:1 › recorded reference sources retain the original row, quantity, unit and diagnostic oracles (25ms)
+  ✓   72 [chromium-compact] › e2e/r2-smoke.spec.ts:106:1 › pure recorded-source projections retain quantity and comparison unit oracles (2.9s)
+  ✓   73 [chromium-compact] › e2e/r2-smoke.spec.ts:248:1 › guided workbench shell keeps journey steps, details, and compact status reachable (10.0s)
+  ✓   74 [chromium-compact] › e2e/r2-smoke.spec.ts:326:1 › DEC-077 solve temperature queues an explicit unit-bearing operation (5.3s)
+  ✓   75 [chromium-compact] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (44.2s)
+  ✓   76 [chromium-compact] › e2e/r2-smoke.spec.ts:909:1 › viewport gesture placeholders record unit validation (6.2s)
+  ✓   77 [chromium-compact] › e2e/r2-smoke.spec.ts:946:1 › R2 from-blank GUI journey authors the A12 rehearsal script (44.8s)
+  ✓   78 [chromium-compact] › e2e/r2-smoke.spec.ts:1165:1 › reference result detail retains linked diagnostics and MPa units without current diagnostic state (7.0s)
+  ✓   79 [chromium-compact] › e2e/r2-smoke.spec.ts:1188:1 › rule-pack manager drafts privately and reports the desktop-only backend seam (10.5s)
+  ✓   80 [chromium-compact] › e2e/r2-smoke.spec.ts:1411:1 › library manager loads an invented private sample and reports the desktop-only backend seam (9.0s)
+  ✓   81 [chromium-compact] › e2e/r2-smoke.spec.ts:1575:1 › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam (5.4s)
+  ✓   82 [chromium-compact] › e2e/r2-smoke.spec.ts:1703:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (12.1s)
+  ✓   83 [chromium-compact] › e2e/result-compatibility.spec.ts:7:1 › browser references remain inspectable and cannot publish qualified result or stress-neutral exports (10.2s)
+  ✘   84 [chromium-compact] › e2e/ui-foundation.spec.ts:38:1 › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement (5.4s)
+  ✓   85 [chromium-compact] › e2e/ui-foundation.spec.ts:82:1 › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change (3.8s)
+  ✓   86 [chromium-compact] › e2e/ui-foundation.spec.ts:242:1 › typed raw-ID collisions remain distinct through ordered selection and an ABA membership change (4.2s)
+  ✓   87 [chromium-compact] › e2e/ui-foundation.spec.ts:270:3 › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture (5.2s)
+  ✓   88 [chromium-compact] › e2e/ui-foundation.spec.ts:270:3 › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 10k fixture (12.6s)
+  ✓   89 [chromium-compact] › e2e/ui-foundation.spec.ts:309:1 › virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus (8.8s)
+  ✓   90 [chromium-compact] › e2e/ui-foundation.spec.ts:349:1 › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft (5.7s)
+  ✓   91 [chromium-compact] › e2e/ui-foundation.spec.ts:398:1 › real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures (4.8s)
+  ✓   92 [chromium-compact] › e2e/ui-foundation.spec.ts:483:1 › Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags (22.7s)
+  ✓   93 [chromium-compact] › e2e/ui-foundation.spec.ts:979:1 › selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths (44.7s)
+  ✓   94 [chromium-compact] › e2e/ui-foundation.spec.ts:1053:1 › a property task keeps its typed target and entered value through filter, collapse, and selection ABA (9.9s)
+  ✓   95 [chromium-compact] › e2e/ui-foundation.spec.ts:1109:1 › live Properties routes follow catalogue target B while frozen Task A remains unchanged (7.4s)
+  ✓   96 [chromium-compact] › e2e/ui-foundation.spec.ts:1178:1 › an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled (5.4s)
+  ✓   97 [chromium-compact] › e2e/ui-foundation.spec.ts:1221:1 › a prepared direct review is rejected after selection membership leaves and returns to the same primary (5.9s)
+  ✓   98 [chromium-compact] › e2e/ui-foundation.spec.ts:1246:1 › selected-pipe actions copy a stable draft target snapshot instead of following later selection (8.5s)
+  ✓   99 [chromium-compact] › e2e/ui-foundation.spec.ts:1283:1 › filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles (7.0s)
+  ✓  100 [chromium-compact] › e2e/ui-foundation.spec.ts:1353:1 › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded (20.2s)
+  ✓  101 [chromium-compact] › e2e/ui-foundation.spec.ts:1389:1 › Actual OD uses valid spans and explains the independently injected centerline fallback (5.3s)
+  ✓  102 [chromium-compact] › e2e/ui-foundation.spec.ts:1400:1 › ordinary typed edit preserves view state and same-ID project replacement clears it (10.3s)
+  ✓  103 [chromium-compact] › e2e/ui-foundation.spec.ts:1436:1 › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls (9.8s)
+  ✓  104 [chromium-compact] › e2e/ui-foundation.spec.ts:1744:1 › narrow canvas fits visible and selected envelopes in every view preset (7.6s)
+  ✓  105 [chromium-compact] › e2e/ui-foundation.spec.ts:1780:3 › standard 1000 camera recipe compares legacy and corrected fit without changing targets (5.7s)
+  ✓  106 [chromium-compact] › e2e/ui-foundation.spec.ts:1780:3 › standard 10000 camera recipe compares legacy and corrected fit without changing targets (16.8s)
+  ✓  107 [chromium-compact] › e2e/ui-foundation.spec.ts:1800:1 › filtered tree collapse controls retain typed selection and frozen draft across search changes (9.9s)
+  ✓  108 [chromium-compact] › e2e/ui-foundation.spec.ts:1848:1 › empty ordered selection publishes independently from project inspector (16.5s)
+  ✓  109 [chromium-compact] › e2e/ui-foundation.spec.ts:1982:1 › decorative viewport overlays pass real canvas gestures while view controls stay interactive (12.1s)
+  ✓  110 [chromium-compact] › e2e/ui-foundation.spec.ts:2149:1 › captured Box lifetime › ordinary real Box applies independent empty Components membership (4.5s)
+  ✓  111 [chromium-compact] › e2e/ui-foundation.spec.ts:2157:1 › captured Box lifetime › Escape retires captured Box before delayed pointer up (5.1s)
+  ✓  112 [chromium-compact] › e2e/ui-foundation.spec.ts:2173:1 › captured Box lifetime › same-ID Open retires old captured Box before delayed pointer up (6.8s)
+  ✓  113 [chromium-compact] › e2e/ui-foundation.spec.ts:2209:55 › captured Box lifetime › Select retires captured Box before delayed pointer up (5.0s)
+  ✓  114 [chromium-compact] › e2e/ui-foundation.spec.ts:2209:55 › captured Box lifetime › New blank retires captured Box before delayed pointer up (5.0s)
+  ✓  115 [chromium-compact] › e2e/ui-foundation.spec.ts:2238:70 › captured Box lifetime › Measure cannot revive a captured Box through a mode ABA (4.9s)
+  ✓  116 [chromium-compact] › e2e/ui-foundation.spec.ts:2238:70 › captured Box lifetime › palette Node and Select cannot revive a captured Box through a mode ABA (6.3s)
+  ✓  117 [chromium-compact] › e2e/ui-foundation.spec.ts:2261:39 › captured Box lifetime › workspace Escape event ownership body idle (3.8s)
+  ✓  118 [chromium-compact] › e2e/ui-foundation.spec.ts:2261:39 › captured Box lifetime › workspace Escape event ownership body captured (4.6s)
+  ✓  119 [chromium-compact] › e2e/ui-foundation.spec.ts:2285:55 › captured Box lifetime › workspace Escape event ownership consumed palette (3.9s)
+  ✓  120 [chromium-compact] › e2e/ui-foundation.spec.ts:2285:55 › captured Box lifetime › workspace Escape event ownership consumed drawer (5.2s)
+
+
+  1) [chromium-compact] › e2e/ui-foundation.spec.ts:38:1 › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByTestId('viewport-measurement-readout')
+    Expected substring: [32m"Distance"[39m
+    Received string:    [31m""[39m
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('viewport-measurement-readout')[22m
+
+
+       at ui-foundation-workflows.ts:822
+
+      820 |   }
+      821 |   const readout = page.getByTestId("viewport-measurement-readout");
+    > 822 |   await expect(readout).toContainText("Distance");
+          |                         ^
+      823 |   await expect(readout).toContainText("ΔX");
+      824 |   await expect(readout).toContainText("ΔY");
+      825 |   await expect(readout).toContainText("ΔZ");
+        at keyboardMeasureTargets (/home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:822:25)
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts:50:19
+
+    Error Context: test-results/ui-foundation--preflight-m-635be-yboard-authored-measurement-chromium-compact/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-foundation--preflight-m-635be-yboard-authored-measurement-chromium-compact/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-foundation--preflight-m-635be-yboard-authored-measurement-chromium-compact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [chromium-desktop] › e2e/ui-foundation.spec.ts (10.5m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    [chromium-compact] › e2e/ui-foundation.spec.ts:38:1 › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement 
+  119 passed (25.4m)
+exit=1
+2026-09-25T18:02:32Z

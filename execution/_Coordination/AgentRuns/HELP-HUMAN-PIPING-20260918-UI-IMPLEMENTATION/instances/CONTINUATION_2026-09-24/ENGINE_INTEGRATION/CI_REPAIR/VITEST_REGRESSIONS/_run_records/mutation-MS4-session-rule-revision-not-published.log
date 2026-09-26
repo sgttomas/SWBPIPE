@@ -1,0 +1,68 @@
+date: 2026-09-25T20:11:44.339017Z
+target: apps/desktop/src/features/workspace/workspaceSession.ts
+sha256 before: d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734
+sha256 HEAD blob: d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734
+--- replaced (exactly once) ---
+      if (!stillCurrent()) return;
+      setAnalysisRun(revisedRecord);
+--- with ---
+      if (!stillCurrent()) return;
+---
+sha256 mutated: 95027c12951022bc283e2f5639f8a893d85da019aee546d09f0f851dcaa9c6da
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/results/sourceBlockRecovery.test.ts
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/results/sourceBlockRecovery.test.ts
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/results/sourceBlockRecovery.test.ts (49 tests | 6 failed) 35946ms
+     × 'n05-dense_scrutiny' connects Current, exports, rule revision and saved history 3719ms
+     × 'n05-sparse_interactive' connects Current, exports, rule revision and saved history 3677ms
+     × 'n06-dense_scrutiny' connects Current, exports, rule revision and saved history 3589ms
+     × 'n06-sparse_interactive' connects Current, exports, rule revision and saved history 3633ms
+     × 'multicase-dense_scrutiny' connects Current, exports, rule revision and saved history 9293ms
+     × 'multicase-sparse_interactive' connects Current, exports, rule revision and saved history 9096ms
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 43 passed (49)
+   Start at  20:11:44
+   Duration  38.55s (transform 1.49s, setup 130ms, import 1.94s, tests 35.95s, environment 377ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'n05-dense_scrutiny' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'n05-sparse_interactive' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'n06-dense_scrutiny' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'n06-sparse_interactive' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'multicase-dense_scrutiny' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'multicase-sparse_interactive' connects Current, exports, rule revision and saved history
+AssertionError: expected { schema_version: '0.3.0', …(6) } not to be { schema_version: '0.3.0', …(6) } // Object.is equality
+
+Ignored nodes: comments, script, style
+
+Compared values have no visual difference.
+
+ ❯ src/features/results/sourceBlockRecovery.test.ts:317:73
+
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/results/sourceBlockRecovery.test.ts
+exit=1
+sha256 restored: d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: FAIL-as-expected

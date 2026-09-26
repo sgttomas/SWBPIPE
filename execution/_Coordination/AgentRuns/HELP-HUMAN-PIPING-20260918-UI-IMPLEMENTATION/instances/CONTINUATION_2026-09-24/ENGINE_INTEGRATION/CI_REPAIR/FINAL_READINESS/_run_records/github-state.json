@@ -1,0 +1,21 @@
+{
+  "observed_at_utc": "2026-09-25T21:45Z",
+  "source": "GitHub MCP API (actions get_workflow_run, pull_request_read get/get_check_runs, list_commits main), read-only",
+  "pr": {"number": 905, "state": "open", "draft": true, "mergeable_state": "clean",
+         "head_sha": "6d9c0915f1c46563bc123fc7196109f835d6708a", "base_sha": "6dac281c679e779e9e8507add693554f102242d2"},
+  "live_main_sha": "6dac281c679e779e9e8507add693554f102242d2",
+  "runs": [
+    {"id": 36190875867, "workflow": ".github/workflows/piping-desktop-e2e.yml", "event": "pull_request", "attempt": 1,
+     "head_sha": "6d9c0915f1c46563bc123fc7196109f835d6708a", "status": "completed", "conclusion": "success",
+     "surface4_binding_eligible": false, "reason": "PR-event full coverage omits compact duplicates (docs/CI_STRATEGY.md 'Exact coverage and duration assignment')"},
+    {"id": 36190876950, "workflow": ".github/workflows/piping-desktop-e2e.yml", "event": "workflow_dispatch", "attempt": 1,
+     "head_sha": "6d9c0915f1c46563bc123fc7196109f835d6708a", "status": "completed", "conclusion": "success",
+     "selection_reason": "Deliberate manual full integration milestone or unknown event",
+     "surface4_binding_eligible": true}
+  ],
+  "check_runs_on_head": {"total": 24, "failure": 0,
+    "skipped": ["Accessibility barrier and selected coverage x2 (by design in full mode: workflow line 78)",
+                "App instruction bundle", "App Runtime integration", "PEC workspace tests (path selection)"],
+    "success_includes": ["Source remainder 1-4/4 (both runs)", "Numerical cargo suite (both runs)", "Desktop E2E (source mode) x2",
+                         "harness", "Harness pre-merge", "pec", "Select * coverage"]}
+}

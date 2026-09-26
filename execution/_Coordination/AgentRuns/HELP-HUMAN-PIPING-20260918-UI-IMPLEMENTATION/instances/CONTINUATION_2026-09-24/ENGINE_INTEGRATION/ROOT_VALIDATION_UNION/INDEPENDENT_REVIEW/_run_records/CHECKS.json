@@ -1,0 +1,217 @@
+{
+  "status": "CLEAR bounded final integration review",
+  "candidate": "c278f64ba122eb8b848b9f14e58a0e533e94439a",
+  "parents": [
+    "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+    "26b9904a1e8d2b997315165572d732ce4320df3b"
+  ],
+  "all_incoming414_equal_validation_parent": true,
+  "actual_delta_paths": 518,
+  "maintained32": [
+    {
+      "path": "projects/chirality-piping/tests/qualification_fixture_support.py",
+      "sha256": "7a8a243384cc0defa7f06652243c3aae9ae8d4f4343b6ad531de6a324d610fb5"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_first_static_selection.py",
+      "sha256": "f83a226afd8ffbce9f4e1ebe239367ba3054778df82080f5ba7defc6eeb56653"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_gate.py",
+      "sha256": "5447262a437532b043b210b0fc397739ec5ee3330238644c342018cc2f89b64a"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics.py",
+      "sha256": "12f0bf3e7e194c3105f74aabf4186146cd8277456b718cae54c2f7e46159b933"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_integration.py",
+      "sha256": "0610788188b16c01b311bd43484056c73a8127039d4688998146ffce6fbf94a5"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_structure.py",
+      "sha256": "36cc2fceec5261dff6defd65296cdf9230c924ef93c146cb35b4a500c2cc8077"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/build_first_static_selection.py",
+      "sha256": "6aee22f8b67df8b2191c1a1aa4cb0049898e5b8c0845929a4e7197e8d3f957e8"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "e38be5ef21e996151afd3f8a923d179dd991858c6743dfb2badb5457531cdcbe"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics.py",
+      "sha256": "34862634d41bf7d0db434739b49462719bcae526e422093e179e93c9483050c1"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+      "sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_structure.py",
+      "sha256": "33bceba232e0bd62716b2ce38f4be82eb04169f7728c1a53b53cae12b43d6ae7"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_process.py",
+      "sha256": "bf1ed365763440261f21a0f699ecf8729c745d259880d3851649d0292c1282c6"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "sha256": "607d95eccf65570852d0b28854b26539ff763e4a1d484385949aeaf8de4a9f12"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/HARNESS_CUT.md",
+      "sha256": "01a0074e6b06c3d090dd320d6201b2e3ac6f92db7c9d07ddb3df71494af6807e"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/README.md",
+      "sha256": "4b3e2a1d7fc1aee7d2be0dae531e1677913be54ec3a949bb9d908c70c2e884ea"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "sha256": "f4155abafcd9f76292e48733a8bf6829ee0a0bb1a816b11fbd7e22de3c8d0a5e"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/check_inventory.py",
+      "sha256": "badd6c47b7ccbb60f685ef8e5f12b5c291fbaf51172ac13ab224e47b7c470939"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/INPUT_REFERENCE_BINDINGS.json",
+      "sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/PROVENANCE.json",
+      "sha256": "859dfa8fdec02a16cb29325311185feeccecf4e46ae5e73ad787d7b1ddffffa4"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/README.md",
+      "sha256": "41d709d6246e46ee5dd4e4cdf1d2896bba7a506cb2355722bb084edf666ff684"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_EXPECTATIONS.json",
+      "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+      "sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.criteria.candidate.json",
+      "sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.reference.candidate.json",
+      "sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
+      "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.selectors.candidate.json",
+      "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.criteria.candidate.json",
+      "sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.reference.candidate.json",
+      "sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
+      "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.selectors.candidate.json",
+      "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/section.reference.json",
+      "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/ordinary_physics_1_semantics.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    }
+  ],
+  "validation26_freeze03_match": true,
+  "other6_match_named_mapping_gate_reviews": true,
+  "ten_primary_policy_records_equal": {
+    "purpose": "Carry the existing exact owner authority and reviewed composite method resource selection with its implementation; no new instruction or authority change",
+    "primary_commit": "a26fe2f171881c9b284f14d840cbc29bc3828dde",
+    "files": [
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/OWNER_PHYSICS_AUTHORITY_2026-09-25.md",
+        "sha256": "7a84fec1aed4e9c2f945c2ad9a51dedeca7cf824ababf514212645a326a758fa"
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/SELECTION.md",
+        "sha256": "869353a31e79c3944a8d22ed24bee4783ac29c02232a21e3f6da69dd3589fbd3"
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/RESOURCE_POLICY.md",
+        "sha256": "03f182cdd0f6b6dc1c9738c6329e20212e59e25f54532a4b0e31f0043af89c38"
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/RESOURCE_POLICY_BASIS.json",
+        "sha256": "9f76aa17c599db9a06399f27608263bbbf6f16ad01a7cccc2266c9670c92f6f7"
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/SELECTION_BASIS.json",
+        "sha256": "6b138a67a158db82aca6c76ee1e7df77ac92eca76e10818159f60d044e910770"
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/SOURCE_BLOCK_JOIN_PLAN.selected.md",
+        "sha256": "8446a526b43f863bc5aab963ee3c292bbda98f59392596bb1591cff685b38c5b"
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/ORIGIN.json",
+        "sha256": "174d3f429414b37a103cd06c3e0f0dda9c76d745e37276d4c052694c69c407b1"
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/RETURN.md",
+        "sha256": "a4da70f6097b3d8a62d807b3ea738aa4c975cfb2ad5d820441bbb857ed1ad923"
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/POLICY_RECORD_REVIEW.json",
+        "sha256": "b7c6e9a2cc3ecec03ca8b2edd2776ba75cbb455167847667b874d9b066a7c181"
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/EXECUTION.json",
+        "sha256": "c502793b528499f6d9f682ee257358adbb3984381f9ab10c333c479bc3ac64be"
+      }
+    ]
+  },
+  "native_build_inputs_unchanged": 1092,
+  "native_executable_sha256": "f68dc4de906eb5e8c96bb72c8736b7a5a9afec09ba533ada7ac676223fd36dcc",
+  "native_public_custody_files": 60,
+  "native_observation_review_reused": {
+    "primary": 348,
+    "repeated": 129,
+    "total": 477,
+    "independent_UI_witness_by_this_reviewer": false
+  },
+  "record_scope_groups": {
+    "validation_records": 382,
+    "validation_maintained": 32,
+    "native_records": 67,
+    "engine_review_records": 27,
+    "primary_policy_records": 10
+  },
+  "all_actual_delta_accounted": true,
+  "no_external_binary_or_engineering_source_assets_added": true,
+  "real_development_runs": {
+    "case_mode_executions": 4,
+    "scalar_obligations": 292,
+    "structural_obligations": 40,
+    "section_subchecks_nested": 36
+  },
+  "historical8b_identity_preserved": true,
+  "ledger_artifacts_rechecked": 60,
+  "reader_dependency_review_hashes_match": true,
+  "no_permanent_dated_test_dependency": true,
+  "limits": "Source integration/custody review only, not actual-head CI/sweep/merge acceptance. No rerun, native/build/network or private model/store reads. Original receipt authorship separate; unchanged producer reviews reused."
+}

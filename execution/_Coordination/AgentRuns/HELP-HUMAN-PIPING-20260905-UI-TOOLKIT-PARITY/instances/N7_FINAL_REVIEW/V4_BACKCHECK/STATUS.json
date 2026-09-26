@@ -1,9 +1,0 @@
-{
-  "runtime_status": "SUCCESS",
-  "verdict": "PASS",
-  "findings": [],
-  "coverage": 112,
-  "source_unchanged": true,
-  "model": "unavailable/inherited",
-  "report": "RETURN.md"
-}

@@ -1,0 +1,103 @@
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --project=chromium-compact --workers=1 --timeout=180000 --reporter=list -g 'task and analysis dock preserve usable canvas|DEL-09-04 invented fixture exposes warnings|R2 browser smoke covers authoring|R3 guided flow routes private library' e2e/ui-foundation.spec.ts e2e/gui-workflow-validation.spec.ts e2e/r2-smoke.spec.ts
+2026-09-25T17:17:21Z
+
+Running 18 tests using 1 worker
+
+  ✓   1 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:108:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (38.5s)
+  ✘   2 [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (50.8s)
+  ✓   3 [chromium-desktop] › e2e/r2-smoke.spec.ts:1695:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (13.3s)
+  ✓   4 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1024x768 @explicit-viewport (29.5s)
+  ✓   5 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1280x800 @explicit-viewport (28.6s)
+  ✓   6 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1440x920 @explicit-viewport (27.7s)
+  ✓   7 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light compact 1024x768 @explicit-viewport (28.8s)
+  ✓   8 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light compact 1280x800 @explicit-viewport (24.1s)
+  ✓   9 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light compact 1440x920 @explicit-viewport (22.7s)
+  ✓  10 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark comfortable 1024x768 @explicit-viewport (26.9s)
+  ✓  11 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark comfortable 1280x800 @explicit-viewport (24.3s)
+  ✓  12 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark comfortable 1440x920 @explicit-viewport (25.4s)
+  ✓  13 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark compact 1024x768 @explicit-viewport (25.5s)
+  ✓  14 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark compact 1280x800 @explicit-viewport (24.3s)
+  ✓  15 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark compact 1440x920 @explicit-viewport (30.5s)
+  ✓  16 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:108:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (31.0s)
+  ✘  17 [chromium-compact] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (45.7s)
+  ✓  18 [chromium-compact] › e2e/r2-smoke.spec.ts:1695:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (9.3s)
+
+
+  1) [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByTestId('design-workspace-units')
+    Expected substring: [32m"N*m/rad,N/m"[39m
+    Received string:    [31m"Unitsmodel=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=none; comparison=none; conversion=false"[39m
+    Timeout: 10000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('design-workspace-units')[22m
+    [2m    23 × locator resolved to <div class="report-line" data-testid="design-workspace-units">…</div>[22m
+    [2m       - unexpected value "Unitsmodel=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=none; comparison=none; conversion=false"[22m
+
+
+      742 |   await expect(page.getByTestId("comparison-empty")).toBeVisible();
+      743 |   await expect(page.getByTestId("comparison-unit-policy")).toHaveCount(0);
+    > 744 |   await expect(page.getByTestId("design-workspace-units")).toContainText("N*m/rad,N/m");
+          |                                                            ^
+      745 |   await expect(page.getByTestId("design-workspace-units")).toContainText("comparison=none");
+      746 |   await expect(page.getByTestId("design-workspace-units")).toContainText("conversion=false");
+      747 |
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:744:60
+
+    Error Context: test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-compact] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByTestId('design-workspace-units')
+    Expected substring: [32m"N*m/rad,N/m"[39m
+    Received string:    [31m"Unitsmodel=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=none; comparison=none; conversion=false"[39m
+    Timeout: 10000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('design-workspace-units')[22m
+    [2m    24 × locator resolved to <div class="report-line" data-testid="design-workspace-units">…</div>[22m
+    [2m       - unexpected value "Unitsmodel=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=none; comparison=none; conversion=false"[22m
+
+
+      742 |   await expect(page.getByTestId("property-inspector")).toHaveText(inspectorBeforeReferenceSelection ?? "");
+      743 |   await expect(page.getByTestId("result-detail-panel")).toContainText("pipe:P-120");
+    > 744 |   await expect(page.getByTestId("result-detail-panel")).toContainText("recovered_from_local_element_stiffness");
+          |                                                            ^
+      745 |   await expect(page.getByTestId("comparison-empty")).toBeVisible();
+      746 |   await expect(page.getByTestId("comparison-unit-policy")).toHaveCount(0);
+      747 |   // The design workspace composes Current units only; an inspected reference supplies none.
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:744:60
+
+    Error Context: test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-compact/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-compact/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-compact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [chromium-desktop] › e2e/ui-foundation.spec.ts (5.3m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  2 failed
+    [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals 
+    [chromium-compact] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals 
+  16 passed (8.7m)
+exit=1
+2026-09-25T17:26:01Z

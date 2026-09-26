@@ -1,0 +1,10 @@
+date_utc=2026-09-25T18:33:50Z
+worktree=/home/user/wt/engine
+head=8e216efbf2066a7d7a9e083dbcaadf07924b5a01
+branch=claude/inspiring-ptolemy-zxofd6
+status_porcelain_lines=1
+v24.21.0
+Chromium 141.0.7390.37 
+  "version": "1.60.0",
+4
+ 18:33:51 up  1:53,  0 user,  load average: 2.78, 3.41, 3.67

@@ -1,0 +1,38 @@
+date: 2026-09-25T20:13:39Z
+HEAD: 50b9dd5af90a8baa090d238fcf6c10896218b3b1
+git status --porcelain:
+ M projects/chirality-piping/apps/desktop/src/features/handoff/HandoffPanel.test.tsx
+ M projects/chirality-piping/apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.test.tsx
+ M projects/chirality-piping/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx
+ M projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.test.ts
+ M projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/VITEST_REGRESSIONS/
+repaired files (sha256, HEAD blob sha256):
+b8169364654b0e3498a391a76c623b1bc2c5e041c824466e5f6237b7876e38d6  apps/desktop/src/features/handoff/HandoffPanel.test.tsx  (HEAD 7c7dca7b537bec06fb3578f035b8dda23cfe57ef59a1d327c4ebb11dc9bb55ec)
+6ec196fe1e3d939776e0e67189d725a04e9e5b792e6e469800393577e2dad7ce  apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.test.tsx  (HEAD 2836956026ffae46b7ac56044b865c3cbcf97e754b32e159560d8cc8fa4e6246)
+d144f800733aa028df36250a4a2a6f34d2207214d59f7baeb00696ec2f7ce2ee  apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx  (HEAD e0a3c0e07cc86611ee73edbe5fc983b9ef53136372ed46db4ee61582f84fd585)
+e6c2a638501a9e4adbcd39ceb85688b16079999eaa553f8132bcc8187e57eaaf  apps/desktop/src/features/results/physicsSourceIntegration.test.tsx  (HEAD 071b39e34359eb3612cd35e56a2ee4d3c4a03b8c6bbbeac8b2ee72013d3f43a0)
+54d343978856c2b6c15cd58d2b38b0a5edf24986b0ac2644ff3c483d1819ed19  apps/desktop/src/features/results/sourceBlockRecovery.test.ts  (HEAD ac338acbf79df3375bf2c2f81182e0b6d43d0f5f0c07de58a5d8904a135bbafd)
+unchanged product/guard files the tests rely on (sha256 == HEAD blob):
+abc9b2983f3d587694ef0ff944d8b790e1e8af7158994d20ebd2f68bf9825515  apps/desktop/src/features/workspace/sessionBoundary.test.ts  equal_to_HEAD=true
+455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380  apps/desktop/src/features/workspace/resultsSessionState.ts  equal_to_HEAD=true
+d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734  apps/desktop/src/features/workspace/workspaceSession.ts  equal_to_HEAD=true
+242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57  apps/desktop/src/services/previewService.ts  equal_to_HEAD=true
+b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718  apps/desktop/src/services/ruleCheckService.ts  equal_to_HEAD=true
+c464a11fe61fe860bba6c6594123d4764f040f68ad9db84483e15e82707cff26  apps/desktop/src/services/analysisRunCompatibility.ts  equal_to_HEAD=true
+39890d77ad3c013c4388fe9192279b7771f97b16a10a602209ed8d4a483c3139  apps/desktop/src/features/handoff/HandoffPanel.tsx  equal_to_HEAD=true
+35f6e719aade8625af744e7aa7dd9bdd7d5b132b8d59c17828481b7d6f40ce35  apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx  equal_to_HEAD=true
+ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4  apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx  equal_to_HEAD=true
+69318d88f5ea45bf32d85ce80d8f8e735766227a9e87bd7310c73f1f55996519  apps/desktop/src/test/nativeMechanicsReplay.ts  equal_to_HEAD=true
+fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c  fixtures/product_preview/invented_mechanics_result.json  equal_to_HEAD=true
+986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c  fixtures/product_preview/invented_preview_model.json  equal_to_HEAD=true
+f986a8d8bfc319a66bce2184119675245dca85ad86cb6977742c3a73c319ec92  fixtures/results/precision_connected_ui_mechanics_sparse.json  equal_to_HEAD=true
+ba693531531fe865a99d4076e0b30812609c913a65cbd65777b2124458878007  fixtures/results/precision_connected_ui_mechanics_dense.json  equal_to_HEAD=true
+dda6f24f80a4cae57c45b11d84ffcc46c9435acd02f11c3d16f55eedf2c02035  fixtures/model_operations/precision_connected_ui_model.json  equal_to_HEAD=true
+git diff --stat:
+ .../src/features/handoff/HandoffPanel.test.tsx     |  33 +++++-
+ .../headless-runner/HeadlessRunnerPanel.test.tsx   |  36 ++++++-
+ .../results/physicsSourceIntegration.test.tsx      |  78 ++++++++++++--
+ .../features/results/sourceBlockRecovery.test.ts   |  83 +++++++++++---
+ .../features/rule-check/RuleCheckRunPanel.test.tsx | 119 ++++++++++++++++-----
+ 5 files changed, 289 insertions(+), 60 deletions(-)

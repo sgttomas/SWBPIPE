@@ -1,0 +1,4 @@
+        projectId
+      });
+      if (!isCurrent()) return;
+      if (route.route === "unavailable_browser_preview") {

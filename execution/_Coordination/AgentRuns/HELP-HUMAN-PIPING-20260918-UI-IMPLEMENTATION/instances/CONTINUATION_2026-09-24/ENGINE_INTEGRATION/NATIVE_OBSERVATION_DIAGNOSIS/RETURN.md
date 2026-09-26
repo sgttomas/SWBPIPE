@@ -4,7 +4,7 @@
 
 ## Actual saved evidence
 
-EVIDENCE.json binds the private sparse/dense captures by SHA256 without copying either native model or operation history. Both contain raw0.2 and AnalysisRun0.3, matching raw/analysis run identity, exactly one InputManifest reference and one matching SHA256 claim, and the reported model hash a335271236b6dbbcb3c807cd5bf040a33726c4dfd67aa33ec37a0f26f03483ce. Sparse manifest claim is c3e97ceaa93773e6ec9fea8f2f2ec7d2363dca4c4d0e5ae98d9010dcf02d64a8; dense is d1bdb14061aa58578452acd6715c014ffa4f6cff97ea3da9dc5ed6608116828c. Each claim matches its reference and reference suffix. Neither capture nor analysis record includes a manifest payload. Stored hash claims are present; this structural diagnosis does not newly recompute all of them.
+[EVIDENCE.json](_run_records/EVIDENCE.json) binds the private sparse/dense captures by SHA256 without copying either native model or operation history. Both contain raw0.2 and AnalysisRun0.3, matching raw/analysis run identity, exactly one InputManifest reference and one matching SHA256 claim, and the reported model hash a335271236b6dbbcb3c807cd5bf040a33726c4dfd67aa33ec37a0f26f03483ce. Sparse manifest claim is c3e97ceaa93773e6ec9fea8f2f2ec7d2363dca4c4d0e5ae98d9010dcf02d64a8; dense is d1bdb14061aa58578452acd6715c014ffa4f6cff97ea3da9dc5ed6608116828c. Each claim matches its reference and reference suffix. Neither capture nor analysis record includes a manifest payload. Stored hash claims are present; this structural diagnosis does not newly recompute all of them.
 
 ## Causal chain and contract
 

@@ -1,0 +1,14 @@
+date_utc=2026-09-25T17:10:55Z
+worktree=/home/user/wt/engine/projects/chirality-piping
+head=5b1ccd356c0d9656f7b9f42c6558f7a4c73f9295
+node=v24.21.0
+npm=11.19.0
+playwright_pkg=1.60.0
+playwright_core=1.60.0
+chromium_exec=/opt/pw-browsers/chromium-1194/chrome-linux/chrome
+chromium_version=Chromium 141.0.7390.37 
+bundled_browsers_expected_by_pinned_playwright:
+[{"name":"chromium","revision":"1223","installByDefault":true,"browserVersion":"148.0.7778.96","title":"Chrome for Testing"},{"name":"chromium-headless-shell","revision":"1223","installByDefault":true,"browserVersion":"148.0.7778.96","title":"Chrome Headless Shell"},{"name":"chromium-tip-of-tree","revision":"1427","installByDefault":false,"browserVersion":"149.0.7827.0","title":"Chrome Canary for Testing"},{"name":"chromium-tip-of-tree-headless-shell","revision":"1427","installByDefault":false,"browserVersion":"149.0.7827.0","title":"Chrome Canary Headless Shell"}]
+uname=Linux 6.18.44-fc-v37 x86_64
+nproc=4
+rustc=rustc 1.94.1 (e408947bf 2026-03-25)

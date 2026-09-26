@@ -1,14 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import type { MechanicsResult, PreviewModel } from "../../types";
-import { buildAnalysisRunPreview, runPreviewMechanics, hasNativeMechanicsInvocation } from "../../services/previewService";
+import { buildAnalysisRunPreview, runPreviewMechanics, hasNativeMechanicsInvocation, loadDesignKnowledge } from "../../services/previewService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
-import { useResultsSessionState } from "../workspace/resultsSessionState";
+import { getLocalStorageCapability } from "../../services/projectService";
+import { useWorkspaceSession } from "../workspace/workspaceSession";
+import { physicsSourceModeMatches } from "./physicsSourceRecovery";
 import { buildCurrentResultExport, validateResultDocument } from "../result-export/resultExportAdapter";
 import { buildStressNeutralExportPacket, validateStressNeutralExportPacket, validateStressNeutralCsv } from "../stress-neutral/StressNeutralExportPanel";
 import { canonicalJsonCheckedV1, canonicalSha256HexCheckedV1 } from "../../services/hashService";
@@ -17,7 +19,7 @@ import { numericalResultStanding } from "./numericalResultQuality";
 import { analysisRowSemantics, analysisRecordProjection, validateAnalysisRunV03 } from '../../services/analysisRunCompatibility';
 import { resultSemantics } from './resultSemantics';
 
-afterEach(() => { invokeMock.mockReset(); delete (window as any).__TAURI_INTERNALS__; });
+afterEach(() => { invokeMock.mockReset(); window.localStorage.clear(); delete (window as any).__TAURI_INTERNALS__; });
 const fixturePrefix = "../../../../../fixtures/product_preview/physics_source/";
 const fixtureSources = import.meta.glob("../../../../../fixtures/product_preview/physics_source/*.json", { query: "?raw", import: "default", eager: true }) as Record<string,string>;
 const pairs = ["n05", "n06", "mixed", "fields", "n05_units", "mixed_units", "n05_unicode"].flatMap(name => ["sparse_interactive", "dense_scrutiny"].map(mode => [name, mode] as const));
@@ -40,11 +42,57 @@ async function received(name: string, mode: string) {
   const analysisRun = await buildAnalysisRunPreview(source,{inputManifest});
   return {model,source,original,sourceText,inputManifest,analysisRun};
 }
+// The same captured pair through the actual workspace session, the permitted
+// session boundary: load_preview_model returns the captured request model and
+// the session's own backend-job solve receives the captured producer bytes for
+// every requested mode. Current standing comes only from the session's solve
+// path and qualification gate. Unit transport replay, NOT a native UI witness.
+async function sessionReceived(name: string, mode: string) {
+  const sourceText = fixtureSources[`${fixturePrefix}${name}-${mode}.raw.json`];
+  const request = JSON.parse(fixtureSources[`${fixturePrefix}${name}.request.json`]);
+  const original = JSON.parse(sourceText) as MechanicsResult;
+  // Capture the real browser bootstrap records before installing the replay.
+  delete (window as any).__TAURI_INTERNALS__;
+  const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
+  const scope = "unit_transport_replay_not_native_ui_qualification", started: string[] = [];
+  invokeMock.mockImplementation(async (command: string, args: any) => {
+    if (command === "get_local_storage_capability") return storage;
+    if (command === "load_design_knowledge") return knowledge;
+    if (command === "sync_native_shell_state") return null;
+    if (command === "load_preview_model" && args === undefined) return structuredClone(request.model);
+    if (command === "start_preview_mechanics_job_with_solver_mode") {
+      if (!isDeepStrictEqual({ model: args.model, materials: [] }, request)) throw new Error("REPLAY_REQUEST_MISMATCH");
+      started.push(args.solverMode);
+      const job_id = `unit-transport-replay:${name}:${started.length}`;
+      return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope };
+    }
+    if (command === "poll_preview_mechanics_job" && args?.jobId === `unit-transport-replay:${name}:${started.length}`) {
+      return { job_id: args.jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: scope, result: structuredClone(original), error_message: null };
+    }
+    throw new Error(`REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+  });
+  (window as any).__TAURI_INTERNALS__ = {};
+  const hook = renderHook(() => useWorkspaceSession());
+  await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
+  await waitFor(() => expect(hook.result.current.model.modelHash).not.toBeNull());
+  act(() => hook.result.current.results.setSolverMode(mode as "sparse_interactive" | "dense_scrutiny"));
+  await act(async () => { await hook.result.current.results.handleRun(); });
+  await waitFor(() => expect(hook.result.current.results.currentSolvedResult).not.toBeNull());
+  expect(started).toEqual([mode]);
+  const { result: source, inputManifest, analysisRun } = hook.result.current.results;
+  return { hook, started, model: hook.result.current.model.model!, source: source!, original, sourceText, inputManifest: inputManifest!, analysisRun: analysisRun! };
+}
 
 describe("joined composite native transport unit simulation", () => {
   it.each(pairs)("%s %s binds actual input, Current gates and portable evidence", async (name, mode) => {
-    const args = await received(name,mode), {source,model,inputManifest,analysisRun}=args;
+    // Direct IPC route premise, as before: the production registrar binds the
+    // exact captured pair. Current itself is then reached through the session.
+    const direct = await received(name,mode);
+    expect(direct.source).toEqual(direct.original);
+    expect(hasNativeMechanicsInvocation(direct.source,direct.model,mode)).toBe(true);
+    const args = await sessionReceived(name,mode), {hook,source,model,inputManifest,analysisRun}=args;
     expect(source).toEqual(args.original);
+    expect(inputManifest.manifest.solver_basis.solver_mode).toBe(mode);
     expect(source.numerical_quality!.status).not.toBe("checks_passed");
     expect(hasNativeMechanicsInvocation(source,model,mode)).toBe(true);
     expect(numericalResultStanding(source,model).eligible).toBe(true);
@@ -55,9 +103,7 @@ describe("joined composite native transport unit simulation", () => {
       expect(analysisRowSemantics(row,source).semantic?.signature_id).toBe(signature);
       expect(analysisRun.analysis_run.result_refs.find(r=>r.result_ref.ref===row.id)?.semantic_contract?.signature_id).toBe(signature);
     }
-    const hook=renderHook(()=>useResultsSessionState());
-    act(()=>{hook.result.current.setResult(source);hook.result.current.setAnalysisRun(analysisRun);hook.result.current.setInputManifest(inputManifest);});
-    expect(hook.result.current.currentSolvedResult).toBe(source);
+    expect(hook.result.current.results.currentSolvedResult).toBe(source);
     const document=await buildCurrentResultExport({model,result:source,analysisRun,inputManifest});
     expect(document.result_envelope.contract_evidence).toEqual(source.contract_evidence);
     expect(document.result_envelope.source_block_recovery).toEqual(source.source_block_recovery);
@@ -79,8 +125,20 @@ describe("joined composite native transport unit simulation", () => {
       if(a.source_row.value===0)expect(Object.is(a.source_row.value,-0)).toBe(false);
     });
     await expect(buildReportPackageRequest({model,result:source,analysisRun,inputManifest} as any)).rejects.toThrow("REPORT-PACKAGE-SOURCE-BLOCKS-UNAVAILABLE");
-    const badManifest=structuredClone(inputManifest);badManifest.manifest.solver_basis.solver_mode=mode==="sparse_interactive"?"dense_scrutiny":"sparse_interactive";
-    act(()=>hook.result.current.setInputManifest(badManifest));expect(hook.result.current.currentSolvedResult).toBeNull();
+    // Mode binding. The session only publishes a manifest recording the mode it
+    // actually requested, so the other mode is probed through the gate's own
+    // predicates and through a session solve that receives these bytes, which
+    // were recorded under `mode`, for the other mode: neither becomes Current.
+    const otherMode=mode==="sparse_interactive"?"dense_scrutiny":"sparse_interactive";
+    expect(hasNativeMechanicsInvocation(source,model,otherMode)).toBe(false);
+    expect(physicsSourceModeMatches(source,model,otherMode)).toBe(false);
+    act(()=>hook.result.current.results.setSolverMode(otherMode));
+    await act(async()=>{await hook.result.current.results.handleRun();});
+    expect(args.started).toEqual([mode,otherMode]);
+    expect(hook.result.current.results.result).toBeNull();
+    expect(hook.result.current.results.currentSolvedResult).toBeNull();
+    expect(hook.result.current.results.solveJob.state).toBe("failed");
+    expect(hook.result.current.results.solveJob.events.at(-1)?.message).toContain("SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED");
     hook.unmount();
     expect(source).toEqual(args.original);
     if(process.env.PHYSICS_SOURCE_TS_OUTPUT_DIR){

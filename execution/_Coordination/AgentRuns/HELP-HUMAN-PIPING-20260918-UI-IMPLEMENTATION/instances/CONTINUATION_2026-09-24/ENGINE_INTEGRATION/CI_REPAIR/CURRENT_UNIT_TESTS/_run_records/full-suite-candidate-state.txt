@@ -1,0 +1,13 @@
+HEAD: 347e214fe265b13e6d24f847f163821f0c833018
+test file: f6721af8bf98710af970e6ed990b723a7497e32f546388780060a2799bbe6a2e  apps/desktop/src/features/workspace/currentResultUnitPolicy.test.tsx
+ M projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
+ M projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/ROOT_DISCOVERY/RETURN.md
+ M projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md
+ M projects/chirality-piping/tests/test_headless_runner_contract.py
+ M projects/chirality-piping/tests/test_stress_neutral_physics_source.py
+?? projects/chirality-piping/apps/desktop/src/features/workspace/currentResultUnitPolicy.test.tsx
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/CURRENT_UNIT_TESTS/
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/DIST_LANE/_run_records/commands.txt
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/INDEPENDENT_REVIEW/
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/ROOT_DISCOVERY/_run_records/piping-pytest-347e214-n3.log
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/ROOT_DISCOVERY/_run_records/pytest-and-self-check-notes.txt

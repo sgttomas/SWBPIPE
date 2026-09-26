@@ -1,0 +1,49 @@
+{
+  "role": "WORKING_ITEMS Type1",
+  "agent": "/root/scientific_transport_manager",
+  "parent_and_scope_owner": "/root",
+  "mechanism": "delegated-harness-native task continuation",
+  "scope_commit": "c278f64ba122eb8b848b9f14e58a0e533e94439a",
+  "source_checkout_resolution": "git rev-parse --show-toplevel, actual combined checkout location retained in tool execution history; portable scope is repo-relative",
+  "instruction_basis": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "byte_length": 14200
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+      "byte_length": 1804
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "byte_length": 9016
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "byte_length": 8475
+    }
+  ],
+  "additional_method_source": [
+    {
+      "path": "tools/practitioner_harness/surface_roles.py",
+      "sha256": "7786998c8eb047e770c98b3e846353d40a307f5cfa9862c95681c3405866949e",
+      "byte_length": 14013
+    },
+    {
+      "path": "tools/practitioner_harness/cmd_self_check.py",
+      "sha256": "ba1e6f4a14ebddb8bd0c88c069a913b8729997d656d55988b330df56546b8a96",
+      "byte_length": 72502
+    }
+  ],
+  "delegations_started": 0,
+  "selected_workflow": null,
+  "selected_skills": [],
+  "authorization": "Root bounded records repair; later explicit permission to relocate entire frozen FIRST_STATIC_BINDINGS byte-identically to preserve its manifest/internal relationships. Original protected bytes and four-run results stay unchanged.",
+  "parallel_ownership": "Physics owns ENGINE_INTEGRATION, Root owns SOLVER_MANAGER/global/current maintained links. This manager wrote only VALIDATION_FOUNDATION.",
+  "executed": "Byte-identical relocation, scoped policy/hash/link checks, two metadata-only selection derivations. No Git mutation, build, native, real solver, broad test, receipt, MEMORY or new qualification.",
+  "review": "Pending Root-owned combined independent backcheck; written review brief is not an executed reviewer."
+}

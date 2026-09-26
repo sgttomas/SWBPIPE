@@ -1,0 +1,23 @@
+
+Running 18 tests using 1 worker
+
+  ✓   1 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:90:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (24.2s)
+  ✓   2 [chromium-desktop] › e2e/r2-smoke.spec.ts:251:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (1.2m)
+  ✓   3 [chromium-desktop] › e2e/r2-smoke.spec.ts:1624:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (8.3s)
+  ✓   4 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas light comfortable 1024x768 @explicit-viewport (19.0s)
+  ✓   5 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas light comfortable 1280x800 @explicit-viewport (17.6s)
+  ✓   6 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas light comfortable 1440x920 @explicit-viewport (18.6s)
+  ✓   7 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas light compact 1024x768 @explicit-viewport (20.8s)
+  ✓   8 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas light compact 1280x800 @explicit-viewport (17.1s)
+  ✓   9 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas light compact 1440x920 @explicit-viewport (19.0s)
+  ✓  10 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas dark comfortable 1024x768 @explicit-viewport (20.3s)
+  ✓  11 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas dark comfortable 1280x800 @explicit-viewport (17.5s)
+  ✓  12 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas dark comfortable 1440x920 @explicit-viewport (18.2s)
+  ✓  13 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas dark compact 1024x768 @explicit-viewport (20.8s)
+  ✓  14 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas dark compact 1280x800 @explicit-viewport (18.8s)
+  ✓  15 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas dark compact 1440x920 @explicit-viewport (19.2s)
+  ✓  16 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:90:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (23.4s)
+  ✓  17 [chromium-compact] › e2e/r2-smoke.spec.ts:251:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (1.3m)
+  ✓  18 [chromium-compact] › e2e/r2-smoke.spec.ts:1624:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (9.5s)
+
+  18 passed (7.4m)

@@ -1,0 +1,25 @@
+{
+  "candidate_base": "c278f64ba122eb8b848b9f14e58a0e533e94439a",
+  "checked_working_changes": "Record portability repairs; runtime sources unchanged. Current graph integration after practitioner run is independently reviewed separately. Actual-head hosted checks and clean sweep remain pending.",
+  "initial_results": {
+    "practitioner": "378 passed, 1 failed: GEN8 active-surface portability",
+    "self_check": "168 portability findings",
+    "g4_system_python": "Unavailable PyYAML, operational exit2; no assurance claimed"
+  },
+  "repaired_results": {
+    "practitioner": "379 passed in64.26s",
+    "self_check": "no findings",
+    "g4_venv": "PASS diff mode; zero instruction surface changes",
+    "historical_receipts": "VALID frozen throughReceipt44"
+  },
+  "records": {
+    "self-check.log": "64c4efa62f29f297a8497a4698821071e2e55e663593ab2467f60e2a9301b2cb",
+    "self-check-repaired.log": "3469febef41a4ac4f8f65b7b4d3b22111464bc498a748485dc853214de525678",
+    "practitioner.log": "9c7a71a30f0ad734d6437503b1a07fb94598f6a7f8fbd6c90df4f1b32ddf46a5",
+    "practitioner-repaired.log": "f117fb3c63d7fd6de33bf95b4933f1d6157bad28fa3895b39f860f9a1206460f",
+    "portability-findings.json": "e9c6b51703be09dfc62e39053afc05ddf3585b11b0cb3c571e7fddae58a988f1",
+    "g4.log": "57a4a5cf225796393842a1af199d48b404a7b3385451bf7f08237ba6e339bd82",
+    "g4-venv.log": "2ca463d0f622a336d4ef29cfc0bc103dce695e10e0518c79464e598757fa21b7",
+    "historical-receipts.log": "041759a6afe6057b483cda887c874e46ecbd007ba4df34aa36536f6efc1aad14"
+  }
+}

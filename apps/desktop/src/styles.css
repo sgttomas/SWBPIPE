@@ -2592,23 +2592,28 @@ fieldset.viewport-intent-controls {
   background: #2d5b50;
 }
 
-.result-filter-row,
-.result-page-row {
-  display: grid;
+/* The filter row wraps rather than squeezing its search field. In a narrow Results column (both
+   rails open at 1280x800, or a bundled reference nested in its own panel) the match summary and
+   the clear button move to a second line and the field keeps a usable width, instead of collapsing
+   to a sliver under the summary. In a wide column it stays one line, as before: the field takes the
+   free width, then the summary and the clear button. DOM and focus order are unchanged. */
+.result-filter-row {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
 
-.result-filter-row {
-  grid-template-columns: minmax(0, 1fr) auto 32px;
-}
-
 .result-page-row {
+  display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
 }
 
 .result-filter-row label {
   display: grid;
+  flex: 1 1 240px;
   grid-template-columns: 16px auto minmax(0, 1fr);
   align-items: center;
   gap: 6px;
@@ -2645,8 +2650,11 @@ fieldset.viewport-intent-controls {
 
 .result-filter-row button {
   display: inline-grid;
+  flex: 0 0 32px;
   width: 32px;
   height: 30px;
+  /* Keeps the clear control at the row's right edge when it wraps; no effect on one line. */
+  margin-left: auto;
   place-items: center;
   border: 1px solid #c8d0cb;
   border-radius: 4px;

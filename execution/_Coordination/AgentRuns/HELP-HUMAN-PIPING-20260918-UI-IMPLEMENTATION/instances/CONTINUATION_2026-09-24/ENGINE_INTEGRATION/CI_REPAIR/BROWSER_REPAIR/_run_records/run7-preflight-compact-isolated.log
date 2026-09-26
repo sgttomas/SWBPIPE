@@ -1,0 +1,11 @@
+cmd: ../../node_modules/.bin/playwright test --project=chromium-compact --workers=1 --timeout=180000 --reporter=list e2e/ui-foundation.spec.ts:38
+2026-09-25T18:02:50Z
+ 18:02:50 up  1:22,  0 user,  load average: 5.81, 6.77, 6.33
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium-compact] › e2e/ui-foundation.spec.ts:38:1 › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement (10.2s)
+
+  1 passed (15.4s)
+exit=0
+2026-09-25T18:03:07Z

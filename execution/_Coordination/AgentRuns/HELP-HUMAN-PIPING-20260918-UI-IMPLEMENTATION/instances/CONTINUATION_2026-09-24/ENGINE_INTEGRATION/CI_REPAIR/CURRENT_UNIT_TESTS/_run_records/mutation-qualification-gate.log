@@ -1,0 +1,70 @@
+test file: f6721af8bf98710af970e6ed990b723a7497e32f546388780060a2799bbe6a2e  apps/desktop/src/features/workspace/currentResultUnitPolicy.test.tsx
+before: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380  apps/desktop/src/features/workspace/resultsSessionState.ts
+git blob HEAD: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380  -
+mutated: e49c3a8fc56294bb9efbd4eee92d9e569d6ecd0f50f7182c5356127f85a69312  apps/desktop/src/features/workspace/resultsSessionState.ts
+diff --git a/projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts b/projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts
+index d4e35e7cd..5ea714029 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts
+@@ -67,7 +67,7 @@ export function useResultsSessionState() {
+     && currentRecord.solver_version?.solver_name === currentSolver?.solver_name
+     && currentRecord.solver_version?.solver_version === currentSolver?.solver_version
+     && currentRecord.solver_version?.build_ref.ref === currentSolver?.solver_build_ref
+-    && numericallyEligible
++    && numericallyEligible && false
+     && (sourceContract(result) !== "physics_source" || (!!inputManifest && physicsSourceModeMatches(result, inputManifest.manifest.model_basis.model_payload, currentSolver!.solver_mode)))
+     && (sourceContract(result) !== "source_blocks" || (!!inputManifest && sourceBlockModeMatches(result, inputManifest.manifest.model_basis.model_payload, currentSolver!.solver_mode)))
+     && hasNativeMechanicsInvocation(result, inputManifest?.manifest.model_basis.model_payload, currentSolver?.solver_mode) ? result : null;
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/currentResultUnitPolicy.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/currentResultUnitPolicy.test.tsx (2 tests | 1 failed) 1832ms
+   × reports a qualified Current result's recorded units, including N*m/rad and N/m, unconverted in the solve and design unit lines 1671ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/currentResultUnitPolicy.test.tsx > reports a qualified Current result's recorded units, including N*m/rad and N/m, unconverted in the solve and design unit lines
+AssertionError: expected null not to be null
+
+Ignored nodes: comments, script, style
+[36m<html[39m
+  [33mdata-theme[39m=[32m"light"[39m
+[36m>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ src/features/workspace/currentResultUnitPolicy.test.tsx:84:78
+     82|   const { result } = await recordedProducerSession();
+     83|   await act(async () => { await result.current.results.handleRun(); });
+     84|   await waitFor(() => expect(result.current.results.currentSolvedResul…
+       |                                                                              ^
+     85|   const model = result.current.model.model, currentSolvedResult = resu…
+     86|   expect(result.current.results.result).toBe(currentSolvedResult);
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  19:24:41
+   Duration  3.78s (transform 953ms, setup 137ms, import 1.22s, tests 1.83s, environment 395ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/workspace/currentResultUnitPolicy.test.tsx
+mutant test exit=1
+restored: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380  apps/desktop/src/features/workspace/resultsSessionState.ts
+git diff empty after restore: yes

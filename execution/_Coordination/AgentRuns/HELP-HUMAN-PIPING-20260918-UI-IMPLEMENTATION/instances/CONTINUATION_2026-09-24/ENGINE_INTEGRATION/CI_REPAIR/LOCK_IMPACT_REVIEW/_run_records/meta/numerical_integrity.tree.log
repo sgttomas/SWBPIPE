@@ -1,0 +1,71 @@
+0piping_numerical_integrity_observer v0.1.0 (/home/user/wt/engine/projects/chirality-piping/validation/benchmarks/numerical_integrity)
+1open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+1open_pipe_stress_product_physics v0.2.0 (/home/user/wt/engine/projects/chirality-piping/core/product_physics)
+2open_pipe_stress_canonical_json v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/serialization/canonical_json)
+3ryu v1.0.23
+3serde v1.0.229
+4serde_core v1.0.229
+5serde_derive v1.0.229 (proc-macro)
+6proc-macro2 v1.0.107
+7unicode-ident v1.0.26
+6quote v1.0.47
+7proc-macro2 v1.0.107 (*)
+6syn v3.0.6
+7proc-macro2 v1.0.107 (*)
+7quote v1.0.47 (*)
+7unicode-ident v1.0.26
+4serde_derive v1.0.229 (proc-macro) (*)
+3serde_json v1.0.151
+4itoa v1.0.18
+4memchr v2.8.3
+4serde v1.0.229 (*)
+4serde_core v1.0.229 (*)
+4zmij v1.0.23
+2open_pipe_stress_curved_bend v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/curved_bend)
+3open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+2open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+2open_pipe_stress_linear_supports v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/linear_supports)
+3open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+2open_pipe_stress_load_case_algebra v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/loads/load_case_algebra)
+3open_pipe_stress_primitive_loads v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/loads/primitive_loads)
+4open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+4open_pipe_stress_linear_supports v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/linear_supports) (*)
+2open_pipe_stress_nonlinear_integration v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/nonlinear_integration)
+3open_pipe_stress_curved_bend v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/curved_bend) (*)
+3open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+3open_pipe_stress_nonlinear_supports v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/nonlinear_supports)
+4open_pipe_stress_linear_supports v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/linear_supports) (*)
+4open_pipe_stress_solver_diagnostics v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/diagnostics)
+5open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+5open_pipe_stress_linear_supports v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/linear_supports) (*)
+5open_pipe_stress_primitive_loads v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/loads/primitive_loads) (*)
+5open_pipe_stress_sparse_direct v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/sparse_direct)
+6open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+3open_pipe_stress_solver_diagnostics v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/diagnostics) (*)
+3open_pipe_stress_sparse_direct v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/sparse_direct) (*)
+2open_pipe_stress_nonlinear_supports v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/nonlinear_supports) (*)
+2open_pipe_stress_primitive_loads v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/loads/primitive_loads) (*)
+2open_pipe_stress_solver_diagnostics v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/diagnostics) (*)
+2open_pipe_stress_sparse_direct v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/sparse_direct) (*)
+2open_pipe_stress_straight_pipe v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/straight_pipe)
+3open_pipe_stress_frame_kernel v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/frame_kernel)
+2open_pipe_stress_stress_recovery v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/loads/stress_recovery)
+3open_pipe_stress_primitive_loads v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/loads/primitive_loads) (*)
+3open_pipe_stress_straight_pipe v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/straight_pipe) (*)
+2open_pipe_stress_units v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/units)
+2serde v1.0.229 (*)
+2serde_json v1.0.151 (*)
+2sha2 v0.10.9
+3cfg-if v1.0.5
+3cpufeatures v0.2.17
+4libc v0.2.189
+3digest v0.10.7
+4block-buffer v0.10.4
+5generic-array v0.14.7
+6typenum v1.20.1
+6version_check v0.9.5
+4crypto-common v0.1.7
+5generic-array v0.14.7 (*)
+5typenum v1.20.1
+1open_pipe_stress_sparse_direct v0.1.0 (/home/user/wt/engine/projects/chirality-piping/core/solver/sparse_direct) (*)
+1serde_json v1.0.151 (*)

@@ -1,0 +1,45 @@
+{
+  "rust_files_scanned": 133,
+  "distinct_include_targets": 50,
+  "targets_outside_recorder_roots": {
+    "projects/chirality-piping/validation/benchmarks/numerical_integrity/fixtures.json": [
+      "projects/chirality-piping/core/product_physics/tests/source_block_recovery.rs"
+    ],
+    "projects/chirality-piping/validation/evidence/comparison_measurement/DEL0904_VD_20260811/CURRENT_25_FIXTURE_RUNNER_OUTPUT.json": [
+      "projects/chirality-piping/core/runner/headless/src/benchmark_binding.rs"
+    ],
+    "projects/chirality-piping/validation/witness/inputs/del1005_export_results_success_input.json": [
+      "projects/chirality-piping/core/reporting/report_package/src/wire.rs"
+    ]
+  },
+  "targets_changed_8b98_to_5b1c_or_untracked": [],
+  "rust_sources_naming_Cargo_lock": [],
+  "env_macro_names": {
+    "CARGO_MANIFEST_DIR": [
+      "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "projects/chirality-piping/core/library_import/library_import_document/tests/provenance_parity.rs",
+      "projects/chirality-piping/core/model_operations/operation_applier/tests/canonical_hash_parity.rs",
+      "projects/chirality-piping/core/model_operations/operation_applier/tests/contract_corpus.rs",
+      "projects/chirality-piping/core/product_physics/tests/source_block_recovery.rs",
+      "projects/chirality-piping/core/reporting/result_export/tests/physics_source_contract.rs",
+      "projects/chirality-piping/core/reporting/result_export/tests/source_blocks.rs",
+      "projects/chirality-piping/core/rules/expression_evaluator/tests/conformance_corpus.rs",
+      "projects/chirality-piping/core/rules/rule_check_runner/tests/acceptability_relation_run.rs",
+      "projects/chirality-piping/core/rules/rule_check_runner/tests/invented_demo_run.rs",
+      "projects/chirality-piping/core/rules/rule_pack_document/tests/corpus_parity.rs",
+      "projects/chirality-piping/core/rules/rule_pack_document/tests/invented_demo_document.rs",
+      "projects/chirality-piping/core/rules/rule_pack_lifecycle/src/lib.rs",
+      "projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+      "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "projects/chirality-piping/core/runner/headless/tests/physics_source_connected.rs"
+    ],
+    "CARGO_PKG_NAME": [
+      "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs"
+    ],
+    "CARGO_PKG_VERSION": [
+      "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs"
+    ]
+  }
+}

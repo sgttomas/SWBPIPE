@@ -1,0 +1,15 @@
+linked identity ('open_pipe_stress_product_physics', '0.2.0')
+MUTATION DETECTED  A final legacy control given a solvable model: ('', '{\n  "payload": {\n    "artifact": "openpipestress.headless_runner_cli_output",\n    "command": "solve",\n    "deliverable_id": "DEL-10-05",\n    "diagnos
+MUTATION DETECTED  A compat legacy control given a solvable model: ('', '{\n  "payload": {\n    "mechanics_envelope": {\n      "accepted_model_state_mutated": false,\n      "contract_evidence": {\n        "connector": [],\n    
+MUTATION DETECTED  B every-verb success given legacy model: ('solve', '', '{\n  "payload": {\n    "artifact": "openpipestress.headless_runner_cli_output",\n    "command": "solve",\n    "deliverable_id": "DEL-10-05",\n   
+MUTATION DETECTED  B compat success given legacy model: ('', '{\n  "payload": {\n    "mechanics_envelope": {\n      "accepted_model_state_mutated": false,\n      "diagnostics": [\n        {\n          "affected_refs"
+MUTATION DETECTED  C deterministic zip-exact with recorded 0.1.0 witness: ('', '')
+MUTATION DETECTED  C named-file output with recorded witness: AssertionError
+MUTATION DETECTED  C producer-blocked with recorded witness: AssertionError
+MUTATION DETECTED  C intent-once with recorded witness: AssertionError
+MUTATION DETECTED  C invalid-wire code with recorded witness: AssertionError
+MUTATION DETECTED  C native size with recorded witness: AssertionError
+MUTATION DETECTED  D success test bound to a non-linked identity: ('', '')
+MUTATION DETECTED  D every-verb producer identity check vs non-linked identity: AssertionError
+MUTATION DETECTED  E identity control with no actual staleness: AssertionError
+ALL MUTATIONS DETECTED

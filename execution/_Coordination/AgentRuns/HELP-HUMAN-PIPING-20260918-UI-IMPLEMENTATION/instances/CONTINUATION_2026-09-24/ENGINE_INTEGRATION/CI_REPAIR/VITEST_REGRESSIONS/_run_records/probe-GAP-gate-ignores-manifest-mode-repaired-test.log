@@ -1,0 +1,34 @@
+date: 2026-09-25T20:12:59.942182Z
+target: apps/desktop/src/features/workspace/resultsSessionState.ts
+sha256 before: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380
+sha256 HEAD blob: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380
+--- replaced (exactly once) ---
+    && (sourceContract(result) !== "physics_source" || (!!inputManifest && physicsSourceModeMatches(result, inputManifest.manifest.model_basis.model_payload, currentSolver!.solver_mode)))
+    && (sourceContract(result) !== "source_blocks" || (!!inputManifest && sourceBlockModeMatches(result, inputManifest.manifest.model_basis.model_payload, currentSolver!.solver_mode)))
+    && hasNativeMechanicsInvocation(result, inputManifest?.manifest.model_basis.model_payload, currentSolver?.solver_mode) ? result : null;
+--- with ---
+    && (sourceContract(result) !== "physics_source" || (!!inputManifest))
+    && (sourceContract(result) !== "source_blocks" || (!!inputManifest && sourceBlockModeMatches(result, inputManifest.manifest.model_basis.model_payload, currentSolver!.solver_mode)))
+    && hasNativeMechanicsInvocation(result, inputManifest?.manifest.model_basis.model_payload) ? result : null;
+---
+sha256 mutated: 51f9a73970bb4a0860fc0dbb9fcf83250667414fbd28098ded8aaa848ee4101f
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/results/physicsSourceIntegration.test.tsx -t n05 sparse_interactive binds
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/results/physicsSourceIntegration.test.tsx -t n05 sparse_interactive binds
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 16 skipped (17)
+   Start at  20:13:00
+   Duration  7.75s (transform 1.72s, setup 143ms, import 2.22s, tests 4.85s, environment 384ms)
+
+exit=0
+sha256 restored: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: PASS-as-expected

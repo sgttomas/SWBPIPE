@@ -1,0 +1,67 @@
+date: 2026-09-25T20:09:22.867745Z
+target: apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx
+sha256 before: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+sha256 HEAD blob: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+--- replaced (exactly once) ---
+      .filter((input) => !input.solver_result_ref)
+      .map((input) => ({ input_id: input.input_id, result_id: solverSelections[input.input_id] ?? "" }))
+--- with ---
+      .map((input) => ({ input_id: input.input_id, result_id: solverSelections[input.input_id] ?? input.solver_result_ref?.result_id ?? "" }))
+---
+sha256 mutated: cceb143d86acb88f66f1f5d884415a735cdeb1b28bc02e382820d66af16a7ec4
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx (24 tests | 1 failed) 997ms
+     × omits caller-supplied solver bindings when a solver_result_ref is authored in the pack 36ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 23 passed (24)
+   Start at  20:09:23
+   Duration  2.30s (transform 533ms, setup 133ms, import 660ms, tests 997ms, environment 361ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/rule-check/RuleCheckRunPanel.test.tsx > RuleCheckRunPanel > omits caller-supplied solver bindings when a solver_result_ref is authored in the pack
+AssertionError: expected { rulePackDocument: { …(2) }, …(4) } to not have property "solverResultBindings"
+
+- Expected:
+undefined
+
++ Received:
+[
+  {
+    "input_id": "actual",
+    "result_id": "result:stress:pipe-fixture-span:end-i:axial-normal",
+  },
+]
+
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx:459:22
+    457|     const [command, args] = invokeMock.mock.calls[0];
+    458|     expect(command).toBe("run_rule_checks");
+    459|     expect(args).not.toHaveProperty("solverResultBindings");
+       |                      ^
+    460|   });
+    461| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+exit=1
+sha256 restored: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: FAIL-as-expected

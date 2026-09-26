@@ -1,0 +1,6 @@
+# Ad hoc e2e type check (tsconfig.json covers only src and vite.config.ts)
+cmd (from apps/desktop): ../../node_modules/.bin/tsc -p <scratchpad>/tsconfig.e2e.json  (copy: tsconfig.e2e.adhoc.json)
+run 1 (before typeRoots fix): TS2688 Cannot find type definition file for 'node' (config error, not a code error)
+run 2 after A/B/C edits: rc=0, 0 errors
+run 3 after R2 report/design edits: rc=0
+run 4 after linear-authoring edits: rc=0

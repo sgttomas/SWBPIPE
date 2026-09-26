@@ -1,0 +1,28 @@
+    Finished `release` profile [optimized] target(s) in 0.02s
+    Finished `release` profile [optimized] target(s) in 0.02s
+......................                                                   [100%]
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/test_headless_runner_contract.py::test_headless_runner_contract
+PASSED tests/test_headless_runner_contract.py::test_both_runner_exposure_paths_are_controlled_before_stdout_or_file_write
+PASSED tests/test_headless_runner_contract.py::test_cargo_target_debug_directory_honors_cargo_target_dir
+PASSED tests/test_headless_runner_contract.py::test_final_runner_subprocess_covers_every_active_verb_and_stdout
+PASSED tests/test_headless_runner_contract.py::test_final_runner_refuses_legacy_pressure_demo_as_explicit_control
+PASSED tests/test_headless_runner_contract.py::test_final_runner_subprocess_output_file_matches_stdout
+PASSED tests/test_headless_runner_contract.py::test_final_runner_subprocess_blocking_exit_one_writes_no_file
+PASSED tests/test_headless_runner_contract.py::test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_output_is_only_named_json_file
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_failures_have_no_payload_or_file[input_path0-HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING]
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_failures_have_no_payload_or_file[input_path1-HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH]
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_failures_have_no_payload_or_file[input_path2-HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED]
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_requires_intent_once_and_writes_no_file
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_invalid_wire_payload_preserves_report_code
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_refuses_unlinked_solver_identity[True-False-request identity does not match]
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_refuses_unlinked_solver_identity[False-True-result envelope identity does not match]
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_wire_deserialization_failures_exit_one[<lambda>-missing field `package_id`]
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_wire_deserialization_failures_exit_one[<lambda>-invalid type: string]
+PASSED tests/test_headless_runner_contract.py::test_final_runner_export_results_native_size_is_exact_with_constant_cardinality
+PASSED tests/test_headless_runner_contract.py::test_final_runner_subprocess_malformed_input_exits_two
+PASSED tests/test_headless_runner_contract.py::test_compatibility_runner_subprocess_controlled_stdout_and_exits
+PASSED tests/test_headless_runner_contract.py::test_compatibility_runner_refuses_legacy_pressure_demo_as_explicit_control
+22 passed in 4.67s

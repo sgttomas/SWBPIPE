@@ -1,0 +1,61 @@
+test file: f6721af8bf98710af970e6ed990b723a7497e32f546388780060a2799bbe6a2e  apps/desktop/src/features/workspace/currentResultUnitPolicy.test.tsx
+before: 17ede84dfff962cb216c59be50f478ab4913713bbc70830bbd31ba52d053aaae  apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
+git blob HEAD: 17ede84dfff962cb216c59be50f478ab4913713bbc70830bbd31ba52d053aaae  -
+mutated: db94d5de086e558e7675538684fb0958764c9174cde4abbcb57484e89b581795  apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
+diff --git a/projects/chirality-piping/apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx b/projects/chirality-piping/apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
+index 0ea1baa84..4e3d57c8e 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
+@@ -294,7 +294,7 @@ function buildWorkspaceUnitPolicyEvidence({
+     storage_convention: "entered_units_preserved",
+     workspace_unit_policy: "compose_model_result_and_comparison_units_without_conversion",
+     model_units: sortedStringRecord(model.project.units),
+-    result_units: uniqueSorted((result?.results ?? []).map((item) => item.unit)),
++    result_units: uniqueSorted((result?.results ?? []).map((item) => item.unit)).filter((unit) => unit !== "N/m"),
+     comparison_units: comparison?.unit_policy_evidence.matched_result_units.slice().sort() ?? [],
+     comparison_unit_policy_ref: comparison?.unit_policy_evidence.evidence_id ?? "not generated",
+     conversion_policy: "design_workspace_preserves_source_units_without_conversion",
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/currentResultUnitPolicy.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/currentResultUnitPolicy.test.tsx (2 tests | 1 failed) 880ms
+   × reports a qualified Current result's recorded units, including N*m/rad and N/m, unconverted in the solve and design unit lines 734ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/currentResultUnitPolicy.test.tsx > reports a qualified Current result's recorded units, including N*m/rad and N/m, unconverted in the solve and design unit lines
+AssertionError: expected 'model=angle=rad,force=N,length=m,pres…' to be 'model=angle=rad,force=N,length=m,pres…' // Object.is equality
+
+Expected: "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=MPa,N,N*m,N*m/rad,N/m,boolean,count,m,mm,mode_code,rad,state_code; comparison=MPa,N,N*m,mm,rad; conversion=false"
+Received: "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=MPa,N,N*m,N*m/rad,boolean,count,m,mm,mode_code,rad,state_code; comparison=MPa,N,N*m,mm,rad; conversion=false"
+
+ ❯ src/features/workspace/currentResultUnitPolicy.test.tsx:98:6
+     96|   // comparison= lists only the units of rows matched between the defa…
+     97|   expect(line(design, "design-workspace-units"))
+     98|     .toBe(`${modelUnits}; results=${recordedUnits}; comparison=MPa,N,N…
+       |      ^
+     99|   expect(within(design.container).getByTestId("design-workspace-curren…
+    100|   expect(currentSolvedResult).toEqual(sourceFixture);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  19:24:24
+   Duration  3.00s (transform 1.12s, setup 159ms, import 1.41s, tests 880ms, environment 402ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/workspace/currentResultUnitPolicy.test.tsx
+mutant test exit=1
+restored: 17ede84dfff962cb216c59be50f478ab4913713bbc70830bbd31ba52d053aaae  apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
+git diff empty after restore: yes

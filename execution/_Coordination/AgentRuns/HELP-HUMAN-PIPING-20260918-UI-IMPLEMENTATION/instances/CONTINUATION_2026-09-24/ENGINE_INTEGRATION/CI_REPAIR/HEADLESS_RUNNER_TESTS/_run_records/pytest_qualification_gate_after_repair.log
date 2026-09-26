@@ -1,0 +1,8 @@
+    Finished `release` profile [optimized] target(s) in 0.02s
+    Finished `release` profile [optimized] target(s) in 0.02s
+...............................                                          [100%]
+31 passed in 45.58s
+
+real	0m45.902s
+user	0m25.201s
+sys	0m29.282s

@@ -1,0 +1,11 @@
+m1-css-base rc 1 restored True
+m2-chip-source-dropped rc 1 restored True
+m2b-popover-source-span-dropped rc 1 restored True
+m3-design-workspace-reference-leak rc 1 restored True
+m4-report-reference-leak rc 1 restored True
+m5-issues-reference-leak rc 1 restored True
+m6a-results-unit-display-converted rc 1 restored True
+m6b-fixture-spring-row-converted rc 1 restored True
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/INDEPENDENT_REVIEW/
+git diff --quiet HEAD: clean
+exit=0

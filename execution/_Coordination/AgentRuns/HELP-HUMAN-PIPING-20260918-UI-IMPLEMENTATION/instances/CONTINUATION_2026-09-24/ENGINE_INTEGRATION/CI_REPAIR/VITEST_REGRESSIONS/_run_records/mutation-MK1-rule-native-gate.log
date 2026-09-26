@@ -1,0 +1,133 @@
+date: 2026-09-25T20:08:49.521230Z
+target: apps/desktop/src/services/ruleCheckService.ts
+sha256 before: b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718
+sha256 HEAD blob: b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718
+--- replaced (exactly once) ---
+  if (!hasNativeMechanicsInvocation(source, args.model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
+--- with ---
+  // mutation: native invocation gate removed
+---
+sha256 mutated: ad536328d524a773646b81fe588d851d3c5ecf4490c10000a267ceb7e5dd00db
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx (24 tests | 1 failed) 1986ms
+     × refuses a desktop run over a result without a native invocation and never reaches the rule backend 1057ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 23 passed (24)
+   Start at  20:08:50
+   Duration  3.32s (transform 547ms, setup 139ms, import 686ms, tests 1.99s, environment 369ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/rule-check/RuleCheckRunPanel.test.tsx > RuleCheckRunPanel > refuses a desktop run over a result without a native invocation and never reaches the rule backend
+AssertionError: expected 'Ran 0 check(s); aggregate=USER_RULE_C…' to contain 'RULE_NATIVE_INVOCATION_REQUIRED'
+
+Ignored nodes: comments, script, style
+  "schema_version": "0.4.0",
+  "rule_pack_kind": "open_pipe_stress_rule_pack",
+  "grammar_version": "1.0.0",
+  "metadata": {
+    "rule_pack_id": "invented_demo_rule_pack",
+    "name": "Invented Demonstration Rule Pack",
+    "schema_version": "0.4.0",
+    "rule_pack_version": "0.2.0",
+    "lifecycle_status": "accepted_public_example",
+    "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
+    "status": "active"
+  },
+  "classification": {
+    "privacy_class": "public_invented_example",
+    "redistribution_status": "invented_non_engineering_example",
+    "public_repository_policy": "invented_non_engineering_examples_only",
+    "protected_content_review_required": true,
+    "private_values_allowed": true
+  },
+  "required_inputs": [
+    {
+      "input_id": "demo_actual_quantity",
+      "name": "Invented actual demonstration quantity",
+      "source_kind": "solver_result",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_review": "completed_no_protected_content",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "provenance_required": true,
+      "redistribution_status_required": true
+    },
+    {
+      "input_id": "demo_limit_quantity",
+      "name": "Invented training limit",
+      "source_kind": "user_supplied_rule_value",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_type": "invented_public_example",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "protected_content_...
+
+Expected: "RULE_NATIVE_INVOCATION_REQUIRED"
+Received: "Ran 0 check(s); aggregate=USER_RULE_CHECKED (grammar 1.0.0)."
+
+ ❯ src/features/rule-check/RuleCheckRunPanel.test.tsx:415:73
+    413|       fireEvent.click(screen.getByTestId("rule-check-run"));
+    414|       await waitFor(() =>
+    415|         expect(screen.getByTestId("rule-check-run-status").textContent…
+       |                                                                         ^
+    416|       );
+    417|       expect(screen.queryByTestId("rule-check-run-result")).not.toBeIn…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+exit=1
+sha256 restored: b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: FAIL-as-expected

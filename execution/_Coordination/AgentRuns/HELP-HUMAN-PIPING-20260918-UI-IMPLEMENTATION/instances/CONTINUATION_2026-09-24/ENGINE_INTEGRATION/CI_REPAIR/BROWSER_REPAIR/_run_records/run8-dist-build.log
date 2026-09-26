@@ -1,0 +1,32 @@
+cmd (apps/desktop): npm run build   (= tsc -b && vite build)
+2026-09-25T18:03:39Z
+
+> @openpipestress/desktop@0.1.0 build
+> tsc -b && vite build
+
+vite v7.3.3 building client environment for production...
+transforming...
+✓ 1770 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                           1.13 kB │ gzip:   0.55 kB
+dist/assets/index-DZrhRoh1.css                                          114.11 kB │ gzip:  19.92 kB
+dist/assets/vendor-tauri-DlQNAQKj.js                                      0.09 kB │ gzip:   0.11 kB
+dist/assets/invented_design_knowledge-H12r-oKQ.js                         1.66 kB │ gzip:   0.76 kB
+dist/assets/invented_agent_proposal-Bm57LVt-.js                           1.82 kB │ gzip:   0.85 kB
+dist/assets/vendor-7OC5HNn7.js                                            3.61 kB │ gzip:   1.58 kB
+dist/assets/invented_demo_rule_pack-dhX9tvT1.js                          10.86 kB │ gzip:   2.59 kB
+dist/assets/invented_preview_model-pJA3_nB8.js                           12.67 kB │ gzip:   3.05 kB
+dist/assets/vendor-icons-BjC2kMFO.js                                     18.99 kB │ gzip:   6.25 kB
+dist/assets/vendor-react-u0ysdD_x.js                                    188.76 kB │ gzip:  59.03 kB
+dist/assets/vendor-three-CMXgOz27.js                                    528.58 kB │ gzip: 136.06 kB
+dist/assets/invented_mechanics_result_precision_1_sparse-Dx-oM_Pz.js    598.05 kB │ gzip:  38.81 kB
+dist/assets/invented_mechanics_result_precision_1_dense-_yRztHGZ.js     601.27 kB │ gzip:  39.72 kB
+dist/assets/index-Ds_-44y3.js                                         1,868.19 kB │ gzip: 436.63 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 8.57s
+exit=0

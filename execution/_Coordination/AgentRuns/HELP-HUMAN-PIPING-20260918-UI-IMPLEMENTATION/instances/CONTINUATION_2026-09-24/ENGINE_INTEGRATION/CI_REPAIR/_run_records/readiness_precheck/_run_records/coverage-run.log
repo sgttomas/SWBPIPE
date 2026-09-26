@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/private/tmp/piping-joined-qualification-20260925/readiness_review/_run_records/reconcile_coverage.py", line 154, in <module>
+    assert not git('diff','--name-only','HEAD').strip()
+AssertionError

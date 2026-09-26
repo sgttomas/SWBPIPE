@@ -1,0 +1,70 @@
+date: 2026-09-25T20:08:12.123560Z
+target: apps/desktop/src/features/handoff/HandoffPanel.tsx
+sha256 before: 39890d77ad3c013c4388fe9192279b7771f97b16a10a602209ed8d4a483c3139
+sha256 HEAD blob: 39890d77ad3c013c4388fe9192279b7771f97b16a10a602209ed8d4a483c3139
+--- replaced (exactly once) ---
+        target_quantity: {
+          value: item.value,
+          unit: item.unit,
+          dimension
+        },
+        target_quantity_policy: "referenced_received_carrier_value_unit_and_declared_dimension_preserved",
+--- with ---
+        target_quantity: {
+          value: item.value,
+          unit: item.unit,
+          dimension: "dimension_not_preserved"
+        },
+        target_quantity_policy: "referenced_received_carrier_value_unit_and_declared_dimension_preserved",
+---
+sha256 mutated: a229e47ad9fa9e5ba34f41d2c013584aeeb1e3cdace38557a47bb00441633999
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/handoff/HandoffPanel.test.tsx
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/handoff/HandoffPanel.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/handoff/HandoffPanel.test.tsx (2 tests | 1 failed) 478ms
+   × reference-only handoff preserves received declarations and withholds absent dimension witnesses 464ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  20:08:12
+   Duration  1.70s (transform 433ms, setup 172ms, import 507ms, tests 478ms, environment 378ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/handoff/HandoffPanel.test.tsx > reference-only handoff preserves received declarations and withholds absent dimension witnesses
+AssertionError: expected { value: 1, unit: 'mode_code', …(1) } to deeply equal { value: 1, unit: 'mode_code', …(1) }
+
+- Expected
++ Received
+
+  {
+-   "dimension": "dimensionless",
++   "dimension": "dimension_not_preserved",
+    "unit": "mode_code",
+    "value": 1,
+  }
+
+ ❯ src/features/handoff/HandoffPanel.test.tsx:31:276
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/handoff/HandoffPanel.test.tsx
+exit=1
+sha256 restored: 39890d77ad3c013c4388fe9192279b7771f97b16a10a602209ed8d4a483c3139
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: FAIL-as-expected

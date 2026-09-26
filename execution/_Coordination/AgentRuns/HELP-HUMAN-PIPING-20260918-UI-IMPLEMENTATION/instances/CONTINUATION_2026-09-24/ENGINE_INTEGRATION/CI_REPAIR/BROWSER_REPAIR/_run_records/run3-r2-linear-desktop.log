@@ -1,0 +1,87 @@
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --workers=1 --timeout=180000 --reporter=list -g 'R2 browser smoke covers authoring|compact blank-to-straight authoring' e2e/r2-smoke.spec.ts e2e/linear-authoring.spec.ts
+2026-09-25T17:26:23Z
+
+Running 2 tests using 1 worker
+
+  ✘  1 [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (52.9s)
+  ✘  2 [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (50.0s)
+
+
+  1) [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByTestId('status-pill-mechanics')
+    Expected: [32m"failed"[39m
+    Received: [31m"[7mSolve job state: [27mfailed"[39m
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('status-pill-mechanics')[22m
+    [2m    24 × locator resolved to <button type="button" aria-expanded="false" data-status-token="failed" class="status-pill shell-chip" title="Solve job state: failed" data-testid="status-pill-mechanics">Solver · Not solved</button>[22m
+    [2m       - unexpected value "Solve job state: failed"[22m
+
+
+       at workspace-driver.ts:279
+
+      277 |   await expect(chip).toHaveText(face);
+      278 |   if (source === undefined) {
+    > 279 |     await expect(chip).toHaveAttribute("title", token);
+          |                        ^
+      280 |   } else {
+      281 |     await expect(chip).toHaveAttribute("title", `${source}: ${token}`);
+      282 |     await expect(chip).toHaveAttribute("data-status-token", token);
+        at expectStatusChip (/home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts:279:24)
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts:232:3
+
+    Error Context: test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByLabel('Report packet').getByTestId('report-redaction-blocked')
+    Expected substring: [32m"R[7maw report DOM suppressed by redaction controls[27m"[39m
+    Received string:    [31m"R[7mun the bounded preview mechanics path to assemble a report packet from computed result and diagnostic IDs.[27m"[39m
+    Timeout: 10000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for getByLabel('Report packet').getByTestId('report-redaction-blocked')[22m
+    [2m    23 × locator resolved to <p class="muted" data-testid="report-redaction-blocked">Run the bounded preview mechanics path to assembl…</p>[22m
+    [2m       - unexpected value "Run the bounded preview mechanics path to assemble a report packet from computed result and diagnostic IDs."[22m
+
+
+      753 |   await openWorkspaceSection(page, "report");
+      754 |   const report = page.getByLabel("Report packet");
+    > 755 |   await expect(report.getByTestId("report-redaction-blocked")).toContainText(
+          |                                                                ^
+      756 |     "Raw report DOM suppressed by redaction controls"
+      757 |   );
+      758 |   await expect(report.getByTestId("report-export-link")).toHaveAttribute("href", /data:application\/json/);
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:755:64
+
+    Error Context: test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review 
+    [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals 
+exit=1
+2026-09-25T17:28:13Z

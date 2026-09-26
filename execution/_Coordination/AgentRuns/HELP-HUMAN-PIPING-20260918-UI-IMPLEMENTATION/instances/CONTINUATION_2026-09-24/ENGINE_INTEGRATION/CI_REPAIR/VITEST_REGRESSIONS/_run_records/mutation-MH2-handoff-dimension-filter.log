@@ -1,0 +1,56 @@
+date: 2026-09-25T20:08:14.685111Z
+target: apps/desktop/src/features/handoff/HandoffPanel.tsx
+sha256 before: 39890d77ad3c013c4388fe9192279b7771f97b16a10a602209ed8d4a483c3139
+sha256 HEAD blob: 39890d77ad3c013c4388fe9192279b7771f97b16a10a602209ed8d4a483c3139
+--- replaced (exactly once) ---
+ && Boolean(item.unit) && typeof item.dimension === "string" && Boolean(item.dimension))
+--- with ---
+ && Boolean(item.unit))
+---
+sha256 mutated: 7d0b276e6f55b4ae3f72b4801f772e381270795a82e5920cc5c8e45a4f7c64e7
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/handoff/HandoffPanel.test.tsx
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/handoff/HandoffPanel.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/handoff/HandoffPanel.test.tsx (2 tests | 1 failed) 483ms
+   × reference-only handoff preserves received declarations and withholds absent dimension witnesses 470ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  20:08:15
+   Duration  1.65s (transform 411ms, setup 138ms, import 501ms, tests 483ms, environment 369ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/handoff/HandoffPanel.test.tsx > reference-only handoff preserves received declarations and withholds absent dimension witnesses
+AssertionError: expected [ { …(11) }, { …(11) }, …(828) ] to have a length of +0 but got 830
+
+- Expected
++ Received
+
+- 0
++ 830
+
+ ❯ src/features/handoff/HandoffPanel.test.tsx:33:383
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/handoff/HandoffPanel.test.tsx
+exit=1
+sha256 restored: 39890d77ad3c013c4388fe9192279b7771f97b16a10a602209ed8d4a483c3139
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: FAIL-as-expected

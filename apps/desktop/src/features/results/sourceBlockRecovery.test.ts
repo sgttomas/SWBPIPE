@@ -16,13 +16,15 @@ import uiRequest4Text from '../../../../../fixtures/product_preview/source_block
 import uiRaw5Text from '../../../../../fixtures/product_preview/source_blocks/ui/multicase-sparse_interactive.raw.json?raw';
 import uiRequest5Text from '../../../../../fixtures/product_preview/source_blocks/ui/multicase-sparse_interactive.request.json?raw';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
-import {buildAnalysisRunPreview} from '../../services/previewService';
+import {buildAnalysisRunPreview,loadDesignKnowledge} from '../../services/previewService';
+import {getLocalStorageCapability} from '../../services/projectService';
 import {validateAnalysisRunV03,modelLoadBasisRefs} from '../../services/analysisRunCompatibility';
 import {buildCurrentResultExport,validateResultDocument} from '../result-export/resultExportAdapter';
 import {buildStressNeutralExportPacket,validateStressNeutralExportPacket} from '../stress-neutral/StressNeutralExportPanel';
 import {buildHistoricalRunContext} from './HistoricalRunContext';
-import {useResultsSessionState} from '../workspace/resultsSessionState';
-import {act,renderHook,render} from '@testing-library/react';
+import {useWorkspaceSession} from '../workspace/workspaceSession';
+import {act,renderHook,render,waitFor} from '@testing-library/react';
+import {isDeepStrictEqual} from 'node:util';
 import {createElement} from 'react';
 import {ResultsPanel} from './ResultsPanel';
 import {runRuleChecks} from '../../services/ruleCheckService';
@@ -55,7 +57,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { invoke } from '@tauri-apps/api/core';
 import { runPreviewMechanics, startPreviewMechanicsJob, pollPreviewMechanicsJob, cancelPreviewMechanicsJob, hasNativeMechanicsInvocation, retainedNativeMechanicsInvocation, loadBundledMechanicsReference } from '../../services/previewService';
 vi.mock('@tauri-apps/api/core', () => ({invoke:vi.fn()}));
-afterEach(() => { delete (window as any).__TAURI_INTERNALS__; vi.resetAllMocks(); });
+afterEach(() => { delete (window as any).__TAURI_INTERNALS__; window.localStorage.clear(); vi.resetAllMocks(); });
 import precisionFixture from '../../../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json';
 import modelFixture from '../../../../../fixtures/product_preview/invented_preview_model.json';
 import { canonicalSha256HexCheckedV1 } from '../../services/hashService';
@@ -168,6 +170,40 @@ describe('received genuine source-block producer fixtures', () => {
 });
 
 function nativeHost() { Object.defineProperty(window,'__TAURI_INTERNALS__',{value:{},configurable:true}); }
+// A captured pair through the actual workspace session, the permitted session
+// boundary: load_preview_model returns the caller model, the session's own
+// backend-job solve must dispatch exactly the captured request and mode, and it
+// receives the captured producer bytes. Current standing comes only from the
+// session's solve path and qualification gate. Unit transport replay, NOT a
+// native UI witness.
+async function sessionCurrent({raw,request,mode,callerModel}:{raw:unknown;request:unknown;mode:'sparse_interactive'|'dense_scrutiny';callerModel:PreviewModel}) {
+ // Capture the real browser bootstrap records before installing the replay.
+ delete (window as any).__TAURI_INTERNALS__;
+ const storage=await getLocalStorageCapability(),knowledge=await loadDesignKnowledge();
+ const scope='unit_transport_replay_not_native_ui_qualification',jobId='unit-transport-replay:source-blocks',starts:{model:PreviewModel;solverMode:string}[]=[];
+ vi.mocked(invoke).mockImplementation(async (command:string,args?:any)=>{
+  if(command==='get_local_storage_capability')return storage;
+  if(command==='load_design_knowledge')return knowledge;
+  if(command==='sync_native_shell_state')return null;
+  if(command==='load_preview_model'&&args===undefined)return structuredClone(callerModel);
+  if(command==='start_preview_mechanics_job_with_solver_mode'){
+   if(!isDeepStrictEqual({model:args.model,materials:[]},request)||args.solverMode!==mode)throw new Error('REPLAY_REQUEST_MISMATCH');
+   starts.push(args);return {job_id:jobId,backend_cancellation_token:`${jobId}:token`,state:'queued',cancellation_scope:scope};
+  }
+  if(command==='poll_preview_mechanics_job'&&args?.jobId===jobId)return {job_id:jobId,state:'completed',cancellation_requested:false,cancellation_status:'not_requested',cancellation_scope:scope,result:structuredClone(raw),error_message:null};
+  if(command==='run_rule_checks')return {aggregate_status:'RULE_INPUTS_INCOMPLETE',checks:[]};
+  throw new Error(`REPLAY_COMMAND_UNSUPPORTED: ${command}`);
+ });
+ nativeHost();
+ const hook=renderHook(()=>useWorkspaceSession());
+ await waitFor(()=>expect(hook.result.current.model.model).not.toBeNull());
+ await waitFor(()=>expect(hook.result.current.model.modelHash).not.toBeNull());
+ act(()=>hook.result.current.results.setSolverMode(mode));
+ await act(async()=>{await hook.result.current.results.handleRun();});
+ await waitFor(()=>expect(hook.result.current.results.currentSolvedResult).not.toBeNull());
+ expect(starts).toHaveLength(1);
+ return {hook,starts};
+}
 function ieeeBits(value:number) {const view=new DataView(new ArrayBuffer(8));view.setFloat64(0,value);return view.getBigUint64(0).toString(16).padStart(16,'0');}
 describe('actual invocation boundary using mocked IPC and genuine received fixtures', () => {
   it.each(genuinePairs)('$name registers only the actual native response path',async ({raw,request,mode})=>{
@@ -251,15 +287,15 @@ const uiPairs=[{name:'n05-dense_scrutiny',raw:JSON.parse(uiRaw0Text),request:JSO
 // exercises the actual frontend registrar and consumers, not a native UI run.
 describe('genuine full-UI source-block lifecycle through simulated native IPC',()=>{
  it.each(uiPairs)('$name connects Current, exports, rule revision and saved history',async({raw,request,mode})=>{
-  nativeHost();const model=structuredClone(request.model) as PreviewModel;
-  vi.mocked(invoke).mockResolvedValueOnce(structuredClone(raw));const result=await runPreviewMechanics(model,mode);
+  const {hook}=await sessionCurrent({raw,request,mode,callerModel:structuredClone(request.model) as PreviewModel});
+  const model=hook.result.current.model.model!,{result:received,inputManifest:manifest,analysisRun:record}=hook.result.current.results;
+  const result=received!,inputManifest=manifest!,analysisRun=record!;
+  expect(result).toEqual(raw);
   expect(hasNativeMechanicsInvocation(result,model,mode)).toBe(true);
-  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'genuine-fixture-mocked-native-transport',solver_mode:mode,settings:{}},active_rule_packs:[],external_assets:[]});
-  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
+  expect(inputManifest.manifest.solver_basis.solver_mode).toBe(mode);
   await validateAnalysisRunV03(analysisRun,result,modelLoadBasisRefs(model));
-  const hook=renderHook(()=>useResultsSessionState());
-  act(()=>{hook.result.current.setResult(result);hook.result.current.setInputManifest(inputManifest);});expect(hook.result.current.currentSolvedResult).toBeNull();
-  act(()=>hook.result.current.setAnalysisRun(analysisRun));expect(hook.result.current.currentSolvedResult).toBe(result);
+  // The session publishes result, manifest and joined analysis record together.
+  expect(hook.result.current.results.currentSolvedResult).toBe(result);
   const panel=render(createElement(ResultsPanel,{result,knowledge:null,analysisRun,selectedResultId:null,onSelectResult:()=>{}}));
   expect(panel.getByTestId('numerical-result-standing').textContent).toContain(`Ordinary solve: ${result.numerical_quality!.status}`);
   expect(panel.getByTestId('numerical-result-standing').textContent).toContain('Producer recovery receipt: qualified');panel.unmount();
@@ -275,8 +311,13 @@ describe('genuine full-UI source-block lifecycle through simulated native IPC',(
   expect(result.status.rule_check).toBe('RULE_INPUTS_INCOMPLETE');expect(result).toEqual(before);
   expect(await canonicalSha256HexCheckedV1(result)).toBe(beforeHash);
   expect(revision.analysis_run.hashes.find(h=>h.payload_scope==='received_result')?.value).toBe(analysisRun.analysis_run.hashes.find(h=>h.payload_scope==='received_result')?.value);
-  act(()=>hook.result.current.setAnalysisRun(revision));expect(hook.result.current.currentSolvedResult).toBe(result);
-  vi.mocked(invoke).mockResolvedValueOnce({aggregate_status:'RULE_INPUTS_INCOMPLETE',checks:[]});
+  // The session's own rule-aggregate revision replaces only the analysis record; Current is retained.
+  const current=hook.result.current;
+  await act(async()=>{await current.results.handleRuleCheckAggregate('USER_RULE_CHECKED',{projectSessionGeneration:current.model.projectSessionGeneration,modelRevision:current.model.uiModelRevision,result:current.results.currentSolvedResult,inputManifest:current.results.inputManifest});});
+  await waitFor(()=>expect(hook.result.current.results.analysisRun).not.toBe(analysisRun));
+  expect(hook.result.current.results.analysisRun).toEqual(revision);
+  expect(hook.result.current.results.currentSolvedResult).toBe(result);
+  expect(hook.result.current.results.inputManifest).toBe(inputManifest);
   await runRuleChecks({model,solvedEnvelope:result,rulePackDocument:{metadata:{rule_pack_id:'invented-test-only'}} as never});
   const ruleCall=vi.mocked(invoke).mock.calls.find(call=>call[0]==='run_rule_checks')![1] as any;
   expect(ruleCall.sourceBlockInvocation).toEqual({request,solver_mode:mode});
@@ -374,14 +415,22 @@ describe('FE02 caller representation and serialized invocation binding',()=>{
   expect(sourceBlockStanding(source,sent).eligible).toBe(true);
   const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:'FE02-genuine-pair-mocked-IPC',solver_mode:mode,settings:{}},active_rule_packs:[],external_assets:[]});
   expect(Object.is(inputManifest.manifest.model_basis.model_payload.nodes[0].position.x,-0)).toBe(true);
-  const analysisRun=await buildAnalysisRunPreview(source,{inputManifest});const hook=renderHook(()=>useResultsSessionState());
-  act(()=>{hook.result.current.setResult(source);hook.result.current.setInputManifest(inputManifest);hook.result.current.setAnalysisRun(analysisRun);});
-  expect(hook.result.current.currentSolvedResult).toBe(source);
+  const analysisRun=await buildAnalysisRunPreview(source,{inputManifest});
   await expect(buildCurrentResultExport({model,result:source,analysisRun,inputManifest})).resolves.toMatchObject({schema_version:'0.3.0'});
   vi.mocked(invoke).mockResolvedValueOnce({aggregate_status:'RULE_INPUTS_INCOMPLETE',checks:[]});
   await runRuleChecks({model,solvedEnvelope:source,rulePackDocument:{metadata:{rule_pack_id:'invented-test'}} as never});
   const ruleArgs=vi.mocked(invoke).mock.calls.find(call=>call[0]==='run_rule_checks')![1] as any;
-  expect(ruleArgs.sourceBlockInvocation).toEqual({request,solver_mode:mode});hook.unmount();
+  expect(ruleArgs.sourceBlockInvocation).toEqual({request,solver_mode:mode});
+  // Current admission through the session boundary for the same negative-zero
+  // caller representation. The session solves through its backend-job route.
+  const {hook,starts}=await sessionCurrent({raw,request,mode,callerModel:model});
+  const session=hook.result.current,current=session.results.currentSolvedResult;
+  expect(current).toBe(session.results.result);expect(current).toEqual(raw);
+  expect(Object.is(session.model.model!.nodes[0].position.x,-0)).toBe(true);
+  expect(Object.is(starts[0].model.nodes[0].position.x,0)).toBe(true);
+  expect(Object.is(session.results.inputManifest!.manifest.model_basis.model_payload.nodes[0].position.x,-0)).toBe(true);
+  expect(hasNativeMechanicsInvocation(current,session.model.model,mode)).toBe(true);
+  hook.unmount();
  });
  it.each(['caller_zero','caller_value','dispatch_zero','source_zero'] as const)('rejects %s mutation after successful caller normalization',async change=>{
   const {raw,request,mode}=uiPairs[0];nativeHost();const model=structuredClone(request.model) as PreviewModel;model.nodes[0].position.x=-0;

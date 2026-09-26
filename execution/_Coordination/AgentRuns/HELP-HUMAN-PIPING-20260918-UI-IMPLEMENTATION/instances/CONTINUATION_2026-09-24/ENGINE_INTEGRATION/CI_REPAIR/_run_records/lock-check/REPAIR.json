@@ -1,0 +1,133 @@
+[
+  {
+    "path": "projects/chirality-piping/core/reporting/report_package/Cargo.lock",
+    "before_sha256": "946819d8c31b2227afa8e46ce552d3211483faea0c163becf41abc95b0e2836a",
+    "after_sha256": "75d36eaccaa6387b7d92e1eff37981d05b5520d4c6a0293c2b3a9cb1c75ebe1c",
+    "packages_before": 31,
+    "packages_after": 32,
+    "added_packages": [
+      [
+        "open_pipe_stress_units",
+        "0.1.0",
+        null
+      ]
+    ],
+    "changed_dependency_edges": [
+      "open_pipe_stress_result_export"
+    ],
+    "removed_or_changed_package_versions": [],
+    "checksum_changes": []
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock",
+    "before_sha256": "861988783df65a036d4e20bf706477cd0ff9eefeade8718188fe6edc3e444eef",
+    "after_sha256": "b4e0f5f33660f3e7b27a75785f2b2171e64f3d45150ff16c3e271c2587b4f323",
+    "packages_before": 33,
+    "packages_after": 34,
+    "added_packages": [
+      [
+        "open_pipe_stress_units",
+        "0.1.0",
+        null
+      ]
+    ],
+    "changed_dependency_edges": [
+      "open_pipe_stress_result_export"
+    ],
+    "removed_or_changed_package_versions": [],
+    "checksum_changes": []
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_integrity/Cargo.lock",
+    "before_sha256": "4e1e251620fde4e2168b7323389f8516f527c45c48391a07fc624955684cc29c",
+    "after_sha256": "3a166fecf8e3cf13f9504d87ec384cb6d61ac19e7e5e69e0c8af24c4b3eb5aa2",
+    "packages_before": 25,
+    "packages_after": 37,
+    "added_packages": [
+      [
+        "ryu",
+        "1.0.23",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "crypto-common",
+        "0.1.7",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "sha2",
+        "0.10.9",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "open_pipe_stress_canonical_json",
+        "0.1.0",
+        null
+      ],
+      [
+        "digest",
+        "0.10.7",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "libc",
+        "0.2.189",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "cfg-if",
+        "1.0.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "cpufeatures",
+        "0.2.17",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "version_check",
+        "0.9.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "typenum",
+        "1.20.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "block-buffer",
+        "0.10.4",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "generic-array",
+        "0.14.7",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ]
+    ],
+    "changed_dependency_edges": [
+      "open_pipe_stress_product_physics"
+    ],
+    "removed_or_changed_package_versions": [],
+    "checksum_changes": []
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/stress/Cargo.lock",
+    "before_sha256": "f4b8438615cdc66a4f85e8ddefd2e48cb9bd6851a02b85fb4f242a5dd8ef70cc",
+    "after_sha256": "d414c23b8ae79eadc594f84b93d20bdfe941366ed330ea2e65668ebb1e9b3fad",
+    "packages_before": 30,
+    "packages_after": 31,
+    "added_packages": [
+      [
+        "open_pipe_stress_units",
+        "0.1.0",
+        null
+      ]
+    ],
+    "changed_dependency_edges": [
+      "open_pipe_stress_result_export"
+    ],
+    "removed_or_changed_package_versions": [],
+    "checksum_changes": []
+  }
+]

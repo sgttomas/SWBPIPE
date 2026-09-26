@@ -1,0 +1,281 @@
+{
+  "links": [
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_OBSERVATION_DIAGNOSIS/RETURN.md",
+      "target": "_run_records/EVIDENCE.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/RETURN.md",
+      "target": "TS_ADMISSION.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/RETURN.md",
+      "target": "PYTHON_COMPARISON_ADMISSION.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/RETURN.md",
+      "target": "_run_records/PROBE_SOURCE_FREEZE.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/RETURN.md",
+      "target": "ARITHMETIC_DECOMPOSITION.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/RETURN.md",
+      "target": "_run_records/PROVENANCE.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/RETURN.md",
+      "target": "POST_CONTAINMENT_TS.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/RETURN.md",
+      "target": "POST_CONTAINMENT_PYTHON.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/RETURN.md",
+      "target": "_run_records/POST_CONTAINMENT_PROVENANCE.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "FINAL_SOURCE_FREEZE_05.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "WHOLE_REVIEW_RESUME_01/RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "N05_CONTAINMENT_01/SELECTION.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "N05_CONTAINMENT_01/_run_records/STAGES.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "N05_CONTAINMENT_02/EXECUTION.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "STRESS_LEGACY_REPAIR_01/STAGES.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "SOURCE_RECOVERY_DESIGN_01/RETURN.md",
+      "exists": false
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "INTEGRATION_HANDOFF.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "RESUME_01/ORIGINS.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/RETURN.md",
+      "target": "_run_records/CONTAINMENT_CHECK_EVIDENCE.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/RETURN.md",
+      "target": "_run_records/FINAL_RUNTIME_EVIDENCE.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/CURRENT_COORDINATION.md",
+      "target": "RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/CURRENT_COORDINATION.md",
+      "target": "PORTABILITY_REPAIR/RELOCATION_MAP.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/CURRENT_COORDINATION.md",
+      "target": "_run_records/COORDINATION_BEFORE_PORTABILITY.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "PORTABILITY_REPAIR/RELOCATION_MAP.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "_run_records/ORDINARY_PHYSICS_ADAPTER/RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "_run_records/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/PROGRAMME.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "_run_records/FIRST_STATIC_BINDINGS/RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "_run_records/ORDINARY_PHYSICS_ADAPTER/SOURCE_FREEZE_03.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "_run_records/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/REPAIR_BACKCHECK_02.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "_run_records/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/FIXTURE_PROMOTION_BACKCHECK_03.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "STATIC_REFERENCE_BASIS/RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "STATIC_REFERENCE_BASIS/_run_records/INDEPENDENT_REVIEW/RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "_run_records/FOUNDATION_RETURN_BEFORE_PORTABILITY.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "_run_records/INDEPENDENT_REVIEW/RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "_run_records/HARNESS_INVENTORY/INVENTORY.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "EXECUTION_PLAN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/RETURN.md",
+      "target": "PORTABILITY_REPAIR/RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/RECORDS_INDEX.md",
+      "target": "PORTABILITY_RECORD_RELOCATION.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/RECORDS_INDEX.md",
+      "target": "RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/RECORDS_INDEX.md",
+      "target": "NATIVE_HANDOFF.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/RECORDS_INDEX.md",
+      "target": "DEPENDENCIES.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/RECORDS_INDEX.md",
+      "target": "PHYSICS_READER_JOIN/RESUME_01/RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/RECORDS_INDEX.md",
+      "target": "FINAL_REVIEW_COVERAGE_ADDENDUM.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/RECORDS_INDEX.md",
+      "target": "_run_records/record_portability_checks.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/RECORDS_INDEX.md",
+      "target": "_run_records/record_portability_cross_scope_links.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/PORTABILITY_REPAIR/RETURN.md",
+      "target": "RELOCATION_MAP.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/PORTABILITY_REPAIR/RETURN.md",
+      "target": "../RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/PORTABILITY_REPAIR/RETURN.md",
+      "target": "../CURRENT_COORDINATION.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/PORTABILITY_REPAIR/RETURN.md",
+      "target": "../EXECUTION_PLAN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/PORTABILITY_REPAIR/RETURN.md",
+      "target": "_run_records/CHECKS.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/PORTABILITY_REPAIR/RETURN.md",
+      "target": "EXTERNAL_LINK_CONSEQUENCES.json",
+      "exists": true
+    }
+  ],
+  "missing": [
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "SOURCE_RECOVERY_DESIGN_01/RETURN.md",
+      "exists": false,
+      "classification": "Preexisting c278 historical successor link; explicitly excluded from that checkpoint; not introduced or relocated"
+    }
+  ],
+  "retained_historical_nonregressions": [
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "target": "SOURCE_RECOVERY_DESIGN_01/RETURN.md",
+      "exists": false,
+      "classification": "Preexisting c278 historical successor link; explicitly excluded from that checkpoint; not introduced or relocated"
+    }
+  ],
+  "new_missing_current_links": []
+}

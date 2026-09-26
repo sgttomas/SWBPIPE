@@ -1,0 +1,56 @@
+mutation m2-chip-source-dropped: projects/chirality-piping/apps/desktop/src/features/workspace/shellLayout.ts: replace 'SOLVER_NOT_SOLVED, source: "Solve job state" }' -> 'SOLVER_NOT_SOLVED }'
+head 8e216efbf2066a7d7a9e083dbcaadf07924b5a01; original blob 6d69c05e487a1d723dc1b9885a7ccd3210872d9e
+start 2026-09-25T18:45:35.075673Z; load (3.2109375, 4.39453125, 4.29541015625)
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --workers=1 --timeout=180000 --reporter=list e2e/gui-workflow-validation.spec.ts:108
+
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:108:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (18.3s)
+
+
+  1) [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:108:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByTestId('status-pill-mechanics')
+    Expected: [32m"[7mSolve job state: [27mfailed"[39m
+    Received: [31m"failed"[39m
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('status-pill-mechanics')[22m
+    [2m    24 × locator resolved to <button type="button" title="failed" aria-expanded="false" data-status-token="failed" class="status-pill shell-chip" data-testid="status-pill-mechanics">Solver · Not solved</button>[22m
+    [2m       - unexpected value "failed"[22m
+
+
+       at workspace-driver.ts:281
+
+      279 |     await expect(chip).toHaveAttribute("title", token);
+      280 |   } else {
+    > 281 |     await expect(chip).toHaveAttribute("title", `${source}: ${token}`);
+          |                        ^
+      282 |     await expect(chip).toHaveAttribute("data-status-token", token);
+      283 |   }
+      284 |   await chip.click();
+        at expectStatusChip (/home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/workspace-driver.ts:281:24)
+        at expectBackendRefusal (/home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts:104:3)
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts:143:3
+
+    Error Context: test-results/gui-workflow-validation-DE-a6ecf-st-solve-result-transitions-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/gui-workflow-validation-DE-a6ecf-st-solve-result-transitions-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/gui-workflow-validation-DE-a6ecf-st-solve-result-transitions-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:108:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions 
+
+playwright_rc=1 (non-zero means the mutation was caught)
+restored_blob=6d69c05e487a1d723dc1b9885a7ccd3210872d9e equals_HEAD=True
+end 2026-09-25T18:45:56.596630Z

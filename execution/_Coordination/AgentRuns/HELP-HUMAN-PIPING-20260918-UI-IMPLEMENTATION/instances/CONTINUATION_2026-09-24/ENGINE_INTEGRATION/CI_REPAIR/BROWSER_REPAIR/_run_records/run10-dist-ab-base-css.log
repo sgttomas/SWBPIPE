@@ -1,0 +1,319 @@
+A/B control: src/styles.css reverted to base 5b1ccd356 bytes (sha256 9565a3909c6f1f65facb04da2ea05604ca206554d414437927dda65886683c7c); all e2e edits kept; dist rebuilt
+2026-09-25T18:14:33Z
+
+> @openpipestress/desktop@0.1.0 build
+> tsc -b && vite build
+
+[36mvite v7.3.3 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 1770 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                                                       [39m[1m[2m    1.13 kB[22m[1m[22m[2m │ gzip:   0.55 kB[22m
+[2mdist/[22m[2massets/[22m[35mindex-CJvcKHNU.css                                        [39m[1m[2m  114.09 kB[22m[1m[22m[2m │ gzip:  19.91 kB[22m
+[2mdist/[22m[2massets/[22m[36mvendor-tauri-DlQNAQKj.js                                  [39m[1m[2m    0.09 kB[22m[1m[22m[2m │ gzip:   0.11 kB[22m
+[2mdist/[22m[2massets/[22m[36minvented_design_knowledge-H12r-oKQ.js                     [39m[1m[2m    1.66 kB[22m[1m[22m[2m │ gzip:   0.76 kB[22m
+[2mdist/[22m[2massets/[22m[36minvented_agent_proposal-Bm57LVt-.js                       [39m[1m[2m    1.82 kB[22m[1m[22m[2m │ gzip:   0.85 kB[22m
+[2mdist/[22m[2massets/[22m[36mvendor-7OC5HNn7.js                                        [39m[1m[2m    3.61 kB[22m[1m[22m[2m │ gzip:   1.58 kB[22m
+[2mdist/[22m[2massets/[22m[36minvented_demo_rule_pack-dhX9tvT1.js                       [39m[1m[2m   10.86 kB[22m[1m[22m[2m │ gzip:   2.59 kB[22m
+[2mdist/[22m[2massets/[22m[36minvented_preview_model-pJA3_nB8.js                        [39m[1m[2m   12.67 kB[22m[1m[22m[2m │ gzip:   3.05 kB[22m
+[2mdist/[22m[2massets/[22m[36mvendor-icons-BjC2kMFO.js                                  [39m[1m[2m   18.99 kB[22m[1m[22m[2m │ gzip:   6.25 kB[22m
+[2mdist/[22m[2massets/[22m[36mvendor-react-u0ysdD_x.js                                  [39m[1m[2m  188.76 kB[22m[1m[22m[2m │ gzip:  59.03 kB[22m
+[2mdist/[22m[2massets/[22m[36mvendor-three-CMXgOz27.js                                  [39m[1m[33m  528.58 kB[39m[22m[2m │ gzip: 136.06 kB[22m
+[2mdist/[22m[2massets/[22m[36minvented_mechanics_result_precision_1_sparse-Dx-oM_Pz.js  [39m[1m[33m  598.05 kB[39m[22m[2m │ gzip:  38.81 kB[22m
+[2mdist/[22m[2massets/[22m[36minvented_mechanics_result_precision_1_dense-_yRztHGZ.js   [39m[1m[33m  601.27 kB[39m[22m[2m │ gzip:  39.72 kB[22m
+[2mdist/[22m[2massets/[22m[36mindex-DmxbBPoZ.js                                         [39m[1m[33m1,868.19 kB[39m[22m[2m │ gzip: 436.63 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 6.08s[39m
+build_exit=0
+cmd: ../../node_modules/.bin/playwright test --config playwright.dist.config.ts --workers=1 --timeout=180000 --reporter=list -g 'production appearance .* 1024x768|populated Results title and entered values' e2e/ui-foundation-dist.spec.ts
+
+Running 6 tests using 1 worker
+
+  ✘  1 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance light comfortable 1024x768 (8.3s)
+  ✘  2 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance light compact 1024x768 (8.9s)
+  ✘  3 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance dark comfortable 1024x768 (9.1s)
+  ✘  4 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance dark compact 1024x768 (8.7s)
+  ✘  5 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1128:3 › populated Results title and entered values retain resolved contrast in light (15.5s)
+  ✘  6 [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1128:3 › populated Results title and entered values retain resolved contrast in dark (15.6s)
+
+
+  1) [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance light comfortable 1024x768 
+
+    Error: visible focus outline width
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m2[39m
+    Received:    [31m0[39m
+
+       at ui-foundation-workflows.ts:352
+
+      350 |   }
+      351 |   expect(snapshot.command!.borderRatio, "resolved command border contrast").toBeGreaterThanOrEqual(3);
+    > 352 |   expect(snapshot.focus?.outlineWidth, "visible focus outline width").toBeGreaterThanOrEqual(2);
+          |                                                                       ^
+      353 |   expect(snapshot.focus?.outlineRatio, "resolved focus graphical contrast").toBeGreaterThanOrEqual(3);
+      354 |   expect(snapshot.disabled?.box.width).toBeGreaterThanOrEqual(24);
+      355 |   expect(snapshot.disabled?.box.height).toBeGreaterThanOrEqual(24);
+        at expectResolvedStyleAndTargets (/home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:352:71)
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:856:9
+
+    attachment #2: rail-hover-light-comfortable-1024-tree-false (image/png) ────────────────────────
+    test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-tree-false-4d5c462f15f9d3c5f50653ffa34e8e8e12e2eb99.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: rail-hover-light-comfortable-1024-tree-true (image/png) ─────────────────────────
+    test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-tree-true-a26c8c37be2881fa47f52dd6561450c92e6db9a1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: rail-hover-light-comfortable-1024-inspector-false (image/png) ───────────────────
+    test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-inspector-false-ff2e4df0659c47dd5088385a73939c62c03beb3d.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: rail-hover-light-comfortable-1024-inspector-true (image/png) ────────────────────
+    test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-light-comfortable-1024-inspector-true-bafcde4b50399932eabd22a0edbb669e83e755d1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/error-context.md
+
+    attachment #9: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-foundation-dist-product-c5daf--light-comfortable-1024x768-chromium-desktop-dist/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance light compact 1024x768 
+
+    Error: visible focus outline width
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m2[39m
+    Received:    [31m0[39m
+
+       at ui-foundation-workflows.ts:352
+
+      350 |   }
+      351 |   expect(snapshot.command!.borderRatio, "resolved command border contrast").toBeGreaterThanOrEqual(3);
+    > 352 |   expect(snapshot.focus?.outlineWidth, "visible focus outline width").toBeGreaterThanOrEqual(2);
+          |                                                                       ^
+      353 |   expect(snapshot.focus?.outlineRatio, "resolved focus graphical contrast").toBeGreaterThanOrEqual(3);
+      354 |   expect(snapshot.disabled?.box.width).toBeGreaterThanOrEqual(24);
+      355 |   expect(snapshot.disabled?.box.height).toBeGreaterThanOrEqual(24);
+        at expectResolvedStyleAndTargets (/home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:352:71)
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:856:9
+
+    attachment #2: rail-hover-light-compact-1024-tree-false (image/png) ────────────────────────────
+    test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-tree-false-4c2b03f2e5b92a43cdd182427afed541ebbfeb00.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: rail-hover-light-compact-1024-tree-true (image/png) ─────────────────────────────
+    test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-tree-true-78d8307062b11b9d4641c948856c85232a48a115.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: rail-hover-light-compact-1024-inspector-false (image/png) ───────────────────────
+    test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-inspector-false-103049be963eb753797ee8bc00c6f067b659048d.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: rail-hover-light-compact-1024-inspector-true (image/png) ────────────────────────
+    test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-light-compact-1024-inspector-true-22c1ebd4e67eedffed93cf61fa3652759e4e1e15.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/error-context.md
+
+    attachment #9: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-foundation-dist-product-24355-ance-light-compact-1024x768-chromium-desktop-dist/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance dark comfortable 1024x768 
+
+    Error: visible focus outline width
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m2[39m
+    Received:    [31m0[39m
+
+       at ui-foundation-workflows.ts:352
+
+      350 |   }
+      351 |   expect(snapshot.command!.borderRatio, "resolved command border contrast").toBeGreaterThanOrEqual(3);
+    > 352 |   expect(snapshot.focus?.outlineWidth, "visible focus outline width").toBeGreaterThanOrEqual(2);
+          |                                                                       ^
+      353 |   expect(snapshot.focus?.outlineRatio, "resolved focus graphical contrast").toBeGreaterThanOrEqual(3);
+      354 |   expect(snapshot.disabled?.box.width).toBeGreaterThanOrEqual(24);
+      355 |   expect(snapshot.disabled?.box.height).toBeGreaterThanOrEqual(24);
+        at expectResolvedStyleAndTargets (/home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:352:71)
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:856:9
+
+    attachment #2: rail-hover-dark-comfortable-1024-tree-false (image/png) ─────────────────────────
+    test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-tree-false-3972576c89521e74257b9e1e631aed3ad16f4e92.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: rail-hover-dark-comfortable-1024-tree-true (image/png) ──────────────────────────
+    test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-tree-true-7918dd7c9c867f3809fc514a3762eb429aac4fbc.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: rail-hover-dark-comfortable-1024-inspector-false (image/png) ────────────────────
+    test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-inspector-false-8c17297529c7c4496e6014c1ad58998960fe6774.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: rail-hover-dark-comfortable-1024-inspector-true (image/png) ─────────────────────
+    test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-comfortable-1024-inspector-true-fedf05d9de44ae0e0dbc286c8b08e680824d93fd.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/error-context.md
+
+    attachment #9: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-foundation-dist-product-59e16-e-dark-comfortable-1024x768-chromium-desktop-dist/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance dark compact 1024x768 
+
+    Error: visible focus outline width
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m2[39m
+    Received:    [31m0[39m
+
+       at ui-foundation-workflows.ts:352
+
+      350 |   }
+      351 |   expect(snapshot.command!.borderRatio, "resolved command border contrast").toBeGreaterThanOrEqual(3);
+    > 352 |   expect(snapshot.focus?.outlineWidth, "visible focus outline width").toBeGreaterThanOrEqual(2);
+          |                                                                       ^
+      353 |   expect(snapshot.focus?.outlineRatio, "resolved focus graphical contrast").toBeGreaterThanOrEqual(3);
+      354 |   expect(snapshot.disabled?.box.width).toBeGreaterThanOrEqual(24);
+      355 |   expect(snapshot.disabled?.box.height).toBeGreaterThanOrEqual(24);
+        at expectResolvedStyleAndTargets (/home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:352:71)
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:856:9
+
+    attachment #2: rail-hover-dark-compact-1024-tree-false (image/png) ─────────────────────────────
+    test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-tree-false-ef6514c79c1aa18d042b6e1de604343302aa87a2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: rail-hover-dark-compact-1024-tree-true (image/png) ──────────────────────────────
+    test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-tree-true-7fc526796587f98d60595d4822612bb066457dde.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: rail-hover-dark-compact-1024-inspector-false (image/png) ────────────────────────
+    test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-inspector-false-93a3ec0fd8c9ea1ef72deda3c747b483eeedc6ab.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: rail-hover-dark-compact-1024-inspector-true (image/png) ─────────────────────────
+    test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/attachments/rail-hover-dark-compact-1024-inspector-true-0833e7d7ca972eda5e3246a0461365311429c17e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/error-context.md
+
+    attachment #9: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-foundation-dist-product-304b1-rance-dark-compact-1024x768-chromium-desktop-dist/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1128:3 › populated Results title and entered values retain resolved contrast in light 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByTestId('command-selection-readout')
+    Expected: [32m""[39m
+    Received: [31m"Selected support: support:NL-140; 0 queued"[39m
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('command-selection-readout')[22m
+    [2m    22 × locator resolved to <span role="status" aria-label="Selection summary" data-testid="command-selection-readout">…</span>[22m
+    [2m       - unexpected value "Selected support: support:NL-140; 0 queued"[22m
+
+
+      1164 |     // and retain its different support target and required-field contrast check.
+      1165 |     await ensureRail(page, "inspector", true);
+    > 1166 |     await expect(page.getByTestId("command-selection-readout")).toHaveText(currentSelection);
+           |                                                                 ^
+      1167 |     const requiredFlag = page.getByTestId("property-inspector").getByTestId("inspector-required-flags").locator(".required-flag");
+      1168 |     await expect(requiredFlag).toContainText("Restraints");
+      1169 |     witnesses.push(...await expectResolvedContrast([
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:1166:65
+
+    attachment #2: populated-results-light (image/png) ─────────────────────────────────────────────
+    test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/attachments/populated-results-light-bfbd7080c97556029a3c23d6a2714806d9d325fd.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-foundation-dist-populat-e7138--resolved-contrast-in-light-chromium-desktop-dist/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1128:3 › populated Results title and entered values retain resolved contrast in dark 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByTestId('command-selection-readout')
+    Expected: [32m""[39m
+    Received: [31m"Selected support: support:NL-140; 0 queued"[39m
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('command-selection-readout')[22m
+    [2m    22 × locator resolved to <span role="status" aria-label="Selection summary" data-testid="command-selection-readout">…</span>[22m
+    [2m       - unexpected value "Selected support: support:NL-140; 0 queued"[22m
+
+
+      1164 |     // and retain its different support target and required-field contrast check.
+      1165 |     await ensureRail(page, "inspector", true);
+    > 1166 |     await expect(page.getByTestId("command-selection-readout")).toHaveText(currentSelection);
+           |                                                                 ^
+      1167 |     const requiredFlag = page.getByTestId("property-inspector").getByTestId("inspector-required-flags").locator(".required-flag");
+      1168 |     await expect(requiredFlag).toContainText("Restraints");
+      1169 |     witnesses.push(...await expectResolvedContrast([
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts:1166:65
+
+    attachment #2: populated-results-dark (image/png) ──────────────────────────────────────────────
+    test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/attachments/populated-results-dark-29c8d3929de8a09f4f24f050b6989056b1da4f9e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-foundation-dist-populat-5f473-n-resolved-contrast-in-dark-chromium-desktop-dist/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance light comfortable 1024x768 
+    [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance light compact 1024x768 
+    [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance dark comfortable 1024x768 
+    [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:657:7 › production appearance dark compact 1024x768 
+    [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1128:3 › populated Results title and entered values retain resolved contrast in light 
+    [chromium-desktop-dist] › e2e/ui-foundation-dist.spec.ts:1128:3 › populated Results title and entered values retain resolved contrast in dark 
+exit=1
+2026-09-25T18:16:23Z

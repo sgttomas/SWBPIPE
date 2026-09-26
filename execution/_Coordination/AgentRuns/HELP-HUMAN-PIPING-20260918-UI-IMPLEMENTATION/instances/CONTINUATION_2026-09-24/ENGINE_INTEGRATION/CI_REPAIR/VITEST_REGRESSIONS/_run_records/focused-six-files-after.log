@@ -1,0 +1,23 @@
+date: 2026-09-25T20:05:47Z
+files (sha256):
+b8169364654b0e3498a391a76c623b1bc2c5e041c824466e5f6237b7876e38d6  src/features/handoff/HandoffPanel.test.tsx
+6ec196fe1e3d939776e0e67189d725a04e9e5b792e6e469800393577e2dad7ce  src/features/headless-runner/HeadlessRunnerPanel.test.tsx
+d144f800733aa028df36250a4a2a6f34d2207214d59f7baeb00696ec2f7ce2ee  src/features/rule-check/RuleCheckRunPanel.test.tsx
+abc9b2983f3d587694ef0ff944d8b790e1e8af7158994d20ebd2f68bf9825515  src/features/workspace/sessionBoundary.test.ts
+e6c2a638501a9e4adbcd39ceb85688b16079999eaa553f8132bcc8187e57eaaf  src/features/results/physicsSourceIntegration.test.tsx
+54d343978856c2b6c15cd58d2b38b0a5edf24986b0ac2644ff3c483d1819ed19  src/features/results/sourceBlockRecovery.test.ts
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/handoff/HandoffPanel.test.tsx src/features/headless-runner/HeadlessRunnerPanel.test.tsx src/features/rule-check/RuleCheckRunPanel.test.tsx src/features/workspace/sessionBoundary.test.ts src/features/results/physicsSourceIntegration.test.tsx src/features/results/sourceBlockRecovery.test.ts
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/handoff/HandoffPanel.test.tsx src/features/headless-runner/HeadlessRunnerPanel.test.tsx src/features/rule-check/RuleCheckRunPanel.test.tsx src/features/workspace/sessionBoundary.test.ts src/features/results/physicsSourceIntegration.test.tsx src/features/results/sourceBlockRecovery.test.ts
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+
+ Test Files  6 passed (6)
+      Tests  97 passed (97)
+   Start at  20:05:47
+   Duration  112.96s (transform 5.90s, setup 653ms, import 8.25s, tests 142.05s, environment 2.76s)
+
+exit=0
