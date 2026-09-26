@@ -127,3 +127,12 @@ REVIEW_B's verdict was FINDINGS, with nothing blocking (`T1_WAVE1_REVIEW_B/RETUR
   - The committed joined carriers remain the ones from `derive_document` in `load_reference_source_contract.rs`.
   - A binding route for joined results is T3 work, together with eligibility.
 - **Pre-0.4 controls.** A 0.3.0 document that carries 0.4.0 keys is blocked with `LOAD_STATE_CONTRACT_VERSION_MISMATCH`. Its identity follows its own version and contract: `physics-1` on the exact contract, `preview-physics-1` otherwise. It never carries a T1 identity.
+
+## 12. WP2 desktop readers: joined ledger port and downstream refusals (wave 2, manager ruling)
+
+- **Joined ledger port.** The TypeScript joined reader gets an invocation-free port of Python `_validate_source_blocks(source, None, composite context)`. It lives in a new file, `loadReferenceSourceEvidence.ts`, and runs only on the `load-reference-source-1` route. `sourceBlockRecovery.ts` and `physicsSourceRecovery.ts` stay byte-unchanged. The port must be check-for-check faithful, keep outcome parity over the whole joined corpus, and have mutants for every ported check. A check that cannot be ported faithfully goes back to the manager.
+- **Downstream refusals.**
+  - The desktop stress-neutral export, result export and report package refuse both load/reference-state identities, which keeps the "no new export route" rule. They reuse T0R's reasons where one applies, such as `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`. Any new reason states plainly that the route is not yet available on the desktop.
+  - This is open work and a gap between the languages: the Python stress-neutral packager already accepts both identities. It goes to ROOT at the next checkpoint.
+  - The AnalysisRun record mirrors Python: `load-reference-1` like `physics-1`, `load-reference-source-1` like `physics-source-1`.
+  - `ruleCheckService` is unchanged. Joined results are refused through standing.
