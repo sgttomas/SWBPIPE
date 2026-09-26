@@ -1,0 +1,95 @@
+M14-A root maximum [Pa]: 16101036.950648692
+M14-A abs-sum control [Pa]: 22770304.823877722
+S1 normal maximum [Pa]: 6999999.999999998
+S1 signed min normal [Pa]: -3000000.0
+S1 abs-sum control [Pa]: 8999999.999999996
+S1 rotated normal maximum [Pa]: 6999999.999999998
+S1 rotated abs-sum [Pa]: 6999999.999999998
+S1+Mx normal maximum [Pa]: 6999999.999999998
+S1+Mx torsional shear [Pa]: 5999999.999999998
+S1 pure torque normal maximum [Pa]: 0.0
+S1 pure torque shear [Pa]: 5999999.999999998
+X1 t* analytic: 0.5732233047033631
+X1 t* golden: 0.5732233124819834
+X1 maximum [Pa]: 1134086.2821217075
+X1 closed form sqrt(71+8sqrt2)/8 MPa [Pa]: 1134086.2821217075
+X1 eight-sign candidates control [Pa]: 1126734.7735824967
+X1 abs-sum objective control [Pa]: 1562499.9999999998
+M33 case B root maximum [Pa]: 34155457.23581658
+M33 headline (max over A,B) [Pa]: 34155457.23581658
+M33 case A tip displacement [m]: 0.0004472510264069082
+M33 displacement headline [m]: 0.0009487627009949052
+M33 displacement headline (unit-load integral) [m]: 0.0009487627009949058
+M33 first-case control [Pa]: 16101036.950648692
+M05-T anchor: (-0.0, -0.0, -0.0, -500.0, -0.0, -0.0)
+R1 point loads: (-10.0, 20.0, -30.0, -4.0, 55.0, 46.0)
+R1 with distributed: (-10.0, 26.0, -30.0, -4.0, 55.0, 52.0)
+R1 rotated cyclic x->y->z->x: direct: (-30.0, -10.0, 26.0, 52.0, -4.0, 55.0)
+R1 rotated cyclic x->y->z->x: Q.R: (-30.0, -10.0, 26.0, 52.0, -4.0, 55.0)
+R1 rotated cyclic x->y->z->x: det: 1
+R1 rotated Rz(30deg): direct: (-21.660254037844386, 17.516660498395407, -30.0, -30.96410161513775, 45.63139720814413, 52.0)
+R1 rotated Rz(30deg): Q.R: (-21.660254037844386, 17.516660498395407, -30.0, -30.96410161513775, 45.63139720814413, 52.0)
+R1 rotated Rz(30deg): det: 1.0
+R1 rotated swap x<->y (improper, det -1): direct: (26.0, -10.0, -30.0, -65.0, -4.0, -40.0)
+R1 rotated swap x<->y (improper, det -1): Q.R: (26.0, -10.0, -30.0, 55.0, -4.0, 52.0)
+R1 rotated swap x<->y (improper, det -1): det: -1
+SPRING spring-on-pipe Fy [N]: -240.2683505787423
+SPRING spring-on-pipe Fy via unit-load flexibility [N]: -240.2683505787424
+SPRING anchor: (-0.0, -759.7316494212578, -0.0, -0.0, -0.0, -759.7316494212578)
+SPRING global force balance: 0.0
+SPRING global moment balance about origin: 0.0
+COMB A1: (-0.0, -1000.0, -0.0, -0.0, -0.0, -1000.0)
+COMB T: (-0.0, -0.0, -0.0, -500.0, -0.0, -0.0)
+COMB 2A1-T: (0.0, -2000.0, 0.0, 500.0, 0.0, -2000.0)
+COMB 2A1-T |F|: 2000.0
+COMB 2A1-T |M|: 2061.5528128088304
+COMB A1-T |M|: 1118.033988749895
+COMB envelope(A1,T) |F|: 1000.0
+COMB envelope(A1,T) |M|: 1000.0
+COMB magnitude-algebra control 2|M_A1|-|M_T|: 1500.0
+COMB magnitude-algebra control |M_A1|-|M_T|: 500.0
+CE CE-120 support-on-pipe: (0.0, 375.0, 0.0, 0.0, 0.0, 0.0)
+L up a-b at a: T, |Mb|: (1000.0, 1000.0)
+L up a-b at b: T, |Mb|: (1000.0, 0.0)
+L up b-c at b: T, |Mb|: (0.0, 1000.0)
+L up a-b max normal [Pa]: 11385152.411938861
+L up b-c max normal [Pa]: 11385152.411938861
+L up anchor: (-0.0, -0.0, -1000.0, -1000.0, 1000.0, -0.0)
+L down a-b at a: T, |Mb|: (-1000.0, 1000.0)
+L down a-b at b: T, |Mb|: (-1000.0, 0.0)
+L down b-c at b: T, |Mb|: (0.0, 1000.0)
+L down a-b max normal [Pa]: 11385152.411938861
+L down b-c max normal [Pa]: 11385152.411938861
+L down anchor: (-0.0, -0.0, 1000.0, 1000.0, -1000.0, -0.0)
+L headline [Pa]: 11385152.411938861
+L combination up+down anchor: (-0.0, -0.0, 0.0, 0.0, 0.0, -0.0)
+L main SIF row i*k*sigma (k=1.08) [Pa]: 14140359.295628065
+L main SIF row i*k*sigma (k=2.16) [Pa]: 28280718.59125613
+B1 b: (N,Vy,Vz): (0.0, 0.0, 1000.0)
+B1 b: (T,My,Mz): (1200.0, -199.99999999999994, 0.0)
+B1 b: z axis: (0.0, 0.0, 1.0)
+B1 quarter_1: (N,Vy,Vz): (0.0, 0.0, 1000.0)
+B1 quarter_1: (T,My,Mz): (1047.3428460382688, -567.4593388673469, 0.0)
+B1 quarter_1: z axis: (0.0, -0.0, 1.0)
+B1 midspan: (N,Vy,Vz): (0.0, 0.0, 999.9999999999999)
+B1 midspan: (T,My,Mz): (765.685424949238, -848.5281374238567, 0.0)
+B1 midspan: z axis: (0.0, -0.0, 0.9999999999999999)
+B1 quarter_3: (N,Vy,Vz): (0.0, 0.0, 1000.0000000000002)
+B1 quarter_3: (T,My,Mz): (397.90752586283253, -1000.4162189843048, 0.0)
+B1 quarter_3: z axis: (0.0, -0.0, 1.0000000000000002)
+B1 c: (N,Vy,Vz): (0.0, 0.0, 999.9999999999998)
+B1 c: (T,My,Mz): (6.123233995736766e-14, -999.9999999999998, 0.0)
+B1 c: z axis: (0.0, -0.0, 0.9999999999999998)
+B1 midspan T closed form: 765.685424949238
+B1 midspan |Mo| closed form: 848.5281374238572
+B1 anchor: (-0.0, -0.0, -1000.0, -1200.0, 1200.0, -0.0)
+B1 chord-frame cut-face at b: (N,Vy,Vz,T,My,Mz): (0.0, 0.0, -999.9999999999998, 707.1067811865476, 989.9494936611663, 0.0)
+B1 chord-frame cut-face at c: (N,Vy,Vz,T,My,Mz): (0.0, 0.0, -999.9999999999998, 707.1067811865474, 707.1067811865474, 0.0)
+B1 continuous arc max |Mo| [N*m]: 1019.8039027185571
+B1 continuous arc max phi [deg]: 78.69006752597979
+X1 pin i support-on-pipe: (0.0, 57.96238445873169, -231.84953783492676, 0.0, 0.0, 0.0)
+X1 roller j support-on-pipe: (0.0, -57.96238445873169, -231.84953783492676, 0.0, 0.0, 0.0)
+R1 translated to (5,-3,2): about attachment node: (-10.0, 26.0, -30.0, -4.0, 55.0, 52.0)
+R1 translated: moment about global origin (wrong-origin control): (34.0, 185.0, 152.0)
+secA A,I,Z: (0.0034557519189487734, 5.270021676396878e-06, 8.783369460661464e-05)
+secS A,I,Z,J: (0.002827433388230815, 2.898119222936585e-06, 5.7962384458731694e-05, 5.79623844587317e-06)

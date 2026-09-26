@@ -1,0 +1,23 @@
+COMB2 A1/T envelope |M|: 1000.0
+COMB2 A1/T sum control: 1500.0
+COMB2 A1/A2 envelope |M|: 1000.0
+COMB2 A1/A2 sum control: 2000.0
+IL L2 ab correct Pa: 13092925.273729699
+IL L2 ab axial un-intensified Pa: 13382297.897533145
+IL L2 ab axial intensified Pa: 13425703.791103661
+IT header ab end j Pa: 13962950.695176601
+IT branch bc end i Pa: 29160218.142301127
+IT header torsion Nm: 1000.0
+IT b-e bending Nm (unreferenced): 500.0
+IT control: header SIF on b-e moment Pa: 7400349.0677602645
+IT control: old value without Fx (1.3*500/Z) Pa: 7400349.0677602645
+IT control: SIFs swapped (header, branch) Pa: (21481462.607964, 18954141.79249573)
+B2 k=1 chord cut face b: (1124.2009445115884, -290.01261786150644, 0.0, 0.0, 0.0, -82.02795548781359)
+B2 k=1 product end_i (negated): (-1124.2009445115884, 290.01261786150644, -0.0, -0.0, -0.0, 82.02795548781359)
+B2 k=2 chord cut face b: (1140.423695693931, -273.7898666791638, 0.0, 0.0, 0.0, -77.43946853959895)
+B2 k=2 product end_i (negated): (-1140.423695693931, 273.7898666791638, -0.0, -0.0, -0.0, 77.43946853959895)
+B2 k=4 chord cut face b: (1148.7648161749312, -265.4487461981637, 0.0, 0.0, 0.0, -75.08024339767529)
+B2 k=4 product end_i (negated): (-1148.7648161749312, 265.4487461981637, -0.0, -0.0, -0.0, 75.08024339767529)
+TH |N|: 829380.460547705
+TH |N|*ro (candidate moment scale): 49762.827632862296
+TH |N|*1 m (length arm): 829380.460547705

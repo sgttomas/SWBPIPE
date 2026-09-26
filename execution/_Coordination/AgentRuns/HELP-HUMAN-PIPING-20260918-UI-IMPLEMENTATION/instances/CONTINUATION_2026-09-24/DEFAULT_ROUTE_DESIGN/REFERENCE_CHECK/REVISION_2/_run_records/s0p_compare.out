@@ -1,0 +1,259 @@
+case     quantity                                            checker                   author  rel diff ok
+R1T      anchor F[0]                                             -10                      -10  0.00e+00 yes
+R1T      anchor F[1]                                              26                       26  0.00e+00 yes
+R1T      anchor F[2]                                             -30                      -30  0.00e+00 yes
+R1T      anchor M node[0]                                         -4                       -4  0.00e+00 yes
+R1T      anchor M node[1]                                         55                       55  0.00e+00 yes
+R1T      anchor M node[2]                                         52                       52  0.00e+00 yes
+R1T      ctrl M origin[0]                                         34                       34  0.00e+00 yes
+R1T      ctrl M origin[1]                                        185                      185  0.00e+00 yes
+R1T      ctrl M origin[2]                                        152                      152  0.00e+00 yes
+COMB2    envelope max |M|                                       1000                     1000  0.00e+00 yes
+COMB2    ctrl sum |M| (cases A1,A2)                             2000                     1500  2.50e-01 NO
+COMB2    A1+A2 anchor[0]                                           0                        0  0.00e+00 yes
+COMB2    A1+A2 anchor[1]                                       -1000                    -1000  0.00e+00 yes
+COMB2    A1+A2 anchor[2]                                       -1000                    -1000  0.00e+00 yes
+COMB2    A1+A2 anchor[3]                                           0                        0  0.00e+00 yes
+COMB2    A1+A2 anchor[4]                                        1000                     1000  0.00e+00 yes
+COMB2    A1+A2 anchor[5]                                       -1000                    -1000  0.00e+00 yes
+COMB2    A1+A2 |u| mm                            0.44725102640690817      0.44725102640690817  0.00e+00 yes
+COMB2    A1-A2 |u| mm                            0.44725102640690817      0.44725102640690817  0.00e+00 yes
+COMB2    ctrl mag sum mm                         0.63250846732993671      0.63250846732993671  0.00e+00 yes
+COMB2    ctrl mag diff mm                                          0                        0  0.00e+00 yes
+X1S      pin[0]                                                    0                        0  0.00e+00 yes
+X1S      pin[1]                                   57.962384458731691       57.962384458731691  0.00e+00 yes
+X1S      pin[2]                                  -231.84953783492676      -231.84953783492676  0.00e+00 yes
+X1S      pin[3]                                                    0                        0  0.00e+00 yes
+X1S      pin[4]                                                    0                        0  0.00e+00 yes
+X1S      pin[5]                                                    0                        0  0.00e+00 yes
+X1S      roller[0]                                                 0                        0  0.00e+00 yes
+X1S      roller[1]                               -57.962384458731691      -57.962384458731691  0.00e+00 yes
+X1S      roller[2]                               -231.84953783492676      -231.84953783492676  0.00e+00 yes
+X1S      roller[3]                                                 0                        0  0.00e+00 yes
+X1S      roller[4]                                                 0                        0  0.00e+00 yes
+X1S      roller[5]                                                 0                        0  0.00e+00 yes
+TH       wall N                                  -829380.46054770565      -829380.46054770565  0.00e+00 yes
+TH       max Pa                                            240000000                240000000  0.00e+00 yes
+TH       anchor a[0]                              829380.46054770565       829380.46054770565  0.00e+00 yes
+TH       anchor a[1]                                               0                        0  0.00e+00 yes
+TH       anchor a[2]                                               0                        0  0.00e+00 yes
+TH       anchor a[3]                                               0                        0  0.00e+00 yes
+TH       anchor a[4]                                               0                        0  0.00e+00 yes
+TH       anchor a[5]                                               0                        0  0.00e+00 yes
+TH       anchor b[0]                             -829380.46054770565      -829380.46054770565  0.00e+00 yes
+TH       anchor b[1]                                               0                        0  0.00e+00 yes
+TH       anchor b[2]                                               0                        0  0.00e+00 yes
+TH       anchor b[3]                                               0                        0  0.00e+00 yes
+TH       anchor b[4]                                               0                        0  0.00e+00 yes
+TH       anchor b[5]                                               0                        0  0.00e+00 yes
+CE       W1 anchor[0]                                             -0                        0  0.00e+00 yes
+CE       W1 anchor[1]                                            625                      625  0.00e+00 yes
+CE       W1 anchor[2]                                             -0                        0  0.00e+00 yes
+CE       W1 anchor[3]                                             -0                        0  0.00e+00 yes
+CE       W1 anchor[4]                                             -0                        0  0.00e+00 yes
+CE       W1 anchor[5]                                            625                      625  0.00e+00 yes
+CE       W1 tip uy                           -0.00019765889604060524  -0.00019765889604060524  0.00e+00 yes
+CE       W1 CE on pipe[0]                                          0                        0  0.00e+00 yes
+CE       W1 CE on pipe[1]                                        375                      375  0.00e+00 yes
+CE       W1 CE on pipe[2]                                          0                        0  0.00e+00 yes
+CE       W1 CE on pipe[3]                                          0                        0  0.00e+00 yes
+CE       W1 CE on pipe[4]                                          0                        0  0.00e+00 yes
+CE       W1 CE on pipe[5]                                          0                        0  0.00e+00 yes
+CE       W2 anchor[0]                                             -0                        0  0.00e+00 yes
+CE       W2 anchor[1]                                            125                      125  0.00e+00 yes
+CE       W2 anchor[2]                                             -0                        0  0.00e+00 yes
+CE       W2 anchor[3]                                             -0                        0  0.00e+00 yes
+CE       W2 anchor[4]                                             -0                        0  0.00e+00 yes
+CE       W2 anchor[5]                                            125                      125  0.00e+00 yes
+CE       W2 tip uy                           -3.9531779208121046e-05  -3.9531779208121046e-05  0.00e+00 yes
+CE       W2 CE on pipe[0]                                          0                        0  0.00e+00 yes
+CE       W2 CE on pipe[1]                                        375                      375  0.00e+00 yes
+CE       W2 CE on pipe[2]                                          0                        0  0.00e+00 yes
+CE       W2 CE on pipe[3]                                          0                        0  0.00e+00 yes
+CE       W2 CE on pipe[4]                                          0                        0  0.00e+00 yes
+CE       W2 CE on pipe[5]                                          0                        0  0.00e+00 yes
+CE       0.5/0.5 anchor Fy (linear = true)                       375                      375  0.00e+00 yes
+CE       0.5/0.5 true anchor Fy                                  375                      375  0.00e+00 yes
+CE       0.5/0.5 applied                                         375                      375  0.00e+00 yes
+CE       1.0/0.5 ctrl linear anchor                            687.5                    687.5  0.00e+00 yes
+CE       1.0/0.5 ctrl applied                                  562.5                    562.5  0.00e+00 yes
+CE       1.0/0.5 true anchor                                     875                      875  0.00e+00 yes
+CE       W1-W2 anchor Fy                                         500                      500  0.00e+00 yes
+CE       W1-W2 applied                                             0                        0  0.00e+00 yes
+CE       non-consuming W1 anchor[0]                               -0                        0  0.00e+00 yes
+CE       non-consuming W1 anchor[1]                             1000                     1000  0.00e+00 yes
+CE       non-consuming W1 anchor[2]                               -0                        0  0.00e+00 yes
+CE       non-consuming W1 anchor[3]                               -0                        0  0.00e+00 yes
+CE       non-consuming W1 anchor[4]                               -0                        0  0.00e+00 yes
+CE       non-consuming W1 anchor[5]                             1000                     1000  0.00e+00 yes
+SPRING2  spring[0]                                                 0                        0  0.00e+00 yes
+SPRING2  spring[1]                               -240.26835057874229      -240.26835057874229  0.00e+00 yes
+SPRING2  spring[2]                                                 0                        0  0.00e+00 yes
+SPRING2  spring[3]                                                 0                        0  0.00e+00 yes
+SPRING2  spring[4]                                                 0                        0  0.00e+00 yes
+SPRING2  spring[5]                                                 0                        0  0.00e+00 yes
+SPRING2  guide[0]                                              -2000                    -2000  0.00e+00 yes
+SPRING2  guide[1]                                                  0                        0  0.00e+00 yes
+SPRING2  guide[2]                                                  0                        0  0.00e+00 yes
+SPRING2  guide[3]                                                  0                        0  0.00e+00 yes
+SPRING2  guide[4]                                                  0                        0  0.00e+00 yes
+SPRING2  guide[5]                                                  0                        0  0.00e+00 yes
+SPRING2  anchor[0]                                                -0                        0  0.00e+00 yes
+SPRING2  anchor[1]                               -759.73164942125777      -759.73164942125777  0.00e+00 yes
+SPRING2  anchor[2]                                                -0                        0  0.00e+00 yes
+SPRING2  anchor[3]                                                -0                        0  0.00e+00 yes
+SPRING2  anchor[4]                                                -0                        0  0.00e+00 yes
+SPRING2  anchor[5]                               -759.73164942125777      -759.73164942125777  0.00e+00 yes
+GAP      tip uy                               8.4093922702559794e-05   8.4093922702559794e-05  0.00e+00 yes
+GAP      spring Fy                               -84.093922702559794      -84.093922702559794  0.00e+00 yes
+GAP      gap on pipe                                               0                        0  0.00e+00 yes
+GAP      gap active                                            False                    False  0.00e+00 yes
+GAP      anchor Fy                               -265.90607729744022      -265.90607729744022  0.00e+00 yes
+GAP      anchor Mz                               -265.90607729744022      -265.90607729744022  0.00e+00 yes
+ATTR     anchor[0]                                                -0                        0  0.00e+00 yes
+ATTR     anchor[1]                                                -0                        0  0.00e+00 yes
+ATTR     anchor[2]                                                -0                        0  0.00e+00 yes
+ATTR     anchor[3]                                                -0                        0  0.00e+00 yes
+ATTR     anchor[4]                                                -0                        0  0.00e+00 yes
+ATTR     anchor[5]                                                -0                        0  0.00e+00 yes
+ATTR     tip nodal total Fy                                     1000                     1000  0.00e+00 yes
+NLC3     case uy                               0.0002530033869319747    0.0002530033869319747  0.00e+00 yes
+NLC3     case stop active                                      False                    False  0.00e+00 yes
+NLC3     case stop force                                           0                        0  0.00e+00 yes
+NLC3     superposed uy                        0.00050600677386394941   0.00050600677386394941  0.00e+00 yes
+NLC3     penetrates                                             True                     True  0.00e+00 yes
+NLC3     true uy                              0.00040000000000000002   0.00040000000000000002  0.00e+00 yes
+NLC3     true stop Fy                             -335.1947976647491       -335.1947976647491  0.00e+00 yes
+NLC3     C3 1d superposed u                    0.0016000000000000001    0.0016000000000000001  0.00e+00 yes
+NLC3     C3 1d true u                                          0.001                    0.001  0.00e+00 yes
+NLC3     C3 1d lambda                                            600                      600  0.00e+00 yes
+I-L      L1 ab end j                                               0                        0  0.00e+00 yes
+I-L      L1 ab end j T                                          1000                     1000  0.00e+00 yes
+I-L      L1 bc end i                              13092925.273729689       13092925.273729689  0.00e+00 yes
+I-L      L2 ab end j                              13092925.273729689       13092925.273729689  0.00e+00 yes
+I-L      L2 bc end i                              18516192.493245997       18516192.493245997  0.00e+00 yes
+I-L      L2 ab axial N                                          1000                     1000  0.00e+00 yes
+I-L      L2 anchor[0]                                          -1000                    -1000  0.00e+00 yes
+I-L      L2 anchor[1]                                             -0                        0  0.00e+00 yes
+I-L      L2 anchor[2]                                          -1000                    -1000  0.00e+00 yes
+I-L      L2 anchor[3]                                          -1000                    -1000  0.00e+00 yes
+I-L      L2 anchor[4]                                           1000                     1000  0.00e+00 yes
+I-L      L2 anchor[5]                                           1000                     1000  0.00e+00 yes
+I-L      ctrl abs-sum bc                          26185850.547459379       26185850.547459379  0.00e+00 yes
+I-L      ctrl with k bc                           19997487.892705675       19997487.892705675  0.00e+00 yes
+I-L      ctrl axial ab (un-intensified)           13382297.897533135       13382297.897533135  0.00e+00 yes
+I-T      header ab end j                          7400349.0677602598       7400349.0677602598  0.00e+00 yes
+I-T      branch bc end i                          22770304.823877722       22770304.823877722  0.00e+00 yes
+I-T      b-e bending (info)                                      500                      500  0.00e+00 yes
+B1S      normal[0]                                                -0                        0  0.00e+00 yes
+B1S      normal[1]                                                 0                        0  0.00e+00 yes
+B1S      normal[2]                                                 1                        1  0.00e+00 yes
+B1S      end_i_b[0]                                                0                        0  0.00e+00 yes
+B1S      end_i_b[1]                                                0                        0  0.00e+00 yes
+B1S      end_i_b[2]                                             1000                     1000  0.00e+00 yes
+B1S      end_i_b[3]                                             1200                     1200  0.00e+00 yes
+B1S      end_i_b[4]                              -199.99999999999994      -199.99999999999994  0.00e+00 yes
+B1S      end_i_b[5]                                                0                        0  0.00e+00 yes
+B1S      quarter_1[0]                                              0                        0  0.00e+00 yes
+B1S      quarter_1[1]                                              0                        0  0.00e+00 yes
+B1S      quarter_1[2]                                           1000                     1000  0.00e+00 yes
+B1S      quarter_1[3]                             1047.3428460382688       1047.3428460382688  0.00e+00 yes
+B1S      quarter_1[4]                             -567.4593388673469      -567.45933886734713  1.89e-16 yes
+B1S      quarter_1[5]                                              0                        0  0.00e+00 yes
+B1S      midspan[0]                                                0                        0  0.00e+00 yes
+B1S      midspan[1]                                                0                        0  0.00e+00 yes
+B1S      midspan[2]                               999.99999999999989                     1000  9.47e-17 yes
+B1S      midspan[3]                               765.68542494923804       765.68542494923804  0.00e+00 yes
+B1S      midspan[4]                              -848.52813742385672      -848.52813742385695  1.89e-16 yes
+B1S      midspan[5]                                                0                        0  0.00e+00 yes
+B1S      quarter_3[0]                                              0                        0  0.00e+00 yes
+B1S      quarter_3[1]                                              0                        0  0.00e+00 yes
+B1S      quarter_3[2]                             999.99999999999989                     1000  9.47e-17 yes
+B1S      quarter_3[3]                             397.90752586283253       397.90752586283253  0.00e+00 yes
+B1S      quarter_3[4]                            -1000.4162189843045      -1000.4162189843046  9.47e-17 yes
+B1S      quarter_3[5]                                              0                        0  0.00e+00 yes
+B1S      end_j_c[0]                                                0                        0  0.00e+00 yes
+B1S      end_j_c[1]                                                0                        0  0.00e+00 yes
+B1S      end_j_c[2]                                             1000                     1000  0.00e+00 yes
+B1S      end_j_c[3]                           6.1232339957367662e-14   6.1232339957367662e-14  0.00e+00 yes
+B1S      end_j_c[4]                                            -1000                    -1000  0.00e+00 yes
+B1S      end_j_c[5]                                                0                        0  0.00e+00 yes
+B1S      chord cut b[0]                                            0                        0  0.00e+00 yes
+B1S      chord cut b[1]                                            0                        0  0.00e+00 yes
+B1S      chord cut b[2]                                        -1000      -999.99999999999977  1.89e-16 yes
+B1S      chord cut b[3]                           707.10678118654755       707.10678118654732  1.89e-16 yes
+B1S      chord cut b[4]                           989.94949366116634       989.94949366116634  0.00e+00 yes
+B1S      chord cut b[5]                                            0                        0  0.00e+00 yes
+B1S      chord cut c[0]                                            0                        0  0.00e+00 yes
+B1S      chord cut c[1]                                            0                        0  0.00e+00 yes
+B1S      chord cut c[2]                                        -1000      -999.99999999999977  1.89e-16 yes
+B1S      chord cut c[3]                           707.10678118654744       707.10678118654732  9.47e-17 yes
+B1S      chord cut c[4]                           707.10678118654744       707.10678118654744  0.00e+00 yes
+B1S      chord cut c[5]                                            0                        0  0.00e+00 yes
+B1S      product end_i[0]                                         -0                       -0  0.00e+00 yes
+B1S      product end_i[1]                                         -0                       -0  0.00e+00 yes
+B1S      product end_i[2]                                       1000       999.99999999999977  1.89e-16 yes
+B1S      product end_i[3]                        -707.10678118654755      -707.10678118654732  1.89e-16 yes
+B1S      product end_i[4]                        -989.94949366116634      -989.94949366116634  0.00e+00 yes
+B1S      product end_i[5]                                         -0                       -0  0.00e+00 yes
+B1S      product end_j[0]                                          0                        0  0.00e+00 yes
+B1S      product end_j[1]                                          0                        0  0.00e+00 yes
+B1S      product end_j[2]                                      -1000      -999.99999999999977  1.89e-16 yes
+B1S      product end_j[3]                         707.10678118654744       707.10678118654732  9.47e-17 yes
+B1S      product end_j[4]                         707.10678118654744       707.10678118654744  0.00e+00 yes
+B1S      product end_j[5]                                          0                        0  0.00e+00 yes
+B1S      chord axes[0]                           0.70710678118654746      0.70710678118654735  1.11e-16 yes
+B1S      chord axes[1]                           0.70710678118654746      0.70710678118654757  1.11e-16 yes
+B1S      chord axes[2]                                             0                        0  0.00e+00 yes
+B1S      chord axes[3]                           0.70710678118654746      0.70710678118654746  0.00e+00 yes
+B1S      chord axes[4]                          -0.70710678118654746     -0.70710678118654746  0.00e+00 yes
+B1S      chord axes[5]                                             0                        0  0.00e+00 yes
+B1S      chord axes[6]                                             0                        0  0.00e+00 yes
+B1S      chord axes[7]                                             0                        0  0.00e+00 yes
+B1S      chord axes[8]                                            -1     -0.99999999999999978  2.22e-16 yes
+B1S      end_i sigma_by                          -2277030.4823877714      -2277030.4823877714  0.00e+00 yes
+B1S      end_i tau_t                              6831091.4471633174       6831091.4471633174  0.00e+00 yes
+B1S      end_j sigma_by                          -11385152.411938861      -11385152.411938861  0.00e+00 yes
+B1T      consistent centre[0]                                      1                        1  0.00e+00 yes
+B1T      consistent centre[1]                    0.20000000000000001      0.20000000000000001  0.00e+00 yes
+B1T      consistent centre[2]                                      0                        0  0.00e+00 yes
+B1T      consistent angles[0]                                      0                        0  0.00e+00 yes
+B1T      consistent angles[1]                                      0                        0  0.00e+00 yes
+B1T      kinked centre[0]                         1.1000000000000001       1.1000000000000001  0.00e+00 yes
+B1T      kinked centre[1]                        0.10000000000000001      0.10000000000000001  0.00e+00 yes
+B1T      kinked centre[2]                       -0.14142135623730953     -0.14142135623730953  0.00e+00 yes
+B1T      kinked angles[0]                         60.000000000000021       60.000000000000021  0.00e+00 yes
+B1T      kinked angles[1]                         59.999999999999993       59.999999999999993  0.00e+00 yes
+B2       k1 roller Fx                             589.86022256093202       589.86022256093474  4.63e-15 yes
+B2       k1 section b (N,Vy,Mz)[0]                589.86022256093202       589.86022256093474  2.73e-15 yes
+B2       k1 section b (N,Vy,Mz)[1]                              1000                     1000  0.00e+00 yes
+B2       k1 section b (N,Vy,Mz)[2]                  82.0279554878136       82.027955487813045  5.54e-16 yes
+B2       k1 anchor[0]                            -589.86022256093202      -589.86022256093474  2.73e-15 yes
+B2       k1 anchor[1]                                          -1000                    -1000  0.00e+00 yes
+B2       k1 anchor[2]                                             -0                        0  0.00e+00 yes
+B2       k1 anchor[3]                                             -0                        0  0.00e+00 yes
+B2       k1 anchor[4]                                             -0                        0  0.00e+00 yes
+B2       k1 anchor[5]                            -82.027955487813529      -82.027955487813045  4.83e-16 yes
+B2       k2 roller Fx                             612.80265730200495       612.80265730200574  1.30e-15 yes
+B2       k2 section b (N,Vy,Mz)[0]                612.80265730200495       612.80265730200574  7.96e-16 yes
+B2       k2 section b (N,Vy,Mz)[1]                              1000                     1000  0.00e+00 yes
+B2       k2 section b (N,Vy,Mz)[2]                77.439468539599019       77.439468539598849  1.71e-16 yes
+B2       k2 anchor[0]                            -612.80265730200495      -612.80265730200574  7.96e-16 yes
+B2       k2 anchor[1]                                          -1000                    -1000  0.00e+00 yes
+B2       k2 anchor[2]                                             -0                        0  0.00e+00 yes
+B2       k2 anchor[3]                                             -0                        0  0.00e+00 yes
+B2       k2 anchor[4]                                             -0                        0  0.00e+00 yes
+B2       k2 anchor[5]                            -77.439468539598948      -77.439468539598849  9.95e-17 yes
+B2       k4 roller Fx                             624.59878301162325       624.59878301162223  1.64e-15 yes
+B2       k4 section b (N,Vy,Mz)[0]                624.59878301162325       624.59878301162223  1.02e-15 yes
+B2       k4 section b (N,Vy,Mz)[1]                              1000                     1000  0.00e+00 yes
+B2       k4 section b (N,Vy,Mz)[2]                75.080243397675346       75.080243397675545  1.99e-16 yes
+B2       k4 anchor[0]                            -624.59878301162325      -624.59878301162223  1.02e-15 yes
+B2       k4 anchor[1]                                          -1000                    -1000  0.00e+00 yes
+B2       k4 anchor[2]                                             -0                        0  0.00e+00 yes
+B2       k4 anchor[3]                                             -0                        0  0.00e+00 yes
+B2       k4 anchor[4]                                             -0                        0  0.00e+00 yes
+B2       k4 anchor[5]                            -75.080243397675289      -75.080243397675545  2.56e-16 yes
+B2       k2 quadrature                            612.80265730200188       612.80265730200165  3.71e-16 yes
+TIE      max |u| mm                              0.31625423366496835      0.31625423366496835  0.00e+00 yes
+rows 257 disagreements 1 max rel diff among agreeing 4.625645196878693e-15

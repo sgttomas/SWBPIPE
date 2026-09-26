@@ -1,0 +1,106 @@
+case     quantity                                      checker                   author   rel diff ok
+M14-A    root max Pa                        16101036.950648692       16101036.950648692   0.00e+00 yes
+M14-A    ctrl abs-sum Pa                    22770304.823877722       22770304.823877722   0.00e+00 yes
+M14-S1   normal max Pa                      6999999.9999999981       6999999.9999999981   0.00e+00 yes
+M14-S1   ctrl abs-sum Pa                    8999999.9999999963       8999999.9999999963   0.00e+00 yes
+M14-S1   rotated max Pa                     6999999.9999999981       6999999.9999999981   0.00e+00 yes
+M14-S1   torsional shear Pa                 5999999.9999999981       5999999.9999999981   0.00e+00 yes
+M14-S1   pure torque normal Pa                               0                        0   0.00e+00 yes
+M14-X1   t*                                0.57322330470336313      0.57322330470336313   0.00e+00 yes
+M14-X1   max Pa                             1134086.2821217075       1134086.2821217075   0.00e+00 yes
+M14-X1   ctrl eight-sign Pa                 1126734.7735824967       1126734.7735824967   0.00e+00 yes
+M14-X1   ctrl abs-sum Pa                    1562499.9999999998                  1562500   1.49e-16 yes
+M14-X1   w_z N/m                            463.69907566985353       463.69907566985353   0.00e+00 yes
+M14-X1   couple N*m                         57.962384458731691       57.962384458731691   0.00e+00 yes
+M33-G    headline Pa                        34155457.235816583       34155457.235816583   0.00e+00 yes
+M33-G    disp headline mm                  0.94876270099490512      0.94876270099490512   0.00e+00 yes
+M33-G    case A tip mm                     0.44725102640690823      0.44725102640690817   1.24e-16 yes
+M33-G    ctrl first-case Pa                 16101036.950648692       16101036.950648692   0.00e+00 yes
+M05-T    anchor[0]                                          -0                        0   0.00e+00 yes
+M05-T    anchor[1]                                          -0                        0   0.00e+00 yes
+M05-T    anchor[2]                                          -0                        0   0.00e+00 yes
+M05-T    anchor[3]                                        -500                     -500   0.00e+00 yes
+M05-T    anchor[4]                                          -0                        0   0.00e+00 yes
+M05-T    anchor[5]                                          -0                        0   0.00e+00 yes
+M05-T    |M|                                               500                      500   0.00e+00 yes
+M05-T    |F|                                                 0                        0   0.00e+00 yes
+M05-R1   point[0]                                          -10                      -10   0.00e+00 yes
+M05-R1   point[1]                                           20                       20   0.00e+00 yes
+M05-R1   point[2]                                          -30                      -30   0.00e+00 yes
+M05-R1   point[3]                                           -4                       -4   0.00e+00 yes
+M05-R1   point[4]                                           55                       55   0.00e+00 yes
+M05-R1   point[5]                                           46                       46   0.00e+00 yes
+M05-R1   with w[0]                                         -10                      -10   0.00e+00 yes
+M05-R1   with w[1]                                          26                       26   0.00e+00 yes
+M05-R1   with w[2]                                         -30                      -30   0.00e+00 yes
+M05-R1   with w[3]                                          -4                       -4   0.00e+00 yes
+M05-R1   with w[4]                                          55                       55   0.00e+00 yes
+M05-R1   with w[5]                                          52                       52   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx direct[0]                         -30                      -30   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx direct[1]                         -10                      -10   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx direct[2]                          26                       26   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx direct[3]                          52                       52   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx direct[4]                          -4                       -4   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx direct[5]                          55                       55   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx Q.R[0]                            -30                      -30   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx Q.R[1]                            -10                      -10   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx Q.R[2]                             26                       26   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx Q.R[3]                             52                       52   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx Q.R[4]                             -4                       -4   0.00e+00 yes
+M05-R1   perm_xyz_to_yzx Q.R[5]                             55                       55   0.00e+00 yes
+M05-R1   rot_z_30deg direct[0]             -21.660254037844386      -21.660254037844386   0.00e+00 yes
+M05-R1   rot_z_30deg direct[1]              17.516660498395407       17.516660498395407   0.00e+00 yes
+M05-R1   rot_z_30deg direct[2]                             -30                      -30   0.00e+00 yes
+M05-R1   rot_z_30deg direct[3]              -30.96410161513775       -30.96410161513775   0.00e+00 yes
+M05-R1   rot_z_30deg direct[4]              45.631397208144129       45.631397208144129   0.00e+00 yes
+M05-R1   rot_z_30deg direct[5]                              52                       52   0.00e+00 yes
+M05-R1   rot_z_30deg Q.R[0]                -21.660254037844386      -21.660254037844386   0.00e+00 yes
+M05-R1   rot_z_30deg Q.R[1]                 17.516660498395407       17.516660498395407   0.00e+00 yes
+M05-R1   rot_z_30deg Q.R[2]                                -30                      -30   0.00e+00 yes
+M05-R1   rot_z_30deg Q.R[3]                 -30.96410161513775       -30.96410161513775   0.00e+00 yes
+M05-R1   rot_z_30deg Q.R[4]                 45.631397208144129       45.631397208144129   0.00e+00 yes
+M05-R1   rot_z_30deg Q.R[5]                                 52                       52   0.00e+00 yes
+SPRING   spring Fy N                       -240.26835057874229      -240.26835057874229   0.00e+00 yes
+SPRING   anchor[0]                                          -0                        0   0.00e+00 yes
+SPRING   anchor[1]                         -759.73164942125777      -759.73164942125777   0.00e+00 yes
+SPRING   anchor[2]                                          -0                        0   0.00e+00 yes
+SPRING   anchor[3]                                          -0                        0   0.00e+00 yes
+SPRING   anchor[4]                                          -0                        0   0.00e+00 yes
+SPRING   anchor[5]                         -759.73164942125777      -759.73164942125777   0.00e+00 yes
+COMB     2A1-T[0]                                            0                        0   0.00e+00 yes
+COMB     2A1-T[1]                                        -2000                    -2000   0.00e+00 yes
+COMB     2A1-T[2]                                            0                        0   0.00e+00 yes
+COMB     2A1-T[3]                                          500                      500   0.00e+00 yes
+COMB     2A1-T[4]                                            0                        0   0.00e+00 yes
+COMB     2A1-T[5]                                        -2000                    -2000   0.00e+00 yes
+COMB     2A1-T |M|                          2061.5528128088304       2061.5528128088304   0.00e+00 yes
+COMB     2A1-T |F|                                        2000                     2000   0.00e+00 yes
+COMB     A1-T |M|                           1118.0339887498949       1118.0339887498949   0.00e+00 yes
+COMB     envelope |F|                                     1000                     1000   0.00e+00 yes
+COMB     ctrl magnitude algebra                           1500                     1500   0.00e+00 yes
+M08-L    headline Pa                        11385152.411938861       11385152.411938861   0.00e+00 yes
+M08-L    anchor up[0]                                       -0                        0   0.00e+00 yes
+M08-L    anchor up[1]                                       -0                        0   0.00e+00 yes
+M08-L    anchor up[2]                                    -1000                    -1000   0.00e+00 yes
+M08-L    anchor up[3]                                    -1000                    -1000   0.00e+00 yes
+M08-L    anchor up[4]                                     1000                     1000   0.00e+00 yes
+M08-L    anchor up[5]                                       -0                        0   0.00e+00 yes
+M08-L    ctrl comb SIF MPa                  28.280718591256129       28.280718591256129   0.00e+00 yes
+B1       arc_i_at_b |T|                                   1200                     1200   0.00e+00 yes
+B1       arc_i_at_b |Mo|                    199.99999999999994       200.00000000000003   7.11e-17 yes
+B1       arc_i_at_b |Mi|                                     0                        0   0.00e+00 yes
+B1       arc_mid |T|                        765.68542494923804       765.68542494923793   9.47e-17 yes
+B1       arc_mid |Mo|                       848.52813742385672       848.52813742385706   2.84e-16 yes
+B1       arc_mid |Mi|                                        0                        0   0.00e+00 yes
+B1       arc_j_at_c |T|                 6.1232339957367662e-14                        0   5.10e-17 yes
+B1       arc_j_at_c |Mo|                    999.99999999999977                     1000   1.89e-16 yes
+B1       arc_j_at_c |Mi|                                     0                        0   0.00e+00 yes
+B1       anchor[0]                                          -0                        0   0.00e+00 yes
+B1       anchor[1]                                          -0                        0   0.00e+00 yes
+B1       anchor[2]                                       -1000                    -1000   0.00e+00 yes
+B1       anchor[3]                                       -1200                    -1200   0.00e+00 yes
+B1       anchor[4]                                        1200                     1200   0.00e+00 yes
+B1       anchor[5]                                          -0                        0   0.00e+00 yes
+ALL AGREE
+rows: 102 max rel diff: 2.842170943040401e-16
+REF-CE in author output: False

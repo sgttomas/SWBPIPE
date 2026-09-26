@@ -1,0 +1,13 @@
+[package]
+name = "t0r_design_probe"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# Repository-relative; when building a copy outside the repository, point this at
+# {REPO_ROOT}/projects/chirality-piping/core/product_physics.
+open_pipe_stress_product_physics = { path = "../../../../../../../../../core/product_physics" }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+
+[workspace]
