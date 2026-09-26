@@ -1,6 +1,6 @@
-# T3 D2 — result standing, source envelopes and transport (revision 3)
+# T3 D2 — result standing, source envelopes and transport (revision 4)
 
-Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_ITEMS manager, 2026-09-26. **This is a proposal.** It becomes a basis only if ROOT selects it after V1's backcheck. Revision 1 is kept byte-for-byte as `_run_records/DESIGN_revision1.md` (sha256 prefix `185e178efe3b9855`), and revision 2 as `_run_records/DESIGN_revision2.md` (`5c36da2cb8cf89e6`, also in `DESIGN_revision2.sha256`). Revision 3 is narrow: §0.1 lists every change.
+Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_ITEMS manager, 2026-09-26. **This is a proposal.** It becomes a basis only if ROOT selects it after V1's backcheck. Revision 1 is kept byte-for-byte as `_run_records/DESIGN_revision1.md` (sha256 prefix `185e178efe3b9855`), revision 2 as `_run_records/DESIGN_revision2.md` (`5c36da2cb8cf89e6`, also in `DESIGN_revision2.sha256`), and revision 3 as `_run_records/DESIGN_revision3.md` (`43c7d672df4c5f83`). Revisions 3 and 4 are narrow: §0.2 and §0.1 list every change.
 
 - **Brief:** `T3/TASK_BRIEFS/D2_STANDING_DESIGN.md` with `_COMMON.md`. Revision inputs at `065c9ff60`: `T3/REVIEW/RETURN.md` (V1), `T3/ROOT_RULINGS_V1.md` (ROOT's early rulings, plus the further rulings on R-3(a), R-3(b) and R-7 relayed by the manager), and `T3/MANAGER_NOTES/V1_DISPOSITIONS.md`.
 - **Abbreviations:**
@@ -12,6 +12,22 @@ Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_IT
 - **Nothing was built or run against product code** (host hold). The only runs are read-only, standard-library corpus scans (§12). The revised probes and their predictions are in `_run_records/`.
 - **Probe addendum.** After ROOT released the host, the prepared probes PR-1 to PR-7 were run unchanged against exported copies of both bases. The results are in §12.1.
 - **Revision 3 inputs:** `T3/REVIEW/BACKCHECK_R2.md` at `3ea78add8` (V1's backcheck of D1 revision 2: S8-R, S2-R, S5-R and the IF-1 confirmation), and ROOT's rulings on it at the end of `T3/ROOT_RULINGS_V1.md` (`5111651ed`), with the manager's relay of ROOT's final wording for gate condition 3. D1 revision 2 (`3ff9c1fd873d9f28`) §4.1.6, §4.4.1 and §5 were read; D1 revision 3 was not yet available.
+- **Revision 4 inputs:** `T3/REVIEW/BACKCHECK_R3.md` at `ef9cf487e` (V1's combined backcheck of revision 3: R3B-1 to R3B-4, N-5), ROOT's confirmation of R3B-2, R3B-3 and R3B-4 as relayed by the manager, and D1 revision 3 (`48f351441d6b132e`) §4.1.6, §4.1.6.1 and §5 item 1. D1 revision 4 was not yet available. Where revision 4 mirrors D1's announced revision-4 changes (the stress factor k, the closed kind list, the section terms in the receipt), it is marked **[align D1-r4]**.
+
+## 0.2 Revision 4 — what changed and why
+
+| # | Input | What changed | Where |
+|---|---|---|---|
+| 1 | R3B-4 (a); R3B-1 **[align D1-r4]** | **G5b gains the per-member stress kind,** with a propagation factor k per stress row kind: `σ_k(m) = fl(fl(fo/A) + fl(k·fl(mo/Z)))`. k is 1 for component stresses, √2 for rows formed with `hypot`, √2·i for intensified rows, and 2 for the abs-sum summary (see note). Every k is a pinned binary64 constant rounded upward. Magnitude rows use the factor D1 pins (1 if formed at p and rounded once, otherwise √3). | §4.9.3 G5b |
+| 2 | R3B-4 (b) | **Input-derived rows get an explicit class,** `input_derived`: no S\* and no threshold, independent of the solve, bindable like `relative_verified`, and never listed among the other classes. | §4.9.3 G5c, §4.9.9 |
+| 3 | R3B-4 (c) | **G5c checks exact set equality** for `not_covered` in both directions, as it already did for `absolute_verified`. | §4.9.3 G5c |
+| 4 | R3B-2 **[align D1-r4]** | **One closed row-kind list with one class per kind, defaulting to `not_covered`.** "Physical" is defined by the successor table's `category == physical_quantity`. The list is carried in each successor's pinned semantic table, so the three readers read the same bytes. It maps `reaction_resultant` to force and `open_formula_stress_summary` to stress (k = 2). §4.9.10 gives D2's reading of the base tables for D1 to confirm. | §4.9.10, G5c |
+| 5 | R3B-3 **[align D1-r4]** | **Section terms come from the receipt as bit strings** (per member: A, Z, and L/(GJ) and L/(EA) if twist and extension are kept). They are covered by the source identity digest, and cross-checked bit for bit against published section evidence where the base identity publishes it (the exact route's `pipe_sections`). G5b no longer forms sections from the invocation. | §4.9.3 G5b |
+| 6 | N-5 **[align D1-r4]** | **Refusal codes:** keep the two codes, `RULE_QUANTITY_BELOW_VERIFIED_FLOOR` (absolute_verified) and `RULE_QUANTITY_NOT_COVERED`. D1 revision 3 names one code for both; the manager has asked D1 revision 4 to adopt the two. | §4.9.9 |
+| 7 | Manager (R3B-2 third bullet) | **Per-case counts of withheld rows.** Every reader exposes, per case, the number of rows in each class, and a comparison against the retiring identity's rows for the same request. The retirement gate's report and the UI summary use it. | §4.9.9 |
+| 8 | R3B-1 note | **k for the abs-sum summary is 2, not √2.** The two bending terms' errors add linearly in `|N/A| + |My/Z| + |Mz/Z|`. Flagged for D1's alignment. | §4.9.10 |
+
+The rest of revision 3 stands.
 
 ## 0.1 Revision 3 — what changed and why
 
@@ -402,7 +418,7 @@ Otherwise it is `unavailable` with `DISPLAY_UNIT_RANGE: nonzero value is not rep
 | S-3 joined (conditional) | Remove T1's early return; add the joined branch | same | same | S-E2, only if built |
 | S-4 retirement | None: source-blocks-1 and physics-source-1 stay in the sets (R-3(b), R-7 (i)); doc comments only | same | same | S-F |
 | S-5 composite fallback, capture | None (existing identities) | none | none | S-D, S-H |
-| S-6 verified-accuracy classes (revision 3) | `rule_binding_refusal` returns `RULE_QUANTITY_BELOW_VERIFIED_FLOOR` or `RULE_QUANTITY_NOT_COVERED` for classified rows of successor envelopes. Envelope standing unchanged | `rule_binding_refusal` same | `ruleBindingRefusal` same; row labels and notices | S-G1, S-G2 |
+| S-6 verified-accuracy classes (revisions 3–4) | `rule_binding_refusal` returns `RULE_QUANTITY_BELOW_VERIFIED_FLOOR` or `RULE_QUANTITY_NOT_COVERED` for classified rows of successor envelopes. Envelope standing unchanged. `classification_summary` added | `rule_binding_refusal`, `classification_summary` same | `ruleBindingRefusal`, `classificationSummary` same; row labels and notices | S-G1, S-G2 |
 
 **Parity.** Each slice has one shared JSON case file (envelope, invocation or null, requested refs, expected standing, expected reason or code) consumed by all three languages. The parity summary records exact agreements, declared language-specific strings, zero undeclared differences, and zero cases accepted by one language and refused by another. Each new branch has a mutant per language, killed by a named case.
 
@@ -466,12 +482,38 @@ Each successor has its own semantic table. Following the source-blocks-1 precede
 | G3 | Case coverage and order against the request (when an invocation is supplied) and `numerical_quality`. Case ids unique |
 | G4 | Diagnostics. Exactly one `RETAINED_PRECISION_SELECTED` per selected case and one `RETAINED_PRECISION_UNAVAILABLE` per unavailable case, each with `affected_refs == [case id]`. No `RETAINED_PRECISION_UNAVAILABLE` or `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` names a selected case (the S13 rule from the start). No `SOURCE_BLOCK_RECOVERY_SELECTED` anywhere: a successor envelope never mixes methods (D1 option A) |
 | G5 (G5a) | Per selected case: p ∈ {128, 256, 512}; verification p = 2p ≤ 1024; the attempts list ends with the accepted attempt, and every earlier attempt has a rejection reason; work within the registered limits (D-8); every stop-rule entry decodes to a value ≤ 2^-64 (exact binary64 comparison with the constant); pivot margin and rcond decode to finite positive values; the retained-state and load-ledger digests are 64 lowercase hex; the ordinary-attempt reference binds to `numerical_quality.cases[i]` and its diagnostic, as source-blocks `ordinary()` does. `RETAINED_PRECISION_UNAVAILABLE` reasons admitted in G4 include `receipt_encoding`, `publication_hash_range` and `invocation_not_representable` (D1 §5 item 2; S5-R) |
-| G5b (revision 3, S8-R) | **S\* recomputation.** For each body and each kind D1 revision 3 defines (translation, rotation, force, moment, and the new twist and extension kinds), the reader recomputes S\* from the published rows of that case (or combination), exactly as D1 revision 3 specifies: the kind mapping of row kinds and units, the pinned unit factors, S(kind) as the largest abs value, the coupling with L_b in D1's stated operation order, and the twist and extension derivation D1 fixes. Inputs the rows cannot supply (body membership, L_b, section terms for twist and extension) are checked against the invocation model with D1's formula, and structurally when there is no invocation. Eligibility always has an invocation, so every eligible result has its S\* fully verified. The recomputed S\* must equal the receipt's S\* bits exactly. Otherwise `RETAINED_PRECISION_SCALE_MISMATCH` (`unsupported`) |
-| G5c (revision 3, S8-R) | **Classification recomputation.** R is read from its pinned bits in the receipt, which must equal the registered constant's bits. For every published physical quantity row of a selected case (and every retained-state combination output), the reader computes `t = fl(R·S*)` for that row's body and kind, and its class: `absolute_verified` iff `abs(q) < t`, else `relative_verified`. A row whose kind is outside D1's kind mapping is `not_covered`. The receipt's `absolute_verified` list must equal the recomputed set exactly, each listed bound must equal `fl(2^-64·S*)` bit for bit, and any row the receipt marks `not_covered` must be one the reader also finds outside the mapping. Otherwise `RETAINED_PRECISION_CLASSIFICATION_MISMATCH` (`unsupported`). Rows of unselected cases are ordinary rows and carry no class |
+| G5b (revisions 3–4) | S\* recomputation from published rows and receipt section terms, bit for bit; `RETAINED_PRECISION_SCALE_MISMATCH` or `RETAINED_PRECISION_SECTION_MISMATCH` on mismatch. Detail below the table |
+| G5c (revisions 3–4) | Classification recomputation against the closed row-kind list, with exact set equality for both the `absolute_verified` and the `not_covered` lists; `RETAINED_PRECISION_CLASSIFICATION_MISMATCH` on mismatch. Detail below the table |
 | G6 | Rows. Every row of a selected case carries the method token. No row of an unselected case carries it |
 | G7 | The base-identity validator on a projection. It removes only the receipt, the method-token evidence and the identity, profile and policy constants that G0–G6 bound. It then runs the unchanged preview-physics-1, physics-1 or load-reference-1 evidence validator (T1's projection pattern, `load_reference_source.rs:184-220`) |
 | G8 | With an invocation: invocation shape and hash (with the named profile); model project id; case coverage; requested mode. Model-derived operands: `<physics-retained>` uses physics-source-1's `actual_materials` through S-C's parameter, over the physics-1 evidence; `<load-reference-retained>` uses S-E1 (J4.2–J4.8; `Scope` → `needs_recompute`); `<preview-retained>` compares the materials and sections its preview-physics-1 evidence publishes, and what it does not publish, the receipt's source identity digest covers (the physics-source-1 trust level, stated as a limit) |
 | Transport | Canonical carriers without raw rows: G0–G2, plus the base identity's transport-metadata check on the projection. Never eligible |
+
+**G5b in detail (revisions 3–4, S8-R, R3B-1, R3B-3, R3B-4 (a)).** **S\* recomputation**, exactly as D1 §4.1.6.1 specifies **[align D1-r4]**:
+- the body partition and L_b from the invocation model (single-node body: L_b = 0, coupled terms omitted);
+- the closed kind list (§4.9.10) and the pinned unit factors;
+- S(kind) as the largest abs value;
+- the coupling in D1's order: `tr`, `ro`, `fo`, `mo`.
+
+Per member, with section terms read from the receipt as bit strings (R3B-3): A, Z, and L/(GJ) and L/(EA) when D1 keeps twist and extension in the receipt (D1 may drop them, since they are harness-only). The reader computes:
+- `σ_k(m) = fl(fl(fo/A) + fl(k·fl(mo/Z)))` for each stress factor k used by the member's stress rows (R3B-1, R3B-4 (a));
+- `tw(m) = fl(mo·(L/GJ))` and `ext(m) = fl(fo·(L/EA))` if present.
+
+Each k is the pinned constant of the closed list. For an intensified row, k = `fl↑(√2·i)`, with i the row's user factor taken from the invocation's component input, rounded upward in D1's pinned way.
+
+Section terms are cross-checked:
+- where the base identity publishes section evidence (the exact route's `contract_evidence.exact_cases[].pipe_sections`), bit for bit against it;
+- otherwise they are covered by the source identity digest, at the physics-source-1 trust level (G8).
+
+The recomputed S\* must equal the receipt's S\* bits exactly. Otherwise `RETAINED_PRECISION_SCALE_MISMATCH` (`unsupported`). A mismatch between receipt section terms and published section evidence is `RETAINED_PRECISION_SECTION_MISMATCH` (`unsupported`)
+
+**G5c in detail (revisions 3–4, S8-R, R3B-2, R3B-4 (b), (c)).** **Classification recomputation.** R is read from its pinned bits in the receipt, which must equal the registered constant (`0x3DD0000000000000`, R = 2^-34, D1 revision 3). For every row of a selected case (and every retained-state combination output), the reader looks up the row's (kind, unit) in the closed list (§4.9.10) and assigns exactly one class:
+- **mapped** (translation, rotation, force, moment, stress with its k): `t = fl(R·S*)` for the row's body, kind and k; then `absolute_verified` iff `abs(q) < t`, else `relative_verified`;
+- **`input_derived`:** no S\*, no t (R3B-4 (b));
+- **`not_covered`:** a physical row kind the list marks `not_covered`, any (kind, unit) the list does not name, and a row in an unlisted unit;
+- **non-quantity:** table category other than `physical_quantity`, carrying no class.
+
+The receipt's `absolute_verified` list and its `not_covered` list must each **equal** the recomputed set exactly, in both directions (R3B-4 (c)). Each listed bound must equal `fl(2^-64·S*)` bit for bit. No id may appear in two lists, and no `input_derived` or non-quantity row may appear in either. Otherwise `RETAINED_PRECISION_CLASSIFICATION_MISMATCH` (`unsupported`). Rows of unselected cases are ordinary rows and carry no class
 
 #### 4.9.4 The standing basis
 
@@ -525,11 +567,18 @@ ROOT ruled that a quantity below the floor is withheld, or marked uncovered, and
 | `relative_verified` | The value, as today | Bindable, subject to the envelope's standing | As today |
 | `absolute_verified` | The value, marked "uncovered: verified only to an absolute bound of ±b (below the relative floor)", with b = `fl(2^-64·S*)` | **Withheld.** `rule_binding_refusal` returns `RULE_QUANTITY_BELOW_VERIFIED_FLOOR`. The rule runner reports the input as `RULE_INPUTS_INCOMPLETE` with that reason, never as a pass. A summary or headline whose `result_ref` names such a row is refused in the same way | The receipt travels with the document. `derive_document` copies it (the receipt-copy list of §4.9.7), and adds one `row_disclosures` entry per such row naming the class and bound. Every canonical-document consumer applies the same refusal |
 | `not_covered` | The value, marked "uncovered: no verified accuracy for this quantity kind" | **Withheld.** `RULE_QUANTITY_NOT_COVERED`, as above | As above, with class `not_covered` |
+| `input_derived` (revision 4) | The value, as today, labelled "input-derived (independent of the solve)" | Bindable, subject to the envelope's standing | As today; no disclosure entry |
 
 **Envelope standing is not demoted by these rows.** Demoting it would withhold correct relative-verified quantities, for example every signed action in a torsion model whose axial force is a structural zero computed as noise (D1 §4.1.6 D-12 rationale). This mirrors T0R's R-2 and R-7 (i) pattern: an envelope stays Current, and a quantity with no reliable reading is refused wherever it could be relied on. So "withheld from Current" is enforced at quantity level:
 - the quantity never binds;
 - it never counts as Passed;
 - it never appears unlabelled.
+
+**Refusal codes (revision 4, N-5).** Two codes are kept: `RULE_QUANTITY_BELOW_VERIFIED_FLOOR` for `absolute_verified`, and `RULE_QUANTITY_NOT_COVERED` for `not_covered`. They tell the user different things: "known only to ±b" against "no accuracy claim for this kind". D1 revision 3 names one code for both; D1 revision 4 is asked to adopt these two **[align D1-r4]**.
+
+**Per-case counts of withheld rows (revision 4).** Each reader exposes one function per language, with the same output shape and shared cases: `classification_summary(source, invocation) -> [{case_id, relative_verified, absolute_verified, not_covered, input_derived, non_quantity}]`, computed from the G5c classes of a validated source (`unsupported` sources return nothing). Two uses:
+- **The retirement gate** (D1 §4.4.1, R3B-2 third bullet) records, per case, these counts for the successor result, beside the count of rows the retiring identity publishes as reliable on the same request. That makes the rows the successor withholds visible, even when envelope standing is no worse.
+- **The UI summary** shows "n quantities uncovered" per case, linking to the labelled rows. This is text only; it changes no standing.
 
 **Exemption.** None is proposed. An exact structural zero cannot be told apart from noise below the floor (D1 §4.1.6), so no class of below-floor quantity can be exempted on evidence. A future exemption needs a ROOT ruling that names the quantity class and its reason.
 
@@ -548,6 +597,31 @@ All of these are S-G1 or S-G2 files.
 - **`N_RP_ABSOLUTE`:** "Uncovered quantity: verified only to an absolute bound of ±{b} {unit}, below the relative accuracy floor for this body. It is shown for inspection; rule checks cannot bind to it."
 - **`N_RP_NOT_COVERED`:** "Uncovered quantity: no verified accuracy for this quantity kind. It is shown for inspection; rule checks cannot bind to it."
 
+#### 4.9.10 The closed row-kind list (revision 4, R3B-2) **[align D1-r4]**
+
+- **Where it lives.** Each successor semantic table (§4.9.6) carries a `verified_accuracy_classes` map from (kind, unit) to one class, and the table is pinned by sha256. Rust, Python and TS read the same bytes; no language keeps its own copy.
+- **Definitions.**
+  - "Physical" means the table row's `category == "physical_quantity"` (V1: "physical" was undefined).
+  - Rows of every other category (solver mode, review evidence, counts, flags, diagnostic observations, work, state, ratios, basis records, assembled-load review) are non-quantity. They carry no class, as today.
+  - Any physical (kind, unit) not named in the map is `not_covered`.
+- **D2's reading of the base tables.** The physical kinds of preview-physics-1 (`c61a540ea`), and of physics-1 and load-reference-1 (the same 34 kinds; load-reference-1 read at `f3270ea79`). D1 revision 4 fixes the list; this table is D2's reading for alignment.
+
+| Class | Kinds |
+|---|---|
+| translation | `global_nodal_displacement_{x,y,z}`, `displacement_magnitude` (magnitude factor per D1: 1 if formed at p and rounded once, otherwise √3) |
+| rotation | `global_nodal_rotation_{x,y,z}` |
+| force | `element_local_axial_force`, `element_local_shear_force_{y,z}`, `pipe_wall_axial_force_v2`, `pipe_effective_axial_force_v2`, force components of `support_reaction_component_v2` and `pipe_wall_endpoint_action_v2`, `support_reaction_force_magnitude_v2` and `reaction_resultant` (magnitude factor per D1) |
+| moment | `element_local_torsional_moment`, `element_local_bending_moment_{y,z}`, moment components of `support_reaction_component_v2` and `pipe_wall_endpoint_action_v2`, `support_reaction_moment_magnitude_v2` (magnitude factor per D1) |
+| stress, k = 1 | `element_local_axial_normal_stress`, `element_local_bending_normal_stress_{y,z}`, `element_local_torsional_shear_stress`, `pipe_axial_membrane_stress_v2` |
+| stress, k = √2 | `pipe_elastic_normal_stress_maximum_v2` (`abs(Nw/As) + hypot(My,Mz)/Z`, `PP:2751-2753`) |
+| stress, k = √2·i | `component_equal_factor_intensified_bending_stress_v1` (`i·hypot(σ_by, σ_bz)`) |
+| stress, k = 2 | `open_formula_stress_summary` (abs-sum `abs(N/A) + abs(My/Z) + abs(Mz/Z)`: the two bending errors add linearly, so √2 would understate the propagated error by up to a factor √2) |
+| `input_derived` | `pipe_lame_hoop_stress_v2`, `pipe_lame_radial_stress_v2`, `pipe_section_pressure_hoop_stress`, `pipe_section_pressure_longitudinal_stress` (pressure-only; D1 confirms each is formed from inputs alone) |
+| `not_covered` | `nonlinear_support_final_displacement`, `nonlinear_support_final_reaction`, `nonlinear_support_friction_normal_reaction_derived`. W1 excludes nonlinear supports (T5), so these cannot occur in a selected case; listing them makes the default explicit |
+
+- **Factors.** Each k is published in the table as a binary64 bit string, rounded upward from its real value (√2 → `fl↑(√2)`). For the intensified kind, the table carries `fl↑(√2)` and the reader forms `fl↑(fl↑(√2)·i)` by the rule D1 pins.
+- **Headlines.** A summary or headline whose `result_ref` names a withheld row (for example `open_formula_stress_summary` below its floor) is refused as that row is (§4.9.9). A headline that names a `relative_verified` row binds normally.
+
 ### 4.10 Interaction with S11 (context only)
 
 V1-S11, an absorbed and cancelled nodal load published as Passed, is D1's containment slice (ROOT ruling 2; `MANAGER_NOTES/S11_MAP.md`). Its reader-side effect is none, provided the containment marks the case not Passed (Sensitive or refused): whole-envelope standing then withholds Current in every language, unchanged. If the containment adds a diagnostic code to an identity whose readers enumerate diagnostic codes, that code must be added to those readers in the same slice. D2 flags this as interface IF-2.
@@ -563,6 +637,14 @@ V1-S11, an absorbed and cancelled nodal load published as Passed, is D1's contai
   - which rows, if any, are `not_covered`.
 
   G5b and G5c mirror those definitions exactly. If D1 revision 3 differs in a detail, S-G follows D1 and keeps the structure (recompute, compare bits, refuse on mismatch).
+- **I-9 (revision 4) [align D1-r4].** D1 revision 4 is expected to fix:
+  - the stress factors k per stress kind (D2 asks for k = 2 on `open_formula_stress_summary`);
+  - the magnitude factors;
+  - the closed row-kind list, which D2 proposes to carry in each successor table (§4.9.10);
+  - the section terms in the receipt as bit strings;
+  - the two refusal codes.
+
+  If D1's choices differ, G5b, G5c and §4.9.10 follow D1 and keep the rules: recompute, compare bits, set equality, default `not_covered`.
 - **I-3 (retirement).** Replaced by the shared retirement gate (§4.5.2), defined by D1. S-G is its standing condition.
 - **I-4 (existing source identities).** Answered by ROOT: physics-source-1 is no longer emitted after F2 but stays eligible (R-3(b)); joined stays fresh until F3 (R-3(a)).
 - **I-5 (range).** Unchanged: §4.6 applies to whatever D1 publishes.
@@ -602,7 +684,7 @@ Sources are in `_run_records/d2_probe/`; the plan and predictions are in `_run_r
 | S-H | A 1e16 N/m spring (integer literal) solves on each route, both modes; every committed request byte-identical | The mutant restoring the early `?` fails; a sensitive case in such a request carries the capture `UNAVAILABLE`, never a selection |
 | S-E1 | Every committed joined and load-reference-1 witness re-derives to its published records, in 3 languages | One mutation per J4 row gives Mismatch; `Scope` cases (H-a law, i128 overflow) give identical outcomes ×3 |
 | S-E2 (if built) | Five joined witnesses eligible with their invocation; route documents minted | Revision 1's J4 controls; no invocation → `needs_recompute` |
-| S-G | §4.9.8 positives. Revision 3 adds: a weak-coupling case (D1's S8-W) whose below-floor rows are listed `absolute_verified`, shown uncovered and refused for binding identically in the three languages; a relative row in the same envelope still binds | §4.9.8 negatives. Revision 3 adds: an S\* entry off by one ulp; R's bits changed; a qualifying row missing from the `absolute_verified` list; an extra listed row; a bound off by one ulp; a row marked `not_covered` that is inside the mapping (each `unsupported`); a headline pointing at an `absolute_verified` row (binding refused). Rust replay audit in the validation lane |
+| S-G | §4.9.8 positives. Revision 4 adds: an envelope with every class present (relative, absolute, not_covered, input-derived, non-quantity), whose `classification_summary` counts agree in the three languages; an intensified row whose i comes from the invocation. Revision 3 adds: a weak-coupling case (D1's S8-W) whose below-floor rows are listed `absolute_verified`, shown uncovered and refused for binding identically in the three languages; a relative row in the same envelope still binds | §4.9.8 negatives. Revision 3 adds: an S\* entry off by one ulp; R's bits changed; a qualifying row missing from the `absolute_verified` list; an extra listed row; a bound off by one ulp; a row marked `not_covered` that is inside the mapping; (revision 4) a qualifying `not_covered` row omitted from the receipt's list; an `input_derived` row listed as `absolute_verified`; a stress row with the wrong k; a receipt section term one ulp off the published `pipe_sections` evidence (each `unsupported`); a headline pointing at an `absolute_verified` row (binding refused). Rust replay audit in the validation lane |
 | S-F | Historical raws keep their standing (all-selected Current, mixed `needs_recompute`); texts updated | A tampered historical raw is `unsupported` |
 
 ### 6.3 Pre-0.4 differential (S-D, S-H, and D1's F2)
@@ -681,6 +763,7 @@ Containment alone closes no group. Closure needs VP-ORACLES and VP-ROBUST on the
 | DD-10 | Historical joined standing after F3, if S-E2 was built | **Keep eligibility (as R-3(b))** / `needs_recompute` | Open, only if S-E2 is built |
 | DD-11 | Selected-case `numerical_quality` (IF-1) | **Ordinary attempt's outcome; precision-p outcome only in the receipt** / D1 writes `checks_passed` and S-G special-cases it | **Closed:** adopted by D1 (V1 backcheck) |
 | DD-12 | Capture fix | **H-1 fallible digest** / H-2 scientific profile at capture / H-3 normalized hashing | Open |
+| DD-14 | Where the closed row-kind list lives (revision 4) | **In each successor's pinned semantic table, read by all three readers** / in the receipt per envelope / in reader code | Open, with D1 |
 | DD-13 | Consumer rule for `absolute_verified` and `not_covered` quantities (revision 3) | **Quantity-level withholding: shown uncovered with the bound, rule binding refused, never Passed, class carried in canonical forms; envelope standing unchanged; no exemption** / whole-envelope `needs_recompute` whenever a selected case has such a row / interval binding q ± b in the rule runner | Open. ROOT's S8-R ruling requires withholding or a stated exemption; the recommendation meets it |
 
 **Owner-level question.** None. F3 would raise one (case-scoped Current), as in revision 1.
@@ -734,7 +817,7 @@ Containment alone closes no group. Closure needs VP-ORACLES and VP-ROBUST on the
 **Limits:**
 - The capture refusal is established by reading (as V1's was).
 - The integer-literal form of desktop requests follows from JS number formatting and serde's parsing, not from a run.
-- The successor reader contract was written against D1 revision 1's §5 and checked against D1 revision 2's §5 in V1's backcheck (G1, G2 and G5a consistent). G5b and G5c are written against D1 revision 3's announced definitions (I-8), which were not yet available.
+- The successor reader contract was written against D1 revision 1's §5 and checked against D1 revision 2's §5 in V1's backcheck (G1, G2 and G5a consistent). G5b and G5c were checked against D1 revision 3 in V1's combined backcheck. The revision-4 parts marked **[align D1-r4]** are written against D1's announced revision-4 changes, which were not yet available.
 - H-b's termination at 1024 bits is not proved for every binary64 argument. H-a has no such dependency.
 - The ROOT rulings after `065c9ff60` were read from the manager's relay.
 
