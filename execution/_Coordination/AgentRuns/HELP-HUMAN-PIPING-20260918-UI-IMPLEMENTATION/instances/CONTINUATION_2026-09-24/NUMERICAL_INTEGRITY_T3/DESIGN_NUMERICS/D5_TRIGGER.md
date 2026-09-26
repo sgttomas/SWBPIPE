@@ -2,6 +2,20 @@
 
 D1 (TASK), 2026-09-26. This is a narrow addendum to `DESIGN.md` revision 3, which is committed at `9377f32db`. It replaces D-5 in `DESIGN.md` §9 and the trigger of §4.3. It answers ROOT's ruling on P1's skew Passed breach (`T3/ROOT_RULINGS_V1.md` at `d84e66bff`), ROOT's product-impact request, and the manager's relay of P1's early data.
 
+**Revision 2 (delivered with `DESIGN.md` revision 5).** Revision 1 (sha256 `0d14db3b…`) is archived as `_run_records/D5_TRIGGER_revision1.md`. V1's D5_CHECK found the trigger as written BLOCKING (D5C-1), and ROOT adopted V1's fix. **The trigger is now specified in `DESIGN.md` §4.3.1, which supersedes this addendum wherever they differ:**
+- **EF (D5C-1).** EF = K̃⁻¹ρ with ρ = f − K_int·u, as one exact sum per free row over the `Wide<2>` re-formation of every frame element from primitives (local coefficients included), the springs, the prescribed coupling and the ledger terms. It replaces "EF = |K⁻¹(ΔK·u + r)|" with element-level ΔK and the published binary64 residual, everywhere below (§1 item 3, §3's (a2) column, §5, §9). **Superseded: §3's (a2) rule and inputs, §5's estimator description, §9's write set and tests, and §10's mutation (25).**
+- **The factor (D5C-4)** is 2 on the coupled body scale S\*, not 8, from the product-faithful recalibration (`recal_d5.py`). The "7 false positives of 154" (§1, §3, §4, §8) came from formation-only EF on a textbook LDLᵀ. On the product-faithful path the count is 0 at factor 2 and 3 at factor 8. The (a1) counts become 16 (c = 1) and 28 (c = 8) Passed-band false positives.
+- **Non-frame stiffness (D5C-2):** a case with any curved or user contribution is demoted, never passed silently.
+- **Evidence (D5C-3):** EF is kept out of `StructuralReport`.
+- **Exceptions (D5C-5):** named as (entry, case, quantity) triples.
+- **Scope (N-1, N-2):** stated in `DESIGN.md` §4.3.1.
+- **Why 122 fails (corrected, V1).** The breach is largely **solve error**, and it depends on the mode, not mainly on formation. §2's "most of the error is formation, not the solve" holds for D1's textbook-LDLᵀ emulation, not for the product. **N-4:** the emulated 122 error of 0.3–0.65 in §2 is not the product's. P1's adapter used y_ref (1,0,0) or (0,1,−1), which reproduces P1's figures (dense 2.413, sparse 1.214, rcond 2.606e-8; V1, D5_CHECK §2).
+- **N-3.** With the product's estimator, M11's cond is 2.6e6, not 2.3e7, and M9's is 3.2e5, not 5.6e5. Their actual errors are ≤ 1.5e-13 relative, not the formation-only "about 1e-15". "(a1) would demote M11" (§7) holds at c = 8, not at c = 1.
+- **ROOT's recorded correction.** The Passed-band breach class on main is broad in synthetic space (up to about 4e-9 relative, cond about 1e6 to 6.7e7), not a single case. The no-interim ruling stands.
+- **Order.** K-D5 now lands after K3a and before K2a (`DESIGN.md` §6).
+
+The rest of this addendum is kept as the option analysis and the record of revision 1.
+
 - **Basis.** Product source `c61a540ea`, T1 `f3270ea79` (read with `git show`), and R1's frozen references at `c0f14201c`.
 - **P1's figures.** Those quoted here come from the manager's relay of P1's early report. `T3/DETECTION/results.json` was not yet committed, so every P1 figure is marked **P1 (relayed)** and should be re-checked against that file.
 - **Scope of work.** Standard-library Python emulation and scans only (§9). Nothing was built, no product code ran, and no Git write was made.
