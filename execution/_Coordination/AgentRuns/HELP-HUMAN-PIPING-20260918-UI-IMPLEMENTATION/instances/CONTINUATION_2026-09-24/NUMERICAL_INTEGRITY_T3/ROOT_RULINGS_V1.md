@@ -209,3 +209,12 @@ T1's PR963 is on main as `5aa4285c2`. The T1-overlap hold is lifted. origin/main
 - **Gate condition 3 is tightened** to compare row-level standing: per-case withheld counts for both identities, not just envelope standing.
 - V1's BACKCHECK_R4 checks the conservative-binding rule, including its indeterminate case, and whether any withheld row is a nonzero value a user would rely on.
 - This goes into the selection package.
+
+## S-H and S11-F ordering (ROOT, 2026-09-26): a hard constraint
+
+Context: P1's secondary observation. The historical typed entry (`run_linear_static_preview_with_mode`, reached from headless `run_preview_in_memory_mode`) publishes the G=1e80 RF-CANCEL cases as M03 Passed, with the net lost or grossly wrong. For example, RF-CANCEL-UDL-W1e80 publishes a rotation of 1.2e57 rad against an expected 4.6e-16 rad. Today the captured entry refuses these cases at capture (V1-S5). D2's S-H would let them solve on the captured route.
+
+1. **S-H never lands before S11-F.** They may land in the same PR. If they are separate, S-H's PR must have S11-F already on main, and its tests must re-run the 1e80 RF-CANCEL cases through the captured route and show them repaired.
+2. **S11-F's tests cover both entries:** the captured route (with S-H present if they land together), and the historical typed entry via headless `run_preview_in_memory_mode`. The tests include RF-CANCEL at 1e80 (F, M, ORTHO, INPLANE, UDL-W1e80). D1 confirms that the ledger sits in the shared `solve_load_case` path for both entries.
+3. **The VP-ROBUST "no Passed breach" gate runs its cases through both entries.** The S11 exceptions are removed only when both entries are clean.
+4. **P1's observation is recorded as secondary.** It is within the adopted S11 bound at an unrealistic ratio, and the typed route cannot mint Current, so it causes no reopen. Recorded fact: the headless typed route publishes M03 quality Passed on gross-wrong values at ratios ≥ 2^53, and S11-F is what removes it.
