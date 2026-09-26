@@ -1,0 +1,22 @@
+core/solver/frame_kernel exit=0 secs=4 passed=116 failed=0 ignored=0 free=9.6G
+core/solver/straight_pipe exit=0 secs=3 passed=39 failed=0 ignored=0 free=9.6G
+core/solver/curved_bend exit=0 secs=1 passed=25 failed=0 ignored=0 free=9.6G
+core/loads/load_case_algebra exit=0 secs=2 passed=21 failed=0 ignored=0 free=9.5G
+core/loads/primitive_loads exit=0 secs=1 passed=49 failed=0 ignored=0 free=9.5G
+core/solver/nonlinear_integration exit=0 secs=10 passed=69 failed=0 ignored=0 free=9.5G
+core/solver/sparse_direct exit=0 secs=2 passed=25 failed=0 ignored=0 free=9.5G
+core/solver/linear_supports exit=0 secs=1 passed=15 failed=0 ignored=0 free=9.5G
+validation/benchmarks/nonlinear exit=0 secs=3 passed=19 failed=0 ignored=0 free=9.4G
+validation/benchmarks/mechanics exit=0 secs=15 passed=41 failed=0 ignored=0 free=9.3G
+DONE core/solver/frame_kernel core/solver/straight_pipe core/solver/curved_bend core/loads/load_case_algebra core/loads/primitive_loads core/solver/nonlinear_integration core/solver/sparse_direct core/solver/linear_supports validation/benchmarks/nonlinear validation/benchmarks/mechanics
+core/solver/nonlinear_supports exit=0 secs=1 passed=22 failed=0 ignored=0 free=9.3G
+core/solver/diagnostics exit=0 secs=1 passed=24 failed=0 ignored=0 free=9.3G
+core/solver/performance_harness exit=0 secs=16 passed=25 failed=0 ignored=0 free=9.2G
+core/loads/stress_recovery exit=0 secs=0 passed=48 failed=0 ignored=0 free=9.2G
+core/loads/user_loads exit=0 secs=1 passed=28 failed=0 ignored=0 free=9.2G
+validation/benchmarks/stress exit=0 secs=13 passed=23 failed=0 ignored=0 free=9.1G
+validation/benchmarks/numerical_integrity exit=0 secs=15 passed=0 failed=0 ignored=0 free=9.0G
+core/product_physics exit=0 secs=41 passed=448 failed=0 ignored=1 free=7.8G
+core/reporting/result_export exit=0 secs=86 passed=91 failed=0 ignored=0 free=8.6G
+core/runner/headless exit=0 secs=116 passed=83 failed=0 ignored=0 free=7.8G
+DONE core/solver/nonlinear_supports core/solver/diagnostics core/solver/performance_harness core/loads/stress_recovery core/loads/user_loads validation/benchmarks/stress validation/benchmarks/numerical_integrity core/product_physics core/reporting/result_export core/runner/headless
