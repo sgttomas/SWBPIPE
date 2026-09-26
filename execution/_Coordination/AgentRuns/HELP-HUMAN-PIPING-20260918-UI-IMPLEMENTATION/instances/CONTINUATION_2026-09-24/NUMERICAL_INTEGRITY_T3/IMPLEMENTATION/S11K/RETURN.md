@@ -2,21 +2,32 @@
 
 Type 2 TASK I1, 2026-09-26. Work was done in `<s11k-worktree>` on branch `codex/piping-s11k-20260926`, base `163cd44ab`. That base is the T3 head `036d9df2c` merged with T1 head `f9ff31f16`; its product source matches `e43412a9b`. No Git write was made.
 
-## Status: implemented, option (c) applied, awaiting ROOT's go-ahead for regeneration
+## Status: complete. Regenerated with ROOT's go-ahead; all suites green. Ready for commit, PR and independent review
 
-Every S11-K item is implemented and tested (§1–§4).
+**Implementation.** Every S11-K item is implemented and tested (§1–§4).
 
-**First fixture diff.** It found the following, all reported at once under the stop rule:
-- two unregistered committed-byte changes: B1, `preview_physics_invented_*` (E4/E6); B2, `load_reference_fallback_uz` raws (KS1–KS3);
-- one full-gate regression: `benchmarks/nonlinear`, DEC-046, because KS1–KS3 were live in the nonlinear loop.
+**The stop.**
+- The first fixture diff stopped the work:
+  - B1: `preview_physics_invented_*` (E4/E6);
+  - B2: `load_reference_fallback_uz` raws (KS1–KS3);
+  - `benchmarks/nonlinear` regressed, because KS1–KS3 were live in the nonlinear loop.
+- ROOT's ruling:
+  - option (c), implemented and pinned: the nonlinear loop uses named, unchanged binary64 kernel variants, and linear callers keep the exact KS1–KS3;
+  - A and B2 pre-registered; B1 accepted as the intended repair.
+- Evidence for that ruling: [PRE_REGENERATION_REPORT.md](PRE_REGENERATION_REPORT.md) (caller list, byte pins, measured derived diffs).
 
-**ROOT's ruling:**
-- Option (c): the nonlinear loop takes named, unchanged binary64 kernel variants, and linear callers keep the exact KS1–KS3.
-- A proceeds as pre-registered; B2 joins the pre-registered list; B1 is accepted as the intended repair.
+**Regeneration, after ROOT's go-ahead.**
+- The actual producers regenerated 20 committed files (the A and B2 raws, B1, and 12 derived documents). All 20 are byte-identical to the scratch measurement.
+- The two hash-pin test constants were updated (old → new in [CHANGE_RECORD.md](CHANGE_RECORD.md)).
 
-Option (c) is implemented and pinned. The nonlinear benchmark passes unchanged, and the fixture diff is otherwise unchanged. The complete caller list, the byte-pin list and the measured derived-document diffs are in [PRE_REGENERATION_REPORT.md](PRE_REGENERATION_REPORT.md).
+**Final checks on the candidate.**
+- Rust full suites with `--no-fail-fast`: all green, including runner/headless (83) and benchmarks/nonlinear (19).
+- Python affected suites: 1464 passed, 17 env-gated skips.
+- Desktop vitest: 134 files, 2822 tests passed.
+- Desktop build: OK.
+- The node_modules link and every build artifact were removed from the worktree afterwards.
 
-**Nothing has been regenerated.** Regeneration by the actual producers, and the change record, follow ROOT's go-ahead.
+**PR body draft:** [CHANGE_RECORD.md](CHANGE_RECORD.md).
 
 ## 0. Basis read
 
@@ -154,21 +165,25 @@ Method:
 
 Every other committed request is byte-identical in both modes. That includes `fixtures/product_preview/invented_preview_model.json` (`pipe:P-120` with three element loads) and every source-blocks, physics-source and pressure request.
 
-## 6. Full-suite results (final candidate, after option (c))
+## 6. Full-suite results (final candidate, after regeneration)
 
-See [PRE_REGENERATION_REPORT.md](PRE_REGENERATION_REPORT.md) §3 and `_run_records/suites/SUMMARY_final.txt`. Every crate passes except `runner/headless`, which has 2 failures, both the pre-registered A ("actual producer changed" for connected and eigen_motion). `benchmarks/nonlinear` passes unchanged at 19/19. The pre-(c) run is kept in `SUMMARY_run1_pre_option_c.txt`.
+- `_run_records/suites/SUMMARY_after_regeneration.txt`: all Rust suites pass with `--no-fail-fast`. Counts are in CHANGE_RECORD.md.
+- `python_after_regeneration.txt`: 1464 passed, 17 skipped.
+- `desktop_vitest.txt`: 134 files, 2822 tests.
+- `desktop_build.txt` and `desktop_build_wasm.txt`.
+- Earlier runs are kept: `SUMMARY_run1_pre_option_c.txt` and `SUMMARY_final.txt` (after option (c), before regeneration).
+- Those earlier runs used the default fail-fast. On headless, that hid the integration binary behind the failing lib tests; the final run corrects this.
 
 ## 7. Not done, and open
 
-- **Regeneration**, pending ROOT's go-ahead:
-  - the A raws, B2 raws and B1 files by their actual producers;
-  - the derived documents, analysis runs and stress-neutral packages by their producers;
-  - the two hash-pin test constants (`result_export/tests/load_reference_contract.rs`, `tests/test_load_reference_readers.py`), which are outside my write set and need an assignee;
-  - then `CHANGE_RECORD.md`.
-- TS tests that read the affected fixtures were not run (no `node_modules` in the worktree).
 - `sparse_direct::solve_structural_sparse` has no typed sibling (sparse_direct is outside the write set). SA reaches the sparse path through `factor_structural_ldlt`.
 - `global_load_vector` still carries no "not for solve input" doc note (primitive_loads is in the write set for re-exports only).
-- **Git disclosure:** for `git diff --check` I ran `git add -N .` and then `git reset -q`. That briefly wrote the index and then reset it to HEAD. No other Git operation was run.
+- **S11-F items listed for the next slice:**
+  - the product-level P1 S11-PROBE-A tests;
+  - F1–F10;
+  - the product-level site test.
+- Mutations were not re-run after regeneration. Only fixtures, test constants and new tests changed after the final mutation run; product code did not.
+- **Git disclosure:** during the stop phase I once ran `git add -N .` and then `git reset -q`, which briefly wrote the index and reset it to HEAD. ROOT accepted this as harmless. No other Git operation was run.
 
 ## 8. Toolchain
 
