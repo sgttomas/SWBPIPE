@@ -307,3 +307,15 @@ Input: [REVIEW/BACKCHECK_R5.md](REVIEW/BACKCHECK_R5.md). Verdict FINDINGS, nothi
    - whether T4's null-space confirmation is a prerequisite for that.
 
    If a sound alternative exists within T3, ROOT selects it. Otherwise ROOT takes "demote realized curved bends until T4/W1c" to the owner, with the numbers. **The package may be assembled around R5-4, with R5-4 flagged as open.**
+
+### R5-4 and process (ROOT, crossing message)
+
+- **R5-4: proceed as the manager proposed.**
+  - D1 designs a conservative formation-error bound for curved contributions, entered into EF, so a model is demoted only when the bound threatens 1e-9.
+  - D1 counts the committed and realistic invented models that realize curved bends, and states whether T4's null-space confirmation is a prerequisite for the bound.
+  - V1 checks that the bound is sound.
+- **If no sound bound exists within T3,** ROOT receives owner options with numbers and takes them to the owner with its recommendation. ROOT's current leaning:
+  - it recommends against (b), exempting with a caveat, which is a silent pass with a note;
+  - it leans to (a), demote until W1c, if the affected models are few;
+  - it leans to (c), delay K-D5, only if (a) would demote most realistic models.
+- **Process: agreed.** One narrow D1/D2 follow-up covers R5-1, R5-2, R5-5, N-1 to N-6 and R5-3 (the S11 caller list). V1 verifies only those fixes and R5-4's bound. Then the selection package is assembled, with no further full review round.
