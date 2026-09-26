@@ -2,10 +2,12 @@
 """Refusal-removal mutants for the WP5 load-reference-1 adapter.
 
 Usage: mutants.py <scratch project root> <python>. Run only on a scratch copy
-(git archive of the start commit plus the three WP5 files), never in place.
-Each mutant replaces one refusal predicate with an always-true/neutral form;
-a mutant is killed when the WP5 suite (PinTests excluded: the scratch git
-repository lacks the start commit) fails. The original bytes are restored.
+(a shared sparse clone at the candidate commit, or a git archive, plus the
+three WP5 files), never in place. Each mutant replaces one refusal predicate
+with an always-true/neutral form; a mutant is killed when the WP5 suite fails.
+PinTests are excluded: they check pinned checkout files that no mutant
+touches, and a git-archive scratch lacks their history. The original bytes are
+restored after each mutant.
 """
 import os
 import subprocess
@@ -17,7 +19,7 @@ PYTHON = sys.argv[2]
 ADAPTER = 'tools/validation/qualification_load_reference.py'
 HELPER = 'tools/validation/qualification_load_reference_helper.py'
 CLASSES = ['CompleteRunTests', 'ValueFaultTests', 'BindingTests', 'TransportRefusalTests', 'StandingTests', 'ReaderTests',
-           'AdmissionTests', 'ProcessTests', 'PureSemanticsTests']
+           'AdmissionTests', 'ProcessTests', 'OutputLimitTests', 'PureSemanticsTests']
 MUTANTS = [
     ('M01 duplicate case ID', ADAPTER, "require(cid not in seen, 'duplicate case ID')", "require(True, 'duplicate case ID')"),
     ('M02 zero-case manifest', ADAPTER, "0 < len(cases) <= gate.MAX_CASES", "0 <= len(cases) <= gate.MAX_CASES"),
@@ -78,6 +80,20 @@ MUTANTS = [
     ('M56 selector-inventory refusal blocks case', ADAPTER, "        if refusal:\n            fail_case(case, 'blocked', refusal)", "        pass"),
     ('M57 negative (selector, wrong value) pair uniqueness', ADAPTER, "require(len(set(pairs)) == len(pairs), 'duplicate negative (selector, wrong value) pair')", "require(True, 'x')"),
     ('M58 positive selectors unique', ADAPTER, "            if unique_selectors:\n", "            if False:\n"),
+    ('M59 stdout admitted only to the gate limit', ADAPTER, "process['stdout_bytes'], output_limit_bytes)", "process['stdout_bytes'], min(output_limit_bytes, LIMIT))"),
+    ('M60 unwrap ignores the selected limit', ADAPTER, "unwrap(stdout_bytes, prepared['request'], mode, limit=output_limit_bytes)", "unwrap(stdout_bytes, prepared['request'], mode)"),
+    ('M61 parser byte bound removed', ADAPTER, "require(len(data) <= limit, 'JSON byte limit exceeded')", "require(True, 'x')"),
+    ('M62 parser limit validation removed', ADAPTER, "require(type(limit) is int and 0 < limit <= MAX_OUTPUT_LIMIT, 'invalid JSON byte limit')", "require(True, 'x')"),
+    ('M63 large parse: underflow rule dropped', ADAPTER, "gate.require(value != 0.0 or not any(c in '123456789' for c in significand), 'nonzero numeric token underflow')", "pass"),
+    ('M64 large parse: duplicate members allowed', ADAPTER, "object_pairs_hook=gate._pairs, ", ""),
+    ('M65 large parse: NaN/Infinity allowed', ADAPTER, "parse_constant=forbidden, ", ""),
+    ('M66 large parse: nonfinite token allowed', ADAPTER, "gate.require(math.isfinite(value), 'nonfinite numeric token')", "pass"),
+    ('M67 reader snapshot limit not passed to helper', ADAPTER, "                 '--source-limit-bytes', str(input_limit)]", "                 ]"),
+    ('M68 reader snapshot bound check removed', ADAPTER, "and len(request_bytes) <= input_limit, 'reader input limit')", ", 'reader input limit')"),
+    ('M69 reader snapshot retained only to the gate limit', ADAPTER, "helper_process['stdin_bytes_delivered'], output_limit_bytes)", "helper_process['stdin_bytes_delivered'], LIMIT)"),
+    ('M70 reader snapshot custody at the gate limit', ADAPTER, "helper_bytes,\n                                                                                       output_limit_bytes))", "helper_bytes))"),
+    ('H05 helper parses source at the file limit', HELPER, "source = parsed(source_bytes, source_limit)", "source = parsed(source_bytes)"),
+    ('H06 helper source limit validation removed', HELPER, "require(type(source_limit) is int and 0 < source_limit <= MAX_SOURCE_LIMIT, 'invalid source byte limit')", "require(True, 'x')"),
     ('H01 helper isolation', HELPER, "require(sys.flags.isolated == 1 and sys.flags.no_site == 1", "require(True"),
     ('H02 helper dependency digest', HELPER, "require(digest(data) == row['sha256']", "require(True"),
     ('H03 helper binding digest', HELPER, "require(digest(binding_bytes) == binding_sha256", "require(True"),

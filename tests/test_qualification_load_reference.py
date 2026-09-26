@@ -261,15 +261,15 @@ def check(case, cid):
 
 
 class PinTests(unittest.TestCase):
-    def test_pinned_identities_match_start_bytes(self):
+    def test_pinned_identities_match_recorded_bytes(self):
         self.assertEqual(sha256_bytes((PROJECT / lr.TABLE).read_bytes()), lr.TABLE_SHA256)
         self.assertEqual(TABLE['semantic_contract_id'], lr.CONTRACT)
         self.assertEqual(TABLE['formulation_profile_id'], lr.PROFILE)
         for path, digest in lr.DEPENDENCIES.items():
             if path != lr.MODULE:
                 self.assertEqual(sha256_bytes((PROJECT / path).read_bytes()), digest, path)
-        start = subprocess.check_output(['git', 'show', f'bfef71b19:./{lr.MODULE}'], cwd=PROJECT)
-        self.assertEqual(sha256_bytes(start), lr.MODULE_SHA256, 'reader pin is not the integrated WP1 reader bytes (bfef71b19; re-pinned from the WP5 start commit d8f0dc4f7)')
+        start = subprocess.check_output(['git', 'show', f'1ccca8b87:./{lr.MODULE}'], cwd=PROJECT)
+        self.assertEqual(sha256_bytes(start), lr.MODULE_SHA256, 'reader pin is not the integrated WP1 reader bytes (1ccca8b87, after the REVIEW_A follow-up; earlier pins bfef71b19 and the WP5 start commit d8f0dc4f7)')
         self.assertEqual(lr.TRANSPORT, 'load_reference_1_cli_1.0_raw0.2')
         self.assertNotIn('source', lr.CONTRACT.rsplit('/', 1)[-1])
 
@@ -407,6 +407,27 @@ class ValueFaultTests(unittest.TestCase):
             deepcopy(raw['contract_evidence']['load_reference_states'][0]['members'][0])))
         self.assertTrue(any('does not resolve exactly once' in r['reason'] for r in result['cases'][0]['assertions']))
 
+    def test_support_component_unit_must_match_selector(self):
+        # REVIEW_B X03: the record's own unit binds the selected quantity.
+        result, _ = self.run_mutated(lambda raw: raw['contract_evidence']['load_reference_states'][0]['support_components'][0].update(unit='mm'))
+        self.assertTrue(any(r['state'] == 'error' and 'support component unit differs' in r['reason'] for r in result['cases'][0]['assertions']))
+
+    def test_applied_load_dimension_must_match_selector(self):
+        # REVIEW_B X04: an applied magnitude's dimension/unit comes from the contribution.
+        def mutate(raw):
+            item = next(c for c in raw['contract_evidence']['load_reference_states'][0]['contributions'] if c['owner_kind'] == 'stored_primitive')
+            item['dimension'] = 'moment'
+        result, _ = self.run_mutated(mutate)
+        errors = [r for r in result['cases'][0]['assertions'] if r['state'] == 'error']
+        self.assertEqual(len(errors), 2)  # applied and authored magnitudes of that contribution
+        self.assertTrue(all('applied load dimension/unit differs' in r['reason'] for r in errors))
+
+    def test_definition_value_type_is_exact(self):
+        # REVIEW_B X10: 0.0 is not the index 0 even though they compare equal.
+        result, _ = self.run_mutated(lambda raw: raw['contract_evidence']['load_reference_states'][0]['support_components'][0].update(
+            global_dof=float(raw['contract_evidence']['load_reference_states'][0]['support_components'][0]['global_dof'])))
+        self.assertTrue(any(r['state'] == 'error' and 'definition differs: global_dof' in r['reason'] for r in result['cases'][0]['assertions']))
+
     def test_evidence_definition_mismatch_refused(self):
         result, _ = self.run_mutated(lambda raw: raw['contract_evidence']['load_reference_states'][0]['members'][0].update(thermal_definition='constant_alpha_interval'))
         self.assertTrue(any('definition differs' in r['reason'] for r in result['cases'][0]['assertions']))
@@ -438,6 +459,14 @@ class ValueFaultTests(unittest.TestCase):
 
 
 class BindingTests(unittest.TestCase):
+    def test_connector_evidence_fails_the_contract_obligation(self):
+        # REVIEW_B X07: connector evidence is outside the load-reference-1 profile.
+        case = self.observed(lambda raw: raw['contract_evidence'].update(connector=[{'synthetic': 'connector'}]))
+        contract = check(case, 'load_reference_contract')
+        self.assertEqual(contract['state'], 'failed')
+        self.assertIn('connector evidence unsupported', contract['reason'])
+        self.assertNotEqual(case['state'], 'matched')
+
     def observed(self, mutate, family='connected'):
         fixture = Fixture(self, families=(family,))
         raw = deepcopy(fixture.raws[family])
@@ -467,8 +496,14 @@ class BindingTests(unittest.TestCase):
         def configuration(raw):
             for record in raw['contract_evidence']['load_reference_states']:
                 record['reference_configuration_id'] = 'reference:substituted'
+        def contract(raw):
+            raw['contract_evidence']['load_reference_states'][0]['contract'] = 'openpipestress.load_reference_state/2.0.0'
+        def profile(raw):
+            raw['contract_evidence']['load_reference_states'][-1]['profile'] = 'resolved_straight_load_state_source_v1'
+        # REVIEW_B X12: record contract and profile.
         for mutate, message in ((dense, 'mode/recovery method differs'), (joined, 'joined source recovery'),
-                                (configuration, 'reference configuration differs')):
+                                (configuration, 'reference configuration differs'), (contract, 'record contract/profile differs'),
+                                (profile, 'record contract/profile differs')):
             case = self.observed(mutate)
             records = check(case, 'load_reference_record_binding')
             self.assertEqual(records['state'], 'failed')
@@ -533,6 +568,16 @@ class TransportRefusalTests(unittest.TestCase):
         unsolved['status']['mechanics'] = 'MECHANICS_BLOCKED'
         self.refused(unsolved, message='mechanics not solved')
 
+    def test_wrapper_warning_count_must_match_findings(self):
+        # REVIEW_B X08.
+        value = wrapper(raw_for('connected', 'sparse_interactive'), runner_input('connected'))
+        value['summary']['warning_count'] = 1
+        self.refused(text=json.dumps(value), message='wrapper warning count inconsistent')
+        value = wrapper(raw_for('connected', 'sparse_interactive'), runner_input('connected'))
+        value['findings'] = [{'severity': 'warning', 'code': 'SYNTHETIC'}]
+        value['summary'].update(finding_count=1, warning_count=0)
+        self.refused(text=json.dumps(value), message='wrapper warning count inconsistent')
+
     def test_missing_standing_refuses(self):
         raw = raw_for('connected', 'sparse_interactive')
         raw.pop('numerical_quality')
@@ -583,6 +628,16 @@ class StandingTests(unittest.TestCase):
         fixture.set_output('connected', wrapper(raw, runner_input('connected')))
         case = fixture.run()[0]['cases'][0]
         self.assertEqual(check(case, 'numerical_standing')['state'], 'error')
+
+    def test_standing_evidence_codes_must_all_be_checks_passed(self):
+        # REVIEW_B X02: checks_passed labels without passing integrity evidence are insufficient.
+        raw = raw_for('pressure', 'sparse_interactive')
+        cases = [c['basis_ref']['ref_id'] for c in raw['numerical_quality']['cases']]
+        ref = raw['numerical_quality']['cases'][0]['evidence_refs'][0]
+        next(d for d in raw['diagnostics'] if d['id'] == ref)['code'] = 'NUMERICAL_INTEGRITY_SENSITIVE'
+        standing = lr.numerical_standing(raw, cases)
+        self.assertEqual(standing['standing'], 'insufficient')
+        self.assertEqual(standing['load_cases'][0]['evidence_codes'], ['NUMERICAL_INTEGRITY_SENSITIVE'])
 
     def test_standing_classification_pure(self):
         raw = raw_for('pressure', 'sparse_interactive')
@@ -779,7 +834,11 @@ class AdmissionTests(unittest.TestCase):
                 (dict(reference, values=reference['values'][1:]), criteria, 'harness_development', 'reference values denominator mismatch'),
                 (dict(reference, wrong_values=[]), criteria, 'harness_development', 'reference wrong_values denominator mismatch'),
                 (dict(reference, values=[dict(reference['values'][0], value=None)] + reference['values'][1:]), criteria, 'harness_development', 'numeric value required'),
-                (dict(reference, values=[dict(reference['values'][0], unit='furlong')] + reference['values'][1:]), criteria, 'harness_development', 'reference unit mismatch')]:
+                (dict(reference, values=[dict(reference['values'][0], unit='furlong')] + reference['values'][1:]), criteria, 'harness_development', 'reference unit mismatch'),
+                # REVIEW_B X05: the rule must be for the selected quantity's family.
+                (reference, {'schema_version': '0.1.0', 'tolerance_profile': dict(criteria['tolerance_profile'], rules=[
+                    dict(rule, result_family='displacement' if rule['result_family'] != 'displacement' else 'rotation')
+                    for rule in criteria['tolerance_profile']['rules']])}, 'harness_development', 'criterion result family mismatch')]:
             fixture.cases.clear()
             fixture.add_case('pressure', fixture.raws['pressure'], package=(selectors, changed_reference, changed_criteria))
             self.blocked(fixture, fixture.selection(purpose=purpose), contains=message)
@@ -887,6 +946,97 @@ class ProcessTests(unittest.TestCase):
             result, _ = fixture.run()
         self.assertEqual(result['cases'][0]['state'], 'error')
         self.assertIn('changed during run', result['cases'][0]['reason'])
+
+
+MIB = 1024 * 1024
+
+
+def inflated(raw, extra_bytes):
+    """A valid raw whose numerical-integrity diagnostic text is padded, as real large outputs are."""
+    raw = deepcopy(raw)
+    diagnostic = next(d for d in raw['diagnostics'] if d['code'] == 'NUMERICAL_INTEGRITY_CHECKS_PASSED')
+    diagnostic['message'] += ' synthetic padding ' + 'x' * extra_bytes
+    return raw
+
+
+class OutputLimitTests(unittest.TestCase):
+    """Runner stdout is admitted up to the selected output limit, not the 8 MiB input limit."""
+
+    def large_fixture(self, extra_bytes):
+        fixture = Fixture(self, families=('connected',))
+        fixture.set_output('connected', wrapper(inflated(fixture.raws['connected'], extra_bytes), runner_input('connected')))
+        size = Path(fixture.outputs[runner_input('connected')['request']['request_id']]).stat().st_size
+        return fixture, size
+
+    def test_stdout_above_gate_limit_admitted_within_selected_limit(self):
+        fixture, size = self.large_fixture(9 * MIB)
+        self.assertGreater(size, lr.LIMIT)
+        result, _ = fixture.run(output_limit_bytes=16 * MIB)
+        case = result['cases'][0]
+        self.assertEqual(result['outcome'], 'all_required_assertions_matched', case['reason'])
+        self.assertEqual(case['process']['stdout_bytes'], size)
+        self.assertEqual(case['reader_consistency']['response']['verdict'], 'consistent')
+        reader_input = next(a for a in case['retained_artifacts'] if a['role'] == 'reader_input')
+        self.assertGreater(reader_input['byte_length'], lr.LIMIT)
+        self.assertEqual(reader_input['byte_limit'], 16 * MIB)
+        self.assertEqual(case['custody_at_publication'], 'checked')
+
+    def test_stdout_above_selected_limit_refused_with_denominator_kept(self):
+        fixture, size = self.large_fixture(9 * MIB)
+        result, _ = fixture.run(output_limit_bytes=size - 1)
+        case = result['cases'][0]
+        self.assertEqual((case['state'], case['reason']), ('error', 'process output_limit'))
+        self.assertEqual({r['state'] for r in case['assertions']}, {'error'})
+        self.assertEqual(len(case['assertions']), fixture.cases[0]['required_scalar_rows'] + 1)
+        self.assertEqual(result['outcome'], 'not_satisfied')
+
+    def test_unwrap_and_parser_enforce_the_selected_limit(self):
+        raw = inflated(raw_for('connected', 'sparse_interactive'), 9 * MIB)
+        data = json.dumps(wrapper(raw, runner_input('connected'))).encode()
+        request = runner_input('connected')
+        for limit in (lr.LIMIT, len(data) - 1):
+            with self.assertRaisesRegex(ValueError, 'JSON byte limit exceeded'):
+                lr.unwrap(data, request, 'sparse_interactive', limit=limit)
+        self.assertEqual(lr.unwrap(data, request, 'sparse_interactive', limit=len(data))[0]['model_ref'], raw['model_ref'])
+        for limit in (0, lr.MAX_OUTPUT_LIMIT + 1, True):
+            with self.assertRaisesRegex(ValueError, 'invalid JSON byte limit'):
+                lr.strict_json_limited(b'{}', limit)
+
+    def test_large_parse_keeps_the_gate_strict_rules(self):
+        pad = b' ' * (lr.LIMIT + 1)
+        refused = [b'{"a": NaN}', b'{"a": Infinity}', b'{"a": -Infinity}', b'{"a": 1e999}', b'{"a": 1e-400}',
+                   b'{"a": 1, "a": 2}', b'{"a": "\xff"}', b'{"a": ', b'\xff{}']
+        accepted = [(b'{"a": 0e5}', {'a': 0.0}), (b'{"a": 1e-300}', {'a': 1e-300}), (b'{"a": [1, "x", null, true]}', {'a': [1, 'x', None, True]})]
+        for doc in refused:
+            with self.assertRaises(ValueError):
+                lr.gate.strict_json(doc)
+            with self.assertRaises(ValueError, msg=doc):
+                lr.strict_json_limited(doc + pad, lr.MAX_OUTPUT_LIMIT)
+        for doc, value in accepted:
+            self.assertEqual(lr.gate.strict_json(doc), value)
+            self.assertEqual(lr.strict_json_limited(doc + pad, lr.MAX_OUTPUT_LIMIT), value)
+
+    def test_reader_snapshot_bounded_by_selected_limit_before_helper(self):
+        raw = raw_for('pressure', 'sparse_interactive')
+        with tempfile.TemporaryDirectory() as temp:
+            for limit, message in ((1024, 'reader input limit'), (lr.MAX_OUTPUT_LIMIT + 1, 'reader input limit')):
+                with self.assertRaisesRegex(ValueError, message):
+                    lr.consistency_observation(raw, {}, Path(temp) / 'never-created', input_limit=limit)
+            self.assertFalse((Path(temp) / 'never-created').exists())
+
+    def test_helper_source_limit_is_selected_and_bounded(self):
+        fixture = Fixture(self, families=('connected',))
+        binding_path = fixture.root / 'binding.json'
+        binding_path.write_bytes(dump(fixture.binding))
+        data = json.dumps(inflated(fixture.raws['connected'], 9 * MIB), separators=(',', ':')).encode()
+        def helper(*extra):
+            command = [sys.executable, '-I', '-S', str(lr.HELPER), '--source-root', str(fixture.candidate), '--binding', str(binding_path),
+                       '--binding-sha256', sha256_bytes(binding_path.read_bytes()), *extra]
+            return json.loads(subprocess.run(command, input=data, capture_output=True, timeout=120).stdout)
+        self.assertEqual(helper('--source-limit-bytes', str(16 * MIB))['verdict'], 'consistent')
+        self.assertIn('helper JSON byte limit', helper()['reason'])
+        self.assertIn('helper JSON byte limit', helper('--source-limit-bytes', str(len(data) - 1))['reason'])
+        self.assertIn('invalid source byte limit', helper('--source-limit-bytes', str(lr.MAX_OUTPUT_LIMIT + 1))['reason'])
 
 
 class PureSemanticsTests(unittest.TestCase):

@@ -21,7 +21,8 @@ import sys
 import tempfile
 import types
 
-LIMIT = 8 * 1024 * 1024
+LIMIT = 8 * 1024 * 1024  # bound files (binding, dependencies)
+MAX_SOURCE_LIMIT = 64 * 1024 * 1024  # ceiling for the derived raw snapshot, set per run
 FORMAT = 'openpipestress.load_reference_consistency_binding/1'
 CONTRACT = 'openpipestress.result_semantics/0.3.0/load-reference-1'
 ENTRYPOINT = 'validate_load_reference_evidence'
@@ -60,8 +61,8 @@ def pairs(items):
     return result
 
 
-def parsed(data):
-    require(len(data) <= LIMIT, 'helper JSON byte limit')
+def parsed(data, limit=LIMIT):
+    require(len(data) <= limit, 'helper JSON byte limit')
     def constant(value):
         raise ValueError('nonfinite JSON constant ' + value)
     return json.loads(data.decode('utf-8'), object_pairs_hook=pairs, parse_constant=constant)
@@ -109,8 +110,9 @@ def load_private_package(snapshot_root, snapshots):
     return loaded, previous
 
 
-def run(source_root: Path, binding_path: Path, binding_sha256: str, source_bytes: bytes) -> dict:
+def run(source_root: Path, binding_path: Path, binding_sha256: str, source_bytes: bytes, source_limit: int = LIMIT) -> dict:
     require(sys.flags.isolated == 1 and sys.flags.no_site == 1, 'helper requires isolated Python -I -S')
+    require(type(source_limit) is int and 0 < source_limit <= MAX_SOURCE_LIMIT, 'invalid source byte limit')
     binding_bytes = read_bytes(binding_path)
     require(digest(binding_bytes) == binding_sha256, 'binding digest mismatch')
     binding = parsed(binding_bytes)
@@ -128,7 +130,7 @@ def run(source_root: Path, binding_path: Path, binding_sha256: str, source_bytes
         data = read_bytes(path)
         require(digest(data) == row['sha256'], 'candidate dependency digest mismatch: ' + row['path'])
         snapshots[row['path']] = data
-    source = parsed(source_bytes)
+    source = parsed(source_bytes, source_limit)
     require(type(source) is dict and source.get('schema_version') == '0.2.0', 'load-reference raw0.2 required')
     require(source.get('producer') == PRODUCER, 'load-reference-1 producer identity required')
     require('source_block_recovery' not in source and 'carrier_evidence' not in source, 'source/composite namespaces refused')
@@ -172,10 +174,12 @@ def main():
     parser.add_argument('--source-root', type=Path, required=True)
     parser.add_argument('--binding', type=Path, required=True)
     parser.add_argument('--binding-sha256', required=True)
+    parser.add_argument('--source-limit-bytes', type=int, default=LIMIT)
     args = parser.parse_args()
     try:
+        limit = args.source_limit_bytes if 0 < args.source_limit_bytes <= MAX_SOURCE_LIMIT else LIMIT
         result = run(args.source_root.resolve(), args.binding.resolve(), args.binding_sha256,
-                     sys.stdin.buffer.read(LIMIT + 1))
+                     sys.stdin.buffer.read(limit + 1), args.source_limit_bytes)
         print(json.dumps(result, sort_keys=True, allow_nan=False))
     except (OSError, ValueError, TypeError, KeyError, AttributeError, OverflowError, ImportError, RecursionError) as exc:
         print(json.dumps({'artifact': 'openpipestress.load_reference_consistency_observation', 'version': '1.0.0',

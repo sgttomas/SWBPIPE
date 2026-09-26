@@ -54,8 +54,9 @@ PROFILE = 'resolved_straight_load_state_v1'
 TABLE = 'fixtures/results/semantic_contract_v0_3_load_reference_1.json'
 TABLE_SHA256 = '44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d'
 MODULE = 'core/analysis_runs/load_reference_evidence.py'
-# Reader bytes at the WP5 start commit d8f0dc4f7; re-pinned at integration if WP1 changes it.
-MODULE_SHA256 = 'eff1fb3b8b7f8fee99aeb5344c55ec42ae37d3e60e7354908caa780d41c08ffe'
+# Reader bytes as integrated with WP1 at 1ccca8b87 (REVIEW_A follow-up; earlier pins bfef71b19 and the WP5 start commit d8f0dc4f7);
+# re-pin deliberately whenever the reader changes.
+MODULE_SHA256 = '14e1750ebb96c8284d71b49e01e55455c9e42fa6197ac979f0118271503b57c7'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,
@@ -66,7 +67,8 @@ DEPENDENCIES = {
 }
 ANALYTICAL_REFERENCE = 'core/product_physics/tests/fixtures/load_reference_states/reference_cases.json'
 HELPER = Path(__file__).with_name('qualification_load_reference_helper.py')
-LIMIT = gate.MAX_INPUT_BYTES
+LIMIT = gate.MAX_INPUT_BYTES  # bound input files: manifest, selectors, references, criteria, binding
+MAX_OUTPUT_LIMIT = 64 * 1024 * 1024  # the run's selectable process output limit ceiling
 MODES = ('sparse_interactive', 'dense_scrutiny')
 MODE_CODES = {'sparse_interactive': 1.0, 'dense_scrutiny': 2.0}
 RECOVERY_METHODS = {'sparse_interactive': 'ordinary_sparse_structural_v1', 'dense_scrutiny': 'ordinary_dense_structural_v1'}
@@ -135,6 +137,33 @@ class AdmissionError(gate.AdmissionError):
 def require(ok, reason):
     if not ok:
         raise AdmissionError('LOAD-REFERENCE: ' + reason)
+
+
+def strict_json_limited(data: bytes, limit: int):
+    """``gate.strict_json`` with a caller-selected byte bound.
+
+    Used only for runner stdout (and the derived reader snapshot), which the
+    run admits up to its selected ``output_limit_bytes`` (at most 64 MiB). The
+    parsing rules are the gate's, unchanged: UTF-8, duplicate members refused,
+    NaN/Infinity refused, nonfinite and nonzero-underflowing numeric tokens
+    refused. At or below the gate limit the gate function itself is used.
+    """
+    require(type(limit) is int and 0 < limit <= MAX_OUTPUT_LIMIT, 'invalid JSON byte limit')
+    require(len(data) <= limit, 'JSON byte limit exceeded')
+    if len(data) <= gate.MAX_INPUT_BYTES:
+        return gate.strict_json(data)
+    def forbidden(value):
+        raise gate.AdmissionError('nonfinite JSON constant: ' + value)
+    def real_token(token):
+        value = float(token)
+        gate.require(math.isfinite(value), 'nonfinite numeric token')
+        significand = token.lower().split('e')[0]
+        gate.require(value != 0.0 or not any(c in '123456789' for c in significand), 'nonzero numeric token underflow')
+        return value
+    try:
+        return json.loads(data.decode('utf-8'), object_pairs_hook=gate._pairs, parse_constant=forbidden, parse_float=real_token)
+    except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as exc:
+        raise gate.AdmissionError('invalid UTF-8/JSON: ' + type(exc).__name__) from exc
 
 
 def _text(value, label):
@@ -454,14 +483,14 @@ def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[di
 # Transport: wrapper, raw header, standing and identity binding
 # --------------------------------------------------------------------------
 
-def unwrap(raw: bytes, request: dict, mode: str) -> tuple[dict, list[dict]]:
+def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple[dict, list[dict]]:
     """Controlled wrapper and exact load-reference-1 raw0.2 envelope.
 
     Refuses anything but the closed identity. Numerical standing is only shape
     checked here; its value is assessed separately by ``numerical_standing``.
     """
     require(mode in MODES, 'unsupported actual mode')
-    doc = gate.strict_json(raw)
+    doc = strict_json_limited(raw, limit)
     require(type(doc) is dict and set(doc) == {'payload', 'decisions', 'findings', 'blocked', 'summary'}, 'unsupported controlled wrapper')
     require(doc['blocked'] is False and type(doc['payload']) is dict, 'controlled output blocked')
     gate._diagnostics(doc['findings'], 'wrapper')
@@ -764,20 +793,22 @@ def load_binding(project: Path, binding_path: Path, expected_sha256: str, *, req
             'admitted': require_reviewed and binding.get('status') == 'reviewed_candidate'}
 
 
-def consistency_observation(raw: dict, binding: dict, directory: Path) -> dict:
+def consistency_observation(raw: dict, binding: dict, directory: Path, *, input_limit: int = LIMIT,
+                            timeout_seconds: float = 60) -> dict:
     """Run only the owned reader entry in the fixed isolated helper.
 
     The helper input is a derived parsed snapshot, not the runner's stdout bytes.
     """
     require(raw.get('schema_version') == '0.2.0' and raw.get('producer') == PRODUCER, 'load-reference raw/producer dispatch mismatch')
     request_bytes = json.dumps(raw, ensure_ascii=True, separators=(',', ':'), allow_nan=False).encode()
-    require(len(request_bytes) <= LIMIT, 'reader input limit')
+    require(type(input_limit) is int and 0 < input_limit <= MAX_OUTPUT_LIMIT and len(request_bytes) <= input_limit, 'reader input limit')
     require(bounded(binding['binding_path'], binding['binding_sha256']) == binding['binding_bytes'], 'binding changed before helper')
     helper_sha256 = file_sha256(HELPER)
     arguments = ['-I', '-S', str(HELPER), '--source-root', str(binding.get('snapshot_root', binding['source_root'])),
-                 '--binding', str(binding.get('snapshot_binding_path', binding['binding_path'])), '--binding-sha256', binding['binding_sha256']]
+                 '--binding', str(binding.get('snapshot_binding_path', binding['binding_path'])), '--binding-sha256', binding['binding_sha256'],
+                 '--source-limit-bytes', str(input_limit)]
     executable = Path(sys.executable).resolve()
-    process = capture(executable, arguments, request_bytes, directory, timeout_seconds=60, output_limit_bytes=LIMIT,
+    process = capture(executable, arguments, request_bytes, directory, timeout_seconds=max(60, timeout_seconds), output_limit_bytes=LIMIT,
                       expected_executable_sha256=file_sha256(executable))
     require(file_sha256(HELPER) == helper_sha256, 'fixed helper changed during execution')
     response_bytes = gate.read_captured_bytes(directory / 'stdout.bin', process['stdout_sha256'], process['stdout_bytes'], LIMIT)
@@ -879,7 +910,7 @@ def run_selection(run_path: Path, executable: Path, source_root: Path, output_di
     gate.atomic_record(output_dir / 'ledger.json', ledger)
     try:
         require(math.isfinite(timeout_seconds) and 0 < timeout_seconds <= 3600, 'invalid process time limit')
-        require(type(output_limit_bytes) is int and 0 < output_limit_bytes <= 64 * 1024 * 1024, 'invalid process output limit')
+        require(type(output_limit_bytes) is int and 0 < output_limit_bytes <= MAX_OUTPUT_LIMIT, 'invalid process output limit')
         runner = run['runner']
         require(executable.is_absolute() and executable.is_file(), 'explicit executable required')
         require(file_sha256(executable) == runner['executable_sha256'], 'executable digest mismatch')
@@ -961,9 +992,11 @@ def run_selection(run_path: Path, executable: Path, source_root: Path, output_di
             if process['outcome'] != 'completed' or not process['stdin_delivery_complete']:
                 fail_case(case_ledger, 'error', 'process ' + process['outcome'])
             else:
+                # Runner stdout is admitted up to the run's selected output limit,
+                # not the 8 MiB bound-input limit (which stays on bound files).
                 stdout_bytes = gate.read_captured_bytes(output_dir / prefix / 'stdout.bin', process['stdout_sha256'],
-                                                        process['stdout_bytes'], min(output_limit_bytes, LIMIT))
-                mechanics, rows = unwrap(stdout_bytes, prepared['request'], mode)
+                                                        process['stdout_bytes'], output_limit_bytes)
+                mechanics, rows = unwrap(stdout_bytes, prepared['request'], mode, limit=output_limit_bytes)
                 case_ledger['observed_result_identity'] = {k: mechanics[k] for k in ('document_kind', 'schema_version', 'run_id', 'model_ref')}
                 try:
                     standing, standing_error = numerical_standing(mechanics, prepared['request_cases']), None
@@ -973,7 +1006,8 @@ def run_selection(run_path: Path, executable: Path, source_root: Path, output_di
                 coverage = evaluate(case_ledger, prepared, mechanics, rows)
                 reader, reader_error = None, None
                 try:
-                    reader = consistency_observation(mechanics, reader_binding, output_dir / f'{prefix}-reader')
+                    reader = consistency_observation(mechanics, reader_binding, output_dir / f'{prefix}-reader',
+                                                     input_limit=output_limit_bytes, timeout_seconds=timeout_seconds)
                 except (ValueError, KeyError, TypeError, OSError) as exc:
                     reader_error = str(exc)
                 finally:
@@ -985,8 +1019,9 @@ def run_selection(run_path: Path, executable: Path, source_root: Path, output_di
                                 'sha256': helper_process[stream_name + '_sha256'], 'byte_length': helper_process[stream_name + '_bytes'],
                                 'byte_limit': helper_process['output_limit_bytes_per_stream']})
                         helper_bytes = gate.read_captured_bytes(helper_dir / 'stdin.bin', helper_process['stdin_sha256'],
-                                                                helper_process['stdin_bytes_delivered'], LIMIT)
-                        case_artifacts[case_ledger['id']].append(gate.artifact_binding('reader_input', f'{prefix}-reader/stdin.bin', helper_bytes))
+                                                                helper_process['stdin_bytes_delivered'], output_limit_bytes)
+                        case_artifacts[case_ledger['id']].append(gate.artifact_binding('reader_input', f'{prefix}-reader/stdin.bin', helper_bytes,
+                                                                                       output_limit_bytes))
                         case_ledger['reader_consistency'] = {k: reader[k] for k in ('response', 'helper_sha256', 'binding_sha256', 'binding_admitted', 'scope')}
                 checks = structural_checks(mechanics, prepared, mode, standing, standing_error, reader, reader_error, coverage)
                 require([row['id'] for row in checks] == list(REQUIRED_STRUCTURAL_CHECKS), 'structural checker lost required denominator')

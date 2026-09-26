@@ -328,3 +328,207 @@ The manager ruled that WP6's references name several wrong values for one quanti
   - `test_duplicate_negative_selector_value_pair_is_refused`: the same selector with the same value; a signed zero; and the same evidence quantity under a renamed selector ID.
   - The earlier inventory case that expected a repeated negative selector to be refused was removed. Positive duplicate selectors are still refused there.
 - **Mutants.** M57 (pair uniqueness removed) and M58 (positive uniqueness removed) were added to the rerun in §5.
+
+## 10. Addendum: runner stdout admitted up to the selected output limit (REVIEW_B F3; repair after the VP-STATIC shakedown)
+
+**Finding (the manager's pre-review shakedown at `203396e4d`).** The admitted cases `coefficient_definition` and `multi_segment_free_length` make the real runner emit about 14.1 MB and 21.9 MB of stdout. With `--output-limit-bytes` 64 MiB the capture completed, but the adapter then refused it with "captured size outside admission limit". The cause was `gate.read_captured_bytes(..., LIMIT)` with `LIMIT = gate.MAX_INPUT_BYTES` (8 MiB); `gate.strict_json` has the same cap. The adapter was accepting an output limit it could not admit.
+
+**Repair.** This touches only the adapter and helper; `qualification_gate.py` is unchanged.
+
+- **Two limits.** Bound input files (run selection, manifest, selectors, references, criteria, analytical reference, reader binding and dependencies) keep the 8 MiB gate limit, `LIMIT`. Runner stdout, and everything derived from it, is admitted up to the run's selected `output_limit_bytes`. That limit is already validated to lie in (0, 64 MiB], now held as `MAX_OUTPUT_LIMIT`.
+- **`strict_json_limited(data, limit)`.** Refuses input above `limit` and refuses an invalid limit.
+  - At or below 8 MiB it calls `gate.strict_json` itself.
+  - Above 8 MiB it applies the same rules with the gate's own `_pairs` and `require`: UTF-8 only; duplicate members refused; NaN and Infinity refused; nonfinite tokens refused; nonzero tokens that underflow to zero refused.
+- **Where the selected limit now applies.**
+  - `unwrap(..., limit=)` parses stdout under the selected limit.
+  - The run loop reads captured stdout with `read_captured_bytes(..., output_limit_bytes)`; it previously used `min(output_limit_bytes, 8 MiB)`.
+  - The reader-helper snapshot input is bounded by the selected limit. It is checked in the adapter before the helper starts, passed to the helper as `--source-limit-bytes`, retained with that limit, and given that `byte_limit` in the publication-custody record.
+- **Helper.** It accepts `--source-limit-bytes` (default 8 MiB, ceiling 64 MiB, validated) for the raw snapshot only; binding and dependency files keep 8 MiB. The helper's timeout is now `max(60 s, the run's process time limit)`, so large snapshots are not cut off at 60 s.
+
+**Tests** (`OutputLimitTests`):
+
+- `test_stdout_above_gate_limit_admitted_within_selected_limit`: a synthetic stdout above 8 MiB (the numerical-integrity diagnostic text padded by 9 MiB, the way real large outputs grow) under a 16 MiB limit.
+  - The run is `all_required_assertions_matched`, and the reader verdict is `consistent`.
+  - The reader snapshot is above 8 MiB with `byte_limit` 16 MiB, and custody is `checked`.
+- `test_stdout_above_selected_limit_refused_with_denominator_kept`: the same stdout with a limit one byte below its size. The case is `error` with reason `process output_limit`, every assertion is `error`, and the denominator is kept.
+- `test_unwrap_and_parser_enforce_the_selected_limit`:
+  - `unwrap` refuses above 8 MiB by default, and one byte above an explicit limit;
+  - it admits the same input at its exact size;
+  - invalid limits (0, above 64 MiB, a bool) are refused.
+- `test_large_parse_keeps_the_gate_strict_rules`: nine refused and three accepted documents, padded past 8 MiB. Each gives the same verdict under `gate.strict_json` (small) and `strict_json_limited` (large).
+- `test_reader_snapshot_bounded_by_selected_limit_before_helper`: the adapter refuses a snapshot above the selected limit before starting any helper process.
+- `test_helper_source_limit_is_selected_and_bounded`: a snapshot above 8 MiB is `consistent` under a larger limit, and refused at the default limit, one byte below its size, and above 64 MiB.
+
+**Mutants.** M59–M70 and H05–H06 were added:
+- stdout admitted only to the gate limit;
+- `unwrap` ignoring the selected limit;
+- the parser bound and limit validation removed;
+- each large-path parse rule dropped;
+- the helper limit not passed, the adapter bound removed, retention or custody back at the gate limit;
+- the helper parsing or validating at the file limit.
+
+The whole list was rerun on the final bytes (§11).
+
+**Shakedown on the real runner (not evidence).** I ran `_run_records/session4/t1_vp_static_run.py` against the runner built from `203396e4d` (not rebuilt), with the reader binding citing the CP3 and CP4 reviews and the checkout dirty with this uncommitted repair. Result: both modes `all_required_assertions_matched`, with:
+- 14 of 14 cases `checks_passed`;
+- 507 of 507 assertions and 98 of 98 structural checks matched;
+- the two large cases matched, at 14.08 MB and 21.94 MB of stdout sparse (14.14 MB and 22.02 MB dense).
+
+Their derived reader snapshots are only 0.63 MB and 0.95 MB, so the bulk of the stdout lies outside the mechanics envelope. A sanitized summary is in `_run_records/output_limit_shakedown.json`; the run outputs were deleted. This shows only that the defect is repaired. Real evidence needs the reviewed reader binding and the committed candidate.
+
+Final file hashes, checks and mutation results for this repair and Addendum 2 are in §11.
+
+## 11. Addendum 2: REVIEW_B F5 and F8, final state of the repair
+
+REVIEW_B (`LSI/T1_WAVE1_REVIEW_B/RETURN.md`) found no blocking issue in the adapter. This addendum answers F3 (§10), F5 and F8.
+
+**F5: tests that kill REVIEW_B's surviving adapter mutants.** Each predicate was already in the adapter; what was missing was a test that protects it.
+
+| REVIEW_B mutant | Predicate | New test |
+|---|---|---|
+| X02 | standing evidence codes must all be `NUMERICAL_INTEGRITY_CHECKS_PASSED` | `StandingTests.test_standing_evidence_codes_must_all_be_checks_passed`: `checks_passed` labels backed by a non-passing integrity code classify as `insufficient` |
+| X03 | a support component's own `unit` must equal the selector unit | `ValueFaultTests.test_support_component_unit_must_match_selector` |
+| X04 | an applied or authored magnitude's contribution `dimension` must match the selector's dimension and unit | `ValueFaultTests.test_applied_load_dimension_must_match_selector`: both magnitudes of the changed contribution error |
+| X05 | the criterion rule's `result_family` must equal the quantity's family | `AdmissionTests.test_unready_reference_criteria_and_synthetic_comparison_block`, new variant with every rule's family changed: blocked with `criterion result family mismatch` |
+| X07 | `contract_evidence.connector == []` | `BindingTests.test_connector_evidence_fails_the_contract_obligation`: `load_reference_contract` fails |
+| X08 | the wrapper's `warning_count` equals the warning findings | `TransportRefusalTests.test_wrapper_warning_count_must_match_findings`: two variants (count without findings, a finding without count) |
+| X10 | a `definition` value must have the exact JSON type (0.0 is not the index 0) | `ValueFaultTests.test_definition_value_type_is_exact` |
+| X12 | record `contract` and `profile` | `BindingTests.test_record_mode_join_and_reference_configuration_bind`: new contract and profile variants give `record contract/profile differs` |
+
+None of the eight is equivalent. REVIEW_B's `adapter_mutants.py` was rerun unchanged on the final bytes (results below).
+
+**F8.** The `MODULE_SHA256` comment now says the pin is the reader bytes integrated with WP1 at `bfef71b19`, re-pinned from the WP5 start commit `d8f0dc4f7`. The test is renamed `test_pinned_identities_match_recorded_bytes`; it checks the pin against `bfef71b19`'s bytes, as integration left it. The pin itself is unchanged.
+
+**F3 backcheck points** (repair in §10):
+- **Limits agree.** The admission limit (captured stdout read and parse), the helper-input limit (the adapter's bound on the snapshot, and the helper's `--source-limit-bytes`) and the helper-stdin retention and custody limit all equal the run's selected `output_limit_bytes`. That is the same value `capture` enforces on the runner's stdout.
+- **Nothing truncates silently.**
+  - Runner stdout above the limit ends as capture outcome `output_limit`, so the case becomes `error`.
+  - A snapshot above the limit is refused by the adapter before the helper starts, and by the helper itself (`helper JSON byte limit`).
+  - The helper's own response stays capped at 8 MiB (it is a small JSON verdict); exceeding that is `output_limit`, which is an `error`, not truncation.
+  - Bound input files are refused above 8 MiB, not cut.
+  - Every retained artifact's custody record carries the limit it was captured under.
+- **Tests above 8 MiB.** `OutputLimitTests`: a stdout above 8 MiB admitted under a 16 MiB limit, including a reader snapshot above 8 MiB; the same stdout refused one byte over the selected limit; `unwrap` and parser bounds; the gate's strict parse rules above 8 MiB; the snapshot refused before the helper starts; the helper's source limit.
+
+**Final files (sha256):**
+
+| File | Committed in `31dc7ce08` (re-pinned) | Final |
+|---|---|---|
+| `tools/validation/qualification_load_reference.py` | `c36bf5ef0ab72f5a873da8e9f6165facb91cf3b0ed30e3cf44f1d09f3374903b` | `ea79022f4ae265530c536f05ff892b7d84f48f57a7dcba878267e8bfb2133f6c` |
+| `tools/validation/qualification_load_reference_helper.py` | `c9de926cc19aaaffb3ed066b5bb2b00b0dc96683979e6c9be6f656ddf35916b9` | `a7d88418dc7fcba1483bf3e4cb87f10a35a097b31e4b0beb27201f752056c6ea` |
+| `tests/test_qualification_load_reference.py` | `a96f1d04480c7e091a12732a1ea14e886d41811d4a0aacf8d988fae8cbf6dab8` | `6613e9f0601ecaf9542ddcf1b5cc6826e47cb8cf11e1706cc9bd90fa95b58550` |
+
+**Checks on the final bytes:**
+
+| Suite | Result |
+|---|---|
+| WP5 suite | 55 OK (unittest, and pytest `-p no:cacheprovider --noconftest`) |
+| `test_qualification_gate.py` (unchanged) | 31 OK |
+| `test_qualification_physics*.py` (unchanged) | 42 OK |
+
+Logs: `_run_records/wp5_suite.log` and `_run_records/protected_suites.log`, with machine paths replaced by placeholders.
+
+**Mutation evidence on the final bytes.** The scratch was a shared, sparse, read-only-use clone of the repository at `203396e4d`, with the three final files laid over it; the WP5 suite, `PinTests` included, passed there before mutation.
+
+- WP5's own mutants (`_run_records/mutants.py`, `_run_records/mutants.log`; `PinTests` excluded, as the driver notes):
+
+  | Mutant | Result |
+  |---|---|
+  | M01 duplicate case ID | killed (failures=1) |
+  | M02 zero-case manifest | killed (failures=1) |
+  | M03 no case required in mode | killed (failures=1) |
+  | M04 duplicate assertion ID | killed (failures=1) |
+  | M05 duplicate selector | killed (failures=1) |
+  | M06 required_scalar_rows count | killed (failures=1) |
+  | M07 selector producer contract | killed (failures=1) |
+  | M08 raw producer/contract | killed (failures=1) |
+  | M09 raw profile | killed (failures=1) |
+  | M10 foreign namespaces | killed (failures=1) |
+  | M11 load_reference_states namespace | killed (failures=1) |
+  | M12 standing shape (missing standing) | killed (failures=1) |
+  | M13 insufficient standing | killed (failures=2) |
+  | M14 unknown standing value | killed (failures=1) |
+  | M15 standing coverage | killed (failures=2) |
+  | M16 sensitive classified as passed | killed (failures=4) |
+  | M17 duplicate result ID | killed (failures=1) |
+  | M18 nonnumeric row value | killed (failures=1) |
+  | M19 mode evidence | killed (failures=1) |
+  | M20 model identity (substitution) | killed (failures=1) |
+  | M21 blocked wrapper | killed (failures=1) |
+  | M22 mechanics solved | killed (failures=1) |
+  | M23 row resolves once by signature | killed (failures=2) |
+  | M24 evidence resolves once | killed (failures=2) |
+  | M25 null evidence value | killed (failures=1) |
+  | M26 evidence definition | killed (failures=2) |
+  | M27 negative assertion inversion | killed (failures=1) |
+  | M28 process outcome | killed (failures=3) |
+  | M29 interruption stops later cases | killed (failures=1) |
+  | M30 KeyboardInterrupt stops later cases | killed (failures=1) |
+  | M31 owned reader verdict | killed (failures=2) |
+  | M32 reference readiness | killed (failures=1) |
+  | M33 synthetic target for comparison | killed (failures=1) |
+  | M34 reviewed criteria | killed (failures=1) |
+  | M35 product request binding | killed (failures=1) |
+  | M36 analytical case key | killed (failures=1) |
+  | M37 WORKING_ROOT-relative paths | killed (failures=1) |
+  | M38 reference denominator | killed (failures=1) |
+  | M39 row selector semantics | killed (failures=1) |
+  | M40 evidence field vocabulary | killed (failures=1) |
+  | M41 evidence unit/dimension | killed (failures=2) |
+  | M42 selector basis in bound input | killed (failures=1) |
+  | M43 raw load cases = input (substitution) | killed (failures=1) |
+  | M44 executable digest | killed (failures=1) |
+  | M45 candidate commit | killed (failures=1) |
+  | M46 reviewed reader binding | killed (failures=1) |
+  | M47 reader dependency pin | killed (failures=1) |
+  | M48 bound files unchanged during run | killed (failures=1) |
+  | M49 criterion rule binding | killed (failures=1) |
+  | M50 run transport | killed (failures=1) |
+  | M51 locked manifest hash | killed (failures=1) |
+  | M52 record mode/recovery method | killed (failures=1) |
+  | M53 record not joined | killed (failures=1) |
+  | M54 record reference configuration | killed (failures=1) |
+  | M55 foreign raw load cases | killed (failures=1) |
+  | M56 selector-inventory refusal blocks case | killed (failures=1) |
+  | M57 negative (selector, wrong value) pair uniqueness | killed (failures=1) |
+  | M58 positive selectors unique | killed (failures=1) |
+  | M59 stdout admitted only to the gate limit | killed (failures=1) |
+  | M60 unwrap ignores the selected limit | killed (failures=1) |
+  | M61 parser byte bound removed | killed (failures=1) |
+  | M62 parser limit validation removed | killed (failures=1) |
+  | M63 large parse: underflow rule dropped | killed (failures=1) |
+  | M64 large parse: duplicate members allowed | killed (failures=1) |
+  | M65 large parse: NaN/Infinity allowed | killed (failures=1) |
+  | M66 large parse: nonfinite token allowed | killed (failures=1) |
+  | M67 reader snapshot limit not passed to helper | killed (failures=1) |
+  | M68 reader snapshot bound check removed | killed (errors=1) |
+  | M69 reader snapshot retained only to the gate limit | killed (failures=1) |
+  | M70 reader snapshot custody at the gate limit | killed (failures=1) |
+  | H05 helper parses source at the file limit | killed (failures=2) |
+  | H06 helper source limit validation removed | killed (failures=1) |
+  | H01 helper isolation | killed (failures=1) |
+  | H02 helper dependency digest | killed (errors=1) |
+  | H03 helper binding digest | killed (errors=1) |
+  | H04 helper producer identity | killed (failures=1) |
+
+  **76 mutants, 76 killed, 0 survived.**
+
+- REVIEW_B's `adapter_mutants.py`, unchanged, full suite (`_run_records/review_b_adapter_mutants_rerun.log`):
+
+  | Mutant | Result |
+  |---|---|
+  | X01 coverage flag never cleared | killed (FAILED (failures=3)) |
+  | X02 standing evidence codes ignored | killed (FAILED (failures=1)) |
+  | X03 support component unit unchecked | killed (FAILED (failures=1)) |
+  | X04 applied load dimension unchecked | killed (FAILED (failures=1)) |
+  | X05 criterion family unchecked | killed (FAILED (failures=1)) |
+  | X06 wrong-value pair by text (signed zero distinct) | killed (FAILED (failures=1)) |
+  | X07 connector evidence unchecked | killed (FAILED (failures=1)) |
+  | X08 wrapper warning count unchecked | killed (FAILED (failures=1)) |
+  | X09 row identity of signature match dropped | killed (FAILED (failures=1)) |
+  | X10 evidence definition type ignored | killed (FAILED (failures=1)) |
+  | X11 negative evaluated like positive | killed (FAILED (failures=1)) |
+  | X12 record contract/profile unchecked | killed (FAILED (failures=1)) |
+
+  **12 of 12 killed**, including the 8 that survived at REVIEW_B (X02, X03, X04, X05, X07, X08, X10, X12).
+
+The §5 table records the earlier 62-mutant run on the pre-repair bytes (M01–M58, H01–H04); the list above supersedes it for the final bytes.

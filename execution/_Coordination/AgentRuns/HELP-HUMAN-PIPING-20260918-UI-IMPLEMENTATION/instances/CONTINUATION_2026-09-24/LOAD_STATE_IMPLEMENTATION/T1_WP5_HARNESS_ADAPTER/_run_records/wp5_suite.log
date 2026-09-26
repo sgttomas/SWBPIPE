@@ -1,3 +1,4 @@
+# working tree at 1ccca8b87 plus the uncommitted WP5 repair
 $ PYTHONDONTWRITEBYTECODE=1 python -m unittest -v tests.test_qualification_load_reference
 test_case_binding_refusals_block (tests.test_qualification_load_reference.AdmissionTests.test_case_binding_refusals_block) ... ok
 test_duplicate_negative_selector_value_pair_is_refused (tests.test_qualification_load_reference.AdmissionTests.test_duplicate_negative_selector_value_pair_is_refused) ... ok
@@ -8,13 +9,20 @@ test_selector_inventory_refusal_keeps_manifest_denominator (tests.test_qualifica
 test_semantic_selector_refusals_block (tests.test_qualification_load_reference.AdmissionTests.test_semantic_selector_refusals_block) ... ok
 test_several_wrong_values_per_selector_are_admitted (tests.test_qualification_load_reference.AdmissionTests.test_several_wrong_values_per_selector_are_admitted) ... ok
 test_unready_reference_criteria_and_synthetic_comparison_block (tests.test_qualification_load_reference.AdmissionTests.test_unready_reference_criteria_and_synthetic_comparison_block) ... ok
+test_connector_evidence_fails_the_contract_obligation (tests.test_qualification_load_reference.BindingTests.test_connector_evidence_fails_the_contract_obligation) ... ok
 test_raw_load_cases_must_equal_bound_input (tests.test_qualification_load_reference.BindingTests.test_raw_load_cases_must_equal_bound_input) ... ok
 test_record_mode_join_and_reference_configuration_bind (tests.test_qualification_load_reference.BindingTests.test_record_mode_join_and_reference_configuration_bind) ... ok
 test_complete_record_both_modes_and_same_ledger_json_and_markdown (tests.test_qualification_load_reference.CompleteRunTests.test_complete_record_both_modes_and_same_ledger_json_and_markdown) ... ok
 test_evidence_selectors_cover_member_support_and_contribution_records (tests.test_qualification_load_reference.CompleteRunTests.test_evidence_selectors_cover_member_support_and_contribution_records) ... ok
 test_ledger_exists_before_process_starts (tests.test_qualification_load_reference.CompleteRunTests.test_ledger_exists_before_process_starts) ... ok
 test_reference_files_unchanged_after_run (tests.test_qualification_load_reference.CompleteRunTests.test_reference_files_unchanged_after_run) ... ok
-test_pinned_identities_match_start_bytes (tests.test_qualification_load_reference.PinTests.test_pinned_identities_match_start_bytes) ... ok
+test_helper_source_limit_is_selected_and_bounded (tests.test_qualification_load_reference.OutputLimitTests.test_helper_source_limit_is_selected_and_bounded) ... ok
+test_large_parse_keeps_the_gate_strict_rules (tests.test_qualification_load_reference.OutputLimitTests.test_large_parse_keeps_the_gate_strict_rules) ... ok
+test_reader_snapshot_bounded_by_selected_limit_before_helper (tests.test_qualification_load_reference.OutputLimitTests.test_reader_snapshot_bounded_by_selected_limit_before_helper) ... ok
+test_stdout_above_gate_limit_admitted_within_selected_limit (tests.test_qualification_load_reference.OutputLimitTests.test_stdout_above_gate_limit_admitted_within_selected_limit) ... ok
+test_stdout_above_selected_limit_refused_with_denominator_kept (tests.test_qualification_load_reference.OutputLimitTests.test_stdout_above_selected_limit_refused_with_denominator_kept) ... ok
+test_unwrap_and_parser_enforce_the_selected_limit (tests.test_qualification_load_reference.OutputLimitTests.test_unwrap_and_parser_enforce_the_selected_limit) ... ok
+test_pinned_identities_match_recorded_bytes (tests.test_qualification_load_reference.PinTests.test_pinned_identities_match_recorded_bytes) ... ok
 test_working_tree_reader_matches_pin (tests.test_qualification_load_reference.PinTests.test_working_tree_reader_matches_pin) ... FAIL
 test_bound_file_changed_during_run_is_error (tests.test_qualification_load_reference.ProcessTests.test_bound_file_changed_during_run_is_error) ... ok
 test_interruption_leaves_later_cases_not_run (tests.test_qualification_load_reference.ProcessTests.test_interruption_leaves_later_cases_not_run) ... ok
@@ -26,13 +34,17 @@ test_owned_reader_refusal_fails_its_obligation_only (tests.test_qualification_lo
 test_other_insufficient_standings (tests.test_qualification_load_reference.StandingTests.test_other_insufficient_standings) ... ok
 test_sensitive_standing_reported_separately_from_matched_outcomes (tests.test_qualification_load_reference.StandingTests.test_sensitive_standing_reported_separately_from_matched_outcomes) ... ok
 test_standing_classification_pure (tests.test_qualification_load_reference.StandingTests.test_standing_classification_pure) ... ok
+test_standing_evidence_codes_must_all_be_checks_passed (tests.test_qualification_load_reference.StandingTests.test_standing_evidence_codes_must_all_be_checks_passed) ... ok
 test_unknown_or_uncovered_standing_is_an_error (tests.test_qualification_load_reference.StandingTests.test_unknown_or_uncovered_standing_is_an_error) ... ok
 test_duplicate_result_id_and_wrong_mode_refuse (tests.test_qualification_load_reference.TransportRefusalTests.test_duplicate_result_id_and_wrong_mode_refuse) ... ok
 test_missing_standing_refuses (tests.test_qualification_load_reference.TransportRefusalTests.test_missing_standing_refuses) ... ok
 test_nonfinite_and_nonnumeric_values_refuse (tests.test_qualification_load_reference.TransportRefusalTests.test_nonfinite_and_nonnumeric_values_refuse) ... ok
 test_substituted_model_or_blocked_output_refuses (tests.test_qualification_load_reference.TransportRefusalTests.test_substituted_model_or_blocked_output_refuses) ... ok
 test_truncated_and_malformed_output_refuses (tests.test_qualification_load_reference.TransportRefusalTests.test_truncated_and_malformed_output_refuses) ... ok
+test_wrapper_warning_count_must_match_findings (tests.test_qualification_load_reference.TransportRefusalTests.test_wrapper_warning_count_must_match_findings) ... ok
 test_wrong_contract_profile_schema_and_foreign_namespaces_refuse (tests.test_qualification_load_reference.TransportRefusalTests.test_wrong_contract_profile_schema_and_foreign_namespaces_refuse) ... ok
+test_applied_load_dimension_must_match_selector (tests.test_qualification_load_reference.ValueFaultTests.test_applied_load_dimension_must_match_selector) ... ok
+test_definition_value_type_is_exact (tests.test_qualification_load_reference.ValueFaultTests.test_definition_value_type_is_exact) ... ok
 test_duplicate_evidence_member_refused (tests.test_qualification_load_reference.ValueFaultTests.test_duplicate_evidence_member_refused) ... ok
 test_duplicate_result_signature_under_another_id_does_not_resolve_once (tests.test_qualification_load_reference.ValueFaultTests.test_duplicate_result_signature_under_another_id_does_not_resolve_once) ... ok
 test_evidence_definition_mismatch_refused (tests.test_qualification_load_reference.ValueFaultTests.test_evidence_definition_mismatch_refused) ... ok
@@ -40,6 +52,7 @@ test_missing_evidence_record_or_member_is_unavailable (tests.test_qualification_
 test_missing_row_stays_unavailable_never_zero (tests.test_qualification_load_reference.ValueFaultTests.test_missing_row_stays_unavailable_never_zero) ... ok
 test_negative_assertion_reproducing_wrong_result_fails (tests.test_qualification_load_reference.ValueFaultTests.test_negative_assertion_reproducing_wrong_result_fails) ... ok
 test_null_evidence_value_is_unavailable_not_zero (tests.test_qualification_load_reference.ValueFaultTests.test_null_evidence_value_is_unavailable_not_zero) ... ok
+test_support_component_unit_must_match_selector (tests.test_qualification_load_reference.ValueFaultTests.test_support_component_unit_must_match_selector) ... ok
 test_wrong_case_frame_location_sign_definition_or_unit_metadata (tests.test_qualification_load_reference.ValueFaultTests.test_wrong_case_frame_location_sign_definition_or_unit_metadata) ... ok
 test_wrong_value_and_sign_fail_without_losing_denominator (tests.test_qualification_load_reference.ValueFaultTests.test_wrong_value_and_sign_fail_without_losing_denominator) ... ok
 
@@ -49,18 +62,16 @@ FAIL: test_working_tree_reader_matches_pin (tests.test_qualification_load_refere
 Traceback (most recent call last):
   File "<WORKING_ROOT>/tests/test_qualification_load_reference.py", line 279, in test_working_tree_reader_matches_pin
     self.assertEqual(sha256_bytes((PROJECT / lr.MODULE).read_bytes()), lr.MODULE_SHA256,
-AssertionError: 'eff1fb3b8b7f8fee99aeb5344c55ec42ae37d3e60e7354908caa780d41c08ffe' != 'f7d50f1cd70685499352cd1ce025d2c9f7aa14d7fbad3f114702fcc25ba08b5a'
-- eff1fb3b8b7f8fee99aeb5344c55ec42ae37d3e60e7354908caa780d41c08ffe
-+ f7d50f1cd70685499352cd1ce025d2c9f7aa14d7fbad3f114702fcc25ba08b5a
+AssertionError: '14e1750ebb96c8284d71b49e01e55455c9e42fa6197ac979f0118271503b57c7' != 'eff1fb3b8b7f8fee99aeb5344c55ec42ae37d3e60e7354908caa780d41c08ffe'
+- 14e1750ebb96c8284d71b49e01e55455c9e42fa6197ac979f0118271503b57c7
++ eff1fb3b8b7f8fee99aeb5344c55ec42ae37d3e60e7354908caa780d41c08ffe
  : working-tree load_reference_evidence.py differs from MODULE_SHA256: re-pin at integration
 
 ----------------------------------------------------------------------
-Ran 43 tests in 45.015s
+Ran 55 tests in 42.013s
 
 FAILED (failures=1)
 
 $ PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider --noconftest -q tests/test_qualification_load_reference.py
-tests/test_qualification_load_reference.py:279: AssertionError
-=========================== short test summary info ============================
-FAILED tests/test_qualification_load_reference.py::PinTests::test_working_tree_reader_matches_pin
-1 failed, 42 passed in 45.35s
+.......................................................                  [100%]
+55 passed in 39.63s

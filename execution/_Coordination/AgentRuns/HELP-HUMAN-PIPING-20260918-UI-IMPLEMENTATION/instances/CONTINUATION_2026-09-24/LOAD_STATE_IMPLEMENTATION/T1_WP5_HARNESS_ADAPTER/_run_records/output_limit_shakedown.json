@@ -1,0 +1,84 @@
+{
+ "note": "Shakedown of the output-limit repair only; NOT evidence. Reader binding cited the CP3/CP4 reviews only, the checkout was dirty with the uncommitted WP5 repair, and the run outputs were deleted.",
+ "command": "python _run_records/session4/t1_vp_static_run.py <WORKING_ROOT> <runner built from 203396e4d> <scratch> REVIEW_CHECKPOINT_3/RETURN.md REVIEW_CHECKPOINT_4/RETURN.md",
+ "candidate_commit": "203396e4d881d13cb053eee7d5b1fd107f26d6c9",
+ "executable_sha256": "df6dca9c1dfa61b9bdbe6e13d16295441c8c6484f1917e0289d92d9dfcfa0fed",
+ "modes": {
+  "sparse_interactive": {
+   "exit": 0,
+   "outcome": "all_required_assertions_matched",
+   "required_cases": 14,
+   "assertions": {
+    "not_run": 0,
+    "matched": 507,
+    "failed": 0,
+    "blocked": 0,
+    "error": 0
+   },
+   "structural_checks": {
+    "not_run": 0,
+    "matched": 98,
+    "failed": 0,
+    "blocked": 0,
+    "error": 0
+   },
+   "numerical_standing": {
+    "checks_passed": 14,
+    "insufficient": 0,
+    "sensitive": 0,
+    "unavailable": 0
+   },
+   "dirty_tree": true,
+   "large_cases": {
+    "coefficient_definition": {
+     "state": "matched",
+     "stdout_bytes": 14080571,
+     "reader_input_bytes": 633707
+    },
+    "multi_segment_free_length": {
+     "state": "matched",
+     "stdout_bytes": 21935246,
+     "reader_input_bytes": 949367
+    }
+   }
+  },
+  "dense_scrutiny": {
+   "exit": 0,
+   "outcome": "all_required_assertions_matched",
+   "required_cases": 14,
+   "assertions": {
+    "not_run": 0,
+    "matched": 507,
+    "failed": 0,
+    "blocked": 0,
+    "error": 0
+   },
+   "structural_checks": {
+    "not_run": 0,
+    "matched": 98,
+    "failed": 0,
+    "blocked": 0,
+    "error": 0
+   },
+   "numerical_standing": {
+    "checks_passed": 14,
+    "insufficient": 0,
+    "sensitive": 0,
+    "unavailable": 0
+   },
+   "dirty_tree": true,
+   "large_cases": {
+    "coefficient_definition": {
+     "state": "matched",
+     "stdout_bytes": 14138690,
+     "reader_input_bytes": 638628
+    },
+    "multi_segment_free_length": {
+     "state": "matched",
+     "stdout_bytes": 22023197,
+     "reader_input_bytes": 957356
+    }
+   }
+  }
+ }
+}
