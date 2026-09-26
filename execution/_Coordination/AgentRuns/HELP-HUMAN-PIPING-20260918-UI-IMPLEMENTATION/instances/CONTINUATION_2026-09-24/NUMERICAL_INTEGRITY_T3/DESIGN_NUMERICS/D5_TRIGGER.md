@@ -6,6 +6,12 @@ D1 (TASK), 2026-09-26. This is a narrow addendum to `DESIGN.md` revision 3, whic
 - **P1's figures.** Those quoted here come from the manager's relay of P1's early report. `T3/DETECTION/results.json` was not yet committed, so every P1 figure is marked **P1 (relayed)** and should be re-checked against that file.
 - **Scope of work.** Standard-library Python emulation and scans only (§9). Nothing was built, no product code ran, and no Git write was made.
 
+**Update, delivered with `DESIGN.md` revision 4.** ROOT has pre-accepted option O1 and rejected O2 (`T3/ROOT_RULINGS_V1.md`). ROOT also confirmed the reading of its hard requirement: RF-CANCEL's 12 breaches are named S11 exceptions until S11-F merges. `DESIGN.md` revision 4 adopts this addendum by reference and adds the combined withholding figure (`DESIGN.md` §8.1). Four corrections from P1's relayed survey:
+- **Committed Passed cases.** Those that solve on main have rcond 1.06e-3 to 0.061 and fe ≤ 2.85e-12. None would demote, and none is in the 1e6 to 6.7e7 band.
+- **The demo-model figure.** The rcond 1.3e-5 and 3.3e-5 in §7 come from the committed result envelopes `fixtures/results/preview_physics_invented_*` and `fixtures/product_preview/invented_mechanics_result_precision_1_*`, which are committed product outputs, not re-runs. `invented_preview_model.json` itself is blocked on main (`LOAD_COMBINATION_TERMS_EMPTY`) and publishes no solve. The request that produced those envelopes is not identified from reading, so they are historical evidence only.
+- **The simple fe trigger over R1.** P1's run of fe = (1/rcond)(guarded ratio + u) > 1e-9 catches 122 (fe ≈ 2e-6). It gives **54 false positives** on passing runs (fe 4e-9 to 1.7e-6, rcond 3e-8 to 6e-6) and misses only the S11 load-fold cases. This supports rejecting (a1) and the fe form in favour of (a2).
+- **Ordinary pressure route.** Its cases publish neither `reaction_resultant` nor `open_formula_stress_summary`. Their headline comes from covered stress rows, so no headline is lost there (`DESIGN.md` §4.1.6.1).
+
 ## 1. Answer in brief
 
 1. **Why 122 fails and 345 passes.** It is formation error, amplified by conditioning.

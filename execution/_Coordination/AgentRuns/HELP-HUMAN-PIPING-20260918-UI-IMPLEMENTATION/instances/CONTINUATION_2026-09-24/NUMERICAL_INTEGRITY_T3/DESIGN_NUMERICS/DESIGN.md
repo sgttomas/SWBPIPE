@@ -1,15 +1,36 @@
 # T3 D1 — numerical core: general accuracy, range and sparse scale
 
-HELPS_HUMANS-style design record (TASK D1) for the T3 WORKING_ITEMS manager and ROOT, **revision 3**, 2026-09-26. It stays a proposal until ROOT selects it after V1's backcheck.
+HELPS_HUMANS-style design record (TASK D1) for the T3 WORKING_ITEMS manager and ROOT, **revision 4**, 2026-09-26. It stays a proposal until ROOT selects it after V1's backcheck.
 
-- **Basis.** Revision 1 was written at `e14f7fd13`; revision 2 was started at `12f2122cd` and completed at `4862a72a9`; revision 3 is written at `7a6e6f00b`. All sit on T3 branch `codex/piping-numerical-integrity-20260926`. The product basis is main `c61a540ea`. Line numbers are at `c61a540ea` and will drift.
+- **Basis.** Revision 1 was written at `e14f7fd13`; revision 2 was started at `12f2122cd` and completed at `4862a72a9`; revision 3 at `7a6e6f00b`; revision 4 at `ef9cf487e` and later rulings. All sit on T3 branch `codex/piping-numerical-integrity-20260926`. The product basis is main `c61a540ea`. Line numbers are at `c61a540ea` and will drift.
 - **Revision 1** is archived unchanged as `_run_records/DESIGN_revision1.md` (sha256 `7199390f…`). That is the text V1 reviewed.
 - **Revision 2** (committed at `63c3d503c`) is archived unchanged as `_run_records/DESIGN_revision2.md` (sha256 `3ff9c1fd…`). That is the text V1's BACKCHECK_R2 reviewed.
+- **Revision 3** (committed at `9377f32db`) is archived unchanged as `_run_records/DESIGN_revision3.md` (sha256 `48f35144…`). That is the text V1's BACKCHECK_R3 reviewed.
+- **Companion addendum.** `D5_TRIGGER.md` (the D-5 trigger; ROOT pre-accepted option O1) is part of this revision by reference.
 - **Companion note.** `S11_CONTAINMENT.md` **revision 4** (delivered with this revision; revisions 1 to 3 archived in `_run_records/`) is part of this revision and governs S11. It carries ROOT's zero-witness boundary, so DESIGN §4.1.2 and S11 §4.1.3 agree.
 - **T1.** Candidate `f3270ea79`, read only with `git show` and `git diff 82b43f9bd f3270ea79`. T1 changes no file under `P/core/solver/**` or `P/validation/benchmarks/**`. In `PP` it does not touch the line that SUP-17 names.
 - **Paths.** `P/` means `projects/chirality-piping/`. `PP` means `P/core/product_physics/src/lib.rs`. `FK` means `P/core/solver/frame_kernel/src/`. `SA` means `P/core/solver/nonlinear_integration/src/structural_adapter.rs`. `T3/` is this tranche's records folder.
 - **Roles read.** Root `AGENTS.md` (sha256 `c8ce87ef…`), `agents/AGENT_TASK.md` (`1a13a5b0…`). I also consulted `agents/AGENT_HELPS_HUMANS.md` (`a0c9fb94…`) deliberately, for the design posture, as the brief asked.
 - **What I did not do.** I changed no product source, test, fixture, reference or other record, and ran no Git write. I ran no cargo build, test or Rust probe; the host is held. I ran standard-library Python probes at low priority, and read public crates.io metadata (§10).
+
+## Revision 4 — what changed and why
+
+**Inputs:** `T3/REVIEW/BACKCHECK_R3.md` (V1, FINDINGS, nothing blocking, at `ef9cf487e`, sha256 `47700af5…`) and ROOT's rulings on it; ROOT's rulings on P1's skew breach (`d84e66bff`) and its pre-acceptance of D-5 option O1; `D5_TRIGGER.md`; D2 revision 4 (§0.2, §4.9.10, marked [align D1-r4]); P1's relayed realistic-fixture survey.
+
+| Finding | Change | Where |
+|---|---|---|
+| **D-5** (ROOT: required; O1 pre-accepted) | The Passed-case trigger is `D5_TRIGGER.md` option (a2), adopted by reference: K-D5 lands early after K3 as a kernel-local Passed→Sensitive demotion and routes to W1 after F2. Thresholds come from product data; P1's measured 122 case is a required true positive. The "no Passed breach" gate is added, with RF-CANCEL's 12 breaches as named S11 exceptions until S11-F. P1's relayed fe-trigger run (54 false positives on passing R1 runs, misses only S11) supports rejecting a pure condition or fe trigger | §4.3, §4.10, §6, §7.3 (23–25), §9 |
+| **R3B-1** (ROOT: pinned factor, with proof) | Stress S\* carries a propagation factor k per row kind: 1, √2 (circular maximum), 2 (open-formula summary), √2·i (intensified, row's own i); magnitude rows are formed at p (k = 1). A proof that the floor holds at 1e-9 is given; where it cannot hold, the row is `not_covered` | §4.1.6, §4.1.6.1 item 7 |
+| **R3B-2** (ROOT: closed list; counts; cost) | One closed (kind, unit) → class table, defaulting to `not_covered`, with the classes translation, rotation, force, moment, stress(k), input_derived and non_quantity. `reaction_resultant` → force and `open_formula_stress_summary` → stress (k = 2, only without a pressure-longitudinal term). "Physical" is removed. Per-case withheld counts go into the gate. The combined withholding figure and the owner framing are in the new §8.1 | §4.1.6.1 item 2, §4.4.1, §8.1 |
+| R3B-3 | Section terms (A, Z, L, E·A/L, G·J/L) travel in the receipt as bit strings, cross-checked against published section evidence (`RETAINED_PRECISION_SECTION_MISMATCH`); twist and extension scales are harness-only | §4.1.6.1 item 7, §5 |
+| R3B-4 | D2's side; this revision's table and formulas are what G5b and G5c mirror (D2 §4.9.10) | §4.1.6.1 |
+| R3B-5 | S11 erratum: the site-test constant is keyed by function plus match count | `S11_CONTAINMENT.md` §4.3 |
+| N-1 | Counts corrected: of 314 variant-A twist and extension flags, 303 clear (293 of the 295 outside RF-WEAK) | revision-3 table, §4.10 |
+| N-2 | The threshold is exact for S\* ≥ 2^-988; smaller S\* classifies every row of that kind `absolute_verified` | §4.1.6 |
+| N-3 | The harness correspondence check compares classes, not bits | §4.10 |
+| N-4 | S11-K's PR record carries the fixture-diff sizes | `S11_CONTAINMENT.md` §8.3 |
+| N-5 | D2's two refusal codes adopted | §4.1.6 item 4 |
+| P1's survey (relayed) | Committed Passed cases that solve on main: rcond 1.06e-3 to 0.061, fe ≤ 2.85e-12; none demote. The demo-model figure is corrected: it comes from committed result envelopes, and `invented_preview_model.json` itself is blocked on main | §8.1, `D5_TRIGGER.md` §7 note |
 
 ## Revision 3 — what changed and why
 
@@ -24,7 +45,7 @@ HELPS_HUMANS-style design record (TASK D1) for the T3 WORKING_ITEMS manager and 
 | Finding | Change | Where |
 |---|---|---|
 | **S8-R** (ROOT: the floor is enforced) | Classification is on the **published** binary64 value: `absolute_verified` iff `|q| < fl(R·S*)`. **R = 2^-34** exactly (bits `0x3DD0000000000000`), chosen with a 7 % margin over 10^9·2^-64 so the publication rounding and the published-versus-2p scale difference stay inside 1e-9; the threshold product is then exact. **S\* is defined on published rows** with a pinned kind mapping, unit factors, body membership, L_b formula and operation order, so D2's G5b and G5c can recompute it bit for bit. `absolute_verified` and not-covered quantities are **withheld from reliance** (no exemption proposed) and never counted as Passed, as D2 §4.9.9 enforces | §4.1.6, §5 |
-| **F2-P** (ROOT, `ROOT_RULINGS_V2.md` §3) | **Twist and extension are scale kinds**, with per-member S\* = S\*(moment)·(L/GJ)_m and S\*(force)·(L/EA)_m. The harness **derives** them from the published torque and axial force (T/(GJ/L), N/(EA/L)), never from differences of rotations or translations, so they inherit the verified accuracy. **A below-floor or not-covered comparison never counts as a pass.** Probe `floor_kinds.py` on R1 revision 2: the 295 twist and extension flags clear; 46 RF-WEAK and 3 RF-CANCEL comparisons stay not covered, plus 2 RF-SKEW twist rows whose own torque is below the moment floor. F8 (expected values below the binary64 range) is compared absolutely and reported as such. The RF-CANCEL net-governed column is the binding scale (ROOT, V2 ruling 1) | §4.1.6, §4.10, §7 |
+| **F2-P** (ROOT, `ROOT_RULINGS_V2.md` §3) | **Twist and extension are scale kinds**, with per-member S\* = S\*(moment)·(L/GJ)_m and S\*(force)·(L/EA)_m. The harness **derives** them from the published torque and axial force (T/(GJ/L), N/(EA/L)), never from differences of rotations or translations, so they inherit the verified accuracy. **A below-floor or not-covered comparison never counts as a pass.** Probe `floor_kinds.py` on R1 revision 2: of V2's 314 variant-A twist and extension flags, 303 clear (293 of the 295 outside RF-WEAK; corrected in revision 4, N-1); 46 RF-WEAK and 3 RF-CANCEL comparisons stay not covered, plus 2 RF-SKEW twist rows whose own torque is below the moment floor. F8 (expected values below the binary64 range) is compared absolutely and reported as such. The RF-CANCEL net-governed column is the binding scale (ROOT, V2 ruling 1) | §4.1.6, §4.10, §7 |
 | **S2-R** (ROOT's final wording) | Gate condition 3: "the successor identity's standing is no worse than the retiring identity's, case by case, in all three languages", with identical, fail-closed standing in each language. D2's H-a log-law cases are listed as `needs_recompute` under both identities. The switch happens at F3 | §4.4.1 |
 | **SCALE-W** (ROOT: K2b) | The kernel half of formation-time scaling (`FK/lib.rs` scaled formation and the sparse assembly entry that takes b) joins K2b's write set. F1 wires it | §4.7, §6 |
 | S11K-W, and S11 revisions 3 and 4 | S11-K's write set now carries ROOT's S11B-1 sites (`FK/structural.rs:603-606`, `FK/lib.rs:870-877`, and the refinement numerator at `:697-760`), the typed force seams and E15/E16 routing; T1's support-motion fixtures are pre-registered as expected diffs, because S11-K lands after T1 (S11 R3-1); the "share only `FK/lib.rs`" text is corrected | §6 |
@@ -338,8 +359,18 @@ Also at p: spring actions `−k u`, and reactions `(K u − f)` on the constrain
   - moment: `S* = max(S(moment), L_b·S(force))`;
   - **twist of member m** (revision 3, F2): `S*_tw(m) = S*(moment)·(L/GJ)_m`;
   - **extension of member m** (revision 3, F2): `S*_ext(m) = S*(force)·(L/EA)_m`;
-  - **stress at member m** (revision 3, S8-R): `S*_σ(m) = S*(force)/A_m + S*(moment)/Z_m`, with A the section area and Z = I/c the section modulus;
-  - **input-derived** rows (pressure-only Lamé and pressure stresses, whose value does not depend on the solve): no S\*; they are the same at every precision.
+  - **stress at member m, for a stress row kind with propagation factor k** (revision 4, R3B-1): `S*_σk(m) = S*(force)/A_m + k·S*(moment)/Z_m`, with A the section area and Z = I/c the section modulus. k = 1 for component stresses, √2 for the circular maximum, 2 for the open-formula summary, and √2·i for an intensified row with its own i (§4.1.6.1 item 7);
+  - **input_derived** rows (a class, not a kind): values that do not depend on the solve (pressure-only Lamé and pressure stresses, prescribed displacement rows, echoed user inputs). No S\*, no threshold; they can be bound like relative rows and appear in neither receipt list (D2 §4.9.10).
+  - **Proof that the floor holds at 1e-9 with k (revision 4, R3B-1).** Let ε = 2^-64. For a row that is a published action, the stop rule bounds its error by ε·S\*_kind. For a derived stress row formed in binary64 from published actions:
+    - component stress σ = N/A, M/Z or T/(2Z): error ≤ ε·fo/A or ε·mo/Z, plus the rounding of one division (≤ u·|σ|);
+    - circular maximum q = |N_w|/A_s + hypot(M_y, M_z)/Z: hypot is 1-Lipschitz in the Euclidean norm, so |δ hypot| ≤ ‖(δM_y, δM_z)‖₂ ≤ √2·ε·mo, and |δq| ≤ ε(fo/A + √2·mo/Z) plus roundings;
+    - intensified row q = i·hypot(σ_by, σ_bz): |δq| ≤ i·√2·ε·mo/Z plus roundings;
+    - open-formula summary q = |σ_ax| + |σ_by| + |σ_bz| (when the pressure-longitudinal term is zero): |δq| ≤ ε(fo/A + 2·mo/Z) plus roundings;
+    - magnitude rows are formed at p, rounded once, and checked by the stop rule themselves, so k = 1.
+    
+    In every covered formula the terms are nonnegative (or a single term), so each term, and each published operand, is at most q in magnitude; the binary64 roundings therefore add at most c·u·|q| with c ≤ 6. Hence for a row classified `relative_verified`, |q| ≥ t = 2^-34·S\*_σk (exact for S\* ≥ 2^-988), and |δq|/|q| ≤ ε·S\*_σk·(1 + 4u)/(2^-34·S\*_σk) + 6u = 2^-30·(1 + 4u) + 6u ≈ 9.3132e-10 < 1e-9. The (1 + 4u) covers the formation of S\*_σk (four roundings) and a k constant rounded to nearest; the published-versus-2p S\* difference, of order (ε + u)·S\*, is inside the same margin. The margin left is about 6.9e-11.
+    
+    **Where the proof does not hold, the row is `not_covered`:** the open-formula summary when a pressure-longitudinal term is present (base = σ_ax + σ_pl is a signed sum, so an operand can exceed q and its rounding u·|σ_ax| is not bounded by q), and any stress formula on pressure members whose wall force is not itself a published, stop-rule-checked row.
   - Twist and extension are not product rows. They exist so that the harness's derived twist and extension (§4.10) have a stated scale, and they inherit their torque's and axial force's verification exactly. Stresses are published as derived rows (§4.1.5); their scale maps the action scales through the section, so a stress is verified to the accuracy its actions are.
 - **A body with all scales zero** is unloaded and unmoving, and must agree exactly.
 - **Rationale.** `2^-64` is the binary64 significand plus 11 guard bits. The coupling gives a structurally zero kind a physical scale, so noise can be accepted. The probe (§3.1) shows that per-group scales without this coupling never accept the noise in structural zeros.
@@ -350,12 +381,13 @@ Also at p: spring actions `−k u`, and reactions `(K u − f)` on the constrain
 **What acceptance guarantees (V1-S8; enforced in revision 3, S8-R).**
 - If q_2p is accurate well beyond 2^-64·S\*, acceptance bounds the candidate's error by `2^-64·S*`.
 - **The floor.** Relative 1e-9 on a published q follows for `|q| ≥ R·S*` with **R = 2^-34** (≈ 5.82e-11, bits `0x3DD0000000000000`). Below the floor the guarantee is the absolute bound `fl(2^-64·S*)`. For exact zeros, relative accuracy is undefined.
+  - **The threshold's own rounding (revision 4, N-2).** `t = fl(2^-34·S*)` is exact for S\* ≥ 2^-988. Below that the product is subnormal and can round. Such a body scale is below 1e-297 in SI units. It is handled explicitly: when S\* < 2^-988, every row of that body and kind is classified `absolute_verified`. Readers apply the same rule.
   - **Why 2^-34, not 10^9·2^-64.** 10^9·2^-64 = 1953125·2^-55 is itself an exact binary64 value (bits `0x3DCDCD6500000000`), so exactness is not the reason. The reason is margin: at R = 2^-34, `2^-64·S*/|q| ≤ 2^-30 ≈ 9.31e-10` above the floor, which leaves room for the publication rounding (u ≈ 1.1e-16) and for the difference between the published S\* and the 2p S\* the stop rule used (of order 2^-64). And `fl(2^-34·S*)` is exact whenever S\* is normal, so the threshold itself is not rounded. The floor rises by 7 %; on R1's references this changes no count (probe `floor_kinds.py`, both constants).
 - **A proof for every quantity is not available.** No agreement rule can separate a structural zero computed as noise from a legitimately tiny value, without a floor. So the floor is stated and enforced:
-  1. **Classification on the published value.** For every published physical quantity row of a selected case, and every published output of a retained-state combination, the producer computes `t = fl(R·S*)` for the row's body and kind from published data (§4.1.6.1), and classifies the row `absolute_verified` iff `|q| < t`, else `relative_verified`. It never classifies on the unpublished precision-p value. A row whose kind is outside the mapping of §4.1.6.1 is `not_covered`.
+  1. **Classification on the published value.** For every published row of a selected case whose class in the closed table (§4.1.6.1 item 2) is a scaled kind, and every published output of a retained-state combination, the producer computes `t = fl(R·S*)` for the row's body and kind from published data (§4.1.6.1), and classifies the row `absolute_verified` iff `|q| < t`, else `relative_verified`. It never classifies on the unpublished precision-p value. A row whose (kind, unit) is not in the closed table is `not_covered` (the default). `input_derived` and `non_quantity` rows carry no threshold.
   2. **The receipt** carries R's bits, S\* per body and kind as bit strings, the `absolute_verified` result ids with their bound `fl(2^-64·S*)`, and any `not_covered` ids (§5).
   3. **Readers recompute** S\* and the classification bit for bit (D2's G5b and G5c). A mismatch makes the result `unsupported`.
-  4. **Standing and rule binding (ROOT).** `absolute_verified` and `not_covered` quantities are **withheld from reliance**: rule binding refused with `RULE_QUANTITY_BELOW_VERIFIED_FLOOR`, never counted as Passed, a headline refused when it names one, shown as uncovered with their absolute bound, and carried with their class in every canonical and exported form (D2 §4.9.9). No exemption is proposed. The case's other quantities keep their standing. The cost: structural zeros computed as noise (for example the axial force of a torsion-only member) and correct weak-coupling responses are withheld too; D2's interval-binding option (DD-13) would restore their use and is not proposed in T3.
+  4. **Standing and rule binding (ROOT).** `absolute_verified` and `not_covered` quantities are **withheld from reliance**: rule binding refused with D2's two codes, `RULE_QUANTITY_BELOW_VERIFIED_FLOOR` for `absolute_verified` and `RULE_QUANTITY_NOT_COVERED` for `not_covered` (revision 4, N-5), never counted as Passed, a headline refused when it names one, shown as uncovered with their absolute bound, and carried with their class in every canonical and exported form (D2 §4.9.9). The case's other quantities keep their standing. **The cost is measured in revision 4 (§8.1): on the committed selected cases, 8 to 68 of 80 to 111 rows are withheld, almost all of them exact structural zeros.** §8.1 sets out the owner-level options, including D2's interval binding (DD-13).
   5. **VP-ROBUST** requires every reference quantity's comparison scale to be at least R·S\* of its case. A comparison that is not is **not covered by the guarantee**, reported as such, and **never counted as a pass** (§4.10).
   6. **The weak-coupling control S8-W** (§3.2) stays in VP-ROBUST as a positive control: its below-floor quantities are published, classified `absolute_verified`, withheld from reliance, and exact in the probe.
 - **D-12 is resolved** by ROOT's S8-R ruling: withhold, as above.
@@ -365,19 +397,30 @@ Also at p: spring actions `−k u`, and reactions `(K u − f)` on the constrain
 Every step is binary64, in the stated order, so readers reproduce S\* bit for bit.
 
 1. **Bodies.** The connected components of the invocation model's element graph: straight members, curved spans and user stiffness elements connect their nodes. Springs to ground, rigid restraints and imposed motions do not connect. Each row belongs to the body of its node, member or support node.
-2. **Kind mapping of published row kinds.**
-   - translation: `global_nodal_displacement_{x,y,z}`, `displacement_magnitude`;
-   - rotation: `global_nodal_rotation_{x,y,z}`;
-   - force: `element_local_axial_force`, `element_local_shear_force_{y,z}`, `pipe_wall_axial_force_v2`, `pipe_effective_axial_force_v2`, the force components of `support_reaction_component_v2`, `support_reaction_force_magnitude_v2`, `pipe_wall_endpoint_action_v2` force components;
-   - moment: `element_local_torsional_moment`, `element_local_bending_moment_{y,z}`, the moment components of `support_reaction_component_v2`, `support_reaction_moment_magnitude_v2`, `pipe_wall_endpoint_action_v2` moment components;
-   - stress (per member): `element_local_axial_normal_stress`, `element_local_bending_normal_stress_{y,z}`, `element_local_torsional_shear_stress`, `pipe_axial_membrane_stress_v2`, `pipe_elastic_normal_stress_maximum_v2`, and the intensified bending measures;
-   - input-derived: `pipe_lame_hoop_stress_v2`, `pipe_lame_radial_stress_v2`, and pressure stresses formed from the E15 net pressure alone;
-   - any other physical row kind in a selected case is `not_covered` until this table names it.
+2. **The closed (kind, unit) table (revision 4, R3B-2).** Every row kind the three base identities (preview-physics-1, physics-1, load-reference-1) and their sources emit is listed once, with one class. The table is carried in each successor identity's pinned semantic table (D2's DD-14). **Any (kind, unit) not listed is `not_covered`.** The word "physical" is no longer used.
+
+   | Class | Row kinds (unit) |
+   |---|---|
+   | translation | `global_nodal_displacement_{x,y,z}` (m, mm); `displacement_magnitude` (m, mm), formed at p |
+   | rotation | `global_nodal_rotation_{x,y,z}` (rad) |
+   | force | `element_local_axial_force`, `element_local_shear_force_{y,z}`, `pipe_wall_axial_force_v2`, `pipe_effective_axial_force_v2` (N, kN); `support_reaction_component_v2` and `pipe_wall_endpoint_action_v2` in N or kN; `support_reaction_force_magnitude_v2` and **`reaction_resultant`** (N), formed at p |
+   | moment | `element_local_torsional_moment`, `element_local_bending_moment_{y,z}` (N·m, kN·m); `support_reaction_component_v2` and `pipe_wall_endpoint_action_v2` in N·m or kN·m; `support_reaction_moment_magnitude_v2` (N·m), formed at p |
+   | stress, k = 1 | `element_local_axial_normal_stress`, `element_local_bending_normal_stress_{y,z}`, `element_local_torsional_shear_stress` (MPa, Pa); `pipe_axial_membrane_stress_v2` (Pa) |
+   | stress, k = √2 | `pipe_elastic_normal_stress_maximum_v2` (Pa) |
+   | stress, k = √2·i | `component_equal_factor_intensified_bending_stress_v1` (Pa), with the row's own i from the invocation's component input |
+   | stress, k = 2 | **`open_formula_stress_summary`** (MPa), only where the pressure-longitudinal term is zero; otherwise `not_covered` |
+   | input_derived | `pipe_lame_hoop_stress_v2`, `pipe_lame_radial_stress_v2` (Pa); `pipe_section_pressure_hoop_stress`, `pipe_section_pressure_longitudinal_stress` (MPa); `constant_effort_support_applied_load` (N); displacement and rotation rows at a rigidly restrained or prescribed DOF (their value is the prescription); echoed-input review kinds `component_user_stress_multiplier_review`, `component_user_stiffness_macro_element_review`, `constant_effort_user_input_review`, `spring_hanger_user_input_review`, `expansion_joint_pressure_thrust_load_review` (E16's exact sum of inputs) |
+   | non_quantity | `sparse_live_path_dense_parity_relative_delta`, `linear_solver_mode_basis`, `modulus_basis_record`, `combination_modulus_basis_record`: observations and records, never bound to a rule, never in a receipt list |
+   | not_covered | every `nonlinear_support_*` kind, `curved_bend_macro_element_review`, curved arc stress and station rows, and anything unlisted. W1 never selects a nonlinear or curved case, so these rows do not appear in a selected case today |
+
+   **D2 alignment** (D2 revision 4, §4.9.10): the table confirms D2's proposed mapping (`reaction_resultant` → force, `open_formula_stress_summary` → stress with k = 2, pressure-only stresses → input_derived, nonlinear kinds → not_covered) and adds three things D2 should mirror: prescribed-DOF displacement rows and echoed-input review kinds as input_derived, and the non_quantity class. The table was built from the semantic-contract constants (`preview_physics.rs:14-70`) and from every row kind in committed envelopes on main and T1 (`scan_row_kinds.py`).
+
+   **Where the two named kinds actually appear.** P1 (relayed) reports that the ordinary pressure-route cases (physics-1, and physics-source's ordinary-pressure case) publish neither `reaction_resultant` nor `open_formula_stress_summary`; their headline comes from the stress rows (`pipe_elastic_normal_stress_maximum_v2`), which are covered with k = √2. So no headline is refused on that route by this table.
 3. **Units.** Rows are read in their published unit and converted with pinned factors, each one binary64 operation: m, rad, N, N·m, Pa ×1; mm ÷1e3; kN and kN·m ×1e3; MPa ×1e6. A row in any other unit is `not_covered`.
 4. **S(kind)** is the largest |q| over the body's rows of that kind (exact).
 5. **L_b.** With the body's node coordinates from the invocation model: `d_a = fl(max_a − min_a)` per axis, `L_b = fl(sqrt(fl(fl(fl(d_x·d_x) + fl(d_y·d_y)) + fl(d_z·d_z))))`. A single-node body has L_b = 0; then the coupled terms are omitted.
 6. **Coupling,** in this order: `tr = max(S_tr, fl(L_b·S_rot))`; `ro = max(S_rot, fl(S_tr/L_b))`; `fo = max(S_fo, fl(S_mo/L_b))`; `mo = max(S_mo, fl(L_b·S_fo))`.
-7. **Per-member kinds.** With the member's section as the product forms it (A, I, J = 2I, Z = I/c with c = OD/2, E, G, L): `tw(m) = fl(mo·fl(L/fl(G·J)))`; `ext(m) = fl(fo·fl(L/fl(E·A)))`; `σ(m) = fl(fl(fo/A) + fl(mo/Z))`. Curved spans use their chord length and section.
+7. **Per-member kinds (revision 4, R3B-3).** The section terms come from the receipt, as bit strings: for each member, A, Z, L, E·A/L and G·J/L exactly as the product formed them (whatever route and temperature interpolation it used), covered by the source identity digest. Readers take them from there and cross-check them against published section evidence where it exists; a mismatch is D2's `RETAINED_PRECISION_SECTION_MISMATCH`. Then `σ_k(m) = fl(fl(fo/A) + fl(k·fl(mo/Z)))`, with the pinned constants k₁ = 1, k√2 = `0x3FF6A09E667F3BCD` (1.4142135623730951, which is ≥ √2), k₂ = 2, and k_i = fl(k√2·i) for an intensified row, whose shortfall of at most u is absorbed by the proof's margin. Twist and extension scales are harness-only and are not in the receipt: the harness forms `tw(m) = fl(mo·fl(L/fl(G·J)))` and `ext(m) = fl(fo·fl(L/fl(E·A)))` from the receipt's terms. Curved spans are not covered (item 2).
 8. **Combinations** over retained states use their own body's rows (§4.1.1).
 
 **Failure.**
@@ -451,7 +494,7 @@ Every step is binary64, in the stated order, so readers reproduce S\* bit for bi
   - The method's own result decides: selected if it passes at p, unresolved otherwise. `NUMERICAL_INTEGRITY_NEGATIVE_ENERGY` stays only when a negative direction is also verified at p against the primitive model. Frames and positive springs have non-negative energy by construction, so no such direction exists in the supported family.
   - Outside the family, the ordinary `NegativeEnergy` outcome stands.
 - **The S11 load audit (S11-F).** A case marked Sensitive because a load contribution was absorbed is an ordinary Sensitive case and triggers the method in the same way. The method's ledger is exact, so the loss does not recur.
-- **Not run by default on Passed cases.** The contract keeps the ordinary path "for cases it actually resolves under the existing policy". A Passed binary64 result can still carry a normwise estimate up to about κ·u < 1e-8 (with κ < 1/√EPSILON). If the detection run P1 finds any R1 case that is Passed yet misses 1e-9, ROOT should consider moving the trigger (§9, D-5).
+- **Passed cases: the D-5 trigger (revision 4; ROOT pre-accepted option O1).** P1 found a Passed breach on main (RF-SKEW-T-CANT-OFF-122-r1e-04). The trigger is now `D5_TRIGGER.md` option (a2), which this revision adopts by reference: the first-order formation-error estimate EF = |K⁻¹(ΔK·u + r)|, routing the case when 8·EF > 1e-9·max(|q|, scale) for any published nodal quantity. It lands early as K-D5 (§6), a kernel-local Passed→Sensitive demotion; after F2 it routes to W1 instead. **Its thresholds come from product data**, and P1's measured 122 case is a required true positive in K-D5's tests. No interim measure before K-D5 (ROOT, `d84e66bff`); O2 is rejected.
 - **The ordinary attempt always runs first.** Its M03 report is kept as evidence, in the same place `OrdinaryAttempt` sits today (`PP:1869-1872`).
 
 ### 4.4 Identities and what happens to existing ones
@@ -487,6 +530,8 @@ Under option A, a fresh invocation never mixes two selected methods. The ordinar
    - For source-blocks-1, an all-selected envelope is Current today, so the successor result for the same request must be Current too; a mixed envelope is `needs_recompute` today, so any fail-closed successor standing passes (D2 §4.5.2).
    - **The joined family switches at F3**, as R-3(a) ruled.
 4. **Values.** Every published quantity that the exact-block projection also publishes agrees with it within the unchanged `|obs − exp| ≤ 1e-9·max(|exp|, scale)`. The scale is the case's R1-style zero scale, or, for these fixtures, the body-level coupled scale stated in the test. Signed six-component reactions and circular maxima, which exact-block's source-blocks-1 rows do not carry, are checked against T0R's preview-physics-1 rules instead.
+
+**Withheld rows (revision 4, R3B-2; ROOT).** The gate record also reports, per case, how many rows the successor withholds (`absolute_verified` plus `not_covered`, from D2's `classification_summary`) against the retiring identity, which publishes them as Current where the envelope is Current. The standing condition compares envelope standing; the withheld counts make row-level loss visible to ROOT (§8.1 gives the committed figures).
 
 **Evidence.** The gate runs as one committed test per family in `numerical_robustness` (product lane), plus D2's S-G parity files. Its record lists every request, mode, case, method, charge and standing. A gate failure blocks retirement for that family only; the other families and W1's selection are unaffected.
 
@@ -677,12 +722,13 @@ The dense `StructuralSystem` API stays, unchanged, for auxiliary callers and for
 | `pass_absolute_range` / `fail` | F8: the expected value is below the binary64 range (RF-LARGE-CONT-n10000, 1e-714 to 1e-2864). It is parsed exactly from its decimal string, without underflow, and compared as an absolute comparison against its class scale | the pass is reported as an absolute-range pass, separately counted |
 
 - **The gate.** VP-ROBUST passes when there is no `fail`, every discriminating negative control fails, and the `not_covered` set equals the enumerated list committed with the harness (below). A new `not_covered` comparison, or one that leaves the list, blocks the gate until ROOT reviews it. `not_covered` comparisons are never added to the pass count; the report shows passes, absolute-range passes and not-covered comparisons as three separate numbers.
-- **Relation to product standing.** A `not_covered` comparison's quantity is, in the product, `absolute_verified` or `not_covered` by the receipt's classification (§4.1.6 item 1), because its reference magnitude is below the floor. So it is withheld from reliance there too (§4.1.6 item 4). The harness checks this correspondence for every product-lane case.
+- **"No Passed breach" (revision 4, D-5; ROOT's hard requirement).** For every R1 case in the product lane, if any covered comparison fails, the case's published outcome must not be `Passed`. RF-CANCEL's 12 G ≥ 1e7 breaches are listed by name as S11 exceptions until S11-F merges, and are removed from the list then (ROOT). The negative control is mutation (23).
+- **Relation to product standing.** A `not_covered` comparison's quantity is, in the product, `absolute_verified` or `not_covered` by the receipt's classification (§4.1.6 item 1), because its reference magnitude is below the floor. So it is withheld from reliance there too (§4.1.6 item 4). The harness checks this correspondence for every product-lane case, **comparing classes, not bits** (revision 4, N-3): the harness forms twist as `fl(T/k_t)` with `k_t = fl(fl(G·J)/L)`, while the scale uses `fl(mo·fl(L/fl(G·J)))`, and the two operation orders differ by a few ulps, far inside the margin.
 - **The enumerated list, from R1 revision 2 at `c0f14201c`** (`_run_records/floor_kinds.*`, variant F, which is this rule; identical at R = 10^9·2^-64 and at R = 2^-34):
   - **RF-WEAK: 46**: W-AX-rho1e-12 (29 far-region and 7 coupling-region comparisons), W-3D-rho1e-12 (2 far, 5 coupling and 2 body-class) and W-3D-rho1e-08 (1 coupling). These are V2's 43, plus the soft coupling member's twist and extension (`tw.C` and `ext.C` in W-AX-rho1e-12, `tw.C` in W-3D-rho1e-08), whose own torque and axial force sit below the floor;
   - **RF-CANCEL: 3**, under the binding net-governed scale: F-G1e80-GnG-ORTHO `u.N1.UY`, M-G1e80-GnG-ORTHO `u.N1.UY` and F-G1e80-GnG-INPLANE `Mb.M2.mid`;
   - **RF-SKEW: 2**, `tw.M1` in RF-SKEW-T-CANT-AX-122-r1e-12 and -345-r1e-12. Their comparison scale is their own magnitude (5.3e-12 and 1.7e-12 of S\*_tw), because the soft torque itself is about 1e-12 of the moment scale. The soft path stays covered through the rotations θ and the absolute torque comparison;
-  - **the 295 twist and extension flags of V2's variant A are cleared.** V2's variant B (twist and extension scaled by their own largest magnitude) gives 43 RF-WEAK and 0 RF-SKEW, but it is not a safe runtime rule: a structurally zero twist has S(twist) equal to noise at 2p, so the stop rule would never accept it. Variant F ties the scale to the published torque and axial force instead.
+  - **of V2's 314 variant-A twist and extension flags, 303 are cleared** (293 of the 295 outside RF-WEAK; the two `tw.M1` rows stay, and 9 RF-WEAK rows stay as in variant B; corrected in revision 4, N-1). V2's variant B (twist and extension scaled by their own largest magnitude) gives 43 RF-WEAK and 0 RF-SKEW, but it is not a safe runtime rule: a structurally zero twist has S(twist) equal to noise at 2p, so the stop rule would never accept it. Variant F ties the scale to the published torque and axial force instead.
 
 **Discrimination check.** Each of R1's negative-control values must fail the same predicate. A control that does not is reported as non-discriminating, not dropped.
 
@@ -761,6 +807,8 @@ What D1 publishes and what readers would need to verify. **D2 owns the successor
    An `unavailable` entry carries its reason, its attempts and a reference to its `RETAINED_PRECISION_UNAVAILABLE` diagnostic. A selected case never carries its own unavailable diagnostic.
 2. **Canonical profile and encoding (V1-S4, aligned with D2 G1, G2 and G5).**
    - **The profile is the checked profile `openpipestress_jcs_ijson_v1`,** the one today's source receipts use (`source_receipt.rs:28-35`). Every reader already has it. The scientific profile would need a TS canonicalizer that does not exist.
+   - **Section terms (revision 4, R3B-3).** Per member, A, Z, L, E·A/L and G·J/L as the product formed them, as bit strings, covered by the source identity digest (§4.1.6.1 item 7).
+   - **Classes (revision 4).** The receipt lists `absolute_verified` and `not_covered` ids only; `input_derived` and `non_quantity` rows appear in neither list (D2 §4.9.10).
    - **Encoding.** Every receipt value that can exceed 2^53 − 1 in magnitude, be subnormal or be negative zero is a 16-hex binary64 bit string, as `source_receipt.rs:36-38` `bits()` does. That covers the stop-rule ratios, the pivot margin (typically 1e16 to 1e140), rcond, S\*, R and every bound. Plain JSON numbers appear only for exact integers within ±(2^53 − 1): counts, precisions and work units.
    - **Per-case hashing failure.** If a selected case's entry cannot be encoded, the case becomes `unavailable` with reason `receipt_encoding` and its ordinary standing. With the rule above this should be unreachable; it is kept as the defined outcome.
    - **Publication-hash failure.** `publication_sha256` covers the envelope minus the receipt. It fails when a published row value is ≥ 2^53 in magnitude, which is today's capture and carrier range limit (V1-S5, R-6). In that case the invocation is republished under its base identity (preview-physics-1, physics-1 or load-reference-1), with every attempt declined as `RETAINED_PRECISION_UNAVAILABLE` (reason `publication_hash_range`), each case keeping its ordinary standing. This follows T1's SF-1 pattern, continuing the same work ledger. **Never an `Err`, and never a blocked envelope.**
@@ -789,6 +837,7 @@ What D1 publishes and what readers would need to verify. **D2 owns the successor
 | K4: W1a kernel method | after K1 and K3 | new files under `FK/structural/retained/` only (`source`, `ledger`, `assemble`, `factor`, `recover`, `combine`, `adaptive`), declared from `retained/mod.rs` | N05, N06, NP-A (intended), R1's discriminating RF-CHAIN, RF-SKEW, RF-WEAK and RF-FINITE (represented basis where marked), RF-MECH, RF-CANCEL, the k = 1e-28 case, the B1 and S8 controls (§7.3), the published-row S\* and classification (§4.1.6.1), the exact-block oracle in scope, and mutation controls |
 | K5: W4 witness and curved screen | after K2b (V1-N4; shares `SA`) | `FK/rigid_body.rs`, `SA` (geometry, curved screen) | A user-element internal mechanism (NP-C-like), a stabilized companion, near-collinear ties, a curved screen positive and a seeded negative |
 | K6: harness observations | after K1 | `P/core/solver/performance_harness/**` | Kernel sparse and dense observations on RF-LARGE; runner dry run, including the macOS watchdog path |
+| **K-D5**: the D-5 trigger (`D5_TRIGGER.md` §9; ROOT pre-accepted O1) | after K3; serialized after K1 and before K2b (it writes `FK/structural.rs` and `SA`), or after K5 if K3 is late | `FK/structural.rs` (EF and the Passed→Sensitive demotion in `finish_checked_factor`, evidence line only when it demotes); new `FK/structural/formation_check.rs` (element re-formation in `Wide<2>`, ΔK·u through `exact_sum`); `SA` (element primitives) | **P1's measured RF-SKEW-T-CANT-OFF-122-r1e-04 must demote (required true positive);** 345 must not; the RF-CHAIN r1e-04 continuity controls and the invented M11 skew line must not; thresholds set from product data (factor 8 on EF); every existing suite byte-identical; the committed-fixture diff; the "no Passed breach" gate; mutation (23) |
 | V-K: VP-ROBUST kernel lane | after R1's references are frozen and K4 | new `P/validation/benchmarks/numerical_robustness/**` | §4.10 kernel lane, the zero-scale floor check |
 | **S11-F**: the S11 facade half | **the first facade slice after T1 merges** | `PP` (the ledger at every producer of `S11_CONTAINMENT.md` §4.2, with pushed terms, including T1's eigen sites; `AssembledForce` seams; recovery sums E5, E7–E12; the Sensitive mapping and `LOAD_CONTRIBUTION_ABSORBED`; the enumerated site test); `P/core/product_physics/src/pressure_runtime.rs` (push group operands); T1's `source_recovery.rs:609-667` including `:1270-1274`, `source_receipt.rs:218-219` and `:320` | `S11_CONTAINMENT.md` §9 S11-F tests 1–8, including the invariant test and V1's 0.4.0 test; mutations M2–M5, M8, M9; the committed-fixture diff with disclosure (S11 §8.3) |
 | F1: facade sparse wiring, W2 at formation, SUP-17 | after S11-F | `PP` (assembly `:1378`, `:1452`, now the kernel's sparse assembly with K2b's formation-time scaling; reduction `:1855`; reactions `:2135`; `solve_preview_reduced_system`); `source_recovery.rs` (refuse scaled evidence); the nonlinear loop in `nonlinear_integration/src/lib.rs` (with T5) | Full product suites, the PHYS-R4 public fixture, LEF-small and LEF-large solved, the parity protocol, the dense-scrutiny guard |
@@ -877,6 +926,9 @@ Mutations run against R1's discriminating controls. A mutation that no discrimin
 20. **(revision 3, S8-R)** Classify on the precision-p value instead of the published value, or use R = 10^9·2^-64 with a rounded threshold, or compute S\* from anything other than published rows. D2's G5b or G5c then finds a mismatch on a constructed boundary case (a quantity within one ulp of the threshold).
 21. **(revision 3, F2)** Derive twist and extension in the harness as differences of published rotations and translations. An RF-CHAIN N05-class twist then fails its relative comparison, while the torque-derived value passes.
 22. **(revision 3, F2)** Count a `not_covered` comparison as a pass. The gate's three-number report then disagrees with the committed not-covered list, and the gate test fails.
+23. **(revision 4, D-5)** Disable the D-5 trigger. RF-SKEW-T-CANT-OFF-122-r1e-04 is then published Passed, and the "no Passed breach" gate fails.
+24. **(revision 4, D-5)** Compute the trigger from the bound EB instead of EF. M11 and the RF-CHAIN r1e-04 continuity controls then demote (the false-positive control).
+25. **(revision 4, R3B-1)** Drop the propagation factor k (use k = 1 for every stress kind). A constructed circular-maximum row just above the floor then carries an error above 1e-9 relative (V1's probe S bound 1.32e-9), and the reader's recomputed class differs.
 
 ### 7.4 Arithmetic (V1-S9)
 
@@ -918,6 +970,49 @@ Record the candidate, the model hashes and the case ids. If a witness is not ava
 
 Real piping models almost always contain weight and elbows. Until W1b and W1c land, most of them get ordinary standing, or the unavailable diagnostic, when Sensitive. S11's repair of load cancellation (recovery sums in `SP` and combinations from S11-K; the ledger and the rest from S11-F) applies to every route and every producer from the first slice after T1 merges.
 
+### 8.1 Combined withholding: D-5 demotions plus the floor and the closed table (revision 4; ROOT)
+
+What a model loses from Current under this design has three sources:
+- D-5 demotions (K-D5, before W1);
+- rows of a W1-selected case classified `absolute_verified` (below the floor);
+- rows classified `not_covered` by the closed table.
+
+Ordinary (not selected) cases publish ordinary rows with no class, so only the first source applies to them.
+
+| Model | Today | K-D5 demotion | Selected by W1 after F2 | Rows withheld per case (of rows) | Of which exact zeros |
+|---|---|---|---|---|---|
+| Committed Passed cases that solve on main (P1, relayed: 51 requests, 32 solved runs; rcond 1.06e-3 to 0.061, fe ≤ 2.85e-12) | Passed | none | no | 0 | — |
+| Committed result envelopes `fixtures/results/preview_physics_invented_*` and `invented_mechanics_result_precision_1_*` (Passed, rcond 1.3e-5 and 3.3e-5) | Passed | none expected (cond·u ≈ 1e-11) | no | 0 | — |
+| N05 and N06 family (physics_source n05, n05_unicode, n05_units, n06; source_blocks n05, n06 and ui) | Sensitive, selected by exact-block | — | yes | **61 to 62 of 79 to 82** | all |
+| physics_source mixed, case | Sensitive, selected | — | yes | 62 of 82 | all |
+| physics_source mixed, ordinary-pressure case (as recovered by physics-source-1) | recovered rows | — | yes, if triggered | 68 of 110 to 111 (plus 25 input_derived) | all |
+| physics_source fields | Sensitive, selected | — | yes | 8 of 82 | all |
+| source_blocks multicase: case / signed-companion | Sensitive, selected | — | yes | 61 of 80 / 57 of 80 | 61 / 46 |
+| source_blocks rejected_stress_range | Sensitive, selected | — | yes | 59 of 80 | all |
+| T1 load_reference_source eigen_motion join | Sensitive, selected | — | yes | 62 of 90 | 39 |
+| Invented realistic models M1 to M11 (`D5_TRIGGER.md` §7) | Passed (emulated) | none | no | 0 | — |
+
+- **`not_covered` rows: none** in any committed selected case. The closed table covers every kind they publish.
+- **Method.** `withheld_rows.py` classifies each committed selected case's rows with this revision's table, floor and k factors. It uses the committed selected values as a stand-in for W1's, and section terms from the matching request. D2's `classification_summary` gives the same counts per case once the producer exists; the gate records them (§4.4.1).
+- **The committed envelopes above.** They are committed product outputs, not re-runs. P1 (relayed) finds that `fixtures/product_preview/invented_preview_model.json` itself is blocked on main (`LOAD_COMBINATION_TERMS_EMPTY`) and publishes no solve. The rcond figures come from the two committed result envelopes named in the table; the request that produced them is not identified from reading. They are historical evidence only, and P1's range (1.06e-3 to 0.061) is the current figure for committed Passed cases.
+
+**Reading.**
+- For ordinary and realistic models the combined loss is **none**. K-D5 fires on none of them, and the closed table withholds nothing from an unselected case.
+- For the cases W1 will select, which are today's Sensitive, exact-block-selected cases, the floor withholds **10 % to 77 % of the rows**, and almost all of them are exact structural zeros: the bending and axial rows of torsion-only models, and zero reactions.
+  - Those rows are Current today where the envelope is Current: all-selected source-blocks-1 (R-7 (i)), and physics-source-1.
+  - So the successor is worse at row level for these cases, although gate condition 3 (envelope standing) passes.
+
+**Owner-level options** (ROOT would take these to the owner):
+1. **A: withhold as ruled.** Rule binding on a structural zero is refused with `RULE_QUANTITY_BELOW_VERIFIED_FLOOR`; the case keeps its standing.
+   - **Cost:** most rows of today's selected torsion-type cases stop being usable for rule checks, although they are exact.
+2. **B: exempt exact zeros, with a stated reason.** A row published as +0.0 whose value was +0.0 at both p and 2p is bindable as zero with its absolute bound attached.
+   - **Reason:** its true magnitude is within 2^-64·S\*, which no engineering rule can distinguish from zero.
+   - **Cost:** a noise-cancelled "zero" could hide a genuine value up to 2^-64·S\*. That is harmless for inequality checks, but it is not a relative claim.
+3. **C: interval binding (D2's DD-13), recommended.** Every `absolute_verified` row is bound as q ± b, with b = fl(2^-64·S\*); a rule passes only if it passes at both ends.
+   - It restores essentially every withheld row for engineering checks (b is about 1e-19 of the body scale) and makes no relative claim.
+   - **Cost:** interval semantics in `rule_check_runner` and its desktop mirror (D2 and T6).
+   - **Until C lands, A applies (fail-closed).** ROOT decides whether retirement of exact-block selection (§4.4.1) waits for C.
+
 ## 9. Decisions for ROOT
 
 | ID | Decision | Options | Recommendation |
@@ -926,7 +1021,7 @@ Real piping models almost always contain weight and elbows. Until W1b and W1c la
 | D-2 | Arithmetic backend | In-repo `wide.rs`; `dashu-float`; `rug` | In-repo, with §4.11's test plan (V1 agrees in V1-S9); `dashu-float` as the fallback |
 | D-3 | Method policy (revised) | `M03-INTEGRITY-MP-v1`: the exact-sum rule (§4.1.2); the stop rule `2^-64·max(\|q_2p\|, S*)` with body-level coupled scales, applied to case and combination outputs; the equilibrium basis `retained_precision_p`; the 128/256/512 schedule with a 1024 ceiling | Register as proposed. The stricter per-member variant is the alternative |
 | D-4 | Method order and identities | (A) retire exact-block selection for fresh solves, exact-block kept as oracle; (B) exact-block first plus the new method, in a mixed identity | (A), under the retirement gate (§4.4.1). Reserve three successor identities (names are placeholders): `<preview-retained>` and `<physics-retained>` at F2, `<load-reference-retained>` at F3 |
-| D-5 | Trigger | Not Passed (the current Sensitive boundary), plus represented-only negative energy (V1-N2) and S11-Sensitive; or a stricter boundary | Not Passed as stated. Revisit if P1 finds a Passed case that misses 1e-9 |
+| D-5 | Trigger for Passed cases (revision 4) | O1: (a2) EF trigger as K-D5, then routing to W1; O2: O1 plus a coarse boundary now; O3: W1 for everything | **ROOT pre-accepted O1** (`D5_TRIGGER.md`); O2 rejected; the "no Passed breach" gate applies, with RF-CANCEL's 12 breaches as named S11 exceptions until S11-F merges |
 | D-6 | W2 | Force-radix scaling at formation, with the normative b-rule and checked formation; the admitted range; no new diagnostic code (one new `FrameKernelError` variant) | As proposed |
 | D-7 | W3 fallback and guards | No automatic fallback, dense scrutiny explicit and guarded; or automatic dense fallback on sparse representation errors | No automatic fallback. Ceilings from measurement |
 | D-8 | Budgets | Per-case and per-invocation work limits for the method | Select after the K6 and V-P measurements, as RESOURCE_POLICY did. The gate's coverage condition must fit inside them |
@@ -936,6 +1031,7 @@ Real piping models almost always contain weight and elbows. Until W1b and W1c la
 | D-12 | Below-floor quantities (V1-S8) | (a) publish them classified, readers enforcing the label; (b) withhold them | **Ruled (S8-R):** classify on the published value with R = 2^-34, readers recompute, and `absolute_verified` and `not_covered` quantities are withheld from reliance and never counted as Passed; no exemption proposed (§4.1.6) |
 | D-13 (new) | S11 containment | C3-full as S11-K and S11-F (ledger plus exact recovery, `S11_CONTAINMENT.md` revision 4); C3-detect as the fallback; no interim containment (ROOT's adopted text); sub-decisions D-S11-1 (zero witness), D-S11-2 (all three `FK` rounding sites), D-S11-3 (live T1-disjoint repairs in S11-K), D-S11-4 (no in-band marker) in S11 §11 | ROOT decided D-S11-1 (witness for published diagnostic renderings only), D-S11-2, D-S11-3 (full gates, own PR) and D-S11-4 at `4862a72a9`. The pre-acceptance of C3-full awaits V1's backcheck of S11 revision 2 |
 | D-14 (new) | Equivalent-static owner (V1-N5) | Assign a tranche, or record it as an open remainder | ROOT assigns |
+| D-15 (new) | Rows of W1-selected cases below the floor, mostly exact structural zeros (§8.1) | A: withhold; B: exempt exact zeros with a stated reason; C: interval binding (DD-13) | C, with A until C lands; ROOT decides whether retirement of exact-block selection waits for C |
 
 **Owner-level.** None, if D-2 is in-repo or `dashu-float`. If ROOT prefers `rug`, then statically linking LGPL-3.0+ GMP and MPFR into the MIT-licensed, signed macOS bundle raises relinking obligations. That is a licence and governance matter for the owner. The options are: avoid it (recommended); ship with LGPL compliance measures; or dynamic linking, which is not how gmp-mpfr-sys builds by default. No protected comparison predicate changes; STAGE0 §5.3 stays as ROOT ruled. R1's net-governed scale for RF-CANCEL is a scale choice within the unchanged predicate, not a predicate change.
 
@@ -987,6 +1083,7 @@ Real piping models almost always contain weight and elbows. Until W1b and W1c la
 **Ran** (all standard-library Python 3.11.15, `nice 19`; each under 1 s except `floor_kinds.py`, about 10 s).
 - `probe_skew_precision.py` → `.stdout.json`: revision 1's evidence, unchanged. Its emulation rounds every operation to p bits with an unbounded exponent. It is not Rust or MPFR, and not a product run. Its scales are a probe convenience, not references.
 - `probe_rev2_b1.py` → `.stdout.json`: §3.2 (B1-L, B1-C, B1-E, S8-W). It imports the revision-1 emulation unchanged.
+- **Revision 4:** `withheld_rows.py` → `withheld_rows_main.json` and `withheld_rows_t1.json` (§8.1), run over `P/fixtures/product_preview` on main and over T1's changed fixtures extracted with `git show f3270ea79` into a scratch folder; `scan_row_kinds.py` → `row_kinds.json` (§4.1.6.1 item 2), over the same two roots. The D-5 records are listed in `D5_TRIGGER.md` §12.
 - **Revision 3:** `floor_kinds.py` → `floor_kinds.json`, `floor_kinds.stdout.txt` (R = 10^9·2^-64) and `floor_kinds_r34.stdout.txt` (R = 2^-34): §4.10's not-covered list. It reads R1's `references.json` at `c0f14201c` (not edited) and V2's per-case L_b from `REFERENCE_CHECK/_run_records/v2_compare.json`, and recomputes V2's variant B exactly (43 RF-WEAK, 3 RF-CANCEL on the net-governed scale) as a check of its basis. S(kind) comes from R1's published expected rows, so for the n = 10000 cases (sampled rows) S is a lower bound, and their member length is bounded by L_b; both can only add flags. Run from `T3/` with `nice 19`, each run about 10 s.
 - `probe_s11_audit.py` and `scan_load_fold.py` → `.stdout.json`: `S11_CONTAINMENT.md` (revision 1 evidence, kept).
 - `probe_s11_rev2.py` and `scan_element_loads.py` → `.stdout.json`: `S11_CONTAINMENT.md` revision 2 (invariant, mutation, orders, combinations, guard amplification, zero witness; element loads per member).
