@@ -11,7 +11,7 @@ You are a **fresh-context, non-author reviewer** of the whole T1 candidate. You 
 
 ## Basis
 
-- `LSI/T1_PLAN.md`, `CHECKPOINT_4.md`–`CHECKPOINT_7.md`, and `T1_WAVE1_RULINGS.md` §1–§16 with the ROOT addenda.
+- `LSI/T1_PLAN.md`, `CHECKPOINT_4.md`–`CHECKPOINT_6.md`, and `T1_WAVE1_RULINGS.md` §1–§16 with the ROOT addenda.
 - The wire: `CP2_WIRE.md`, its addenda, `CP3_WIRE_ADDENDUM.md`, `CP4_WIRE_ADDENDUM.md` as corrected by `CP4_REVIEW_DISPOSITION.md`, and `T1_WIRE_ADDENDUM.md`.
 - The T0R design: `DEFAULT_ROUTE_DESIGN/DESIGN.md` §10 and `S6_RECORD.md` §6.
 
@@ -54,7 +54,11 @@ You are a **fresh-context, non-author reviewer** of the whole T1 candidate. You 
 - pytest and vitest suites.
 - Your own probes and mutants.
 
-The manager's quiet-host DEC-025 sweep, src-tauri run and VP-STATIC rerun on the candidate are recorded in `CHECKPOINT_7.md`. Read them; do not repeat full sweeps.
+**Timing.** This review starts as soon as the candidate is frozen, and runs in parallel with the manager's quiet-host sweeps: the DEC-025 sweep, src-tauri, Chromium e2e and the VP-STATIC rerun. Checkpoint 7 records the sweeps and this review together. Keep the host quiet while those sweeps run:
+- **Until the manager messages "sweep finished":** read code, and run only targeted tests on your archive (single test files or single crates). Run no full suites, no mutants and no fresh full cargo builds.
+- **After that message:** you may run mutants and heavier probes.
+
+Do not repeat the full sweeps. If your findings lead to any byte change, the changed candidate is re-swept on the affected surfaces.
 
 ## Return
 
