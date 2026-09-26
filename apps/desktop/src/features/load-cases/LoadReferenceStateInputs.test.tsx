@@ -300,5 +300,10 @@ describe("no defaults: empty means absent, units are explicit", () => {
     expect(toPayload([{ source_ref: "s", factor: "0.5" }])).toEqual([{ source_ref: "s", factor: 0.5 }]);
     expect(() => toPayload({ q: { value: "abc", unit: "mm" } })).toThrow("must be a finite number");
     expect(() => toPayload({ factor: "x" })).toThrow("must be a finite number");
+    // N4: a partly filled row whose only key is `value` holding a quantity is a
+    // structure, not a quantity: its quantity converts and nothing is defaulted,
+    // so the engine (not this helper) reports the missing dof/meaning.
+    expect(toPayload({ value: { value: "0.01", unit: "m" } })).toEqual({ value: { value: 0.01, unit: "m" } });
+    expect(toPayload([{ value: { value: "0.02", unit: "m" } }])).toEqual([{ value: { value: 0.02, unit: "m" } }]);
   });
 });

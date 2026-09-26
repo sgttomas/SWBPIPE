@@ -38,7 +38,13 @@ export function toPayload(value: unknown, numberKeys: readonly string[] = ["fact
   if (Array.isArray(value)) return value.map((item, index) => toPayload(item, numberKeys, `${path} ${index + 1}`));
   if (!value || typeof value !== "object") return value;
   const entries = Object.entries(value as DraftRecord);
-  if (entries.length > 0 && entries.every(([key]) => key === "value" || key === "unit")) {
+  // A quantity is `{value, unit}` with a scalar value. A record whose only key
+  // is `value` but whose value is itself an object (for example a partly
+  // filled boundary_motion row) is a structure, so it is passed through and the
+  // engine names what is missing (T1_WP7_FINAL_REVIEW N4).
+  const draft = value as DraftRecord;
+  const scalarValue = !Object.hasOwn(draft, "value") || draft.value === null || typeof draft.value !== "object";
+  if (entries.length > 0 && entries.every(([key]) => key === "value" || key === "unit") && scalarValue) {
     const out: DraftRecord = {};
     for (const [key, item] of entries) {
       if (key === "value") {
