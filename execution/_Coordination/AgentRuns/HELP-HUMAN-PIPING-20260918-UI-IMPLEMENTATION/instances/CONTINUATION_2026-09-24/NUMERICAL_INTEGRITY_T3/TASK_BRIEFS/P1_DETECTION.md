@@ -41,7 +41,7 @@ Take them from D1 revision 2 §7.2 and `MANAGER_NOTES/S11_MAP.md`:
 
 Report every unexpected outcome prominently, especially any Passed or Current-eligible result that mismatches its reference. That would be a new silent-wrong finding.
 
-A Passed breach of an RF-CANCEL case with realistic magnitudes reopens ROOT's S11 no-interim ruling (`ROOT_RULINGS_V1.md`). Report any such breach to the manager at once, before finishing the rest of the run.
+A Passed breach of an RF-CANCEL case with realistic magnitudes reopens ROOT's S11 no-interim ruling (`ROOT_RULINGS_V1.md`). Report any such breach to the manager at once, before finishing the rest of the run. The same applies to a Passed breach on a realistic support-settlement case, if main can author one; on main such cases usually need T1's 0.4.0 route, so record `not_authorable` otherwise (S11B-1, `ROOT_RULINGS_V1.md`).
 
 ## Write set
 
