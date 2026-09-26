@@ -1,0 +1,50 @@
+$ <VENV>/bin/python -m pytest -x -q -p no:cacheprovider tests/test_load_reference_source_readers.py
+exit=1
+..................F
+=================================== FAILURES ===================================
+______________ test_shared_adversarial_case[ID-producer-version] _______________
+
+case = {'id': 'ID-producer-version', 'source': 'n05-sparse', 'ops': [{'op': 'set', 'path': '/producer/component_version', 'value': '0.3.0'}], 'dispatch': 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED', ...}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        joined = outcome(lambda: validate_load_reference_source_evidence(doc))
+        entry = {"id": case["id"], "dispatch": dispatch, "joined": joined}
+        if "lr" in case:
+            entry["lr"] = outcome(lambda: validate_load_reference_evidence(doc))
+        if "ps" in case:
+            entry["ps"] = outcome(lambda: validate_physics_source(doc))
+        RESULTS.append(entry)
+        assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+        assert agrees(joined, expected(case, "joined")), (joined, expected(case, "joined"))
+        for kind in ("lr", "ps"):
+            if kind in case:
+                assert entry[kind] == expected(case, kind), (kind, entry[kind], expected(case, kind))
+        contract = case.get("accept_contract", LOAD_REFERENCE_SOURCE_CONTRACT_ID)
+        if dispatch == "accept":
+            assert _source_contract(doc)[0] == contract
+            record = build_analysis_run(doc, input_manifest_ref=MANIFEST, input_manifest_hash="1" * 64)
+            validate_analysis_run_v0_3(record, doc)
+            run = record["analysis_run"]
+            if contract == LOAD_REFERENCE_SOURCE_CONTRACT_ID:
+                # Mirrors physics-source-1: both retained namespaces, never eligible.
+                assert run["source_block_recovery"] == doc["source_block_recovery"] and run["contract_evidence"] == doc["contract_evidence"]
+            else:
+                assert "contract_evidence" not in run and "source_block_recovery" not in run
+            assert numerical_use_standing(doc, bases(doc)) == "needs_recompute"
+        else:
+            with pytest.raises(ValueError):
+                build_analysis_run(doc, input_manifest_ref=MANIFEST, input_manifest_hash="1" * 64)
+>           assert numerical_use_standing(doc, bases(doc)) == "unsupported"
+E           AssertionError: assert 'needs_recompute' == 'unsupported'
+E             
+E             - unsupported
+E             + needs_recompute
+
+tests/test_load_reference_source_readers.py:232: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_source_readers.py::test_shared_adversarial_case[ID-producer-version]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 18 passed in 47.37s

@@ -9,6 +9,8 @@ import json, os, subprocess, sys
 
 M = "src/load_state_authoring.rs"
 L = "src/lib.rs"
+RA = "src/rich_authoring.rs"
+PA = "src/pressure_authoring.rs"
 MUTANTS = [
     ("M01-envelope", M, 'if unit != "none" || dimension != "dimensionless" {', 'if false {'),
     ("M02-schema-version", M, 'if model.get("schema_version").and_then(Value::as_str) != Some(LOAD_STATE_MODEL_VERSION) {', 'if false {'),
@@ -71,6 +73,24 @@ MUTANTS = [
     ("N07-delete-pipe-element-states", M, '            if element.get("pipe_ref").and_then(Value::as_str) == Some(pipe_ref) {', '            if false {'),
     ("N08-delete-support-support-states", L, '    references.extend(load_state_authoring::support_references(model, target_ref));', ''),
     ("N09-delete-primitive-load-sources", L, '    let references = load_state_authoring::source_references(load_case, primitive_id);', '    let references: Vec<String> = Vec::new();\n    let _ = (load_case, primitive_id);'),
+    # Addendum 2: review B repairs. R01, R02 and R04 are review B's own mutants, verbatim.
+    ("R01-no-op-still-writes", M, "        writes: if after_display == current_display {\n            vec![]", "        writes: if false {\n            vec![]"),
+    ("R02-point-ref-resolved-on-any-material", M, "            resolve_ref(&ids(material, \"temperature_points\"), \"point_ref\", point_ref)?;",
+     "            let any: std::collections::HashSet<&str> = model[\"materials\"].as_array().into_iter().flatten().flat_map(|m| ids(m, \"temperature_points\")).collect();\n            resolve_ref(&any, \"point_ref\", point_ref)?;"),
+    ("R04-support-scan-first-case-only", M, "    for case in cases(model) {\n        for (index, state) in case", "    for case in cases(model).take(1) {\n        for (index, state) in case"),
+    ("P01-pressure-profile-version-lock", PA, """            if model.get("schema_version").and_then(Value::as_str)
+                == Some(open_pipe_stress_product_physics::LOAD_STATE_MODEL_VERSION)
+            {""", "            if false {"),
+    ("P02-temperature-points-orphan-check", RA, "            crate::load_state_authoring::refuse_point_orphans(model, current, &after)?;\n", ""),
+    ("P03-point-orphan-scoped-to-selecting-material", M, """                != target
+            {
+                continue;
+            }""", """                != target
+            {
+            }"""),
+    ("P04-point-orphan-only-if-newly-unresolved", M, ".filter(|p| current.contains(p) && !next.contains(p))", ".filter(|p| { let _ = &current; !next.contains(p) })"),
+    ("P05-exact-profile-includes-0-4-0", RA, 'let exact_profile = (model["schema_version"] == "0.3.0" || load_state)', 'let exact_profile = (model["schema_version"] == "0.3.0")'),
+    ("P06-0-4-0-points-need-no-coefficient", RA, "    let point_thermal_field = if load_state && exact_profile {", "    let point_thermal_field = if false {"),
 ]
 
 def run(target):

@@ -169,8 +169,8 @@ fn with_model(request_text: &str, model: &Value) -> Value {
     request
 }
 /// Solve the applied model through the product in both solver modes and
-/// return the named displacement row value in mm.
-fn displacement_mm(request: &Value, case: &str, node: &str, kind: &str) -> f64 {
+/// return the named displacement row value in mm, sparse then dense.
+fn displacement_mm(request: &Value, case: &str, node: &str, kind: &str) -> [f64; 2] {
     let mut values = Vec::new();
     for mode in [
         PreviewSolverMode::SparseInteractive,
@@ -195,7 +195,13 @@ fn displacement_mm(request: &Value, case: &str, node: &str, kind: &str) -> f64 {
         assert_eq!(row["unit"], "mm");
         values.push(row["value"].as_f64().unwrap());
     }
-    values[0]
+    [values[0], values[1]]
+}
+/// Both solver modes must equal the closed-form prediction.
+fn close_both(values: [f64; 2], expected: f64) {
+    for value in values {
+        close(value, expected);
+    }
 }
 fn close(actual: f64, expected: f64) {
     assert!(
@@ -238,8 +244,8 @@ fn node_x_m(model: &Value, node: &str) -> f64 {
 
 /// `connected` closed form, both members straight along X, equal E·A within a
 /// case (both select the same point), ends at root (u_r) and far (u_f = 0):
-/// N1 = N2 with N_i = EA (Δu_i / L_i − ε*_i) gives
-/// u_m = (u_r + u_f + ε*_1 L_1 − ε*_2 L_2) / 2, where
+/// N1 = N2 with N_i = EA (Δu_i / L_i − ε*_i) gives the general form
+/// u_m = (u_r / L_1 + u_f / L_2 + ε*_1 − ε*_2) / (1 / L_1 + 1 / L_2), where
 /// ε*_i = λ_fit,i · λ_th − 1, λ_fit = 1 + ΔL / L (natural length change) and,
 /// for an `engineering_secant` constant law whose datum equals the installation
 /// temperature, λ_th = 1 + α (T − T_install).
@@ -282,7 +288,16 @@ fn connected_middle_ux_mm(model: &Value, case: &str) -> f64 {
         };
         lambda_fit * lambda_th - 1.0
     };
-    1000.0 * (u_r + 0.0 + eps(0, l1) * l1 - eps(1, l2) * l2) / 2.0
+    // The far anchor has no entered motion: its UX is an explicit zero.
+    let far = state["support_states"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["support_ref"] == "support:far")
+        .unwrap();
+    assert!(far.get("boundary_motion").is_none());
+    let u_f = 0.0;
+    1000.0 * (u_r / l1 + u_f / l2 + eps(0, l1) - eps(1, l2)) / (1.0 / l1 + 1.0 / l2)
 }
 
 #[test]
@@ -302,7 +317,7 @@ fn reference_configurations_apply_undo_redo_and_resolve_as_closed_form_predicts(
     );
     // The witness itself satisfies the closed form, and the edit moves it.
     let before_cold = connected_middle_ux_mm(&base, "case:cold");
-    close(
+    close_both(
         displacement_mm(
             &with_model(CONNECTED, &base),
             "case:cold",
@@ -313,7 +328,7 @@ fn reference_configurations_apply_undo_redo_and_resolve_as_closed_form_predicts(
     );
     for case in ["case:cold", "case:hot"] {
         let predicted = connected_middle_ux_mm(&applied, case);
-        close(
+        close_both(
             displacement_mm(
                 &with_model(CONNECTED, &applied),
                 case,
@@ -357,7 +372,7 @@ fn expansion_laws_apply_undo_redo_and_resolve_as_closed_form_predicts() {
         &after,
     );
     let before_hot = connected_middle_ux_mm(&base, "case:hot");
-    close(
+    close_both(
         displacement_mm(
             &with_model(CONNECTED, &base),
             "case:hot",
@@ -367,7 +382,7 @@ fn expansion_laws_apply_undo_redo_and_resolve_as_closed_form_predicts() {
         before_hot,
     );
     let predicted = connected_middle_ux_mm(&applied, "case:hot");
-    close(
+    close_both(
         displacement_mm(
             &with_model(CONNECTED, &applied),
             "case:hot",
@@ -428,11 +443,11 @@ fn analysis_state_apply_undo_redo_and_boundary_motion_moves_the_tip_rigidly() {
         let (ux, uy) = predict(model);
         close(uy, expected_uy);
         let request = with_model(EIGEN_MOTION, model);
-        close(
+        close_both(
             displacement_mm(&request, "case:join", "tip", "global_nodal_displacement_x"),
             ux,
         );
-        close(
+        close_both(
             displacement_mm(&request, "case:join", "tip", "global_nodal_displacement_y"),
             uy,
         );
@@ -1395,4 +1410,263 @@ fn atomic_batch_removes_the_states_before_their_configuration_and_passes() {
     assert!(refused
         .to_string()
         .contains("OP-LOAD-STATE-INBOUND-REFERENCE"));
+}
+
+// ---------------------------------------------------------------------------
+// Addendum 2: review B repairs (F1, F2, F5, F9).
+// ---------------------------------------------------------------------------
+
+fn codes(model: &Value, op: &Value) -> (bool, Vec<String>) {
+    let outcome = apply_operation(model, op, Some(&hash(model)));
+    (
+        outcome.applied_model.is_some(),
+        outcome.diagnostics.iter().map(|d| d.code.clone()).collect(),
+    )
+}
+
+#[test]
+fn pressure_profile_cannot_change_a_0_4_0_model() {
+    let model = connected();
+    let project = model["project"]["id"].as_str().unwrap().to_string();
+    let before = canonical_json(&json!({
+        "schema_version": model["schema_version"],
+        "pressure_contract": model["pressure_contract"],
+    }));
+    let exact = json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
+    let code = "OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED";
+    // The downgrade the review found, and an unchanged profile, are refused.
+    for after in [
+        json!({"schema_version":"0.3.0","pressure_contract":exact}),
+        json!({"schema_version":"0.4.0","pressure_contract":exact}),
+    ] {
+        let op = intent(
+            "Model",
+            &project,
+            "pressure_profile",
+            &before,
+            &after.to_string(),
+        );
+        refused(&model, &op, code);
+    }
+    // Inside an atomic batch, after an admitted load-state edit, the whole
+    // batch is refused and no model is returned.
+    let mut state = model["load_cases"][0]["analysis_state"].clone();
+    state["support_states"][0]["boundary_motion"][0]["value"] = json!({"value": 0.7, "unit": "mm"});
+    let edit = intent(
+        "Load",
+        "case:cold",
+        "analysis_state",
+        &canonical_json(&model["load_cases"][0]["analysis_state"]),
+        &serde_json::to_string(&state).unwrap(),
+    );
+    let downgrade = intent(
+        "Model",
+        &project,
+        "pressure_profile",
+        &before,
+        &json!({"schema_version":"0.3.0","pressure_contract":exact}).to_string(),
+    );
+    let batch = json!({"batch_id":"batch:pressure-profile-lock","operations":[edit, downgrade]});
+    let claim = hash(&model);
+    for outcome in [
+        validate_operation_batch(&model, &batch, Some(&claim)),
+        apply_operation_batch(&model, &batch, Some(&claim)),
+    ] {
+        assert!(
+            outcome.get("applied_model").is_none_or(Value::is_null),
+            "{outcome:#}"
+        );
+        assert_ne!(
+            outcome["validation"]["application_status"],
+            "applied_to_session_model"
+        );
+        assert!(outcome.to_string().contains(code), "{outcome:#}");
+    }
+    // Without the profile step the same batch applies.
+    let alone = json!({"batch_id":"batch:pressure-profile-lock-control","operations":[batch["operations"][0].clone()]});
+    let applied = apply_operation_batch(&model, &alone, Some(&claim));
+    assert_eq!(
+        applied["validation"]["application_status"], "applied_to_session_model",
+        "{applied:#}"
+    );
+    assert_eq!(applied["applied_model"]["schema_version"], "0.4.0");
+}
+
+#[test]
+fn temperature_points_replacement_cannot_orphan_an_exact_point() {
+    let base = connected();
+    let points = base["materials"][0]["temperature_points"].clone();
+    let before = canonical_json(&points);
+    let op = |model: &Value, after: &Value| {
+        let current = display(model["materials"][0].get("temperature_points"));
+        intent(
+            "Material",
+            "material:shared",
+            "temperature_points",
+            &current,
+            &after.to_string(),
+        )
+    };
+    let code = "OP-LOAD-STATE-INBOUND-REFERENCE";
+    let mut removed_cold = points.clone();
+    removed_cold.as_array_mut().unwrap().remove(0);
+    let mut renamed_cold = points.clone();
+    renamed_cold[0]["id"] = json!("point:invented-renamed");
+    let mut removed_hot = points.clone();
+    removed_hot.as_array_mut().unwrap().remove(1);
+    for (after, case) in [
+        (&removed_cold, "case:cold"),
+        (&renamed_cold, "case:cold"),
+        (&removed_hot, "case:hot"),
+    ] {
+        let refs = affected(&base, &op(&base, after), code);
+        for index in 0..2 {
+            assert!(
+                names(
+                    &refs,
+                    &format!(
+                        "{case}.analysis_state.element_states.{index}.material_selection.point_ref"
+                    )
+                ),
+                "{refs:?}"
+            );
+        }
+    }
+    assert_eq!(canonical_json(&points), before);
+
+    // Admitted: a new complete E/nu point. On a 0.4.0 exact model no
+    // not-solve-ready warning is raised (F9): E/nu is the point basis, and
+    // thermal definitions live in the load/reference state.
+    let mut added = points.clone();
+    added.as_array_mut().unwrap().push(json!({"id":"point:invented-warm","temperature":{"value":80,"unit":"degC"},
+        "elastic_modulus":{"value":180,"unit":"GPa"},"poisson_ratio":{"value":0.3,"unit":"1"},"provenance":"invented point"}));
+    let (applied, found) = codes(&base, &op(&base, &added));
+    assert!(applied, "{found:?}");
+    assert!(found.is_empty(), "{found:?}");
+    // An incomplete 0.4.0 point still warns, for its missing E/nu pair only.
+    let mut partial = points.clone();
+    partial.as_array_mut().unwrap().push(
+        json!({"id":"point:invented-partial","temperature":{"value":80,"unit":"degC"},
+        "elastic_modulus":{"value":180,"unit":"GPa"},"provenance":"invented point"}),
+    );
+    let outcome = apply_operation(&base, &op(&base, &partial), Some(&hash(&base)));
+    let warnings: Vec<_> = outcome
+        .diagnostics
+        .iter()
+        .filter(|d| d.code == "OP-RICH-NOT-SOLVE-READY")
+        .collect();
+    assert_eq!(warnings.len(), 1, "{:?}", outcome.diagnostics);
+    assert!(warnings[0].message.contains("point:invented-partial"));
+
+    // Controls. Without the records, removal and rename are admitted.
+    let bare = without_states(&base);
+    for after in [&removed_cold, &renamed_cold, &removed_hot] {
+        let (applied, found) = codes(&bare, &op(&bare, after));
+        assert!(applied, "{found:?}");
+    }
+    // Only elements that select this material count: a second material with
+    // the same point IDs can drop its points.
+    let mut second = base.clone();
+    let mut material = base["materials"][0].clone();
+    material["id"] = json!("material:invented-second");
+    material.as_object_mut().unwrap().remove("expansion_laws");
+    second["materials"].as_array_mut().unwrap().push(material);
+    let drop_second = intent(
+        "Material",
+        "material:invented-second",
+        "temperature_points",
+        &before,
+        &removed_cold.to_string(),
+    );
+    let (applied, found) = codes(&second, &drop_second);
+    assert!(applied, "{found:?}");
+    // A point that was already unresolved is not orphaned by this edit.
+    let mut stale = base.clone();
+    for case in 0..2 {
+        for element in 0..2 {
+            stale["load_cases"][case]["analysis_state"]["element_states"][element]
+                ["material_selection"]["point_ref"] = json!("point:invented-gone");
+        }
+    }
+    let (applied, found) = codes(&stale, &op(&stale, &removed_cold));
+    assert!(applied, "{found:?}");
+}
+
+#[test]
+fn an_unchanged_payload_is_a_true_no_op_with_no_write() {
+    // Each payload is re-entered with an integer written as a decimal
+    // (20 -> 20.0). It is canonically unchanged, so nothing may be written:
+    // the model keeps its exact bytes, including the integer representation.
+    let base = connected();
+    let project = base["project"]["id"].as_str().unwrap().to_string();
+    for (object, id, owner, path) in [
+        ("Model", project.as_str(), "", "reference_configurations"),
+        (
+            "Material",
+            "material:shared",
+            "/materials/0",
+            "expansion_laws",
+        ),
+        ("Load", "case:cold", "/load_cases/0", "analysis_state"),
+    ] {
+        let current = &base.pointer(owner).unwrap()[path];
+        let text = serde_json::to_string(current).unwrap();
+        let respelled = text.replace("\"value\":20}", "\"value\":20.0}");
+        assert_ne!(respelled, text, "{path}: the witness carries an integer 20");
+        let parsed: Value = serde_json::from_str(&respelled).unwrap();
+        assert_eq!(canonical_json(&parsed), canonical_json(current));
+        assert_ne!(serde_json::to_string(&parsed).unwrap(), text);
+        let op = intent(object, id, path, &canonical_json(current), &respelled);
+        let applied = apply(&base, &op);
+        assert_same_bytes(&applied, &base);
+    }
+}
+
+#[test]
+fn point_ref_resolves_only_on_the_selected_material() {
+    let mut model = connected();
+    let mut material = model["materials"][0].clone();
+    material["id"] = json!("material:invented-second");
+    material["temperature_points"][0]["id"] = json!("point:invented-only-second");
+    material.as_object_mut().unwrap().remove("expansion_laws");
+    model["materials"].as_array_mut().unwrap().push(material);
+    let state = model["load_cases"][0]["analysis_state"].clone();
+    let mut edited = state.clone();
+    edited["element_states"][0]["material_selection"]["point_ref"] =
+        json!("point:invented-only-second");
+    assert_eq!(
+        edited["element_states"][0]["material_selection"]["material_ref"],
+        "material:shared"
+    );
+    let op = intent(
+        "Load",
+        "case:cold",
+        "analysis_state",
+        &canonical_json(&state),
+        &serde_json::to_string(&edited).unwrap(),
+    );
+    refused(&model, &op, "OP-LOAD-STATE-REFERENCE-UNRESOLVED");
+}
+
+#[test]
+fn support_deletion_scans_every_case_not_only_the_first() {
+    // support:far is named only in the second case's support states.
+    let mut model = labelled();
+    model["load_cases"][0]["analysis_state"]["support_states"]
+        .as_array_mut()
+        .unwrap()
+        .retain(|s| s["support_ref"] != "support:far");
+    let refs = affected(
+        &model,
+        &delete_support(&model, "support:far"),
+        "OP-SUPPORT-DELETE-REFERENCED",
+    );
+    assert!(
+        names(
+            &refs,
+            "case:hot.analysis_state.support_states.1.support_ref"
+        ),
+        "{refs:?}"
+    );
+    assert!(!names(&refs, "case:cold."), "{refs:?}");
 }

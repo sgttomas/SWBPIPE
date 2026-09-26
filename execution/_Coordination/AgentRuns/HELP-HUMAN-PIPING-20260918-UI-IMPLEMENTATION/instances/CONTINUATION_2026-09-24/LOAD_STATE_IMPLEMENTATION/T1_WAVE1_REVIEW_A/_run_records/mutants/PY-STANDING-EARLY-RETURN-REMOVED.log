@@ -1,0 +1,6 @@
+$ <VENV>/bin/python -m pytest -x -q -p no:cacheprovider tests/test_load_reference_source_readers.py
+exit=0
+........................................................................ [ 48%]
+........................................................................ [ 97%]
+..s                                                                      [100%]
+146 passed, 1 skipped in 86.61s (0:01:26)

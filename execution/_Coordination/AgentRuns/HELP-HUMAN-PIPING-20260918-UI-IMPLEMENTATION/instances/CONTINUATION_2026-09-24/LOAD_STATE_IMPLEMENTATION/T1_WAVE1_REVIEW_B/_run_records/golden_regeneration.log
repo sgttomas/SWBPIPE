@@ -1,0 +1,8 @@
+Base lib.rs overlaid (0 occurrences of load_state_authoring); only the control test and the base applier compiled.
+product_physics, units and canonical_json are unchanged between d8f0dc4f7 and 6ded3e347 (git diff --stat empty), so the base applier build is the base revision's behaviour.
+load_state_delete_control (BLESS): test result: ok. 1 passed
+GOLDEN_IDENTICAL
+1da7ef35cc20773643e3a0f08f7f76ecb6ec301a953c43acd8207ebf4186e16f  regenerated
+1da7ef35cc20773643e3a0f08f7f76ecb6ec301a953c43acd8207ebf4186e16f  committed
+records 86: delete_primitive_load 48, delete_support 16, delete_pipe_run 12, delete_material 10; applied 27
+codes: OP-ENTITY-DELETE-REFERENCED 10, OP-SUPPORT-PAYLOAD-INVALID 10, OP-PIPE-PAYLOAD-INVALID 6, OP-PIPE-DELETE-REFERENCED 4, OP-STALE-BEFORE-VALUE 2

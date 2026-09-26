@@ -1,0 +1,12 @@
+JCS self-test: 2 table vectors reproduced
+OK eigen_motion-dense_scrutiny.raw.json          cases=1 (physical, receipt, publication hashes reproduced)
+OK eigen_motion-sparse_interactive.raw.json      cases=1 (physical, receipt, publication hashes reproduced)
+OK fields-dense_scrutiny.raw.json                cases=1 (physical, receipt, publication hashes reproduced)
+OK fields-sparse_interactive.raw.json            cases=1 (physical, receipt, publication hashes reproduced)
+OK mixed-dense_scrutiny.raw.json                 cases=2 (physical, receipt, publication hashes reproduced)
+OK mixed-sparse_interactive.raw.json             cases=2 (physical, receipt, publication hashes reproduced)
+OK n05-dense_scrutiny.raw.json                   cases=1 (physical, receipt, publication hashes reproduced)
+OK n05-sparse_interactive.raw.json               cases=1 (physical, receipt, publication hashes reproduced)
+OK n06-dense_scrutiny.raw.json                   cases=1 (physical, receipt, publication hashes reproduced)
+OK n06-sparse_interactive.raw.json               cases=1 (physical, receipt, publication hashes reproduced)
+total cases 12

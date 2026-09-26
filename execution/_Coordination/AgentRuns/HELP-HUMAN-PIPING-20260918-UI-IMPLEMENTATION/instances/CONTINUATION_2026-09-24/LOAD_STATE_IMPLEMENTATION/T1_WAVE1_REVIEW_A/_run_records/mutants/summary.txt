@@ -1,0 +1,16 @@
+RS-R7-WHOLE-PRESSURE: KILLED [63s] test table_bytes_and_transport_cases_match_in_rust ... FAILED
+RS-STANDING-EARLY-RETURN-REMOVED: SURVIVED [122s] 
+RS-STANDING-BEFORE-VALIDATION: KILLED [22s] test shared_adversarial_cases_match_in_rust ... FAILED
+RS-PROJECT-KEEPS-RECORDS: KILLED [3s] test canonical_documents_preserve_source_metadata_and_evidence_verbatim ... FAILED
+RS-PROJECT-STALE-PHYSICAL: KILLED [27s] test canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim ... FAILED
+RS-J0-PROFILE-CLAUSE: KILLED [65s] test shared_adversarial_cases_match_in_rust ... FAILED
+RS-S10B-ANY-TO-ALL: KILLED [46s] test table_bytes_and_transport_cases_match_in_rust ... FAILED
+RS-S13-SELECTED-ID-DASHED: KILLED [52s] test shared_adversarial_cases_match_in_rust ... FAILED
+RS-DERIVATIVE-EVIDENCE-COPY: KILLED [27s] test canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim ... FAILED
+PY-R7-WHOLE-PRESSURE: KILLED [14s] >       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+PY-STANDING-EARLY-RETURN-REMOVED: SURVIVED [87s] 
+PY-STANDING-BEFORE-VALIDATION: KILLED [48s] assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+PY-J0-PROFILE-CLAUSE: KILLED [48s] assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+PY-S10B-ANY-TO-ALL: KILLED [20s] >       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+PY-S13-SELECTED-ID-DASHED: KILLED [33s] >       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+PY-ANALYSIS-RUN-EVIDENCE-COPY: KILLED [3s] assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))

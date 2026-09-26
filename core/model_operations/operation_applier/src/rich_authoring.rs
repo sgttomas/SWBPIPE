@@ -255,6 +255,7 @@ pub(crate) fn resolve(
         }
         "materials" => {
             validate_temperature_points(model, current, &after, &mut warnings)?;
+            crate::load_state_authoring::refuse_point_orphans(model, current, &after)?;
             vec![(vec!["temperature_points".into()], Some(after))]
         }
         _ => {
@@ -593,8 +594,26 @@ fn validate_temperature_points(
     points: &Value,
     warnings: &mut Vec<String>,
 ) -> Result<()> {
-    let exact_profile = model["schema_version"] == "0.3.0" && model.pointer("/pressure_contract/mode").is_some_and(|v| v == "exact_straight_pressure_v2");
-    let modulus_pair_field = if exact_profile { "poisson_ratio" } else { "shear_modulus" };
+    // Model 0.4.0 requires the exact pressure contract and carries the same
+    // E/nu point basis (review B F9). Its thermal definitions live in the
+    // load/reference state (expansion laws or explicit interval states), so a
+    // point's `thermal_expansion_coefficient` is not an interpolation input.
+    let load_state =
+        model["schema_version"] == open_pipe_stress_product_physics::LOAD_STATE_MODEL_VERSION;
+    let exact_profile = (model["schema_version"] == "0.3.0" || load_state)
+        && model
+            .pointer("/pressure_contract/mode")
+            .is_some_and(|v| v == "exact_straight_pressure_v2");
+    let modulus_pair_field = if exact_profile {
+        "poisson_ratio"
+    } else {
+        "shear_modulus"
+    };
+    let point_thermal_field = if load_state && exact_profile {
+        None
+    } else {
+        Some("thermal_expansion_coefficient")
+    };
     let points = points
         .as_array()
         .ok_or_else(|| err("temperature_points must be an array"))?;
@@ -635,14 +654,10 @@ fn validate_temperature_points(
                 }
             }
         }
-        if [
-            "temperature",
-            "elastic_modulus",
-            modulus_pair_field,
-            "thermal_expansion_coefficient",
-        ]
-        .iter()
-        .any(|k| !o.contains_key(*k))
+        if ["temperature", "elastic_modulus", modulus_pair_field]
+            .into_iter()
+            .chain(point_thermal_field)
+            .any(|k| !o.contains_key(k))
         {
             warnings.push(format!(
                 "Temperature point {} is incomplete for interpolation",

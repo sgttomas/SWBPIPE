@@ -1,0 +1,88 @@
+$ cargo +1.97.1 test --locked --offline -j 2 --test load_reference_source_contract --test derivative_contract --test load_reference_contract
+exit=101
+4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1867:5
+   3: <core::result::Result<serde_json::value::Value, alloc::string::String>>::unwrap
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1233:23
+   4: load_reference_source_contract::canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim
+             at ./tests/load_reference_source_contract.rs:529:46
+   5: load_reference_source_contract::canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim::{closure#0}
+             at ./tests/load_reference_source_contract.rs:526:80
+   6: <load_reference_source_contract::canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- table_bytes_and_transport_cases_match_in_rust stdout ----
+
+thread 'table_bytes_and_transport_cases_match_in_rust' (1091) panicked at tests/load_reference_source_contract.rs:510:9:
+"TRANSPORT-ACCEPT-n05-sparse": SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_PHYSICAL_CASE_HASH
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: load_reference_source_contract::table_bytes_and_transport_cases_match_in_rust
+             at ./tests/load_reference_source_contract.rs:510:9
+   3: load_reference_source_contract::table_bytes_and_transport_cases_match_in_rust::{closure#0}
+             at ./tests/load_reference_source_contract.rs:468:51
+   4: <load_reference_source_contract::table_bytes_and_transport_cases_match_in_rust::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- shared_adversarial_cases_match_in_rust stdout ----
+
+thread 'shared_adversarial_cases_match_in_rust' (1010) panicked at tests/load_reference_source_contract.rs:427:17:
+ACCEPT-n05-sparse: dispatch SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_PHYSICAL_CASE_HASH != accept
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: load_reference_source_contract::shared_adversarial_cases_match_in_rust
+             at ./tests/load_reference_source_contract.rs:427:17
+   3: load_reference_source_contract::shared_adversarial_cases_match_in_rust::{closure#0}
+             at ./tests/load_reference_source_contract.rs:393:44
+   4: <load_reference_source_contract::shared_adversarial_cases_match_in_rust::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim
+    shared_adversarial_cases_match_in_rust
+    table_bytes_and_transport_cases_match_in_rust
+
+test result: FAILED. 2 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.87s
+
+   Compiling open_pipe_stress_result_export v0.1.0 (<CANDIDATE_COPY_WORKING_ROOT>/core/reporting/result_export)
+warning: unused variable: `case`
+   --> src/load_reference_source.rs:190:10
+    |
+190 |     for (case, exact) in body["cases"]
+    |          ^^^^ help: if this is intentional, prefix it with an underscore: `_case`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `derived` is never used
+   --> src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 2 warnings (run `cargo fix --lib -p open_pipe_stress_result_export` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.64s
+     Running tests/derivative_contract.rs (<CARGO_TARGET_DIR>/debug/deps/derivative_contract-ee67da8c426f8b06)
+     Running tests/load_reference_contract.rs (<CARGO_TARGET_DIR>/debug/deps/load_reference_contract-825f443cd28dfc54)
+     Running tests/load_reference_source_contract.rs (<CARGO_TARGET_DIR>/debug/deps/load_reference_source_contract-82bd3a0686a2f33b)
+error: test failed, to rerun pass `--test load_reference_source_contract`

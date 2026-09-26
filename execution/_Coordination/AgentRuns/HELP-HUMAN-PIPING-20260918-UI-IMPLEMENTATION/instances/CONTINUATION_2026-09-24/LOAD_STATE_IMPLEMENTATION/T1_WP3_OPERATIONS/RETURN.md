@@ -324,3 +324,119 @@ The scanners live in `load_state_authoring.rs` (`pipe_references`, `support_refe
 
 - **Geometry operations.** `split_pipe_run` and `transform_pipe_run` keep the original pipe ID, and like `pressure_regions`, they do not update load/reference-state records. After a split, the new pipe has no configuration member or element state. The product blocks this at solve time with its coverage diagnostics. I did not change it; it is outside this follow-up.
 - **Cleanup.** The cargo target and scratch copy were recreated for this addendum and deleted again afterwards.
+
+## Addendum 2 — review B repairs (F1, F2, F5, F6, F7, F9)
+
+- **Request:** the manager's repair request after `T1_WAVE1_REVIEW_B/RETURN.md`.
+- **Scope:** the same write boundary (`operation_applier/**`, new `fixtures/model_operations/load_reference_*`, this folder) and the same rules.
+- **Base:** branch head `203396e4d`, where the Addendum-1 bytes are committed.
+- **Git:** no Git writes.
+- **Earlier text:** unchanged.
+- **Outside this addendum:** F3, F4 and F8 belong to other TASKs' files.
+
+### Files (sha256; "before" = `203396e4d`)
+
+| File | Before | After |
+|---|---|---|
+| `src/pressure_authoring.rs` | `b1017d66…` | `947e296145062b017dace877ae97f3ecdf79c3bba2daadd366f893ac0eaf5391` (+11) |
+| `src/rich_authoring.rs` | `3c21a44c…` | `168ec01dbc84826d81d066e9f2690ecb09c0f1ab4b55f7219b7b0304de555c03` (+25/−10) |
+| `src/load_state_authoring.rs` | `63223cc2…` | `6f53188b599b37a277c09c34404b04722552e7f7d7d6b45840590851408a170e` (+50) |
+| `tests/load_state_authoring.rs` | `393ad349…` | `e32bf54fdfc81960b04e649b82d57294e0cf6a8ed2c4e1c586a26f7743e4c1df` (+286/−12) |
+| `tests/load_state_delete_control.rs` | `cf7c34fe…` | `35d128020f56ef35853721ffa43c044df2d24649c1fb90a132b76afa5791b610` (+164) |
+| `fixtures/model_operations/load_reference_authoring_control.json` | absent (new) | `2e21291cf07dbf900cc12ed6136a8b6a1b3a65295c25dbf859e803334bc2ade4` |
+
+These are unchanged:
+- `src/lib.rs` (`4f088d67…`);
+- `fixtures/model_operations/load_reference_delete_control.json` (`1da7ef35…`; re-blessed from base, byte-identical);
+- `Cargo.toml` and `Cargo.lock`.
+
+Crate paths are under `core/model_operations/operation_applier/`. The hash records are in `_run_records/sha256_after_addendum2.txt`.
+
+### Repairs
+
+**F1 (pressure profile on 0.4.0).** `pressure_authoring::resolve` now refuses `Model/pressure_profile` whenever the current model's `schema_version` is 0.4.0 (`LOAD_STATE_MODEL_VERSION`).
+- **Code:** a new pressure-specific code, **`OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED`**. I did not reuse `OP-LOAD-STATE-SCHEMA-VERSION-INVALID`: that code means "a load-state operation needs 0.4.0", which is the opposite condition, and reusing it would make the two refusals indistinguishable in diagnostics.
+- **When it fires:** before the target and before-value checks, for every after-value, including an unchanged profile. Models before 0.4.0 never reach it.
+
+**F2 (temperature points orphaning a `point_ref`).** The rich `Material/temperature_points` path now calls `load_state_authoring::refuse_point_orphans` after its existing validation. It refuses with `OP-LOAD-STATE-INBOUND-REFERENCE` when an `exact_point` `point_ref` is orphaned. It applies the `refuse_orphans` rule: the point resolves before the edit and not after. It counts only elements whose `material_selection.material_ref` is the target material. The message names each case path, for example `case:cold.analysis_state.element_states.0.material_selection.point_ref (point:cold)`. A model without `analysis_state` is unaffected.
+
+**F5 (review mutants R01, R02, R04).** One targeted test for each; none was equivalent.
+- **R01 (unchanged payload must not write).** `an_unchanged_payload_is_a_true_no_op_with_no_write`. Each of the three payloads is re-entered with the integer `20` written as `20.0`. The text is canonically unchanged, so nothing may be written. The applied model must keep its exact plain serialization, including the integer. Under R01 the write stores `20.0`, which changes the bytes.
+- **R02 (`point_ref` only on the selected material).** `point_ref_resolves_only_on_the_selected_material`. A point that exists only on a second material is named with `material_ref` = the first material, and is refused.
+- **R04 (support scan across every case).** `support_deletion_scans_every_case_not_only_the_first`. `support:far` is named only in the second case's `support_states`, and deleting it is refused naming `case:hot…`.
+
+**F6 (solver modes and closed form).**
+- `displacement_mm` now returns the value from both modes, sparse then dense. Every call site checks **both** against the prediction (`close_both`).
+- `connected_middle_ux_mm` now uses the general series form, u_m = (u_r/L₁ + u_f/L₂ + ε*₁ − ε*₂)/(1/L₁ + 1/L₂). It also asserts that the far anchor has no entered motion (u_f = 0).
+- The earlier RETURN sentence "both values are checked in both solver modes" is true only from this addendum on.
+
+**F7 (explicit-null prior).** A doc comment at `NOT_PRESENT` in `load_state_authoring.rs` now records that the operation-level inverse cannot restore an explicit-null prior. Such a prior is not admissible in 0.4.0: the product blocks it with `LOAD_STATE_EXPLICIT_NULL_UNSUPPORTED`. Desktop Undo restores checkpoints, so it is unaffected.
+
+**F9 (spurious warnings on 0.4.0).** In `validate_temperature_points`, a 0.4.0 model with the exact pressure contract is now the exact profile, so the modulus pair is `poisson_ratio`.
+
+This goes one step beyond the review's wording. For 0.4.0 exact models only, a point's `thermal_expansion_coefficient` is also no longer demanded for completeness. In 0.4.0 the thermal definition lives in the load/reference state (expansion laws or explicit interval states), and legacy thermal primitives are refused by the product. Without this step the spurious warning would remain for every 0.4.0 point.
+
+For 0.2.0 and 0.3.0 models the logic is unchanged. I also formatted the three affected `let` lines to rustfmt style, which removes one pre-existing rustfmt hunk (22 → 21).
+
+### Byte-identity for models before 0.4.0
+
+- **Existing tests.** They pass unchanged, including the 81-case contract corpus and `exact_authoring`, which carries the 0.3.0 pressure-profile route and the legacy-to-exact authoring sequence.
+- **Delete control.** `load_reference_delete_control.json` was re-blessed from a `git archive` of `203396e4d` and is byte-identical (`1da7ef35…`). The candidate matches it.
+- **New authoring control.** `pressure_profile_and_temperature_point_outcomes_before_0_4_0_are_byte_identical_to_the_base_revision` runs 54 validate and apply outcomes on the 0.2.0 and two 0.3.0 fixture models:
+  - pressure profile: to exact 0.3.0, to 0.4.0 (refused), and unchanged;
+  - temperature points: author from absent, remove, rename, add an incomplete point, unchanged, and empty.
+
+  The sha256 of each serialized `OperationOutcome` is compared with `load_reference_authoring_control.json`, which was blessed from `203396e4d`. The golden file covers accepted and refused outcomes, and it covers the 0.2.0 and 0.3.0 differences in `OP-RICH-NOT-SOLVE-READY`.
+- **0.4.0 models are excluded from this control,** because F9 deliberately changes their warnings.
+
+### Tests
+
+**Added to `load_state_authoring.rs` (5 new):**
+- **`pressure_profile_cannot_change_a_0_4_0_model`:**
+  - the downgrade the review found, and an unchanged profile, are refused on `connected`;
+  - an atomic batch (an admitted `analysis_state` edit, then the downgrade) is refused as a whole in both review and apply, with no model;
+  - the edit alone applies and stays 0.4.0.
+- **`temperature_points_replacement_cannot_orphan_an_exact_point`:**
+  - **Refused:** removing or renaming `point:cold`, and removing `point:hot`; all four element paths are named.
+  - **Admitted, no warning (F9):** a complete new E/nu point.
+  - **One warning:** an incomplete point, only for its missing pair.
+  - **Controls, admitted:** without the records, removal and rename; a second material with the same point IDs dropping its points; a replacement when the references were already unresolved.
+- **The three F5 tests described above.**
+
+**Changed:** the F6 helpers and all six solve call sites.
+
+**Added to `load_state_delete_control.rs`:** the authoring-control test described above.
+
+### Checks
+
+| Check | Result |
+|---|---|
+| Crate `cargo +1.97.1 test --locked --offline -j 2` | **193 passed**, 0 failed: 140 + 2 + 2 (corpus) + 6 + 8 (`exact_authoring`) + 13 + 15 (`load_state_authoring`) + 2 (controls) + 5 (`_run_records/addendum2_cargo_test.log`) |
+| rustfmt, touched files | `pressure_authoring.rs`, `load_state_authoring.rs` and both test files clean |
+| rustfmt, `rich_authoring.rs` | 21 pre-existing hunks (was 22), none containing added lines |
+| rustfmt, `lib.rs` | untouched, 12 pre-existing hunks |
+
+### Mutation evidence
+
+- **Method:** the same runner, on a fresh `git archive` scratch copy of `203396e4d` with the candidate files overlaid.
+- **Result:** all **42 killed**, 0 survived (`_run_records/mutants_result_addendum2.json`).
+- **Re-run:** M01–M24 and N01–N09, still killed.
+- **New:** review B's R01, R02 and R04, run with their exact text, plus P01–P06.
+
+| Mutant | Killed by |
+|---|---|
+| R01 unchanged payload still writes | an_unchanged_payload_is_a_true_no_op_with_no_write |
+| R02 `point_ref` resolved on any material | point_ref_resolves_only_on_the_selected_material |
+| R04 support scan limited to the first case | support_deletion_scans_every_case_not_only_the_first |
+| P01 pressure-profile version lock removed (F1) | pressure_profile_cannot_change_a_0_4_0_model |
+| P02 temperature-points orphan check removed (F2) | temperature_points_replacement_cannot_orphan_an_exact_point |
+| P03 point orphan not scoped to the selecting material | temperature_points_replacement_cannot_orphan_an_exact_point |
+| P04 point orphan counts already-unresolved references | temperature_points_replacement_cannot_orphan_an_exact_point |
+| P05 exact profile not extended to 0.4.0 (F9) | temperature_points_replacement_cannot_orphan_an_exact_point |
+| P06 0.4.0 points still demand the coefficient (F9) | temperature_points_replacement_cannot_orphan_an_exact_point |
+
+Review B's R03, R05 and R06 were already killed in its own run, so I did not repeat them. F6 and F7 are test and documentation changes, so they have no mutant.
+
+### Cleanup
+
+The scratch copy and cargo target were deleted after the checks.

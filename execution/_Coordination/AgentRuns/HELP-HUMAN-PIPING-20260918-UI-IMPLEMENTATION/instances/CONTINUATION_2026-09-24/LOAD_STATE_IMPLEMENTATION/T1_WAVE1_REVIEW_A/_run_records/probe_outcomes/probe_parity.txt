@@ -1,0 +1,144 @@
+DIFF | A01-joined-as-source-blocks-resealed.json | dispatch | py=SOURCE_PHYSICS_CONTRACT_MISMATCH | rs=SOURCE_BLOCKS_RAW_FIELDS
+SAME | A01-joined-as-source-blocks-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A01-joined-as-source-blocks-resealed.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A01-joined-as-source-blocks-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | A02-joined-as-physics-source-records-stripped-resealed.json | dispatch | py=PHYSICS_SOURCE_PHYSICAL_SHAPE | rs=PHYSICS_SOURCE_PHYSICAL_SHAPE
+SAME | A02-joined-as-physics-source-records-stripped-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A02-joined-as-physics-source-records-stripped-resealed.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A02-joined-as-physics-source-records-stripped-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | A03-physics-source-as-joined-grafted-records-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_MATERIAL_BASIS | rs=SOURCE_LOAD_REFERENCE_MATERIAL_BASIS
+SAME | A03-physics-source-as-joined-grafted-records-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_MATERIAL_BASIS | rs=SOURCE_LOAD_REFERENCE_MATERIAL_BASIS
+SAME | A03-physics-source-as-joined-grafted-records-resealed.json | transport | py=SOURCE_LOAD_REFERENCE_MATERIAL_BASIS | rs=SOURCE_LOAD_REFERENCE_MATERIAL_BASIS
+SAME | A03-physics-source-as-joined-grafted-records-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | A04-source-blocks-as-joined-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE | rs=SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE
+SAME | A04-source-blocks-as-joined-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE | rs=SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE
+SAME | A04-source-blocks-as-joined-resealed.json | transport | py=SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE | rs=SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE
+SAME | A04-source-blocks-as-joined-resealed.json | standing | py=unsupported | rs=unsupported
+DIFF | A05-joined-downgraded-to-load-reference-forgery.json | dispatch | py=SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: extrema shape | rs=SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EXTREMA_SHAPE
+SAME | A05-joined-downgraded-to-load-reference-forgery.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A05-joined-downgraded-to-load-reference-forgery.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A05-joined-downgraded-to-load-reference-forgery.json | standing | py=unsupported | rs=unsupported
+SAME | A06-joined-physical-hash-physics-domain-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH
+SAME | A06-joined-physical-hash-physics-domain-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH
+SAME | A06-joined-physical-hash-physics-domain-resealed.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH
+SAME | A06-joined-physical-hash-physics-domain-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | A07-joined-policy-physics-source-fully-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY
+SAME | A07-joined-policy-physics-source-fully-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY
+SAME | A07-joined-policy-physics-source-fully-resealed.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY
+SAME | A07-joined-policy-physics-source-fully-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | A08-lr-id-joined-profile.json | dispatch | py=SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN | rs=SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN
+SAME | A08-lr-id-joined-profile.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A08-lr-id-joined-profile.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A08-lr-id-joined-profile.json | standing | py=unsupported | rs=unsupported
+SAME | A09-ps-id-joined-profile.json | dispatch | py=SOURCE_FORMULATION_BASIS_UNSUPPORTED | rs=SOURCE_FORMULATION_BASIS_UNSUPPORTED
+SAME | A09-ps-id-joined-profile.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A09-ps-id-joined-profile.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A09-ps-id-joined-profile.json | standing | py=unsupported | rs=unsupported
+DIFF | A10-sb-id-joined-profile.json | dispatch | py=SOURCE_PHYSICS_CONTRACT_MISMATCH | rs=SOURCE_FORMULATION_BASIS_UNSUPPORTED
+SAME | A10-sb-id-joined-profile.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A10-sb-id-joined-profile.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | A10-sb-id-joined-profile.json | standing | py=unsupported | rs=unsupported
+SAME | B01-selected-case-ordinary-checks-passed-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_SOURCE_FALLBACK_TRIGGER | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_SOURCE_FALLBACK_TRIGGER
+SAME | B01-selected-case-ordinary-checks-passed-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_SOURCE_FALLBACK_TRIGGER | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_SOURCE_FALLBACK_TRIGGER
+SAME | B01-selected-case-ordinary-checks-passed-resealed.json | transport | py=accept | rs=accept
+SAME | B01-selected-case-ordinary-checks-passed-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | B02-ordinary-case-sensitive-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_ORDINARY_SELECTION | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_ORDINARY_SELECTION
+SAME | B02-ordinary-case-sensitive-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_ORDINARY_SELECTION | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_ORDINARY_SELECTION
+SAME | B02-ordinary-case-sensitive-resealed.json | transport | py=accept | rs=accept
+SAME | B02-ordinary-case-sensitive-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | B02b-ordinary-case-quality-label-sensitive-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_ORDINARY_REPORT | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_ORDINARY_REPORT
+SAME | B02b-ordinary-case-quality-label-sensitive-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_ORDINARY_REPORT | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_ORDINARY_REPORT
+SAME | B02b-ordinary-case-quality-label-sensitive-resealed.json | transport | py=accept | rs=accept
+SAME | B02b-ordinary-case-quality-label-sensitive-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | B03-pressure-region-on-selected-case-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_SOURCE_PRESSURE_INVENTORY | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_SOURCE_PRESSURE_INVENTORY
+SAME | B03-pressure-region-on-selected-case-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_SOURCE_PRESSURE_INVENTORY | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_SOURCE_PRESSURE_INVENTORY
+SAME | B03-pressure-region-on-selected-case-resealed.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_SOURCE_PRESSURE_INVENTORY | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_SOURCE_PRESSURE_INVENTORY
+SAME | B03-pressure-region-on-selected-case-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | B04-selected-case-with-unavailable-diagnostic-resealed.json | dispatch | py=accept | rs=accept
+SAME | B04-selected-case-with-unavailable-diagnostic-resealed.json | validator | py=accept | rs=accept
+SAME | B04-selected-case-with-unavailable-diagnostic-resealed.json | transport | py=accept | rs=accept
+SAME | B04-selected-case-with-unavailable-diagnostic-resealed.json | standing | py=needs_recompute | rs=needs_recompute
+SAME | B05-extra-not-joined-diagnostic-other-id-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC | rs=SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC
+SAME | B05-extra-not-joined-diagnostic-other-id-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC | rs=SOURCE_LOAD_REFERENCE_NOT_JOINED_DIAGNOSTIC
+SAME | B05-extra-not-joined-diagnostic-other-id-resealed.json | transport | py=accept | rs=accept
+SAME | B05-extra-not-joined-diagnostic-other-id-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | B06-ordinary-case-promoted-to-selected-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_PHYSICAL_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_PHYSICAL_SHAPE
+SAME | B06-ordinary-case-promoted-to-selected-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_PHYSICAL_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_PHYSICAL_SHAPE
+SAME | B06-ordinary-case-promoted-to-selected-resealed.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_PHYSICAL_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: PHYSICS_SOURCE_PHYSICAL_SHAPE
+SAME | B06-ordinary-case-promoted-to-selected-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | B07-LIMIT-prescribed-motion-consistent-edit-resealed.json | dispatch | py=accept | rs=accept
+SAME | B07-LIMIT-prescribed-motion-consistent-edit-resealed.json | validator | py=accept | rs=accept
+SAME | B07-LIMIT-prescribed-motion-consistent-edit-resealed.json | transport | py=accept | rs=accept
+SAME | B07-LIMIT-prescribed-motion-consistent-edit-resealed.json | standing | py=needs_recompute | rs=needs_recompute
+SAME | B08-LIMIT-record-provenance-resealed.json | dispatch | py=accept | rs=accept
+SAME | B08-LIMIT-record-provenance-resealed.json | validator | py=accept | rs=accept
+SAME | B08-LIMIT-record-provenance-resealed.json | transport | py=accept | rs=accept
+SAME | B08-LIMIT-record-provenance-resealed.json | standing | py=needs_recompute | rs=needs_recompute
+DIFF | C01-top-level-integer-above-2p53.json | dispatch | py=CHECKED-JSON-UNSAFE-INTEGER | rs=CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976
+DIFF | C01-top-level-integer-above-2p53.json | validator | py=CHECKED-JSON-UNSAFE-INTEGER | rs=CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976
+SAME | C01-top-level-integer-above-2p53.json | transport | py=accept | rs=accept
+SAME | C01-top-level-integer-above-2p53.json | standing | py=unsupported | rs=unsupported
+SAME | C02-receipt-integer-above-2p53.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE
+SAME | C02-receipt-integer-above-2p53.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE
+SAME | C02-receipt-integer-above-2p53.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE
+SAME | C02-receipt-integer-above-2p53.json | standing | py=unsupported | rs=unsupported
+SAME | C03-unknown-top-level-key-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_RAW_FIELDS | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_RAW_FIELDS
+SAME | C03-unknown-top-level-key-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_RAW_FIELDS | rs=SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE: SOURCE_BLOCKS_RAW_FIELDS
+SAME | C03-unknown-top-level-key-resealed.json | transport | py=accept | rs=accept
+SAME | C03-unknown-top-level-key-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | C04-exact-recovery-method-number.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD | rs=SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD
+SAME | C04-exact-recovery-method-number.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD | rs=SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD
+SAME | C04-exact-recovery-method-number.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD | rs=SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD
+SAME | C04-exact-recovery-method-number.json | standing | py=unsupported | rs=unsupported
+SAME | C05-receipt-null.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY
+SAME | C05-receipt-null.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY
+SAME | C05-receipt-null.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY
+SAME | C05-receipt-null.json | standing | py=unsupported | rs=unsupported
+SAME | C06-receipt-array.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY
+SAME | C06-receipt-array.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY
+SAME | C06-receipt-array.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY
+SAME | C06-receipt-array.json | standing | py=unsupported | rs=unsupported
+SAME | C07-receipt-body-policy-only.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE
+SAME | C07-receipt-body-policy-only.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE
+SAME | C07-receipt-body-policy-only.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE
+SAME | C07-receipt-body-policy-only.json | standing | py=unsupported | rs=unsupported
+SAME | C08-record-case-id-boolean.json | dispatch | py=SOURCE_LOAD_REFERENCE_STRING_INVALID | rs=SOURCE_LOAD_REFERENCE_STRING_INVALID
+SAME | C08-record-case-id-boolean.json | validator | py=SOURCE_LOAD_REFERENCE_STRING_INVALID | rs=SOURCE_LOAD_REFERENCE_STRING_INVALID
+SAME | C08-record-case-id-boolean.json | transport | py=SOURCE_LOAD_REFERENCE_STRING_INVALID | rs=SOURCE_LOAD_REFERENCE_STRING_INVALID
+SAME | C08-record-case-id-boolean.json | standing | py=unsupported | rs=unsupported
+SAME | C09-receipt-selected-method-null-resealed.json | dispatch | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE
+SAME | C09-receipt-selected-method-null-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE
+SAME | C09-receipt-selected-method-null-resealed.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE | rs=SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE
+SAME | C09-receipt-selected-method-null-resealed.json | standing | py=unsupported | rs=unsupported
+SAME | Z01-control-n05-sparse.json | dispatch | py=accept | rs=accept
+SAME | Z01-control-n05-sparse.json | validator | py=accept | rs=accept
+SAME | Z01-control-n05-sparse.json | transport | py=accept | rs=accept
+SAME | Z01-control-n05-sparse.json | standing | py=needs_recompute | rs=needs_recompute
+SAME | Z02-control-mixed-dense.json | dispatch | py=accept | rs=accept
+SAME | Z02-control-mixed-dense.json | validator | py=accept | rs=accept
+SAME | Z02-control-mixed-dense.json | transport | py=accept | rs=accept
+SAME | Z02-control-mixed-dense.json | standing | py=needs_recompute | rs=needs_recompute
+SAME | PS-B04-selected-with-unavailable-resealed.json | dispatch | py=accept | rs=accept
+SAME | PS-B04-selected-with-unavailable-resealed.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | PS-B04-selected-with-unavailable-resealed.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | PS-B04-selected-with-unavailable-resealed.json | standing | py=needs_recompute | rs=needs_recompute
+SAME | PS-C01-top-level-integer-above-2p53.json | dispatch | py=SOURCE_BLOCKS_RAW_FIELDS | rs=SOURCE_BLOCKS_RAW_FIELDS
+SAME | PS-C01-top-level-integer-above-2p53.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | PS-C01-top-level-integer-above-2p53.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | PS-C01-top-level-integer-above-2p53.json | standing | py=unsupported | rs=unsupported
+DIFF | C10-row-value-integer-above-2p53.json | dispatch | py=CHECKED-JSON-UNSAFE-INTEGER | rs=CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976
+DIFF | C10-row-value-integer-above-2p53.json | validator | py=CHECKED-JSON-UNSAFE-INTEGER | rs=CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976
+SAME | C10-row-value-integer-above-2p53.json | transport | py=accept | rs=accept
+SAME | C10-row-value-integer-above-2p53.json | standing | py=unsupported | rs=unsupported
+DIFF | C11-diagnostic-extra-integer-above-2p53.json | dispatch | py=CHECKED-JSON-UNSAFE-INTEGER | rs=CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976
+DIFF | C11-diagnostic-extra-integer-above-2p53.json | validator | py=CHECKED-JSON-UNSAFE-INTEGER | rs=CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976
+SAME | C11-diagnostic-extra-integer-above-2p53.json | transport | py=accept | rs=accept
+SAME | C11-diagnostic-extra-integer-above-2p53.json | standing | py=unsupported | rs=unsupported
+DIFF | PS-C10-row-value-integer-above-2p53.json | dispatch | py=CHECKED-JSON-UNSAFE-INTEGER | rs=CHECKED-JSON-UNSAFE-INTEGER: 1152921504606846976
+SAME | PS-C10-row-value-integer-above-2p53.json | validator | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | PS-C10-row-value-integer-above-2p53.json | transport | py=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY | rs=SOURCE_LOAD_REFERENCE_JOIN_IDENTITY
+SAME | PS-C10-row-value-integer-above-2p53.json | standing | py=unsupported | rs=unsupported
+DIFF | A01-joined-as-source-blocks-resealed.json | dispatch | py=SOURCE_PHYSICS_CONTRACT_MISMATCH | rs=SOURCE_BLOCKS_RAW_FIELDS
+DIFF | A05-joined-downgraded-to-load-reference-forgery.json | dispatch | py=SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EVIDENCE_INVALID: extrema shape | rs=SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_EXTREMA_SHAPE
+DIFF | A10-sb-id-joined-profile.json | dispatch | py=SOURCE_PHYSICS_CONTRACT_MISMATCH | rs=SOURCE_FORMULATION_BASIS_UNSUPPORTED
+differences: 13 of 143

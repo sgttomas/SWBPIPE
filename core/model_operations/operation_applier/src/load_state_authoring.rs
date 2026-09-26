@@ -19,6 +19,12 @@ type Result<T> = std::result::Result<T, RichError>;
 
 /// The inverse of authoring an absent key: the explicit removal after-value
 /// already used by the delete operations. It restores absence exactly.
+///
+/// Limit (manager ruling Q2; review B F7): the operation-level inverse cannot
+/// restore an explicit-null prior (for example `analysis_state: null`), because
+/// an explicit `null` after-value is refused. Such a prior is not admissible in
+/// 0.4.0 anyway (the product blocks it with `LOAD_STATE_EXPLICIT_NULL_UNSUPPORTED`),
+/// and desktop Undo restores whole-model checkpoints, so it is unaffected.
 const NOT_PRESENT: &str = "not_present";
 
 fn refuse(code: &'static str, message: impl Into<String>) -> RichError {
@@ -281,6 +287,50 @@ fn refuse_orphans(
             "OP-LOAD-STATE-INBOUND-REFERENCE",
             format!(
                 "This {path} edit would orphan references held at {}; remove or retarget them first",
+                orphans.join(", ")
+            ),
+        ))
+    }
+}
+
+/// Replacing a material's `temperature_points` must not orphan an `exact_point`
+/// `point_ref` of an element that selects this material. The rule is the one
+/// `refuse_orphans` applies to laws: a point that resolves before the edit and
+/// not after. Called from the rich `Material/temperature_points` path; a model
+/// without `analysis_state` records is unaffected.
+pub(crate) fn refuse_point_orphans(model: &Value, material: &Value, points: &Value) -> Result<()> {
+    let target = material.get("id").and_then(Value::as_str);
+    let current = ids(material, "temperature_points");
+    let next = array_ids(points);
+    let mut orphans = Vec::new();
+    for case in cases(model) {
+        for (index, element) in element_states(case) {
+            if element
+                .pointer("/material_selection/material_ref")
+                .and_then(Value::as_str)
+                != target
+            {
+                continue;
+            }
+            if let Some(point) = element
+                .pointer("/material_selection/point_ref")
+                .and_then(Value::as_str)
+                .filter(|p| current.contains(p) && !next.contains(p))
+            {
+                orphans.push(format!(
+                    "{}.analysis_state.element_states.{index}.material_selection.point_ref ({point})",
+                    case_id(case)
+                ));
+            }
+        }
+    }
+    if orphans.is_empty() {
+        Ok(())
+    } else {
+        Err(refuse(
+            "OP-LOAD-STATE-INBOUND-REFERENCE",
+            format!(
+                "This temperature_points edit would orphan references held at {}; remove or retarget them first",
                 orphans.join(", ")
             ),
         ))

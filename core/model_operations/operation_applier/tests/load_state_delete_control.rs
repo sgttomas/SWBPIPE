@@ -10,6 +10,10 @@
 //! test with `LOAD_REFERENCE_DELETE_CONTROL_BLESS=1` on a scratch copy of the
 //! base revision (see the WP3 return, addendum 1). Without the variable the test
 //! compares. All models are invented fixtures.
+//!
+//! Addendum 2 adds `fixtures/model_operations/load_reference_authoring_control.json`
+//! the same way: pressure-profile and temperature-point authoring outcomes on the
+//! 0.2.0 and 0.3.0 fixture models, blessed from the base revision (`203396e4d`).
 use open_pipe_stress_operation_applier::{
     apply_operation, canonical_json, sha256_hex, validate_operation,
 };
@@ -260,6 +264,166 @@ fn delete_outcomes_without_load_state_records_are_byte_identical_to_the_base_rev
         "delete_material",
         "delete_primitive_load",
     ] {
+        assert!(rows.keys().any(|k| k.contains(kind)), "{kind}");
+    }
+    assert!(rows.values().any(|r| r["applied"] == true));
+    assert!(rows.values().any(|r| r["applied"] == false));
+}
+
+// ---------------------------------------------------------------------------
+// Addendum 2 (review B F1, F2, F9): pressure-profile and temperature-point
+// authoring on models before 0.4.0 is byte-identical to the base revision.
+// ---------------------------------------------------------------------------
+
+const AUTHORING_GOLDEN: &str =
+    "../../../fixtures/model_operations/load_reference_authoring_control.json";
+
+fn set_intent(object: &str, id: &str, path: &str, before: &str, after: &str) -> Value {
+    let mut op = intent(
+        object,
+        id,
+        "set_field",
+        path,
+        before,
+        after,
+        "none",
+        "dimensionless",
+    );
+    op["operation_kind"] = json!("modify");
+    op
+}
+/// Invented temperature points: one E/nu point with a coefficient, one legacy
+/// E/G point.
+fn invented_points() -> Value {
+    json!([
+        {"id":"point:invented-cold","temperature":{"value":20,"unit":"degC"},"elastic_modulus":{"value":200,"unit":"GPa"},
+         "poisson_ratio":{"value":0.3,"unit":"1"},"thermal_expansion_coefficient":{"value":1.2e-5,"unit":"1/K"},"provenance":"invented control point"},
+        {"id":"point:invented-hot","temperature":{"value":150,"unit":"degC"},"elastic_modulus":{"value":150,"unit":"GPa"},
+         "shear_modulus":{"value":60,"unit":"GPa"},"provenance":"invented control point"}
+    ])
+}
+fn authoring_intents(model: &Value) -> Vec<(String, Value, Value)> {
+    let mut out = Vec::new();
+    let project = text(&model["project"], "id");
+    let profile: Map<String, Value> = ["schema_version", "pressure_contract"]
+        .iter()
+        .filter_map(|k| model.get(*k).map(|v| ((*k).to_string(), v.clone())))
+        .collect();
+    let before = canonical_json(&Value::Object(profile.clone()));
+    let exact = json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
+    for (label, after) in [
+        (
+            "exact_0_3_0",
+            json!({"schema_version":"0.3.0","pressure_contract":exact}).to_string(),
+        ),
+        (
+            "to_0_4_0",
+            json!({"schema_version":"0.4.0","pressure_contract":exact}).to_string(),
+        ),
+        ("unchanged", Value::Object(profile.clone()).to_string()),
+    ] {
+        out.push((
+            format!("pressure_profile:{label}"),
+            model.clone(),
+            set_intent("Model", &project, "pressure_profile", &before, &after),
+        ));
+    }
+    for (index, material) in model["materials"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .enumerate()
+    {
+        let id = text(material, "id");
+        let points = invented_points();
+        let current = material
+            .get("temperature_points")
+            .map(canonical_json)
+            .unwrap_or("not_present".into());
+        out.push((
+            format!("temperature_points:{id}:author"),
+            model.clone(),
+            set_intent(
+                "Material",
+                &id,
+                "temperature_points",
+                &current,
+                &points.to_string(),
+            ),
+        ));
+        let mut with_points = model.clone();
+        with_points["materials"][index]["temperature_points"] = points.clone();
+        let before = canonical_json(&points);
+        let mut removed = points.clone();
+        removed.as_array_mut().unwrap().remove(0);
+        let mut renamed = points.clone();
+        renamed[0]["id"] = json!("point:invented-renamed");
+        let mut added = points.clone();
+        added.as_array_mut().unwrap().push(json!({"id":"point:invented-partial","temperature":{"value":80,"unit":"degC"},"provenance":"invented control point"}));
+        for (label, after) in [
+            ("remove", removed),
+            ("rename", renamed),
+            ("add_incomplete", added),
+            ("unchanged", points.clone()),
+            ("empty", json!([])),
+        ] {
+            out.push((
+                format!("temperature_points:{id}:{label}"),
+                with_points.clone(),
+                set_intent(
+                    "Material",
+                    &id,
+                    "temperature_points",
+                    &before,
+                    &after.to_string(),
+                ),
+            ));
+        }
+    }
+    out
+}
+fn authoring_outcomes() -> Value {
+    let mut records = Map::new();
+    // Models before 0.4.0 only: F9 deliberately changes 0.4.0 warnings.
+    for (name, model) in models().into_iter().take(3) {
+        for (key, base, op) in authoring_intents(&model) {
+            let claim = hash(&base);
+            for (mode, outcome) in [
+                ("validate", validate_operation(&base, &op, Some(&claim))),
+                ("apply", apply_operation(&base, &op, Some(&claim))),
+            ] {
+                let codes: Vec<&str> = outcome
+                    .diagnostics
+                    .iter()
+                    .map(|d| d.code.as_str())
+                    .collect();
+                records.insert(
+                    format!("{name}|{key}|{mode}"),
+                    json!({
+                        "outcome_sha256": sha256_hex(&serde_json::to_string(&outcome).unwrap()),
+                        "applied": outcome.applied_model.is_some(),
+                        "codes": codes,
+                    }),
+                );
+            }
+        }
+    }
+    Value::Object(records)
+}
+
+#[test]
+fn pressure_profile_and_temperature_point_outcomes_before_0_4_0_are_byte_identical_to_the_base_revision(
+) {
+    let actual = authoring_outcomes();
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(AUTHORING_GOLDEN);
+    if std::env::var_os("LOAD_REFERENCE_DELETE_CONTROL_BLESS").is_some() {
+        std::fs::write(&path, serde_json::to_string_pretty(&actual).unwrap() + "\n").unwrap();
+        return;
+    }
+    let golden: Value = serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+    assert_eq!(golden, actual);
+    let rows = golden.as_object().unwrap();
+    for kind in ["pressure_profile", "temperature_points"] {
         assert!(rows.keys().any(|k| k.contains(kind)), "{kind}");
     }
     assert!(rows.values().any(|r| r["applied"] == true));

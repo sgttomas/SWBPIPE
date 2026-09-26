@@ -1,0 +1,113 @@
+{
+ "results.v0.3.schema.yaml": {
+  "appended_lists": [
+   [
+    "/$defs/ResultEnvelope/properties/producer/properties/semantic_contract_id/enum",
+    5,
+    6
+   ],
+   [
+    "/$defs/ResultEnvelope/properties/semantic_contract_ref/properties/ref_id/enum",
+    5,
+    6
+   ],
+   [
+    "/$defs/ResultEnvelope/properties/formulation_basis/properties/profile_id/enum",
+    3,
+    4
+   ],
+   [
+    "/$defs/ResultEnvelope/properties/contract_evidence/anyOf",
+    3,
+    4
+   ],
+   [
+    "/$defs/ResultEnvelope/properties/source_block_recovery/oneOf",
+    2,
+    3
+   ],
+   [
+    "/$defs/ResultEnvelope/oneOf",
+    5,
+    6
+   ]
+  ],
+  "added_keys": [
+   "/$defs/LoadReferenceSourceRecovery",
+   "/$defs/LoadReferenceSourceReceiptBody",
+   "/$defs/LoadReferenceSourceContractEvidence",
+   "/$defs/LoadReferenceSourceExactCase",
+   "/$defs/LoadReferenceSourceStateRecord"
+  ],
+  "changed": []
+ },
+ "analysis_run.v0.3.schema.json": {
+  "appended_lists": [
+   [
+    "/$defs/SemanticContract/properties/id/enum",
+    5,
+    6
+   ],
+   [
+    "/$defs/SemanticContract/properties/sha256/enum",
+    5,
+    6
+   ],
+   [
+    "/$defs/SemanticContract/oneOf",
+    5,
+    6
+   ],
+   [
+    "/$defs/AnalysisRun/properties/source_block_recovery/oneOf",
+    2,
+    3
+   ],
+   [
+    "/$defs/AnalysisRun/oneOf",
+    5,
+    6
+   ]
+  ],
+  "added_keys": [
+   "/$defs/AnalysisRun/properties/contract_evidence/anyOf"
+  ],
+  "changed": [
+   [
+    "/$defs/AnalysisRun/properties/contract_evidence/$ref",
+    "REMOVED"
+   ]
+  ]
+ },
+ "stress_neutral_export.v0.3.schema.json": {
+  "appended_lists": [
+   [
+    "/properties/producer/properties/semantic_contract_id/enum",
+    5,
+    6
+   ],
+   [
+    "/properties/formulation_basis/properties/profile_id/enum",
+    3,
+    4
+   ],
+   [
+    "/properties/semantic_contract_ref/properties/ref_id/enum",
+    5,
+    6
+   ],
+   [
+    "/properties/semantic_contract/properties/id/enum",
+    5,
+    6
+   ],
+   [
+    "/oneOf",
+    5,
+    6
+   ]
+  ],
+  "added_keys": [],
+  "changed": []
+ }
+}

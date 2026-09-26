@@ -1,0 +1,97 @@
+$ cargo +1.97.1 test --locked --offline -j 2 --test load_reference_source_contract --test derivative_contract --test load_reference_contract
+exit=101
+
+running 6 tests
+test guarded_serializer_numeric_keys_unicode_negative_zero_and_unsafe_int ... ok
+test independent_qualified_hash_vectors_match_exact_utf8_and_digest ... ok
+test integer_values_unknown_disclosures_and_accounting_tamper ... ok
+test validator_rejects_rescoped_ghost_orphan_and_semantic_tampering_even_when_rehashed ... ok
+test all28_raw_annotations_are_exact_and_canonical_projection_is_strict ... ok
+test all60_independent_semantics_metadata_and_missing_cases ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s
+
+
+running 5 tests
+test header_only_dispatch_is_bound_to_one_profile_and_never_qualifies_raw_output ... ok
+test frozen_inputs_table_and_schema_are_pinned ... ok
+test table_bytes_and_transport_cases_match_in_rust ... ok
+test canonical_documents_preserve_source_metadata_and_evidence_verbatim ... ok
+test shared_adversarial_cases_match_in_rust ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 25.32s
+
+
+running 5 tests
+test pinned_table_identity_profile_and_policy ... ok
+test header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels ... ok
+test table_bytes_and_transport_cases_match_in_rust ... ok
+test shared_adversarial_cases_match_in_rust ... FAILED
+test canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim ... FAILED
+
+failures:
+
+---- shared_adversarial_cases_match_in_rust stdout ----
+
+thread 'shared_adversarial_cases_match_in_rust' (9602) panicked at tests/load_reference_source_contract.rs:427:17:
+ACCEPT-eigen_motion-sparse: dispatch SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC != accept
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: load_reference_source_contract::shared_adversarial_cases_match_in_rust
+             at ./tests/load_reference_source_contract.rs:427:17
+   3: load_reference_source_contract::shared_adversarial_cases_match_in_rust::{closure#0}
+             at ./tests/load_reference_source_contract.rs:393:44
+   4: <load_reference_source_contract::shared_adversarial_cases_match_in_rust::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim stdout ----
+
+thread 'canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim' (9599) panicked at tests/load_reference_source_contract.rs:529:46:
+called `Result::unwrap()` on an `Err` value: "SOURCE_LOAD_REFERENCE_JOIN_SELECTED_DIAGNOSTIC"
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1867:5
+   3: <core::result::Result<serde_json::value::Value, alloc::string::String>>::unwrap
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1233:23
+   4: load_reference_source_contract::canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim
+             at ./tests/load_reference_source_contract.rs:529:46
+   5: load_reference_source_contract::canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim::{closure#0}
+             at ./tests/load_reference_source_contract.rs:526:80
+   6: <load_reference_source_contract::canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim
+    shared_adversarial_cases_match_in_rust
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.10s
+
+   Compiling open_pipe_stress_result_export v0.1.0 (<CANDIDATE_COPY_WORKING_ROOT>/core/reporting/result_export)
+warning: function `derived` is never used
+   --> src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.28s
+     Running tests/derivative_contract.rs (<CARGO_TARGET_DIR>/debug/deps/derivative_contract-ee67da8c426f8b06)
+     Running tests/load_reference_contract.rs (<CARGO_TARGET_DIR>/debug/deps/load_reference_contract-825f443cd28dfc54)
+     Running tests/load_reference_source_contract.rs (<CARGO_TARGET_DIR>/debug/deps/load_reference_source_contract-82bd3a0686a2f33b)
+error: test failed, to rerun pass `--test load_reference_source_contract`

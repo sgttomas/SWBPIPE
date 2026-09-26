@@ -1,0 +1,12 @@
+# Committed bytes: a shared, sparse clone checked out at 6ded3e347 (the shared worktree carried uncommitted
+# edits to qualification_load_reference{,_helper}.py at review time, so it was not used for these runs).
+# PYTHONDONTWRITEBYTECODE=1, venv python, from WORKING_ROOT.
+python -m unittest tests.test_qualification_load_reference            -> Ran 43 tests ... OK
+python -m unittest discover -s tests -p test_qualification_gate.py      -> Ran 31 tests ... OK
+python -m unittest discover -s tests -p 'test_qualification_physics*.py' -> Ran 42 tests ... OK
+python validation/qualification/fixtures/load_reference/generate_reference_values.py --check -> 28 files, 0 differences
+sha256 at 6ded3e347:
+c36bf5ef0ab72f5a873da8e9f6165facb91cf3b0ed30e3cf44f1d09f3374903b  tools/validation/qualification_load_reference.py
+c9de926cc19aaaffb3ed066b5bb2b00b0dc96683979e6c9be6f656ddf35916b9  tools/validation/qualification_load_reference_helper.py
+a96f1d04480c7e091a12732a1ea14e886d41811d4a0aacf8d988fae8cbf6dab8  tests/test_qualification_load_reference.py
+eff1fb3b8b7f8fee99aeb5344c55ec42ae37d3e60e7354908caa780d41c08ffe  core/analysis_runs/load_reference_evidence.py (= bfef71b19 bytes = MODULE_SHA256)

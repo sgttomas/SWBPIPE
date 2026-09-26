@@ -84,3 +84,33 @@ ROOT made this decision within its delegated correctness authority.
 
 - **Standing early return.** It sits immediately after the existing `for_source` / `_source_contract` validation, not before it. A refused joined envelope therefore stays `unsupported`, as the shared cases pin.
 - **Ruling B, dispatch only.** Only the dispatch expectation changed. The direct load-reference-1 validator still accepts the relabelled case, because it leaves the header to dispatch, so its expectation stays "accept".
+
+## 9. Pre-review shakedown of the VP-STATIC run (not evidence)
+
+**What was run.** Before REVIEW_A returned, the manager ran `_run_records/session4/t1_vp_static_run.py` in scratch at `203396e4d` to shake out the run. The runner was built from that commit (sha256 `df6dca9c…`). The reader binding cited only the CP3 and CP4 reviews.
+
+**Why it is not evidence.** The reader module changed in WP1 after those reviews, so this run is not evidence and is not retained. The scratch output is deleted.
+
+**What it showed.** In both modes:
+
+- 12 of the 14 admitted cases solved with `checks_passed` standing;
+- all 441 of their required assertions matched;
+- the other two cases (`coefficient_definition`, `multi_segment_free_length`) emit 14.1 MB and 21.9 MB of runner output.
+
+The adapter accepts an output limit of up to 64 MiB, but its capture admission is capped at the gate's 8 MiB. That is an adapter defect, and the repair went to the WP5 author. No fixture, reference or criterion changes. The run script now uses the adapter's maximum 64 MiB output limit.
+
+## 10. REVIEW_B dispositions (with ROOT's direction, 2026-09-26)
+
+REVIEW_B's verdict was FINDINGS, with nothing blocking (`T1_WAVE1_REVIEW_B/RETURN.md`).
+
+| Finding | Disposition |
+|---|---|
+| **F1** | Must fix. `Model/pressure_profile` may not rewrite a 0.4.0 model. Sent to the WP3 author: a targeted refusal, with a test, and pre-0.4 outcomes unchanged. |
+| **F2** | Close as in Q1: replacing `temperature_points` may not orphan an `exact_point` `point_ref`. Sent to the WP3 author. |
+| **F3** | The adapter's runner-output admission limit. The WP5 author is repairing it; REVIEW_B backchecks. |
+| **F4** | Fixed by the manager in `cad59d01e`. The generator writes the admitted rule review text; README and PROVENANCE are at the admitted state, and `author_package.py` is marked superseded for R1. An admitted-state successor checker (`_run_records/session4/check_package_admitted.py`) replaces the authoring-time pending invariants: 4535 passed, 0 failed. |
+| **F5** | Kill the surviving mutants with tests, or record why one is equivalent. Adapter survivors went to the WP5 author, applier survivors to the WP3 author. |
+| **F6** | Assert the dense value, and state the equal-length assumption or use the general form. Sent to the WP3 author. |
+| **F7** | Document that the operation-level inverse cannot restore an explicit-null prior. The product refuses explicit null, and desktop Undo is checkpoint-based. Sent to the WP3 author. |
+| **F8** | Fix the stale pin comment. Sent to the WP5 author. |
+| **F9** | Treat 0.4.0 exact-pressure models as the exact profile in `validate_temperature_points`, so no spurious warnings appear. Sent to the WP3 author. |
