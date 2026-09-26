@@ -14,7 +14,7 @@ The hashes in §2 are the latest committed revisions and will be updated when th
    - D2's standing, envelope and transport design (`DESIGN_STANDING/DESIGN.md`);
    - both at the revisions in §2, with ROOT's rulings (`ROOT_RULINGS_V1.md`, `ROOT_RULINGS_V2.md`) as binding amendments. Where a design and a ruling differ, the ruling wins.
 2. **The slice plan and ordering** in §4, including the hard constraints.
-3. **The open decisions** in §5 that no ruling has settled yet.
+3. **The decisions** in §5. ROOT ruled on them on 2026-09-26, subject to the follow-ups; D-14's owner is still open.
 4. **R5-4**, curved bends under K-D5. It is open: either ROOT selects D1's bound, or ROOT takes owner options forward (§6).
 
 The references are already frozen (`ROOT_SELECTION_REFERENCES.md`). The S11 containment is already selected (`ROOT_SELECTION_S11.md`), and its kernel half, S11-K, is being implemented.
@@ -72,33 +72,35 @@ The references are already frozen (`ROOT_SELECTION_REFERENCES.md`). The S11 cont
 - **Fixture stop rule.** Every committed-byte change is reported to ROOT with its size before regeneration, by the producer only.
 - **Gates for every slice.** Complete-diff independent review; hosted CI, including the surface-4 dual-viewport dispatch; a clean DEC-025 sweep; native witnesses on the owner's Mac where native paths are touched (recorded as outstanding if unavailable).
 
-## 5. Open decisions for ROOT
+## 5. Decisions: ROOT's rulings of 2026-09-26
 
-Rulings already made are not repeated here. They include D-5 (O1 final, subject to R5-4), D-12, D-13 (the S11 subdecisions), D-15, DD-7, DD-11, DD-13 (C), DD-14, and the process rulings.
+ROOT ruled on these before the final package, to save a round. They become final with the package, unless D1 revision 5a, D2 revision 5b or V1's verification changes something. Earlier rulings are not repeated here: D-5 (O1 final, subject to R5-4), D-12, D-13 (the S11 subdecisions), D-15, DD-7, DD-11, DD-13 (C), DD-14, and the process rulings.
 
-| ID | Decision | Recommendation (designer's, with the manager's view) |
+| ID | Decision | ROOT ruling |
 |---|---|---|
-| D-1 | General method | (A) retained-precision multiprecision with basic-deformation formation. Generalized exact-block solving is refuted by probe |
-| D-2 | Arithmetic backend | In-repo `wide.rs`, with V1-S9's hard-case test plan; `dashu-float` as the fallback. `rug` is not recommended (LGPL; it would raise an owner question) |
-| D-3 | Method policy registration | Register `M03-INTEGRITY-MP-v1`: the exact-sum rule, the stop rule, `retained_precision_p`, and the 128/256/512 schedule with a 1024 ceiling, as in D1 §9 |
-| D-4 | Identities | (A) Reserve the successor identities (names are placeholders for ROOT). Exact-block selection is retired per domain under the gate, and stays as an oracle |
+| D-1 | General method | A: retained-precision multiprecision with basic-deformation formation |
+| D-2 | Arithmetic backend | In-repo `wide.rs` with V1-S9's hard-case test plan. `dashu-float` is the fallback, used only if `wide.rs` fails its tests. `rug` is rejected, so no LGPL owner question arises |
+| D-3 | Method policy | Register `M03-INTEGRITY-MP-v1` as specified in D1 §9 |
+| D-4 | Identities | A: reserve the successor identities. Exact-block selection is retired per domain under the gate and kept as an oracle. ROOT approves the concrete identity names at F2a; they are proposed in that slice's brief |
 | D-6 | W2 | As proposed |
-| D-7 | W3 fallback | No automatic dense fallback. Ceilings come from measurement (P1's M32 baseline: n1000 dense 487 s, sparse 19 s, both 3.7 GB) |
-| D-8 | Budgets | Select after the K6 and V-P measurements |
+| D-7 | W3 fallback | No automatic dense fallback. Ceilings come from measurement |
+| D-8 | Budgets | Deferred until the K6 and V-P measurements |
 | D-9 | W4 | As proposed. T4 confirms the curved construction |
 | D-10 | Serialization | As in §4 |
-| D-11 | RF-ELOAD reference addendum | Commission it now: a product-code-blind author, then a V2-style refutation, before F3 (W1b) |
-| D-14 | Equivalent-static owner | ROOT assigns it, or records it as an open remainder |
-| DD-1, DD-2 | Composite finalization; residuals R-1a and R-1b | F1 port of SF-1, with R-1a and R-1b open until W1. Note that D-15 keeps exact-block selected longer, so S-D keeps its value |
-| DD-3 | TS position for eligibility | TS-a, a check-for-check port |
-| DD-4 | Host-rounded exp fields | H-a: `needs_recompute` when a host-exp definition is used |
+| D-11 | RF-ELOAD | Commission it now: a product-code-blind author, then a V2-style refutation. It lands before F3 |
+| D-14 | Equivalent-static owner | **Open.** ROOT asked for a definition and the producing slice first (sent 2026-09-26); the owner is assigned in the final package |
+| DD-1, DD-2 | Composite finalization | F1 port of SF-1, with R-1a and R-1b open until W1 |
+| DD-3 | TS position | TS-a |
+| DD-4 | Host-rounded exp fields | H-a |
 | DD-5 | Selected-UNAVAILABLE | Tighten |
-| DD-6 | Re-homing | Under the shared gate and D-15's ordering |
-| DD-8 | Transport split | T3: capture (S-H), the requirement, references, fallback and display. T6: binary64 carriers, persistence and export, with the integer-literal, negative-zero and size rules (F-P7) |
-| DD-9 | Eligible load-reference, joined and successor results | Current and rule-eligible; export and the report package refused until T6 |
-| DD-10 | Historical joined standing after F3 | Keep eligibility (as R-3(b)), only if S-E2 is built |
-| DD-12 | Capture fix | H-1 fallible digest (S-H) |
-| DD-15 | Build the optional B reader slice S-J | Manager's view: build it after S-I. It restores exact zeros as exact points where the proof holds, and needs about 1.5k lines across three languages. It is optional, and off every critical path |
+| DD-6 | Re-homing | Under the shared gate and D-15 |
+| DD-8 | Transport split | As proposed |
+| DD-9 | Eligible load-reference, joined and successor results | As proposed |
+| DD-10 | Historical joined standing after F3 | Keep eligibility, only if S-E2 is built |
+| DD-12 | Capture fix | H-1 (S-H), under the S-H/S11-F ordering |
+| DD-15 | S-J | Build it, after S-I. Under R5-5's check-level gate, proven exact zeros are what let equality and sign checks stay decided rather than indeterminate, so S-J is likely what makes retirement possible in the B-covered domains. Otherwise it stays off the critical path |
+
+Items left for the final package: R5-4, D-14's owner, and anything the follow-ups change.
 
 ## 6. R5-4: curved bends under K-D5 (OPEN)
 
