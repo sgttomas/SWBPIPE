@@ -1,0 +1,26 @@
+BASELINE exit=0 total passed 5945, failed 0
+KILLED M01 reference value +2 ulp in a committed reference file :: FAIL C: DIFFERS prescribed_translation_two_bar.reference.candidate.json b6d0806c028dd24290b990c12d14f91d1e75d5af332a5dca9893663df025c6bf
+KILLED M02 selector pointer root_Fx -> far_Fx :: FAIL C: DIFFERS prescribed_translation_two_bar.reference.candidate.json 37d59d6ff8e59396748e0cf8d2a49757643f37bf8601d807f5d424ba3b7314a1
+KILLED M03 end_i negate transform dropped :: FAIL C: DIFFERS prescribed_translation_two_bar.reference.candidate.json c7b29b10a833702282f73995a372187439418d482cd082b340d539da04cd435c
+KILLED M04 selector unit mm -> m (no factor) :: FAIL C: generator --check failed: le_for
+KILLED M05 reference_cases.json decimal rendering corrupted :: FAIL C: generator --check failed: ues.py", line 127, in exact_decimal
+KILLED M06 reference_cases.json exact rational changed :: FAIL C: generator --check failed: alues.py", line 127, in exact_decimal
+KILLED M07 row kind not in the load-reference-1 table :: FAIL D: case:prescribed-root-translation.reaction.support:root.Fx: kind support_reaction_component_v3 not one table signature
+KILLED M08 manifest sha256 corrupted :: FAIL A: prescribed_translation_two_bar reference: sha256 mismatch
+KILLED M09 required_scalar_rows off by one :: FAIL A: prescribed_translation_two_bar: required_scalar_rows
+KILLED M10 absolute path in manifest :: FAIL A: prescribed_translation_two_bar reference: path not WORKING_ROOT-relative
+KILLED M11 runner preview_model drifts from product request :: FAIL B: prescribed_translation_two_bar: preview_model equals request
+KILLED M12 positive reference value dropped :: FAIL C: DIFFERS prescribed_translation_two_bar.reference.candidate.json b6d0806c028dd24290b990c12d14f91d1e75d5af332a5dca9893663df025c6bf
+KILLED M13 zero-scale absolute budget relaxed x10 :: FAIL C: DIFFERS signed_fit_states.fixed.criteria.candidate.json ed216050efb00eac7b98a58f6810d218bde11af43e12074a1a51c58a945d3e35
+KILLED M14 relative criterion relaxed to 1e-8 :: FAIL C: DIFFERS signed_fit_states.fixed.criteria.candidate.json ed216050efb00eac7b98a58f6810d218bde11af43e12074a1a51c58a945d3e35
+KILLED M15 row selector id points at another node :: FAIL C: generator --check failed:  require(positives[target]['selector'] == negative['selector'], f'{negative["id"]}: selector differs from target')
+KILLED M16 row selector metadata location changed :: FAIL E: case:prescribed-root-translation.axial.pipe:1.midspan sparse: row selector does not resolve exactly once
+KILLED M17 evidence field not in the declared field table :: FAIL D: case:cold.evidence.member.pipe:fit.fit_strain: field
+KILLED M18 evidence key names a missing member :: FAIL E: case:cold.evidence.member.pipe:fit.fit_strain sparse: evidence selector 0 entries
+KILLED M19 negative discriminator equal to the reference :: FAIL C: generator --check failed: ld_case
+KILLED M24 evidence definition contradicts the record :: FAIL E: case:cold.evidence.member.pipe:fit.fit_strain sparse: definition differs from the record
+KILLED M20 zero scale removed from a zero expectation :: FAIL C: generator --check failed: rence/generate_reference_values.py", line 226, in rule_for
+KILLED M21 equilibrium zero replaced by a nonzero reference under a zero rule :: FAIL C: generator --check failed: ", line 221, in rule_for
+KILLED M22 refusal control expects the wrong code :: FAIL F: persistent_source_once duplicate_source_id sparse: expected LOAD_STATE_SOURCE_UNRESOLVED, got ['LOAD_STATE_SOURCE_DUPLICATE']
+KILLED M23 request schema_version 0.4.0 -> 0.3.0 :: FAIL B: prescribed_translation_two_bar: 0.4.0 document
+24/24 mutants killed

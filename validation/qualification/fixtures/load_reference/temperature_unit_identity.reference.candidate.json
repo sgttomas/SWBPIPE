@@ -1,0 +1,63 @@
+{
+  "format": "openpipestress.qualification_reference_values/1",
+  "case_id": "temperature_unit_identity",
+  "readiness": "pending_independent_review",
+  "basis": "generate_reference_values.py evaluating core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab) at the pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to binary64; no observed producer value",
+  "reference_kind": "analytical",
+  "independent_review_ref": null,
+  "values": [
+    {
+      "assertion_id": "case:minus-50-degC.evidence.member.pipe:identity.operating_temperature_k",
+      "value": 223.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:minus-50-degC.evidence.member.pipe:identity.material_selection_temperature_k",
+      "value": 223.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:242-degC.evidence.member.pipe:identity.operating_temperature_k",
+      "value": 515.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:242-degC.evidence.member.pipe:identity.material_selection_temperature_k",
+      "value": 515.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:467p6-degF.evidence.member.pipe:identity.operating_temperature_k",
+      "value": 515.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:467p6-degF.evidence.member.pipe:identity.material_selection_temperature_k",
+      "value": 515.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:20-degC-rankine.evidence.member.pipe:identity.operating_temperature_k",
+      "value": 293.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:20-degC-rankine.evidence.member.pipe:identity.material_selection_temperature_k",
+      "value": 293.15,
+      "unit": "K"
+    },
+    {
+      "assertion_id": "case:non-equal-control.evidence.member.pipe:identity.operating_temperature_k",
+      "value": 223.150001,
+      "unit": "K"
+    }
+  ],
+  "wrong_values": [
+    {
+      "assertion_id": "case:non-equal-control.evidence.member.pipe:identity.operating_temperature_k.not.non_equal_control.snapped_to_223p15_K",
+      "value": 223.15,
+      "unit": "K",
+      "discriminator": "/cases/temperature_unit_identity/variants/exact_affine_identity/expected/non_equal_control/authored_kelvin/1"
+    }
+  ]
+}

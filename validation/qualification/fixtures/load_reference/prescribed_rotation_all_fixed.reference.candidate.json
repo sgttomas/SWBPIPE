@@ -1,0 +1,131 @@
+{
+  "format": "openpipestress.qualification_reference_values/1",
+  "case_id": "prescribed_rotation_all_fixed",
+  "readiness": "pending_independent_review",
+  "basis": "generate_reference_values.py evaluating core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab) at the pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to binary64; no observed producer value",
+  "reference_kind": "analytical",
+  "independent_review_ref": null,
+  "values": [
+    {
+      "assertion_id": "case:prescribed-root-rotation.rot.node:root.rz",
+      "value": 0.001,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.rot.node:far.rz",
+      "value": 0.0,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.disp.node:root.uy",
+      "value": 0.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.disp.node:far.uy",
+      "value": 0.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.evidence.support_component.support:root:RZ.prescribed_value",
+      "value": 0.001,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.evidence.support_component.support:root:UY.prescribed_value",
+      "value": 0.0,
+      "unit": "m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.evidence.support_component.support:far:RZ.prescribed_value",
+      "value": 0.0,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.evidence.support_component.support:far:UY.prescribed_value",
+      "value": 0.0,
+      "unit": "m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.Fx",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.Fy",
+      "value": 8102.952851771474,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.Mz",
+      "value": 10803.9371356953,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:far.Fx",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:far.Fy",
+      "value": -8102.952851771474,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:far.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:far.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:far.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:far.Mz",
+      "value": 5401.96856784765,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.end_force.pipe:beam.end_i.shear_y",
+      "value": 8102.952851771474,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.end_force.pipe:beam.end_i.bending_z",
+      "value": 10803.9371356953,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.end_force.pipe:beam.end_j.shear_y",
+      "value": -8102.952851771474,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.end_force.pipe:beam.end_j.bending_z",
+      "value": 5401.96856784765,
+      "unit": "N*m"
+    }
+  ],
+  "wrong_values": []
+}

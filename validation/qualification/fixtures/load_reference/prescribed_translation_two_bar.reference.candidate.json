@@ -1,0 +1,153 @@
+{
+  "format": "openpipestress.qualification_reference_values/1",
+  "case_id": "prescribed_translation_two_bar",
+  "readiness": "pending_independent_review",
+  "basis": "generate_reference_values.py evaluating core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab) at the pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to binary64; no observed producer value",
+  "reference_kind": "analytical",
+  "independent_review_ref": null,
+  "values": [
+    {
+      "assertion_id": "case:prescribed-root-translation.disp.node:root.ux",
+      "value": 0.1,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.disp.node:middle.ux",
+      "value": 0.06666666666666667,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.disp.node:far.ux",
+      "value": 0.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.evidence.support_component.support:root:UX.prescribed_value",
+      "value": 0.0001,
+      "unit": "m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.evidence.support_component.support:far:UX.prescribed_value",
+      "value": 0.0,
+      "unit": "m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.axial.pipe:1.end_i",
+      "value": 39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.axial.pipe:1.quarter_1",
+      "value": -39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.axial.pipe:1.midspan",
+      "value": -39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.axial.pipe:1.quarter_3",
+      "value": -39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.axial.pipe:1.end_j",
+      "value": -39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.axial.pipe:2.end_i",
+      "value": 39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.axial.pipe:2.quarter_1",
+      "value": -39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.axial.pipe:2.midspan",
+      "value": -39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.axial.pipe:2.quarter_3",
+      "value": -39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.axial.pipe:2.end_j",
+      "value": -39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:root.Fx",
+      "value": 39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:root.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:root.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:far.Fx",
+      "value": -39793.50694547071,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:far.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:far.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:far.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:far.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-translation.reaction.support:far.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    }
+  ],
+  "wrong_values": [
+    {
+      "assertion_id": "case:prescribed-root-translation.disp.node:middle.ux.not.omitted_Kfc_gc",
+      "value": 0.0,
+      "unit": "mm",
+      "discriminator": "/cases/prescribed_translation_two_bar/wrong_result_discriminators/omitted_Kfc_gc/middle_UX"
+    }
+  ]
+}

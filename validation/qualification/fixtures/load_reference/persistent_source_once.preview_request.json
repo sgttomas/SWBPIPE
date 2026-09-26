@@ -1,0 +1,318 @@
+{
+  "model": {
+    "schema_version": "0.4.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "pressure_contract": {
+      "version": "2.0.0",
+      "mode": "exact_straight_pressure_v2"
+    },
+    "project": {
+      "id": "project:lr-persistent-source-once",
+      "name": "Persistent source counted once",
+      "description": "Invented VP-STATIC load/reference-state qualification request built from reference_cases.json; no libraries or code rules.",
+      "units": {
+        "length": "m",
+        "force": "N",
+        "angle": "rad",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "rule_check": "not_performed_user_rule_inputs_missing",
+      "professional_acceptance": "not_provided"
+    },
+    "nodes": [
+      {
+        "id": "node:root",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; coordinates from the reference lengths"
+      },
+      {
+        "id": "node:tip",
+        "position": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; coordinates from the reference lengths"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "id": "pipe:cantilever",
+        "from": "node:root",
+        "to": "node:tip",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          }
+        },
+        "material": "material:source",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "provenance": "section from reference_cases.json geometry annulus_od_0p20_wall_0p01; y_reference is an authoring convention"
+      }
+    ],
+    "supports": [
+      {
+        "id": "support:root",
+        "node": "node:root",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; rigid anchor representing the reference topology"
+      }
+    ],
+    "components": [],
+    "materials": [
+      {
+        "id": "material:source",
+        "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus": {
+          "value": 200000000000.0,
+          "unit": "Pa"
+        },
+        "poisson_ratio": {
+          "value": 0.3,
+          "unit": "1"
+        },
+        "provenance": "E from /cases/persistent_source_once/variants/annular_companion/inputs/E; nu invented (enters no checked axial result)"
+      }
+    ],
+    "reference_configurations": [
+      {
+        "id": "reference:installed",
+        "label": "Installed reference",
+        "geometry_ref": {
+          "kind": "authored_model_geometry"
+        },
+        "member_references": [
+          {
+            "pipe_ref": "pipe:cantilever",
+            "basis": {
+              "kind": "direct_strain_reference"
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "member reference from the reference case inputs"
+          }
+        ],
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "case:combined",
+        "pressure_regions": [],
+        "primitive_loads": [
+          {
+            "id": "source:preload",
+            "category": "concentrated_force",
+            "target": {
+              "type": "node",
+              "node": "node:tip"
+            },
+            "direction": "global_x",
+            "magnitude": {
+              "value": 100.0,
+              "unit": "N"
+            },
+            "dimension": "force",
+            "provenance": "reference input; the +100 N preload is represented as an ordinary stored primitive, as the reference annular topology declares it an equivalent affine tip action (no device law)"
+          },
+          {
+            "id": "source:weight",
+            "category": "concentrated_force",
+            "target": {
+              "type": "node",
+              "node": "node:tip"
+            },
+            "direction": "global_x",
+            "magnitude": {
+              "value": -1000.0,
+              "unit": "N"
+            },
+            "dimension": "force",
+            "provenance": "reference input"
+          },
+          {
+            "id": "source:independent",
+            "category": "concentrated_force",
+            "target": {
+              "type": "node",
+              "node": "node:tip"
+            },
+            "direction": "global_x",
+            "magnitude": {
+              "value": 200.0,
+              "unit": "N"
+            },
+            "dimension": "force",
+            "provenance": "reference input"
+          },
+          {
+            "id": "source:stored-unused",
+            "category": "concentrated_force",
+            "target": {
+              "type": "node",
+              "node": "node:tip"
+            },
+            "direction": "global_x",
+            "magnitude": {
+              "value": 999,
+              "unit": "N"
+            },
+            "dimension": "force",
+            "provenance": "reference source_ledger entry; stored but not referenced"
+          }
+        ],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:cantilever",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:source",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "unchanged_reference",
+                "provenance": "reference state unchanged (reference strain zero)"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:root",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [
+            {
+              "source_ref": "source:preload",
+              "factor": 1.0
+            },
+            {
+              "source_ref": "source:weight",
+              "factor": 1.0
+            },
+            {
+              "source_ref": "source:independent",
+              "factor": 1.0
+            }
+          ],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      },
+      {
+        "id": "case:two-equal-actions",
+        "pressure_regions": [],
+        "primitive_loads": [
+          {
+            "id": "source:action-a",
+            "category": "concentrated_force",
+            "target": {
+              "type": "node",
+              "node": "node:tip"
+            },
+            "direction": "global_x",
+            "magnitude": {
+              "value": 200.0,
+              "unit": "N"
+            },
+            "dimension": "force",
+            "provenance": "reference numeric_deduplication discriminator: two distinct sources of the independent action value"
+          },
+          {
+            "id": "source:action-b",
+            "category": "concentrated_force",
+            "target": {
+              "type": "node",
+              "node": "node:tip"
+            },
+            "direction": "global_x",
+            "magnitude": {
+              "value": 200.0,
+              "unit": "N"
+            },
+            "dimension": "force",
+            "provenance": "reference numeric_deduplication discriminator: two distinct sources of the independent action value"
+          }
+        ],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:cantilever",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:source",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "unchanged_reference",
+                "provenance": "reference state unchanged (reference strain zero)"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:root",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [
+            {
+              "source_ref": "source:action-a",
+              "factor": 1.0
+            },
+            {
+              "source_ref": "source:action-b",
+              "factor": 1.0
+            }
+          ],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      }
+    ],
+    "combinations": []
+  },
+  "materials": []
+}

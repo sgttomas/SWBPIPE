@@ -1,0 +1,115 @@
+{
+  "format": "openpipestress.qualification_reference_values/1",
+  "case_id": "prescribed_rotation_free_tip",
+  "readiness": "pending_independent_review",
+  "basis": "generate_reference_values.py evaluating core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab) at the pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to binary64; no observed producer value",
+  "reference_kind": "analytical",
+  "independent_review_ref": null,
+  "values": [
+    {
+      "assertion_id": "case:prescribed-root-rotation.disp.node:far.uy",
+      "value": 2.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.rot.node:far.rz",
+      "value": 0.001,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.rot.node:root.rz",
+      "value": 0.001,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.disp.node:root.uy",
+      "value": 0.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.evidence.support_component.support:root:RZ.prescribed_value",
+      "value": 0.001,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.evidence.support_component.support:root:UY.prescribed_value",
+      "value": 0.0,
+      "unit": "m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.Fx",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.Fy",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.Fz",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.Mx",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.reaction.support:root.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.axial.pipe:beam.end_i",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.axial.pipe:beam.quarter_1",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.axial.pipe:beam.midspan",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.axial.pipe:beam.quarter_3",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.axial.pipe:beam.end_j",
+      "value": 0.0,
+      "unit": "N"
+    }
+  ],
+  "wrong_values": [
+    {
+      "assertion_id": "case:prescribed-root-rotation.disp.node:far.uy.not.missing_rotation_coupling",
+      "value": 0.0,
+      "unit": "mm",
+      "discriminator": "/cases/prescribed_rotation_free_tip/wrong_result_discriminators/missing_rotation_coupling/wrong_tip_UY"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.disp.node:far.uy.not.length_normalized_angle",
+      "value": 1.0,
+      "unit": "mm",
+      "discriminator": "/cases/prescribed_rotation_free_tip/wrong_result_discriminators/length_normalized_angle/wrong_tip_UY"
+    },
+    {
+      "assertion_id": "case:prescribed-root-rotation.rot.node:far.rz.not.length_normalized_angle",
+      "value": 0.0005,
+      "unit": "rad",
+      "discriminator": "/cases/prescribed_rotation_free_tip/wrong_result_discriminators/length_normalized_angle/wrong_tip_RZ"
+    }
+  ]
+}

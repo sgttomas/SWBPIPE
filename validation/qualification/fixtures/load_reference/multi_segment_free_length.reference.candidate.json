@@ -1,0 +1,294 @@
+{
+  "format": "openpipestress.qualification_reference_values/1",
+  "case_id": "multi_segment_free_length",
+  "readiness": "pending_independent_review",
+  "basis": "generate_reference_values.py evaluating core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab) at the pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to binary64; no observed producer value",
+  "reference_kind": "analytical",
+  "independent_review_ref": null,
+  "values": [
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain",
+      "value": 0.003123048094940662,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install.installation_datum_stretch",
+      "value": 1.000625,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install.operating_datum_stretch",
+      "value": 1.00375,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:operating.thermal_strain",
+      "value": -0.00311332503113325,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:operating.installation_datum_stretch",
+      "value": 1.00375,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:operating.operating_datum_stretch",
+      "value": 1.000625,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:split.thermal_strain",
+      "value": 0.0013717421124828531,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:split.installation_datum_stretch",
+      "value": 1.002375,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:split.operating_datum_stretch",
+      "value": 1.00375,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-b.evidence.member.pipe:install.thermal_strain",
+      "value": 0.0017489069331667708,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-b.evidence.member.pipe:install.installation_datum_stretch",
+      "value": 1.000625,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-b.evidence.member.pipe:install.operating_datum_stretch",
+      "value": 1.002375,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-b.evidence.member.pipe:operating.thermal_strain",
+      "value": -0.0013698630136986301,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-b.evidence.member.pipe:operating.installation_datum_stretch",
+      "value": 1.00375,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-b.evidence.member.pipe:operating.operating_datum_stretch",
+      "value": 1.002375,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-b.evidence.member.pipe:split.thermal_strain",
+      "value": -0.0017458535977054495,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-b.evidence.member.pipe:split.installation_datum_stretch",
+      "value": 1.002375,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-b.evidence.member.pipe:split.operating_datum_stretch",
+      "value": 1.000625,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:install.thermal_strain",
+      "value": 0.0031298879027391487,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:operating.thermal_strain",
+      "value": -0.00312012226979186,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:split.thermal_strain",
+      "value": 0.001375945745917206,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:current-length-b.evidence.member.pipe:install.thermal_strain",
+      "value": 0.0017515321436200912,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:current-length-b.evidence.member.pipe:operating.thermal_strain",
+      "value": -0.001374055120619334,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:current-length-b.evidence.member.pipe:split.thermal_strain",
+      "value": -0.0017484696428385156,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-a.evidence.member.pipe:install.thermal_strain",
+      "value": 0.001999000499750125,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-a.evidence.member.pipe:install.installation_datum_stretch",
+      "value": 1.0005,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-a.evidence.member.pipe:install.operating_datum_stretch",
+      "value": 1.0025,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-a.evidence.member.pipe:operating.thermal_strain",
+      "value": -0.00199501246882793,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-a.evidence.member.pipe:operating.installation_datum_stretch",
+      "value": 1.0025,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-a.evidence.member.pipe:operating.operating_datum_stretch",
+      "value": 1.0005,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-a.evidence.member.pipe:split.thermal_strain",
+      "value": 0.0012484394506866417,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-a.evidence.member.pipe:split.installation_datum_stretch",
+      "value": 1.00125,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-a.evidence.member.pipe:split.operating_datum_stretch",
+      "value": 1.0025,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-b.evidence.member.pipe:install.thermal_strain",
+      "value": 0.0007496251874062968,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-b.evidence.member.pipe:install.installation_datum_stretch",
+      "value": 1.0005,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-b.evidence.member.pipe:install.operating_datum_stretch",
+      "value": 1.00125,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-b.evidence.member.pipe:operating.thermal_strain",
+      "value": -0.0012468827930174563,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-b.evidence.member.pipe:operating.installation_datum_stretch",
+      "value": 1.0025,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-b.evidence.member.pipe:operating.operating_datum_stretch",
+      "value": 1.00125,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-b.evidence.member.pipe:split.thermal_strain",
+      "value": -0.000749063670411985,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-b.evidence.member.pipe:split.installation_datum_stretch",
+      "value": 1.00125,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:dilation-b.evidence.member.pipe:split.operating_datum_stretch",
+      "value": 1.0005,
+      "unit": "1"
+    }
+  ],
+  "wrong_values": [
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain.not.first_segment_only",
+      "value": 0.0008744534665833854,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/first_segment_only/datum_length_strain_forward"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain.not.last_segment_only.interval_difference_form",
+      "value": 0.0007495315427857589,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/last_segment_only/interval_difference_form/datum_length_strain_forward"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain.not.last_segment_only.datum_integral_form",
+      "value": 0.00012492192379762648,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/last_segment_only/datum_integral_form/datum_length_strain_forward"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain.not.interior_breakpoints_skipped",
+      "value": 0.0034978138663335416,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/interior_breakpoints_skipped/datum_length_strain_forward"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install.thermal_strain.not.endpoint_alpha_times_interval",
+      "value": 0.004,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/endpoint_alpha_times_interval/strain"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:install.thermal_strain.not.first_segment_only",
+      "value": 0.0008753829241780743,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/first_segment_only/current_length_strain_forward"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:install.thermal_strain.not.last_segment_only.interval_difference_form",
+      "value": 0.0007502813203256856,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/last_segment_only/interval_difference_form/current_length_strain_forward"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:install.thermal_strain.not.last_segment_only.datum_integral_form",
+      "value": 0.000125007812825531,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/last_segment_only/datum_integral_form/current_length_strain_forward"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:install.thermal_strain.not.interior_breakpoints_skipped",
+      "value": 0.003506132152090317,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/interior_breakpoints_skipped/current_length_strain_forward"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:install.thermal_strain.not.endpoint_alpha_times_interval",
+      "value": 0.004,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/endpoint_alpha_times_interval/strain"
+    },
+    {
+      "assertion_id": "case:dilation-a.evidence.member.pipe:install.thermal_strain.not.first_segment_only",
+      "value": 0.0004997501249375312,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/first_segment_only/dilation_strain_forward"
+    },
+    {
+      "assertion_id": "case:dilation-a.evidence.member.pipe:install.thermal_strain.not.last_segment_only.interval_difference_form",
+      "value": 0.0009995002498750624,
+      "unit": "1",
+      "discriminator": "/cases/multi_segment_free_length/wrong_result_discriminators/last_segment_only/interval_difference_form/dilation_strain_forward"
+    }
+  ]
+}

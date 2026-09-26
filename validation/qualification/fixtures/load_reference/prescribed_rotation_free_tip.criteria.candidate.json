@@ -1,0 +1,130 @@
+{
+  "schema_version": "0.1.0",
+  "tolerance_profile": {
+    "profile_id": "load-reference-vp-static-prescribed_rotation_free_tip-v1",
+    "profile_status": "draft_pending_independent_review",
+    "scope": "This case only. Candidate comparison rules proposed per assertion family from the reference README consumer rule; not admitted, not a release criterion.",
+    "rules": [
+      {
+        "rule_id": "criterion:displacement:length:mm:relative_1e-9",
+        "dimension_id": "length",
+        "result_family": "displacement",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "mm"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
+      },
+      {
+        "rule_id": "criterion:rotation:angle:rad:relative_1e-9",
+        "dimension_id": "angle",
+        "result_family": "rotation",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "rad"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
+      },
+      {
+        "rule_id": "criterion:displacement:length:mm:zero_scale:tip_translation",
+        "dimension_id": "length",
+        "result_family": "displacement",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "mm"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 2e-09,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/prescribed_rotation_free_tip/variants/annular_companion/expected/tip_UY| = 2 mm (zero-scale tag tip_translation)"
+      },
+      {
+        "rule_id": "criterion:load_reference_support_motion:angle:rad:relative_1e-9",
+        "dimension_id": "angle",
+        "result_family": "load_reference_support_motion",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "rad"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
+      },
+      {
+        "rule_id": "criterion:load_reference_support_motion:length:m:zero_scale:tip_translation",
+        "dimension_id": "length",
+        "result_family": "load_reference_support_motion",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "m"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 2e-12,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/prescribed_rotation_free_tip/variants/annular_companion/expected/tip_UY| = 0.002 m (zero-scale tag tip_translation)"
+      },
+      {
+        "rule_id": "criterion:reaction:force:N:zero_scale:all_fixed_force",
+        "dimension_id": "force",
+        "result_family": "reaction",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 8.102952851771474e-06,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Fy| = 8102.952851771474210304772946 N (zero-scale tag all_fixed_force)"
+      },
+      {
+        "rule_id": "criterion:reaction:moment:N*m:zero_scale:all_fixed_moment",
+        "dimension_id": "moment",
+        "result_family": "reaction",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N*m"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 1.08039371356953e-05,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Mz| = 10803.9371356952989470730306 N*m (zero-scale tag all_fixed_moment)"
+      },
+      {
+        "rule_id": "criterion:force:force:N:zero_scale:all_fixed_force",
+        "dimension_id": "force",
+        "result_family": "force",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "pending the independent WP6 freeze check; candidate only, not admitted",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 8.102952851771474e-06,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Fy| = 8102.952851771474210304772946 N (zero-scale tag all_fixed_force)"
+      }
+    ]
+  }
+}

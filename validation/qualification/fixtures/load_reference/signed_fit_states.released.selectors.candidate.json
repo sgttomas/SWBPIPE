@@ -1,0 +1,2075 @@
+{
+  "format": "openpipestress.first_static_selector_candidate/1",
+  "case_id": "signed_fit_states.released",
+  "producer_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "raw_schema_version": "0.2.0",
+  "row_namespace": "payload.mechanics_envelope.results",
+  "assertions": [
+    {
+      "id": "case:cold.disp.node:far.ux",
+      "selector": {
+        "id": "result:disp:node-far:ux",
+        "kind": "global_nodal_displacement_x",
+        "unit": "mm",
+        "entity_ref": "node:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "nodal_displacement_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+        },
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:displacement:length:mm:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-002",
+        "family": "displacement",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/released_tip_UX",
+          "reference_unit": "m",
+          "transform": "identity"
+        },
+        "why_required": "released tip moves L*eps_star"
+      }
+    },
+    {
+      "id": "case:cold.axial.pipe:fit.end_i",
+      "selector": {
+        "id": "result:force:pipe-fit:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.cold",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/released_wall_N",
+          "reference_unit": "N",
+          "transform": "negate",
+          "zero_scale": {
+            "tag": "case_force.cold",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:cold.axial.pipe:fit.quarter_1",
+      "selector": {
+        "id": "result:force:pipe-fit:quarter-1:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.cold",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.cold",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:cold.axial.pipe:fit.midspan",
+      "selector": {
+        "id": "result:force:pipe-fit:midspan:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.cold",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.cold",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:cold.axial.pipe:fit.quarter_3",
+      "selector": {
+        "id": "result:force:pipe-fit:quarter-3:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.cold",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.cold",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:cold.axial.pipe:fit.end_j",
+      "selector": {
+        "id": "result:force:pipe-fit:axial:end-j",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.cold",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.cold",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:cold.reaction.support:root.Fx",
+      "selector": {
+        "id": "result:support-action:9:case:cold:12:support:root:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.cold",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_force.cold",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:cold.reaction.support:root.Fy",
+      "selector": {
+        "id": "result:support-action:9:case:cold:12:support:root:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.cold",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_force.cold",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:cold.reaction.support:root.Fz",
+      "selector": {
+        "id": "result:support-action:9:case:cold:12:support:root:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.cold",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_force.cold",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:cold.reaction.support:root.Mx",
+      "selector": {
+        "id": "result:support-action:9:case:cold:12:support:root:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.cold",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_moment.cold",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:cold.reaction.support:root.My",
+      "selector": {
+        "id": "result:support-action:9:case:cold:12:support:root:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.cold",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_moment.cold",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:cold.reaction.support:root.Mz",
+      "selector": {
+        "id": "result:support-action:9:case:cold:12:support:root:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.cold",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_moment.cold",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:cold.evidence.member.pipe:fit.selected_E_pa",
+      "selector": {
+        "id": "evidence:case:cold:member:pipe:fit:selected_E_pa",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "selected_E_pa",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "Pa",
+        "dimension": "stress"
+      },
+      "criterion_rule_id": "criterion:load_reference_material:stress:Pa:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_material",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/E",
+          "reference_unit": "Pa",
+          "transform": "identity"
+        },
+        "why_required": "state E by exact point selection (member's selected elastic modulus)"
+      }
+    },
+    {
+      "id": "case:cold.evidence.member.pipe:fit.thermal_strain",
+      "selector": {
+        "id": "evidence:case:cold:member:pipe:fit:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:zero_scale:hot_thermal_strain",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/thermal_strain",
+          "reference_unit": "1",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "hot_thermal_strain",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/thermal_strain",
+              "reference_unit": "1"
+            },
+            "scale_unit": "1"
+          }
+        },
+        "why_required": "state thermal strain (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:cold.evidence.member.pipe:fit.fit_strain",
+      "selector": {
+        "id": "evidence:case:cold:member:pipe:fit:fit_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "fit_strain",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/fit_strain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "signed fit strain dL/L, applied once (resolved fit strain lambda_fit-1)"
+      }
+    },
+    {
+      "id": "case:cold.evidence.member.pipe:fit.total_eigenstrain",
+      "selector": {
+        "id": "evidence:case:cold:member:pipe:fit:total_eigenstrain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "total_eigenstrain",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/cold/total_eigenstrain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "lambda_fit*lambda_th-1 (composed eigenstrain lambda_fit*lambda_th-1)"
+      }
+    },
+    {
+      "id": "case:cold.evidence.member.pipe:fit.reference_length_m",
+      "selector": {
+        "id": "evidence:case:cold:member:pipe:fit:reference_length_m",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:cold"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "reference_length_m",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "m",
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:load_reference_geometry:length:m:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_geometry",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+          "reference_unit": "m",
+          "transform": "identity"
+        },
+        "why_required": "authored chord length (reference (authored chord) length of the member)"
+      }
+    },
+    {
+      "id": "case:hot.disp.node:far.ux",
+      "selector": {
+        "id": "result:loadcase:case-hot:disp:node-far:ux",
+        "kind": "global_nodal_displacement_x",
+        "unit": "mm",
+        "entity_ref": "node:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "nodal_displacement_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+        },
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:displacement:length:mm:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-002",
+        "family": "displacement",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/released_tip_UX",
+          "reference_unit": "m",
+          "transform": "identity"
+        },
+        "why_required": "released tip moves L*eps_star"
+      }
+    },
+    {
+      "id": "case:hot.axial.pipe:fit.end_i",
+      "selector": {
+        "id": "result:loadcase:case-hot:force:pipe-fit:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.hot",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/released_wall_N",
+          "reference_unit": "N",
+          "transform": "negate",
+          "zero_scale": {
+            "tag": "case_force.hot",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:hot.axial.pipe:fit.quarter_1",
+      "selector": {
+        "id": "result:loadcase:case-hot:force:pipe-fit:quarter-1:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.hot",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.hot",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:hot.axial.pipe:fit.midspan",
+      "selector": {
+        "id": "result:loadcase:case-hot:force:pipe-fit:midspan:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.hot",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.hot",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:hot.axial.pipe:fit.quarter_3",
+      "selector": {
+        "id": "result:loadcase:case-hot:force:pipe-fit:quarter-3:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.hot",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.hot",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:hot.axial.pipe:fit.end_j",
+      "selector": {
+        "id": "result:loadcase:case-hot:force:pipe-fit:axial:end-j",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.hot",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.hot",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:hot.reaction.support:root.Fx",
+      "selector": {
+        "id": "result:support-action:8:case:hot:12:support:root:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.hot",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_force.hot",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:hot.reaction.support:root.Fy",
+      "selector": {
+        "id": "result:support-action:8:case:hot:12:support:root:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.hot",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_force.hot",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:hot.reaction.support:root.Fz",
+      "selector": {
+        "id": "result:support-action:8:case:hot:12:support:root:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.hot",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_force.hot",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:hot.reaction.support:root.Mx",
+      "selector": {
+        "id": "result:support-action:8:case:hot:12:support:root:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.hot",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_moment.hot",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:hot.reaction.support:root.My",
+      "selector": {
+        "id": "result:support-action:8:case:hot:12:support:root:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.hot",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_moment.hot",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:hot.reaction.support:root.Mz",
+      "selector": {
+        "id": "result:support-action:8:case:hot:12:support:root:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.hot",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_moment.hot",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:hot.evidence.member.pipe:fit.selected_E_pa",
+      "selector": {
+        "id": "evidence:case:hot:member:pipe:fit:selected_E_pa",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "selected_E_pa",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "Pa",
+        "dimension": "stress"
+      },
+      "criterion_rule_id": "criterion:load_reference_material:stress:Pa:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_material",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/E",
+          "reference_unit": "Pa",
+          "transform": "identity"
+        },
+        "why_required": "state E by exact point selection (member's selected elastic modulus)"
+      }
+    },
+    {
+      "id": "case:hot.evidence.member.pipe:fit.thermal_strain",
+      "selector": {
+        "id": "evidence:case:hot:member:pipe:fit:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/thermal_strain",
+          "reference_unit": "1",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "hot_thermal_strain",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/thermal_strain",
+              "reference_unit": "1"
+            },
+            "scale_unit": "1"
+          }
+        },
+        "why_required": "state thermal strain (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:hot.evidence.member.pipe:fit.fit_strain",
+      "selector": {
+        "id": "evidence:case:hot:member:pipe:fit:fit_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "fit_strain",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/fit_strain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "signed fit strain dL/L, applied once (resolved fit strain lambda_fit-1)"
+      }
+    },
+    {
+      "id": "case:hot.evidence.member.pipe:fit.total_eigenstrain",
+      "selector": {
+        "id": "evidence:case:hot:member:pipe:fit:total_eigenstrain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "total_eigenstrain",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/total_eigenstrain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "lambda_fit*lambda_th-1 (composed eigenstrain lambda_fit*lambda_th-1)"
+      }
+    },
+    {
+      "id": "case:hot.evidence.member.pipe:fit.reference_length_m",
+      "selector": {
+        "id": "evidence:case:hot:member:pipe:fit:reference_length_m",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:hot"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "reference_length_m",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "m",
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:load_reference_geometry:length:m:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_geometry",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+          "reference_unit": "m",
+          "transform": "identity"
+        },
+        "why_required": "authored chord length (reference (authored chord) length of the member)"
+      }
+    },
+    {
+      "id": "case:return.disp.node:far.ux",
+      "selector": {
+        "id": "result:loadcase:case-return:disp:node-far:ux",
+        "kind": "global_nodal_displacement_x",
+        "unit": "mm",
+        "entity_ref": "node:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "nodal_displacement_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+        },
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:displacement:length:mm:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-002",
+        "family": "displacement",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/released_tip_UX",
+          "reference_unit": "m",
+          "transform": "identity"
+        },
+        "why_required": "released tip moves L*eps_star"
+      }
+    },
+    {
+      "id": "case:return.axial.pipe:fit.end_i",
+      "selector": {
+        "id": "result:loadcase:case-return:force:pipe-fit:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.return",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/released_wall_N",
+          "reference_unit": "N",
+          "transform": "negate",
+          "zero_scale": {
+            "tag": "case_force.return",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:return.axial.pipe:fit.quarter_1",
+      "selector": {
+        "id": "result:loadcase:case-return:force:pipe-fit:quarter-1:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.return",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.return",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:return.axial.pipe:fit.midspan",
+      "selector": {
+        "id": "result:loadcase:case-return:force:pipe-fit:midspan:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.return",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.return",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:return.axial.pipe:fit.quarter_3",
+      "selector": {
+        "id": "result:loadcase:case-return:force:pipe-fit:quarter-3:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.return",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.return",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:return.axial.pipe:fit.end_j",
+      "selector": {
+        "id": "result:loadcase:case-return:force:pipe-fit:axial:end-j",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:fit",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:zero_scale:case_force.return",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/released_wall_N",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.return",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "released bar: zero wall force"
+      }
+    },
+    {
+      "id": "case:return.reaction.support:root.Fx",
+      "selector": {
+        "id": "result:support-action:11:case:return:12:support:root:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.return",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_force.return",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:return.reaction.support:root.Fy",
+      "selector": {
+        "id": "result:support-action:11:case:return:12:support:root:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.return",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_force.return",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:return.reaction.support:root.Fz",
+      "selector": {
+        "id": "result:support-action:11:case:return:12:support:root:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.return",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_force.return",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:return.reaction.support:root.Mx",
+      "selector": {
+        "id": "result:support-action:11:case:return:12:support:root:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.return",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_moment.return",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:return.reaction.support:root.My",
+      "selector": {
+        "id": "result:support-action:11:case:return:12:support:root:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.return",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_moment.return",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:return.reaction.support:root.Mz",
+      "selector": {
+        "id": "result:support-action:11:case:return:12:support:root:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.return",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "released cantilever with self-equilibrated eigenstrain: no support action",
+          "zero_scale": {
+            "tag": "case_moment.return",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fixed_wall_N",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:return.evidence.member.pipe:fit.selected_E_pa",
+      "selector": {
+        "id": "evidence:case:return:member:pipe:fit:selected_E_pa",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "selected_E_pa",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "Pa",
+        "dimension": "stress"
+      },
+      "criterion_rule_id": "criterion:load_reference_material:stress:Pa:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_material",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/E",
+          "reference_unit": "Pa",
+          "transform": "identity"
+        },
+        "why_required": "state E by exact point selection (member's selected elastic modulus)"
+      }
+    },
+    {
+      "id": "case:return.evidence.member.pipe:fit.thermal_strain",
+      "selector": {
+        "id": "evidence:case:return:member:pipe:fit:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:zero_scale:hot_thermal_strain",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/thermal_strain",
+          "reference_unit": "1",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "hot_thermal_strain",
+            "base": {
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/thermal_strain",
+              "reference_unit": "1"
+            },
+            "scale_unit": "1"
+          }
+        },
+        "why_required": "state thermal strain (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:return.evidence.member.pipe:fit.fit_strain",
+      "selector": {
+        "id": "evidence:case:return:member:pipe:fit:fit_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "fit_strain",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/fit_strain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "signed fit strain dL/L, applied once (resolved fit strain lambda_fit-1)"
+      }
+    },
+    {
+      "id": "case:return.evidence.member.pipe:fit.total_eigenstrain",
+      "selector": {
+        "id": "evidence:case:return:member:pipe:fit:total_eigenstrain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "total_eigenstrain",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/return/total_eigenstrain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "lambda_fit*lambda_th-1 (composed eigenstrain lambda_fit*lambda_th-1)"
+      }
+    },
+    {
+      "id": "case:return.evidence.member.pipe:fit.reference_length_m",
+      "selector": {
+        "id": "evidence:case:return:member:pipe:fit:reference_length_m",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:return"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:fit"
+        },
+        "field": "reference_length_m",
+        "definition": {
+          "material_id": "material:fit",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "natural_length_change",
+          "thermal_definition": "engineering_secant",
+          "expansion_law_id": "law:constant"
+        },
+        "unit": "m",
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:load_reference_geometry:length:m:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_geometry",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/signed_fit_states/variants/annular_companion/inputs/L",
+          "reference_unit": "m",
+          "transform": "identity"
+        },
+        "why_required": "authored chord length (reference (authored chord) length of the member)"
+      }
+    }
+  ],
+  "negative_assertions": [],
+  "gaps": [
+    {
+      "id": "baselines",
+      "kind": "not_authored",
+      "detail": "The reference baselines (no fit cold/hot, cut long cold) are other member-reference inputs and would need further requests; they are not authored in this package.",
+      "pointer": "/cases/signed_fit_states/variants/annular_companion/baselines"
+    }
+  ],
+  "scoring_readiness": {
+    "status": "authoring_only_pending_independent_freeze",
+    "reference_case_key": "signed_fit_states",
+    "family": "cold_spring",
+    "load_state_decomposition": "three load cases in one request (cold, hot, return), each an independent equilibrium; the fixed and released topologies are separate requests",
+    "limits": [],
+    "identification": "row ids and metadata were identified by running core/product_physics examples/physics_source_connected on this request in both modes; no observed value is used as a reference or criterion and none is committed"
+  }
+}

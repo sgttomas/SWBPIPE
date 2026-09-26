@@ -1,0 +1,76 @@
+{
+  "format": "openpipestress.qualification_reference_values/1",
+  "case_id": "coefficient_definition",
+  "readiness": "pending_independent_review",
+  "basis": "generate_reference_values.py evaluating core/product_physics/tests/fixtures/load_reference_states/reference_cases.json (sha256 4d7b777708806c211cda0e126d7cd4eb7acba9b658b1da63cca36fd0523beeab) at the pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to binary64; no observed producer value",
+  "reference_kind": "analytical",
+  "independent_review_ref": null,
+  "values": [
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install-low.thermal_strain",
+      "value": 0.0015,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install-high.thermal_strain",
+      "value": -0.0014977533699450823,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install-mid.thermal_strain",
+      "value": 0.0008744534665833854,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:datum-length-b.evidence.member.pipe:install-low.thermal_strain",
+      "value": 0.000625,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:install-low.thermal_strain",
+      "value": 0.0015011255627110007,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:install-high.thermal_strain",
+      "value": -0.0014988755622891258,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:install-mid.thermal_strain",
+      "value": 0.0008753829241780743,
+      "unit": "1"
+    },
+    {
+      "assertion_id": "case:current-length-b.evidence.member.pipe:install-low.thermal_strain",
+      "value": 0.0006251953531964628,
+      "unit": "1"
+    }
+  ],
+  "wrong_values": [
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install-low.thermal_strain.not.endpoint_alpha_times_interval",
+      "value": 0.002,
+      "unit": "1",
+      "discriminator": "/cases/coefficient_definition/wrong_result_discriminators/endpoint_alpha_times_interval"
+    },
+    {
+      "assertion_id": "case:datum-length-a.evidence.member.pipe:install-high.thermal_strain.not.reverse_by_negation",
+      "value": -0.0015,
+      "unit": "1",
+      "discriminator": "/cases/coefficient_definition/wrong_result_discriminators/reverse_by_negation/wrong_datum_reverse"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:install-low.thermal_strain.not.endpoint_alpha_times_interval",
+      "value": 0.002,
+      "unit": "1",
+      "discriminator": "/cases/coefficient_definition/wrong_result_discriminators/endpoint_alpha_times_interval"
+    },
+    {
+      "assertion_id": "case:current-length-a.evidence.member.pipe:install-high.thermal_strain.not.reverse_by_negation",
+      "value": -0.0015011255627110007,
+      "unit": "1",
+      "discriminator": "/cases/coefficient_definition/wrong_result_discriminators/reverse_by_negation/wrong_log_reverse"
+    }
+  ]
+}

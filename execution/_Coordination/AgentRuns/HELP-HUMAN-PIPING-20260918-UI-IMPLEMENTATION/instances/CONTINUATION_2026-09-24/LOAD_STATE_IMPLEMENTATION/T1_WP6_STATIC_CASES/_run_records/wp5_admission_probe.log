@@ -1,0 +1,7 @@
+adapter sha256 dc2a2510ac1bc0d345c9a2043ed42dae7598d57cd244decf18fd28e85dc551a7
+1 ('multi_segment_free_length', 'admit_selectors', 'LOAD-REFERENCE: duplicate required selector')
+1 ('prescribed_rotation_free_tip', 'admit_selectors', 'LOAD-REFERENCE: duplicate required selector')
+1 ('signed_fit_states.fixed', 'admit_selectors', 'LOAD-REFERENCE: duplicate required selector')
+1 ('thermal_datum_ratio.fixed', 'admit_selectors', 'LOAD-REFERENCE: duplicate required selector')
+1 ('thermal_datum_ratio.free', 'admit_selectors', 'LOAD-REFERENCE: duplicate required selector')
+507 assertions probed; 5 refusals
