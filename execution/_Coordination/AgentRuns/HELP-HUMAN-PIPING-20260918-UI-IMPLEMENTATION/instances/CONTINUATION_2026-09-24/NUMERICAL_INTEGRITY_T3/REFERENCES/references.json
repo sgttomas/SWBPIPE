@@ -1,7 +1,7 @@
 {
  "schema": "t3-independent-references-v1",
- "status": "candidate; frozen only when ROOT selects it after the independent refutation (V2)",
- "criterion": "|observed - expected| <= 1e-9 * max(|expected|, scale), scale = the published class scale of the value (unchanged form; no tolerance is proposed here)",
+ "status": "candidate, revision 2 (narrow revision after V2: findings F1, F3, F4, F5 and F9); frozen only when ROOT selects it after the V2 backcheck",
+ "criterion": "|observed - expected| <= 1e-9 * max(|expected|, scale), scale = the published class scale of the value, except in RF-CANCEL, where the binding scale is the recommended (net-governed) column of each value row (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1); unchanged form, no tolerance is proposed here",
  "theory": "small-displacement linear-elastic Euler-Bernoulli space frame, no shear deformation, circular annular sections (Iy = Iz = I, J = 2I), rigid restraints on global DOFs, grounded linear springs (global or stated direction), nodal forces and moments only",
  "arithmetic": "exact rationals with pi replaced by the exact rational of a 190-digit Machin value; decimal strings rounded to 40 significant digits (auxiliary values 25)",
  "pi_used": "3.141592653589793238462643383279502884197169399375105820974945e+0 (first 61 digits shown)",
@@ -35827,7 +35827,7 @@
     },
     {
      "id": "NC-WRONG-TRANSFORM",
-     "description": "direction-cosine indexing error: the constitutive frame of M2 uses the member axis with its first two global components swapped",
+     "description": "direction-cosine indexing error: the constitutive frame of M2 uses the member axis with its first two global components swapped (flexibility form: only the compliance of M2 in tree integration uses the swapped axis, so the rigid-body kinematics stay exact and the soft rigid mode is unchanged; the discriminates flag refers to this form only)",
      "discriminates": true,
      "violating_values": 2,
      "max_violation_ratio": "9.99496e+3",
@@ -35835,7 +35835,9 @@
      "values": {
       "th.N2.RX": "1.000149945337486984846726e-4",
       "u.N2.UZ": "2.000319883386638901006349e-4"
-     }
+     },
+     "defect_form": "flexibility (constitutive frame of M2 in tree integration); rigid-body kinematics exact",
+     "other_forms": "V2 (REFERENCE_CHECK/RETURN.md, finding F4) applied the same axis swap inside a direct-stiffness element, where it breaks rigid-body invariance and stiffens the soft mode; that form fails by about 1e9 at th.N2.RX.  Not computed by this script."
     }
    ],
    "basis": "intended",
@@ -36209,12 +36211,14 @@
     },
     {
      "id": "NC-WRONG-TRANSFORM",
-     "description": "direction-cosine indexing error: the constitutive frame of M2 uses the member axis with its first two global components swapped",
+     "description": "direction-cosine indexing error: the constitutive frame of M2 uses the member axis with its first two global components swapped (flexibility form: only the compliance of M2 in tree integration uses the swapped axis, so the rigid-body kinematics stay exact and the soft rigid mode is unchanged; the discriminates flag refers to this form only)",
      "discriminates": false,
      "violating_values": 0,
      "max_violation_ratio": "0",
      "at": null,
-     "values": {}
+     "values": {},
+     "defect_form": "flexibility (constitutive frame of M2 in tree integration); rigid-body kinematics exact",
+     "other_forms": "V2 (REFERENCE_CHECK/RETURN.md, finding F4) applied the same axis swap inside a direct-stiffness element, where it breaks rigid-body invariance and stiffens the soft mode; that form fails by about 1e9 at th.N2.RX.  Not computed by this script."
     }
    ],
    "basis": "intended",
@@ -36589,12 +36593,14 @@
     },
     {
      "id": "NC-WRONG-TRANSFORM",
-     "description": "direction-cosine indexing error: the constitutive frame of M2 uses the member axis with its first two global components swapped",
+     "description": "direction-cosine indexing error: the constitutive frame of M2 uses the member axis with its first two global components swapped (flexibility form: only the compliance of M2 in tree integration uses the swapped axis, so the rigid-body kinematics stay exact and the soft rigid mode is unchanged; the discriminates flag refers to this form only)",
      "discriminates": false,
      "violating_values": 0,
      "max_violation_ratio": "0",
      "at": null,
-     "values": {}
+     "values": {},
+     "defect_form": "flexibility (constitutive frame of M2 in tree integration); rigid-body kinematics exact",
+     "other_forms": "V2 (REFERENCE_CHECK/RETURN.md, finding F4) applied the same axis swap inside a direct-stiffness element, where it breaks rigid-body invariance and stiffens the soft mode; that form fails by about 1e9 at th.N2.RX.  Not computed by this script."
     }
    ],
    "basis": "intended",
@@ -316397,8 +316403,8 @@
      "N": {
       "E": "48828125*2^312",
       "G": "9765625*2^313",
-      "OD": "321387608851798055108392418500000000000000000000000000000000",
-      "ID": "289248847966618249597553176600000000000000000000000000000000"
+      "OD": "0.2*2^200",
+      "ID": "0.36*2^199"
      }
     },
     "members": [
@@ -317096,7 +317102,7 @@
          "0",
          "0"
         ],
-        "k": "30106006018016341241073219670000000000000"
+        "k": "0.0432*2^139"
        }
       ]
      }
@@ -317104,7 +317110,7 @@
     "loads": {
      "N5": {
       "M": [
-       "3010600601801634124107321967000000000",
+       "0.00006912*2^135",
        "0",
        "0"
       ]
@@ -317649,27 +317655,27 @@
       "0"
      ],
      "N1": [
-      "2658455991569831745807614121000000000",
+      "2658455991569831745807614120560689152",
       "0",
       "0"
      ],
      "N2": [
-      "3987683987354747618711421181000000000",
+      "3987683987354747618711421180841033728",
       "0",
       "0"
      ],
      "N3": [
-      "7975367974709495237422842362000000000",
+      "7975367974709495237422842361682067456",
       "0",
       "0"
      ],
      "N4": [
-      "9969209968386869046778552952000000000",
+      "9969209968386869046778552952102584320",
       "0",
       "0"
      ],
      "N5": [
-      "13292279957849158729038070600000000000",
+      "13292279957849158729038070602803445760",
       "0",
       "0"
      ]
@@ -317678,8 +317684,8 @@
      "N": {
       "E": "48828125*2^-488",
       "G": "9765625*2^-487",
-      "OD": "265845599156983174580761412100000000",
-      "ID": "239261039241284857122685270900000000"
+      "OD": "265845599156983174580761412056068915.2",
+      "ID": "239261039241284857122685270850462023.68"
      }
     },
     "members": [
@@ -320857,8 +320863,8 @@
      "N": {
       "E": "48828125*2^312",
       "G": "9765625*2^313",
-      "OD": "321387608851798055108392418500000000000000000000000000000000",
-      "ID": "289248847966618249597553176600000000000000000000000000000000"
+      "OD": "0.2*2^200",
+      "ID": "0.36*2^199"
      }
     },
     "members": [
@@ -321256,7 +321262,7 @@
          "0",
          "0"
         ],
-        "k": "20070670678677560827382146450000000000000"
+        "k": "0.0144*2^140"
        },
        {
         "kind": "rotation",
@@ -321265,7 +321271,7 @@
          "1",
          "0"
         ],
-        "k": "1393796574908163946345982392000000000000000000000"
+        "k": "15625*2^146"
        },
        {
         "kind": "rotation",
@@ -321274,7 +321280,7 @@
          "0",
          "1"
         ],
-        "k": "1393796574908163946345982392000000000000000000000"
+        "k": "15625*2^146"
        }
       ]
      }
@@ -321282,9 +321288,9 @@
     "loads": {
      "N1": {
       "M": [
-       "669022355955918694246071548200000000",
-       "1338044711911837388492143096000000000",
-       "1338044711911837388492143096000000000"
+       "0.00000768*2^136",
+       "0.00000768*2^137",
+       "0.00000768*2^137"
       ]
      }
     }
@@ -321585,17 +321591,17 @@
       "0"
      ],
      "N1": [
-      "1329227995784915872903807060000000000",
-      "2658455991569831745807614121000000000",
-      "2658455991569831745807614121000000000"
+      "1329227995784915872903807060280344576",
+      "2658455991569831745807614120560689152",
+      "2658455991569831745807614120560689152"
      ]
     },
     "sections": {
      "N": {
       "E": "48828125*2^-488",
       "G": "9765625*2^-487",
-      "OD": "265845599156983174580761412100000000",
-      "ID": "239261039241284857122685270900000000"
+      "OD": "265845599156983174580761412056068915.2",
+      "ID": "239261039241284857122685270850462023.68"
      }
     },
     "members": [
@@ -330173,8 +330179,8 @@
      "S": {
       "E": "48828125*2^312",
       "G": "9765625*2^313",
-      "OD": "321387608851798055108392418500000000000000000000000000000000",
-      "ID": "289248847966618249597553176600000000000000000000000000000000"
+      "OD": "0.2*2^200",
+      "ID": "0.36*2^199"
      }
     },
     "members": [
@@ -332477,52 +332483,52 @@
       "0"
      ],
      "S1": [
-      "7975367974709495237422842362000000000",
+      "7975367974709495237422842361682067456",
       "0",
       "0"
      ],
      "S2": [
-      "15950735949418990474845684720000000000",
+      "15950735949418990474845684723364134912",
       "0",
       "0"
      ],
      "S3": [
-      "23926103924128485712268527090000000000",
+      "23926103924128485712268527085046202368",
       "0",
       "0"
      ],
      "S4": [
-      "31901471898837980949691369450000000000",
+      "31901471898837980949691369446728269824",
       "0",
       "0"
      ],
      "S5": [
-      "39876839873547476187114211810000000000",
+      "39876839873547476187114211808410337280",
       "0",
       "0"
      ],
      "C1": [
-      "3987683987354747618711421181000000000",
+      "3987683987354747618711421180841033728",
       "0",
       "0"
      ],
      "C2": [
-      "11963051962064242856134263540000000000",
+      "11963051962064242856134263542523101184",
       "0",
       "0"
      ],
      "C3": [
-      "19938419936773738093557105900000000000",
+      "19938419936773738093557105904205168640",
       "0",
       "0"
      ],
      "C4": [
-      "27913787911483233330979948270000000000",
+      "27913787911483233330979948265887236096",
       "0",
       "0"
      ],
      "C5": [
-      "35889155886192728568402790630000000000",
+      "35889155886192728568402790627569303552",
       "0",
       "0"
      ]
@@ -332531,8 +332537,8 @@
      "S": {
       "E": "48828125*2^-488",
       "G": "9765625*2^-487",
-      "OD": "265845599156983174580761412100000000",
-      "ID": "239261039241284857122685270900000000"
+      "OD": "265845599156983174580761412056068915.2",
+      "ID": "239261039241284857122685270850462023.68"
      }
     },
     "members": [
@@ -342614,7 +342620,7 @@
     },
     {
      "id": "NC-RESTRAINT-COUNT",
-     "description": "accepting because the restraint count is at least six per connected body or globally",
+     "description": "accepting because the restraint count is at least six, counted per connected body or globally: both forms of the count are defeated here",
      "discriminates": true
     }
    ],
@@ -343013,7 +343019,7 @@
     },
     {
      "id": "NC-RESTRAINT-COUNT",
-     "description": "accepting because the restraint count is at least six per connected body or globally",
+     "description": "accepting because the restraint count is at least six, counted per connected body or globally: both forms of the count are defeated here",
      "discriminates": true
     }
    ],
@@ -343404,7 +343410,7 @@
     },
     {
      "id": "NC-RESTRAINT-COUNT",
-     "description": "accepting because the restraint count is at least six per connected body or globally",
+     "description": "accepting because the restraint count is at least six, counted per connected body or globally: both forms of the count are defeated here",
      "discriminates": true
     }
    ],
@@ -343814,7 +343820,7 @@
     },
     {
      "id": "NC-RESTRAINT-COUNT",
-     "description": "accepting because the restraint count is at least six per connected body or globally",
+     "description": "accepting because the restraint count is at least six, counted per connected body or globally: both forms of the count are defeated here",
      "discriminates": true
     }
    ],
@@ -344145,7 +344151,7 @@
     },
     {
      "id": "NC-RESTRAINT-COUNT",
-     "description": "accepting because the restraint count is at least six per connected body or globally",
+     "description": "accepting because the restraint count is at least six, counted per connected body or globally: both forms of the count are defeated here",
      "discriminates": true
     }
    ],
@@ -345691,7 +345697,7 @@
     },
     {
      "id": "NC-RESTRAINT-COUNT",
-     "description": "accepting because the restraint count is at least six per connected body or globally",
+     "description": "accepting because the global restraint count is at least six: only the global form of the count is defeated here; a per-body count finds no restraint on the sub-assembly and refuses correctly",
      "discriminates": true
     }
    ],
@@ -347196,7 +347202,7 @@
     },
     {
      "id": "NC-RESTRAINT-COUNT",
-     "description": "accepting because the restraint count is at least six per connected body or globally",
+     "description": "accepting because the global restraint count is at least six: only the global form of the count is defeated here; a per-body count finds one restraint (the spring) on the sub-assembly and refuses correctly",
      "discriminates": true
     }
    ],
@@ -347373,7 +347379,7 @@
     },
     {
      "id": "NC-RESTRAINT-COUNT",
-     "description": "accepting because the restraint count is at least six per connected body or globally",
+     "description": "accepting because the restraint count is at least six, counted per connected body or globally: both forms of the count are defeated here",
      "discriminates": true
     }
    ],
@@ -348150,7 +348156,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+5",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -348664,7 +348670,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+5",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -349178,7 +349184,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+5",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -349692,7 +349698,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+6",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1000000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -350206,7 +350212,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+6",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1000000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -350720,7 +350726,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+6",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1000000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -351258,7 +351264,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+7",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 10000000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -351796,7 +351802,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+7",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 10000000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -352334,7 +352340,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+7",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 10000000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -352872,7 +352878,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+8",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -353410,7 +353416,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+8",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -353948,7 +353954,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+8",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -354484,7 +354490,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+8",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -355016,7 +355022,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+8",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000000 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -355028,7 +355034,7 @@
   },
   "RF-CANCEL-F-G1e80-GnG": {
    "family": "RF-CANCEL",
-   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip UY carries the contributions (82718061255302767487140869210000000000000000000000000000*2^80, 0.00000001, -82718061255302767487140869210000000000000000000000000000*2^80) N in this authored order, exact net 0.00000001 N.",
+   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip UY carries the contributions (1e+80, 0.00000001, -1e+80) N in this authored order, exact net 0.00000001 N.",
    "method": "tree integration (cut statics + Euler-Bernoulli compatibility integrals) from the determinate root N0",
    "units": {
     "length": "m",
@@ -355098,7 +355104,7 @@
      [
       "N2",
       "UY",
-      "82718061255302767487140869210000000000000000000000000000*2^80"
+      "1e+80"
      ],
      [
       "N2",
@@ -355108,7 +355114,7 @@
      [
       "N2",
       "UY",
-      "-82718061255302767487140869210000000000000000000000000000*2^80"
+      "-1e+80"
      ]
     ]
    },
@@ -355555,8 +355561,8 @@
    "cancellation": {
     "exact_net": "1.000000000000000000000000e-8",
     "gross": "1.000000000000000000000000e+80",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
-    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 82718061255302767487140869210000000000000000000000000000*2^80 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
+    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1e+80 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
      "zero": 27,
@@ -355566,7 +355572,7 @@
   },
   "RF-CANCEL-F-G1e80-GGn": {
    "family": "RF-CANCEL",
-   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip UY carries the contributions (82718061255302767487140869210000000000000000000000000000*2^80, -82718061255302767487140869210000000000000000000000000000*2^80, 0.00000001) N in this authored order, exact net 0.00000001 N.",
+   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip UY carries the contributions (1e+80, -1e+80, 0.00000001) N in this authored order, exact net 0.00000001 N.",
    "method": "tree integration (cut statics + Euler-Bernoulli compatibility integrals) from the determinate root N0",
    "units": {
     "length": "m",
@@ -355636,12 +355642,12 @@
      [
       "N2",
       "UY",
-      "82718061255302767487140869210000000000000000000000000000*2^80"
+      "1e+80"
      ],
      [
       "N2",
       "UY",
-      "-82718061255302767487140869210000000000000000000000000000*2^80"
+      "-1e+80"
      ],
      [
       "N2",
@@ -356093,8 +356099,8 @@
    "cancellation": {
     "exact_net": "1.000000000000000000000000e-8",
     "gross": "1.000000000000000000000000e+80",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
-    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 82718061255302767487140869210000000000000000000000000000*2^80 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
+    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1e+80 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
      "zero": 27,
@@ -356104,7 +356110,7 @@
   },
   "RF-CANCEL-F-G1e80-nGG": {
    "family": "RF-CANCEL",
-   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip UY carries the contributions (0.00000001, 82718061255302767487140869210000000000000000000000000000*2^80, -82718061255302767487140869210000000000000000000000000000*2^80) N in this authored order, exact net 0.00000001 N.",
+   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip UY carries the contributions (0.00000001, 1e+80, -1e+80) N in this authored order, exact net 0.00000001 N.",
    "method": "tree integration (cut statics + Euler-Bernoulli compatibility integrals) from the determinate root N0",
    "units": {
     "length": "m",
@@ -356179,12 +356185,12 @@
      [
       "N2",
       "UY",
-      "82718061255302767487140869210000000000000000000000000000*2^80"
+      "1e+80"
      ],
      [
       "N2",
       "UY",
-      "-82718061255302767487140869210000000000000000000000000000*2^80"
+      "-1e+80"
      ]
     ]
    },
@@ -356631,8 +356637,8 @@
    "cancellation": {
     "exact_net": "1.000000000000000000000000e-8",
     "gross": "1.000000000000000000000000e+80",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
-    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 82718061255302767487140869210000000000000000000000000000*2^80 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
+    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1e+80 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
      "zero": 27,
@@ -356642,7 +356648,7 @@
   },
   "RF-CANCEL-F-G1e80-GnG-ORTHO": {
    "family": "RF-CANCEL",
-   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip UY carries the contributions (82718061255302767487140869210000000000000000000000000000*2^80, 0.00000001, -82718061255302767487140869210000000000000000000000000000*2^80) N in this authored order, exact net 0.00000001 N; ordinary load F = (0, 0, 100) N at N2 (orthogonal DOF: the cancelled DOF response stays a pure net response).",
+   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip UY carries the contributions (1e+80, 0.00000001, -1e+80) N in this authored order, exact net 0.00000001 N; ordinary load F = (0, 0, 100) N at N2 (orthogonal DOF: the cancelled DOF response stays a pure net response).",
    "method": "tree integration (cut statics + Euler-Bernoulli compatibility integrals) from the determinate root N0",
    "units": {
     "length": "m",
@@ -356720,7 +356726,7 @@
      [
       "N2",
       "UY",
-      "82718061255302767487140869210000000000000000000000000000*2^80"
+      "1e+80"
      ],
      [
       "N2",
@@ -356730,7 +356736,7 @@
      [
       "N2",
       "UY",
-      "-82718061255302767487140869210000000000000000000000000000*2^80"
+      "-1e+80"
      ]
     ]
    },
@@ -357162,8 +357168,8 @@
    "cancellation": {
     "exact_net": "1.000000000000000000000000e-8",
     "gross": "1.000000000000000000000000e+80",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
-    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 82718061255302767487140869210000000000000000000000000000*2^80 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
+    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1e+80 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
      "zero": 21,
@@ -357175,7 +357181,7 @@
   },
   "RF-CANCEL-F-G1e80-GnG-INPLANE": {
    "family": "RF-CANCEL",
-   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip UY carries the contributions (82718061255302767487140869210000000000000000000000000000*2^80, 0.00000001, -82718061255302767487140869210000000000000000000000000000*2^80) N in this authored order, exact net 0.00000001 N; ordinary load F = (0, 50, 0) N at N1 (same bending plane: every response mixes the net and the ordinary load).",
+   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip UY carries the contributions (1e+80, 0.00000001, -1e+80) N in this authored order, exact net 0.00000001 N; ordinary load F = (0, 50, 0) N at N1 (same bending plane: every response mixes the net and the ordinary load).",
    "method": "tree integration (cut statics + Euler-Bernoulli compatibility integrals) from the determinate root N0",
    "units": {
     "length": "m",
@@ -357253,7 +357259,7 @@
      [
       "N2",
       "UY",
-      "82718061255302767487140869210000000000000000000000000000*2^80"
+      "1e+80"
      ],
      [
       "N2",
@@ -357263,7 +357269,7 @@
      [
       "N2",
       "UY",
-      "-82718061255302767487140869210000000000000000000000000000*2^80"
+      "-1e+80"
      ]
     ]
    },
@@ -357686,8 +357692,8 @@
    "cancellation": {
     "exact_net": "1.000000000000000000000000e-8",
     "gross": "1.000000000000000000000000e+80",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
-    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 82718061255302767487140869210000000000000000000000000000*2^80 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N applied alone at UY; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
+    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1e+80 N applied alone at UY (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
      "zero": 27,
@@ -358201,7 +358207,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+5",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -358715,7 +358721,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+5",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -359229,7 +359235,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+5",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -359743,7 +359749,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+6",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1000000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -360257,7 +360263,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+6",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1000000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -360771,7 +360777,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+6",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1000000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -361309,7 +361315,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+7",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 10000000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -361847,7 +361853,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+7",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 10000000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -362385,7 +362391,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+7",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 10000000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -362923,7 +362929,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+8",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -363461,7 +363467,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+8",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -363999,7 +364005,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+8",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -364533,7 +364539,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+8",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -365065,7 +365071,7 @@
    "cancellation": {
     "exact_net": "3.000000000000000000000000e-1",
     "gross": "1.000000000000000000000000e+8",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.3 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 100000000 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -365077,7 +365083,7 @@
   },
   "RF-CANCEL-M-G1e80-GnG": {
    "family": "RF-CANCEL",
-   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip RZ carries the contributions (82718061255302767487140869210000000000000000000000000000*2^80, 0.00000001, -82718061255302767487140869210000000000000000000000000000*2^80) N*m in this authored order, exact net 0.00000001 N*m.",
+   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip RZ carries the contributions (1e+80, 0.00000001, -1e+80) N*m in this authored order, exact net 0.00000001 N*m.",
    "method": "tree integration (cut statics + Euler-Bernoulli compatibility integrals) from the determinate root N0",
    "units": {
     "length": "m",
@@ -365147,7 +365153,7 @@
      [
       "N2",
       "RZ",
-      "82718061255302767487140869210000000000000000000000000000*2^80"
+      "1e+80"
      ],
      [
       "N2",
@@ -365157,7 +365163,7 @@
      [
       "N2",
       "RZ",
-      "-82718061255302767487140869210000000000000000000000000000*2^80"
+      "-1e+80"
      ]
     ]
    },
@@ -365604,8 +365610,8 @@
    "cancellation": {
     "exact_net": "1.000000000000000000000000e-8",
     "gross": "1.000000000000000000000000e+80",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
-    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 82718061255302767487140869210000000000000000000000000000*2^80 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
+    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1e+80 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
      "zero": 27,
@@ -365615,7 +365621,7 @@
   },
   "RF-CANCEL-M-G1e80-GGn": {
    "family": "RF-CANCEL",
-   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip RZ carries the contributions (82718061255302767487140869210000000000000000000000000000*2^80, -82718061255302767487140869210000000000000000000000000000*2^80, 0.00000001) N*m in this authored order, exact net 0.00000001 N*m.",
+   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip RZ carries the contributions (1e+80, -1e+80, 0.00000001) N*m in this authored order, exact net 0.00000001 N*m.",
    "method": "tree integration (cut statics + Euler-Bernoulli compatibility integrals) from the determinate root N0",
    "units": {
     "length": "m",
@@ -365685,12 +365691,12 @@
      [
       "N2",
       "RZ",
-      "82718061255302767487140869210000000000000000000000000000*2^80"
+      "1e+80"
      ],
      [
       "N2",
       "RZ",
-      "-82718061255302767487140869210000000000000000000000000000*2^80"
+      "-1e+80"
      ],
      [
       "N2",
@@ -366142,8 +366148,8 @@
    "cancellation": {
     "exact_net": "1.000000000000000000000000e-8",
     "gross": "1.000000000000000000000000e+80",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
-    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 82718061255302767487140869210000000000000000000000000000*2^80 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
+    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1e+80 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
      "zero": 27,
@@ -366153,7 +366159,7 @@
   },
   "RF-CANCEL-M-G1e80-nGG": {
    "family": "RF-CANCEL",
-   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip RZ carries the contributions (0.00000001, 82718061255302767487140869210000000000000000000000000000*2^80, -82718061255302767487140869210000000000000000000000000000*2^80) N*m in this authored order, exact net 0.00000001 N*m.",
+   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip RZ carries the contributions (0.00000001, 1e+80, -1e+80) N*m in this authored order, exact net 0.00000001 N*m.",
    "method": "tree integration (cut statics + Euler-Bernoulli compatibility integrals) from the determinate root N0",
    "units": {
     "length": "m",
@@ -366228,12 +366234,12 @@
      [
       "N2",
       "RZ",
-      "82718061255302767487140869210000000000000000000000000000*2^80"
+      "1e+80"
      ],
      [
       "N2",
       "RZ",
-      "-82718061255302767487140869210000000000000000000000000000*2^80"
+      "-1e+80"
      ]
     ]
    },
@@ -366680,8 +366686,8 @@
    "cancellation": {
     "exact_net": "1.000000000000000000000000e-8",
     "gross": "1.000000000000000000000000e+80",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
-    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 82718061255302767487140869210000000000000000000000000000*2^80 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
+    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1e+80 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
      "zero": 27,
@@ -366691,7 +366697,7 @@
   },
   "RF-CANCEL-M-G1e80-GnG-ORTHO": {
    "family": "RF-CANCEL",
-   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip RZ carries the contributions (82718061255302767487140869210000000000000000000000000000*2^80, 0.00000001, -82718061255302767487140869210000000000000000000000000000*2^80) N*m in this authored order, exact net 0.00000001 N*m; ordinary load M = (0, 50, 0) N*m at N2 (orthogonal DOF: the cancelled DOF response stays a pure net response).",
+   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip RZ carries the contributions (1e+80, 0.00000001, -1e+80) N*m in this authored order, exact net 0.00000001 N*m; ordinary load M = (0, 50, 0) N*m at N2 (orthogonal DOF: the cancelled DOF response stays a pure net response).",
    "method": "tree integration (cut statics + Euler-Bernoulli compatibility integrals) from the determinate root N0",
    "units": {
     "length": "m",
@@ -366769,7 +366775,7 @@
      [
       "N2",
       "RZ",
-      "82718061255302767487140869210000000000000000000000000000*2^80"
+      "1e+80"
      ],
      [
       "N2",
@@ -366779,7 +366785,7 @@
      [
       "N2",
       "RZ",
-      "-82718061255302767487140869210000000000000000000000000000*2^80"
+      "-1e+80"
      ]
     ]
    },
@@ -367208,8 +367214,8 @@
    "cancellation": {
     "exact_net": "1.000000000000000000000000e-8",
     "gross": "1.000000000000000000000000e+80",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
-    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 82718061255302767487140869210000000000000000000000000000*2^80 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
+    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1e+80 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
      "zero": 22,
@@ -367221,7 +367227,7 @@
   },
   "RF-CANCEL-M-G1e80-GnG-INPLANE": {
    "family": "RF-CANCEL",
-   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip RZ carries the contributions (82718061255302767487140869210000000000000000000000000000*2^80, 0.00000001, -82718061255302767487140869210000000000000000000000000000*2^80) N*m in this authored order, exact net 0.00000001 N*m; ordinary load M = (0, 0, 20) N*m at N1 (same bending plane: every response mixes the net and the ordinary load).",
+   "purpose": "cantilever N0 (fixed) -> N1 (1,0,0) -> N2 (2,0,0), N section; tip RZ carries the contributions (1e+80, 0.00000001, -1e+80) N*m in this authored order, exact net 0.00000001 N*m; ordinary load M = (0, 0, 20) N*m at N1 (same bending plane: every response mixes the net and the ordinary load).",
    "method": "tree integration (cut statics + Euler-Bernoulli compatibility integrals) from the determinate root N0",
    "units": {
     "length": "m",
@@ -367299,7 +367305,7 @@
      [
       "N2",
       "RZ",
-      "82718061255302767487140869210000000000000000000000000000*2^80"
+      "1e+80"
      ],
      [
       "N2",
@@ -367309,7 +367315,7 @@
      [
       "N2",
       "RZ",
-      "-82718061255302767487140869210000000000000000000000000000*2^80"
+      "-1e+80"
      ]
     ]
    },
@@ -367732,8 +367738,8 @@
    "cancellation": {
     "exact_net": "1.000000000000000000000000e-8",
     "gross": "1.000000000000000000000000e+80",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
-    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 82718061255302767487140869210000000000000000000000000000*2^80 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net contribution n = 0.00000001 N*m applied alone at RZ; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
+    "gross_scale": "alternative, not recommended: the magnitude of the value's response to the gross contribution G = 1e+80 N*m applied alone at RZ (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
      "zero": 27,
@@ -368329,7 +368335,7 @@
    "cancellation": {
     "exact_net": "4.916666666666666666666667e-1",
     "gross": "3.333333333333333333333333e+4",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net moment 59/120 N*m applied alone at S1; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net moment 59/120 N*m applied alone at S1; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to span A load w_A alone (its fixed-end moment w_A L^2/12 = 100000/3 N*m) (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -368929,7 +368935,7 @@
    "cancellation": {
     "exact_net": "4.916666666666666666666667e-1",
     "gross": "3.333333333333333333333333e+7",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net moment 59/120 N*m applied alone at S1; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net moment 59/120 N*m applied alone at S1; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to span A load w_A alone (its fixed-end moment w_A L^2/12 = 100000000/3 N*m) (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {
@@ -368942,7 +368948,7 @@
   },
   "RF-CANCEL-UDL-W1e80": {
    "family": "RF-CANCEL",
-   "purpose": "two 2 m spans S0 (fixed) - S1 (translation-pinned) - S2 (fixed) along x, N section; uniform loads w_A = 82718061255302767487140869210000000000000000000000000000*2^80 N/m and w_B = 82718061255302767487140869210000000000000000000000000000*2^80 N/m, both along +y, so their fixed-end moments enter S1 with opposite signs (-w_A L^2/12 and +w_B L^2/12); nodal moment 0.00000001 N*m about z at S1; exact net moment at S1 = 0.00000001 N*m.  Reactions and end moments are governed by the gross loads, the S1 rotation by the net moment.",
+   "purpose": "two 2 m spans S0 (fixed) - S1 (translation-pinned) - S2 (fixed) along x, N section; uniform loads w_A = 1e+80 N/m and w_B = 1e+80 N/m, both along +y, so their fixed-end moments enter S1 with opposite signs (-w_A L^2/12 and +w_B L^2/12); nodal moment 0.00000001 N*m about z at S1; exact net moment at S1 = 0.00000001 N*m.  Reactions and end moments are governed by the gross loads, the S1 rotation by the net moment.",
    "method": "two fixed-ended spans with uniform transverse loads meeting at a translation-pinned node: fixed-end moments plus the rotation of the shared node",
    "units": {
     "length": "m",
@@ -369038,12 +369044,12 @@
     "member_uniform_loads_N_per_m_global": {
      "A": [
       "0",
-      "82718061255302767487140869210000000000000000000000000000*2^80",
+      "1e+80",
       "0"
      ],
      "B": [
       "0",
-      "82718061255302767487140869210000000000000000000000000000*2^80",
+      "1e+80",
       "0"
      ]
     }
@@ -369519,7 +369525,7 @@
    "cancellation": {
     "exact_net": "1.000000000000000000000000e-8",
     "gross": "3.333333333333333333333333e+79",
-    "recommended_scale": "net-governed: the magnitude of the value's response to the net moment 0.00000001 N*m applied alone at S1; for a value that the net contribution does not affect, or an exact zero, the case class scale.  Under |obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison relative, so every net-governed value is compared relatively.",
+    "recommended_scale": "BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  Net-governed: the magnitude of the value's response to the net moment 0.00000001 N*m applied alone at S1; for a value that the net contribution does not affect, or an exact zero, the case class scale.  It never exceeds the class scale.  It can fall below |exp| (in mixed rows); there the comparison |obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison scale max(|exp|, scale) is never below |exp|.",
     "gross_scale": "alternative, not recommended: the magnitude of the value's response to span A load w_A alone (its fixed-end moment w_A L^2/12 = 100000000000000000000000000000000000000000000000000000000000000000000000000000000/3 N*m) (or the class scale where that is zero).  It would accept a lost or mis-summed net contribution.",
     "class_scale": "the family-wide class rule (published under scales); shown for comparison in the negative controls",
     "governed_by_counts": {

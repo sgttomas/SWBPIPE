@@ -1,12 +1,30 @@
 # T3 R1: independent references (VP-ORACLES and VP-ROBUST)
 
-This is the return of Type 2 TASK R1 for tranche T3 (numerical integrity, precision and scale), 2026-09-26. The brief is `T3/TASK_BRIEFS/R1_REFERENCES.md`, read with `_COMMON.md`. The package holds hand-derived references for T3's general accuracy method, range support and sparse scale. It was written without reading product code. **Status: candidate.** The references are frozen only when ROOT selects them after the independent refutation (V2). No tolerance is proposed here. Every comparison uses the unchanged form
+This is the return of Type 2 TASK R1 for tranche T3 (numerical integrity, precision and scale), 2026-09-26. The brief is `T3/TASK_BRIEFS/R1_REFERENCES.md`, read with `_COMMON.md`. The package holds hand-derived references for T3's general accuracy method, range support and sparse scale. It was written without reading product code. **Status: candidate, revision 2.** V2 (`T3/REFERENCE_CHECK/RETURN.md`) confirmed the references with no blocking finding. This revision makes only the narrow changes ROOT ruled on in `T3/ROOT_RULINGS_V2.md` (§0). The references are frozen only when ROOT selects them after V2's backcheck. No tolerance is proposed here. Every comparison uses the unchanged form
 
 ```
 |observed - expected| <= 1e-9 * max(|expected|, scale)
 ```
 
 The `scale` is the published class scale of each value. See §4.
+
+## 0. Revision 2 (after V2)
+
+Scope: V2 findings F1, F3, F4, F5 and F9, as ROOT ruled. No expected value, scale, represented-input value, basis decision or negative-control result changed. The revision-1 file hashes are kept in `_run_records/SHA256SUMS.revision1`.
+
+| Finding | Change |
+|---|---|
+| F1 | Every model input is now printed exactly. The revision-1 formatter normalized decimals in Python's default 28-digit context, so inputs with more significant digits were printed rounded, while the expectations were computed from the exact values. The affected inputs are in 8 RF-RANGE cases (OD, ID, spring k, loads: CHAIN-LEF-large, CHAIN-SIM-a, CHAIN-SIM-b, CONT-LEF-large, CONT-SIM-b, SKEW-LEF-large, SKEW-SIM-a, SKEW-SIM-b) and 11 RF-CANCEL cases (the 10 G = 1e80 cases and UDL-W1e80), where 1e80 is now printed as `1e+80`. Case `purpose` texts that quote these inputs changed accordingly. Every string that was already exact is byte-identical. `references.py` now asserts that every printed input parses back (`parse_input`) to exactly the rational used. Spellings: a decimal (plain, or scientific when long), `d*2^k`, or `p/q`. |
+| F3 | ROOT ruled that the recommended (net-governed) column is the **binding** comparison scale for RF-CANCEL. The JSON header `criterion` and every RF-CANCEL `cancellation.recommended_scale` text now say so. Corrected claim: the recommended scale never exceeds the class scale, but it can fall below \|exp\| (84 `mixed` rows), and there the comparison is exactly relative. The effective scale max(\|exp\|, scale) is never below \|exp\|. |
+| F4 | The NC-WRONG-TRANSFORM controls of the three RF-WEAK-W-L cases now state their defect form: the swapped axis enters only the compliance of M2 in tree integration, with exact rigid-body kinematics. The `discriminates: false` of r1e-08 and r1e-12 refers to that form only. V2's direct-stiffness form of the same defect fails by about 1e9 (recorded, not computed here). |
+| F5 | The README's NC-ZEROED text is corrected (§6, RF-ZERO). |
+| F9 | NC-RESTRAINT-COUNT wording is now case-specific: the DISC cases defeat only the global count; the LINE, LINE345 and K0 cases defeat both the per-body and the global count. |
+
+Notes recorded by ROOT, with no change to values:
+
+- **F6.** The represented-input comparison of `RF-FINITE-ROT-Q9-NONMULT` was stated to run in 110-digit decimal. In fact only the input conversion used 110 digits, and the arithmetic ran in Python's default 28-digit decimal context. Its auxiliary `finite_input` figure (1.70375e-14 at Mb.M1.j) is therefore an arithmetic artefact. V2's 110- and 200-digit value is 6.1e-17 there, and the case maximum is 8.05e-16 at tw.M1. The basis (intended) and every frozen value are unaffected. The class scales are also computed in that 28-digit context and published to 25 digits; V2 reproduced all of them.
+- **F7.** Input rounding alone uses 93 % (`RF-FINITE-TENTHS-O1e6`, 9.31e-10) and 98 % (`RF-SKEW-A-CANT-AX-345-r1e-12`, 9.83e-10) of the 1e-9 budget. Both keep the intended basis, as the rule requires, so a harness failure there needs care before it is read as a solver defect.
+- **F8.** Five expected values in `RF-LARGE-CONT-n10000-AX` and `-ROT` (u.C2500.UZ, u.C4999.UZ, R.S1250.UZ, Mb.A3750.i) are 1e-714 to 1e-2864, below the binary64 range. They are exact, but they are compared absolutely at their class scale. Per ROOT, the harness treats and reports them as absolute comparisons.
 
 ## 1. Summary
 
@@ -16,7 +34,7 @@ The `scale` is the published class scale of each value. See §4.
 | Published expected values | 27893 (40 significant digits), plus represented-input values for 2 cases |
 | Negative controls | 724 (550 discriminate under the criterion; the rest are reported as non-discriminating) |
 | Families | RF-CHAIN, RF-SKEW, RF-WEAK, RF-LARGE, RF-INVARIANCE, RF-RANGE, RF-ZERO, RF-FINITE, RF-MECH, and RF-CANCEL (addendum `R1_ADDENDUM_CANCEL.md`: 41 cases, 1585 values) |
-| Arithmetic | Exact rationals. π is replaced by the exact rational of a 190-digit Machin value. One case uses 110-digit decimal |
+| Arithmetic | Exact rationals. π is replaced by the exact rational of a 190-digit Machin value. One represented-input comparison uses decimal arithmetic (see §0, F6) |
 | Author self-check | 196 cases and 52490 quantities agree exactly at two rational stand-ins for π, with 0 failures; nullity confirmed for all 8 mechanisms; represented-input comparison exact for 9 cases |
 | Python | Python 3.11.15 (CPython), standard library only |
 
@@ -26,7 +44,7 @@ Files. The hashes are in `_run_records/SHA256SUMS`.
 - `references.json`: the candidate frozen values, with case ids, units, model inputs, class scales and their derivations, reference accuracy, negative controls, the finite-input comparison and, where relevant, the represented-input basis, range envelope or null motions.
 - `_run_records/references.stdout.txt`: the stdout of the generating run.
 - `_run_records/selfcheck_stiffness.py` and `selfcheck.stdout.txt`: the author's own direct-stiffness check. This is not V2.
-- `_run_records/PYTHON_VERSION.txt` and `SHA256SUMS`.
+- `_run_records/PYTHON_VERSION.txt`, `SHA256SUMS` (revision 2) and `SHA256SUMS.revision1` (the revision-1 hashes, including references.json `57e3254e…`).
 
 Findings the designers should see (§7 has the detail):
 
@@ -38,7 +56,7 @@ Findings the designers should see (§7 has the detail):
    - For (G, n, −G) and (n, G, −G) with n = 0.3, the net stays inside the criterion at G = 1e5 and 1e6. It fails by 2.5× at G = 1e7 and 9.9× at G = 1e8, and is lost entirely at G = 1e80.
    - The order (G, −G, n) is exact at every magnitude.
    - For the two uniformly loaded spans, the binary64 equivalent-moment assembly fails at w = 1e8 N/m (1.0× and 2.5×, depending on order) and loses the net at 1e80.
-   - The scale question matters. The recommended net-governed scale detects every such loss. The family-wide class (norm) scale hides it whenever an ordinary load is present, and a gross-governed scale hides it always. §6 recommends the net-governed scale for these cases.
+   - The scale question matters. The recommended net-governed scale detects every such loss. The family-wide class (norm) scale hides it whenever an ordinary load is present, and a gross-governed scale hides it always. ROOT has ruled that the net-governed column is the binding scale for RF-CANCEL (§0, F3).
 
 ## 2. Theory, conventions and inputs
 
@@ -53,7 +71,7 @@ This is the implemented theory as the brief states it: a small-displacement, lin
   - Per member: `N` is the axial force, tension positive, = EA·ext/L. `T` = GJ·tw/L. `Mb.i`, `Mb.mid` and `Mb.j` are the bending magnitudes hypot(My, Mz) at authored end i, the midpoint and end j. `tw` = (θj − θi)·e_ij and `ext` = (uj − ui)·e_ij.
   - N, T, tw and ext do not change when i and j are swapped.
   - Loads plus support actions sum to zero in force and moment. The script checks this exactly for every solved case.
-- **Model inputs** are exact intended values. A decimal string is exact. `p/q` is an exact rational. `d*2^k` is a power-of-two multiple. Spring directions are exact vectors, which the product normalizes. All inputs are invented, and no material, component or code data is used.
+- **Model inputs** are exact intended values, and every printed string parses back to exactly that value (asserted since revision 2). A decimal string, plain or scientific, is exact. `p/q` is an exact rational. `d*2^k` is a power-of-two multiple. Spring directions are exact vectors, which the product normalizes. All inputs are invented, and no material, component or code data is used.
 
 ## 3. Methods (how every value is derived)
 
@@ -124,7 +142,7 @@ Every published value belongs to a class: translation, rotation, force, moment, 
 
 ## 5. Reference accuracy
 
-Each case states its accuracy. The default: the stated closed form is evaluated exactly in rationals with π → PI_Q (|PI_Q − π| < 1e-189), and every nonzero value is rounded once to 40 significant digits (relative error < 5e-40). Bending magnitudes are square roots of exact rationals, evaluated at 70 digits. Zeros are exact. Represented-input solutions decode every intended input with `Decimal.from_float(float(x))`. Spring directions are exact integer vectors and are not decoded. One represented-input solution uses 110-digit decimal because rounded skew coordinates give irrational lengths (`RF-FINITE-ROT-Q9-NONMULT`). Its accuracy is stated in that case.
+Each case states its accuracy. The default: the stated closed form is evaluated exactly in rationals with π → PI_Q (|PI_Q − π| < 1e-189), and every nonzero value is rounded once to 40 significant digits (relative error < 5e-40). Bending magnitudes are square roots of exact rationals, evaluated at 70 digits. Zeros are exact. Represented-input solutions decode every intended input with `Decimal.from_float(float(x))`. Spring directions are exact integer vectors and are not decoded. One represented-input solution uses decimal arithmetic because rounded skew coordinates give irrational lengths (`RF-FINITE-ROT-Q9-NONMULT`). Its inputs were converted at 110 digits, but its arithmetic ran in Python's default 28-digit context, not 110 digits as revision 1 stated (§0, F6). Only that case's auxiliary `finite_input` figure is affected.
 
 Checks inside `references.py`:
 
@@ -209,7 +227,7 @@ PHYS-R4's own frozen stress reference is not re-derived. What a correct solve pu
 
 - NC-SPURIOUS-NONZERO: each structural zero published as 1e-8 of its scale, which fails by a factor of 10.
 - NC-ROUND6.
-- NC-ZEROED: this reports `naive_absolute_1e-9_floor_accepts_this_defect: true`.
+- NC-ZEROED: every nonzero displacement and member value published as zero. It reports `naive_absolute_1e-9_floor_accepts_this_defect: false`, correctly: this control also zeroes N.M1 and T.M1 (1e-3 N and 1e-3 N·m), which a naive absolute 1e-9 floor would catch. The naive-floor point of this case is made by its displacement values alone: a zero published for u_x (1.7e-12 m) or θ_x (4.6e-10 rad) passes a naive absolute 1e-9 floor but fails the stated criterion, because each of these values is its own class scale. A displacement-only zeroing control is not included.
 - NC-SIGN.
 
 **RF-FINITE (6 dedicated cases, and every other case too).** Ten-member cantilevers with nodes at x = O + i/3 (O = 0, 1e3, 1e6), O + i/10 and O + i/30 (O = 1e6), plus an L-frame rotated by Q9 with ninth-valued coordinates and loads. Every case in the package carries `finite_input`: the exact solution for the binary64-rounded inputs and the largest per-quantity difference, normalized by the criterion. Where that exceeds 1e-9, the case says it cannot discriminate at 1e-9 on intended inputs, and `expected_represented` becomes its reference basis, as with NP-A. Cases on the represented basis: `RF-SKEW-A-CANT-AX-122-r1e-12`, `RF-FINITE-THIRTIETHS-O1e6`.
@@ -217,7 +235,7 @@ PHYS-R4's own frozen stress reference is not re-derived. What a correct solve pu
 **RF-MECH (9 cases).** These must be refused:
 
 - LINE122-TORQUE, -PERP and -UNLOADED: 10 members along (1,2,2), every node translation-pinned. Null motion θ = α(1,2,2), u = 0. The load does work, is orthogonal, or is absent.
-- LINE345-RZ: 10 members along (3,4,0), pinned plus RZ at every node, 44 restraints. RZ is normal to the axis. This is the count trap.
+- LINE345-RZ: 10 members along (3,4,0), pinned plus RZ at every node, 44 restraints. RZ is normal to the axis. This is the count trap: it defeats both the per-body and the global restraint count.
 - K0: RF-CHAIN torsion with k = 0 exactly.
 - DISC-CHAIN100: RF-LARGE-CHAIN-100 plus a disconnected 3-member sub-assembly, 6 rigid modes.
 - DISC-CHAIN100-SPRING: the same with one spring, 5 modes.
@@ -236,7 +254,7 @@ Cases:
 **Scales (brief: say whether gross or net governs, and recommend).** Each RF-CANCEL value row is `[key, expected, class, recommended_scale, gross_scale, governed_by]`.
 
 - `governed_by` is `net` when the value is exactly its response to the net contribution alone, `other loads only`, `mixed` or `zero`.
-- **Recommended, net-governed:** the magnitude of the value's response to the net contribution alone, or the class scale where the net does not affect the value or the value is zero. Because the comparison uses max(|exp|, scale), a scale at or below |exp| makes the comparison relative. Every value the net governs is therefore compared relatively, which is what detects a lost or mis-summed net.
+- **Recommended, net-governed, and binding by ROOT's ruling:** the magnitude of the value's response to the net contribution alone, or the class scale where the net does not affect the value or the value is zero. It never exceeds the class scale. It falls below |exp| in 84 `mixed` rows, and there the comparison is exactly relative. Because the comparison uses max(|exp|, scale), every value the net governs is compared relatively, which is what detects a lost or mis-summed net.
 - **Alternative, gross-governed:** the value's response to the gross contribution alone. I do not recommend it, because it accepts the defect it is meant to find. That is the NP-A/N05 principle: a small legitimate contribution next to large ones must be preserved.
 - The family-wide class rule is also shown.
 - Each negative control reports `discriminates` (recommended scale), `discriminates_under_class_scale` and `discriminates_under_gross_scale`. In the ORTHO and INPLANE variants the class (norm) scale is set by the ordinary load and hides the float-summation defect. The recommended scale still catches it, through the values the net alone governs: for INPLANE, the bending moment at N1, where the N1 load has no lever arm. For the spans, the S1 rotation is net-governed while the reactions and end moments are gross-dominated (`mixed`).
@@ -251,9 +269,9 @@ Cases:
 
 - **Represented basis.** `RF-SKEW-A-CANT-AX-122-r1e-12`, `RF-FINITE-THIRTIETHS-O1e6` fail the 1e-9 test on intended inputs because of input rounding alone. `SKEW-A-CANT-AX-122-r1e-12` authors a soft 4e-8 N axial load and a 9 N perpendicular load in one global vector. The ulp of each summed component, about 4.4e-16 N, is a 1e-8 relative change of the soft load. `SKEW-A-CANT-AX-345-r1e-12` is just below, at 9.8e-10. This is an input-level analogue of N05. Neither extra precision in the solver nor anything else downstream can recover it.
 - **Offsets.** A 1e6 m offset with 1/3 m and 1/10 m members stays below 1e-9, at 2.3e-10 and 9.3e-10 respectively. With 1/30 m members it does not.
-- **Non-discriminating controls are reported, not hidden.** Examples: the lost soft contribution at k/a ≈ 1e-4, subtract-rounded controls where no soft mode exists, NC-ORIGIN-MOMENTS for PINTOR (no support forces), and NC-WRONG-TRANSFORM in W-L where the soft rigid mode dominates. A harness should use a case's discriminating controls as its mutation tests.
+- **Non-discriminating controls are reported, not hidden.** Examples: the lost soft contribution at k/a ≈ 1e-4, subtract-rounded controls where no soft mode exists, NC-ORIGIN-MOMENTS for PINTOR (no support forces), and NC-WRONG-TRANSFORM in W-L r1e-08 and r1e-12 where the soft rigid mode dominates. The W-L label holds only for the flexibility form of that defect; V2's direct-stiffness form fails by about 1e9 (§0, F4). A harness should use a case's discriminating controls as its mutation tests.
 - **Defect models are models.** NC-LOST-SOFT uses one rounded addition in the frame of the spring. A global-frame assembly also perturbs the other entries. NC-STORED-ASSEMBLY assumes correctly rounded element coefficients. The product's own rounding differs in detail, but not in order.
-- **RF-CANCEL scale choice.** A per-value net-governed scale is a choice about the comparison. It is not a new tolerance: the predicate is unchanged, and the scale never goes below |exp|. Whether harnesses adopt it for cancellation cases is for the designers and ROOT. The alternatives are published so the choice can be reviewed.
+- **RF-CANCEL scale choice.** A per-value net-governed scale is a choice about the comparison, not a new tolerance: the predicate is unchanged. The recommended scale never exceeds the class scale. It can fall below |exp| (84 `mixed` rows), where the comparison is exactly relative; the effective scale max(|exp|, scale) is never below |exp|. ROOT has ruled that the recommended column is the binding scale for RF-CANCEL (`T3/ROOT_RULINGS_V2.md`, item 1). The alternatives stay published for review.
 - **Not covered:**
   - shear deformation, releases, offsets, curved elements, user matrices, element loads, thermal or pressure loads, prescribed displacements, nonlinear supports and load combinations (none are in the brief's formulation);
   - dynamic or buckling behaviour;
@@ -296,5 +314,6 @@ Cases:
 - `python3 -B references.py`: 679 s, exit 0.
 - `python3 -B _run_records/selfcheck_stiffness.py`: 11 s, exit 0.
 - `sha256sum`.
+- Revision 2: `python3 -B references.py` (722 s, exit 0; stdout byte-identical to revision 1) and the self-check again (see `_run_records/selfcheck.stdout.txt`). A structural diff of the two `references.json` files shows changes only in model input strings, `purpose` and `gross_scale` texts that quote those inputs, the `criterion` and `status` header strings, the RF-CANCEL `recommended_scale` texts, the three W-L NC-WRONG-TRANSFORM descriptions (plus `defect_form` and `other_forms` fields) and the eight RF-MECH NC-RESTRAINT-COUNT descriptions. No expected value, scale, count, basis or negative-control result changed.
 
 **Not done.** No cargo, npm or product build or test was run, and no Git write was made. No file outside `T3/REFERENCES/**` was written. No frozen reference, fixture, hash or protected criterion was edited. No tolerance was proposed.

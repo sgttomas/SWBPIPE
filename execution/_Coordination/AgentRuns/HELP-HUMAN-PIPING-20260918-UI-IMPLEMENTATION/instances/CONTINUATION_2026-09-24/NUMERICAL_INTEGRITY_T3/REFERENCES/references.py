@@ -139,7 +139,9 @@ def fmt(v, sig=SIG_EXPECTED):
     return format(d, '.%de' % (sig - 1))
 
 
-def fmt_input(q):
+def _fmt_input_rev1(q):
+    """Revision-1 formatter, kept only so that every string it printed exactly stays byte-identical.
+    (Its decimal branch normalized in the default 28-digit context and could round; fmt_input checks.)"""
     q = Fr(q)
     if q == 0:
         return '0'
@@ -155,7 +157,6 @@ def fmt_input(q):
         t = format(s.normalize(), 'f')
         if len(t.replace('-', '').replace('.', '').strip('0')) <= 40 and len(t) <= 60:
             return t
-    # r * 2**k with r free of factors of two
     k = 0
     while num % 2 == 0:
         num //= 2
@@ -165,10 +166,97 @@ def fmt_input(q):
         k -= 1
     r = Fr(num, den)
     if k != 0 and r != q:
-        rs = fmt_input(r)
+        rs = _fmt_input_rev1(r)
         if '/' not in rs:
             return '%s*2^%d' % (rs, k)
     return '%d/%d' % (q.numerator, q.denominator)
+
+
+def exact_decimal(q):
+    """(sign, digit string, exponent) with q = sign * int(digits) * 10**exponent exactly, or None when the
+    rational has no finite decimal expansion."""
+    q = Fr(q)
+    num, den = abs(q.numerator), q.denominator
+    a = b = 0
+    d = den
+    while d % 2 == 0:
+        d //= 2
+        a += 1
+    while d % 5 == 0:
+        d //= 5
+        b += 1
+    if d != 1:
+        return None
+    m = max(a, b)
+    n = num * 10 ** m // den
+    e = -m
+    while n and n % 10 == 0:
+        n //= 10
+        e += 1
+    return (-1 if q < 0 else 1), str(n), e
+
+
+def _dec_string(sign, digits, e):
+    plain_len = len(digits) + max(e, 0) + (max(-e - len(digits), 0) + 2 if e < 0 else 0)
+    if plain_len <= 60:
+        if e >= 0:
+            t = digits + '0' * e
+        elif -e < len(digits):
+            t = digits[:e] + '.' + digits[e:]
+        else:
+            t = '0.' + '0' * (-e - len(digits)) + digits
+    else:
+        exp10 = e + len(digits) - 1
+        t = digits[0] + ('.' + digits[1:] if len(digits) > 1 else '') + 'e%+d' % exp10
+    return ('-' if sign < 0 else '') + t
+
+
+def _fmt_input_exact(q):
+    """Exact spelling: a short decimal (<= 40 significant digits), else r*2^k with r a short decimal, else the
+    full decimal, else p/q.  Every form parses back to exactly q (parse_input)."""
+    q = Fr(q)
+    if q == 0:
+        return '0'
+    ed = exact_decimal(q)
+    if ed and len(ed[1]) <= 40:
+        return _dec_string(*ed)
+    num, den, k = q.numerator, q.denominator, 0
+    while num % 2 == 0:
+        num //= 2
+        k += 1
+    while den % 2 == 0:
+        den //= 2
+        k -= 1
+    r = Fr(num, den)
+    er = exact_decimal(r)
+    if k != 0 and er and len(er[1]) <= 40:
+        return '%s*2^%d' % (_dec_string(*er), k)
+    if ed:
+        return _dec_string(*ed)
+    return '%d/%d' % (q.numerator, q.denominator)
+
+
+def parse_input(t):
+    """Exact rational of a printed model input (decimal or scientific, p/q, or d*2^k)."""
+    if '*2^' in t:
+        a, k = t.split('*2^')
+        return parse_input(a) * Fr(2) ** int(k)
+    if '/' in t:
+        p, q = t.split('/')
+        return Fr(int(p), int(q))
+    return Fr(D(t))
+
+
+def fmt_input(q):
+    """Exact printed form of an input.  Revision 2 (V2 finding F1): the revision-1 spelling is kept wherever it
+    was already exact, and replaced by an exact spelling wherever it had been rounded."""
+    q = Fr(q)
+    t = _fmt_input_rev1(q)
+    if parse_input(t) != q:
+        t = _fmt_input_exact(q)
+    if parse_input(t) != q:
+        raise AssertionError('inexact input spelling for %r' % q)
+    return t
 
 
 # =====================================================================================
@@ -1101,11 +1189,16 @@ def nc_sign():
     return f
 
 
-def nc_wrong_transform(member_axes):
+def nc_wrong_transform(member_axes, form_note=None):
     def f(ctx):
         s = ctx.resolve(ctx.defn, cframe={k: v for k, v in member_axes.items()})
-        return nc_result('NC-WRONG-TRANSFORM', 'direction-cosine indexing error: the constitutive frame of %s uses '
-                         'the member axis with its first two global components swapped' % ', '.join(member_axes), ctx, s)
+        desc = ('direction-cosine indexing error: the constitutive frame of %s uses the member axis with its first '
+                'two global components swapped' % ', '.join(member_axes))
+        extra = None
+        if form_note:
+            desc += form_note[0]
+            extra = form_note[1]
+        return nc_result('NC-WRONG-TRANSFORM', desc, ctx, s, extra=extra)
     return f
 
 
@@ -1493,6 +1586,13 @@ FAMILY_TEXT['RF-WEAK'] = ('Weak coupling.  W-AX: two stiff collinear subsystems 
                           'two fixed L-frames joined by a soft member normal to both planes, loaded on one side.  '
                           'Force method (6 redundants) or tree integration.')
 WEAK_RHO = ['1e-04', '1e-08', '1e-12']
+WL_TRANSFORM_NOTE = (
+    ' (flexibility form: only the compliance of M2 in tree integration uses the swapped axis, so the rigid-body '
+    'kinematics stay exact and the soft rigid mode is unchanged; the discriminates flag refers to this form only)',
+    {'defect_form': 'flexibility (constitutive frame of M2 in tree integration); rigid-body kinematics exact',
+     'other_forms': 'V2 (REFERENCE_CHECK/RETURN.md, finding F4) applied the same axis swap inside a direct-stiffness '
+                    'element, where it breaks rigid-body invariance and stiffens the soft mode; that form fails by '
+                    'about 1e9 at th.N2.RX.  Not computed by this script.'})
 
 
 def soft_section(rho):
@@ -1537,7 +1637,8 @@ def build_weak():
                          'becomes torsion of M1, carried by the soft spring.' % (fmt_input(k), rlab, fmt_input(Fz)),
                  defn=defn, method=('tree', 'N0'),
                  ncs=[nc_lost_soft('N0', 0, lambda mdl: mdl.sections['N']['GJ'] / 2, 'root RX (member M1)'),
-                      nc_subtract_rounded(), nc_sign(), nc_wrong_transform({'M2': (Fr(1), Fr(0), Fr(0))})])
+                      nc_subtract_rounded(), nc_sign(),
+                      nc_wrong_transform({'M2': (Fr(1), Fr(0), Fr(0))}, WL_TRANSFORM_NOTE)])
     for rho in WEAK_RHO:
         nodes = {'A0': (0, 0, 0), 'A1': (2, 0, 0), 'A2': (2, 2, 0), 'B2': (2, 2, 2), 'B1': (4, 2, 2), 'B0': (4, 4, 2)}
         nodes = {k: tuple(Fr(c) for c in v) for k, v in nodes.items()}
@@ -2479,7 +2580,12 @@ def build_mech():
             modes = [('rigid rotation of the line sub-assembly about its own axis (1,2,2)/3', {n: (Z3, e122) for n in keys})]
             text = ('a separate 5-member line along (1,2,2) starting at (0,100,0), every node translation-pinned, torque '
                     '0.001*(1,2,2) N*m at L5: rotation about that line is free')
-        add_case(id=lab, family='RF-MECH', mechanism=True, defn=defn, method=None,
+        trap = None
+        if sub.startswith('DISC'):
+            trap = ('accepting because the global restraint count is at least six: only the global form of the count '
+                    'is defeated here; a per-body count finds %s on the sub-assembly and refuses correctly' %
+                    ('one restraint (the spring)' if sub == 'DISC-SPRING' else 'no restraint'))
+        add_case(id=lab, family='RF-MECH', mechanism=True, defn=defn, method=None, count_trap=trap,
                  purpose='RF-LARGE chain of %d members (stable on its own, tip loads as RF-LARGE-CHAIN-n%05d-AX) plus %s.  The '
                          'global restraint count is ample; the model must still be refused.' % (n_big, n_big, text),
                  null_modes=modes)
@@ -2535,8 +2641,9 @@ def mech_record(case):
                  'solution fails this reference', 'discriminates': True},
                 {'id': 'NC-ZERO-RESIDUAL', 'description': 'accepting because the residual of some returned state is zero '
                  '(true for u = 0 when the load does no work on the null motion)', 'discriminates': True},
-                {'id': 'NC-RESTRAINT-COUNT', 'description': 'accepting because the restraint count is at least six per '
-                 'connected body or globally', 'discriminates': True}],
+                {'id': 'NC-RESTRAINT-COUNT', 'description': case.get('count_trap') or ('accepting because the restraint '
+                 'count is at least six, counted per connected body or globally: both forms of the count are defeated '
+                 'here'), 'discriminates': True}],
             'reference_accuracy': 'exact rational null motions; nullity exact'}
 
 
@@ -2862,10 +2969,12 @@ def cancel_augment(case, rec, flat, scales):
     rec['negative_controls'] = ncs
     rec['cancellation'] = {
         'exact_net': fmt(c['net'], SIG_AUX), 'gross': fmt(c['gross'], SIG_AUX),
-        'recommended_scale': ('net-governed: the magnitude of the value\'s response to %s; for a value that the net '
-                              'contribution does not affect, or an exact zero, the case class scale.  Under '
-                              '|obs - exp| <= 1e-9 max(|exp|, scale) a scale at or below |exp| makes the comparison '
-                              'relative, so every net-governed value is compared relatively.' % c['net_text']),
+        'recommended_scale': ('BINDING scale for this case (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1).  '
+                              'Net-governed: the magnitude of the value\'s response to %s; for a value that the net '
+                              'contribution does not affect, or an exact zero, the case class scale.  It never exceeds '
+                              'the class scale.  It can fall below |exp| (in mixed rows); there the comparison '
+                              '|obs - exp| <= 1e-9 max(|exp|, scale) is exactly relative.  The effective comparison '
+                              'scale max(|exp|, scale) is never below |exp|.' % c['net_text']),
         'gross_scale': ('alternative, not recommended: the magnitude of the value\'s response to %s (or the class '
                         'scale where that is zero).  It would accept a lost or mis-summed net contribution.' % c['gross_text']),
         'class_scale': 'the family-wide class rule (published under scales); shown for comparison in the negative controls',
@@ -2917,9 +3026,12 @@ def header():
     assert sec['EA'] == 380000000 and sec['EI'] == 1719500 and sec['GJ'] == 1375600
     return {
         'schema': 't3-independent-references-v1',
-        'status': 'candidate; frozen only when ROOT selects it after the independent refutation (V2)',
+        'status': 'candidate, revision 2 (narrow revision after V2: findings F1, F3, F4, F5 and F9); frozen only '
+                  'when ROOT selects it after the V2 backcheck',
         'criterion': '|observed - expected| <= 1e-9 * max(|expected|, scale), scale = the published class scale of the '
-                     'value (unchanged form; no tolerance is proposed here)',
+                     'value, except in RF-CANCEL, where the binding scale is the recommended (net-governed) column of '
+                     'each value row (ROOT ruling on V2, ROOT_RULINGS_V2.md item 1); unchanged form, no tolerance is '
+                     'proposed here',
         'theory': 'small-displacement linear-elastic Euler-Bernoulli space frame, no shear deformation, circular annular '
                   'sections (Iy = Iz = I, J = 2I), rigid restraints on global DOFs, grounded linear springs (global or '
                   'stated direction), nodal forces and moments only',
