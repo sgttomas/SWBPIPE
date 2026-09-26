@@ -905,7 +905,11 @@ fn validate_member(member: &Value) -> Check {
             law_data_empty = false;
         }
     }
+    // CP3_WIRE_ADDENDUM section 1: adjacent indices, a sample at one temperature,
+    // an interval over start < end, and no repeated entry within one list. The
+    // consumed and consulted lists are independent and may share entries.
     for key in ["consumed_law_segments", "consulted_law_segments"] {
+        let mut entries: Vec<(bool, u64, u64, f64, f64)> = Vec::new();
         for segment in array(&member[key])? {
             require(keys(segment, SEGMENT_KEYS), "LAW_SEGMENT_SHAPE")?;
             let sample = match segment["use"].as_str() {
@@ -918,9 +922,13 @@ fn validate_member(member: &Value) -> Check {
             let start = number(&segment["start_k"])?;
             let end = number(&segment["end_k"])?;
             require(
-                lower <= upper && start <= end && (!sample || start == end),
+                lower.checked_add(1) == Some(upper)
+                    && if sample { start == end } else { start < end },
                 "LAW_SEGMENT",
             )?;
+            let entry = (sample, lower, upper, start, end);
+            require(!entries.contains(&entry), "LAW_SEGMENT_DUPLICATE")?;
+            entries.push(entry);
             law_data_empty = false;
         }
     }

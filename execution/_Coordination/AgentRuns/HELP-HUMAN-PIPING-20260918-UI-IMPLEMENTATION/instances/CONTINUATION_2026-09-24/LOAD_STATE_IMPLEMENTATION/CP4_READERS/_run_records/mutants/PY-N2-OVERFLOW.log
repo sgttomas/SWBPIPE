@@ -1,0 +1,61 @@
+........................................................................ [ 30%]
+........................................................................ [ 60%]
+...................................................FF.F................. [ 90%]
+.......................s                                                 [100%]
+=================================== FAILURES ===================================
+__________ test_shared_adversarial_case[N2-integer-overflow-positive] __________
+
+case = {'id': 'N2-integer-overflow-positive', 'source': 'pressure-dense', 'ops': [{'op': 'json_text', 'path': '/contract_evid...00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'}], 'dispatch': None, ...}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_MALFORMED', 'SOURCE_LOAD_REFERENCE_NUMBER_INVALID')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_MALFORMED', 'SOURCE_LOAD_REFERENCE_NUMBER_INVALID')
+E        +    where 'SOURCE_LOAD_REFERENCE_NUMBER_INVALID' = expected({'id': 'N2-integer-overflow-positive', 'source': 'pressure-dense', 'ops': [{'op': 'json_text', 'path': '/contract_evid...00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'}], 'dispatch': None, ...}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+__________ test_shared_adversarial_case[N2-integer-overflow-negative] __________
+
+case = {'id': 'N2-integer-overflow-negative', 'source': 'pressure-dense', 'ops': [{'op': 'json_text', 'path': '/contract_evid...00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'}], 'dispatch': None, ...}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_MALFORMED', 'SOURCE_LOAD_REFERENCE_NUMBER_INVALID')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_MALFORMED', 'SOURCE_LOAD_REFERENCE_NUMBER_INVALID')
+E        +    where 'SOURCE_LOAD_REFERENCE_NUMBER_INVALID' = expected({'id': 'N2-integer-overflow-negative', 'source': 'pressure-dense', 'ops': [{'op': 'json_text', 'path': '/contract_evid...00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'}], 'dispatch': None, ...}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+___________ test_shared_adversarial_case[N2-integer-first-overflow] ____________
+
+case = {'id': 'N2-integer-first-overflow', 'source': 'pressure-dense', 'ops': [{'op': 'json_text', 'path': '/contract_evidenc...66959622842914819860834936475292719074168444365510704342711559699508093042880177904174497792'}], 'dispatch': None, ...}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('SOURCE_LOAD_REFERENCE_MALFORMED', 'SOURCE_LOAD_REFERENCE_NUMBER_INVALID')
+E       assert False
+E        +  where False = agrees('SOURCE_LOAD_REFERENCE_MALFORMED', 'SOURCE_LOAD_REFERENCE_NUMBER_INVALID')
+E        +    where 'SOURCE_LOAD_REFERENCE_NUMBER_INVALID' = expected({'id': 'N2-integer-first-overflow', 'source': 'pressure-dense', 'ops': [{'op': 'json_text', 'path': '/contract_evidenc...66959622842914819860834936475292719074168444365510704342711559699508093042880177904174497792'}], 'dispatch': None, ...}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N2-integer-overflow-positive]
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N2-integer-overflow-negative]
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N2-integer-first-overflow]
+3 failed, 236 passed, 1 skipped in 52.49s

@@ -1,0 +1,59 @@
+........................................................................ [ 30%]
+........................................................................ [ 60%]
+......................................................FF................ [ 90%]
+........F............s                                                   [100%]
+=================================== FAILURES ===================================
+____________ test_shared_adversarial_case[N3-segment-non-adjacent] _____________
+
+case = {'id': 'N3-segment-non-adjacent', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load...rval', 'lower_index': 0, 'upper_index': 2, 'start_k': 293.15, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT')
+E       assert False
+E        +  where False = agrees('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT')
+E        +    where 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT' = expected({'id': 'N3-segment-non-adjacent', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load...rval', 'lower_index': 0, 'upper_index': 2, 'start_k': 293.15, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT'}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+_____________ test_shared_adversarial_case[N3-segment-same-index] ______________
+
+case = {'id': 'N3-segment-same-index', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load_r...ample', 'lower_index': 1, 'upper_index': 1, 'start_k': 300.0, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT')
+E       assert False
+E        +  where False = agrees('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT')
+E        +    where 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT' = expected({'id': 'N3-segment-same-index', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load_r...ample', 'lower_index': 1, 'upper_index': 1, 'start_k': 300.0, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT'}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+_______ test_transport_metadata_case[TRANSPORT-N3-segment-non-adjacent] ________
+
+case = {'id': 'TRANSPORT-N3-segment-non-adjacent', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evi..._interval', 'lower_index': 0, 'upper_index': 3, 'start_k': 300, ...}]}], 'expect': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT'}
+
+    @pytest.mark.parametrize("case", CASES["transport_cases"], ids=lambda case: case["id"])
+    def test_transport_metadata_case(case):
+        meta = metadata(apply(source(case["source"]), case["ops"]))
+        result = outcome(lambda: validate_load_reference_transport_metadata(meta))
+        RESULTS.append({"id": case["id"], "transport": result})
+>       assert agrees(result, case["expect"]), result
+E       AssertionError: accept
+E       assert False
+E        +  where False = agrees('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT')
+
+tests/test_load_reference_readers.py:210: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N3-segment-non-adjacent]
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N3-segment-same-index]
+FAILED tests/test_load_reference_readers.py::test_transport_metadata_case[TRANSPORT-N3-segment-non-adjacent]
+3 failed, 234 passed, 1 skipped in 47.64s

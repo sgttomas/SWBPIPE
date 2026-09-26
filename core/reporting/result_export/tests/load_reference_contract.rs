@@ -98,8 +98,9 @@ fn matches(item: &Value, pattern: &Value) -> bool {
         .all(|(k, v)| item.get(k) == Some(v))
 }
 /// Mirror of the Python harness. Returns the mutated document and, for a
-/// non-finite op, the literal that must replace the marker in the JSON text.
-fn apply(doc: &Value, ops: &Value) -> (Value, Option<&'static str>) {
+/// non-finite or `json_text` op, the literal that must replace the marker in
+/// the JSON text.
+fn apply(doc: &Value, ops: &Value) -> (Value, Option<String>) {
     let mut doc = doc.clone();
     let mut nonfinite = None;
     for op in ops.as_array().unwrap() {
@@ -180,12 +181,21 @@ fn apply(doc: &Value, ops: &Value) -> (Value, Option<&'static str>) {
                 assert!(serde_json::Number::from_f64(f64::INFINITY).is_none());
                 assert!(serde_json::Number::from_f64(f64::NAN).is_none());
                 set(&mut doc, path, json!(NONFINITE_MARKER));
-                nonfinite = Some(match op["value"].as_str().unwrap() {
-                    "Infinity" => "1e400",
-                    "-Infinity" => "-1e400",
-                    "NaN" => "NaN",
-                    other => panic!("unknown non-finite {other}"),
-                });
+                nonfinite = Some(
+                    match op["value"].as_str().unwrap() {
+                        "Infinity" => "1e400",
+                        "-Infinity" => "-1e400",
+                        "NaN" => "NaN",
+                        other => panic!("unknown non-finite {other}"),
+                    }
+                    .to_string(),
+                );
+            }
+            "json_text" => {
+                // A literal that a serde_json Value may be unable to hold.
+                assert!(nonfinite.is_none(), "one text literal per case");
+                set(&mut doc, path, json!(NONFINITE_MARKER));
+                nonfinite = Some(op["value"].as_str().unwrap().to_string());
             }
             other => panic!("unknown op {other}"),
         }
@@ -298,13 +308,13 @@ fn shared_adversarial_cases_match_in_rust() {
     for case in cases["cases"].as_array().unwrap() {
         let id = case["id"].as_str().unwrap();
         let (doc, nonfinite) = apply(&source(case["source"].as_str().unwrap()), &case["ops"]);
-        let (dispatch, validator) = if let Some(literal) = nonfinite {
+        let (dispatch, validator) = if let Some(literal) = &nonfinite {
             let text = serde_json::to_string(&doc)
                 .unwrap()
                 .replace(&format!("\"{NONFINITE_MARKER}\""), literal);
             assert!(!text.contains(NONFINITE_MARKER));
             let parsed = serde_json::from_str::<Value>(&text);
-            assert!(parsed.is_err(), "{id}: non-finite JSON text parsed");
+            assert!(parsed.is_err(), "{id}: text literal parsed");
             (
                 "JSON_PARSE_REJECTED".to_string(),
                 "JSON_PARSE_REJECTED".to_string(),
@@ -347,7 +357,15 @@ fn shared_adversarial_cases_match_in_rust() {
                 s::for_source(&doc).unwrap().0["semantic_contract_id"],
                 s::LOAD_REFERENCE_ID
             );
-            if doc["status"]["mechanics"] == "MECHANICS_SOLVED" {
+            if let Some(code) = case["carrier_rust"].as_str() {
+                // Both readers admit it; the checked-JSON carrier profile does not.
+                assert_eq!(derive(&doc, &model).unwrap_err(), code, "{id}");
+                assert_eq!(
+                    s::numerical_use_standing(&doc, &bases(&doc)),
+                    "numerically_eligible",
+                    "{id}"
+                );
+            } else if doc["status"]["mechanics"] == "MECHANICS_SOLVED" {
                 let document = derive(&doc, &model).unwrap_or_else(|e| panic!("{id}: {e}"));
                 assert_eq!(
                     document["result_envelope"]["contract_evidence"],

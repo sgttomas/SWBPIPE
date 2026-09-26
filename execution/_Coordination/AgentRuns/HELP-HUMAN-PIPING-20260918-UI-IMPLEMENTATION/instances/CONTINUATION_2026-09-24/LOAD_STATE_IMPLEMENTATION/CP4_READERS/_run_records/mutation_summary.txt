@@ -1,0 +1,21 @@
+PY-N2-U64: applied to core/analysis_runs/load_reference_evidence.py
+PY-N2-U64 exit=1 7 failed, 232 passed, 1 skipped in 64.56s (0:01:04)
+PY-N2-OVERFLOW: applied to core/analysis_runs/load_reference_evidence.py
+PY-N2-OVERFLOW exit=1 3 failed, 236 passed, 1 skipped in 52.49s
+PY-N2-NOCONVERT: applied to core/analysis_runs/load_reference_evidence.py
+PY-N2-NOCONVERT exit=1 2 failed, 237 passed, 1 skipped in 50.73s
+PY-N3-ADJ: applied to core/analysis_runs/load_reference_evidence.py
+PY-N3-ADJ exit=1 3 failed, 236 passed, 1 skipped in 51.15s
+PY-N3-STRICT: applied to core/analysis_runs/load_reference_evidence.py
+PY-N3-STRICT exit=1 2 failed, 237 passed, 1 skipped in 56.20s
+PY-N3-DUP: applied to core/analysis_runs/load_reference_evidence.py
+PY-N3-DUP exit=1 4 failed, 235 passed, 1 skipped in 47.52s
+RS-N3-ADJ: applied to core/reporting/result_export/src/load_reference.rs
+RS-N3-ADJ exit=101 test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.80s
+RS-N3-STRICT: applied to core/reporting/result_export/src/load_reference.rs
+RS-N3-STRICT exit=101 test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.89s
+RS-N3-DUP: applied to core/reporting/result_export/src/load_reference.rs
+RS-N3-DUP exit=101 test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.70s
+RS-N2-PIN: applied to core/reporting/result_export/src/load_reference.rs
+RS-N2-PIN exit=101 test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.48s
+restored: scratch hashes equal the pre-mutation hashes

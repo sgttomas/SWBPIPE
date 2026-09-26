@@ -1,0 +1,9 @@
+{
+ "checkout": "worktree of sgttomas/chirality, branch codex/piping-load-states-20260925; base 13f752115 (brief), HEAD at return dd4286ab1 (manager commits 6235f6b43..dd4286ab1 touch none of this TASK's paths, fixtures or schemas)",
+ "python": "session virtual environment named in the brief, Python 3.11.15, pytest 9.1.1",
+ "python_env": "PYTHONDONTWRITEBYTECODE=1; -p no:cacheprovider; OPENPIPESTRESS_CHECKED_JSON_BIN and OPENPIPESTRESS_UNITS_BIN set to the pre-existing release builds under core/serialization/canonical_json/target and core/units/target (not rebuilt)",
+ "cargo": "cargo +1.97.1 test --locked --offline -j 2, CARGO_TARGET_DIR outside the repository as named in the brief (created, then deleted at the end)",
+ "rustfmt": "rustfmt +stable --edition 2021 --check (see rustfmt_check.log for the version)",
+ "serde_json": "1.0.151 with feature float_roundtrip (core/reporting/result_export/Cargo.toml, Cargo.lock)",
+ "mutation_copy": "tar copy of WORKING_ROOT without execution/, target/ and __pycache__ in the session scratchpad; deleted after the run"
+}

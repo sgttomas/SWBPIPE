@@ -95,9 +95,28 @@ def _keys(value: Any, required: list[str]) -> bool:
 
 
 def _is_number(value: Any) -> bool:
+    """A JSON number of any magnitude (``bool`` excluded), as ``Value::Number`` in Rust."""
+    return type(value) in (int, float)
+
+
+def _as_f64(value: Any) -> float | None:
+    """Rust ``Value::as_f64``: the binary64 value of a JSON number, else ``None``.
+
+    ``serde_json`` holds an integer literal outside i64/u64 as the correctly
+    rounded binary64 (``float_roundtrip``), and converts i64/u64 integers with
+    ``as f64`` (round to nearest, ties to even). ``float(int)`` gives the same
+    value. An integer whose binary64 conversion overflows cannot exist in a
+    Rust ``Value`` (the JSON text is refused), so it reads as ``None`` here and
+    is refused as ``NUMBER_INVALID``, like a non-finite number.
+    """
+    if type(value) is float:
+        return value
     if type(value) is int:
-        return -U64_MAX <= value <= U64_MAX
-    return type(value) is float
+        try:
+            return float(value)
+        except OverflowError:
+            return None
+    return None
 
 
 def _text(value: Any) -> str:
@@ -107,9 +126,10 @@ def _text(value: Any) -> str:
 
 
 def _number(value: Any) -> float:
-    if not (_is_number(value) and math.isfinite(value)):
+    number = _as_f64(value)
+    if number is None or not math.isfinite(number):
         raise _fail("NUMBER_INVALID")
-    return float(value)
+    return number
 
 
 def _opt_number(value: Any) -> float | None:
@@ -139,7 +159,8 @@ def _array(value: Any) -> list[Any]:
 
 
 def _num_eq(a: Any, b: Any) -> bool:
-    return _is_number(a) and _is_number(b) and math.isfinite(a) and math.isfinite(b) and float(a) == float(b)
+    x, y = _as_f64(a), _as_f64(b)
+    return x is not None and y is not None and math.isfinite(x) and math.isfinite(y) and x == y
 
 
 def _same(a: Any, b: Any) -> bool:
@@ -557,7 +578,11 @@ def _validate_member(member: Any) -> None:
             _require(previous is None or previous < index, "LAW_INDICES")
             previous = index
             law_data_empty = False
+    # CP3_WIRE_ADDENDUM section 1: adjacent indices, a sample at one temperature,
+    # an interval over start < end, and no repeated entry within one list. The
+    # consumed and consulted lists are independent and may share entries.
     for key in ("consumed_law_segments", "consulted_law_segments"):
+        entries: list[tuple[bool, int, int, float, float]] = []
         for segment in _array(member[key]):
             _require(_keys(segment, SEGMENT_KEYS), "LAW_SEGMENT_SHAPE")
             if _eq(segment["use"], "interpolation_sample"):
@@ -570,7 +595,10 @@ def _validate_member(member: Any) -> None:
             upper = _index(segment["upper_index"])
             start = _number(segment["start_k"])
             end = _number(segment["end_k"])
-            _require(lower <= upper and start <= end and (not sample or start == end), "LAW_SEGMENT")
+            _require(upper == lower + 1 and (start == end if sample else start < end), "LAW_SEGMENT")
+            entry = (sample, lower, upper, start, end)
+            _require(entry not in entries, "LAW_SEGMENT_DUPLICATE")
+            entries.append(entry)
             law_data_empty = False
     installation_stretch = _opt_number(member["installation_datum_stretch"])
     operating_stretch = _opt_number(member["operating_datum_stretch"])
@@ -601,11 +629,11 @@ def _validate_member(member: Any) -> None:
     if _eq(fit_kind, "none"):
         fitted = fit is None and fit_strain == 0
     elif _eq(fit_kind, "natural_length_change"):
-        change = _get(fit, "length_change_m")
-        fitted = _keys(fit, ["length_change_m"]) and _is_number(change) and math.isfinite(change) and fit_strain == float(change) / length and length + float(change) > 0
+        change = _as_f64(_get(fit, "length_change_m"))
+        fitted = _keys(fit, ["length_change_m"]) and change is not None and math.isfinite(change) and fit_strain == change / length and length + change > 0
     elif _eq(fit_kind, "fit_strain"):
-        strain = _get(fit, "strain")
-        fitted = _keys(fit, ["strain"]) and _is_number(strain) and math.isfinite(strain) and fit_strain == float(strain)
+        strain = _as_f64(_get(fit, "strain"))
+        fitted = _keys(fit, ["strain"]) and strain is not None and math.isfinite(strain) and fit_strain == strain
     else:
         raise _fail("FIT_KIND")
     _require(fitted, "FIT_BINDING")
@@ -641,14 +669,14 @@ def _validate_contribution(contribution: Any) -> None:
     _require(_eq(contribution["classification"], classification), "CONTRIBUTION_CLASSIFICATION")
     _text(contribution["source_id"])
     if kind == "stored_primitive":
-        factor = contribution["factor"]
-        if not (_is_number(factor) and math.isfinite(factor) and factor != 0):
+        factor = _as_f64(contribution["factor"])
+        if not (factor is not None and math.isfinite(factor) and factor != 0):
             raise _fail("CONTRIBUTION_FACTOR")
         _text(contribution["category"])
         _text(contribution["dimension"])
         authored = _number(contribution["authored_normalized_magnitude"])
         applied = _number(contribution["applied_magnitude"])
-        _require(applied == authored * float(factor), "CONTRIBUTION_APPLIED_MAGNITUDE")
+        _require(applied == authored * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
     elif kind == "resolved_member_state":
         for reference in _array(contribution["consumed_input_refs"]):
             _text(reference)

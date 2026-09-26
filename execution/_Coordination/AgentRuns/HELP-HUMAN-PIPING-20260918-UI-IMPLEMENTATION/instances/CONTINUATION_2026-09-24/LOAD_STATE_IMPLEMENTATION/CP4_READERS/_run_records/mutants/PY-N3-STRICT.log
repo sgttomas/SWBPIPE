@@ -1,0 +1,43 @@
+........................................................................ [ 30%]
+........................................................................ [ 60%]
+...........................................................FF........... [ 90%]
+.......................s                                                 [100%]
+=================================== FAILURES ===================================
+_____________ test_shared_adversarial_case[N3-interval-equal-ends] _____________
+
+case = {'id': 'N3-interval-equal-ends', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load_...erval', 'lower_index': 0, 'upper_index': 1, 'start_k': 300.0, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT')
+E       assert False
+E        +  where False = agrees('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT')
+E        +    where 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT' = expected({'id': 'N3-interval-equal-ends', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evidence/load_...erval', 'lower_index': 0, 'upper_index': 1, 'start_k': 300.0, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT'}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+________ test_shared_adversarial_case[N3-interval-equal-ends-consulted] ________
+
+case = {'id': 'N3-interval-equal-ends-consulted', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evid...rval', 'lower_index': 1, 'upper_index': 2, 'start_k': 323.15, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT'}
+
+    @pytest.mark.parametrize("case", CASES["cases"], ids=lambda case: case["id"])
+    def test_shared_adversarial_case(case):
+        doc = apply(source(case["source"]), case["ops"])
+        dispatch = outcome(lambda: _source_contract(doc))
+        validator = outcome(lambda: validate_load_reference_evidence(doc))
+        RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+>       assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+E       AssertionError: ('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT')
+E       assert False
+E        +  where False = agrees('accept', 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT')
+E        +    where 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT' = expected({'id': 'N3-interval-equal-ends-consulted', 'source': 'connected-sparse', 'ops': [{'op': 'set', 'path': '/contract_evid...rval', 'lower_index': 1, 'upper_index': 2, 'start_k': 323.15, ...}]}], 'dispatch': 'SOURCE_LOAD_REFERENCE_LAW_SEGMENT'}, 'dispatch')
+
+tests/test_load_reference_readers.py:176: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N3-interval-equal-ends]
+FAILED tests/test_load_reference_readers.py::test_shared_adversarial_case[N3-interval-equal-ends-consulted]
+2 failed, 237 passed, 1 skipped in 56.20s

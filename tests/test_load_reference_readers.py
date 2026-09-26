@@ -121,6 +121,8 @@ def apply(doc: dict, ops: list[dict]) -> dict:
             array.append(copy)
         elif kind == "nonfinite":
             _set(doc, op["path"], float({"Infinity": "inf", "-Infinity": "-inf", "NaN": "nan"}[op["value"]]))
+        elif kind == "json_text":
+            _set(doc, op["path"], json.loads(op["value"]))
         else:
             raise AssertionError(f"unknown op {kind}")
     return doc
@@ -173,7 +175,12 @@ def test_shared_adversarial_case(case):
     RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
     assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
     assert agrees(validator, expected(case, "validator")), (validator, expected(case, "validator"))
-    if dispatch == "accept":
+    if dispatch == "accept" and "carrier_python" in case:
+        # Both readers admit it; the checked-JSON carrier profile does not.
+        assert _source_contract(doc)[0] == LOAD_REFERENCE_CONTRACT_ID
+        assert outcome(lambda: build_analysis_run(doc, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:load-reference-reader-test"}, input_manifest_hash="1" * 64)) == case["carrier_python"]
+        assert numerical_use_standing(doc, bases(doc)) == "numerically_eligible"
+    elif dispatch == "accept":
         assert _source_contract(doc)[0] == LOAD_REFERENCE_CONTRACT_ID
         record = build_analysis_run(doc, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:load-reference-reader-test"}, input_manifest_hash="1" * 64)
         validate_analysis_run_v0_3(record, doc)
@@ -207,7 +214,7 @@ def test_transport_metadata_case(case):
 
 def test_nonfinite_cases_are_the_only_language_specific_representation():
     special = [case for case in CASES["cases"] if "dispatch_rust" in case or "dispatch_python" in case]
-    assert {case["id"] for case in special} == {"TABLE-id-precision-1", "NONFINITE-member-E", "NONFINITE-factor", "NONFINITE-row-value", "NONFINITE-region-pressure"}
+    assert {case["id"] for case in special} == {"TABLE-id-precision-1", "NONFINITE-member-E", "NONFINITE-factor", "NONFINITE-row-value", "NONFINITE-region-pressure", "N2-integer-overflow-positive", "N2-integer-overflow-negative", "N2-integer-first-overflow"}
     assert all(case.get("note") for case in special)
 
 

@@ -1,5 +1,5 @@
 {
- "description": "Shared adversarial cases for the load-reference-1 readers (Rust result_export tests/load_reference_contract.rs and Python tests/test_load_reference_readers.py). 'dispatch' is the raw-dispatch error (Rust semantic_contract::for_source, Python compatibility._source_contract); 'validator' is validate_load_reference_evidence called directly and defaults to 'dispatch'. A value ending in PHYSICS_EVIDENCE is compared by leading code, the inherited physics-1 detail being language-specific. Language-specific keys (dispatch_rust, dispatch_python, validator_rust, validator_python) replace a shared value where the languages cannot agree, with a note. Transport cases run validate_load_reference_transport_metadata on {schema_version, producer, numerical_quality, formulation_basis, contract_evidence}.",
+ "description": "Shared adversarial cases for the load-reference-1 readers (Rust result_export tests/load_reference_contract.rs and Python tests/test_load_reference_readers.py). 'dispatch' is the raw-dispatch error (Rust semantic_contract::for_source, Python compatibility._source_contract); 'validator' is validate_load_reference_evidence called directly and defaults to 'dispatch'. A value ending in PHYSICS_EVIDENCE is compared by leading code, the inherited physics-1 detail being language-specific. Language-specific keys (dispatch_rust, dispatch_python, validator_rust, validator_python) replace a shared value where the languages cannot agree, with a note. Transport cases run validate_load_reference_transport_metadata on {schema_version, producer, numerical_quality, formulation_basis, contract_evidence}. The 'json_text' op splices its string value into the document as JSON text (Rust: into the serialized text before parsing; Python: json.loads of the value), so that literals a serde_json Value cannot hold are exercised; in Rust such a case must be refused at the text boundary. 'carrier_rust' and 'carrier_python' on an accepted case give the exact refusal of the canonical carrier build (Rust derivative::derive_document, Python build_analysis_run) where the checked-JSON number profile refuses a document that both readers admit.",
  "sources": {
   "connected-sparse": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
   "connected-dense": "fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json",
@@ -2402,6 +2402,568 @@
     }
    ],
    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
+  },
+  {
+   "id": "N2-integer-temperatures-positive",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": 100000000000000000000
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/material_selection_temperature_k",
+     "value": 100000000000000000000
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/temperature_k",
+     "value": 100000000000000000000
+    }
+   ],
+   "dispatch": "accept",
+   "carrier_rust": "UNSAFE_JSON_NUMBER",
+   "carrier_python": "CHECKED-JSON-UNSAFE-INTEGER",
+   "note": "both readers admit the document, but the checked-JSON canonical carrier profile (openpipestress_jcs_ijson_v1) refuses any integral number beyond 2^53-1 in magnitude in both languages, so no derivative document (Rust) or AnalysisRun (Python) is built; the codes are those of the pre-existing canonical-JSON layers"
+  },
+  {
+   "id": "N2-exponent-temperatures-positive",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": 1e+20
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/material_selection_temperature_k",
+     "value": 1e+20
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/temperature_k",
+     "value": 1e+20
+    }
+   ],
+   "dispatch": "accept",
+   "carrier_rust": "UNSAFE_JSON_NUMBER",
+   "carrier_python": "CHECKED-JSON-NUMBER-OUTSIDE-PROFILE",
+   "note": "both readers admit the document, but the checked-JSON canonical carrier profile (openpipestress_jcs_ijson_v1) refuses any integral number beyond 2^53-1 in magnitude in both languages, so no derivative document (Rust) or AnalysisRun (Python) is built; the codes are those of the pre-existing canonical-JSON layers"
+  },
+  {
+   "id": "N2-integer-segment-negative",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": -100000000000000000000,
+       "end_k": 100000000000000000000
+      }
+     ]
+    }
+   ],
+   "dispatch": "accept",
+   "carrier_rust": "UNSAFE_JSON_NUMBER",
+   "carrier_python": "CHECKED-JSON-UNSAFE-INTEGER",
+   "note": "both readers admit the document, but the checked-JSON canonical carrier profile (openpipestress_jcs_ijson_v1) refuses any integral number beyond 2^53-1 in magnitude in both languages, so no derivative document (Rust) or AnalysisRun (Python) is built; the codes are those of the pre-existing canonical-JSON layers"
+  },
+  {
+   "id": "N2-exponent-segment-negative",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": -1e+20,
+       "end_k": 1e+20
+      }
+     ]
+    }
+   ],
+   "dispatch": "accept",
+   "carrier_rust": "UNSAFE_JSON_NUMBER",
+   "carrier_python": "CHECKED-JSON-NUMBER-OUTSIDE-PROFILE",
+   "note": "both readers admit the document, but the checked-JSON canonical carrier profile (openpipestress_jcs_ijson_v1) refuses any integral number beyond 2^53-1 in magnitude in both languages, so no derivative document (Rust) or AnalysisRun (Python) is built; the codes are those of the pre-existing canonical-JSON layers"
+  },
+  {
+   "id": "N2-integer-binary64-equality",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": 100000000000000000001
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/material_selection_temperature_k",
+     "value": 100000000000000000001
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/temperature_k",
+     "value": 1e+20
+    }
+   ],
+   "dispatch": "accept",
+   "carrier_rust": "UNSAFE_JSON_NUMBER",
+   "carrier_python": "CHECKED-JSON-NUMBER-OUTSIDE-PROFILE",
+   "note": "both readers admit the document, but the checked-JSON canonical carrier profile (openpipestress_jcs_ijson_v1) refuses any integral number beyond 2^53-1 in magnitude in both languages, so no derivative document (Rust) or AnalysisRun (Python) is built; the codes are those of the pre-existing canonical-JSON layers"
+  },
+  {
+   "id": "N2-integer-u64-rounding-equality",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": 9007199254740993
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/material_selection_temperature_k",
+     "value": 9007199254740993
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/temperature_k",
+     "value": 9007199254740992.0
+    }
+   ],
+   "dispatch": "accept",
+   "carrier_rust": "UNSAFE_JSON_NUMBER",
+   "carrier_python": "CHECKED-JSON-NUMBER-OUTSIDE-PROFILE",
+   "note": "both readers admit the document, but the checked-JSON canonical carrier profile (openpipestress_jcs_ijson_v1) refuses any integral number beyond 2^53-1 in magnitude in both languages, so no derivative document (Rust) or AnalysisRun (Python) is built; the codes are those of the pre-existing canonical-JSON layers"
+  },
+  {
+   "id": "N2-integer-binary64-inequality",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": 100000000000000000000
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/material_selection_temperature_k",
+     "value": 100000000000000000001
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/temperature_k",
+     "value": 100000000000000016384
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_SELECTION"
+  },
+  {
+   "id": "N2-integer-temperature-negative",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": -100000000000000000000
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_TEMPERATURE_RANGE"
+  },
+  {
+   "id": "N2-integer-overflow-positive",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "json_text",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": "10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "JSON_PARSE_REJECTED",
+   "dispatch_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "validator_rust": "JSON_PARSE_REJECTED",
+   "validator_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "note": "an integer literal beyond binary64 range has no serde_json Value (the JSON text is refused as number out of range); Python holds it as an int and refuses it"
+  },
+  {
+   "id": "N2-integer-overflow-negative",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "json_text",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/temperature_k",
+     "value": "-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "JSON_PARSE_REJECTED",
+   "dispatch_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "validator_rust": "JSON_PARSE_REJECTED",
+   "validator_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "note": "an integer literal beyond binary64 range has no serde_json Value (the JSON text is refused as number out of range); Python holds it as an int and refuses it"
+  },
+  {
+   "id": "N2-integer-largest-finite",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": 179769313486231580793728971405303415079934132710037826936173778980444968292764750946649017977587207096330286416692887910946555547851940402630657488671505820681908902000708383676273854845817711531764475730270069855571366959622842914819860834936475292719074168444365510704342711559699508093042880177904174497791
+    }
+   ],
+   "dispatch": "accept",
+   "carrier_rust": "UNSAFE_JSON_NUMBER",
+   "carrier_python": "CHECKED-JSON-UNSAFE-INTEGER",
+   "note": "both readers admit the document, but the checked-JSON canonical carrier profile (openpipestress_jcs_ijson_v1) refuses any integral number beyond 2^53-1 in magnitude in both languages, so no derivative document (Rust) or AnalysisRun (Python) is built; the codes are those of the pre-existing canonical-JSON layers"
+  },
+  {
+   "id": "N2-integer-first-overflow",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "json_text",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": "179769313486231580793728971405303415079934132710037826936173778980444968292764750946649017977587207096330286416692887910946555547851940402630657488671505820681908902000708383676273854845817711531764475730270069855571366959622842914819860834936475292719074168444365510704342711559699508093042880177904174497792"
+    }
+   ],
+   "dispatch": null,
+   "dispatch_rust": "JSON_PARSE_REJECTED",
+   "dispatch_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "validator_rust": "JSON_PARSE_REJECTED",
+   "validator_python": "SOURCE_LOAD_REFERENCE_NUMBER_INVALID",
+   "note": "an integer literal beyond binary64 range has no serde_json Value (the JSON text is refused as number out of range); Python holds it as an int and refuses it"
+  },
+  {
+   "id": "N3-segment-reviewer-example",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 3,
+       "start_k": 300,
+       "end_k": 300
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+   "id": "N3-segment-non-adjacent",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 2,
+       "start_k": 293.15,
+       "end_k": 373.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+   "id": "N3-segment-same-index",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consulted_law_segments",
+     "value": [
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 1,
+       "start_k": 300.0,
+       "end_k": 300.0
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+   "id": "N3-segment-descending-index",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consulted_law_segments",
+     "value": [
+      {
+       "use": "interpolation_sample",
+       "lower_index": 2,
+       "upper_index": 1,
+       "start_k": 300.0,
+       "end_k": 300.0
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+   "id": "N3-interval-equal-ends",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 300.0,
+       "end_k": 300.0
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+   "id": "N3-interval-equal-ends-consulted",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consulted_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 323.15,
+       "end_k": 323.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+   "id": "N3-interval-reversed",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 373.15,
+       "end_k": 293.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+   "id": "N3-duplicate-consumed",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 293.15,
+       "end_k": 323.15
+      },
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 373.15,
+       "end_k": 373.15
+      },
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 293.15,
+       "end_k": 323.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+  },
+  {
+   "id": "N3-duplicate-consulted",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consulted_law_segments",
+     "value": [
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 373.15,
+       "end_k": 373.15
+      },
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 373.15,
+       "end_k": 373.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+  },
+  {
+   "id": "N3-duplicate-numeric-form",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 300,
+       "end_k": 400
+      },
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 300.0,
+       "end_k": 400.0
+      }
+     ]
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+  },
+  {
+   "id": "ACCEPT-N3-consumed-consulted-overlap",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 323.15,
+       "end_k": 373.15
+      },
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 373.15,
+       "end_k": 373.15
+      }
+     ]
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consulted_law_segments",
+     "value": [
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 373.15,
+       "end_k": 373.15
+      },
+      {
+       "use": "integration_interval",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 323.15,
+       "end_k": 373.15
+      }
+     ]
+    }
+   ],
+   "dispatch": "accept"
+  },
+  {
+   "id": "ACCEPT-N3-distinct-entries",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 293.15,
+       "end_k": 323.15
+      },
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 323.15,
+       "end_k": 373.15
+      },
+      {
+       "use": "interpolation_sample",
+       "lower_index": 0,
+       "upper_index": 1,
+       "start_k": 323.15,
+       "end_k": 323.15
+      },
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 400.0,
+       "end_k": 400.0
+      }
+     ]
+    }
+   ],
+   "dispatch": "accept"
   }
  ],
  "table_cases": [
@@ -2545,6 +3107,75 @@
     }
    ],
    "expect": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+  },
+  {
+   "id": "TRANSPORT-N3-segment-non-adjacent",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_law_segments",
+     "value": [
+      {
+       "use": "integration_interval",
+       "lower_index": 0,
+       "upper_index": 3,
+       "start_k": 300,
+       "end_k": 400
+      }
+     ]
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT"
+  },
+  {
+   "id": "TRANSPORT-N3-duplicate",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consulted_law_segments",
+     "value": [
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 373.15,
+       "end_k": 373.15
+      },
+      {
+       "use": "interpolation_sample",
+       "lower_index": 1,
+       "upper_index": 2,
+       "start_k": 373.15,
+       "end_k": 373.15
+      }
+     ]
+    }
+   ],
+   "expect": "SOURCE_LOAD_REFERENCE_LAW_SEGMENT_DUPLICATE"
+  },
+  {
+   "id": "TRANSPORT-N2-integer-temperatures",
+   "source": "pressure-dense",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/operating_temperature_k",
+     "value": 100000000000000000000
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/material_selection_temperature_k",
+     "value": 100000000000000000000
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/load_reference_states/0/members/0/consumed_material_points/0/temperature_k",
+     "value": 100000000000000000000
+    }
+   ],
+   "expect": "accept"
   }
  ]
 }

@@ -1,0 +1,260 @@
+diff --git a/projects/chirality-piping/core/analysis_runs/load_reference_evidence.py b/projects/chirality-piping/core/analysis_runs/load_reference_evidence.py
+index 1abc8b2a8..515dfaa64 100644
+--- a/projects/chirality-piping/core/analysis_runs/load_reference_evidence.py
++++ b/projects/chirality-piping/core/analysis_runs/load_reference_evidence.py
+@@ -95,9 +95,28 @@ def _keys(value: Any, required: list[str]) -> bool:
+ 
+ 
+ def _is_number(value: Any) -> bool:
++    """A JSON number of any magnitude (``bool`` excluded), as ``Value::Number`` in Rust."""
++    return type(value) in (int, float)
++
++
++def _as_f64(value: Any) -> float | None:
++    """Rust ``Value::as_f64``: the binary64 value of a JSON number, else ``None``.
++
++    ``serde_json`` holds an integer literal outside i64/u64 as the correctly
++    rounded binary64 (``float_roundtrip``), and converts i64/u64 integers with
++    ``as f64`` (round to nearest, ties to even). ``float(int)`` gives the same
++    value. An integer whose binary64 conversion overflows cannot exist in a
++    Rust ``Value`` (the JSON text is refused), so it reads as ``None`` here and
++    is refused as ``NUMBER_INVALID``, like a non-finite number.
++    """
++    if type(value) is float:
++        return value
+     if type(value) is int:
+-        return -U64_MAX <= value <= U64_MAX
+-    return type(value) is float
++        try:
++            return float(value)
++        except OverflowError:
++            return None
++    return None
+ 
+ 
+ def _text(value: Any) -> str:
+@@ -107,9 +126,10 @@ def _text(value: Any) -> str:
+ 
+ 
+ def _number(value: Any) -> float:
+-    if not (_is_number(value) and math.isfinite(value)):
++    number = _as_f64(value)
++    if number is None or not math.isfinite(number):
+         raise _fail("NUMBER_INVALID")
+-    return float(value)
++    return number
+ 
+ 
+ def _opt_number(value: Any) -> float | None:
+@@ -139,7 +159,8 @@ def _array(value: Any) -> list[Any]:
+ 
+ 
+ def _num_eq(a: Any, b: Any) -> bool:
+-    return _is_number(a) and _is_number(b) and math.isfinite(a) and math.isfinite(b) and float(a) == float(b)
++    x, y = _as_f64(a), _as_f64(b)
++    return x is not None and y is not None and math.isfinite(x) and math.isfinite(y) and x == y
+ 
+ 
+ def _same(a: Any, b: Any) -> bool:
+@@ -557,7 +578,11 @@ def _validate_member(member: Any) -> None:
+             _require(previous is None or previous < index, "LAW_INDICES")
+             previous = index
+             law_data_empty = False
++    # CP3_WIRE_ADDENDUM section 1: adjacent indices, a sample at one temperature,
++    # an interval over start < end, and no repeated entry within one list. The
++    # consumed and consulted lists are independent and may share entries.
+     for key in ("consumed_law_segments", "consulted_law_segments"):
++        entries: list[tuple[bool, int, int, float, float]] = []
+         for segment in _array(member[key]):
+             _require(_keys(segment, SEGMENT_KEYS), "LAW_SEGMENT_SHAPE")
+             if _eq(segment["use"], "interpolation_sample"):
+@@ -570,7 +595,10 @@ def _validate_member(member: Any) -> None:
+             upper = _index(segment["upper_index"])
+             start = _number(segment["start_k"])
+             end = _number(segment["end_k"])
+-            _require(lower <= upper and start <= end and (not sample or start == end), "LAW_SEGMENT")
++            _require(upper == lower + 1 and (start == end if sample else start < end), "LAW_SEGMENT")
++            entry = (sample, lower, upper, start, end)
++            _require(entry not in entries, "LAW_SEGMENT_DUPLICATE")
++            entries.append(entry)
+             law_data_empty = False
+     installation_stretch = _opt_number(member["installation_datum_stretch"])
+     operating_stretch = _opt_number(member["operating_datum_stretch"])
+@@ -601,11 +629,11 @@ def _validate_member(member: Any) -> None:
+     if _eq(fit_kind, "none"):
+         fitted = fit is None and fit_strain == 0
+     elif _eq(fit_kind, "natural_length_change"):
+-        change = _get(fit, "length_change_m")
+-        fitted = _keys(fit, ["length_change_m"]) and _is_number(change) and math.isfinite(change) and fit_strain == float(change) / length and length + float(change) > 0
++        change = _as_f64(_get(fit, "length_change_m"))
++        fitted = _keys(fit, ["length_change_m"]) and change is not None and math.isfinite(change) and fit_strain == change / length and length + change > 0
+     elif _eq(fit_kind, "fit_strain"):
+-        strain = _get(fit, "strain")
+-        fitted = _keys(fit, ["strain"]) and _is_number(strain) and math.isfinite(strain) and fit_strain == float(strain)
++        strain = _as_f64(_get(fit, "strain"))
++        fitted = _keys(fit, ["strain"]) and strain is not None and math.isfinite(strain) and fit_strain == strain
+     else:
+         raise _fail("FIT_KIND")
+     _require(fitted, "FIT_BINDING")
+@@ -641,14 +669,14 @@ def _validate_contribution(contribution: Any) -> None:
+     _require(_eq(contribution["classification"], classification), "CONTRIBUTION_CLASSIFICATION")
+     _text(contribution["source_id"])
+     if kind == "stored_primitive":
+-        factor = contribution["factor"]
+-        if not (_is_number(factor) and math.isfinite(factor) and factor != 0):
++        factor = _as_f64(contribution["factor"])
++        if not (factor is not None and math.isfinite(factor) and factor != 0):
+             raise _fail("CONTRIBUTION_FACTOR")
+         _text(contribution["category"])
+         _text(contribution["dimension"])
+         authored = _number(contribution["authored_normalized_magnitude"])
+         applied = _number(contribution["applied_magnitude"])
+-        _require(applied == authored * float(factor), "CONTRIBUTION_APPLIED_MAGNITUDE")
++        _require(applied == authored * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
+     elif kind == "resolved_member_state":
+         for reference in _array(contribution["consumed_input_refs"]):
+             _text(reference)
+diff --git a/projects/chirality-piping/core/reporting/result_export/src/load_reference.rs b/projects/chirality-piping/core/reporting/result_export/src/load_reference.rs
+index f5c2fe7b3..cb480d60c 100644
+--- a/projects/chirality-piping/core/reporting/result_export/src/load_reference.rs
++++ b/projects/chirality-piping/core/reporting/result_export/src/load_reference.rs
+@@ -905,7 +905,11 @@ fn validate_member(member: &Value) -> Check {
+             law_data_empty = false;
+         }
+     }
++    // CP3_WIRE_ADDENDUM section 1: adjacent indices, a sample at one temperature,
++    // an interval over start < end, and no repeated entry within one list. The
++    // consumed and consulted lists are independent and may share entries.
+     for key in ["consumed_law_segments", "consulted_law_segments"] {
++        let mut entries: Vec<(bool, u64, u64, f64, f64)> = Vec::new();
+         for segment in array(&member[key])? {
+             require(keys(segment, SEGMENT_KEYS), "LAW_SEGMENT_SHAPE")?;
+             let sample = match segment["use"].as_str() {
+@@ -918,9 +922,13 @@ fn validate_member(member: &Value) -> Check {
+             let start = number(&segment["start_k"])?;
+             let end = number(&segment["end_k"])?;
+             require(
+-                lower <= upper && start <= end && (!sample || start == end),
++                lower.checked_add(1) == Some(upper)
++                    && if sample { start == end } else { start < end },
+                 "LAW_SEGMENT",
+             )?;
++            let entry = (sample, lower, upper, start, end);
++            require(!entries.contains(&entry), "LAW_SEGMENT_DUPLICATE")?;
++            entries.push(entry);
+             law_data_empty = false;
+         }
+     }
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/load_reference_contract.rs b/projects/chirality-piping/core/reporting/result_export/tests/load_reference_contract.rs
+index 9a23cad13..c1dd2296e 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/load_reference_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/load_reference_contract.rs
+@@ -98,8 +98,9 @@ fn matches(item: &Value, pattern: &Value) -> bool {
+         .all(|(k, v)| item.get(k) == Some(v))
+ }
+ /// Mirror of the Python harness. Returns the mutated document and, for a
+-/// non-finite op, the literal that must replace the marker in the JSON text.
+-fn apply(doc: &Value, ops: &Value) -> (Value, Option<&'static str>) {
++/// non-finite or `json_text` op, the literal that must replace the marker in
++/// the JSON text.
++fn apply(doc: &Value, ops: &Value) -> (Value, Option<String>) {
+     let mut doc = doc.clone();
+     let mut nonfinite = None;
+     for op in ops.as_array().unwrap() {
+@@ -180,12 +181,21 @@ fn apply(doc: &Value, ops: &Value) -> (Value, Option<&'static str>) {
+                 assert!(serde_json::Number::from_f64(f64::INFINITY).is_none());
+                 assert!(serde_json::Number::from_f64(f64::NAN).is_none());
+                 set(&mut doc, path, json!(NONFINITE_MARKER));
+-                nonfinite = Some(match op["value"].as_str().unwrap() {
+-                    "Infinity" => "1e400",
+-                    "-Infinity" => "-1e400",
+-                    "NaN" => "NaN",
+-                    other => panic!("unknown non-finite {other}"),
+-                });
++                nonfinite = Some(
++                    match op["value"].as_str().unwrap() {
++                        "Infinity" => "1e400",
++                        "-Infinity" => "-1e400",
++                        "NaN" => "NaN",
++                        other => panic!("unknown non-finite {other}"),
++                    }
++                    .to_string(),
++                );
++            }
++            "json_text" => {
++                // A literal that a serde_json Value may be unable to hold.
++                assert!(nonfinite.is_none(), "one text literal per case");
++                set(&mut doc, path, json!(NONFINITE_MARKER));
++                nonfinite = Some(op["value"].as_str().unwrap().to_string());
+             }
+             other => panic!("unknown op {other}"),
+         }
+@@ -298,13 +308,13 @@ fn shared_adversarial_cases_match_in_rust() {
+     for case in cases["cases"].as_array().unwrap() {
+         let id = case["id"].as_str().unwrap();
+         let (doc, nonfinite) = apply(&source(case["source"].as_str().unwrap()), &case["ops"]);
+-        let (dispatch, validator) = if let Some(literal) = nonfinite {
++        let (dispatch, validator) = if let Some(literal) = &nonfinite {
+             let text = serde_json::to_string(&doc)
+                 .unwrap()
+                 .replace(&format!("\"{NONFINITE_MARKER}\""), literal);
+             assert!(!text.contains(NONFINITE_MARKER));
+             let parsed = serde_json::from_str::<Value>(&text);
+-            assert!(parsed.is_err(), "{id}: non-finite JSON text parsed");
++            assert!(parsed.is_err(), "{id}: text literal parsed");
+             (
+                 "JSON_PARSE_REJECTED".to_string(),
+                 "JSON_PARSE_REJECTED".to_string(),
+@@ -347,7 +357,15 @@ fn shared_adversarial_cases_match_in_rust() {
+                 s::for_source(&doc).unwrap().0["semantic_contract_id"],
+                 s::LOAD_REFERENCE_ID
+             );
+-            if doc["status"]["mechanics"] == "MECHANICS_SOLVED" {
++            if let Some(code) = case["carrier_rust"].as_str() {
++                // Both readers admit it; the checked-JSON carrier profile does not.
++                assert_eq!(derive(&doc, &model).unwrap_err(), code, "{id}");
++                assert_eq!(
++                    s::numerical_use_standing(&doc, &bases(&doc)),
++                    "numerically_eligible",
++                    "{id}"
++                );
++            } else if doc["status"]["mechanics"] == "MECHANICS_SOLVED" {
+                 let document = derive(&doc, &model).unwrap_or_else(|e| panic!("{id}: {e}"));
+                 assert_eq!(
+                     document["result_envelope"]["contract_evidence"],
+diff --git a/projects/chirality-piping/tests/test_load_reference_readers.py b/projects/chirality-piping/tests/test_load_reference_readers.py
+index 9984ff7d7..5db521919 100644
+--- a/projects/chirality-piping/tests/test_load_reference_readers.py
++++ b/projects/chirality-piping/tests/test_load_reference_readers.py
+@@ -121,6 +121,8 @@ def apply(doc: dict, ops: list[dict]) -> dict:
+             array.append(copy)
+         elif kind == "nonfinite":
+             _set(doc, op["path"], float({"Infinity": "inf", "-Infinity": "-inf", "NaN": "nan"}[op["value"]]))
++        elif kind == "json_text":
++            _set(doc, op["path"], json.loads(op["value"]))
+         else:
+             raise AssertionError(f"unknown op {kind}")
+     return doc
+@@ -173,7 +175,12 @@ def test_shared_adversarial_case(case):
+     RESULTS.append({"id": case["id"], "dispatch": dispatch, "validator": validator})
+     assert agrees(dispatch, expected(case, "dispatch")), (dispatch, expected(case, "dispatch"))
+     assert agrees(validator, expected(case, "validator")), (validator, expected(case, "validator"))
+-    if dispatch == "accept":
++    if dispatch == "accept" and "carrier_python" in case:
++        # Both readers admit it; the checked-JSON carrier profile does not.
++        assert _source_contract(doc)[0] == LOAD_REFERENCE_CONTRACT_ID
++        assert outcome(lambda: build_analysis_run(doc, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:load-reference-reader-test"}, input_manifest_hash="1" * 64)) == case["carrier_python"]
++        assert numerical_use_standing(doc, bases(doc)) == "numerically_eligible"
++    elif dispatch == "accept":
+         assert _source_contract(doc)[0] == LOAD_REFERENCE_CONTRACT_ID
+         record = build_analysis_run(doc, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:load-reference-reader-test"}, input_manifest_hash="1" * 64)
+         validate_analysis_run_v0_3(record, doc)
+@@ -207,7 +214,7 @@ def test_transport_metadata_case(case):
+ 
+ def test_nonfinite_cases_are_the_only_language_specific_representation():
+     special = [case for case in CASES["cases"] if "dispatch_rust" in case or "dispatch_python" in case]
+-    assert {case["id"] for case in special} == {"TABLE-id-precision-1", "NONFINITE-member-E", "NONFINITE-factor", "NONFINITE-row-value", "NONFINITE-region-pressure"}
++    assert {case["id"] for case in special} == {"TABLE-id-precision-1", "NONFINITE-member-E", "NONFINITE-factor", "NONFINITE-row-value", "NONFINITE-region-pressure", "N2-integer-overflow-positive", "N2-integer-overflow-negative", "N2-integer-first-overflow"}
+     assert all(case.get("note") for case in special)
+ 
+ 
