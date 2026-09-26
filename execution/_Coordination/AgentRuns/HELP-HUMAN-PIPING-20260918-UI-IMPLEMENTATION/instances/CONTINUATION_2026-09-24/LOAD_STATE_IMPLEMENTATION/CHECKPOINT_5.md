@@ -63,3 +63,19 @@ The recorded development comparison runs after:
 - **Native witnesses on the owner's Mac** (`T1_PLAN.md` §6) remain outstanding, and M10/M16/M29 cannot close without them. REVIEW_B added one item to native witness 8: the post-reservation fallback input.
 - **Recorded limits, not repaired:** the inherited transport scope of joined validation; the schema cross-carrier `$ref` home; the operation-level inverse and explicit-null priors (documented).
 - The T1 PR qualification (`T1_PLAN.md` WP7) is still to come.
+
+## Addendum (after the recorded run and the backchecks)
+
+- **Recorded VP-STATIC comparison** (`T1_VP_STATIC_RUN/RECORD.md`, commit `277f3d02f`, candidate `d58baad57`, runner sha256 `6bedade8…`). Both modes are `all_required_assertions_matched`: 14/14 cases `checks_passed`, 507/507 assertions (467 positive, 40 negative) and 98/98 structural checks. The reader binding is `reviewed_candidate` on REVIEW_A, its backcheck and CP3/CP4.
+- **REVIEW_A backcheck:** CLEAR in both languages. The deferred Rust run gave result_export 69/69. It covers reader bytes `14e1750e…` and the Rust readers `a045664d…` and `5fd4902c…`.
+- **REVIEW_B backcheck:**
+  - WP5 and F4 cleared.
+  - WP3 cleared after the deferred cargo run: operation_applier 193, and both goldens regenerate byte-identically from `203396e4d`.
+  - Mutants: 11 of 12 killed. The survivor, L-1 (a test gap), is closed by one test (Addendum 3 of the WP3 return): operation_applier 194, and B09 is now killed.
+- **Next, after T0R (PR952) merges on main** (ROOT, per S6 §6):
+  - merge main;
+  - `preview: None` in the two early-return literals;
+  - hand-merge `numerical_use_standing`, with validation first in both languages;
+  - add T1's load-reference IDs to T0R's static fresh-identity set in all three languages;
+  - re-pin the branch-count schema tests;
+  - then WP2, the WP3 native fields and WP4.

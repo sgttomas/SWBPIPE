@@ -440,3 +440,34 @@ Review B's R03, R05 and R06 were already killed in its own run, so I did not rep
 ### Cleanup
 
 The scratch copy and cargo target were deleted after the checks.
+
+## Addendum 3 — backcheck L-1 (the F9 relaxation is 0.4.0-only)
+
+- **Request:** the manager's follow-up to `T1_WAVE1_REVIEW_B/BACKCHECK.md`, Addendum 1, note L-1.
+- **Scope:** the same write boundary and rules.
+- **Base:** head `8fe3e5a5a`.
+- **Git:** no Git writes.
+- **Earlier text:** unchanged.
+
+**The gap.** The backcheck's mutant B09 changes the F9 rule in `rich_authoring.rs` from `load_state && exact_profile` to `exact_profile`. That would stop 0.3.0 exact models from demanding `thermal_expansion_coefficient` on points. The code was correct, but no test pinned the 0.3.0 side.
+
+**The change.** One new test in `tests/load_state_authoring.rs` (+48 lines; `e32bf54f…` → `27680766af9424e3cf37962d25eff2b602341ba38264a00bc5bda77228cb370b`): `exact_0_3_0_points_still_demand_the_expansion_coefficient`.
+- On `exact_pressure_authoring_model` (0.3.0, exact contract), it authors two invented temperature points, both complete for E/ν.
+- The point without α must raise exactly one `OP-RICH-NOT-SOLVE-READY` warning, which names it.
+- The point with α must raise none.
+
+No source file changed. The goldens were not re-blessed, and both still match unchanged: `load_reference_delete_control.json` `1da7ef35…` and `load_reference_authoring_control.json` `2e21291c…`.
+
+**Checks:**
+- **Crate suite:** `CARGO_INCREMENTAL=0`, the shared target `ls-vp-target` reused with no new target, and 13–14 GB free before the builds. **194 passed**, 0 failed: 140 + 2 + 2 + 6 + 8 + 13 + 16 + 2 + 5 (`_run_records/addendum3_cargo_test.log`).
+- **rustfmt:** the test file is clean.
+
+**Mutants.** Run on a `git archive` scratch copy of `8fe3e5a5a`, with the same runner and the new entry B09 (`_run_records/mutants_result_addendum3.json`):
+
+| Mutant | Committed tests | With the new test |
+|---|---|---|
+| B09 F9 relaxation not limited to 0.4.0 | SURVIVED (reproduces L-1) | **KILLED** by `exact_0_3_0_points_still_demand_the_expansion_coefficient` |
+| P05 exact profile not extended to 0.4.0 (re-check) | — | KILLED |
+| P06 0.4.0 points still demand α (re-check) | — | KILLED |
+
+**Cleanup:** the scratch copy is deleted. The shared target `ls-vp-target` is left in place, as instructed.

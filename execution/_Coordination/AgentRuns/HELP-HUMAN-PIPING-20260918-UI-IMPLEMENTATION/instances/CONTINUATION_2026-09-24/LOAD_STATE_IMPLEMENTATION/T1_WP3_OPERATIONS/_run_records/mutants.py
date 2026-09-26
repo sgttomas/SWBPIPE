@@ -91,6 +91,8 @@ MUTANTS = [
     ("P04-point-orphan-only-if-newly-unresolved", M, ".filter(|p| current.contains(p) && !next.contains(p))", ".filter(|p| { let _ = &current; !next.contains(p) })"),
     ("P05-exact-profile-includes-0-4-0", RA, 'let exact_profile = (model["schema_version"] == "0.3.0" || load_state)', 'let exact_profile = (model["schema_version"] == "0.3.0")'),
     ("P06-0-4-0-points-need-no-coefficient", RA, "    let point_thermal_field = if load_state && exact_profile {", "    let point_thermal_field = if false {"),
+    # Addendum 3: review B backcheck L-1 (its mutant B09, verbatim effect).
+    ("B09-f9-relaxation-not-limited-to-0-4-0", RA, "    let point_thermal_field = if load_state && exact_profile {", "    let point_thermal_field = if exact_profile {"),
 ]
 
 def run(target):

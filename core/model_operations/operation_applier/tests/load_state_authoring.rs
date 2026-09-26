@@ -1670,3 +1670,51 @@ fn support_deletion_scans_every_case_not_only_the_first() {
     );
     assert!(!names(&refs, "case:cold."), "{refs:?}");
 }
+
+// ---------------------------------------------------------------------------
+// Addendum 3 (review B backcheck L-1): the F9 relaxation is 0.4.0-only.
+// ---------------------------------------------------------------------------
+
+#[test]
+fn exact_0_3_0_points_still_demand_the_expansion_coefficient() {
+    // On the 0.3.0 exact model a point that is complete for E/nu but lacks the
+    // coefficient keeps the existing not-solve-ready warning; the same point
+    // with the coefficient raises none. Invented points.
+    let model: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
+    ))
+    .unwrap();
+    assert_eq!(model["schema_version"], "0.3.0");
+    assert_eq!(
+        model["pressure_contract"]["mode"],
+        "exact_straight_pressure_v2"
+    );
+    let material = &model["materials"][0];
+    let id = material["id"].as_str().unwrap();
+    let points = json!([
+        {"id":"point:invented-with-alpha","temperature":{"value":20,"unit":"degC"},"elastic_modulus":{"value":200,"unit":"GPa"},
+         "poisson_ratio":{"value":0.3,"unit":"1"},"thermal_expansion_coefficient":{"value":1.2e-5,"unit":"1/K"},"provenance":"invented point"},
+        {"id":"point:invented-without-alpha","temperature":{"value":150,"unit":"degC"},"elastic_modulus":{"value":150,"unit":"GPa"},
+         "poisson_ratio":{"value":0.3,"unit":"1"},"provenance":"invented point"}
+    ]);
+    let op = intent(
+        "Material",
+        id,
+        "temperature_points",
+        &display(material.get("temperature_points")),
+        &points.to_string(),
+    );
+    let outcome = apply_operation(&model, &op, Some(&hash(&model)));
+    assert!(outcome.applied_model.is_some(), "{:?}", outcome.diagnostics);
+    let warnings: Vec<_> = outcome
+        .diagnostics
+        .iter()
+        .filter(|d| d.code == "OP-RICH-NOT-SOLVE-READY")
+        .collect();
+    assert_eq!(warnings.len(), 1, "{:?}", outcome.diagnostics);
+    assert!(warnings[0].message.contains("point:invented-without-alpha"));
+    assert!(outcome
+        .diagnostics
+        .iter()
+        .all(|d| !d.message.contains("point:invented-with-alpha")));
+}
