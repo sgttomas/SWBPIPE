@@ -1,0 +1,19 @@
+     Running unittests src/lib.rs (<TARGET>/debug/deps/open_pipe_stress_operation_applier-55f4196e374983bb)
+test result: ok. 140 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+     Running tests/canonical_hash_parity.rs (<TARGET>/debug/deps/canonical_hash_parity-1a38266ba7501a7b)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/contract_corpus.rs (<TARGET>/debug/deps/contract_corpus-29cdb0cc4a326b73)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+     Running tests/create_pipe_section_inputs.rs (<TARGET>/debug/deps/create_pipe_section_inputs-b17e841c3557a1ef)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+     Running tests/exact_authoring.rs (<TARGET>/debug/deps/exact_authoring-e7b9a64cec032ec0)
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+     Running tests/generated_self_weight.rs (<TARGET>/debug/deps/generated_self_weight-acba07523ce9cad7)
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+     Running tests/load_state_authoring.rs (<TARGET>/debug/deps/load_state_authoring-a63a24853dcc8961)
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.39s
+     Running tests/load_state_delete_control.rs (<TARGET>/debug/deps/load_state_delete_control-f7a4be34bec5aeb9)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+     Running tests/support_authoring_conflicts.rs (<TARGET>/debug/deps/support_authoring_conflicts-b13993d4aad2d9e3)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

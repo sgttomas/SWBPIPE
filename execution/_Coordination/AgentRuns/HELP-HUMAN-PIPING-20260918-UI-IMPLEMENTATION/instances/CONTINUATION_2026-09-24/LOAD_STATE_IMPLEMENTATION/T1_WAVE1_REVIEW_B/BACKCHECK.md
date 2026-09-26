@@ -155,3 +155,55 @@ The count reconciles: 4489 − 28 + 42 + 32 = 4535. The original WP6 checker sti
 - WP1 `1ccca8b87`, beyond its reader hash and imports (REVIEW_A owns it).
 
 **Cleanup:** the scratch clone was deleted.
+
+## Addendum 1: deferred cargo checks (after the host hold was lifted)
+
+The manager told me the hold was lifted.
+
+**How I ran:**
+- on one `git archive` scratch copy of head `3cf238d83`, which changes no reviewed path after `ab5919133`, deleted afterwards;
+- with ROOT's shared `CARGO_TARGET_DIR` (`ls-vp-target`), `CARGO_INCREMENTAL=0`, and no new target;
+- with 14 GB free before every build.
+
+**Result: WP3 is CLEARED.** One new Low note, L-1.
+
+### Crate suite
+
+operation_applier `cargo +1.97.1 test --locked --offline -j 2`: **193 passed**, 0 failed. By test binary: 140 + 2 + 2 + 6 + 8 + 13 + 15 + 2 + 5. Log: `_run_records/backcheck/applier_cargo_test_head.log`.
+
+### Golden regeneration from `203396e4d`
+
+- I overlaid the base `lib.rs`, `load_state_authoring.rs`, `pressure_authoring.rs` and `rich_authoring.rs`. Their hashes are `4f088d67`, `63223cc2`, `b1017d66` and `3c21a44c`, the Addendum 2 "before" values.
+- I kept the candidate control test, and ran `load_state_delete_control` with `LOAD_REFERENCE_DELETE_CONTROL_BLESS=1`.
+- **Both goldens are byte-identical to the committed files:**
+  - `load_reference_delete_control.json`: `1da7ef35…`;
+  - `load_reference_authoring_control.json`: `2e21291c…`, 54 outcomes, 22 applied, with 44 `OP-RICH-NOT-SOLVE-READY` and 10 `OP-PRESSURE-PAYLOAD-INVALID`.
+- `product_physics`, `units`, `canonical_json` and the fixture models are unchanged between `203396e4d` and head.
+- Log: `_run_records/backcheck/golden_regeneration_backcheck.log`.
+
+### Mutants
+
+Run with `load_state_authoring`, both controls, `exact_authoring` and the contract corpus (`_run_records/backcheck/applier_mutants_backcheck.{py,log}`). **11 of 12 killed:**
+
+| Mutant | Result |
+|---|---|
+| R01 unchanged payload still writes | killed (`an_unchanged_payload_is_a_true_no_op_with_no_write`) |
+| R02 `point_ref` resolved on any material | killed (`point_ref_resolves_only_on_the_selected_material`) |
+| R04 support scan limited to the first case | killed (`support_deletion_scans_every_case_not_only_the_first`) |
+| B01 F1 version lock removed | killed (`pressure_profile_cannot_change_a_0_4_0_model`) |
+| B02 F1 lock only for downgrades (0.4.0 no-op admitted) | killed (same) |
+| B03 F2 point-orphan call removed | killed (`temperature_points_replacement_cannot_orphan_an_exact_point`) |
+| B04 F2 already-unresolved references also refused | killed (same) |
+| B05 F2 not scoped to the selecting material | killed (same) |
+| B06 F2 orphan scan only in the first case | killed (same) |
+| B07 F9 0.4.0 exact points still demand α | killed (same) |
+| B08 F9 0.4.0 not treated as the exact profile | killed (same) |
+| B09 F9 leaks to pre-0.4: α never demanded on 0.3.0 exact models | **survived** |
+
+### New note
+
+| # | Severity | Location | Note |
+|---|---|---|---|
+| L-1 | Low | `tests/load_state_delete_control.rs` `invented_points()`; `load_reference_authoring_control.json` | **What survives.** B09 replaces `load_state && exact_profile` with `exact_profile`. That would stop 0.3.0 exact models from warning about a missing point `thermal_expansion_coefficient`. No test detects this.<br>**Why the control misses it.** Every point that distinguishes the two in the control is already incomplete for another reason: the E/G point lacks ν, and the partial point lacks E. The warning is per point, so the outcome bytes are the same.<br>**Status of the code.** It is correct as committed (`load_state && exact_profile`). The mutant is not equivalent: a complete E/ν point without α on a 0.3.0 exact model warns at base, and would not under B09.<br>**Repair.** Add such a point, E/ν present and α absent, to the authoring control, and re-bless from `203396e4d`. Alternatively, add a direct test on `exact_pressure_authoring_model`. Not blocking: pre-0.4 behaviour is unchanged on reading and in the regenerated goldens. |
+
+**Pending items from §4, now done:** crate suite, both golden regenerations, and my R01/R02/R04 plus the F1/F2 mutants. rustfmt is still unavailable for 1.97.1. Scratch deleted; the shared target was left in place.
