@@ -1,0 +1,375 @@
+"""T3 P1 detection: comparator (scratch; committed as compare.py.txt).
+
+Usage: python3 -B compare.py <gen_out-dir> <runs.jsonl> <results.json>
+
+Criterion (unchanged): |obs - exp| <= 1e-9 * max(|exp|, scale), evaluated exactly in rationals.
+obs is the published binary64 value decoded exactly (Fraction(float)), converted exactly from its
+published unit to the case unit.  exp and scale are the reference's decimal strings, decoded exactly.
+RF-CANCEL rows use the recommended (net-governed) scale column (ROOT_RULINGS_V2 1).
+A nonzero expected value below the binary64 normal range (|exp| < 2^-1022) is flagged
+'below_binary64_range' and, as every comparison, is decided by the same predicate; with a scale at or
+above |exp| that predicate is an absolute comparison against 1e-9*scale, and it is reported as such (V2 F8).
+A nonzero expected value below its scale is flagged 'absolute_floor' (compared against 1e-9*scale).
+"""
+import json
+import math
+import sys
+from decimal import Decimal, localcontext
+from fractions import Fraction as Fr
+
+CRIT = Fr(1, 10 ** 9)
+MIN_NORMAL = Fr(2) ** -1022
+UNIT_SI = {'mm': Fr(1, 1000), 'm': Fr(1), 'rad': Fr(1), 'N': Fr(1), 'N*m': Fr(1), 'kN': Fr(1000),
+           'N*mm': Fr(1, 1000), 'kN*m': Fr(1000)}
+COMP = {'UX': 'Fx', 'UY': 'Fy', 'UZ': 'Fz', 'RX': 'Mx', 'RY': 'My', 'RZ': 'Mz',
+        'FX': 'Fx', 'FY': 'Fy', 'FZ': 'Fz', 'MX': 'Mx', 'MY': 'My', 'MZ': 'Mz'}
+TRUSTED_STANDING = 'numerically_eligible'
+
+
+def dfr(s):
+    return Fr(Decimal(s))
+
+
+def ffr(x):
+    return Fr(x)
+
+
+def sqrt_fr(q):
+    with localcontext() as c:
+        c.prec = 80
+        return Fr((Decimal(q.numerator) / Decimal(q.denominator)).sqrt())
+
+
+def fmt(q, sig=17):
+    if q is None:
+        return None
+    if isinstance(q, float):
+        return repr(q)
+    if q == 0:
+        return '0'
+    with localcontext() as c:
+        c.prec = sig + 5
+        return format(Decimal(q.numerator) / Decimal(q.denominator), '.%de' % (sig - 1))
+
+
+def case_unit_factor(cls, units):
+    base = cls.split('@')[0]
+    if base in ('translation', 'extension'):
+        return UNIT_SI[units['length']]
+    if base in ('rotation', 'twist'):
+        return Fr(1)
+    if base == 'force':
+        return Fr(1)
+    if base == 'moment':
+        return UNIT_SI[units['moment']]
+    raise ValueError(cls)
+
+
+class Envelope:
+    def __init__(self, env):
+        self.env = env
+        self.by_id = {}
+        self.support = {}
+        self.element = {}
+        for r in env['results']:
+            if r.get('basis') != 'case':
+                continue
+            self.by_id[r['id']] = r
+            if r['kind'] == 'support_reaction_component_v2':
+                self.support[(r['entity'], r['component'])] = r
+            elif r['kind'].startswith('element_local_'):
+                self.element[(r['entity'], r['component'], r['location'])] = r
+
+    def si(self, r):
+        return ffr(r['value']) * UNIT_SI[r['unit']]
+
+    def observe(self, key, meta):
+        """Return (list of observed SI values (Fractions), rendering note) or (None, reason)."""
+        p = key.split('.')
+        kind = p[0]
+        if kind in ('u', 'th'):
+            r = self.by_id.get('result:disp:%s:%s' % (p[1], p[2].lower()))
+            return ([self.si(r)], 'global nodal result') if r else (None, 'not_published')
+        if kind == 'R':
+            sup = meta['rigid_support_of'].get(p[1])
+            r = self.support.get((sup, COMP[p[2]])) if sup else None
+            return ([self.si(r)], 'support_reaction_component_v2 ' + str(sup)) if r else (None, 'not_published')
+        if kind == 'S':
+            sup = meta['springs_of'].get(p[1], {}).get(p[2])
+            r = self.support.get((sup, COMP[p[3]])) if sup else None
+            return ([self.si(r)], 'support_reaction_component_v2 ' + str(sup)) if r else (None, 'not_published')
+        if kind in ('N', 'T'):
+            comp = 'axial_force' if kind == 'N' else 'torsional_moment'
+            ri = self.element.get((p[1], comp, 'end_i'))
+            rj = self.element.get((p[1], comp, 'end_j'))
+            if not ri and not rj:
+                return None, 'not_published'
+            vals = []
+            if ri:
+                vals.append(-self.si(ri))
+            if rj:
+                vals.append(self.si(rj))
+            return vals, '-(end_i), +(end_j) element-local end actions'
+        if kind in ('Mb', 'Vb'):
+            end = p[2]
+            if end == 'mid':
+                return None, 'not_published (no midpoint station result on this route)'
+            loc = {'i': 'end_i', 'j': 'end_j'}[end]
+            cy, cz = (('bending_moment_y', 'bending_moment_z') if kind == 'Mb' else ('shear_force_y', 'shear_force_z'))
+            ry, rz = self.element.get((p[1], cy, loc)), self.element.get((p[1], cz, loc))
+            if not ry or not rz:
+                return None, 'not_published'
+            return [sqrt_fr(self.si(ry) ** 2 + self.si(rz) ** 2)], 'hypot of published local components (exact)'
+        if kind in ('tw', 'ext'):
+            return None, 'not_published (relative motions are not product results)'
+        return None, 'unmapped key'
+
+
+def compare_value(obs, exp, scale):
+    denom = CRIT * max(abs(exp), scale)
+    diff = abs(obs - exp)
+    if denom == 0:
+        return (0.0 if diff == 0 else math.inf), diff == 0
+    ratio = diff / denom
+    return float(ratio), ratio <= 1
+
+
+def classify(rec):
+    """Outcome of one captured run."""
+    if rec.get('timed_out'):
+        return 'timeout', 'timeout after %ss' % rec['timeout_seconds']
+    probe = rec.get('probe')
+    if not probe:
+        err = rec.get('stderr_tail', '')
+        if 'memory allocation' in err or 'capacity overflow' in err or rec.get('exit_code') in (-6, 134):
+            return 'memory_refused', 'process aborted under RLIMIT_AS (%s)' % err.strip().splitlines()[-1][:200] if err.strip() else 'aborted'
+        return 'crashed', 'exit %s: %s' % (rec.get('exit_code'), err[-300:])
+    run = probe['run']
+    if not run['ok']:
+        e = run.get('error', '')
+        if 'CHECKED-JSON' in e:
+            return 'refused_capture', e[:300]
+        return 'refused_error', e[:300]
+    env = run['envelope']
+    blocking = [d for d in env['diagnostics'] if d['severity'] == 'blocking']
+    if env['status'].get('mechanics') != 'MECHANICS_SOLVED':
+        return 'refused_blocked', '%s; blocking=%s' % (env['status'].get('mechanics'), [d['code'] for d in blocking][:6])
+    return 'solved', ''
+
+
+def elide_dof_map(msg):
+    import re
+    def rep(mo):
+        n = mo.group(0).count('"')//2
+        return 'global_dof_map=[elided by P1: %d entries]' % n
+    return re.sub(r'global_dof_map=\[[^\]]*\]', rep, msg)
+
+
+def identity(env):
+    q = env['numerical_quality']
+    rec = env.get('source_block_recovery')
+    codes = sorted({d['code'] for d in env['diagnostics']})
+    sel = any(d['code'] == 'SOURCE_BLOCK_RECOVERY_SELECTED' for d in env['diagnostics'])
+    return {
+        'semantic_contract_id': env['producer']['semantic_contract_id'],
+        'component': '%s %s' % (env['producer']['component_name'], env['producer']['component_version']),
+        'numerical_quality_status': q['status'],
+        'case_quality': [{k: c[k] for k in ('solve_quality', 'structural_status', 'model_matrix_fidelity', 'accuracy_evidence')}
+                         for c in q['cases']],
+        'recovery_selected': sel or bool(rec and any(c.get('outcome') == 'qualified' for c in rec.get('cases') or [])),
+        'recovery_receipt': rec,
+        'standing': env['standing'],
+        'mechanics_status': env['status'].get('mechanics'),
+        'diagnostic_codes': codes,
+        'integrity_diagnostics': [{'code': d['code'], 'severity': d['severity'], 'message': elide_dof_map(d['message'])}
+                                  for d in env['diagnostics']
+                                  if d['code'].startswith('NUMERICAL_INTEGRITY') or d['code'].startswith('SOURCE_BLOCK')][:4],
+    }
+
+
+def evaluate_ncs(ncs, envelope, meta, rowmap, outcome, has_solution):
+    out = []
+    for nc in ncs:
+        o = {'id': nc['id'], 'reference_says_discriminates': nc.get('discriminates')}
+        vals = nc.get('values')
+        if vals:
+            matched, distinct, evaluated = 0, 0, 0
+            detail = []
+            for k, v in vals.items():
+                if k not in rowmap:
+                    continue
+                obs, note = envelope.observe(k, meta) if envelope else (None, 'no envelope')
+                if obs is None:
+                    continue
+                exp_s, cls, scale = rowmap[k]
+                f = case_unit_factor(cls, meta['units'])
+                wrong = dfr(v)
+                evaluated += 1
+                oks = [compare_value(x / f, wrong, scale)[1] for x in obs]
+                if all(oks):
+                    matched += 1
+                else:
+                    distinct += 1
+                detail.append([k, v, [fmt(x / f) for x in obs], all(oks)])
+            if evaluated == 0:
+                o['outcome'] = 'not_evaluable (no listed key published)' if has_solution else 'not_evaluable (%s)' % outcome
+            elif matched == evaluated:
+                o['outcome'] = 'MAIN_MATCHES_WRONG_ANSWER'
+            elif matched == 0:
+                o['outcome'] = 'distinct_from_wrong_answer'
+            else:
+                o['outcome'] = 'partially_matches_wrong_answer (%d of %d keys)' % (matched, evaluated)
+            o['keys_evaluated'] = evaluated
+            o['detail'] = detail[:6]
+        else:
+            nid = nc['id']
+            if nid == 'NC-FALSE-MECHANISM':
+                o['outcome'] = 'MAIN_MATCHES_WRONG_ANSWER (refused a stable model)' if not has_solution else 'distinct_from_wrong_answer (solved)'
+            elif nid in ('NC-REGULARIZED', 'NC-ZERO-RESIDUAL', 'NC-RESTRAINT-COUNT'):
+                o['outcome'] = 'MAIN_MATCHES_WRONG_ANSWER (published a solution)' if has_solution else 'distinct_from_wrong_answer (refused)'
+            else:
+                o['outcome'] = 'not_evaluable (reference publishes no wrong values: %s)' % nc.get('description', '')[:120]
+        out.append(o)
+    return out
+
+
+def main():
+    gen, runs_path, out_path = sys.argv[1:4]
+    cases = json.load(open(gen + '/cases.json'))
+    runs = {}
+    for line in open(runs_path):
+        r = json.loads(line)
+        runs.setdefault((r['case'], r['mode']), {})[r['entry']] = r
+    results = []
+    for c in cases:
+        entry = {'id': c['id'], 'family': c['family'], 'expectation': c['expectation'], 'scale_rule': c.get('scale_rule'),
+                 'basis': c.get('basis'), 'note': c.get('note'), 'modes': {}}
+        if 'not_authorable' in c:
+            entry['authorable'] = False
+            entry['not_authorable'] = c['not_authorable']
+            results.append(entry)
+            continue
+        entry['authorable'] = True
+        entry['members'] = c.get('members')
+        meta = c['meta']
+        rowmap = {r[0]: (r[1], r[2], dfr(r[3])) for r in c['rows']}
+        for mode in ('sparse_interactive', 'dense_scrutiny'):
+            rr = runs.get((c['id'], mode))
+            if not rr or 'captured' not in rr:
+                entry['modes'][mode] = {'outcome': 'not_run'}
+                continue
+            rec = rr['captured']
+            outcome, why = classify(rec)
+            m = {'outcome': outcome, 'outcome_detail': why, 'wall_seconds': rec['wall_seconds'],
+                 'peak_rss_kib': rec['peak_rss_kib'], 'rlimit_as_bytes': rec['rlimit_as_bytes']}
+            envelope = None
+            if rec.get('probe') and rec['probe']['run']['ok']:
+                env = rec['probe']['run']['envelope']
+                m['solve_seconds'] = rec['probe']['run'].get('solve_seconds')
+                m['identity'] = identity(env)
+                m['result_count'] = env['result_count']
+                envelope = Envelope(env)
+            has_solution = bool(outcome == 'solved' and envelope and any(k.startswith('result:disp:') for k in envelope.by_id))
+            q = []
+            npass = nmis = nnp = 0
+            maxratio, maxkey = 0.0, None
+            flags_count = {'below_binary64_range': 0, 'absolute_floor': 0}
+            if envelope and has_solution:
+                for (k, exp_s, cls, scale_s, gov) in c['rows']:
+                    exp, scale = dfr(exp_s), dfr(scale_s)
+                    flags = []
+                    if exp != 0 and abs(exp) < MIN_NORMAL:
+                        flags.append('below_binary64_range: compared absolutely against 1e-9*scale')
+                        flags_count['below_binary64_range'] += 1
+                    elif exp != 0 and abs(exp) < scale:
+                        flags.append('absolute_floor')
+                        flags_count['absolute_floor'] += 1
+                    obs, note = envelope.observe(k, meta)
+                    if obs is None:
+                        nnp += 1
+                        q.append([k, cls, exp_s, None, scale_s, None, 'not_published', gov, flags])
+                        continue
+                    f = case_unit_factor(cls, meta['units'])
+                    ratios = [compare_value(x / f, exp, scale) for x in obs]
+                    ratio = max(r[0] for r in ratios)
+                    ok = all(r[1] for r in ratios)
+                    if ok:
+                        npass += 1
+                    else:
+                        nmis += 1
+                    if ratio > maxratio:
+                        maxratio, maxkey = ratio, k
+                    q.append([k, cls, exp_s, [fmt(x / f) for x in obs], scale_s, float('%.6g' % ratio) if math.isfinite(ratio) else 'inf',
+                              'pass' if ok else 'MISMATCH', gov, flags])
+            m['counts'] = {'compared': npass + nmis, 'pass': npass, 'mismatch': nmis, 'not_published': nnp, **flags_count}
+            m['max_ratio'] = (float('%.6g' % maxratio) if math.isfinite(maxratio) else 'inf') if (npass + nmis) else None
+            m['max_ratio_at'] = maxkey
+            if c['expectation'] == 'refuse':
+                m['verdict'] = 'refused (as required)' if not has_solution else 'PUBLISHED_A_SOLUTION_FOR_A_REQUIRED_REFUSAL'
+            elif outcome == 'solved' and not has_solution:
+                m['verdict'] = 'solved_without_published_values'
+            elif outcome != 'solved':
+                m['verdict'] = outcome
+            elif not c['rows']:
+                m['verdict'] = 'solved (no quantity reference)'
+            else:
+                m['verdict'] = 'mismatch' if nmis else 'pass'
+            ident = m.get('identity') or {}
+            trusted = has_solution and (ident.get('numerical_quality_status') == 'checks_passed'
+                                        or ident.get('standing') == TRUSTED_STANDING)
+            m['published_as_trusted'] = bool(trusted)
+            m['silent_wrong'] = bool(trusted and (nmis > 0 or m['verdict'] == 'PUBLISHED_A_SOLUTION_FOR_A_REQUIRED_REFUSAL'))
+            m['negative_controls'] = evaluate_ncs(c.get('negative_controls', []), envelope if has_solution else None,
+                                                  meta, rowmap, outcome, has_solution)
+            m['quantities'] = q
+            typed = rr.get('typed_secondary')
+            if typed:
+                t = {'entry': 'typed_run_linear_static_preview_with_mode (secondary observation only)'}
+                tout, twhy = classify(typed)
+                t['outcome'] = tout
+                if typed.get('probe') and typed['probe']['run']['ok']:
+                    tenv = typed['probe']['run']['envelope']
+                    t['identity'] = identity(tenv)
+                    te = Envelope(tenv)
+                    tq = []
+                    tn = tm = 0
+                    tmax = 0.0
+                    for (k, exp_s, cls, scale_s, gov) in c['rows']:
+                        obs, note = te.observe(k, meta)
+                        if obs is None:
+                            continue
+                        f = case_unit_factor(cls, meta['units'])
+                        rs = [compare_value(x / f, dfr(exp_s), dfr(scale_s)) for x in obs]
+                        ok = all(r[1] for r in rs)
+                        tn += ok
+                        tm += (not ok)
+                        rmax = max(r[0] for r in rs)
+                        tmax = max(tmax, rmax)
+                        if not ok:
+                            tq.append([k, exp_s, [fmt(x / f) for x in obs], float('%.6g' % rmax) if math.isfinite(rmax) else 'inf', gov, scale_s])
+                    t['counts'] = {'pass': tn, 'mismatch': tm}
+                    t['max_ratio'] = float('%.6g' % tmax) if math.isfinite(tmax) else 'inf'
+                    t['mismatches'] = tq
+                    t['published_as_trusted'] = bool(t['identity']['numerical_quality_status'] == 'checks_passed'
+                                                     or t['identity']['standing'] == TRUSTED_STANDING)
+                else:
+                    t['detail'] = twhy
+                m['typed_secondary'] = t
+            entry['modes'][mode] = m
+        results.append(entry)
+    json.dump({'cases': results}, open(out_path, 'w'), indent=None, separators=(',', ':'))
+    # console digest
+    for e in results:
+        if not e['authorable']:
+            continue
+        for mode, m in e['modes'].items():
+            ident = m.get('identity') or {}
+            print('%-40s %-18s %-26s %-14s %-10s %-22s rec=%-5s mis=%s/%s max=%s @%s %s' % (
+                e['id'], mode, m.get('verdict'), ident.get('semantic_contract_id', '').split('/')[-1],
+                ident.get('numerical_quality_status'), ident.get('standing'), ident.get('recovery_selected'),
+                m.get('counts', {}).get('mismatch'), m.get('counts', {}).get('compared'), m.get('max_ratio'),
+                m.get('max_ratio_at'), 'SILENT-WRONG' if m.get('silent_wrong') else ''))
+
+
+if __name__ == '__main__':
+    main()
