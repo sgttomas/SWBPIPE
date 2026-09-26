@@ -13,4 +13,4 @@ Piping-specific: this loop's own records of the same change are `D-77` and `DEC-
 python3 tools/validation/validate_decomposition_registers.py projects/chirality-piping/execution --families XRG --registers-dir projects/chirality-piping/docs/_Registers
 ```
 
-With the `D-77` homes it reports no `XRG-014` and no `XRG-004`. The earlier `XRG-005` (29 errors) and `XRG-008` (106 warnings) findings remain; they are separate matters for this loop. This source tranche grants no release.
+With the `D-77` homes it reports no `XRG-014` and no `XRG-004`. The earlier `XRG-005` (29 errors) and `XRG-008` (106 warnings) findings remain; they are separate matters for this loop. Run over all families, `--registers-dir` also lets the DRB checks read `Deliverables.csv`, which surfaces the pre-existing `DRB-004` ×14 (warnings) and `DRB-008` ×8 (warnings) findings that a run without the option cannot see. This source tranche grants no release.

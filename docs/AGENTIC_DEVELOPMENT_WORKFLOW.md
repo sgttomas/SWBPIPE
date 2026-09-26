@@ -389,8 +389,8 @@ Warnings and open TBDs:
 ```
 
 The handoff is evidence for review. It does not change decomposition truth,
-the accepted DAG version, lifecycle state, release status, maintainer authority, legal
-policy, or engineering reliance status by itself.
+the accepted DAG version, lifecycle state, release status, maintainer
+authority, legal policy, or engineering reliance status by itself.
 
 For completed validated development tranches, the handoff must include or be
 followed by an autonomous `CHANGE` agent/subagent closeout. `CHANGE` stages
