@@ -1,0 +1,7 @@
+# Decomposition rulings (D-GOV-47)
+
+Owner-directed Root tranche `ROOT-DECOMP-RULINGS-D-GOV-47-20260926` records two decomposition rulings for PROJECT and SOFTWARE (`docs/governance_harness/_DECISIONS/D-GOV-47_decomposition_package_home_and_combined_review.md`):
+- **Package home for IN items only.** Every IN scope item has exactly one Package and maps to its Deliverables. OUT and TBD items stay in the Scope Ledger with their `SourceRef` and a blank `PackageID`; `UnassignedScopeItems` counts IN items only. Changed in `docs/TYPES.md` §1.1/§8.1, the `software-decomp` and `project-decomp` contracts and methods, and the standard's ledger text. `validate_decomposition_registers.py` adds `XRG-011` (ERROR: IN item without `PackageID`) and `XRG-012` (WARNING: OUT/TBD item with a `PackageID`).
+- **Combined review sitting.** For a small, reversible undertaking, the human may decide all three checkpoint groups in one sitting. The independent audit is completed first, the decision names the groups it covers, the group-1, -2 and -3 snapshots and pointers are still written in order and must match the hashes the audit and decision recorded, and a material change reopens the affected groups and every later group. DOMAIN is unchanged.
+
+In-flight decompositions keep the rule and edition they adopted; nothing is retrofitted. This loop decides its own adoption; this source tranche grants no release.
