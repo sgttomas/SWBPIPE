@@ -279,3 +279,10 @@ Context: I1 stopped under the fixture stop rule.
 - **B2:** under (c), it is added to the pre-registered list (same class as A).
 - **A:** proceeds as pre-registered. Its derived documents are included in the measured diff report before regeneration.
 - **B3:** recorded as informational.
+
+## D5C-5: the S11 exception list (ROOT, 2026-09-26, after `490f02982`)
+
+- The S11 exceptions in the VP-ROBUST "no Passed breach" gate are exactly P1's recorded (entry, case, quantity) triples, pinned per entry: **106 triples in 13 cases on the captured entry, and 168 in 22 cases on the typed entry.** They include RF-CANCEL-UDL-W1e8. ROOT's earlier "12" was a miscount.
+- The list must be empty after S11-F.
+- It is re-pinned from P1's final `results.json` once P1 re-evaluates against the frozen references.
+- **Any triple outside the list is a gate failure, not a new exception.**
