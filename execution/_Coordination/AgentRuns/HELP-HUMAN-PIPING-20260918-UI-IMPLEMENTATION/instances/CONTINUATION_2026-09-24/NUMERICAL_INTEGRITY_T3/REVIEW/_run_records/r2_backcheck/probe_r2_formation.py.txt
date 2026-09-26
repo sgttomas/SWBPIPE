@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+"""T3 V1 BACKCHECK_R2 probe (standard library only; no product code imported).
+
+Formation silent zero, R1's RF-RANGE-CHAIN-LEF-small inputs (read from
+T3/REFERENCES/references.json as printed: E, G, OD, ID, node spacing). The section is
+formed here as I = pi*(OD^4 - ID^4)/64, J = 2I, an approximation of the product's
+DerivedSection, and the coefficients in the product's formation order
+(FK/lib.rs:717-726: `12.0 * e * iy / length3`, ...). Reported: each binary64 coefficient
+against its exact value (Fraction) from the same binary64 E, I, J, L.
+Run from this folder:  python3 probe_r2_formation.py.txt
+"""
+import json, math, sys
+from fractions import Fraction as Fr
+
+E = 48828125 * 2.0 ** -288
+G = 9765625 * 2.0 ** -287
+OD = 0.2 * 2.0 ** -200
+ID = 0.36 * 2.0 ** -201
+Iy = math.pi * (OD ** 4 - ID ** 4) / 64
+J = 2 * Iy
+L = 1 * 2.0 ** -199
+L2 = L * L
+L3 = L2 * L
+rows = []
+for name, value, exact, intermediate in (
+        ("12EI/L^3", 12.0 * E * Iy / L3, 12 * Fr(E) * Fr(Iy) / Fr(L) ** 3, 12.0 * E * Iy),
+        ("6EI/L^2", 6.0 * E * Iy / L2, 6 * Fr(E) * Fr(Iy) / Fr(L) ** 2, 6.0 * E * Iy),
+        ("4EI/L", 4.0 * E * Iy / L, 4 * Fr(E) * Fr(Iy) / Fr(L), 4.0 * E * Iy),
+        ("2EI/L", 2.0 * E * Iy / L, 2 * Fr(E) * Fr(Iy) / Fr(L), 2.0 * E * Iy),
+        ("GJ/L", G * J / L, Fr(G) * Fr(J) / Fr(L), G * J),
+        ("EA/L", E * (math.pi * (OD ** 2 - ID ** 2) / 4) / L, None, None)):
+    if exact is None:
+        rows.append({"coefficient": name, "binary64": repr(value), "note": "normal, control"})
+        continue
+    rows.append({"coefficient": name, "binary64": repr(value), "exact": "%.6e" % float(exact),
+                 "intermediate_numerator_binary64": repr(intermediate),
+                 "intermediate_is_subnormal_or_zero": intermediate == 0.0 or abs(intermediate) < 2.0 ** -1022,
+                 "relative_error": float(abs(Fr(value) - exact) / exact)})
+print(json.dumps({"python": sys.version.split()[0], "case": "RF-RANGE-CHAIN-LEF-small member section", "rows": rows}, indent=1))
