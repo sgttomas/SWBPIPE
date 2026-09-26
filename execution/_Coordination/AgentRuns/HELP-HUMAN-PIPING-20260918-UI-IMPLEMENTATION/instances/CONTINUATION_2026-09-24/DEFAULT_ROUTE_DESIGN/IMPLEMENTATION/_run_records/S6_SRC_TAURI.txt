@@ -1,0 +1,36 @@
+T0R S6 src-tauri full suite (apps/desktop/src-tauri, cargo test, CARGO_INCREMENTAL=0, shared target /home/user/wt/t0r-s2)
+WebKitGTK libwebkit2gtk-4.1-dev 2.52.6 (installed by ROOT); rustc 1.97.1
+
+== candidate 9ab46503d, first attempt (shared-target collision, see S6 §8) ==
+error[E0308]: arguments to this function are incorrect
+error[E0308]: mismatched types
+error: could not compile `openpipestress-desktop` (lib) due to 2 previous errors
+error: could not compile `openpipestress-desktop` (lib test) due to 2 previous errors
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ------  -------- expected `serde_json::value::Value`, found `serde_json::Value`
+     |                                                      |
+     |                                                      expected `serde_json::value::Value`, found `serde_json::Value`
+     |
+
+== remedy: removed t0r-s2/debug/.fingerprint/open_pipe_stress_self_weight_wasm-* and deps/*open_pipe_stress_self_weight_wasm*; src-tauri Cargo.lock resolves only serde_json 1.0.149 ==
+
+== candidate 9ab46503d, rerun ==
+     Running unittests src/lib.rs (/home/user/wt/t0r-s2/debug/deps/openpipestress_desktop_lib-b3a7425da3b2934c)
+test result: ok. 109 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.43s
+     Running unittests src/main.rs (/home/user/wt/t0r-s2/debug/deps/openpipestress_desktop-7ad18a6e2cd12c0a)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+exit 0
+
+== base 45a5381c8 (git-archive copy, same host) ==
+     Running unittests src/lib.rs (/home/user/wt/t0r-s2/debug/deps/openpipestress_desktop_lib-ad6db96acec4422c)
+test tests::apply_model_operation_command_applies_inspector_intent_to_bundled_fixture_model ... FAILED
+test tests::run_preview_mechanics_uses_supplied_model_payload ... FAILED
+test tests::saved_edited_load_model_round_trips_and_solves_from_restored_payload ... FAILED
+test tests::solve_job_seam_uses_supplied_model_payload ... FAILED
+test tests::solve_job_seam_completes_and_reports_result_without_cancellation ... FAILED
+    tests::apply_model_operation_command_applies_inspector_intent_to_bundled_fixture_model
+    tests::run_preview_mechanics_uses_supplied_model_payload
+    tests::saved_edited_load_model_round_trips_and_solves_from_restored_payload
+    tests::solve_job_seam_completes_and_reports_result_without_cancellation
+    tests::solve_job_seam_uses_supplied_model_payload
+test result: FAILED. 103 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.67s
