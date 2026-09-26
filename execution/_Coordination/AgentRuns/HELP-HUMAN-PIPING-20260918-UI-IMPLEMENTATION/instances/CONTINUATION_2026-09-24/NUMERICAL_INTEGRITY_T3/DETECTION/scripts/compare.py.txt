@@ -322,39 +322,40 @@ def main():
             m['negative_controls'] = evaluate_ncs(c.get('negative_controls', []), envelope if has_solution else None,
                                                   meta, rowmap, outcome, has_solution)
             m['quantities'] = q
-            typed = rr.get('typed_secondary')
-            if typed:
-                t = {'entry': 'typed_run_linear_static_preview_with_mode (secondary observation only)'}
-                tout, twhy = classify(typed)
-                t['outcome'] = tout
-                if typed.get('probe') and typed['probe']['run']['ok']:
-                    tenv = typed['probe']['run']['envelope']
-                    t['identity'] = identity(tenv)
-                    te = Envelope(tenv)
-                    tq = []
-                    tn = tm = 0
-                    tmax = 0.0
-                    for (k, exp_s, cls, scale_s, gov) in c['rows']:
-                        obs, note = te.observe(k, meta)
-                        if obs is None:
-                            continue
-                        f = case_unit_factor(cls, meta['units'])
-                        rs = [compare_value(x / f, dfr(exp_s), dfr(scale_s)) for x in obs]
-                        ok = all(r[1] for r in rs)
-                        tn += ok
-                        tm += (not ok)
-                        rmax = max(r[0] for r in rs)
-                        tmax = max(tmax, rmax)
-                        if not ok:
-                            tq.append([k, exp_s, [fmt(x / f) for x in obs], float('%.6g' % rmax) if math.isfinite(rmax) else 'inf', gov, scale_s])
-                    t['counts'] = {'pass': tn, 'mismatch': tm}
-                    t['max_ratio'] = float('%.6g' % tmax) if math.isfinite(tmax) else 'inf'
-                    t['mismatches'] = tq
-                    t['published_as_trusted'] = bool(t['identity']['numerical_quality_status'] == 'checks_passed'
-                                                     or t['identity']['standing'] == TRUSTED_STANDING)
-                else:
-                    t['detail'] = twhy
-                m['typed_secondary'] = t
+            for typed_key in ('typed_secondary', 'typed_on_captured'):
+              typed = rr.get(typed_key)
+              if typed:
+                  t = {'entry': 'typed_run_linear_static_preview_with_mode (secondary observation only)'}
+                  tout, twhy = classify(typed)
+                  t['outcome'] = tout
+                  if typed.get('probe') and typed['probe']['run']['ok']:
+                      tenv = typed['probe']['run']['envelope']
+                      t['identity'] = identity(tenv)
+                      te = Envelope(tenv)
+                      tq = []
+                      tn = tm = 0
+                      tmax = 0.0
+                      for (k, exp_s, cls, scale_s, gov) in c['rows']:
+                          obs, note = te.observe(k, meta)
+                          if obs is None:
+                              continue
+                          f = case_unit_factor(cls, meta['units'])
+                          rs = [compare_value(x / f, dfr(exp_s), dfr(scale_s)) for x in obs]
+                          ok = all(r[1] for r in rs)
+                          tn += ok
+                          tm += (not ok)
+                          rmax = max(r[0] for r in rs)
+                          tmax = max(tmax, rmax)
+                          if not ok:
+                              tq.append([k, exp_s, [fmt(x / f) for x in obs], float('%.6g' % rmax) if math.isfinite(rmax) else 'inf', gov, scale_s])
+                      t['counts'] = {'pass': tn, 'mismatch': tm}
+                      t['max_ratio'] = float('%.6g' % tmax) if math.isfinite(tmax) else 'inf'
+                      t['mismatches'] = tq
+                      t['published_as_trusted'] = bool(t['identity']['numerical_quality_status'] == 'checks_passed'
+                                                       or t['identity']['standing'] == TRUSTED_STANDING)
+                  else:
+                      t['detail'] = twhy
+                  m[typed_key] = t
             entry['modes'][mode] = m
         results.append(entry)
     json.dump({'cases': results}, open(out_path, 'w'), indent=None, separators=(',', ':'))

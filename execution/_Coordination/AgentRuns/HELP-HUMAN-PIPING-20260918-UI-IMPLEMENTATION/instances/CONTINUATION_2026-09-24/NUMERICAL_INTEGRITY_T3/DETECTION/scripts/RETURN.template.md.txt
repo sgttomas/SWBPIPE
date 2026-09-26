@@ -227,3 +227,36 @@ These results come from `run_linear_static_preview_with_mode`, the historical ty
 - `scripts/gen.py.txt`, `run.py.txt`, `compare.py.txt`, `survey.py.txt`, `tables.py.txt`: the generator, driver, comparator, survey and tables.
 - `logs/run.log`, `logs/survey.log`: console logs of the reported run.
 - `toolchain.txt`, `SHA256SUMS`.
+
+## 10. Addendum: follow-up requested by the manager after `516c34c1a`
+
+This is measurement only, under the same rules as the main run: the frozen references `c0f14201c`, fresh processes, `RLIMIT_AS` 6 GiB, no raised limits and no product writes. The probe was rebuilt from the recorded `probe/main.rs.txt`, and the binary's sha256 is unchanged (`61cbb76f…`). The script is `scripts/run_typed.py.txt`, and its log is `logs/run_typed.log`.
+
+**1. Typed entry on the captured S11-class cases.** I ran `run_linear_static_preview_with_mode` in both modes on the 15 cases of the captured `s11_class` list, plus `RF-SKEW-T-CANT-OFF-122-r1e-04`. The results are recorded in `results.json` as `modes.<mode>.typed_on_captured` and `exceptions.typed_on_captured`. The earlier `typed_secondary` list is unchanged.
+
+- All 32 runs publish preview-physics-1 with checks_passed. Main's standing function, given a P1-supplied invocation, returns numerically_eligible. The §6 caveat about that standing on the typed route still applies.
+- In every run the published result values, numerical_quality and producer are **bit-identical** to the captured entry's.
+- The breaching triples are therefore the same as on the captured entry:
+
+| Class | Rows (case, mode, quantity) | Distinct (case, quantity) | Cases |
+|---|---:|---:|---:|
+| S11 class | 200 | 100 | 15 |
+| S11 class, frozen-reference cases only | 176 | 88 | 13 |
+| Other class (RF-SKEW-T-CANT-OFF-122-r1e-04) | 6 | 4 | 1 |
+
+**2. The interim counts of 106 triples in 13 cases (captured) and 168 in 22 cases (typed).** P1 did not produce these counts: none of my messages or records contains them. I cannot reproduce them from any P1 run or with any counting unit I tried. Every count P1 can produce from its runs, frozen revision 2, re-run authoring:
+
+| Selection | Rows (case, mode, quantity) | Distinct (case, quantity) | Cases |
+|---|---:|---:|---:|
+| Captured, Passed or eligible, S11 class | 200 | 100 | 15 |
+| Captured, same, frozen-reference cases only | 176 | 88 | 13 |
+| Captured, every Passed or eligible breach | 206 | 104 | 16 |
+| Typed (capture-refused cases), Passed or eligible | 104 | 52 | 9 |
+| Typed (capture-refused cases), any mismatch, including Sensitive | 288 | 146 | 17 |
+| Typed, any mismatch, capped at 12 per case and mode (as the list was before I widened it) | 284 | n/a | 17 |
+
+- The 13 cases in the interim captured count do match the frozen-reference case count (13). Its triple count of 106 matches no unit here.
+- The typed interim count of 22 cases exceeds every typed selection P1 has. Typed runs exist for only 32 cases, of which 23 solved and 17 have any mismatch.
+- The pinned list should be re-pinned from `exceptions` in this file. P1's counting units are defined there: rows = (case, mode, quantity), pairs = distinct (case, quantity).
+
+**3. Frozen references against P1's probes.** `S11-PROBE-A-G1e5`, `-G1e6`, `-G1e7` and `-G1e8` are **P1's own probes**, not frozen-reference cases. Their reference is P1's textbook closed form (§3.2). The same holds for `V1-CHECK-L-*`, whose values are P1's application of `references.py`'s routines, and for the FX-* fixture cases, which rest on `fixtures.json`, not on R1. With the probe-A cases excluded, the captured S11-class breaches are **88 (case, quantity) pairs in 13 cases** (176 rows counting mode), which confirms the manager's figure. `results.json` carries these counts as `exceptions.<entry>.s11_class_frozen_reference_only_counts`.

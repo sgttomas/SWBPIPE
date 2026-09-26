@@ -181,12 +181,27 @@ def main():
                 for q in t.get('mismatches', []):
                     exc['typed_secondary'][cls].append({'case': c['id'], 'mode': mode, 'quantity': q[0], 'observed': q[2],
                                                         'expected': q[1], 'scale': q[5], 'ratio': q[3], 'governed_by': q[4]})
+    exc['typed_on_captured'] = {'s11_class': [], 'other_class': []}
+    for c in r2['cases']:
+        cls = 's11_class' if c['family'] in S11 else 'other_class'
+        for mode, m in c.get('modes', {}).items():
+            t = m.get('typed_on_captured')
+            if t and t.get('published_as_trusted'):
+                for q in t.get('mismatches', []):
+                    exc['typed_on_captured'][cls].append({'case': c['id'], 'mode': mode, 'quantity': q[0], 'observed': q[2],
+                                                          'expected': q[1], 'scale': q[5], 'ratio': q[3], 'governed_by': q[4]})
     for e in exc.values():
         for k in list(e):
             rows = e[k]
             e[k + '_counts'] = {'rows (case, mode, quantity)': len(rows),
                                 'distinct (case, quantity)': len({(r['case'], r['quantity']) for r in rows}),
                                 'cases': len({r['case'] for r in rows})}
+    frozen = lambda rows: [x for x in rows if not x['case'].startswith('S11-PROBE-A')]
+    for ek in ('captured', 'typed_secondary', 'typed_on_captured'):
+        rows = frozen(exc[ek]['s11_class'])
+        exc[ek]['s11_class_frozen_reference_only_counts'] = {
+            'rows (case, mode, quantity)': len(rows), 'distinct (case, quantity)': len({(x['case'], x['quantity']) for x in rows}),
+            'cases': len({x['case'] for x in rows})}
     r2['exceptions'] = exc
     r2['exceptions_note'] = ('Passed (numerical_quality checks_passed) or numerically_eligible results that breach the criterion. '
                              'captured = run_linear_static_preview_value_with_mode; typed_secondary = run_linear_static_preview_with_mode, '
