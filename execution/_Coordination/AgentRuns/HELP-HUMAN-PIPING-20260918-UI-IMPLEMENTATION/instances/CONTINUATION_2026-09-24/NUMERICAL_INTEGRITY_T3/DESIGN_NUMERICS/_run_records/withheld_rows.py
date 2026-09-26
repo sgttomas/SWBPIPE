@@ -56,17 +56,23 @@ def hanger_type(s):
 
 
 def is_rigid_support(s):
-    """Revision 5a (R5-2): the product's rule for rigid restraints (PP build_model support filter and
-    rigid_linear_support_from_preview). Not rigid: nonlinear supports without restraints or stiffness,
-    constant-effort supports, the `spring` family and variable spring hangers (free DOFs with stiffness
-    or applied force). Every other support's restraints are rigid (restrained or prescribed)."""
-    if s.get("nonlinear") is not None and not s.get("restraints") and s.get("stiffness") is None:
-        return False
+    """Revision 5a.1 (R5-2 as D2's G5c states it from PP:5169-5230, :5279, :10229-10251): a support
+    contributes nothing if its hanger type (hanger.hanger_type trimmed, else family trimmed) is
+    constant_effort_support, variable_spring_hanger or spring_hanger, or its family is exactly "spring"
+    (untrimmed comparison); every other support contributes its listed restraints. (PP's filter of a
+    nonlinear support with no restraints and no stiffness is equivalent: it lists no restraints. A case
+    with any nonlinear support is not selected at all; see has_nonlinear_support.)"""
     if hanger_type(s) == "constant_effort_support":
         return False
     if s.get("family") == "spring" or hanger_type(s) in ("variable_spring_hanger", "spring_hanger"):
         return False
     return True
+
+
+def has_nonlinear_support(model):
+    """Revision 5a.1 (ROOT): a case whose invocation has any nonlinear support is not selected for W1."""
+    m = model.get("model", model)
+    return any(s.get("nonlinear") is not None for s in m.get("supports", []))
 
 
 def request_for(path):
@@ -167,8 +173,8 @@ def main():
                 if not isinstance(sbr, dict):
                     continue
                 model = request_for(p)
-                if model is None:
-                    continue
+                if model is None or has_nonlinear_support(model):
+                    continue  # revision 5a.1: nonlinear invocations are not selected (none committed)
                 selected = {c["basis_ref"]["ref_id"] for c in sbr.get("body", {}).get("cases", [])
                             if c.get("status") in (None, "selected", "qualified") and c.get("basis_ref")}
                 for case in sorted(selected):

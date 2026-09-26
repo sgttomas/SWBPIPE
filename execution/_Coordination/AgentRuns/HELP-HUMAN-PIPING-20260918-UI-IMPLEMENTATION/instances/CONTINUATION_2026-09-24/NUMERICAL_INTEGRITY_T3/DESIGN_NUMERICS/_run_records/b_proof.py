@@ -96,7 +96,7 @@ def analyse(rows, req):
         n = idx[s["node"]]
         # Revision 5a (R5-2): the product's family rule (withheld_rows.is_rigid_support).
         if s.get("nonlinear") is not None:
-            return None, "nonlinear support present (outside W1 and B)"
+            return None, "nonlinear support present: the case is not selected for W1 (revision 5a.1)"
         if W.hanger_type(s) == "constant_effort_support":
             effort_nodes.add(n)  # an applied force at a free node: seeded below, never a restraint
             continue
