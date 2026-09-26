@@ -1,0 +1,49 @@
+core/solver/frame_kernel exit=0 secs=1 passed=114 failed=0 ignored=0
+  disk_free=9.8G
+core/solver/straight_pipe exit=0 secs=0 passed=38 failed=0 ignored=0
+  disk_free=9.8G
+core/solver/curved_bend exit=0 secs=0 passed=25 failed=0 ignored=0
+  disk_free=9.8G
+core/loads/load_case_algebra exit=0 secs=0 passed=21 failed=0 ignored=0
+  disk_free=9.8G
+core/loads/primitive_loads exit=0 secs=1 passed=49 failed=0 ignored=0
+  disk_free=9.8G
+core/solver/nonlinear_integration exit=0 secs=9 passed=67 failed=0 ignored=0
+  disk_free=9.8G
+core/solver/sparse_direct exit=0 secs=2 passed=25 failed=0 ignored=0
+  disk_free=9.8G
+core/solver/linear_supports exit=0 secs=0 passed=15 failed=0 ignored=0
+  disk_free=9.8G
+core/solver/nonlinear_supports exit=0 secs=1 passed=22 failed=0 ignored=0
+  disk_free=9.8G
+core/solver/diagnostics exit=0 secs=0 passed=24 failed=0 ignored=0
+  disk_free=9.8G
+core/solver/performance_harness exit=0 secs=15 passed=25 failed=0 ignored=0
+  disk_free=9.8G
+core/loads/stress_recovery exit=0 secs=2 passed=48 failed=0 ignored=0
+  disk_free=9.7G
+core/loads/user_loads exit=0 secs=1 passed=28 failed=0 ignored=0
+  disk_free=9.7G
+core/loads/self_weight_wasm exit=0 secs=28 passed=14 failed=0 ignored=0
+  disk_free=9.3G
+core/product_physics exit=0 secs=59 passed=448 failed=0 ignored=1
+  disk_free=8.0G
+core/model_operations/operation_applier exit=0 secs=31 passed=194 failed=0 ignored=0
+  disk_free=7.3G
+core/runner/headless exit=101 secs=85 passed=49 failed=2 ignored=0
+  disk_free=6.4G
+core/reporting/result_export exit=0 secs=85 passed=91 failed=0 ignored=0
+  disk_free=6.2G
+validation/benchmarks/mechanics exit=0 secs=9 passed=41 failed=0 ignored=0
+  disk_free=6.2G
+validation/benchmarks/nonlinear exit=101 secs=2 passed=18 failed=1 ignored=0
+  disk_free=6.1G
+validation/benchmarks/stress exit=0 secs=10 passed=23 failed=0 ignored=0
+  disk_free=6.1G
+validation/benchmarks/physics_audit_regression exit=0 secs=18 passed=15 failed=0 ignored=0
+  disk_free=5.8G
+validation/benchmarks/numerical_integrity exit=0 secs=0 passed=0 failed=0 ignored=0
+  disk_free=5.8G
+apps/desktop/src-tauri exit=0 secs=181 passed=114 failed=0 ignored=0
+  disk_free=2.5G
+DONE
