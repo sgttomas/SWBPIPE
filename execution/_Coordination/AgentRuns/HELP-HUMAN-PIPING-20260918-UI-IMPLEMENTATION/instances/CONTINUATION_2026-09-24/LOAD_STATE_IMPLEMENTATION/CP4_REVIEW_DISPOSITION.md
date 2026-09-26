@@ -89,3 +89,13 @@ See `CHECKPOINT_4.md` §5 for the counts and logs.
 - Every pre-0.4 path.
 - The inherited physics-source-1 composite `Err` (T3).
 - Any ordinary-route summary, maxima or reaction publication (reserved for T0R).
+
+## Backcheck and its two notes
+
+The same non-author reviewer backchecked `14a74b793..4e50f4a75` (`REVIEW_CHECKPOINT_4/BACKCHECK.md`). Verdict: **CLEAR**. It raised two optional notes, and both are applied here.
+
+- **B-1.** The ten-copy exhaustion test did not distinguish the shared ledger from a reset. It now also asserts `attempts == 20`: ten attempts in each run, counted in the one continued ledger. Mutant `N2-M8` is now killed by that test as well (`_run_records/session3/cp4r_sf1_mutations_N2M8_after_B1.log`).
+- **B-2.** The N-2 change made three earlier statements false, and they are corrected here:
+  - `CP4_WIRE_ADDENDUM.md` §1.2 says the republication runs "in a fresh ledger with the same limits". It continues the first run's ledger instead.
+  - The same section says "every retained-source attempt still runs, so each case keeps its own attempt facts". Every attempt is still made. But once the first run has exhausted the invocation limit, a republished attempt is refused for budget, so its attempt fact is that budget refusal.
+  - `CHECKPOINT_4.md` §1 speaks of a "fresh ledger", and its test row says "separate ledger (`attempts == 1`, `charged == failed_charged`)". The test now asserts `attempts == 2`, `charged == failed_charged` and `charged ≤ invocation_limit`.

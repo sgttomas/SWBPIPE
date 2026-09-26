@@ -434,6 +434,8 @@ fn a_fallback_after_invocation_limit_exhaustion_stays_within_the_invocation_limi
     let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
     assert_ordinary_publication(&envelope, &request, mode, &case_refs);
     assert!(budget.load_state_join_withheld.is_some(), "fallback ran");
+    // Ten attempts in each run, counted in the one continued ledger.
+    assert_eq!(budget.attempts, 20);
     assert!(budget.charged <= budget.invocation_limit);
     assert_eq!(budget.invocation_limit, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
 }
