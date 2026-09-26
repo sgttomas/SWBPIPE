@@ -1,0 +1,13 @@
+# pytest, scratch git archive of 6f42b9be5, venv python, PYTHONDONTWRITEBYTECODE=1, -p no:cacheprovider, one file per invocation (pre-sweep load rule)
+# files: tests/test_load_reference_readers.py tests/test_load_reference_source_readers.py tests/test_load_reference_schema.py tests/test_load_reference_source_schema.py (in that order)
+.......................s                                                 [100%]
+239 passed, 1 skipped in 69.98s (0:01:09)
+.......s                                                                 [100%]
+151 passed, 1 skipped in 82.72s (0:01:22)
+.......................                                                  [100%]
+527 passed in 153.10s (0:02:33)
+.................                                                        [100%]
+161 passed in 272.79s (0:04:32)
+
+[exited with code 0]
+# the two skips are the env-gated parity recorders (LOAD_REFERENCE_PARITY_OUT, LOAD_REFERENCE_SOURCE_PARITY_OUT unset)

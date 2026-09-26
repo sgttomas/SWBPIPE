@@ -129,7 +129,7 @@ All runs used Node 24 from `apps/desktop`, on a scratch `git archive` copy of `1
 | Type check and build | `npm run build --workspace apps/desktop` | passed (`tsc -b && vite build`). The only warning is vite's existing chunk-size warning. |
 | Chromium Playwright | `npx playwright test e2e/load-state-inputs.spec.ts e2e/linear-authoring.spec.ts e2e/result-compatibility.spec.ts` | **6/6 passed**, both projects (desktop and compact), on the scratch copy. The new spec took 53–55 s against the unchanged 120 s budget. |
 
-Playwright environment: `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers`, `CI=1`, and the repo's existing `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` override pointing at the installed chromium-1194 (the pinned revision is 1223). I did not run `playwright install`.
+Playwright environment: `PLAYWRIGHT_BROWSERS_PATH=<PW_BROWSERS>`, `CI=1`, and the repo's existing `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` override pointing at the installed chromium-1194 (the pinned revision is 1223). I did not run `playwright install`.
 
 Logs: `_run_records/desktop_checks.log` and `_run_records/e2e_checks.log`.
 

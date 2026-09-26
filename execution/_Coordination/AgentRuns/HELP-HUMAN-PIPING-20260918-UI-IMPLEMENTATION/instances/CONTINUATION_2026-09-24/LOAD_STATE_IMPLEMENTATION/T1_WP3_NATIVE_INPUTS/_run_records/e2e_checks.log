@@ -1,4 +1,4 @@
-# Chromium Playwright (chromium-1194 via PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH, PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers, CI=1)
+# Chromium Playwright (chromium-1194 via PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH, PLAYWRIGHT_BROWSERS_PATH=<PW_BROWSERS>, CI=1)
 # run 1: first draft of the spec (node tool toggle), both projects failed at the second node
   ✘  1 [chromium-desktop] › e2e/load-state-inputs.spec.ts:53:1 › blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes (2.0m)
   ✘  2 [chromium-compact] › e2e/load-state-inputs.spec.ts:53:1 › blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes (2.0m)

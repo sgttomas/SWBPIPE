@@ -1,0 +1,90 @@
+{
+  "artifact": "openpipestress.evidence_sweep_summary",
+  "schema_version": 3,
+  "decision_basis": [
+    "DEC-025",
+    "DEC-093"
+  ],
+  "boundary_note": "Commit-bound development evidence; the tool performs no network lookup. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+  "git": {
+    "commit_hash": "6f42b9be528a52322fcd65b554f93e2e9033462e",
+    "branch": "codex/piping-load-states-20260925",
+    "status_capture_failed": false,
+    "working_tree_dirty": false,
+    "dirty_paths": []
+  },
+  "runtime": {
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "python": "3.11.15",
+    "node": "v22.22.2",
+    "npm": "10.9.7",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+  },
+  "started_utc": "2026-09-26T16:57:49+00:00",
+  "finished_utc": "2026-09-26T17:24:57+00:00",
+  "duration_seconds": 1627.717,
+  "surfaces": [
+    {
+      "order": 1,
+      "surface_id": "cargo_crate_sweep",
+      "description": "Rust crate tests across all discovered crate manifests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/home/user/dec025-venv/bin/python",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 434.765
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 2,
+      "surface_id": "python_pytest",
+      "description": "Repository Python contract, governance, and validation tests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/home/user/dec025-venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "exit_code": 1,
+          "duration_seconds": 1192.952
+        }
+      ],
+      "status": "fail"
+    },
+    {
+      "order": 3,
+      "surface_id": "desktop_vitest",
+      "description": "Desktop unit/contract tests; wasm engine built first.",
+      "execution_capability": "sandboxed",
+      "commands": [],
+      "status": "not_run"
+    },
+    {
+      "order": 4,
+      "surface_id": "desktop_production_build",
+      "description": "Desktop production build (tsc -b && vite build).",
+      "execution_capability": "sandboxed",
+      "commands": [],
+      "status": "not_run"
+    }
+  ],
+  "overall_status": "fail",
+  "surface_selection": {
+    "only_capability": "sandboxed",
+    "complete_dec025_sweep": false
+  }
+}

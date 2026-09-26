@@ -219,7 +219,8 @@ Records, graph, Git, CI and native scheduling stay with ROOT.
 - **Here (Linux).**
   - Available: all Rust crates under `core/` and `validation/benchmarks`, pytest, desktop vitest, the desktop production build, and Chromium Playwright on the browser fixture.
   - These give headless evidence for the product route, the operations, the headless runner, the harness and VP-STATIC comparisons, and browser evidence for the TypeScript input and projection code.
-- **Not here.** This Linux host cannot build or run the macOS desktop application. It also has no WebKitGTK development libraries, so `apps/desktop/src-tauri` cannot even be compiled or unit-tested here, and the DEC-025 cargo sweep does not cover `src-tauri`. Browser evidence does not substitute for native evidence.
+- **Not here.** This Linux host cannot build or run the macOS desktop application. Browser evidence does not substitute for native evidence.
+- **Correction (checkpoint 7).** ROOT installed the WebKitGTK development libraries, so `apps/desktop/src-tauri` does compile and its suite runs here (114/114 on the candidate). The DEC-025 cargo sweep still does not discover `src-tauri`, so it is run separately. This Linux run does not replace native witness 1 on the owner's Mac.
 - **Needed on the owner's Mac**, on the frozen candidate executable:
   1. `src-tauri` unit tests for 0.4.0 migration and persistence;
   2. open a headlessly authored 0.4.0 model, with inputs shown and retained byte-exactly;
