@@ -322,12 +322,35 @@ The per-assertion reason is `selector_origin.why_required` in each selector file
   `multi_segment_free_length` and `temperature_unit_identity` define no mechanics.
   Their requests use an invented 1 m cantilever with invented E and ν, only as a
   carrier. No reaction or member-force assertion is made for them.
-- **Internal quantities.** These are not published and are recorded as gaps:
-  - the reduced free right-hand side;
-  - the intermediate source sums;
-  - the logarithmic datum stretches `exp(I)`;
-  - the consumed segment records.
+- **Unasserted quantities.**
+  - Not published, recorded as gaps: the reduced free right-hand side and the
+    intermediate source sums.
+  - Published but not asserted: the logarithmic datum stretches `exp(I)`
+    (`installation_datum_stretch`/`operating_datum_stretch` of a
+    `logarithmic_per_current_length` member). The reference gives no value for
+    them; this is a scoring limit recorded in the case's `scoring_readiness.limits`.
+  - Published structural records, not scalar-scored: the consumed segment
+    records (`consumed_law_segments`), recorded as a gap.
 - **Signed-fit baselines.** The no-fit and cut-long baselines are not authored.
+- **Reference quantities neither asserted nor listed as gaps.**
+  - `thermal_datum_ratio/variants/verification_two_point/expected/required_coverage_low_K`,
+    `required_coverage_high_K` and `minimum_datum_stretch_over_required_interval`:
+    admissibility quantities of the ROOT coverage policy. No scalar field
+    publishes them. The two-point load case solving without a coverage
+    diagnostic is the witness, and the minimum stretch (1.00036) equals the
+    asserted `installation_datum_stretch`.
+  - `coefficient_definition/.../expected/integral`, `first_half_integral`,
+    `second_half_integral`: intermediate integrals, pinned by the eight
+    asserted strains.
+  - `multi_segment_free_length/variants/linear_coefficient_table/expected/coefficient_install`,
+    `coefficient_split`, `coefficient_operating`, `integral_install_to_operating`:
+    interpolation samples and an intermediate integral, pinned by the asserted
+    strains and datum stretches.
+  - `signed_fit_states/variants/annular_companion/baselines` (listed as a gap)
+    are other member-reference inputs; see the gap entry.
+  - The `generic_reviewed` variants of the annular cases are not authored:
+    the product takes OD and wall, not a generic area (T1_PLAN WP6 uses the
+    annular companions).
 - **Invented inputs.** Every invented input is listed per case in
   `PROVENANCE.json`:
   - Poisson ratios where the reference gives none;

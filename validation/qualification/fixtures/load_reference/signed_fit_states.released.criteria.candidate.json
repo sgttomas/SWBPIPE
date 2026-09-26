@@ -81,7 +81,7 @@
         "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
       },
       {
-        "rule_id": "criterion:load_reference_strain:dimensionless:1:zero_scale:hot_thermal_strain",
+        "rule_id": "criterion:load_reference_strain:dimensionless:1:zero_scale:hot_total_eigenstrain",
         "dimension_id": "dimensionless",
         "result_family": "load_reference_strain",
         "unit_ref": {
@@ -92,8 +92,8 @@
         "tolerance_value_status": "project_specific_review_required",
         "review": "pending the independent WP6 freeze check; candidate only, not admitted",
         "relative_tolerance_value": 0.0,
-        "absolute_tolerance_value": 8e-13,
-        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/signed_fit_states/variants/annular_companion/expected/hot/thermal_strain| = 0.0008 1 (zero-scale tag hot_thermal_strain)"
+        "absolute_tolerance_value": 5.9984e-13,
+        "provenance": "existing dimension-aware zero-reference handling (README consumer rule; load_reference_state_runtime.rs close()): absolute floor 1e-9*zero_scale; zero_scale = |/cases/signed_fit_states/variants/annular_companion/expected/hot/total_eigenstrain| = 0.00059984 1 (zero-scale tag hot_total_eigenstrain)"
       },
       {
         "rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",

@@ -238,6 +238,33 @@ def rule_for(assertion: dict, expected: float, document: dict) -> dict:
                            + ' * '.join(parts) + f' = {magnitude.normalize():f} {unit} (zero-scale tag {scale["tag"]})')}
 
 
+ADMITTED: dict | None = None
+ADMISSION_FORMAT = 'openpipestress.load_reference_admission/1'
+
+
+def admission() -> dict | None:
+    """The manager's admission record, written only after the independent freeze.
+
+    Absent: every file stays a pending candidate. Present: the independent
+    review it names must exist with the recorded sha256, and the generated
+    files carry that review as their admission. Values and rules never change.
+    """
+    path = PACKAGE / 'ADMISSION.json'
+    if not path.exists():
+        return None
+    record = json.loads(path.read_bytes())
+    require(set(record) == {'format', 'status', 'independent_review', 'applied_changes', 'admitted_by'},
+            'ADMISSION.json keys')
+    require(record['format'] == ADMISSION_FORMAT and record['status'] == 'admitted', 'ADMISSION.json identity')
+    review = record['independent_review']
+    require(set(review) == {'path', 'sha256'}, 'ADMISSION.json review keys')
+    rel = Path(review['path'])
+    require(not rel.is_absolute() and '..' not in rel.parts, 'ADMISSION.json review path must be WORKING_ROOT-relative')
+    working_root = PACKAGE.parents[3]
+    require(sha256_bytes((working_root / rel).read_bytes()) == review['sha256'], 'ADMISSION.json review hash')
+    return record
+
+
 def build_case(selectors: dict, document: dict, reference_sha256: str) -> tuple[dict, dict]:
     require(selectors.get('format') == SELECTOR_FORMAT, 'selector format')
     require(selectors.get('producer_contract') == PRODUCER_CONTRACT, 'producer contract')
@@ -282,12 +309,13 @@ def build_case(selectors: dict, document: dict, reference_sha256: str) -> tuple[
     reference = {
         'format': REFERENCE_FORMAT,
         'case_id': case_id,
-        'readiness': 'pending_independent_review',
+        'readiness': 'ready' if ADMITTED else 'pending_independent_review',
         'basis': (f'generate_reference_values.py evaluating {REFERENCE_PATH} (sha256 {reference_sha256}) at the '
                   'pointers, transforms and exact unit factors in the selector file; exact-first, rounded once to '
                   'binary64; no observed producer value'),
         'reference_kind': 'analytical',
-        'independent_review_ref': None,
+        'independent_review_ref': (f"{ADMITTED['independent_review']['path']}#sha256={ADMITTED['independent_review']['sha256']}"
+                                   if ADMITTED else None),
         'values': values,
         'wrong_values': wrong_values,
     }
@@ -295,9 +323,12 @@ def build_case(selectors: dict, document: dict, reference_sha256: str) -> tuple[
         'schema_version': '0.1.0',
         'tolerance_profile': {
             'profile_id': f'load-reference-vp-static-{case_id}-v1',
-            'profile_status': 'draft_pending_independent_review',
-            'scope': ('This case only. Candidate comparison rules proposed per assertion family from the '
-                      'reference README consumer rule; not admitted, not a release criterion.'),
+            'profile_status': 'reviewed' if ADMITTED else 'draft_pending_independent_review',
+            'scope': (('This case only. Comparison rules proposed per assertion family from the reference '
+                       'README consumer rule and admitted after the independent freeze named in ADMISSION.json; '
+                       'not a release criterion.') if ADMITTED else
+                      ('This case only. Candidate comparison rules proposed per assertion family from the '
+                       'reference README consumer rule; not admitted, not a release criterion.')),
             'rules': rules,
         },
     }
@@ -309,6 +340,8 @@ def dump(value: dict) -> bytes:
 
 
 def generate() -> dict[Path, bytes]:
+    global ADMITTED
+    ADMITTED = admission()
     document, data = load_reference()
     reference_sha256 = sha256_bytes(data)
     outputs = {}

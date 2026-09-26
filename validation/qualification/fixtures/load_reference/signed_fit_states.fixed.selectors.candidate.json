@@ -780,7 +780,7 @@
         "unit": "1",
         "dimension": "dimensionless"
       },
-      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:zero_scale:hot_thermal_strain",
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:zero_scale:hot_total_eigenstrain",
       "selector_origin": {
         "family": "load_reference_strain",
         "reference_origin": {
@@ -789,9 +789,9 @@
           "reference_unit": "1",
           "transform": "identity",
           "zero_scale": {
-            "tag": "hot_thermal_strain",
+            "tag": "hot_total_eigenstrain",
             "base": {
-              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/thermal_strain",
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/total_eigenstrain",
               "reference_unit": "1"
             },
             "scale_unit": "1"
@@ -2592,7 +2592,7 @@
         "unit": "1",
         "dimension": "dimensionless"
       },
-      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:zero_scale:hot_thermal_strain",
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:zero_scale:hot_total_eigenstrain",
       "selector_origin": {
         "family": "load_reference_strain",
         "reference_origin": {
@@ -2601,9 +2601,9 @@
           "reference_unit": "1",
           "transform": "identity",
           "zero_scale": {
-            "tag": "hot_thermal_strain",
+            "tag": "hot_total_eigenstrain",
             "base": {
-              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/thermal_strain",
+              "pointer": "/cases/signed_fit_states/variants/annular_companion/expected/hot/total_eigenstrain",
               "reference_unit": "1"
             },
             "scale_unit": "1"

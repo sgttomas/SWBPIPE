@@ -158,11 +158,11 @@
     },
     {
       "path": "validation/qualification/fixtures/load_reference/signed_fit_states.fixed.criteria.candidate.json",
-      "sha256": "ed216050efb00eac7b98a58f6810d218bde11af43e12074a1a51c58a945d3e35"
+      "sha256": "95121e0ea7558541d97087368797e6529e7e649fafdd12bbaca7c1fba4bfe42d"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/signed_fit_states.released.criteria.candidate.json",
-      "sha256": "77086fc79d702c23120f8ca480bfdf678e7db36e9346bc481665697af54030af"
+      "sha256": "1ecfc1972d76ed6b4164c44830954914777c7585eba93e536f3e799dd2ba1c2f"
     },
     {
       "path": "validation/qualification/fixtures/load_reference/temperature_unit_identity.criteria.candidate.json",
