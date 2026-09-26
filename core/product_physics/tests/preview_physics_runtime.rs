@@ -1,5 +1,8 @@
 //! T0R preview-physics-1 runtime evidence. Every expectation is read from the
-//! frozen hand-statics references (DEFAULT_ROUTE_DESIGN/_run_records/references.stdout.txt);
+//! frozen hand-statics references: a byte-identical copy of
+//! DEFAULT_ROUTE_DESIGN/_run_records/references.stdout.txt, kept in this crate's
+//! fixtures so the numerical CI path policy selects this suite, and pinned to
+//! the frozen SHA-256 recorded in DEFAULT_ROUTE_DESIGN/_run_records/SHA256SUMS;
 //! nothing here derives an expectation from product code. Every model goes
 //! through the captured value entry the desktop uses. Criterion:
 //! |observed - expected| <= 1e-9 * max(|expected|, zero scale). No new tolerance.
@@ -11,11 +14,19 @@ const PREVIEW: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const SQRT1_2: f64 = std::f64::consts::FRAC_1_SQRT_2;
 
+const FROZEN_REFERENCES: &str = include_str!("fixtures/preview_physics/references.stdout.txt");
+/// DEFAULT_ROUTE_DESIGN/_run_records/SHA256SUMS, `_run_records/references.stdout.txt`.
+const FROZEN_REFERENCES_SHA256: &str = "1d1bdeed37c78ff11bb9bd913dd7b23eaeab3beddbbfd5f3b56f4ed448cba33d";
 fn refs() -> Value {
-    serde_json::from_str(include_str!(
-        "../../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DEFAULT_ROUTE_DESIGN/_run_records/references.stdout.txt"
-    ))
-    .unwrap()
+    serde_json::from_str(FROZEN_REFERENCES).unwrap()
+}
+
+#[test]
+fn reference_copy_is_the_frozen_bytes() {
+    use sha2::{Digest, Sha256};
+    let digest = Sha256::digest(FROZEN_REFERENCES.as_bytes());
+    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    assert_eq!(hex, FROZEN_REFERENCES_SHA256, "the crate copy must stay byte-identical to the frozen references");
 }
 fn r2() -> Value {
     refs()["revision_2"].clone()
@@ -23,10 +34,22 @@ fn r2() -> Value {
 fn num(v: &Value) -> f64 {
     v.as_f64().unwrap_or_else(|| panic!("not a number: {v}"))
 }
-fn close(observed: f64, expected: f64, scale: f64, what: &str) {
+/// A zero expectation with no zero scale recorded in the frozen references.
+const NO_FROZEN_SCALE: f64 = f64::NAN;
+/// The frozen criterion (ROOT ruling on R1 N-2): a nonzero expectation uses
+/// pure relative 1e-9. Only an exactly-zero expectation uses a scale, and only
+/// one recorded in the frozen references; without one it must be exactly zero.
+fn close(observed: f64, expected: f64, zero_scale: f64, what: &str) {
+    let tolerance = if expected != 0.0 {
+        1e-9 * expected.abs()
+    } else if zero_scale.is_nan() {
+        0.0
+    } else {
+        1e-9 * zero_scale
+    };
     assert!(
-        observed.is_finite() && (observed - expected).abs() <= 1e-9 * expected.abs().max(scale),
-        "{what}: observed {observed:.17e} expected {expected:.17e} (scale {scale})"
+        observed.is_finite() && (observed - expected).abs() <= tolerance,
+        "{what}: observed {observed:.17e} expected {expected:.17e} (zero scale {zero_scale})"
     );
 }
 fn close6(observed: [f64; 6], expected: &[f64], fscale: f64, mscale: f64, what: &str) {
@@ -371,11 +394,12 @@ fn m05_pure_torque_publishes_the_moment() {
     let refs = refs();
     let t = &refs["REF-M05-T"];
     let scale = num(&refs["revision_2"]["zero_scales_rev1"]["REF-M05-T.force_components_N"]);
+    let mscale = num(&refs["revision_2"]["zero_scales_rev1"]["REF-M05-T.moment_y_z_Nm"]);
     for mode in MODES {
         let v = solved(&cantilever(vec![], json!([case("case:t", json!([moment("t", "node:b", "rotation_x", 500.0)]))]), json!([])), mode);
         let a = case_action(&v, "support:a", "case:t");
         let expected: Vec<f64> = vec3(&t["anchor_F_N"]).into_iter().chain(vec3(&t["anchor_M_Nm"])).collect();
-        close6(a, &expected, scale, scale, "torque anchor");
+        close6(a, &expected, scale, mscale, "torque anchor");
         close(magnitude(&v, "support:a", "force", "load_case", "case:t"), 0.0, scale, "force magnitude");
         close(magnitude(&v, "support:a", "moment", "load_case", "case:t"), num(&t["moment_magnitude_Nm"]), 0.0, "moment magnitude");
     }
@@ -484,10 +508,10 @@ fn m05_springs_guides_and_gap_attribution() {
         let s2 = &r["REF-M05-SPRING2"];
         let zs = num(&s2["zero_scale_N"]);
         let v = solved(&cantilever(vec![spring("support:k", "node:b", "UY", 1e6), support("support:guide", "node:b", &["UX"])], json!([case("case:s", json!([force("fx", "node:b", "global_x", 2000.0), force("fy", "node:b", "global_y", 1000.0)]))]), json!([])), mode);
-        close6(case_action(&v, "support:k", "case:s"), &vec3(&s2["spring_on_pipe"]), zs, zs, "spring2 spring");
-        close6(case_action(&v, "support:guide", "case:s"), &vec3(&s2["guide_on_pipe"]), zs, zs, "spring2 guide");
+        close6(case_action(&v, "support:k", "case:s"), &vec3(&s2["spring_on_pipe"]), zs, NO_FROZEN_SCALE, "spring2 spring");
+        close6(case_action(&v, "support:guide", "case:s"), &vec3(&s2["guide_on_pipe"]), zs, NO_FROZEN_SCALE, "spring2 guide");
         let e: Vec<f64> = vec3(&s2["anchor"]["F"]).into_iter().chain(vec3(&s2["anchor"]["M"])).collect();
-        close6(case_action(&v, "support:a", "case:s"), &e, zs, zs, "spring2 anchor");
+        close6(case_action(&v, "support:a", "case:s"), &e, zs, NO_FROZEN_SCALE, "spring2 anchor");
         // REF-M05-SPRING-GAP (N-1 positive control)
         let sg = &r["REF-M05-SPRING-GAP"];
         let mut gap = sg["gap_support_json"].clone();
@@ -495,11 +519,11 @@ fn m05_springs_guides_and_gap_attribution() {
         gap["node"] = json!("node:b");
     gap["provenance"] = json!("t0r");
         let v = solved(&cantilever(vec![spring("support:k", "node:b", "UY", 1e6), gap], json!([case("case:s", json!([force("f", "node:b", "global_y", 350.0)]))]), json!([])), mode);
-        close6(case_action(&v, "support:k", "case:s"), &[0.0, num(&sg["spring_on_pipe_Fy_N"]), 0.0, 0.0, 0.0, 0.0], 350.0, 350.0, "gap spring");
-        close6(case_action(&v, "support:gap", "case:s"), &[0.0; 6], num(&sg["gap_on_pipe"]["zero_scale"]), 350.0, "inactive gap");
+        close6(case_action(&v, "support:k", "case:s"), &[0.0, num(&sg["spring_on_pipe_Fy_N"]), 0.0, 0.0, 0.0, 0.0], NO_FROZEN_SCALE, NO_FROZEN_SCALE, "gap spring");
+        close6(case_action(&v, "support:gap", "case:s"), &[0.0; 6], num(&sg["gap_on_pipe"]["zero_scale"]), NO_FROZEN_SCALE, "inactive gap");
         let a = case_action(&v, "support:a", "case:s");
-        close(a[1], num(&sg["anchor_Fy_N"]), 350.0, "gap anchor Fy");
-        close(a[5], num(&sg["anchor_Mz_Nm"]), 350.0, "gap anchor Mz");
+        close(a[1], num(&sg["anchor_Fy_N"]), NO_FROZEN_SCALE, "gap anchor Fy");
+        close(a[5], num(&sg["anchor_Mz_Nm"]), NO_FROZEN_SCALE, "gap anchor Mz");
         assert!(diag(&v, "SUPPORT_ACTION_ATTRIBUTION_WITHHELD").is_empty());
     }
 }
@@ -597,7 +621,7 @@ fn m05_combinations_recompute_magnitudes_and_envelope_components() {
         close(disp("comb:minus"), num(&c2["A1_minus_A2_tip_displacement_magnitude_mm"]), 0.0, "A1-A2 |u|");
         let pa = &c2["A1_plus_A2_anchor"];
         let e: Vec<f64> = vec3(&pa["F"]).into_iter().chain(vec3(&pa["M"])).collect();
-        close6(support_action(&v, "support:a", "combination", "comb:plus").unwrap(), &e, zs, zs, "A1+A2 anchor");
+        close6(support_action(&v, "support:a", "combination", "comb:plus").unwrap(), &e, NO_FROZEN_SCALE, NO_FROZEN_SCALE, "A1+A2 anchor");
         assert_eq!(diag(&v, "PREVIEW_HEADLINE_SCOPE_LOAD_CASES").len(), 1);
         assert_eq!(diag(&v, "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE").len(), 6);
         assert!(v["summary"]["max_displacement"]["result_ref"].as_str().unwrap().contains("loadcase") || v["summary"]["max_displacement"]["result_ref"] == "result:disp:node-b");
@@ -616,9 +640,9 @@ fn constant_effort_counted_once_and_gated_when_factors_do_not_sum_to_one() {
     for mode in MODES {
         let v = solved(&cantilever(vec![ce_support(&["UY"])], cases.clone(), combos.clone()), mode);
         for (case_id, key) in [("case:W1", "case_W1_tip_Fy_-1000"), ("case:W2", "case_W2_tip_Fy_-500")] {
-            close6(case_action(&v, "support:ce", case_id), &vec3(&ce[key]["ce_support_on_pipe"]), 375.0, 375.0, "CE action");
+            close6(case_action(&v, "support:ce", case_id), &vec3(&ce[key]["ce_support_on_pipe"]), NO_FROZEN_SCALE, NO_FROZEN_SCALE, "CE action");
             let e: Vec<f64> = vec3(&ce[key]["anchor_F"]).into_iter().chain(vec3(&ce[key]["anchor_M"])).collect();
-            close6(case_action(&v, "support:a", case_id), &e, 1000.0, 1000.0, "CE anchor");
+            close6(case_action(&v, "support:a", case_id), &e, NO_FROZEN_SCALE, NO_FROZEN_SCALE, "CE anchor");
         }
         let half = &ce["comb_0.5W1_0.5W2_sum_factors_1"];
         close(support_action(&v, "support:a", "combination", "comb:half").unwrap()[1], num(&half["anchor_Fy_N"]), 0.0, "half anchor");
@@ -634,7 +658,7 @@ fn constant_effort_counted_once_and_gated_when_factors_do_not_sum_to_one() {
         assert!(support_action(&v, "support:ce", "load_case", "case:W1").is_none());
         assert_eq!(v["contract_evidence"]["preview_cases"][0]["support_attribution"]["withheld"][0], json!({"support_id":"support:ce","reason":"CONSTANT_EFFORT_NOT_CONSUMED"}));
         let e: Vec<f64> = vec3(&nc["anchor_F_W1"]).into_iter().chain(vec3(&nc["anchor_M_W1"])).collect();
-        close6(case_action(&v, "support:a", "case:W1"), &e, 1000.0, 1000.0, "non-consuming anchor");
+        close6(case_action(&v, "support:a", "case:W1"), &e, NO_FROZEN_SCALE, NO_FROZEN_SCALE, "non-consuming anchor");
         assert_eq!(diag(&v, "CONSTANT_EFFORT_NOT_CONSUMED").len(), 1);
     }
 }
@@ -881,7 +905,7 @@ fn b1_arc_signed_rows_frames_and_withheld_maximum() {
     for (w, key) in warnings.iter().zip(["angle_at_b_deg", "angle_at_c_deg"]) {
         let text = w["message"].as_str().unwrap();
         let degrees: f64 = text.split(" rad (").nth(1).unwrap().split(' ').next().unwrap().parse().unwrap();
-        close(degrees, num(&kinked[key]), 60.0, "kink angle");
+        close(degrees, num(&kinked[key]), NO_FROZEN_SCALE, "kink angle");
     }
 }
 
@@ -910,12 +934,12 @@ fn b2_indeterminate_arc_resultants_depend_on_k() {
         assert_contract(&v);
         println!("REF-B2 k={k}: a lone arc span is accepted");
         let expected = &b2[key];
-        close(case_action(&v, "support:roller", "case:y")[0], num(&expected["roller_on_pipe_Fx_N"]), 1000.0, "roller");
-        close6(case_action(&v, "support:a", "case:y"), &vec3(&expected["anchor_on_pipe"]), 1000.0, 200.0, "B2 anchor");
+        close(case_action(&v, "support:roller", "case:y")[0], num(&expected["roller_on_pipe_Fx_N"]), NO_FROZEN_SCALE, "roller");
+        close6(case_action(&v, "support:a", "case:y"), &vec3(&expected["anchor_on_pipe"]), NO_FROZEN_SCALE, NO_FROZEN_SCALE, "B2 anchor");
         let rows = vec3(&expected["product_end_i_rows_node_on_element"]);
         let kinds = ["element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z", "element_local_torsional_moment", "element_local_bending_moment_y", "element_local_bending_moment_z"];
         for (idx, kind) in kinds.iter().enumerate() {
-            close(row_value(&v, kind, "pipe:b-c", None, Some("end_i"), "load_case", "case:y"), rows[idx], if idx < 3 { 1000.0 } else { 200.0 }, &format!("B2 end_i {kind}"));
+            close(row_value(&v, kind, "pipe:b-c", None, Some("end_i"), "load_case", "case:y"), rows[idx], NO_FROZEN_SCALE, &format!("B2 end_i {kind}"));
         }
     }
 }
@@ -997,13 +1021,89 @@ fn blocked_envelope_carries_empty_preview_evidence() {
     assert_eq!(v["formulation_basis"]["limitations"].as_array().unwrap().len(), 7);
 }
 
-#[test]
-fn invented_demo_model_renders_completely() {
+fn invented_demo_without_pressure() -> Value {
     let mut model: Value = serde_json::from_str(include_str!("../../../fixtures/product_preview/invented_preview_model.json")).unwrap();
     // The demo's legacy nonzero pressure is refused on this route; drop it.
     for c in model["load_cases"].as_array_mut().unwrap() {
         c["primitive_loads"].as_array_mut().unwrap().retain(|l| l["category"] != "pressure" && l["dimension"] != "pressure");
     }
+    model
+}
+
+/// M07 containment (ROOT ruling on R1 N-1). Evidence, from hand statics rather
+/// than product output: joint C-150 couples its two nodes, 2.2 m apart, only
+/// through relative lateral springs k = 900000 N/m. A relative lateral
+/// displacement then produces equal and opposite forces 2.2 m apart with no
+/// balancing couple, so the element is not in moment equilibrium; in the
+/// invented demo's L-100 that unbalanced couple is k*du*L = 900000 * 3.3254e-4 m
+/// * 2.2 m = 658.44 N*m about Y. The ordinary route therefore refuses the solve.
+#[test]
+fn joint_element_without_moment_coupling_is_refused() {
+    let model = invented_demo_without_pressure();
+    for mode in MODES {
+        let v = solve(&json!({"model": model.clone(), "materials": []}), mode);
+        assert_eq!(v["status"]["mechanics"], "MODEL_INCOMPLETE");
+        assert!(results(&v).is_empty());
+        let d = diag(&v, "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED");
+        assert_eq!(d.len(), 1);
+        assert_eq!(d[0]["severity"], "blocking");
+        assert_eq!(d[0]["affected_refs"], json!(["component:C-150", "pipe:P-130"]));
+        assert_eq!(v["contract_evidence"], json!({"preview_cases": [], "combination_gates": []}));
+    }
+    // Boundaries: axial/rotational-only stiffness, or a zero lateral value, is not refused.
+    let joint = |lateral: f64| json!({"id":"component:joint","label":"t0r joint","kind":"expansion_joint","node":"node:b",
+        "geometry":{"expansion_joint_pipe_ref":"pipe:b-c","effective_area":{"value":0.01,"unit":"m^2"},"expansion_joint_source_reference":"t0r"},
+        "modifiers":{"axial_stiffness_user_value":{"value":3.2e6,"unit":"N/m"},"lateral_stiffness_user_value":{"value":lateral,"unit":"N/m"},
+            "angular_stiffness_user_value":{"value":4.8e5,"unit":"N*m/rad"},"torsional_stiffness_user_value":{"value":6.2e5,"unit":"N*m/rad"},"source_reference":"t0r_invented"},
+        "mechanics_interface":{"solver_consumption":"mechanics_geometry_and_user_flexibility","rule_check_consumption":"user_rule_pack_inputs_only"},"provenance":"t0r"});
+    let wire = |lateral: f64| base(
+        json!([node("node:a", 0.0, 0.0, 0.0), node("node:b", 1.0, 0.0, 0.0), node("node:c", 1.5, 0.0, 0.0)]),
+        json!([pipe("pipe:a-b", "node:a", "node:b", [0.0, 1.0, 0.0]), pipe("pipe:b-c", "node:b", "node:c", [0.0, 1.0, 0.0])]),
+        json!([anchor("node:a"), support("support:c", "node:c", &["UX", "UY", "UZ", "RX", "RY", "RZ"])]),
+        json!([joint(lateral)]),
+        json!([case("case:j", json!([force("f", "node:b", "global_y", 100.0)]))]),
+        json!([]),
+    );
+    let refused = solve(&wire(9e5), PreviewSolverMode::SparseInteractive);
+    assert_eq!(diag(&refused, "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED").len(), 1);
+    let axial_rotational = solve(&wire(0.0), PreviewSolverMode::SparseInteractive);
+    assert!(diag(&axial_rotational, "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED").is_empty(), "{}", axial_rotational["diagnostics"]);
+    // Zero length: coincident joint nodes are never refused by this rule.
+    let mut zero = wire(9e5);
+    zero["model"]["nodes"][2]["position"]["x"] = json!(1.0);
+    let zero = solve(&zero, PreviewSolverMode::SparseInteractive);
+    assert!(diag(&zero, "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED").is_empty());
+}
+
+/// R1 SF-1: a case that blocks after earlier cases pushed row-naming
+/// diagnostics must still give a blocked envelope that satisfies S1 §9.
+#[test]
+fn blocked_envelope_after_a_later_case_fails_keeps_its_reason_and_no_dangling_refs() {
+    let gap = |id: &str, g: f64| json!({"id":id,"node":"node:c","family":"nonlinear","restraints":[],"provenance":"t0r",
+        "nonlinear":{"behavior":"gap","dof":"UZ","initial_state":"inactive","closes_when":"negative_displacement","gap":{"value":g,"unit":"m"}}});
+    let mut wire = l_model(sif(Some(1.08)), json!([
+        case("case:small", json!([force("s", "node:c", "global_z", -1.0)])),
+        case("case:large", json!([force("l", "node:c", "global_z", -50000.0)])),
+    ]), json!([]));
+    wire["model"]["supports"].as_array_mut().unwrap().extend([gap("support:g1", 0.0001), gap("support:g2", 0.0002)]);
+    for mode in MODES {
+        let v = solve(&wire, mode);
+        assert_eq!(v["status"]["mechanics"], "MODEL_INCOMPLETE");
+        assert!(results(&v).is_empty());
+        assert_eq!(v["contract_evidence"], json!({"preview_cases": [], "combination_gates": []}));
+        let all = v["diagnostics"].as_array().unwrap();
+        assert!(all.iter().any(|d| d["severity"] == "blocking"), "blocking reason kept");
+        for d in all {
+            assert!(!["COMPONENT_STRESS_MULTIPLIER_APPLIED", "COMBINATION_STRESS_SUMMARY_SKIPPED"].contains(&d["code"].as_str().unwrap()));
+            assert!(d["affected_refs"].as_array().into_iter().flatten().all(|r| !r.as_str().unwrap().starts_with("result:")), "{d}");
+        }
+    }
+}
+
+#[test]
+fn invented_demo_model_renders_completely() {
+    // The derived demo: legacy pressure removed and the refused joint C-150 removed.
+    let model: Value = serde_json::from_str(include_str!("fixtures/preview_physics_invented_model.json")).unwrap();
     for mode in MODES {
         let v = solved(&json!({"model": model.clone(), "materials": []}), mode);
         // Non-result reference classes are accepted (F-1 positive control).

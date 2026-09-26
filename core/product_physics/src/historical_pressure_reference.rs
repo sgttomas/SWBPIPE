@@ -1,6 +1,8 @@
 //! Private test-only execution of retained historical pressure premises.
 //! No request field, environment variable, Cargo feature, or normal-library symbol selects this route.
 //! This preserves named assertions under the test engine; it does not qualify Current or byte-faithful replay.
+//! T0R: the same scope also admits the refused user-stiffness joint premise (M07) for the named
+//! historical oracles that were frozen with it; the ordinary route refuses that element otherwise.
 
 use crate::{LinearStaticPreviewRequest, MechanicsEnvelope, PreviewSolverMode};
 use std::cell::Cell;

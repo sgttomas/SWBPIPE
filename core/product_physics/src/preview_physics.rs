@@ -87,6 +87,66 @@ pub(crate) fn formulation_basis() -> FormulationBasis {
     }
 }
 
+/// A blocked envelope has no rows. Diagnostics pushed before the block keep
+/// their meaning, but retired codes go and `result:` refs that can no longer
+/// resolve are stripped, so the envelope still satisfies S1 §9 (R1 SF-1).
+pub(crate) fn sanitize_blocked_diagnostics(diagnostics: &mut Vec<Diagnostic>) {
+    // Retired codes and non-blocking diagnostics that name a (now absent) row
+    // are dropped. A blocking diagnostic always stays, so the blocking reason
+    // is never lost; only its unresolvable `result:` refs are stripped.
+    diagnostics.retain(|d| {
+        !RETIRED_CODES.contains(&d.code.as_str())
+            && (d.severity == "blocking" || !d.affected_refs.iter().any(|r| r.starts_with("result:")))
+    });
+    for d in diagnostics.iter_mut() {
+        d.affected_refs.retain(|r| !r.starts_with("result:"));
+    }
+}
+
+/// M07 containment (T0R, ROOT ruling on R1 N-1): a user-stiffness joint with
+/// nonzero lateral stiffness over a nonzero length has lateral springs without
+/// the rigid-body moment coupling, so it is not in moment equilibrium and every
+/// result of the model is suspect. Refuse the solve until T4 repairs it.
+pub(crate) fn refuse_unqualified_joint_elements(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    // Only named in-crate historical tests can enter this scope; normal builds
+    // have no selector (same custody as the historical pressure premise).
+    #[cfg(test)]
+    if crate::historical_pressure_reference::active() {
+        return;
+    }
+    for component in model.components.iter().filter(|c| is_expansion_joint_component(c)) {
+        if component.mechanics_interface.as_ref().and_then(|i| i.solver_consumption.as_deref())
+            != Some("mechanics_geometry_and_user_flexibility")
+        {
+            continue;
+        }
+        let lateral = component.modifiers.as_ref().and_then(|m| m.lateral_stiffness_user_value.as_ref()).map(|q| q.value);
+        if !lateral.is_some_and(|k| k != 0.0) {
+            continue;
+        }
+        let Some(pipe) = component
+            .geometry
+            .as_ref()
+            .and_then(|g| g.expansion_joint_pipe_ref.as_deref())
+            .and_then(|id| model.pipe_segments.iter().find(|p| p.id == id))
+        else {
+            continue;
+        };
+        let position = |id: &str| model.nodes.iter().find(|n| n.id == id).map(|n| [n.position.x, n.position.y, n.position.z]);
+        let (Some(a), Some(b)) = (position(&pipe.from), position(&pipe.to)) else { continue };
+        if a == b {
+            continue;
+        }
+        diagnostics.push(diag(
+            &format!("diagnostic:preview-physics:joint-equilibrium:{}", identity(&[&component.id])),
+            "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED",
+            "blocking",
+            format!("expansion joint {} realizes user lateral stiffness over the length of {} without the rigid-body moment coupling, so the element is not in moment equilibrium and no result of this model can be published; the solve is refused until the joint element is repaired (M07, T4). Axial, angular and torsional joint stiffness alone are unaffected", component.id, pipe.id),
+            vec![component.id.clone(), pipe.id.clone()],
+        ));
+    }
+}
+
 pub(crate) fn empty_evidence() -> serde_json::Value {
     serde_json::json!({"preview_cases": [], "combination_gates": []})
 }
@@ -382,6 +442,9 @@ fn tangent_diagnostics(model: &PreviewModel, built: &BuiltModel, diagnostics: &m
         for (end, node_index, tangent) in [("end_i", bend.node_i, tangents[0]), ("end_j", bend.node_j, tangents[1])] {
             let node = &model.nodes[node_index];
             let here = built.nodes[node_index].coordinates;
+            // The closest adjacent straight pipe decides, so a tee branch at an
+            // arc end does not raise a false warning (R1 N-5).
+            let mut closest: Option<(f64, &PreviewPipe)> = None;
             for pipe in model.pipe_segments.iter().filter(|p| {
                 p.id != bend.pipe_id && !arc_pipes.contains(p.id.as_str()) && (p.from == node.id || p.to == node.id)
             }) {
@@ -400,15 +463,18 @@ fn tangent_diagnostics(model: &PreviewModel, built: &BuiltModel, diagnostics: &m
                     d[0] * tangent[1] - d[1] * tangent[0],
                 ];
                 let angle = cross[0].hypot(cross[1]).hypot(cross[2]).atan2(dot);
-                if angle.is_finite() && angle > DEC_070_CURVED_BEND_ANGLE_MATCH_TOLERANCE {
-                    diagnostics.push(diag(
-                        &format!("diagnostic:preview-physics:tangent-discontinuity:{}", identity(&[&bend.component_id, &bend.pipe_id, end, &pipe.id])),
-                        "CURVED_BEND_TANGENT_DISCONTINUITY",
-                        "warning",
-                        format!("curved-bend {} {end} tangent differs from adjacent pipe {} by {} rad ({} degrees), above the 1e-6 rad geometric-consistency warning threshold; the arc is built as authored and this warning does not repair its geometry", bend.component_id, pipe.id, scalar_string(angle), scalar_string(angle.to_degrees())),
-                        vec![bend.component_id.clone(), bend.pipe_id.clone(), node.id.clone(), pipe.id.clone()],
-                    ));
+                if angle.is_finite() && closest.is_none_or(|(best, _)| angle < best) {
+                    closest = Some((angle, pipe));
                 }
+            }
+            if let Some((angle, pipe)) = closest.filter(|(angle, _)| *angle > DEC_070_CURVED_BEND_ANGLE_MATCH_TOLERANCE) {
+                diagnostics.push(diag(
+                    &format!("diagnostic:preview-physics:tangent-discontinuity:{}", identity(&[&bend.component_id, &bend.pipe_id, end, &pipe.id])),
+                    "CURVED_BEND_TANGENT_DISCONTINUITY",
+                    "warning",
+                    format!("curved-bend {} {end} tangent differs from the closest adjacent pipe {} by {} rad ({} degrees), above the 1e-6 rad geometric-consistency warning threshold; the arc is built as authored and this warning does not repair its geometry", bend.component_id, pipe.id, scalar_string(angle), scalar_string(angle.to_degrees())),
+                    vec![bend.component_id.clone(), bend.pipe_id.clone(), node.id.clone(), pipe.id.clone()],
+                ));
             }
         }
     }

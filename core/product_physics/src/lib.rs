@@ -1309,6 +1309,7 @@ fn run_linear_static_preview_captured(
     }
 
     pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+    preview_physics::refuse_unqualified_joint_elements(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
@@ -10756,6 +10757,7 @@ fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> Mechan
         envelope.producer.semantic_contract_id = preview_physics::ID.into();
         envelope.formulation_basis = preview_physics::formulation_basis();
         envelope.contract_evidence = Some(preview_physics::empty_evidence());
+        preview_physics::sanitize_blocked_diagnostics(&mut envelope.diagnostics);
     }
     envelope
 }
@@ -11771,6 +11773,9 @@ mod tests {
             changed > 0 && changed <= 4,
             "expected named inherited fixture pressures for {purpose}"
         );
+        // T0R (M07 containment): omit the demo's realized joint C-150, which
+        // the ordinary route refuses (JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED).
+        input.model.components.retain(|component| component.id != "component:C-150");
         input
     }
 
@@ -11819,6 +11824,11 @@ mod tests {
                     request(),
                     "tests::current_composite_derived_normal_friction_and_reversal",
                 );
+                // T0R: the frozen Decimal oracle includes the demo's joint C-150,
+                // which the ordinary route now refuses (M07). Keep the joint and
+                // run this oracle only inside the private historical test scope;
+                // it is retained evidence, not a Current qualification.
+                input.model.components = request_with_refused_joint().model.components;
                 input.model.supports.retain(|support| {
                     support.stiffness.is_none()
                         && support.family.as_deref() != Some("variable_spring_hanger")
@@ -11892,7 +11902,9 @@ mod tests {
                         }
                     }
                 }
-                let result = run_linear_static_preview_with_mode(input, mode);
+                let result = crate::historical_pressure_reference::with_scope(|| {
+                    run_linear_static_preview_with_mode(input, mode)
+                });
                 assert_eq!(
                     result.status.mechanics, "MECHANICS_SOLVED",
                     "{:?}",
@@ -12933,6 +12945,26 @@ mod tests {
         serde_json::from_str(include_str!(
             "../../../fixtures/product_preview/invented_preview_model.json"
         ))
+        .map(|mut model: PreviewModel| {
+            // T0R (M07 containment): the ordinary route refuses a realized
+            // user-stiffness joint (JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED): its
+            // lateral springs act over a length without the moment coupling.
+            // This shared test basis omits the demo's joint C-150; the refusal and
+            // the joint-specific assertions use `request_with_refused_joint()`.
+            model.components.retain(|component| component.id != "component:C-150");
+            LinearStaticPreviewRequest {
+                model,
+                materials: invented_materials(),
+            }
+        })
+        .unwrap()
+    }
+
+    /// The unchanged invented demo, including its realized joint C-150.
+    fn request_with_refused_joint() -> LinearStaticPreviewRequest {
+        serde_json::from_str(include_str!(
+            "../../../fixtures/product_preview/invented_preview_model.json"
+        ))
         .map(|model| LinearStaticPreviewRequest {
             model,
             materials: invented_materials(),
@@ -13449,7 +13481,10 @@ mod tests {
             // Reference control for the historical nonlinear fixture: the former
             // nonlinear path omitted linear springs. Keep that exact no-spring
             // case explicit, rather than rewriting its friction oracle from output.
-            let mut input = request();
+            // T0R: this historical oracle includes the demo's joint C-150, which the
+            // ordinary route now refuses (M07); it stays a historical premise and
+            // runs only inside the private test-only historical scope.
+            let mut input = request_with_refused_joint();
             input.model.supports.retain(|support| {
                 support.stiffness.is_none()
                     && support.family.as_deref() != Some("variable_spring_hanger")
@@ -15372,10 +15407,24 @@ mod tests {
 
     #[test]
     fn expansion_joint_user_stiffness_emits_macro_element_review_rows() {
-        let result = run_linear_static_preview(mechanical_fixture_for_test(
+        // T0R (M07 containment): the ordinary route refuses the realized joint.
+        let mut refused_input = request_with_refused_joint();
+        for case in &mut refused_input.model.load_cases {
+            // The demo's legacy nonzero pressure is refused first; remove it here.
+            case.primitive_loads.retain(|load| load.category != "pressure");
+        }
+        let refused = run_linear_static_preview(refused_input);
+        assert_eq!(refused.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(refused.results.is_empty());
+        assert!(refused.diagnostics.iter().any(|d| d.code == "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED"
+            && d.affected_refs == vec!["component:C-150".to_string(), "pipe:P-130".to_string()]));
+        // The retained review-row premise runs only in the private historical scope.
+        let mut input = mechanical_fixture_for_test(
             request(),
             "tests::expansion_joint_user_stiffness_emits_macro_element_review_rows",
-        ));
+        );
+        input.model.components = request_with_refused_joint().model.components;
+        let result = crate::historical_pressure_reference::with_scope(|| run_linear_static_preview(input));
         let axial = result
             .results
             .iter()
@@ -15440,7 +15489,8 @@ mod tests {
     #[test]
     fn expansion_joint_pressure_thrust_uses_user_effective_area_as_load_side_evidence_historical_pressure_premise(
     ) {
-        let result = historical_pressure_preview(request());
+        // T0R: historical premise with the demo's joint C-150 (refused on the ordinary route, M07).
+        let result = historical_pressure_preview(request_with_refused_joint());
         let default_row = result
             .results
             .iter()

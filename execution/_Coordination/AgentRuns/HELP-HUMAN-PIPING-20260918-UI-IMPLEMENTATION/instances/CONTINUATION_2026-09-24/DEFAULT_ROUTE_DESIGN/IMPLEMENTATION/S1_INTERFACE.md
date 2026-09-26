@@ -164,4 +164,20 @@ S2a generates, only with the actual producer: `P/fixtures/results/preview_physic
 
 ## Amendments
 
-(none yet)
+### A1 — 2026-09-26: ROOT rulings on R1, and reader parity
+
+**Producer (S2a):**
+1. **`JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED`** (blocking; ROOT ruling on R1 N-1, containment of M07). A realized user-stiffness joint (`expansion_joint`, `solver_consumption == mechanics_geometry_and_user_flexibility`) with nonzero `lateral_stiffness_user_value` over a nonzero length refuses the solve before building: id `diagnostic:preview-physics:joint-equilibrium:{ID(component)}`, affected_refs `[component, joint pipe]`. The element's lateral springs have no rigid-body moment coupling, so it is not in moment equilibrium. The exact routes already refuse every component, so only the ordinary route can reach it. The repair (M07) is T4. Readers need nothing new: the result is an ordinary blocked envelope.
+2. **Blocked envelopes** (R1 SF-1): a non-exact blocked envelope carries no retired code and no `result:` ref. A non-blocking diagnostic that named a row is dropped; a blocking diagnostic always stays, with its `result:` refs stripped.
+3. **Tangent warning** (R1 N-5): at most one `CURVED_BEND_TANGENT_DISCONTINUITY` per arc end, judged against the closest adjacent straight pipe (a tee branch at an arc end is not flagged). The id and refs name that closest pipe.
+4. **Fixtures:** the invented demo keeps its joint and is therefore refused. The derived model `P/core/product_physics/tests/fixtures/preview_physics_invented_model.json` now also omits joint `component:C-150`, and `preview_physics_invented_{sparse,dense}.json` were regenerated (solved; force and moment balance close). The connected pair is byte-unchanged.
+
+**Reader parity (Rust, Python and TS must implement exactly these):**
+- a. A diagnostic without `affected_refs` is allowed.
+- b. **Withheld records ↔ diagnostics, both directions.** In every case, the set of `support_attribution.withheld` records equals the set of diagnostics with code `SUPPORT_ACTION_ATTRIBUTION_WITHHELD` or `CONSTANT_EFFORT_NOT_CONSUMED`, matched by support = `affected_refs[0]` and reason = code, with the §8 ids. Per-support nonlinear rows (`nonlinear_support_final_reaction`, `nonlinear_support_final_displacement`, `nonlinear_support_active_set_state_code`) must name a support listed in that case's attribution (attributed or withheld). No `nonlinear_support_final_reaction` exists for a support withheld as `SUPPORT_ACTION_ATTRIBUTION_WITHHELD`. (This replaces "every model support appears exactly once", which needs the model.)
+- c. A combination is a range envelope when its rows carry `metadata.basis == explicit_user_range_envelope`. The magnitude-consistency check (§9 item 9) applies to mechanics and subtraction combinations only.
+- d. **Extrema checks:** the 13-field shape with the three constant strings; `0 ≤ value_lower_pa ≤ value ≤ value_upper_pa`; `value == value_lower_pa + 0.5*(value_upper_pa − value_lower_pa)` exactly; the §3 id format. No certified-gap bound is checked.
+- e. **Blocked envelope:** when `status.mechanics != MECHANICS_SOLVED`, the evidence is exactly `{"preview_cases": [], "combination_gates": []}`, there are no rows, both headlines are null, and §9 items 2–3 still apply, so no retired code and no `result:` ref is allowed.
+- f. **Metadata semantics** are checked exactly for support v2 rows and maximum rows (§3 strings). For intensified rows, `component`, `coordinate_system`, `location` and `basis` are checked exactly, and `sign_convention` must start with `nonnegative i*hypot(My,Mz)/Z at the member end; i=`.
+- g. When `summary.component_stress_modifier_count` is present, it equals the number of intensified rows.
+- h. `rule_check_runner::RuleCheckRunInput` is not a serde type, so `refused_solver_results` is a plain field set at every construction site. It has no `#[serde(default)]`.
