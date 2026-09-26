@@ -1,5 +1,8 @@
 // Generate example transport data from the actual product. No numerical outcome
 // is upgraded, and the immutable legacy fixture is never a write destination.
+// Default mode: the historical precision-1 pair, which it refuses to overwrite
+// with any other identity. `--preview-physics-1`: the preview-physics-1 pair and
+// its own record; the precision-1 pair and record are never its destinations.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, readdirSync, lstatSync, realpathSync,
@@ -13,7 +16,15 @@ const generator = "core/product_physics/examples/preview_result.rs";
 const input = "fixtures/product_preview/invented_preview_model.json";
 const legacy = "fixtures/product_preview/invented_mechanics_result.json";
 const recipe = "tools/serialization/generate_product_preview_mechanics.mjs";
-const recordPath = "fixtures/product_preview/precision_fixture_generation.json";
+const precisionRecordPath = "fixtures/product_preview/precision_fixture_generation.json";
+const precisionOutput = suffix => `fixtures/product_preview/invented_mechanics_result_precision_1_${suffix}.json`;
+const previewOutput = suffix => `fixtures/product_preview/invented_mechanics_result_preview_physics_1_${suffix}.json`;
+const configs = {
+  precision: { contract: "openpipestress.result_semantics/0.3.0/precision-1", output: precisionOutput,
+    record: precisionRecordPath, stagePrefix: ".precision-generation-", label: "Precision" },
+  preview: { contract: "openpipestress.result_semantics/0.3.0/preview-physics-1", output: previewOutput,
+    record: "fixtures/product_preview/preview_physics_fixture_generation.json", stagePrefix: ".preview-physics-generation-", label: "Preview-physics" },
+};
 const modes = [
   ["sparse_interactive", "sparse", 1],
   ["dense_scrutiny", "dense", 2],
@@ -104,12 +115,14 @@ function sourceInventory(meta) {
     return [name, sha(bytes(name))];
   }));
 }
-function validate(result, mode, value, model) {
+function validate(result, mode, value, model, config) {
   exact(result.schema_version, "0.2.0", "unexpected raw schema");
   exact(result.document_kind, "openpipestress.product_preview.mechanics_result", "unexpected document kind");
   exact(result.producer?.component_name, "open_pipe_stress_product_physics", "unexpected producer");
   exact(result.producer?.component_version, "0.2.0", "unexpected producer version");
-  exact(result.producer?.semantic_contract_id, "openpipestress.result_semantics/0.3.0/precision-1", "unexpected semantics");
+  // The default mode refuses rather than overwrite precision-1 fixtures with
+  // another identity (a fresh non-exact solve is preview-physics-1 after T0R).
+  exact(result.producer?.semantic_contract_id, config.contract, `unexpected semantics for ${config.label} mode`);
   exact(result.model_ref, model.project.id, "output/input model mismatch");
   if (!["MECHANICS_SOLVED", "MODEL_INCOMPLETE"].includes(result.status?.mechanics)) fail("unknown mechanics status");
   const quality = result.numerical_quality;
@@ -155,12 +168,14 @@ function validate(result, mode, value, model) {
 // Capture/validation finish before staging. Durable rollback preimages are
 // written and synced before any replacement; the hash record commits last.
 // Process/power-loss multi-file atomicity is not claimed.
-function replaceSet(items) {
+function replaceSet(items, config) {
   const directory = checkedPath("fixtures/product_preview", "directory");
-  const stage = mkdtempSync(path.join(directory, ".precision-generation-"));
+  const stage = mkdtempSync(path.join(directory, config.stagePrefix));
   const stageRelative = portable(stage);
   checkedPath(stageRelative, "directory");
-  const allowed = new Set([recordPath, ...modes.map(([, suffix]) => `fixtures/product_preview/invented_mechanics_result_precision_1_${suffix}.json`)]);
+  const allowed = new Set([config.record, ...modes.map(([, suffix]) => config.output(suffix))]);
+  // The preview mode never writes the historical precision-1 pair or its record.
+  const forbidden = new Set([legacy, ...(config === configs.preview ? [precisionRecordPath, ...modes.map(([, suffix]) => precisionOutput(suffix))] : [])]);
   const staged = [];
   const installed = [];
   let retainRecovery = false;
@@ -175,7 +190,7 @@ function replaceSet(items) {
   try {
     if (items.length !== allowed.size || new Set(items.map(([name]) => name)).size !== allowed.size) fail("generation requires exactly three distinct destinations");
     items.forEach(([name, payload], index) => {
-      if (!allowed.has(name) || name === legacy) fail("forbidden generation destination");
+      if (!allowed.has(name) || forbidden.has(name)) fail("forbidden generation destination");
       const target = checkedPath(name, "file", true);
       const existed = existsSync(target);
       const previous = existed ? bytes(name) : null;
@@ -225,7 +240,9 @@ function replaceSet(items) {
 }
 
 try {
-  if (process.argv.length !== 2) fail("usage: node tools/serialization/generate_product_preview_mechanics.mjs");
+  const usage = "usage: node tools/serialization/generate_product_preview_mechanics.mjs [--preview-physics-1]";
+  if (process.argv.length > 3 || (process.argv.length === 3 && process.argv[2] !== "--preview-physics-1")) fail(usage);
+  const config = process.argv.length === 3 ? configs.preview : configs.precision;
   validateRoot();
   checkedPath("fixtures/product_preview", "directory");
   for (const fixed of [manifest, generator, input, legacy, recipe, "package.json"]) checkedPath(fixed, "file");
@@ -239,8 +256,8 @@ try {
     const args = ["run", "--offline", "--locked", "--quiet", "--manifest-path", manifest, "--example", "preview_result", "--", mode];
     const captured = command("cargo", args);
     const result = parse(captured.stdout);
-    validate(result, mode, value, model);
-    const outputPath = `fixtures/product_preview/invented_mechanics_result_precision_1_${suffix}.json`;
+    validate(result, mode, value, model, config);
+    const outputPath = config.output(suffix);
     fixtureWrites.push([outputPath, captured.stdout]); // exact raw stdout, no reserialization
     outputs.push({ mode, path: outputPath, sha256: sha(captured.stdout), command: ["cargo", ...args],
       stderr_sha256: sha(captured.stderr), exit_code: 0, model_ref: result.model_ref,
@@ -256,6 +273,9 @@ try {
     recipe: { path: recipe, sha256: before[recipe] }, generator: { path: generator, sha256: before[generator] },
     input_model: { path: input, sha256: before[input] },
     historical_fixture_preserved: { path: legacy, sha256: before[legacy] },
+    ...(config === configs.preview ? { semantic_contract_id: config.contract,
+      historical_precision_fixtures_preserved: [precisionRecordPath, ...modes.map(([, suffix]) => precisionOutput(suffix))]
+        .map(name => ({ path: name, sha256: sha(bytes(name)) })) } : {}),
     source_input_files: before, source_input_files_after: after,
     inventory_json_sha256: sha(Buffer.from(beforeText)),
     dependencies: dependencyInventory(meta),
@@ -263,9 +283,9 @@ try {
     outputs, provenance: "Actual unchanged-input Rust executions; raw stdout retained as fixture bytes. No headers, quality or numeric values synthesized. Example transport data, not independent physics or source/build authentication.",
   };
   exact(JSON.stringify(sourceInventory(meta)), beforeText, "source/input changed before commit");
-  replaceSet([...fixtureWrites, [recordPath, Buffer.from(`${JSON.stringify(record, null, 2)}\n`)]]);
-  process.stdout.write(`${JSON.stringify({ generated: outputs.map(output => output.path), record: recordPath })}\n`);
+  replaceSet([...fixtureWrites, [config.record, Buffer.from(`${JSON.stringify(record, null, 2)}\n`)]], config);
+  process.stdout.write(`${JSON.stringify({ generated: outputs.map(output => output.path), record: config.record })}\n`);
 } catch (error) {
-  process.stderr.write(`Precision fixture generation failed: ${error.message}\n`);
+  process.stderr.write(`Product preview fixture generation failed: ${error.message}\n`);
   process.exitCode = 1;
 }

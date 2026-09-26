@@ -52,7 +52,9 @@ def test_history_never_becomes_current_from_source_or_input_authenticity():
     quality=raw['numerical_quality'];quality['status']='checks_passed'
     assert numerical_use_standing(raw,[BASIS])=='needs_recompute'
     quality['cases']=[{'basis_ref':BASIS,'structural_status':'passive_model_basis','solve_quality':'checks_passed','model_matrix_fidelity':'represented_equations_retained','accuracy_evidence':'not_claimed','evidence_refs':['result:rotation']}]
-    assert numerical_use_standing(raw,[BASIS])=='numerically_eligible'
+    # T0R retires precision-1 as Current: complete passing evidence still reads
+    # as needs_recompute (PRECISION_1_HISTORICAL_SEMANTICS); was numerically_eligible.
+    assert numerical_use_standing(raw,[BASIS])=='needs_recompute'
     quality['cases'][0]['evidence_refs']=['missing:evidence']
     assert numerical_use_standing(raw,[BASIS])=='needs_recompute'
     assert numerical_use_standing(raw,[])=='needs_recompute'
