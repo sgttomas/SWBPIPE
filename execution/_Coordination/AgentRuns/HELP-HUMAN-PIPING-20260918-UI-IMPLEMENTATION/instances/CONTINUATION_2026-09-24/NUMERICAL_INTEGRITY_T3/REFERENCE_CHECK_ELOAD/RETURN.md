@@ -353,3 +353,131 @@ The claim "the loss comes from the product and input rounding, not the final sum
   - `v3_values.json`, `v3_compare.json`, `v3_cancel.json`, `v3_nc.json`, `v3_floor.json` and `v3_checks.json`;
   - the matching `*.stdout.txt`;
   - `regeneration.txt`, `package_sha256_check.txt` and `PYTHON_VERSION.txt`.
+
+## Addendum: delta check of revision 1 (2026-09-26)
+
+This addendum re-checks only the delta, as ROOT ruled in the last sections of `ROOT_RULINGS_V1.md` (at `35677f223`).
+
+**Revision 1** is committed at `b6927f783`. The worktree head during the check was `b6927f783`. The revision-1 `_run_records/SHA256SUMS` verifies from the `REFERENCES_ELOAD/` root, all 8 entries.
+
+| File | sha256 |
+|---|---|
+| `references_eload.json` | `8240765095481e08ca3153eb89ef7b5828018615f3dd774ff3eed5d7af4549c9` |
+| `references_eload.py` | `3601db34fd17df3d2397bb8e1152faac90d04c58913b5fc54517017f36581f87` |
+| `README.md` | `7a0c1aadde41f41222d1d50055e48d481067108c46f7f31a1505203fbb162c83` |
+| `_run_records/SHA256SUMS` | `cc16cea55a9deeec8b26c034d1844442b255050ce447f9babe43cbd68f12c319` |
+| `_run_records/SHA256SUMS.revision0` | `ad8497d7…`, the revision-0 sums, unchanged |
+
+The revision-0 JSON used for comparison was taken from `git show f5a315280:…`, sha256 `c20eb4c4…`.
+
+### Delta verdict: CONFIRMED
+
+There are two wording NOTEs, N1 and N2 below. Neither needs a change before selection. I also correct one of my own revision-0 findings, F6.
+
+### 1. The new case RF-ELOAD-CANCEL-SEIS-G1e8-R, by V3's own route
+
+I ran the full V3 pipeline against revision 1: `sh run_v3.sh _run_records/rev1 <scratch>`.
+
+**Values:** 31/31 expected values, all on the represented basis, agree within 2.34e-40 of max(|exp|, scale). The 31 represented values agree too. The keys match, including the 23 zeros.
+
+**Case fields:** these are reproduced:
+- the class scales and the zero scales;
+- `finite_input`: 8.55448e-9 at R.N0.UZ, which means the represented basis;
+- the per-quantity table and the generated intensities;
+- all 31 cancellation rows (8 net, 23 zero) for `recommended_scale`, `gross_scale` and `governed_by`.
+
+**D:** D = 143.44076231504138435 is −w_s(1 − 1e-8) to 20 digits, computed independently.
+
+**The 4 controls,** rebuilt with V3's own models:
+
+| Control | V3 result | Package result |
+|---|---|---|
+| NC-FLOAT-SUM | 9.43619× | 9.43619× |
+| NC-BIN64-PRODUCT | 89.6350× | 89.6350× |
+| NC-FLOAT-SUM-BIN64 | 89.6350× | 89.6350× |
+| NC-NET-DROPPED | 1e9× | 1e9× |
+
+All four discriminate under the recommended scale and under the class scale. None discriminates under the gross scale, except NET-DROPPED.
+
+**Other checks on the new case:**
+- The generated intensity w_rep lies 0.476 ulp from a binary64 value, so the rounded-once defect sits near its worst case (the bound is 9.9×).
+- Sterbenz holds for both two-term sums.
+- V1-S8: no row is below the floor, for either value of R or either row set.
+- The package regenerates byte for byte on a copy: JSON `82407650…`, and stdout identical to `_run_records/references_eload.stdout.txt` (`_run_records/rev1/regeneration.txt`).
+
+### 2. Byte identity of the pre-existing values
+
+This is my own check, `v3_delta.py`. It is independent of `preserve_check_rev1.py`, which I did not run and did not read.
+
+**Rows:** all 48 revision-0 cases are present. Every row is string-identical:
+- 2111 expected rows;
+- 382 `expected_represented` rows;
+- 382 `represented_vs_intended_per_quantity` rows.
+
+**Other case fields:** every other field is JSON-identical: inputs, model, classes, `zero_valued`, `finite_input`, `generated_intensities`, cancellation, notes and the rest. The only exception is the allowed new `cancellation.gross_scale_status`, in the three CANCEL-FEM cases.
+
+**Top level:** only `summary` changed. It now reads 49 cases, 2142 values, 413 represented values, and 216 controls of which 194 discriminate, which is consistent with the changes.
+
+**Controls:**
+- no numerical field of any surviving control changed: `discriminates`, the counts, the worst key, the ratio, the observed and expected values, and the class and gross flags;
+- 1 control was removed (NC-LOST-SOFT at TH-SPRING-LEG-r1e-06);
+- none was added in the pre-existing cases;
+- 16 `defect` texts were changed;
+- 22 `label` fields were added.
+
+### 3. Changed and retired controls
+
+**F8.** NC-LOST-SOFT was retired from r1e-06 only; it stays at r1e-12 and RES-r1e-08.
+
+**F4 and F5.** The new texts state exactly the defects the package computes. NC-LEVER-RULE applies to every element load, so full-span loads are lumped 50/50. In TH-SERIAL, ALPHA-TIMES-INTERVAL and SUBTRACT-DILATIONS replace ε\* entirely and drop the fit. My earlier rebuilds reproduce the package only under these readings (RETURN §6.1).
+
+**F6 (my correction).** The computed COMB-DIFF control is **|Mb_A − Mb_B|**, and the author's text is correct.
+- With the absolute value: 2.25838e7 at Mb.M1.i, 9 values failing. This matches the package exactly.
+- Without it (signed Mb_A − Mb_B): 1.16222e8 at Mb.M2.j, 10 values failing, because Mb_A = 0 < Mb_B there.
+- Revision 0's texts already said "absolute difference" and, for NC-WRONG-DIFFERENCE, "bending magnitudes left correct". My F6 misread them: I had checked only COMB-SUM's text.
+- So F6 should not have been raised, and my RETURN §9 and ROOT's ruling text ("Mb_A − Mb_B") should read |Mb_A − Mb_B|. The revision-1 text "Mb_A + Mb_B" in COMB-SUM and "|Mb_A − Mb_B|" in COMB-DIFF matches the computation.
+
+**F1.** The new NC-FLOAT-SUM text says the control rounds w_s formed exactly on the case's basis: the intended product on the intended basis, and the decoded-binary64 product on the represented basis. That matches what I reproduce:
+- 0.00260101 at G1e5, which is fl(intended w_s);
+- 0.0240477 at G1e7 and 0.240477 at G1e8, which is fl(w_rep);
+- 9.43619 at G1e8-R.
+
+README finding 3 is reworded correctly. It gives the bound at 1e7 as 0.57 and at 1e8 as 5.70, and correctly credits the G1e8 pass to the input coincidence rather than to Sterbenz.
+
+**Labels.** The 22 labels are exactly my §6.2 decisions: the 21 kept controls, plus G1e8's benign-rounding label, which points to G1e8-R. Every non-discriminating control carries a label, and no labelled control discriminates.
+
+### 4. README
+
+- **F7.** §4 calls the both-zero rule an extension that R1 refuses, and names the 3 cases.
+- **F10.** The harness notes in §3 are correct: station labels mirror under an i/j swap, and tp_phys_008 prints +12 where the package's N is −12.
+- **D-14.** §2 and finding 1 state "exact from the binary64 inputs as the document stores them" (D1 §4.2, ROOT). The 8.57× figure is reported correctly.
+
+### NOTEs
+
+- **N1 (F9 wording).** `gross_scale_status` says span-B rows show "about one tenth of |expected|". The actual ratios of gross scale to |exp| are:
+
+  | Row | Ratio |
+  |---|---|
+  | R.S2.UY | 0.1 |
+  | R.S2.RZ | 0.2 |
+  | Mb.M2.i | 0.4 |
+  | Mb.M2.q1 | 2.0 |
+  | Mb.M2.mid | 0.2 |
+  | Mb.M2.q3 | 0.4 |
+  | Mb.M2.j | 0.2 |
+
+  Mb.M2.q1's gross scale is larger than |exp|. The column is review-only, so nothing binding is affected. Optional: reword it as "0.1 to 2 times |expected|".
+- **N2 (README §4 wording).** The both-zero bullet still carries the parenthetical "(for example the fixed-fixed thermal, thrust and prescribed-free cases)". The same sentence says the rule applies only in the three named cases, and none of them is a prescribed-motion case. Optional: delete "and prescribed-free".
+
+**Remaining magnitude differences.** My rebuilt LEVER-RULE and SERIAL ratios still differ from the package's in magnitude, as in RETURN §6.1. That is because `v3_nc.py` keeps my original reading. The package's figures reproduce under the reading its new text states (checked in revision 0), so this is not a finding.
+
+### Record for the delta
+
+- **New files:** `v3_delta.py` and `_run_records/rev1/*`. The latter holds the full pipeline outputs against revision 1, plus `v3_delta.json` and its stdout.
+- **Revision-0 outputs:** the top-level `_run_records/*` files are the revision-0 run and are unchanged. `run_v3.sh` always runs against the current package.
+- **Read:**
+  - the last sections of `ROOT_RULINGS_V1.md` (`git show 9d9e8bfc7 35677f223`);
+  - the revision-1 README (`diff` against revision 0);
+  - the revision-1 JSON.
+- **Not read:** `preserve_check_rev1.py`, and the author's code beyond running it on a copy.
+- **Not done:** no Git write, no cargo or npm, and nothing written outside `T3/REFERENCE_CHECK_ELOAD/**` and `<scratch>`.

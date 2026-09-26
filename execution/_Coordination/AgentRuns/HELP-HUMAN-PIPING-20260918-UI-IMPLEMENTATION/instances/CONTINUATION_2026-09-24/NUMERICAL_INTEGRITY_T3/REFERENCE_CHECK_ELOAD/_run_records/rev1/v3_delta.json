@@ -1,0 +1,299 @@
+{
+ "new_cases": [
+  "RF-ELOAD-CANCEL-SEIS-G1e8-R"
+ ],
+ "missing_cases": [],
+ "top_level_changed": [
+  "summary"
+ ],
+ "field_differences": [],
+ "row_counts": {
+  "expected": 2111,
+  "expected_represented": 382,
+  "rep_vs_int": 382
+ },
+ "row_differences": [],
+ "controls_removed": [
+  [
+   "RF-ELOAD-TH-SPRING-LEG-r1e-06",
+   "NC-LOST-SOFT"
+  ]
+ ],
+ "controls_added": [],
+ "control_numeric_changes": [],
+ "control_text_changes": [
+  [
+   "RF-ELOAD-UDL-CANT-PART-GLOB-AX",
+   "NC-LEVER-RULE",
+   "defect",
+   "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+   "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50."
+  ],
+  [
+   "RF-ELOAD-UDL-CANT-PART-LOC-122",
+   "NC-LEVER-RULE",
+   "defect",
+   "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+   "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50."
+  ],
+  [
+   "RF-ELOAD-UDL-CANT-PART-GLOB-345",
+   "NC-LEVER-RULE",
+   "defect",
+   "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+   "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50."
+  ],
+  [
+   "RF-ELOAD-UDL-PROP-PART-AX",
+   "NC-LEVER-RULE",
+   "defect",
+   "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+   "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50."
+  ],
+  [
+   "RF-ELOAD-UDL-CONT2-AX",
+   "NC-LEVER-RULE",
+   "defect",
+   "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+   "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50."
+  ],
+  [
+   "RF-ELOAD-UDL-CONT2-Q9",
+   "NC-LEVER-RULE",
+   "defect",
+   "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+   "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50."
+  ],
+  [
+   "RF-ELOAD-UDL-LFRAME-3D",
+   "NC-LEVER-RULE",
+   "defect",
+   "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+   "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50."
+  ],
+  [
+   "RF-ELOAD-TH-SERIAL-RES-FIT",
+   "NC-ALPHA-TIMES-INTERVAL",
+   "defect",
+   "NC-ALPHA-TIMES-INTERVAL: eps* = alpha_sec(T)*(T - T_install), ignoring the datum ratio.",
+   "NC-ALPHA-TIMES-INTERVAL: eps* = alpha_sec(T)*(T - T_install), ignoring the datum ratio; the defect replaces eps* entirely, so the fit is dropped as well."
+  ],
+  [
+   "RF-ELOAD-TH-SERIAL-RES-FIT",
+   "NC-SUBTRACT-DILATIONS",
+   "defect",
+   "NC-SUBTRACT-DILATIONS: eps* = lambda(T) - lambda(T_install) instead of their ratio minus one.",
+   "NC-SUBTRACT-DILATIONS: eps* = lambda(T) - lambda(T_install) instead of their ratio minus one; the defect replaces eps* entirely, so the fit is dropped as well."
+  ],
+  [
+   "RF-ELOAD-GEN-WIND-SUBSPAN",
+   "NC-LEVER-RULE",
+   "defect",
+   "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+   "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50."
+  ],
+  [
+   "RF-ELOAD-PM-ELOAD-CONT2",
+   "NC-LEVER-RULE",
+   "defect",
+   "NC-LEVER-RULE: each partial-span load replaced by its lever-rule end forces W(1-c), Wc, no fixed-end moments (the sub-span preview tier used as the solve).",
+   "NC-LEVER-RULE: every element load replaced by its lever-rule end forces W(1-c) and Wc (W the load resultant, c the centroid fraction), with no fixed-end moments (the sub-span preview tier used as the solve); a full-span load (c = 1/2) is thereby lumped 50/50."
+  ],
+  [
+   "RF-ELOAD-CANCEL-SEIS-G1e5",
+   "NC-FLOAT-SUM",
+   "defect",
+   "NC-FLOAT-SUM: the net intensity as fl(fl(w_s) + fl(D)), the correctly rounded generated intensity summed in binary64 with the authored load.",
+   "NC-FLOAT-SUM: rounded-once generation. w_s formed exactly on the case's basis (the exact product of the intended inputs on the intended basis, of the decoded binary64 inputs on the represented basis), rounded once to binary64, then summed in binary64 with fl(D): fl(fl(w_s) + fl(D)). The two-term sum is exact (Sterbenz), so the defect measured is the single rounding of the generated intensity before the ledger, which D1 section 4.2 excludes."
+  ],
+  [
+   "RF-ELOAD-CANCEL-SEIS-G1e7",
+   "NC-FLOAT-SUM",
+   "defect",
+   "NC-FLOAT-SUM: the net intensity as fl(fl(w_s) + fl(D)), the correctly rounded generated intensity summed in binary64 with the authored load.",
+   "NC-FLOAT-SUM: rounded-once generation. w_s formed exactly on the case's basis (the exact product of the intended inputs on the intended basis, of the decoded binary64 inputs on the represented basis), rounded once to binary64, then summed in binary64 with fl(D): fl(fl(w_s) + fl(D)). The two-term sum is exact (Sterbenz), so the defect measured is the single rounding of the generated intensity before the ledger, which D1 section 4.2 excludes."
+  ],
+  [
+   "RF-ELOAD-CANCEL-SEIS-G1e8",
+   "NC-FLOAT-SUM",
+   "defect",
+   "NC-FLOAT-SUM: the net intensity as fl(fl(w_s) + fl(D)), the correctly rounded generated intensity summed in binary64 with the authored load.",
+   "NC-FLOAT-SUM: rounded-once generation. w_s formed exactly on the case's basis (the exact product of the intended inputs on the intended basis, of the decoded binary64 inputs on the represented basis), rounded once to binary64, then summed in binary64 with fl(D): fl(fl(w_s) + fl(D)). The two-term sum is exact (Sterbenz), so the defect measured is the single rounding of the generated intensity before the ledger, which D1 section 4.2 excludes."
+  ],
+  [
+   "RF-ELOAD-COMB-SUM",
+   "NC-MAG-SUM",
+   "defect",
+   "NC-MAG-SUM: combined bending magnitudes taken as the sum of the component magnitudes; other values correct.",
+   "NC-MAG-SUM: combined bending magnitudes taken as Mb_A + Mb_B, the sum of the component magnitudes instead of the magnitude of the combined moment vector; other values correct."
+  ],
+  [
+   "RF-ELOAD-COMB-DIFF",
+   "NC-MAG-SUM",
+   "defect",
+   "NC-MAG-SUM: combined bending magnitudes taken as the absolute difference of the component magnitudes; other values correct.",
+   "NC-MAG-SUM: combined bending magnitudes taken as |Mb_A - Mb_B|, the difference of the component magnitudes instead of the magnitude of the combined moment vector; other values correct."
+  ]
+ ],
+ "other_control_field_changes": [
+  [
+   "RF-ELOAD-CE-CANCEL-G1e5",
+   "NC-FLOAT-SUM-GmnGp",
+   "label",
+   null,
+   "lossy order within the criterion at G = 1e5 (bound ulp(1e5)/2 relative to the net, 0.024)"
+  ],
+  [
+   "RF-ELOAD-CE-CANCEL-G1e5",
+   "NC-FLOAT-SUM-GmGpn",
+   "label",
+   null,
+   "benign order (exact): the gross cancels first, exactly; the residual is the decoding of 0.3"
+  ],
+  [
+   "RF-ELOAD-CE-CANCEL-G1e5",
+   "NC-FLOAT-SUM-nGmGp",
+   "label",
+   null,
+   "lossy order within the criterion at G = 1e5 (bound ulp(1e5)/2 relative to the net, 0.024)"
+  ],
+  [
+   "RF-ELOAD-CE-CANCEL-G1e8",
+   "NC-FLOAT-SUM-GmGpn",
+   "label",
+   null,
+   "benign order (exact): the gross cancels first, exactly; the residual is the decoding of 0.3"
+  ],
+  [
+   "RF-ELOAD-GEN-SEIS-CANT-AX",
+   "NC-BIN64-PRODUCT",
+   "label",
+   null,
+   "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
+  ],
+  [
+   "RF-ELOAD-GEN-SEIS-CONT2-Q9",
+   "NC-BIN64-PRODUCT",
+   "label",
+   null,
+   "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
+  ],
+  [
+   "RF-ELOAD-GEN-SEIS-WIND-LFRAME-FF",
+   "NC-BIN64-PRODUCT",
+   "label",
+   null,
+   "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
+  ],
+  [
+   "RF-ELOAD-GEN-WIND-MARKED-CONT2",
+   "NC-BIN64-PRODUCT",
+   "label",
+   null,
+   "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
+  ],
+  [
+   "RF-ELOAD-GEN-WIND-SUBSPAN",
+   "NC-BIN64-PRODUCT",
+   "label",
+   null,
+   "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
+  ],
+  [
+   "RF-ELOAD-GEN-WIND-SKEW-PROP",
+   "NC-BIN64-PRODUCT",
+   "label",
+   null,
+   "D-14 not observable without cancellation (the binary64 product is about 1e-15 relative); not a mutation test; D-14 is enforced by a kernel-level test in F3"
+  ],
+  [
+   "RF-ELOAD-CANCEL-FEM-G1e5",
+   "NC-FLOAT-SUM-ABn",
+   "label",
+   null,
+   "benign order (exact): A + B is exact (Sterbenz); the residual is fl(-0.2) and one rounding"
+  ],
+  [
+   "RF-ELOAD-CANCEL-FEM-G1e5",
+   "NC-FLOAT-SUM-AnB",
+   "label",
+   null,
+   "within the criterion at this ratio (bound 0.0094)"
+  ],
+  [
+   "RF-ELOAD-CANCEL-FEM-G1e5",
+   "NC-FLOAT-SUM-nAB",
+   "label",
+   null,
+   "within the criterion at this ratio (bound 0.0094)"
+  ],
+  [
+   "RF-ELOAD-CANCEL-FEM-G1e7",
+   "NC-FLOAT-SUM-ABn",
+   "label",
+   null,
+   "benign order (exact): A + B is exact (Sterbenz); the residual is fl(-0.2) and one rounding"
+  ],
+  [
+   "RF-ELOAD-CANCEL-FEM-G1e7",
+   "NC-FLOAT-SUM-AnB",
+   "label",
+   null,
+   "within the criterion at this ratio (bound 0.60: structurally non-discriminating)"
+  ],
+  [
+   "RF-ELOAD-CANCEL-FEM-G1e7",
+   "NC-FLOAT-SUM-nAB",
+   "label",
+   null,
+   "within the criterion at this ratio (bound 0.60: structurally non-discriminating)"
+  ],
+  [
+   "RF-ELOAD-CANCEL-FEM-G1e8",
+   "NC-FLOAT-SUM-ABn",
+   "label",
+   null,
+   "benign order (exact): A + B is exact (Sterbenz); the residual is fl(-0.2) and one rounding"
+  ],
+  [
+   "RF-ELOAD-CANCEL-SEIS-G1e5",
+   "NC-BIN64-PRODUCT",
+   "label",
+   null,
+   "within the criterion at r = 1e5 (bound about 0.1)"
+  ],
+  [
+   "RF-ELOAD-CANCEL-SEIS-G1e5",
+   "NC-FLOAT-SUM-BIN64",
+   "label",
+   null,
+   "within the criterion at r = 1e5 (bound about 0.1)"
+  ],
+  [
+   "RF-ELOAD-CANCEL-SEIS-G1e5",
+   "NC-FLOAT-SUM",
+   "label",
+   null,
+   "within the criterion at r = 1e5 (bound about 0.1)"
+  ],
+  [
+   "RF-ELOAD-CANCEL-SEIS-G1e7",
+   "NC-FLOAT-SUM",
+   "label",
+   null,
+   "rounded-once generation structurally below the criterion at r = 1e7: the bound, half an ulp of w_s relative to the net, is 0.57"
+  ],
+  [
+   "RF-ELOAD-CANCEL-SEIS-G1e8",
+   "NC-FLOAT-SUM",
+   "label",
+   null,
+   "benign rounding: passes only because the represented intensity w_rep lies 0.021 ulp from a binary64 value (bound 5.70); the rounded-once defect is caught by RF-ELOAD-CANCEL-SEIS-G1e8-R"
+  ]
+ ],
+ "gross_scale_status": {
+  "RF-ELOAD-CANCEL-FEM-G1e5": "review-only and asymmetric (V3 F9): the gross column is the response to span A alone, so span-B rows (R.S2.*, Mb.M2.*) show about one tenth of |expected|; it never enters a binding comparison",
+  "RF-ELOAD-CANCEL-FEM-G1e7": "review-only and asymmetric (V3 F9): the gross column is the response to span A alone, so span-B rows (R.S2.*, Mb.M2.*) show about one tenth of |expected|; it never enters a binding comparison",
+  "RF-ELOAD-CANCEL-FEM-G1e8": "review-only and asymmetric (V3 F9): the gross column is the response to span A alone, so span-B rows (R.S2.*, Mb.M2.*) show about one tenth of |expected|; it never enters a binding comparison"
+ }
+}
