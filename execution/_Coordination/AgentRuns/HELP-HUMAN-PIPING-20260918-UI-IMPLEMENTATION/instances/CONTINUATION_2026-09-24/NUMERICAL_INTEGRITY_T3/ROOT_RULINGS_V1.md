@@ -148,3 +148,22 @@ The finding: `RF-SKEW-T-CANT-OFF-122-r1e-04` is published Passed and Current-eli
    **ROOT's direction:** whatever is chosen, "Passed" must not be publishable for a case the reference suite shows breaching 1e-9. ROOT rules on the options in the package.
 4. **P1 search.** P1 looks for more cases in this class across all of R1's families (Passed plus a breach, with no cancellation), and lists every one.
 5. **M32 baseline.** P1's observation `RF-LARGE-CHAIN-n1000`, about 21 s and about 3.7 GB peak RSS under RLIMIT_AS 6 GiB on main's dense assembly, is recorded as the M32 baseline.
+
+## Rulings on V1's BACKCHECK_R3 (ROOT, 2026-09-26, after `ef9cf487e`)
+
+Input: [REVIEW/BACKCHECK_R3.md](REVIEW/BACKCHECK_R3.md). Verdict FINDINGS, nothing blocking. These rulings fold into D1's DESIGN revision 4, which also carries D5_TRIGGER, and into D2's revision 4.
+
+- **R3B-1: accepted.** The derived-stress floor gets a pinned propagation factor: √2 for hypot rows, and √2·i for intensified rows, using the row's own i. It must be proven to keep the floor guarantee at 1e-9.
+- **R3B-2: accepted.** A closed list of every published row kind, with one class per kind and `not_covered` as the default.
+  - Per-case counts of withheld rows are reported in the gate and in P1's survey.
+  - The cost that the max_stress headline and the reactions become `not_covered` on the ordinary pressure route is stated explicitly. That cost goes into the D-5 owner-impact framing alongside the trigger, because together they determine how much Current a realistic model loses.
+- **R3B-3.** The section terms are carried in the receipt as bit strings. That is more robust than pinning every rounding step in three languages.
+- **R3B-4.** G5b gains the stress kind, input-derived rows are classified, and G5c checks set equality.
+- **R3B-5.** The site list is keyed by function plus match count.
+- **N-1 to N-5: applied.**
+  - N-1: the 293 and 303 counts are corrected.
+  - N-2: the S\* ≥ 2^-988 exactness bound is recorded, and smaller S\* is handled explicitly.
+  - N-3: compare classes, not bits.
+  - N-4: S11-K's PR record carries the diff sizes.
+  - N-5: the refusal codes are aligned.
+- **Next.** V1 narrowly backchecks revision 4 together with D5_TRIGGER. That is the last design check before the package.
