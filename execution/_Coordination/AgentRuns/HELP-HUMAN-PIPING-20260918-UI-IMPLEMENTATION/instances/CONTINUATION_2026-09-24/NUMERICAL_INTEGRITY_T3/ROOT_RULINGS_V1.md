@@ -370,7 +370,7 @@ Input: [REVIEW/BACKCHECK_R5.md](REVIEW/BACKCHECK_R5.md). Verdict FINDINGS, nothi
 - **In the same revision:**
   - F1 text: the NC-FLOAT-SUM control text and README finding 3 say what the control rounds.
   - F8: retire NC-LOST-SOFT at r1e-06.
-  - F4–F6: the control texts specify the defect exactly as V3 found it (the lever rule lumps full-span loads 50/50; ALPHA-TIMES-INTERVAL and SUBTRACT-DILATIONS drop the fit; COMB-DIFF's NC-MAG-SUM is Mb_A − Mb_B).
+  - F4–F6: the control texts specify the defect exactly as V3 found it (the lever rule lumps full-span loads 50/50; ALPHA-TIMES-INTERVAL and SUBTRACT-DILATIONS drop the fit; COMB-DIFF's NC-MAG-SUM is |Mb_A − Mb_B|; corrected after V3's delta check at `1daa512d4`, where V3 withdrew its F6 misreading).
   - V3's §6.2 labels on the 21 kept controls, and its re-scale decision.
   - F9: a symmetric CANCEL-FEM gross column, or one labelled review-only.
   - F10: a README harness-mapping note (station labels under an i/j swap; tp_phys_008's N sign).
