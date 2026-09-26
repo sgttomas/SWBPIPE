@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+"""V1 VERIFY_R5: N-1. D2's decision algorithm for b = fl_up(2^-64 * S*):
+r = fl(S* * 2^-64); b = r if r * 2^64 >= S* else next_up(r).  Checks, exactly with Fraction, that
+b is the least binary64 >= 2^-64 * S*, and that b == 0 iff S* == 0.  Standard library only."""
+import json, math, random
+from fractions import Fraction as Fr
+random.seed(20260926)
+TW = 2.0 ** -64
+def b_alg(S):
+    r = S * TW
+    return r if r * 2.0 ** 64 >= S else math.nextafter(r, math.inf)
+def least_up(S):
+    t = Fr(S) * Fr(1, 2 ** 64)
+    x = float(t)  # round to nearest
+    if Fr(x) < t:
+        x = math.nextafter(x, math.inf)
+    while x > 0 and Fr(math.nextafter(x, -math.inf)) >= t:
+        x = math.nextafter(x, -math.inf)
+    return x
+samples = [0.0, 5e-324, 1e-323, 2.0 ** -1022, 2.0 ** -958, 2.0 ** -957, math.nextafter(2.0 ** -958, 0), 1.0, 1.7976931348623157e308]
+samples += [random.uniform(0, 1) * 2.0 ** random.randint(-1074, 1023) for _ in range(20000)]
+samples += [k * 5e-324 for k in range(1, 5000)]
+bad = [S for S in samples if b_alg(S) != least_up(S) or ((b_alg(S) == 0) != (S == 0))]
+print(json.dumps({"samples": len(samples), "mismatches": len(bad), "first": bad[:5]}))

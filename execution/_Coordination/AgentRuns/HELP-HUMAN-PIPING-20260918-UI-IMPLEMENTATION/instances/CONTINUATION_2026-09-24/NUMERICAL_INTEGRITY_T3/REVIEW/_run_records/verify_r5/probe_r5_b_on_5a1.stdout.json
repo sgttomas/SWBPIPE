@@ -1,0 +1,15 @@
+{
+ "M-UDL": {
+  "no_proof_reason": null,
+  "anchorA_Fz_claimed_proven_zero": false,
+  "anchorA_My_claimed_proven_zero": false,
+  "intended_anchorA_Fz_N": 1000.0,
+  "intended_anchorA_My_Nm": "w*L^2/12 = 333.3 (sign by convention)"
+ },
+ "M-EIG": {
+  "no_proof_reason": null,
+  "anchorA_Fx_claimed_proven_zero": false,
+  "anchorB_Fx_claimed_proven_zero": false,
+  "intended_anchorA_Fx": "-E*A*eps (nonzero)"
+ }
+}
