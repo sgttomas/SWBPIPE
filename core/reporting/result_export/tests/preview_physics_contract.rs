@@ -725,7 +725,7 @@ fn a2_shared_tamper_vector() {
     };
     let vector = read("fixtures/results/preview_physics_tamper_vector.json");
     let variants = vector["variants"].as_array().unwrap();
-    assert_eq!(variants.len(), 13);
+    assert_eq!(variants.len(), 22);
     for variant in variants {
         let id = variant["id"].as_str().unwrap();
         let base = vector["bases"][variant["base"].as_str().unwrap()]
@@ -775,6 +775,7 @@ fn a2_shared_tamper_vector() {
                 other => panic!("{id}: unknown op {other}"),
             }
         }
+        println!("{id}: {:?}", s::for_source(&source).map(|_| "accepted"));
         match variant["expect"].as_str().unwrap() {
             "accepted" => {
                 s::for_source(&source).unwrap_or_else(|e| panic!("{id}: {e}"));

@@ -668,7 +668,7 @@ def _a2_empty_unit(s):
 
 @pytest.mark.parametrize("change", [
     _a2_extremum(station_fraction=1.5), _a2_extremum(local_fraction=-0.25), _a2_extremum(span_index=-1),
-    _a2_extremum(span_index=1.0), _a2_extremum(subdivisions=131073), _a2_extremum(subdivisions=-1), _a2_extremum(subdivisions=True),
+    _a2_extremum(span_index=1.5), _a2_extremum(subdivisions=4.5), _a2_extremum(subdivisions=131073), _a2_extremum(subdivisions=-1), _a2_extremum(subdivisions=True),
     _a2_case_order, _a2_attribution_differs, _a2_combination_support_frame, _a2_combination_support_location,
     _a2_combination_support_component, _a2_null_affected_refs, _a2_empty_affected_ref, _a2_empty_sif_source,
     _a2_missing_entity_ref, _a2_empty_unit,
@@ -701,6 +701,32 @@ def test_a3_tamper_controls(change):
     with pytest.raises(ValueError, match="negative intensified value|support both attributed and withheld"):
         _source_contract(source)
     assert numerical_use_standing(source, bases(source)) == "unsupported"
+
+
+def test_a4_integers_by_numeric_value_are_accepted():
+    source = envelope()
+    source["contract_evidence"]["preview_cases"][0]["pipe_stress_extrema"][0].update(span_index=1.0, subdivisions=4.0)
+    source["summary"]["component_stress_modifier_count"] = 2.0
+    validate_preview_physics_evidence(source)
+    for bad in (True, 2.5):
+        tampered = deepcopy(source); tampered["summary"]["component_stress_modifier_count"] = bad
+        with pytest.raises(ValueError, match="intensified row count"):
+            validate_preview_physics_evidence(tampered)
+    stopped = blocked()
+    stopped["summary"]["component_stress_modifier_count"] = 0.0
+    validate_preview_physics_evidence(stopped)
+    stopped["summary"]["component_stress_modifier_count"] = False
+    with pytest.raises(ValueError, match="blocked envelope counts"):
+        validate_preview_physics_evidence(stopped)
+
+
+def test_a4_n6_support_row_frame_is_global_without_basis():
+    source = envelope()
+    row = next(r for r in source["results"] if r["kind"] == "support_reaction_component_v2" and r["basis_ref"]["ref_type"] == "load_case")
+    row.pop("basis_ref")
+    row["metadata"]["coordinate_system"] = "element_local"
+    with pytest.raises(ValueError, match="support action frame"):
+        validate_preview_physics_evidence(source)
 
 
 def test_a2_6_blocked_modifier_count_is_zero():

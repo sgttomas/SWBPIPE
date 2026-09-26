@@ -74,6 +74,11 @@ def _number(value: Any) -> bool:
     return type(value) in (int, float) and math.isfinite(value)
 
 
+def _integer(value: Any) -> bool:
+    """A4 N7/N10: an integer by numeric value (4 or 4.0); never a boolean or 4.5."""
+    return _number(value) and float(value).is_integer()
+
+
 def _strings(value: Any) -> bool:
     return isinstance(value, list) and all(_text(item) for item in value) and len(set(value)) == len(value)
 
@@ -171,7 +176,7 @@ def _cases(evidence: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
             _shape(extremum, EXTREMA_KEYS, "extrema shape")
             _require(_text(extremum["pipe_id"]) and _text(extremum["result_id"]) and all(extremum[key] == value for key, value in EXTREMA_CONSTANTS.items()), "extrema identity or basis")
             _require(all(_number(extremum[key]) for key in ("station_fraction", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa")), "extrema numbers")
-            _require(type(extremum["span_index"]) is int and extremum["span_index"] >= 0 and type(extremum["subdivisions"]) is int and 0 <= extremum["subdivisions"] <= 131072, "extrema integers")
+            _require(_integer(extremum["span_index"]) and extremum["span_index"] >= 0 and _integer(extremum["subdivisions"]) and 0 <= extremum["subdivisions"] <= 131072, "extrema integers")
             _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1, "extrema fractions")
             _require(0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"], "extrema bounds")
         pipes = [extremum["pipe_id"] for extremum in case["pipe_stress_extrema"]]
@@ -223,6 +228,9 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(_number(row.get("value")) and _text(row.get("kind")) and _text(row.get("unit")) and _text(row.get("entity_ref")), "source row fields")
         _require(row.get("metadata") is None or isinstance(row.get("metadata"), Mapping), "source row metadata")
         signature(row)
+        if row["kind"] in SUPPORT_KINDS:
+            # A4 N6: every support-action row is global, whatever its basis_ref.
+            _require((row.get("metadata") or {}).get("coordinate_system") == "global", "support action frame")
         basis = row.get("basis_ref")
         if basis is not None:
             _shape(basis, {"ref_type", "ref_id"}, "row basis reference")
@@ -252,7 +260,7 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(not evidence["preview_cases"] and not evidence["combination_gates"], "blocked envelope carries preview evidence")
         _require(not results, "blocked envelope carries result rows")
         _require(summary.get("max_displacement") is None and summary.get("max_open_formula_stress") is None, "blocked envelope carries a headline")
-        _require(summary.get("component_stress_modifier_count", 0) == 0, "blocked envelope counts intensified rows")
+        _require("component_stress_modifier_count" not in summary or (_integer(summary["component_stress_modifier_count"]) and summary["component_stress_modifier_count"] == 0), "blocked envelope counts intensified rows")
     for row in results:
         basis = row.get("basis_ref")
         if basis is None:
@@ -313,7 +321,7 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(displacement is None, "displacement headline without displacement rows")
     intensified_rows = [row for row in results if row["kind"] == INTENSIFIED_KIND]
     if "component_stress_modifier_count" in summary:
-        _require(summary["component_stress_modifier_count"] == len(intensified_rows), "intensified row count")
+        _require(_integer(summary["component_stress_modifier_count"]) and summary["component_stress_modifier_count"] == len(intensified_rows), "intensified row count")
 
     # 7. Support actions: attributed => exactly eight rows; withheld => none.
     withheld_diagnostics: set[tuple[str, str]] = set()

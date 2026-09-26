@@ -268,7 +268,8 @@ function validate(source: MechanicsResult): void {
       // 9. Combination rows only for admitted combinations.
       demand(gate !== undefined && gate.withheld === false, "combination row without an admitting gate");
       demand(row.kind !== MAXIMUM_KIND && row.kind !== INTENSIFIED_KIND, "maximum or intensified row for a combination");
-      const refs = row.source_result_refs ?? [];
+      // A4 N4: the key may be absent; when present it is an array whose entries resolve (null refused).
+      const refs = Object.hasOwn(row, "source_result_refs") ? row.source_result_refs : [];
       demand(Array.isArray(refs) && refs.every(ref => typeof ref === "string" && rows.has(ref)), "combination source reference");
     }
   }
@@ -330,6 +331,10 @@ function validate(source: MechanicsResult): void {
     withheldDiagnostics.add(key);
   }
   for (const row of results) {
+  }
+  // A4 N6: every support_reaction_*_v2 row is in the global frame, whatever its basis_ref (including none).
+  for (const row of results) {
+    if (SUPPORT_KINDS.includes(row.kind)) demand((row.metadata as Json | undefined)?.coordinate_system === "global", "support action frame");
   }
   // A2 4: combination support rows keep the global frame, node location and their component token.
   for (const row of results) {

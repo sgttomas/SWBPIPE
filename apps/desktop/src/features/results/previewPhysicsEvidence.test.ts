@@ -274,13 +274,19 @@ describe("A2 shared tamper vector", () => {
     "V2-subdivisions-above-cap": "extrema integers",
     "V3-negative-span-index": "extrema integers",
     "V4-preview-cases-reordered": "preview case coverage",
-    "V5-combination-support-row-not-global": "combination support row frame",
+    "V5-combination-support-row-not-global": "support action frame", // A4 N6 (all support rows global) now fires before A2 4
     "V6-null-affected-refs": "diagnostic reference list",
     "V7-blocked-modifier-count-nonzero": "blocked envelope modifier count",
     "V8-empty-sif-source-reference": "intensified measure identity",
     "V9-missing-entity-ref": "source row fields",
     "V10-negative-intensified-value": "negative intensified value",
     "V11-support-both-attributed-and-withheld": "support both attributed and withheld",
+    "A4-N2-basis-ref-extra-key": "row basis reference",
+    "A4-N3-diagnostic-without-id": "evidence identities",
+    "A4-N4-combination-source-result-refs-null": "combination source reference",
+    "A4-N5-duplicate-combination-force-magnitude": "duplicate combined support component",
+    "A4-N6-support-row-without-basis-ref-element-local": "support action frame",
+    "A4-N8-blocked-envelope-without-summary": "summary",
   };
   const decode = (token: string) => token.replaceAll("~1", "/").replaceAll("~0", "~");
   function locate(document: any, pointer: string, forAdd = false): [any, string] {
@@ -310,9 +316,12 @@ describe("A2 shared tamper vector", () => {
     else if (op.op === "reverse") { if (!Array.isArray(parent[key])) throw new Error("TAMPER_REVERSE_NOT_ARRAY"); parent[key].reverse(); }
     else throw new Error(`TAMPER_OP_UNSUPPORTED: ${op.op}`);
   }
-  it("has 11 variants and 2 unchanged controls", () => {
+  it("has all 22 entries: 2 unchanged controls, 3 A4 acceptances and 17 refusals", () => {
+    expect(vector.variants).toHaveLength(22);
     expect(vector.variants.filter(v => v.ops.length === 0 && v.expect === "accepted")).toHaveLength(2);
-    expect(vector.variants.filter(v => v.expect === "refused")).toHaveLength(11);
+    expect(vector.variants.filter(v => v.ops.length > 0 && v.expect === "accepted").map(v => v.id).sort()).toEqual(["A4-N1-intensified-metadata-extra-key", "A4-N10-integer-span-index-written-as-float", "A4-N7-integer-count-written-as-float"]);
+    expect(vector.variants.filter(v => v.expect === "refused")).toHaveLength(17);
+    expect(vector.variants.filter(v => v.expect === "refused").every(v => Object.hasOwn(TS_REFUSAL_DETAIL, v.id))).toBe(true);
   });
   it.each(vector.variants.map(v => [v.id, v] as const))("%s", (_id, variant) => {
     const source = JSON.parse(readFileSync(resolve(root, vector.bases[variant.base]), "utf8"));

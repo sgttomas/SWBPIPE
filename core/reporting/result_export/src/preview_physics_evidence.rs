@@ -72,7 +72,7 @@ const SUPPORT_COMPONENTS: [&str; 8] = [
     "moment_magnitude",
 ];
 /// `MAX_SUBDIVISIONS` of core/loads/stress_recovery/src/elastic_extrema.rs (A2 item 1).
-const MAX_SUBDIVISIONS: u64 = 131072;
+const MAX_SUBDIVISIONS: f64 = 131072.0;
 const MAXIMUM: &str = "pipe_elastic_normal_stress_maximum_v2";
 const INTENSIFIED: &str = "component_equal_factor_intensified_bending_stress_v1";
 const SUPPORT_COMPONENT: &str = "support_reaction_component_v2";
@@ -103,6 +103,11 @@ fn number(v: &Value) -> Result<f64, String> {
     v.as_f64()
         .filter(|n| n.is_finite())
         .ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID".into())
+}
+/// A4 N7/N10: an integer field is checked by numeric value (4 and 4.0 alike);
+/// non-integral numbers and non-numbers (including booleans) are refused.
+fn integer(v: &Value) -> Option<f64> {
+    v.as_f64().filter(|n| n.is_finite() && n.fract() == 0.0)
 }
 fn array(v: &Value) -> Result<&Vec<Value>, String> {
     v.as_array()
@@ -179,20 +184,23 @@ fn row_semantics(row: &Value, kind: &str) -> Check {
     let direct = case_of(row).is_some();
     match kind {
         SUPPORT_COMPONENT | SUPPORT_FORCE | SUPPORT_MOMENT => {
-            // A1 f exact on case rows; A2 item 4 (frame, location, component) on combination rows.
+            // A4 N6: every support-action row is global, whatever its basis.
+            require(md["coordinate_system"] == "global", "ROW_SEMANTICS")?;
+            // A1 f exact on case rows; A2 item 4 (location, component) on combination rows.
             if direct {
                 require(keys(md, METADATA_KEYS), "ROW_METADATA_SHAPE")?;
             }
-            let c = component(row);
-            require(
-                match kind {
-                    SUPPORT_COMPONENT => SUPPORT_COMPONENTS[..6].contains(&c),
-                    SUPPORT_FORCE => c == "force_magnitude",
-                    _ => c == "moment_magnitude",
-                } && md["coordinate_system"] == "global"
-                    && md["location"] == "node",
-                "ROW_SEMANTICS",
-            )?;
+            if direct || combination_of(row).is_some() {
+                let c = component(row);
+                require(
+                    match kind {
+                        SUPPORT_COMPONENT => SUPPORT_COMPONENTS[..6].contains(&c),
+                        SUPPORT_FORCE => c == "force_magnitude",
+                        _ => c == "moment_magnitude",
+                    } && md["location"] == "node",
+                    "ROW_SEMANTICS",
+                )?;
+            }
             if direct {
                 require(
                     md["basis"] == "recovered_from_assembled_support_law"
@@ -214,7 +222,7 @@ fn row_semantics(row: &Value, kind: &str) -> Check {
             )?;
         }
         INTENSIFIED => {
-            require(keys(md, METADATA_KEYS), "ROW_METADATA_SHAPE")?;
+            // A4 N1: named fields are exact; an extra key is accepted.
             require(
                 direct
                     && component(row) == "equal_factor_intensified_bending_stress"
@@ -263,7 +271,10 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         let id = text(&row["id"])?;
         require(rows.insert(id, row).is_none(), "DUPLICATE_SOURCE_ID")?;
     }
-    // Unique diagnostic ids are T6 hardening (A3 note); not checked here.
+    // A4 N3: every diagnostic has a non-empty string id. Uniqueness is T6 (A3 note).
+    for diagnostic in diagnostics {
+        text(&diagnostic["id"])?;
+    }
     // 2. Kinds from the table only; no retired kind or code.
     let retired: Vec<&Value> = array(&table["retired_source_kinds"])?.iter().collect();
     for row in rows_list {
@@ -280,7 +291,12 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             .map_err(|e| format!("SOURCE_PREVIEW_PHYSICS_ROW_SIGNATURE: {e}"))?;
         require(signature.is_some(), "ROW_SIGNATURE")?;
         row_semantics(row, kind)?;
-        // The basis_ref kind is T6 hardening (A3 note); not checked here.
+        // A4 N2: a present basis_ref is closed. Its ref_type value is T6 (A3 note).
+        let basis = &row["basis_ref"];
+        require(
+            basis.is_null() || keys(basis, &["ref_type", "ref_id"]),
+            "ROW_BASIS",
+        )?;
     }
     // 3. Completeness of result-namespace references (F-1).
     for diagnostic in diagnostics {
@@ -307,13 +323,15 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         }
     }
 
-    // A1 g: the modifier count is the number of intensified rows.
+    // A4 N8: every envelope, blocked or solved, has a summary object.
+    require(summary.is_object(), "SUMMARY_SHAPE")?;
+    // A1 g: the modifier count is the number of intensified rows (A4 N7: by value).
     if let Some(count) = summary.get("component_stress_modifier_count") {
         let intensified = rows_list
             .iter()
             .filter(|r| r["kind"] == INTENSIFIED)
             .count();
-        require(count.as_u64() == Some(intensified as u64), "MODIFIER_COUNT")?;
+        require(integer(count) == Some(intensified as f64), "MODIFIER_COUNT")?;
     }
     // A1 e: a blocked envelope has empty evidence, no rows and null headlines;
     // items 2-3 above already refused retired codes and any `result:` reference.
@@ -435,10 +453,9 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
                 )?;
             }
             require(
-                extrema["span_index"].as_u64().is_some()
-                    && extrema["subdivisions"]
-                        .as_u64()
-                        .is_some_and(|n| n <= MAX_SUBDIVISIONS),
+                integer(&extrema["span_index"]).is_some_and(|n| n >= 0.0)
+                    && integer(&extrema["subdivisions"])
+                        .is_some_and(|n| (0.0..=MAX_SUBDIVISIONS).contains(&n)),
                 "EXTREMA_SUBDIVISIONS",
             )?;
             let lower = number(&extrema["value_lower_pa"])?;
@@ -667,7 +684,8 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             row["kind"] != MAXIMUM && row["kind"] != INTENSIFIED,
             "COMBINATION_ROW_KIND",
         )?;
-        if let Some(refs) = row.get("source_result_refs").filter(|v| !v.is_null()) {
+        // A4 N4: may be absent; when present, an array (null is refused).
+        if let Some(refs) = row.get("source_result_refs") {
             for reference in array(refs)? {
                 require(rows.contains_key(text(reference)?), "DANGLING_RESULT_REF")?;
             }
@@ -701,6 +719,20 @@ fn magnitudes(components: &HashMap<&str, &Value>) -> Check {
 }
 
 fn combination_magnitudes(rows: &[&Value]) -> Check {
+    // A4 N5: one support-action row per (entity_ref, component) in a
+    // mechanics or subtraction combination.
+    let mut slots = HashSet::new();
+    for row in rows {
+        if matches!(
+            row["kind"].as_str(),
+            Some(SUPPORT_COMPONENT | SUPPORT_FORCE | SUPPORT_MOMENT)
+        ) {
+            require(
+                slots.insert((row["entity_ref"].as_str(), component(row))),
+                "COMBINATION_SUPPORT_DUPLICATE",
+            )?;
+        }
+    }
     let find = |kind: &str, entity: &Value, c: Option<&str>| -> Result<f64, String> {
         let hits: Vec<_> = rows
             .iter()
