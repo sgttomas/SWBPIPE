@@ -1,0 +1,42 @@
+//! TEMPORARY manager probe (not committed): mode relabel with re-digest on receipt-less identities.
+use crate::result_envelope_binding::build_result_export_document_with_evidence;
+use crate::*;
+use open_pipe_stress_product_physics::PreviewSolverMode;
+use open_pipe_stress_result_export::derivative::digest;
+use serde_json::{json, Value};
+fn project() -> std::path::PathBuf { std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..") }
+fn read(p: &str) -> Value { serde_json::from_slice(&std::fs::read(project().join(p)).unwrap()).unwrap() }
+fn metadata(payload: &Value) -> RunnerRequest {
+    let model = &payload["model"]; let id = model["project"]["id"].as_str().unwrap();
+    RunnerRequest { request_id: "probe".into(), operation: RunnerOperation::Solve,
+        operation_ref: Reference::new("api_operation", "ops.solve.job"), project_ref: Reference::new("project", id),
+        model_ref: Reference::new("model", id), unit_system_ref: Reference::new("unit_system", "invented-si"),
+        load_basis_refs: model["load_cases"].as_array().unwrap().iter().map(|c| Reference::new("load_case", c["id"].as_str().unwrap())).collect(),
+        input_manifest_ref: Reference::new("audit_manifest", "probe"),
+        requested_outputs: vec!["result_envelope".into(), "audit_manifest".into(), "diagnostics".into()],
+        privacy: PrivacyContext::local_first_public_metadata(),
+        provenance: Provenance { source_name: "probe".into(), source_location: "probe".into(), source_license: "project invented".into(),
+            contributor: "OpenPipeStress".into(), contributor_certification: "invented non-engineering example".into(),
+            redistribution_status: RedistributionStatus::InventedNonEngineeringExample, review_status: "pending".into() },
+        professional_boundary: ProfessionalBoundary::project_default(), tbd_decisions: TbdDecisions::d33_local_cli_policy() }
+}
+#[test]
+fn probe_mode_relabel() {
+    let physics = read("core/product_physics/tests/fixtures/exact_pressure_connected_request.json");
+    let preview = json!({"model": read("fixtures/model_operations/precision_connected_ui_model.json"), "materials": []});
+    let lr = read("fixtures/product_preview/load_reference/connected.request.json");
+    for (label, payload) in [("physics", physics), ("preview", preview), ("load_reference", lr)] {
+        for (mode, other) in [(PreviewSolverMode::SparseInteractive, "dense_scrutiny"), (PreviewSolverMode::DenseScrutiny, "sparse_interactive")] {
+            let request = metadata(&payload);
+            let output = run_preview_model_value_with_mode(request.clone(), payload.clone(), mode).unwrap();
+            let mechanics = output.mechanics_envelope.as_ref().unwrap();
+            let id = serde_json::to_value(mechanics).unwrap()["producer"]["semantic_contract_id"].clone();
+            let proof = output.qualified_preview_evidence.as_ref().unwrap_or_else(|| panic!("{label}: no proof {:?}", output.canonical_export_unavailability));
+            let mut t = proof.clone();
+            t.actual_invocation["solver_mode"] = json!(other);
+            t.invocation_digest = digest(&t.actual_invocation).unwrap();
+            let accepted = build_result_export_document_with_evidence(&request, &output.runner_result, mechanics, &t).is_ok();
+            println!("PROBE {label} {id} {} relabel_redigest_accepted={accepted}", mode.as_str());
+        }
+    }
+}

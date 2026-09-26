@@ -1,0 +1,22 @@
+     Running unittests src/lib.rs (<shared-target>/debug/deps/open_pipe_stress_headless_runner-be6b03d62f794603)
+test result_envelope_binding::tests::actual_value_stress_publication_range_refusal_cannot_qualify_export ... ok
+test result_envelope_binding::tests::headless_invalid_runner_request_cannot_execute_the_value_producer ... ok
+test result_envelope_binding::tests::ordinary_sensitive_typed_source_cannot_mint_qualified_canonical_export ... ok
+test result_envelope_binding::tests::public_nonzero_legacy_pressure_refuses_before_opaque_proof_or_export ... ok
+test result_envelope_binding::tests::actual_pressure_thermal_headless_route_retains_physics_identity ... ok
+test result_envelope_binding::tests::connected_physics_actual_solve_preserves_case_evidence_and_qualified_export ... ok
+test result_envelope_binding::tests::source_block_capture_retains_material_overrides_order_and_extra_request_fields ... ok
+test result_envelope_binding::tests::typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes ... ok
+test result_envelope_binding::tests::source_block_rule_revisions_leave_producer_bytes_and_receipt_unchanged ... ok
+test result_envelope_binding::tests::qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity ... ok
+test result_envelope_binding::tests::actual_source_blocks_bind_exact_invocation_and_canonical_source_both_modes ... ok
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 39.31s
+     Running unittests src/bin/headless_preview_runner.rs (<shared-target>/debug/deps/headless_preview_runner-34fecd3e058374ab)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running unittests src/bin/openpipestress-runner.rs (<shared-target>/debug/deps/openpipestress_runner-f876f9a981f17f1e)
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.12s
+     Running tests/physics_source_connected.rs (<shared-target>/debug/deps/physics_source_connected-dc1809f7dcdeff52)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 23.36s
+     Running tests/preview_physics_admission.rs (<shared-target>/debug/deps/preview_physics_admission-0e189f4994e8a4c4)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.93s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
