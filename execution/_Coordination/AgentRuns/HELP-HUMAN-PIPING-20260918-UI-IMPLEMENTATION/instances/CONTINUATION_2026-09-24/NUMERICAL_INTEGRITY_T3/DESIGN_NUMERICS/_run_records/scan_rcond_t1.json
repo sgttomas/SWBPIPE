@@ -1,0 +1,290 @@
+[
+{
+"file": "product_preview/load_reference/connected-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.75,
+"max_guarded_ratio": 7.174417206700906e-15,
+"fe": 9.713919345551228e-15
+},
+{
+"file": "product_preview/load_reference/connected-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.75,
+"max_guarded_ratio": 7.138532959262345e-15,
+"fe": 9.666073682299813e-15
+},
+{
+"file": "product_preview/load_reference/connected-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.7499999999999999,
+"max_guarded_ratio": 7.144857725749964e-15,
+"fe": 9.674506704283307e-15
+},
+{
+"file": "product_preview/load_reference/connected-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.75,
+"max_guarded_ratio": 7.138532959262345e-15,
+"fe": 9.666073682299813e-15
+},
+{
+"file": "product_preview/load_reference/pressure-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 1.0,
+"max_guarded_ratio": null,
+"fe": 1.1102230246251565e-16
+},
+{
+"file": "product_preview/load_reference/pressure-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 1.0,
+"max_guarded_ratio": null,
+"fe": 1.1102230246251565e-16
+},
+{
+"file": "product_preview/load_reference/pressure-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 1.0,
+"max_guarded_ratio": null,
+"fe": 1.1102230246251565e-16
+},
+{
+"file": "product_preview/load_reference/pressure-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 1.0,
+"max_guarded_ratio": null,
+"fe": 1.1102230246251565e-16
+},
+{
+"file": "product_preview/load_reference_source/eigen_motion-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.4736740507062863e-14,
+"fe": 0.0014036274743534402
+},
+{
+"file": "product_preview/load_reference_source/eigen_motion-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 1.467188458399781e-14,
+"fe": 0.0013974963449909761
+},
+{
+"file": "product_preview/load_reference_source/fields-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "product_preview/load_reference_source/fields-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+},
+{
+"file": "product_preview/load_reference_source/mixed-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "product_preview/load_reference_source/mixed-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.0010553733284589565,
+"max_guarded_ratio": 2.892516951194073e-15,
+"fe": 2.8459495542135035e-12
+},
+{
+"file": "product_preview/load_reference_source/mixed-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+},
+{
+"file": "product_preview/load_reference_source/mixed-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.001055373328458939,
+"max_guarded_ratio": 2.892516951194073e-15,
+"fe": 2.845949554213551e-12
+},
+{
+"file": "product_preview/load_reference_source/n05-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "product_preview/load_reference_source/n05-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+},
+{
+"file": "results/load_reference_connected_dense.analysis_run.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.75,
+"max_guarded_ratio": 7.174417206700906e-15,
+"fe": 9.713919345551228e-15
+},
+{
+"file": "results/load_reference_connected_dense.analysis_run.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.75,
+"max_guarded_ratio": 7.138532959262345e-15,
+"fe": 9.666073682299813e-15
+},
+{
+"file": "results/load_reference_connected_sparse.analysis_run.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.7499999999999999,
+"max_guarded_ratio": 7.144857725749964e-15,
+"fe": 9.674506704283307e-15
+},
+{
+"file": "results/load_reference_connected_sparse.analysis_run.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.75,
+"max_guarded_ratio": 7.138532959262345e-15,
+"fe": 9.666073682299813e-15
+},
+{
+"file": "results/load_reference_pressure_dense.analysis_run.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 1.0,
+"max_guarded_ratio": null,
+"fe": 1.1102230246251565e-16
+},
+{
+"file": "results/load_reference_pressure_dense.analysis_run.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 1.0,
+"max_guarded_ratio": null,
+"fe": 1.1102230246251565e-16
+},
+{
+"file": "results/load_reference_pressure_sparse.analysis_run.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 1.0,
+"max_guarded_ratio": null,
+"fe": 1.1102230246251565e-16
+},
+{
+"file": "results/load_reference_pressure_sparse.analysis_run.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 1.0,
+"max_guarded_ratio": null,
+"fe": 1.1102230246251565e-16
+},
+{
+"file": "results/load_reference_source_eigen_motion_dense.analysis_run.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.4736740507062863e-14,
+"fe": 0.0014036274743534402
+},
+{
+"file": "results/load_reference_source_eigen_motion_sparse.analysis_run.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 1.467188458399781e-14,
+"fe": 0.0013974963449909761
+},
+{
+"file": "results/load_reference_source_fields_dense.analysis_run.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "results/load_reference_source_fields_sparse.analysis_run.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+},
+{
+"file": "results/load_reference_source_mixed_dense.analysis_run.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "results/load_reference_source_mixed_dense.analysis_run.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.0010553733284589565,
+"max_guarded_ratio": 2.892516951194073e-15,
+"fe": 2.8459495542135035e-12
+},
+{
+"file": "results/load_reference_source_mixed_sparse.analysis_run.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+},
+{
+"file": "results/load_reference_source_mixed_sparse.analysis_run.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.001055373328458939,
+"max_guarded_ratio": 2.892516951194073e-15,
+"fe": 2.845949554213551e-12
+},
+{
+"file": "results/load_reference_source_n05_dense.analysis_run.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "results/load_reference_source_n05_sparse.analysis_run.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+}
+]

@@ -1,0 +1,15 @@
+{
+ "M1 30 m run, anchor + 4 rests + guide, free end": 21100.0,
+ "M2 30 m run, anchors both ends, 4 spring hangers 5e4 N/m": 2170.0,
+ "M3 30 m run, one anchor, 3 hangers 5e4 N/m, free end": 5390.0,
+ "M4 L+riser 27 m, anchors both ends, 2 hangers 3e4 N/m": 104000.0,
+ "M5 run with a 45-degree leg and riser, anchors both ends, 2 hangers": 56100.0,
+ "M6 as M5, one anchor, free end held by hangers and a guide": 495000.0,
+ "M7 as M6 plus a 10000 N*m/rad rotational stabiliser (RX) at the free end": 494000.0,
+ "M7 as M6 plus a 100 N*m/rad rotational stabiliser (RX) at the free end": 495000.0,
+ "M7 as M6 plus a 1 N*m/rad rotational stabiliser (RX) at the free end": 495000.0,
+ "M9 60 m run, 30 members, one anchor, hangers 5e4 N/m every 6 m, guided free end": 558000.0,
+ "M10 as M9 with anchors at both ends": 162000.0,
+ "M11 as M9 on a skew line (2,1,0)": 22800000.0,
+ "M8 3 m cantilever branch, anchored (stub on a header)": 1220.0
+}

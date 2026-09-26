@@ -1,6 +1,6 @@
 # V1-S11 — cancelled load contributions: exact ledger and exact recovery
 
-D1 (TASK), 2026-09-26. **Revision 4** (narrow). Revision 3 (sha256 `561c7200…`, committed at `d6575c25e`) is kept as `_run_records/S11_CONTAINMENT_revision3.md`. Revision 2 (sha256 `4bec712c…`, committed at `4663cdbb6`) is kept as `_run_records/S11_CONTAINMENT_revision2.md`. Revision 1 (sha256 `616214b2…`, committed at `70f56b83e`) is kept as `_run_records/S11_CONTAINMENT_revision1.md`.
+D1 (TASK), 2026-09-26. **Revision 4** (narrow), with erratum I1 (the nonlinear typed entry points, §4.3 and §8.1; approved by the T3 manager for the S11-K implementer). Revision 3 (sha256 `561c7200…`, committed at `d6575c25e`) is kept as `_run_records/S11_CONTAINMENT_revision3.md`. Revision 2 (sha256 `4bec712c…`, committed at `4663cdbb6`) is kept as `_run_records/S11_CONTAINMENT_revision2.md`. Revision 1 (sha256 `616214b2…`, committed at `70f56b83e`) is kept as `_run_records/S11_CONTAINMENT_revision1.md`.
 
 **Revision 4** answers V1's backcheck of revision 3, `T3/REVIEW/S11_BACKCHECK_R3.md` at `ef8fc4224` (sha256 `d9b077a8…`, verdict FINDINGS; both blockers resolved). It changes only the items in §0. V1 backchecks it together with `DESIGN.md` revision 3.
 
@@ -258,7 +258,7 @@ Recovery sums use the same granularity (§4.4), so force and recovery see the sa
 | `FK/lib.rs:820-880` `reduce_system`, `reduce_system_with_prescribed_displacements`, `reduce_system_for_boundary` | `&[f64]` in, `Vec<f64>` out | `&AssembledForce` in, `ReducedForce` out |
 | `SA:252-289` `StructuralAssembly::solve` | `f: &[f64]` | `f: &AssembledForce` |
 | `sparse_direct::structural::solve_structural_sparse` | takes `&StructuralSystem` | unchanged signature; inherits the typed force |
-| Nonlinear entry points taking a base force (`nonlinear_integration/src/lib.rs:2015`, `:2045`, `:2242`) | `&[f64]` | `&AssembledForce` or `&ReducedForce` |
+| Nonlinear public entry points `solve_active_set_frame`, `_with_mode`, `_with_mode_and_springs` (`nonlinear_integration/src/lib.rs:484`, `:490`, `:499`), which take the force inside `NonlinearFrameSolveInput.force` (erratum I1: revision 4 named `:2015`, `:2045`, `:2242`, which are private functions of the sparse-parity observation lane, allow-listed under limit 2) | `input.force: Vec<f64>` | dormant typed siblings taking `&AssembledForce`: each returns `InvalidInput` unless `input.force` equals `force.values()` bit for bit, then delegates |
 | `source_recovery::Input.force` | `&[f64]` | `&AssembledForce` |
 | Both receipt replays | `global_load_vector` | the ledger, through the live producer functions |
 
@@ -409,7 +409,7 @@ Result: the invariant holds in every row. The product tests therefore use G = 1e
   - `FK/structural.rs`: `rounded()` replaced at `:369-377`, `:406-414` and `:554`; the audit with exact per-DOF force terms; the exact right-hand side in `prepare_structural` `:603-606` (KS1); the exact numerator in `evaluate_original_residual` `:697-760` on prescribed-coupled rows (KS3); and a typed `StructuralSystem` constructor, beside today's layout;
   - `FK/structural/exact_boundary.rs:361`, `:387`;
   - `SA`: `AssemblyEvidence::with_force_terms`, and a typed `StructuralAssembly::solve` beside today's;
-  - `nonlinear_integration/src/lib.rs`: typed variants of the entry points at `:2015`, `:2045`, `:2242` (signatures only; ROOT serializes this crate with T5);
+  - `nonlinear_integration/src/lib.rs`: dormant typed siblings of the public entry points `solve_active_set_frame`, `_with_mode` and `_with_mode_and_springs` (`:484`, `:490`, `:499`); each requires `input.force` to equal `force.values()` bit for bit, returns `InvalidInput` otherwise, and delegates (erratum I1; ROOT serializes this crate with T5);
   - `P/core/loads/primitive_loads/src/lib.rs`: re-exports of the ledger types;
   - `SP`: E1 to E4, E6, and `equivalent_nodal_load_terms_with_spans`;
   - `CB`: `arc_section_resultant_terms`;

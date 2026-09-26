@@ -1,0 +1,450 @@
+[
+{
+"file": "product_preview/invented_mechanics_result_precision_1_dense.json",
+"case": "load",
+"quality": "Passed",
+"rcond": 3.297665843846218e-05,
+"max_guarded_ratio": 2.5193499369907776e-14,
+"fe": 7.673464465658678e-10
+},
+{
+"file": "product_preview/invented_mechanics_result_precision_1_dense.json",
+"case": "load",
+"quality": "Passed",
+"rcond": 3.297665843846218e-05,
+"max_guarded_ratio": 3.246516885657033e-14,
+"fe": 9.878560382284747e-10
+},
+{
+"file": "product_preview/invented_mechanics_result_precision_1_sparse.json",
+"case": "load",
+"quality": "Passed",
+"rcond": 3.297665843845016e-05,
+"max_guarded_ratio": 2.9758749724539846e-14,
+"fe": 9.057852869705795e-10
+},
+{
+"file": "product_preview/invented_mechanics_result_precision_1_sparse.json",
+"case": "load",
+"quality": "Passed",
+"rcond": 3.297665843845016e-05,
+"max_guarded_ratio": 2.9758749724539846e-14,
+"fe": 9.057852869705795e-10
+},
+{
+"file": "product_preview/source_blocks/multicase-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578185609230605e-11,
+"max_guarded_ratio": 1.0222550980355321e-14,
+"fe": 0.0009768757766739017
+},
+{
+"file": "product_preview/source_blocks/multicase-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578185609230605e-11,
+"max_guarded_ratio": 1.0222550980355321e-14,
+"fe": 0.0009768757766739017
+},
+{
+"file": "product_preview/source_blocks/multicase-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371473e-11,
+"max_guarded_ratio": 1.1577811256829851e-14,
+"fe": 0.0011049993280604566
+},
+{
+"file": "product_preview/source_blocks/multicase-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371473e-11,
+"max_guarded_ratio": 1.1577811256829851e-14,
+"fe": 0.0011049993280604566
+},
+{
+"file": "product_preview/source_blocks/n05-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578185609230605e-11,
+"max_guarded_ratio": 1.0222550980355321e-14,
+"fe": 0.0009768757766739017
+},
+{
+"file": "product_preview/source_blocks/n05-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371473e-11,
+"max_guarded_ratio": 1.1577811256829851e-14,
+"fe": 0.0011049993280604566
+},
+{
+"file": "product_preview/source_blocks/ui/multicase-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578185609230605e-11,
+"max_guarded_ratio": 1.0222550980355321e-14,
+"fe": 0.0009768757766739017
+},
+{
+"file": "product_preview/source_blocks/ui/multicase-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578185609230605e-11,
+"max_guarded_ratio": 1.0222550980355321e-14,
+"fe": 0.0009768757766739017
+},
+{
+"file": "product_preview/source_blocks/ui/multicase-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371473e-11,
+"max_guarded_ratio": 1.1577811256829851e-14,
+"fe": 0.0011049993280604566
+},
+{
+"file": "product_preview/source_blocks/ui/multicase-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371473e-11,
+"max_guarded_ratio": 1.1577811256829851e-14,
+"fe": 0.0011049993280604566
+},
+{
+"file": "product_preview/source_blocks/ui/n05-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578185609230605e-11,
+"max_guarded_ratio": 1.0222550980355321e-14,
+"fe": 0.0009768757766739017
+},
+{
+"file": "product_preview/source_blocks/ui/n05-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371473e-11,
+"max_guarded_ratio": 1.1577811256829851e-14,
+"fe": 0.0011049993280604566
+},
+{
+"file": "product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 9.255869306789224e-12,
+"max_guarded_ratio": 2.892552340432515e-15,
+"fe": 0.00032450486748898823
+},
+{
+"file": "product_preview/source_blocks/rejected_stress_range/sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 9.255869306446537e-12,
+"max_guarded_ratio": 2.892552340432515e-15,
+"fe": 0.0003245048675010026
+},
+{
+"file": "product_preview/physics_source/fields-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "product_preview/physics_source/fields-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+},
+{
+"file": "product_preview/physics_source/mixed-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "product_preview/physics_source/mixed-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.0010553733284589565,
+"max_guarded_ratio": 2.892516951194073e-15,
+"fe": 2.8459495542135035e-12
+},
+{
+"file": "product_preview/physics_source/mixed-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+},
+{
+"file": "product_preview/physics_source/mixed-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.001055373328458939,
+"max_guarded_ratio": 2.892516951194073e-15,
+"fe": 2.845949554213551e-12
+},
+{
+"file": "product_preview/physics_source/mixed_units-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "product_preview/physics_source/mixed_units-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.0010553733284589565,
+"max_guarded_ratio": 2.892516951194073e-15,
+"fe": 2.8459495542135035e-12
+},
+{
+"file": "product_preview/physics_source/mixed_units-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+},
+{
+"file": "product_preview/physics_source/mixed_units-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.001055373328458939,
+"max_guarded_ratio": 2.892516951194073e-15,
+"fe": 2.845949554213551e-12
+},
+{
+"file": "product_preview/physics_source/n05-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "product_preview/physics_source/n05-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+},
+{
+"file": "product_preview/physics_source/n05_unicode-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "product_preview/physics_source/n05_unicode-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+},
+{
+"file": "product_preview/physics_source/n05_units-dense_scrutiny.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350861028e-11,
+"max_guarded_ratio": 1.0911676371178137e-14,
+"fe": 0.0010420265260376834
+},
+{
+"file": "product_preview/physics_source/n05_units-sparse_interactive.raw.json",
+"case": "case",
+"quality": "Sensitive",
+"rcond": 1.0578136350371478e-11,
+"max_guarded_ratio": 9.579409812514413e-15,
+"fe": 0.0009160812258424542
+},
+{
+"file": "results/physics_connected_mechanics_dense.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037035,
+"max_guarded_ratio": 2.9359866806402533e-15,
+"fe": 8.226924254377476e-14
+},
+{
+"file": "results/physics_connected_mechanics_dense.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037035,
+"max_guarded_ratio": 6.309111256924248e-15,
+"fe": 1.7334360610344263e-13
+},
+{
+"file": "results/physics_connected_mechanics_sparse.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037014,
+"max_guarded_ratio": 2.9303466716085893e-15,
+"fe": 8.211696229991989e-14
+},
+{
+"file": "results/physics_connected_mechanics_sparse.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037014,
+"max_guarded_ratio": 6.956749185075012e-15,
+"fe": 1.9082983016351337e-13
+},
+{
+"file": "results/physics_connected_ui_mechanics_dense.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037035,
+"max_guarded_ratio": 2.9359866806402533e-15,
+"fe": 8.226924254377476e-14
+},
+{
+"file": "results/physics_connected_ui_mechanics_dense.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037035,
+"max_guarded_ratio": 6.309111256924248e-15,
+"fe": 1.7334360610344263e-13
+},
+{
+"file": "results/physics_connected_ui_mechanics_sparse.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037014,
+"max_guarded_ratio": 2.9303466716085893e-15,
+"fe": 8.211696229991989e-14
+},
+{
+"file": "results/physics_connected_ui_mechanics_sparse.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037014,
+"max_guarded_ratio": 6.956749185075012e-15,
+"fe": 1.9082983016351337e-13
+},
+{
+"file": "results/physics_thermal_ui_mechanics_dense.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037035,
+"max_guarded_ratio": 2.952831398979167e-15,
+"fe": 8.272404993892543e-14
+},
+{
+"file": "results/physics_thermal_ui_mechanics_dense.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037035,
+"max_guarded_ratio": 6.309111256924248e-15,
+"fe": 1.7334360610344263e-13
+},
+{
+"file": "results/physics_thermal_ui_mechanics_sparse.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037014,
+"max_guarded_ratio": 2.909329999947378e-15,
+"fe": 8.154951216506719e-14
+},
+{
+"file": "results/physics_thermal_ui_mechanics_sparse.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.037037037037037014,
+"max_guarded_ratio": 6.956749185075012e-15,
+"fe": 1.9082983016351337e-13
+},
+{
+"file": "results/precision_connected_ui_mechanics_dense.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.03703703703703705,
+"max_guarded_ratio": 6.930366564968863e-15,
+"fe": 1.901174994206472e-13
+},
+{
+"file": "results/precision_connected_ui_mechanics_sparse.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.03703703703703704,
+"max_guarded_ratio": 6.920366637767656e-15,
+"fe": 1.8984750138621462e-13
+},
+{
+"file": "results/preview_physics_connected_dense.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.03703703703703705,
+"max_guarded_ratio": 6.930366564968863e-15,
+"fe": 1.901174994206472e-13
+},
+{
+"file": "results/preview_physics_connected_sparse.json",
+"case": "case",
+"quality": "Passed",
+"rcond": 0.03703703703703704,
+"max_guarded_ratio": 6.920366637767656e-15,
+"fe": 1.8984750138621462e-13
+},
+{
+"file": "results/preview_physics_invented_dense.json",
+"case": "load",
+"quality": "Passed",
+"rcond": 1.3027840635481392e-05,
+"max_guarded_ratio": 2.2444959542830692e-14,
+"fe": 1.7313676515094814e-09
+},
+{
+"file": "results/preview_physics_invented_dense.json",
+"case": "load",
+"quality": "Passed",
+"rcond": 1.3027840635481392e-05,
+"max_guarded_ratio": 3.113258621565894e-14,
+"fe": 2.3982185069895103e-09
+},
+{
+"file": "results/preview_physics_invented_sparse.json",
+"case": "load",
+"quality": "Passed",
+"rcond": 1.3027840635503533e-05,
+"max_guarded_ratio": 2.3351993257270012e-14,
+"fe": 1.800990372555756e-09
+},
+{
+"file": "results/preview_physics_invented_sparse.json",
+"case": "load",
+"quality": "Passed",
+"rcond": 1.3027840635503533e-05,
+"max_guarded_ratio": 2.3351993257270012e-14,
+"fe": 1.800990372555756e-09
+},
+{
+"file": "results/preview_physics_unicode_ids_sparse.json",
+"case": "load",
+"quality": "Passed",
+"rcond": 0.0006086693999980505,
+"max_guarded_ratio": 1.8660369615165112e-14,
+"fe": 3.0840045380444217e-11
+},
+{
+"file": "results/preview_physics_unicode_ids_sparse.json",
+"case": "load",
+"quality": "Passed",
+"rcond": 0.0006086693999980505,
+"max_guarded_ratio": 2.2928262260293917e-14,
+"fe": 3.7851885708120416e-11
+}
+]
