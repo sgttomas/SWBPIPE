@@ -1,6 +1,6 @@
-# T3 D2 — result standing, source envelopes and transport (revision 5)
+# T3 D2 — result standing, source envelopes and transport (revision 5a)
 
-Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_ITEMS manager, 2026-09-26. **This is a proposal.** It becomes a basis only if ROOT selects it after V1's backcheck. Revision 1 is kept byte-for-byte as `_run_records/DESIGN_revision1.md` (sha256 prefix `185e178efe3b9855`), revision 2 as `_run_records/DESIGN_revision2.md` (`5c36da2cb8cf89e6`, also in `DESIGN_revision2.sha256`), revision 3 as `_run_records/DESIGN_revision3.md` (`43c7d672df4c5f83`), and revision 4 as `_run_records/DESIGN_revision4.md` (`e12bd015fc1e5cd0`). Revisions 3 to 5 are narrow: §0.3, §0.2 and §0.1 list every change.
+Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_ITEMS manager, 2026-09-26. **This is a proposal.** It becomes a basis only if ROOT selects it after V1's backcheck. Revision 1 is kept byte-for-byte as `_run_records/DESIGN_revision1.md` (sha256 prefix `185e178efe3b9855`), revision 2 as `_run_records/DESIGN_revision2.md` (`5c36da2cb8cf89e6`, also in `DESIGN_revision2.sha256`), revision 3 as `_run_records/DESIGN_revision3.md` (`43c7d672df4c5f83`), revision 4 as `_run_records/DESIGN_revision4.md` (`e12bd015fc1e5cd0`), and revision 5 as `_run_records/DESIGN_revision5.md` (`0d50f1f9afbdf66f`). Revisions 3 to 5a are narrow: §0.4, §0.3, §0.2 and §0.1 list every change.
 
 - **Brief:** `T3/TASK_BRIEFS/D2_STANDING_DESIGN.md` with `_COMMON.md`. Revision inputs at `065c9ff60`: `T3/REVIEW/RETURN.md` (V1), `T3/ROOT_RULINGS_V1.md` (ROOT's early rulings, plus the further rulings on R-3(a), R-3(b) and R-7 relayed by the manager), and `T3/MANAGER_NOTES/V1_DISPOSITIONS.md`.
 - **Abbreviations:**
@@ -13,8 +13,22 @@ Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_IT
 - **Probe addendum.** After ROOT released the host, the prepared probes PR-1 to PR-7 were run unchanged against exported copies of both bases. The results are in §12.1.
 - **Revision 3 inputs:** `T3/REVIEW/BACKCHECK_R2.md` at `3ea78add8` (V1's backcheck of D1 revision 2: S8-R, S2-R, S5-R and the IF-1 confirmation), and ROOT's rulings on it at the end of `T3/ROOT_RULINGS_V1.md` (`5111651ed`), with the manager's relay of ROOT's final wording for gate condition 3. D1 revision 2 (`3ff9c1fd873d9f28`) §4.1.6, §4.4.1 and §5 were read; D1 revision 3 was not yet available.
 - **Revision 4 inputs:** `T3/REVIEW/BACKCHECK_R3.md` at `ef9cf487e` (V1's combined backcheck of revision 3: R3B-1 to R3B-4, N-5), ROOT's confirmation of R3B-2, R3B-3 and R3B-4 as relayed by the manager, and D1 revision 3 (`48f351441d6b132e`) §4.1.6, §4.1.6.1 and §5 item 1. D1 revision 4 was not yet available. Where revision 4 mirrors D1's announced revision-4 changes (the stress factor k, the closed kind list, the section terms in the receipt), it is marked **[align D1-r4]**.
-- **Revision 5 inputs:** `T3/REVIEW/BACKCHECK_R4.md` at `e27181fb2` (R4-1 to R4-4), and ROOT's rulings at the end of `T3/ROOT_RULINGS_V1.md` at `c6a96f8a9`: D-15 and option C with its conservative-binding constraint; the BACKCHECK_R4 rulings; the hard S-H/S11-F ordering (`b6fe1eb75`). D1 revision 4 (`48f351441d6b132e`… as committed at `e94af71f2`) §4.1.6.1 and §8.1 were read. D1 revision 5 was not yet committed, so every part that mirrors the rulings on D1's side is marked **[align D1-r5]**.
+- **Revision 5 inputs:** `T3/REVIEW/BACKCHECK_R4.md` at `e27181fb2` (R4-1 to R4-4), and ROOT's rulings at the end of `T3/ROOT_RULINGS_V1.md` at `c6a96f8a9`: D-15 and option C with its conservative-binding constraint; the BACKCHECK_R4 rulings; the hard S-H/S11-F ordering (`b6fe1eb75`). D1 revision 4 (`48f351441d6b132e`… as committed at `e94af71f2`) §4.1.6.1 and §8.1 were read. D1 revision 5 was not yet committed when revision 5 was written.
+- **Revision 5a inputs:** D1 revision 5 as committed at `490f02982` (DESIGN.md sha256 prefix `42bba414d5c3b592`): §4.1.6.1 (the closed table with rules 2a and 2b, item 7), §5 item 1, §6 (F2a, F2b), §4.3.1 (the zero-scale clause) and §8.1.2 to §8.1.3 (B and C), with `_run_records/b_proof.py` read as B's reference. Also D1's direct messages to D2 on B and the pressure carve-out, and the manager's and ROOT's instructions for revision 5a. Revision 5's **[align D1-r5]** marks are cleared wherever D1's final text matches (§0.4 item 6). Product lines are cited at the merged tree `303609725`.
 - **Citations after the main merge.** Main is merged into the T3 branch at `303609725` (T1's `5aa4285c2`). Revision-5 text cites product lines at that tree. Earlier sections keep their original bases: `c61a540ea` for files T1 did not change, and `f3270ea79` for files it did. Spot checks show T1's line numbers equal the merged tree's for the cited `PP` and test lines (`PP:1407`, `:1414`, `:1427`, `:1432`, `:2391`, `:2404`; `load_state_fallback_tests.rs:294`).
+
+## 0.4 Revision 5a — what changed and why
+
+| # | Input | What changed | Where |
+|---|---|---|---|
+| 1 | D1 r5 §4.1.6.1 rule 2a | **Receipt field `input_derived_dofs`.** A list of (node id, component) pairs. G5c classifies restrained and prescribed displacement and rotation rows from it, and requires it to equal, in both directions, the set derived from the invocation's support restraint sets and 0.4.0 `boundary_motion` entries. A mismatch is `RETAINED_PRECISION_INPUT_DOF_MISMATCH` (`unsupported`). | G5a, G5c, §4.9.10 |
+| 2 | D1 r5 rule 2b | **Member entity rule.** A member-entity row (element-local actions and stresses, wall rows, stations, maxima) is covered only if its member appears in the receipt's per-member section terms; otherwise it is `not_covered`. This replaces revision 5's curved-entity rule. | G5c, §4.9.10 |
+| 3 | D1 r5 item 7 of the eleven; D1's carve-out | **Pressure conditions, from D1's text.** `open_formula_stress_summary` has k = 4 only when the case has zero pressure: guaranteed by W1a's route, read from the receipt's route and the invocation's case pressure inventory, with W1b's per-member `pressure_longitudinal_zero` flag once W1b exists. `pipe_axial_membrane_stress_v2` and `pipe_elastic_normal_stress_maximum_v2` are `not_covered` where their member carries pressure (the rebuilt membrane, `recover_wall_effective_membrane(r[0], …)` at `PP:8186`). This replaces revision 5's detection from a non-zero longitudinal-stress row. | G5c, §4.9.10 |
+| 4 | Manager and ROOT: B in one pass | **Option B reader contract, slice S-J** (new §4.12), against D1 r5 §8.1.2 and `b_proof.py`:<ul><li>`structural_zero` ids plus a pattern digest in the receipt;</li><li>readers re-derive the proof with the invocation, and set equality is required, otherwise `RETAINED_PRECISION_STRUCTURAL_ZERO_MISMATCH`;</li><li>a proven row published as ±0.0 binds as the exact point +0 and does not count as withheld.</li></ul>Optional, after S-I, off every retirement's critical path. The BFS order and the digest payload are pinned by D1 with the producer slice (proposed here), and are marked **[align D1-B]**. | §4.12, §7 |
+| 5 | D1 r5 §4.3.1 (zero-scale clause) | **Readers are unaffected.** K-D5's demotion changes only `quality` to Sensitive. The `FormationCheck` evidence is never in `StructuralReport`; F1 renders it as one evidence line in the integrity diagnostic's message, which readers never parse. The one reader touchpoint is b = 0: a body with S\* = 0 (N-2) gives `absolute_verified` rows with b = 0, and S-I now binds those as the exact point q, with no widening. | §4.11.2 |
+| 6 | D1 r5 committed | **Alignment confirmed and marks cleared.** D1's F2a/F2b split, the coexistence rule, "C (S-I1/S-I2) before F2b and F3's retirement in every domain", the closed table, the receipt field set, the upward k_i and D2's withheld definition in gate condition 3 all match D1 revision 5. The revision-5 **[align D1-r5]** marks are removed. I-10 is closed. | §4.9.10, §4.11.6, §5 |
+
+The rest of revision 5 stands.
 
 ## 0.3 Revision 5 — what changed and why
 
@@ -500,7 +514,7 @@ Each successor has its own semantic table. Following the source-blocks-1 precede
 | G2 | Encoding. Every receipt number that can exceed 2^53 − 1, be subnormal or be negative zero is a 16-hex bit string decoding to a finite binary64. Plain JSON numbers in the receipt are only exact integers (counts, precisions, work) within the profile's integer range |
 | G3 | Case coverage and order against the request (when an invocation is supplied) and `numerical_quality`. Case ids unique |
 | G4 | Diagnostics. Exactly one `RETAINED_PRECISION_SELECTED` per selected case and one `RETAINED_PRECISION_UNAVAILABLE` per unavailable case, each with `affected_refs == [case id]`. No `RETAINED_PRECISION_UNAVAILABLE` or `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` names a selected case (the S13 rule from the start). No `SOURCE_BLOCK_RECOVERY_SELECTED` anywhere: a successor envelope never mixes methods (D1 option A; ROOT's coexistence rule, revision 5: no W1 attempt in an invocation where exact-block selects any case, so such invocations publish exactly as today under their source identity, and source-identity readers already refuse a `retained_precision` member through their closed field lists) |
-| G5 (G5a) | Per selected case: p ∈ {128, 256, 512}; verification p = 2p ≤ 1024; the attempts list ends with the accepted attempt, and every earlier attempt has a rejection reason; work within the registered limits (D-8); every stop-rule entry decodes to a value ≤ 2^-64 (exact binary64 comparison with the constant); pivot margin and rcond decode to finite positive values; the retained-state and load-ledger digests are 64 lowercase hex; the ordinary-attempt reference binds to `numerical_quality.cases[i]` and its diagnostic, as source-blocks `ordinary()` does. `RETAINED_PRECISION_UNAVAILABLE` reasons admitted in G4 include `receipt_encoding`, `publication_hash_range` and `invocation_not_representable` (D1 §5 item 2; S5-R) |
+| G5 (G5a) | Per selected case: p ∈ {128, 256, 512}; verification p = 2p ≤ 1024; the attempts list ends with the accepted attempt, and every earlier attempt has a rejection reason; work within the registered limits (D-8); every stop-rule entry decodes to a value ≤ 2^-64 (exact binary64 comparison with the constant); pivot margin and rcond decode to finite positive values; the retained-state and load-ledger digests are 64 lowercase hex; `input_derived_dofs` is a list of unique (node id, component) pairs with components in {UX, UY, UZ, RX, RY, RZ}; the optional `structural_zero` member (S-J) has the shape of §4.12; the ordinary-attempt reference binds to `numerical_quality.cases[i]` and its diagnostic, as source-blocks `ordinary()` does. `RETAINED_PRECISION_UNAVAILABLE` reasons admitted in G4 include `receipt_encoding`, `publication_hash_range` and `invocation_not_representable` (D1 §5 item 2; S5-R) |
 | G5b (revisions 3–4) | S\* recomputation from published rows and receipt section terms, bit for bit; `RETAINED_PRECISION_SCALE_MISMATCH` or `RETAINED_PRECISION_SECTION_MISMATCH` on mismatch. Detail below the table |
 | G5c (revisions 3–4) | Classification recomputation against the closed row-kind list, with exact set equality for both the `absolute_verified` and the `not_covered` lists; `RETAINED_PRECISION_CLASSIFICATION_MISMATCH` on mismatch. Detail below the table |
 | G6 | Rows. Every row of a selected case carries the method token. No row of an unselected case carries it |
@@ -508,7 +522,7 @@ Each successor has its own semantic table. Following the source-blocks-1 precede
 | G8 | With an invocation: invocation shape and hash (with the named profile); model project id; case coverage; requested mode. Model-derived operands: `<physics-retained>` uses physics-source-1's `actual_materials` through S-C's parameter, over the physics-1 evidence; `<load-reference-retained>` uses S-E1 (J4.2–J4.8; `Scope` → `needs_recompute`); `<preview-retained>` compares the materials and sections its preview-physics-1 evidence publishes, and what it does not publish, the receipt's source identity digest covers (the physics-source-1 trust level, stated as a limit) |
 | Transport | Canonical carriers without raw rows: G0–G2, plus the base identity's transport-metadata check on the projection. Never eligible |
 
-**G5b in detail (revisions 3–5, S8-R, R3B-1, R3B-3, R3B-4 (a), R4-1, R4-4).** **S\* recomputation**, exactly as D1 §4.1.6.1 specifies **[align D1-r5]**:
+**G5b in detail (revisions 3–5, S8-R, R3B-1, R3B-3, R3B-4 (a), R4-1, R4-4).** **S\* recomputation**, exactly as D1 revision 5 §4.1.6.1 specifies:
 - the body partition and L_b from the invocation model (single-node body: L_b = 0, coupled terms omitted);
 - the closed (kind, unit) table (§4.9.10) and the pinned unit factors;
 - S(kind) as the largest abs value;
@@ -534,13 +548,13 @@ Section terms are cross-checked:
 The recomputed S\* must equal the receipt's S\* bits exactly. Otherwise `RETAINED_PRECISION_SCALE_MISMATCH` (`unsupported`). A mismatch between receipt section terms and published section evidence is `RETAINED_PRECISION_SECTION_MISMATCH` (`unsupported`).
 
 **G5c in detail (revisions 3–5, S8-R, R3B-2, R3B-4 (b), (c), R4-4).** **Classification recomputation.** R is read from its pinned bits in the receipt, which must equal the registered constant (`0x3DD0000000000000`, R = 2^-34). For every row of a selected case (and every retained-state combination output), the reader applies §4.9.10 in this order and assigns exactly one class:
-1. **Entity rules** (need the invocation):
-   - a displacement or rotation row at a DOF that the invocation rigidly restrains (a support's restraint set) or prescribes (a 0.4.0 `boundary_motion`) is `input_derived`;
-   - any row whose entity is a curved span, or a station of one, is `not_covered`.
+1. **Entity rules** (revision 5a, D1 rules 2a and 2b):
+   - **2a.** A displacement or rotation row at a DOF listed in the receipt's `input_derived_dofs` is `input_derived`. With an invocation, the list must equal, in both directions, the set of (node id, component) pairs that the invocation's supports rigidly restrain (their restraint sets) or that a 0.4.0 case prescribes (`boundary_motion`). Otherwise `RETAINED_PRECISION_INPUT_DOF_MISMATCH` (`unsupported`).
+   - **2b.** A member-entity row (element-local actions and stresses, wall rows, stations, maxima) is covered only if its member appears in the receipt's per-member section terms; otherwise it is `not_covered`. This separates curved arc and station rows, which share straight-row kinds.
 2. **(kind, unit) lookup** in the closed table: mapped (translation, rotation, force, moment, stress with its k), `input_derived`, `non_quantity`, or `not_covered`. Any (kind, unit) the table does not name is `not_covered`.
-3. **Conditional rows:**
-   - `open_formula_stress_summary` is `not_covered` where the member carries a pressure-longitudinal term, detected as a `pipe_section_pressure_longitudinal_stress` row for that member and case whose value is non-zero;
-   - a pressure member's stress rows whose wall force is not a published, stop-rule-checked row are `not_covered`, per D1's carve-out **[align D1-r5]**.
+3. **Pressure conditions** (revision 5a, from D1's text):
+   - `open_formula_stress_summary` has k = 4 only when the case has zero pressure; otherwise it is `not_covered`. The reader decides from the receipt's route (W1a requires zero pressure, D1 §4.3) and the invocation's case pressure inventory (an absent or explicitly empty region list and zero pressure load terms). Once W1b exists, it also requires the member's `pressure_longitudinal_zero` flag in the receipt to be true.
+   - `pipe_axial_membrane_stress_v2` and `pipe_elastic_normal_stress_maximum_v2` are `not_covered` where their member carries pressure. That is D1's carve-out: their membrane is rebuilt from the span-statics axial force (`recover_wall_effective_membrane(r[0], …)`, `PP:8186`), not taken from a published, stop-rule-checked wall-force row. "Carries pressure" means the member appears in a pressure region of the case in the invocation.
 4. **Floor:**
    - for a mapped row, `t = fl(R·S*)` for its body, kind and k, and the row is `absolute_verified` iff `abs(q) < t`, else `relative_verified`;
    - **N-2:** if the body's S\* for that kind and k is below 2^-988, every row of that body and kind is `absolute_verified` (D1:384).
@@ -640,37 +654,29 @@ All of these are S-G1 or S-G2 files.
 - **`N_RP_ABSOLUTE_INTERVAL`** (after S-I): "Verified only to ±{b} {unit}, below the relative accuracy floor for this body. Rule checks use the whole range [q − b, q + b]: a check passes only if it passes for every value in it."
 - **`N_RP_NOT_COVERED`:** "Uncovered quantity: no verified accuracy for this quantity kind. It is shown for inspection; rule checks cannot bind to it."
 
-#### 4.9.10 The closed row-kind table (revision 5: mirrors D1's table as the single source) **[align D1-r5]**
+#### 4.9.10 The closed row-kind table (revision 5a: mirrors D1 revision 5 §4.1.6.1 item 2, the single source)
 
-- **Source.** D1 revision 4 §4.1.6.1 item 2 (D1:400-416) with ROOT's BACKCHECK_R4 rulings (R4-1, R4-4) is the single source. D1 revision 5 carries it into the successor semantic tables. D2's G5c reads that table and keeps no copy of its own. Revision 4's category-based definitions are withdrawn (R4-4 row 5).
-- **Where it lives.** Each successor semantic table (§4.9.6) carries `verified_accuracy_classes` as a closed map from (kind, unit) to one class, plus the entity and conditional rules below. The table is pinned by sha256, so Rust, Python and TS read the same bytes (DD-14).
+- **Source.** D1 revision 5 §4.1.6.1 item 2 (committed at `490f02982`) is the single source. It is carried in each successor semantic table as `verified_accuracy_classes`, pinned by sha256, and read by all three readers (DD-14). D2 keeps no copy of its own.
+- **Default.** Any (kind, unit) not listed is `not_covered`. Two entity rules sit beside the key (2a and 2b in G5c).
 
-| Class | Row kinds (unit) |
+| Class | Row kinds (admitted units) |
 |---|---|
 | translation, k = 1 | `global_nodal_displacement_{x,y,z}` (m, mm); `displacement_magnitude` (m, mm), formed at p |
 | rotation, k = 1 | `global_nodal_rotation_{x,y,z}` (rad) |
-| force, k = 1 | `element_local_axial_force`, `element_local_shear_force_{y,z}`, `pipe_wall_axial_force_v2`, `pipe_effective_axial_force_v2` (N, kN); force components of `support_reaction_component_v2` and `pipe_wall_endpoint_action_v2` (N, kN); `support_reaction_force_magnitude_v2` and `reaction_resultant` (N), formed at p |
-| moment, k = 1 | `element_local_torsional_moment`, `element_local_bending_moment_{y,z}` (N·m, kN·m); moment components of `support_reaction_component_v2` and `pipe_wall_endpoint_action_v2` (N·m, kN·m); `support_reaction_moment_magnitude_v2` (N·m), formed at p |
-| stress, k = 1 | `element_local_axial_normal_stress`, `element_local_bending_normal_stress_{y,z}`, `element_local_torsional_shear_stress` (MPa, Pa); `pipe_axial_membrane_stress_v2` (Pa) |
-| stress, k = 2√2 (R4-1) | `pipe_elastic_normal_stress_maximum_v2` (Pa): span statics rebuild the far-end moment from one end's actions |
-| stress, k = k_i (upward) | `component_equal_factor_intensified_bending_stress_v1` (Pa): built from end rows, with the row's own i |
-| stress, k = 4 (R4-1) | `open_formula_stress_summary` (MPa), only where the pressure-longitudinal term is zero; otherwise `not_covered` |
-| `input_derived` | `pipe_lame_hoop_stress_v2`, `pipe_lame_radial_stress_v2` (Pa); `pipe_section_pressure_hoop_stress`, `pipe_section_pressure_longitudinal_stress` (MPa); `constant_effort_support_applied_load` (N); echoed-input review kinds `component_user_stress_multiplier_review`, `component_user_stiffness_macro_element_review`, `constant_effort_user_input_review`, `spring_hanger_user_input_review`, `expansion_joint_pressure_thrust_load_review` (in their table units); **entity rule:** displacement and rotation rows at a rigidly restrained or prescribed DOF |
-| `non_quantity` | `sparse_live_path_dense_parity_relative_delta`, `linear_solver_mode_basis`, `modulus_basis_record`, `combination_modulus_basis_record`: never bound, never in a receipt list |
-| `not_covered` | every `nonlinear_support_*` kind; `curved_bend_macro_element_review`; **entity rule:** any row of a curved span or its stations, whatever its kind; any (kind, unit) not listed; any row in an unlisted unit |
+| force, k = 1 | `element_local_axial_force`, `element_local_shear_force_{y,z}`, `pipe_wall_axial_force_v2`, `pipe_effective_axial_force_v2` (N, kN); `support_reaction_component_v2` and `pipe_wall_endpoint_action_v2` (N, kN); `support_reaction_force_magnitude_v2` and `reaction_resultant` (N), formed at p |
+| moment, k = 1 | `element_local_torsional_moment`, `element_local_bending_moment_{y,z}` (N·m, kN·m); `support_reaction_component_v2` and `pipe_wall_endpoint_action_v2` (N·m, kN·m); `support_reaction_moment_magnitude_v2` (N·m), formed at p |
+| stress, k = 1 | `element_local_axial_normal_stress`, `element_local_bending_normal_stress_{y,z}`, `element_local_torsional_shear_stress` (MPa, Pa); `pipe_axial_membrane_stress_v2` (Pa) where its member carries no pressure (otherwise `not_covered`) |
+| stress, k = k_i | `component_equal_factor_intensified_bending_stress_v1` (Pa), with the row's own i; k_i rounded upward |
+| stress, k = 2√2 | `pipe_elastic_normal_stress_maximum_v2` (Pa), span statics; `not_covered` where its member carries pressure |
+| stress, k = 4 | `open_formula_stress_summary` (MPa), span statics, only where the case has zero pressure; otherwise `not_covered` |
+| `input_derived` | `pipe_lame_hoop_stress_v2`, `pipe_lame_radial_stress_v2` (Pa); `pipe_section_pressure_hoop_stress`, `pipe_section_pressure_longitudinal_stress` (MPa); `constant_effort_support_applied_load` (N); `component_user_stress_multiplier_review` (MPa); `component_user_stiffness_macro_element_review` (N/m, N·m/rad); `constant_effort_user_input_review` (N, m); `spring_hanger_user_input_review` (N, m, N/m, N·m/rad); `expansion_joint_pressure_thrust_load_review` (N); by rule 2a, displacement and rotation rows at an `input_derived_dofs` DOF |
+| `non_quantity` | exactly these four: `sparse_live_path_dense_parity_relative_delta`, `linear_solver_mode_basis`, `modulus_basis_record`, `combination_modulus_basis_record`. A future kind outside this list is `not_covered`, never `non_quantity`, whatever its table category |
+| `not_covered` | every `nonlinear_support_*` kind; `curved_bend_macro_element_review`; every row that rule 2b excludes; the pressure cases above; anything unlisted, including any row in an unlisted unit |
 
-- **Rules that need the invocation.** Two rules depend on the invocation's model, not on the (kind, unit) key:
-  - the restrained or prescribed-DOF rule, which reads the supports' restraint sets and, on 0.4.0, the case's `boundary_motion`;
-  - the curved-entity rule, which reads the components that make a span curved.
-
-  Eligibility always has an invocation. Transport checks without one apply only the (kind, unit) map, and are never eligible.
-- **Check against the base tables.**
-  - Every listed kind must exist in the base identity's semantic table with the listed units.
-  - Every `non_quantity` kind must have a table category other than `physical_quantity`.
-  - A kind that exists in a base table but is absent from this map is `not_covered` by default. A test pins the full set, so that a new product kind shows up as a table change rather than a silent class.
-- **Factors.** Every k is an exact binary64 value in the table except k_i, which each reader forms upward as G5b states. The values are k₁ = 1, k₂√₂ = 2·`0x3FF6A09E667F3BCD`, and k₄ = 4.
-- **Pressure detection.** How readers detect the summary's pressure-longitudinal term and D1's pressure-member carve-out is stated in G5c step 3.
-- **Headlines.** A summary or headline whose `result_ref` names a withheld row is refused as that row is. After S-I, a headline naming an `absolute_verified` row binds as that row's interval (§4.11).
+- **Factors.** k₁ = 1; k√2 = `0x3FF6A09E667F3BCD`; k₂√₂ = `0x4006A09E667F3BCD` (exact doubling); k₄ = 4; k_i = the upward rounding of k√2·i, decided exactly as G5b states. Magnitudes use k = 1 only.
+- **Receipt section terms.** A, Z, L, k_a = E·A/L and k_t = G·J/L. Twist and extension scales are harness-only, formed as `fl(mo/k_t)` and `fl(fo/k_a)`, and are not read by G5b.
+- **Check against the base tables.** Every listed kind must exist in its base identity's semantic table with the listed units. Every `non_quantity` kind must have a table category other than `physical_quantity`. A test pins the full key set, so a new product kind shows up as a table change.
+- **Headlines.** A summary or headline whose `result_ref` names a withheld row is refused as that row is. After S-I, a headline naming an `absolute_verified` row binds as that row's interval (§4.11). After S-J, a proven structural zero binds as the point 0 (§4.12).
 
 ### 4.10 Interaction with S11 (context only)
 
@@ -697,7 +703,7 @@ ROOT's constraint: a rule bound to q ± b is satisfied only if it holds for **ev
 #### 4.11.2 The bound
 
 - **b** is the row's bound as listed in the validated receipt: `fl(2^-64·S*)`, with the row's k-inclusive S\* from G5b. The reader copies the listed bits; it never recomputes b independently of the verified receipt.
-- **Endpoints** are formed outward: `lo = next_down(fl(q − b))`, `hi = next_up(fl(q + b))`.
+- **Endpoints** are formed outward: `lo = next_down(fl(q − b))`, `hi = next_up(fl(q + b))`. When b = 0 (revision 5a), the row binds as the exact point q with no widening, because q ± 0 is exact. This happens for a body whose S\* is 0 under N-2, an unloaded, unmoving body, where D1's stop rule requires exact agreement.
 - **Unit conversion** to the rule declaration's unit (the runner's B2/B3 normalization) is applied to each endpoint, with one outward `next_down`/`next_up` step after every floating operation of the conversion.
 - **TS** forms the same bits with an explicit bit-level widening step (the `outward` helper pattern in `physicsSourceRecovery.ts:121-128`). Python uses `math.nextafter`, and Rust uses `f64::next_down` and `f64::next_up`.
 
@@ -793,12 +799,91 @@ A new interval mode in `expression_evaluator` covers the whole formula language 
   - S-I2: about 150 Rust, 60 Python and 150 TS lines.
   - No schema change, no lockfile change and no new dependency.
   - The main review burden is the soundness table and its mutants.
-- **Ordering against D1 [align D1-r5].**
+- **Ordering against D1** (confirmed against D1 revision 5 §6 and §8.1.3; revision 5a).
   - D1's F2 is split into F2a, the W1 wiring and successor identities (atomic with S-G1 and S-I2), and F2b, the per-domain retirement of exact-block selection.
   - **F2b runs in a domain only after S-I1 and S-I2 have landed, and the gate's row-level condition passes there.**
   - Until then the coexistence rule holds: no W1 attempt in any invocation where exact-block selects a case.
   - The same applies to F3's retirement of the joined identity.
   - A proof-carrying B (an exact zero by construction, proven from topology and restraints) may clear a row earlier, only where the proof is mechanical. The restrained and prescribed-DOF `input_derived` rule is the one such proof in this design.
+
+### 4.12 Option B: proof-carrying structural zeros (slice S-J; revision 5a; optional)
+
+ROOT permits B only as a proof-carrying exemption: a row is exempt only when it is exactly zero by construction, proven mechanically from topology, restraints and load patterns, and not merely observed as 0.0. B is **optional and off every retirement's critical path.** C (S-I) is the restorer in every domain; B adds exact-point binding for proven zeros, so that `equal` and `not_equal` on them are decidable.
+
+#### 4.12.1 What the receipt carries (D1 revision 5 §5 item 1, §8.1.2)
+
+- **`structural_zero`**, present only when the producer implements B: `{ "ids": [<result ids, sorted>], "pattern_digest": "<64 hex>" }`.
+- Every listed id is a row of a selected case, published as ±0.0.
+- The list is disjoint from `input_derived` rows, and from the `not_covered` list.
+- A listed row may also be in the `absolute_verified` list (its value 0 is below any positive floor). B does not change the classification; it changes only how the row binds (§4.12.4).
+
+#### 4.12.2 What the reader re-derives (with the invocation)
+
+This follows D1 §8.1.2 step for step, with `b_proof.py` as the reference implementation. Exact arithmetic throughout:
+
+1. **Frame zero pattern.**
+   - For each straight member, from the invocation's binary64 end coordinates and its y reference, form the exact rational vectors d = x_j − x_i, y_c = y − ((y·d)/(d·d))·d, and d × y_c.
+   - Record which components are zero.
+   - Zero tests are done without division: y_c,k = 0 ⇔ y_k·(d·d) − (y·d)·d_k = 0, over exact integers after scaling every binary64 input to a common power of two.
+2. **Element pattern.**
+   - Four families per member: axial (local x translations), torsion (local x rotations), x-y (y translations and z rotations) and x-z (z translations and y rotations).
+   - A family's global DOF set is the union, over both end nodes, of the global components its local axes touch (the non-zero entries of step 1).
+   - The member couples every pair within one family set.
+3. **Seeds** (D1 §8.1.2 step 3):
+   - free DOFs with a nodal load term;
+   - every free DOF of a member with a member load, a pressure region or an unrecognized 0.4.0 element state;
+   - the axial-family DOFs of a member with a uniform axial eigenstrain (0.4.0 `explicit_interval_strain` or `fit_strain`);
+   - free DOFs coupled to a non-zero prescribed DOF.
+   - **No proof for the case**, so `structural_zero` must be absent or empty for it, when there is a load term the producer cannot place, any component (joint, user or curved element), or a history other than independent equilibrium.
+4. **Reach.** Breadth-first search over the free-DOF coupling graph from the seeds, in ascending global DOF index order **[align D1-B]**. The unreached free DOFs are proven zero.
+5. **Rows.** A row is proven zero when every DOF its formula reads is proven zero and no load term enters it, with D1's per-kind read sets:
+   - nodal rows by DOF;
+   - member end and station actions by the families they read, only on a member with no member load (an axial eigenstrain excludes only the axial-family rows);
+   - stresses by the families they read, excluding pressure-bearing kinds when the case has pressure;
+   - support reaction components from the restrained DOF's element couplings when no load acts there; a spring reaction from its DOF; components with no restraint on them are zero;
+   - magnitudes and resultants from all their components.
+
+   The read-set table is carried beside the closed table in the successor semantic table, so the three readers read the same bytes **[align D1-B]**.
+6. **Exemption.** A row is listed only if it is proven zero **and** published as ±0.0.
+
+**The check.** The reader's recomputed set must equal the receipt's `ids` in both directions, and the recomputed pattern digest must equal `pattern_digest`. Otherwise `RETAINED_PRECISION_STRUCTURAL_ZERO_MISMATCH` (`unsupported`). A listed row whose published value is not ±0.0 fails the same way. The reader never extends the list: a row it proves zero but the receipt does not list makes the sets unequal, which is also a mismatch. Parity therefore cannot drift.
+
+#### 4.12.3 Pinning for three languages [align D1-B]
+
+- **BFS order:** ascending global DOF index (node order in the invocation × 6 + component), both for the queue and for neighbour expansion. The resulting set does not depend on the order; pinning it fixes only intermediate traces used in the parity cases.
+- **Pattern digest** (proposed; D1 pins it with the producer slice): sha256 over the checked canonical JSON of `{"ids": <sorted structural_zero ids>, "families": [{"member_id", "axial", "torsion", "xy", "xz"}]}`, where each family is its sorted list of global DOF indices, and members appear in invocation order. The hash domain is `retained_precision_structural_zero_v1`, using the `domain_hash` pattern (`source_blocks.rs`).
+- **Exact arithmetic per language:**
+  - Python: `fractions.Fraction` and `int`.
+  - TS: BigInt, over mantissa and exponent decompositions of the binary64 inputs.
+  - Rust: `result_export` has no big-integer type. S-J adds a small in-crate unsigned big-integer (add, sub, mul and compare only; about 250 lines), or reuses D1's `wide.rs` if it becomes a shared crate. No external dependency and no lockfile change.
+
+#### 4.12.4 Binding and counting
+
+| Row | Before S-J | After S-J |
+|---|---|---|
+| Listed and proven `structural_zero` | Interval [q − b, q + b] under S-I (A before S-I) | **The exact point +0.** `equal` and `not_equal` decide exactly |
+| `absolute_verified`, not listed | Interval (S-I) | Unchanged (interval) |
+
+- Proven zeros do not count as withheld (§4.9.9), and neither do C-bindable rows after S-I, so B changes no gate count once S-I has landed. Before S-I, a proven zero is not withheld where S-J has landed.
+- `classification_summary` gains a `structural_zero` count per case, as a subset of the case's quantity rows.
+
+#### 4.12.5 Coverage, controls, slice and cost
+
+- **Coverage (D1 §8.1.2, from `b_proof.py`).** Every withheld row in N05 and N06 (all identities), mixed `case`, fields, multicase `case` and rejected_stress_range. Partial coverage: signed-companion 46 of 57, eigen_motion 32 of 62 (seven rigid-motion zeros are cancellation zeros, which B does not claim), and the ordinary-pressure case 8 of 68 (pressure is seeded conservatively). Every family keeps at least one case that only C can restore, so B is on no critical path.
+- **Controls:**
+  - every committed case's recomputed set matches `b_proof.py`'s output (`b_proof_main.json`), identically in the three languages;
+  - negatives, each `unsupported`:
+    - a listed id that is not provable (a loaded DOF);
+    - a provable row omitted from the list;
+    - a listed row published as 1e-300;
+    - a wrong pattern digest;
+    - a case with a component, which must list nothing;
+    - an eigenstrain member whose axial row is listed;
+  - one mutant per seed rule, per language.
+- **Slice S-J.** New `result_export/src/structural_zero.rs`, `analysis_runs/structural_zero.py` and `features/results/structuralZero.ts`; the G-check wiring in the successor readers; the binding change in `rule_binding_interval` (a point for listed rows); a shared case file.
+  - **When:** after S-I, and after D1's producer slice pins §4.12.3.
+  - **Cost:** about 700 Rust lines (including the big-integer), 350 Python, 450 TS.
+  - **Optional.** If it is not built, nothing else changes.
 
 ## 5. Interface assumptions and requirements on D1
 
@@ -819,7 +904,7 @@ A new interval mode in `expression_evaluator` covers the whole formula language 
   - the two refusal codes.
 
   If D1's choices differ, G5b, G5c and §4.9.10 follow D1 and keep the rules: recompute, compare bits, set equality, default `not_covered`.
-- **I-10 (revision 5) [align D1-r5].** D1 revision 5 is expected to carry:
+- **I-10 (revision 5): closed in revision 5a.** D1 revision 5 (`490f02982`) carries every item below. It was expected to carry:
   - the closed table exactly as §4.9.10 mirrors it, including R4-1's k values and the upward k_i;
   - §5 without twist and extension in the receipt;
   - the row-level gate condition with side-by-side counts, using D2's withheld definition (§4.9.9);
@@ -827,6 +912,7 @@ A new interval mode in `expression_evaluator` covers the whole formula language 
   - the coexistence rule.
 
   If D1 revision 5 differs in a detail, D2 follows D1 and keeps the rules.
+- **I-11 (revision 5a) [align D1-B].** For option B, D1 pins the BFS order (ascending global DOF index) and the pattern-digest payload with its producer slice. D2 proposes both in §4.12.3. S-J follows D1's pinned text if it differs.
 - **I-3 (retirement).** Replaced by the shared retirement gate (§4.5.2), defined by D1. S-G is its standing condition.
 - **I-4 (existing source identities).** Answered by ROOT: physics-source-1 is no longer emitted after F2 but stays eligible (R-3(b)); joined stays fresh until F3 (R-3(a)).
 - **I-5 (range).** Unchanged: §4.6 applies to whatever D1 publishes.
@@ -898,6 +984,7 @@ None is deleted, and none is weakened.
 | **S-H** | Capture without a required digest | `source_receipt.rs`; `PP` (attempt gate); tests | **T1** (merged) | **Never before S11-F** (ROOT, `b6fe1eb75`). In S11-F's PR, or after S11-F is on main; its tests re-run the 1e80 RF-CANCEL cases (F, M, ORTHO, INPLANE, UDL-W1e80) through the captured route and show them repaired |
 | **S-I1** | Option C: interval evaluator and runner outcomes; Python reference evaluator | §4.11.6 | disjoint | Any time; before F2b |
 | **S-I2** | Option C: binding wiring and UI | §4.11.6 | **T1** (merged) | With S-G1 and D1's F2a; before F2b |
+| **S-J** | Option B reader contract (optional) | §4.12.5 | new files plus successor readers | After S-I and D1's B producer slice; off every critical path |
 | **S-D** | Pre-0.4 composite fallback | `PP`; `load_state_fallback_tests.rs`; new `pre04_fallback_tests.rs` | **T1** | After S-H. Worth landing only if D1's F2 is not imminent (its reach is the pre-F2 window) |
 | **S-G1** | Readers for `<preview-retained>` and `<physics-retained>` | New `result_export/src/retained_precision.rs`, `analysis_runs/retained_precision.py`, `features/results/retainedPrecisionEvidence.ts`; `semantic_contract.rs`, `compatibility.py`, `numericalResultQuality.ts`, `knownSemanticLimitations.ts`; `derivative.rs`; tables, receipt schema, carrier schema branches; shared cases | **T1** | **One atomic PR with D1's F2**; after S-C; after ROOT's identity reservation and D-8 budgets |
 | **S-E1** | Resolved-case re-derivation core | New `load_reference_rederive.{rs,py}`, `loadReferenceRederive.ts`; shared cases | New files; consumers are T1 files | With D1's F3 |
@@ -913,6 +1000,7 @@ None is deleted, and none is weakened.
   - S-E1 and S-G2 with F3, and the joined retirement under the same gate.
   - S-F with F2b.
   - S-E2 only if F3 misses T3.
+  - S-J (optional) after S-I and D1's B producer slice.
 - **Merge gate:**
   - complete-diff independent review;
   - hosted CI, including the dual-viewport dispatch whenever TS changes;
@@ -955,7 +1043,8 @@ Containment alone closes no group. Closure needs VP-ORACLES and VP-ROBUST on the
 | DD-10 | Historical joined standing after F3, if S-E2 was built | **Keep eligibility (as R-3(b))** / `needs_recompute` | Open, only if S-E2 is built |
 | DD-11 | Selected-case `numerical_quality` (IF-1) | **Ordinary attempt's outcome; precision-p outcome only in the receipt** / D1 writes `checks_passed` and S-G special-cases it | **Closed:** adopted by D1 (V1 backcheck) |
 | DD-12 | Capture fix | **H-1 fallible digest** / H-2 scientific profile at capture / H-3 normalized hashing | Open |
-| DD-14 | Where the closed row-kind list lives (revision 4) | **In each successor's pinned semantic table, read by all three readers** / in the receipt per envelope / in reader code | Open, with D1 |
+| DD-14 | Where the closed row-kind list lives (revision 4) | **In each successor's pinned semantic table, read by all three readers** / in the receipt per envelope / in reader code | **Adopted by D1** (revision 5 §4.1.6.1 item 2) |
+| DD-15 | Option B reader slice S-J (revision 5a) | **Build it, optional and after S-I, as §4.12 specifies** / do not build it (C alone restores every row except exact-point equality) | Open. ROOT permits B only as proof-carrying |
 | DD-13 | Consumer rule for `absolute_verified` and `not_covered` quantities (revisions 3 and 5) | **C (S-I, §4.11): conservative interval binding for `absolute_verified`, with A until S-I lands; `not_covered` withheld** / A only / B only as a proof-carrying exact-zero exemption | **Ruled: C** (D-15, conservative-binding constraint); B only proof-carrying |
 
 **Owner-level question.** None. F3 would raise one (case-scoped Current), as in revision 1.
