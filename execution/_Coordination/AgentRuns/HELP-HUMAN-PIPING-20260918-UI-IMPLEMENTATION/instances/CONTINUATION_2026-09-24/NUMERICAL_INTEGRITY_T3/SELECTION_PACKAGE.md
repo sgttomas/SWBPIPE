@@ -1,10 +1,13 @@
-# T3 selection package (DRAFT)
+# T3 selection package
 
-T3 WORKING_ITEMS manager for ROOT, 2026-09-26. **Status: DRAFT.** R5-4 is pre-accepted. Still pending:
-- V1's targeted verification of D1 5a.1 and D2 5b.1, and of R5-4's four conditions;
-- S11-K (under implementation): I1's regeneration, then the independent review (RV1) and the PR gates.
+T3 WORKING_ITEMS manager for ROOT, 2026-09-26. **Status: FINAL, for ROOT's selection.**
 
-The follow-up has landed (D1 5a.1, D2 5b.1); §2 lists the final design revisions. Nothing here is selected until ROOT records a selection.
+- **Design basis:** D1 revision 5a.2 and D2 revision 5b.2 (§2). V1's targeted verification is **VERIFIED** (`REVIEW/VERIFY_R5.md`, `8097e13b`, at `57842c192`), including all four R5-4 conditions. No further review round, per ROOT's process ruling.
+- **Not part of this selection, and still in progress:**
+  - S11-K, already selected and being implemented: I1's regeneration, then RV1's independent review and the PR gates.
+  - The RF-ELOAD references: a candidate under V3's refutation, selected separately before F3.
+
+Nothing here is selected until ROOT records a selection.
 
 ## 1. What T3 asks ROOT to select
 
@@ -13,8 +16,8 @@ The follow-up has landed (D1 5a.1, D2 5b.1); §2 lists the final design revision
    - D2's standing, envelope and transport design (`DESIGN_STANDING/DESIGN.md`);
    - both at the revisions in §2, with ROOT's rulings (`ROOT_RULINGS_V1.md`, `ROOT_RULINGS_V2.md`) as binding amendments. Where a design and a ruling differ, the ruling wins.
 2. **The slice plan and ordering** in §4, including the hard constraints.
-3. **The decisions** in §5. ROOT ruled on all of them on 2026-09-26, subject to the follow-ups.
-4. **R5-4**, curved bends under K-D5: pre-accepted (curved re-formation in EF), pending V1's verification (§6).
+3. **The decisions** in §5. ROOT ruled on all of them on 2026-09-26. The follow-ups changed none of them, apart from D-14's slice, corrected by ROOT to F3.
+4. **R5-4**, curved bends under K-D5: pre-accepted (curved re-formation in EF). V1 has verified all four conditions. T3 asks ROOT for **final acceptance** (§6).
 
 The references are already frozen (`ROOT_SELECTION_REFERENCES.md`). The S11 containment is already selected (`ROOT_SELECTION_S11.md`), and its kernel half, S11-K, is being implemented.
 
@@ -29,6 +32,7 @@ The references are already frozen (`ROOT_SELECTION_REFERENCES.md`). The S11 cont
 | `DESIGN_STANDING/DESIGN.md` (D2) | revision 5b.2 at `8b2bca91b` | `edc78f9c` |
 | `REFERENCES/` (R1, frozen) | `c0f14201c` | `references.json` `7b176dbb` |
 | Reviews | `REVIEW/RETURN.md`, `S11_CHECK.md`, `S11_BACKCHECK.md`, `S11_BACKCHECK_R3.md`, `BACKCHECK_R2.md`, `BACKCHECK_R3.md`, `D5_CHECK.md`, `BACKCHECK_R4.md`, `BACKCHECK_R5.md` | — |
+| Targeted verification (V1) | `REVIEW/VERIFY_R5.md` at `57842c192`: **VERIFIED** | `8097e13b` |
 | Reference checks | `REFERENCE_CHECK/RETURN.md`, `BACKCHECK.md`, `ERRATUM_N1.md` | — |
 | Detection baseline (P1) | `DETECTION/` at `d28f69dd7` (return and typed follow-up) | `results.json` `a1188624` |
 | Gate exception list | `GATE/S11_EXCEPTIONS.json` | see `GATE/SHA256SUMS` |
@@ -108,7 +112,7 @@ ROOT ruled on these before the final package, to save a round. They become final
 
 Items left for the final package: V1's verification of R5-4, and anything the follow-ups change. The exception triples are pinned (§4).
 
-## 6. R5-4: curved bends under K-D5 (pre-accepted, pending V1)
+## 6. R5-4: curved bends under K-D5 (pre-accepted; V1 VERIFIED; final acceptance requested)
 
 D1's note `DESIGN_NUMERICS/R5_4_CURVED.md` (commit `4bc3e0696`, sha256 `4843c4e9`) found a sound design within T3, so no owner options are needed.
 - **Design.** EF re-forms each curved contribution (and each user-stiffness joint, without the arctangent) in `Wide<2>` from its binary64 inputs, as an objective element built from the actual chord x_j − x_i. It then enters the exact residual like a frame. The cost is a Wide arctangent added to K3a, O(6³) Wide operations per element, and no extra solve.
@@ -118,6 +122,11 @@ D1's note `DESIGN_NUMERICS/R5_4_CURVED.md` (commit `4bc3e0696`, sha256 `4843c4e9
   - Four curved Passed breaches on main (up to 1.48×): all caught, with EF equal to the actual error to three digits. A check reusing the product's binary64 curved matrix misses 2.
   - T4's null-space confirmation is not a prerequisite.
 - **ROOT (2026-09-26):** pre-accepted. Options (a), (b) and (c) fall away. Final acceptance depends on V1's targeted verification (`ROOT_RULINGS_V1.md`).
+- **V1 (`VERIFY_R5.md`, VERIFIED):** all four conditions hold, reproduced both with D1's script and with V1's own independent re-formation (quadrature flexibility, K = AᵀXA from the actual nodes).
+  1. **Rotation-consistent by construction:** rigid-mode residual 1.7e-59 (D1) and 4.4e-60 (V1), against 2.4e-16 for the product's binary64 matrix. No libm dependence.
+  2. **All 4 curved Passed breaches caught:** trigger values 2.07–2.96.
+  3. **None of the 12 E1–E6 case-modes demoted:** largest trigger value 0.0038.
+  4. **Re-formation required:** reusing the product matrix misses 2 (0.798 and 0.509).
 - **ROOT on V1's verification (2026-09-26):** the K3a arctangent bound is stated as V1's measurement (≤ 2.69 ulp at p = 128, over 13 angles), not a proof. That is acceptable for selection, provided the K3a slice's test vectors carry a few-ulp tolerance and the implementation slice owns any proof.
 - **Findings:** the curved Passed breaches (M03, under the no-interim ruling, fixed by K-D5), and the product's curved element not being rotation-consistent on binary64 inputs (routed to T4 and W1c).
 
