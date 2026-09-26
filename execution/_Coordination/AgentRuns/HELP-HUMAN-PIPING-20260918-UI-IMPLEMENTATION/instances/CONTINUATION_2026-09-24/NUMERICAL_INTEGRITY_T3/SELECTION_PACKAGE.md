@@ -30,7 +30,8 @@ The references are already frozen (`ROOT_SELECTION_REFERENCES.md`). The S11 cont
 | `REFERENCES/` (R1, frozen) | `c0f14201c` | `references.json` `7b176dbb` |
 | Reviews | `REVIEW/RETURN.md`, `S11_CHECK.md`, `S11_BACKCHECK.md`, `S11_BACKCHECK_R3.md`, `BACKCHECK_R2.md`, `BACKCHECK_R3.md`, `D5_CHECK.md`, `BACKCHECK_R4.md`, `BACKCHECK_R5.md` | — |
 | Reference checks | `REFERENCE_CHECK/RETURN.md`, `BACKCHECK.md`, `ERRATUM_N1.md` | — |
-| Detection baseline (P1) | `DETECTION/` (pending P1's return) | — |
+| Detection baseline (P1) | `DETECTION/` at `d28f69dd7` (return and typed follow-up) | `results.json` `a1188624` |
+| Gate exception list | `GATE/S11_EXCEPTIONS.json` | see `GATE/SHA256SUMS` |
 | Rulings | `ROOT_RULINGS_V1.md`, `ROOT_RULINGS_V2.md`, `ROOT_SELECTION_S11.md`, `ROOT_SELECTION_REFERENCES.md` | — |
 
 ## 3. What the designs do (in brief)
@@ -67,7 +68,7 @@ The references are already frozen (`ROOT_SELECTION_REFERENCES.md`). The S11 cont
 - **S-H never lands before S11-F.** S11-F's tests run through both entries (captured, and typed via headless), including RF-CANCEL at 1e80.
 - **No retirement where rows regress.** F2b retires exact-block selection domain by domain, and only when gate condition 3 passes at row level (side-by-side per-case withheld counts) and at check level (committed rule packs: no decided check becomes indeterminate). C or a proven B precedes F2b in every committed family.
 - **Coexistence.** No W1 attempt in an invocation where exact-block selects any case.
-- **The no-Passed-breach gate.** It runs through both entries. Its exceptions are exactly P1's pinned (entry, case, quantity) triples (106 captured and 168 typed, re-pinned from P1's final results). The list is empty after S11-F. Any other triple is a gate failure.
+- **The no-Passed-breach gate.** It runs through both entries. Its exceptions are exactly the (entry, case, quantity) triples in `GATE/S11_EXCEPTIONS.json`, re-pinned from P1's final results on frozen-reference cases only: 88 triples in 13 cases captured, and 140 in 22 cases typed. This supersedes the earlier 106/168, which was D1's prediction including the unpublished `Mb.*.mid` quantities (`ROOT_RULINGS_V1.md`). RF-SKEW-T-CANT-OFF-122-r1e-04 is not an exception; it is K-D5's required true positive on both entries. The list is empty after S11-F. Any other triple is a gate failure.
 - **The nonlinear active-set loop**, including `product_equilibrium` on the loop path, stays on the legacy binary64 KS variant until T5 designs its residual policy. DEC-046's zero limits are untouched.
 - **Fixture stop rule.** Every committed-byte change is reported to ROOT with its size before regeneration, by the producer only.
 - **Gates for every slice.** Complete-diff independent review; hosted CI, including the surface-4 dual-viewport dispatch; a clean DEC-025 sweep; native witnesses on the owner's Mac where native paths are touched (recorded as outstanding if unavailable).
@@ -101,11 +102,11 @@ ROOT ruled on these before the final package, to save a round. They become final
 | DD-15 | S-J | Build it, after S-I. Under R5-5's check-level gate, proven exact zeros are what let equality and sign checks stay decided rather than indeterminate, so S-J is likely what makes retirement possible in the B-covered domains. Otherwise it stays off the critical path |
 
 **Exception pin and test routing (ROOT, 2026-09-26):**
-- The VP-ROBUST exception list pins frozen-reference cases only, per entry. It is re-pinned from P1's typed-entry follow-up on the 15 captured S11 cases and the skew case.
+- The VP-ROBUST exception list pins frozen-reference cases only, per entry. It was re-pinned from P1's typed-entry follow-up on the 15 captured S11 cases and the skew case (`GATE/S11_EXCEPTIONS.json`: 88 triples in 13 cases captured, 140 in 22 cases typed).
 - P1's own S11-PROBE-A cases are not in the gate. They become S11-K/F test cases with exact expected nets.
 - The typed-entry result for RF-SKEW-T-CANT-OFF-122-r1e-04 goes into K-D5's tests: K-D5 must fire on both entries.
 
-Items left for the final package: R5-4, the re-pinned exception triples, and anything the follow-ups change.
+Items left for the final package: R5-4, and anything the follow-ups change. The exception triples are pinned (§4).
 
 ## 6. R5-4: curved bends under K-D5 (OPEN)
 
