@@ -1,0 +1,765 @@
+{
+ "python": "3.11.15",
+ "decimal_digits": 60,
+ "models": [
+  {
+   "name": "E1 L-shape, two anchors, one elbow",
+   "bends": [
+    {
+     "R": 0.29999999999999993,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.25757681374665
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 34052.415154169576,
+    "actual_ratio": 0.0009148482587515623,
+    "EF_trigger_ratio": 0.0018296732001559942,
+    "EF_shared_trigger_ratio": 0.0018282637472709794,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 34052.415154204165,
+    "actual_ratio": 0.00018767868046003702,
+    "EF_trigger_ratio": 0.0003753806782673108,
+    "EF_shared_trigger_ratio": 0.00037679013115232647,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "E2 L-shape, anchor, guide, free end",
+   "bends": [
+    {
+     "R": 0.29999999999999993,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.25757681374665
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 365522.970398439,
+    "actual_ratio": 0.0014755573556805618,
+    "EF_trigger_ratio": 0.0029512043758974102,
+    "EF_shared_trigger_ratio": 0.0029448183418377912,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 365522.9703990294,
+    "actual_ratio": 0.000480878988710287,
+    "EF_trigger_ratio": 0.0009618476419567201,
+    "EF_shared_trigger_ratio": 0.000955461607897098,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "E3 plan elbow plus riser elbow, anchors at both ends",
+   "bends": [
+    {
+     "R": 0.29999999999999993,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.25757681374665
+    },
+    {
+     "R": 0.29999999999999993,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.25757681374665
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 46876.3275453381,
+    "actual_ratio": 0.0001625612175101973,
+    "EF_trigger_ratio": 0.0003250943357895526,
+    "EF_shared_trigger_ratio": 0.0003231336491026859,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 46876.32754531322,
+    "actual_ratio": 6.77851930482248e-05,
+    "EF_trigger_ratio": 0.00013551914106979025,
+    "EF_shared_trigger_ratio": 0.00013498101846423218,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "E4 skew line (2,1,0) with a riser elbow",
+   "bends": [
+    {
+     "R": 0.3000000000000002,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.25757681374597
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 35468.603637854816,
+    "actual_ratio": 6.586052719182677e-06,
+    "EF_trigger_ratio": 1.3205587134315226e-05,
+    "EF_shared_trigger_ratio": 1.1371505233266758e-05,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 35468.60363784861,
+    "actual_ratio": 7.209994555736825e-06,
+    "EF_trigger_ratio": 1.4391758174749789e-05,
+    "EF_shared_trigger_ratio": 1.2660980385888839e-05,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "E5 elbow k = 5, anchor plus hangers, free end with soft rotational stabiliser",
+   "bends": [
+    {
+     "R": 0.29999999999999993,
+     "phi": 1.5707963267948966,
+     "cond_F": 953.4109922956452
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 363411.781035708,
+    "actual_ratio": 6.719789928040475e-05,
+    "EF_trigger_ratio": 0.0001342586301377644,
+    "EF_shared_trigger_ratio": 0.00013635553014833482,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 363411.7810357961,
+    "actual_ratio": 0.0001412352794035988,
+    "EF_trigger_ratio": 0.00028260772723024785,
+    "EF_shared_trigger_ratio": 0.00028051082721967794,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "E6 expansion U-loop, four elbows, anchors at both ends, hangers",
+   "bends": [
+    {
+     "R": 0.3000000000000004,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.2575768137458
+    },
+    {
+     "R": 0.2999999999999994,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.25757681374716
+    },
+    {
+     "R": 0.30000000000000027,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.257576813746
+    },
+    {
+     "R": 0.3000000000000004,
+     "phi": 1.5707963267948908,
+     "cond_F": 348.2575768137483
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 811761.7681860395,
+    "actual_ratio": 0.000565929332015038,
+    "EF_trigger_ratio": 0.0011318601893603928,
+    "EF_shared_trigger_ratio": 0.0011276825548949517,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 811761.76818355,
+    "actual_ratio": 0.0019099877141005679,
+    "EF_trigger_ratio": 0.0038199629010062224,
+    "EF_shared_trigger_ratio": 0.0038234965237948122,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "C elbow cantilever, soft root spring k_Z = 10000",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.2575768137459
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 222512.47154178924,
+    "actual_ratio": 0.0018849098370611246,
+    "EF_trigger_ratio": 0.003769850254884733,
+    "EF_shared_trigger_ratio": 0.006123052910077988,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 222512.47154212566,
+    "actual_ratio": 0.00037279280872170857,
+    "EF_trigger_ratio": 0.0007456161982059004,
+    "EF_shared_trigger_ratio": 0.0030988188534027145,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "C elbow cantilever, soft root spring k_Z = 100",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.2575768137459
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 22243838.540703673,
+    "actual_ratio": 0.08501447298738128,
+    "EF_trigger_ratio": 0.17002875962914032,
+    "EF_shared_trigger_ratio": 0.06540875599122567,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 22243838.53798397,
+    "actual_ratio": 0.037253242834026326,
+    "EF_trigger_ratio": 0.07450659900168762,
+    "EF_shared_trigger_ratio": 0.3099437640924752,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "C elbow cantilever, soft root spring k_Z = 40",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.2575768137459
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 55609484.0855931,
+    "actual_ratio": 0.17424846879006703,
+    "EF_trigger_ratio": 0.3484968236724226,
+    "EF_shared_trigger_ratio": 0.9370915089578484,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 55609484.090103894,
+    "actual_ratio": 0.09313285339822498,
+    "EF_trigger_ratio": 0.18626559288873873,
+    "EF_shared_trigger_ratio": 0.7748602782219085,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "C elbow cantilever, soft root spring k_Z = 34",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.2575768137459
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 65422909.296021655,
+    "actual_ratio": 0.5666351972398285,
+    "EF_trigger_ratio": 1.1332703784474454,
+    "EF_shared_trigger_ratio": 0.44080583375760307,
+    "fires": true,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 65422909.251782455,
+    "actual_ratio": 0.10956804543208858,
+    "EF_trigger_ratio": 0.21913610689638943,
+    "EF_shared_trigger_ratio": 0.9116006511179842,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "C elbow cantilever, soft root spring k_Z = 1",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.2575768137459
+    }
+   ],
+   "dense": {
+    "outcome": "Sensitive",
+    "cond": 2224376508.103041,
+    "actual_ratio": 28.24934889032606,
+    "EF_trigger_ratio": 56.49869762044604,
+    "EF_shared_trigger_ratio": 32.954863450841465,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": false
+   },
+   "sparse": {
+    "outcome": "Sensitive",
+    "cond": 2224376436.9794054,
+    "actual_ratio": 3.7252905993567076,
+    "EF_trigger_ratio": 7.4505813589195,
+    "EF_shared_trigger_ratio": 30.994414775718464,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": false
+   }
+  },
+  {
+   "name": "C elbow cantilever, soft root spring k_Z = 0.01",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.2575768137459
+    }
+   ],
+   "dense": {
+    "outcome": "Sensitive",
+    "cond": 222437931921.85712,
+    "actual_ratio": 1325.3327570495974,
+    "EF_trigger_ratio": 2650.6655142609916,
+    "EF_shared_trigger_ratio": 296.27892665682094,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": false
+   },
+   "sparse": {
+    "outcome": "Sensitive",
+    "cond": 222437600657.60593,
+    "actual_ratio": 163.9127467409906,
+    "EF_trigger_ratio": 327.8254933201866,
+    "EF_shared_trigger_ratio": 2682.2085748528857,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": false
+   }
+  },
+  {
+   "name": "C elbow cantilever, soft root spring k_Z = 0.0001",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948966,
+     "cond_F": 348.2575768137459
+    }
+   ],
+   "dense": {
+    "outcome": "Sensitive",
+    "cond": 22251676429498.63,
+    "actual_ratio": 355727.79927819845,
+    "EF_trigger_ratio": 711455.5985563239,
+    "EF_shared_trigger_ratio": 475933.4997297174,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": false
+   },
+   "sparse": {
+    "outcome": "Sensitive",
+    "cond": 22242558588726.926,
+    "actual_ratio": 54177.68672038713,
+    "EF_trigger_ratio": 108355.37344084763,
+    "EF_shared_trigger_ratio": 343780.96479746077,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": false
+   }
+  },
+  {
+   "name": "C-skew elbow cantilever, soft root spring k_X = 100",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948968,
+     "cond_F": 348.25757681374785
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 5470789.464568671,
+    "actual_ratio": 0.14085873925351855,
+    "EF_trigger_ratio": 0.2817175431225818,
+    "EF_shared_trigger_ratio": 0.013322776268474818,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 5470789.46430755,
+    "actual_ratio": 0.09313101024802609,
+    "EF_trigger_ratio": 0.18626183415060715,
+    "EF_shared_trigger_ratio": 0.10877926548708193,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "C-skew elbow cantilever, soft root spring k_X = 30",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948968,
+     "cond_F": 348.25757681374785
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 18234608.70023708,
+    "actual_ratio": 0.6260163126104125,
+    "EF_trigger_ratio": 1.2520327852135027,
+    "EF_shared_trigger_ratio": 0.26855905742861963,
+    "fires": true,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 18234608.69448255,
+    "actual_ratio": 0.3104396421982173,
+    "EF_trigger_ratio": 0.6208793690995089,
+    "EF_shared_trigger_ratio": 0.36259470660065485,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "C-skew elbow cantilever, soft root spring k_X = 15",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948968,
+     "cond_F": 348.25757681374785
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 36468636.187137015,
+    "actual_ratio": 0.9321736574320517,
+    "EF_trigger_ratio": 1.864347437212273,
+    "EF_shared_trigger_ratio": 0.10260295658058238,
+    "fires": true,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 36468636.17578411,
+    "actual_ratio": 0.6208803937388668,
+    "EF_trigger_ratio": 1.2417608721809559,
+    "EF_shared_trigger_ratio": 0.7251903043859385,
+    "fires": true,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "C-skew elbow cantilever, soft root spring k_X = 10",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948968,
+     "cond_F": 348.25757681374785
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 54702663.67634221,
+    "actual_ratio": 1.0763815386805635,
+    "EF_trigger_ratio": 2.1527632467676328,
+    "EF_shared_trigger_ratio": 0.7976641595792887,
+    "fires": true,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 54702663.668406874,
+    "actual_ratio": 0.9313211452805853,
+    "EF_trigger_ratio": 1.8626424599676707,
+    "EF_shared_trigger_ratio": 1.0877853694673154,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "C-skew elbow cantilever, soft root spring k_X = 9",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948968,
+     "cond_F": 348.25757681374785
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 60780672.82935096,
+    "actual_ratio": 0.9397002894437753,
+    "EF_trigger_ratio": 1.8794004377155813,
+    "EF_shared_trigger_ratio": 1.3988522632003662,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 60780672.83513028,
+    "actual_ratio": 1.0348016781386338,
+    "EF_trigger_ratio": 2.069603215105316,
+    "EF_shared_trigger_ratio": 1.208650756670746,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "C-skew elbow cantilever, soft root spring k_X = 8.5",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948968,
+     "cond_F": 348.25757681374785
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 64355972.37037112,
+    "actual_ratio": 1.4812897929092501,
+    "EF_trigger_ratio": 2.9625797018190316,
+    "EF_shared_trigger_ratio": 0.5085115900586884,
+    "fires": true,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 64355972.34555516,
+    "actual_ratio": 1.0956724303435896,
+    "EF_trigger_ratio": 2.191344785949127,
+    "EF_shared_trigger_ratio": 1.2797474053058318,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": true
+   }
+  },
+  {
+   "name": "C-skew elbow cantilever, soft root spring k_X = 1",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948968,
+     "cond_F": 348.25757681374785
+    }
+   ],
+   "dense": {
+    "outcome": "Sensitive",
+    "cond": 547021412.4064275,
+    "actual_ratio": 13.257845233537868,
+    "EF_trigger_ratio": 26.515690467076798,
+    "EF_shared_trigger_ratio": 2.9886072749067734,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": false
+   },
+   "sparse": {
+    "outcome": "Sensitive",
+    "cond": 547021410.248625,
+    "actual_ratio": 9.313224613293707,
+    "EF_trigger_ratio": 18.62644922658817,
+    "EF_shared_trigger_ratio": 10.87784839901189,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": false
+   }
+  },
+  {
+   "name": "C-skew elbow cantilever, soft root spring k_X = 0.01",
+   "bends": [
+    {
+     "R": 0.3,
+     "phi": 1.5707963267948968,
+     "cond_F": 348.25757681374785
+    }
+   ],
+   "dense": {
+    "outcome": "Sensitive",
+    "cond": 54702114716.28998,
+    "actual_ratio": 580.2723736709692,
+    "EF_trigger_ratio": 1160.5447472513133,
+    "EF_shared_trigger_ratio": 1789.8868789225062,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": false
+   },
+   "sparse": {
+    "outcome": "Sensitive",
+    "cond": 54702104574.99296,
+    "actual_ratio": 394.880926960502,
+    "EF_trigger_ratio": 789.7618538303607,
+    "EF_shared_trigger_ratio": 2160.669225782535,
+    "fires": true,
+    "shared_fires": true,
+    "demote_all": false
+   }
+  },
+  {
+   "name": "S small-angle bend (1e-3 rad, R = 30 m) between anchors",
+   "bends": [
+    {
+     "R": 30.0,
+     "phi": 0.0010000000000000009,
+     "cond_F": 16926.61718035527
+    }
+   ],
+   "dense": {
+    "outcome": "Passed",
+    "cond": 3987027.9397060326,
+    "actual_ratio": 0.060381880469917895,
+    "EF_trigger_ratio": 0.12076370680229087,
+    "EF_shared_trigger_ratio": 0.12076464666940945,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "cond": 3987027.940004794,
+    "actual_ratio": 0.014560053352980155,
+    "EF_trigger_ratio": 0.02912007354030062,
+    "EF_shared_trigger_ratio": 0.029109524578598948,
+    "fires": false,
+    "shared_fires": false,
+    "demote_all": true
+   }
+  }
+ ],
+ "summary": {
+  "passed_case_modes": 34,
+  "demote_all": 34,
+  "EF_fires_on_passed": [
+   [
+    "C elbow cantilever, soft root spring k_Z = 34",
+    "dense"
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 30",
+    "dense"
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 15",
+    "dense"
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 15",
+    "sparse"
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 10",
+    "dense"
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 10",
+    "sparse"
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 9",
+    "dense"
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 9",
+    "sparse"
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 8.5",
+    "dense"
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 8.5",
+    "sparse"
+   ]
+  ],
+  "passed_breaches": [
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 10",
+    "dense",
+    1.0763815386805635
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 9",
+    "sparse",
+    1.0348016781386338
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 8.5",
+    "dense",
+    1.4812897929092501
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 8.5",
+    "sparse",
+    1.0956724303435896
+   ]
+  ],
+  "missed_by_EF": [],
+  "missed_by_EF_shared": [
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 10",
+    "dense"
+   ],
+   [
+    "C-skew elbow cantilever, soft root spring k_X = 8.5",
+    "dense"
+   ]
+  ]
+ }
+}
