@@ -17,6 +17,8 @@ The line numbers below (`D1:n`, `D2:n`) refer to those two files at the basis co
 
 ## Verdict
 
+**Final verdict (addendum below, on D1 5a.2 at `932698d7a` and D2 5b.2 at `8b2bca91b`): VERIFIED.** The rest of this section is the verdict on the original basis (5a.1 / 5b.1), kept as issued.
+
 **PARTIAL (not VERIFIED).**
 - All four R5-4 conditions hold, and I reproduced them with my own independent re-formation.
 - Every listed fix is verified except one: D1's mirror of ROOT's nonlinear-support rule.
@@ -126,3 +128,33 @@ All runs used standard-library Python 3, single-threaded, `nice 19`, `PYTHONDONT
 - `<v1_dir>` holds my `REVIEW/_run_records/d5_check/probe_d5_check.py.txt`, copied to `probe_d5_check.py`.
 - The sha256 of each rerun output (scratch files, not committed) is in `verify_r5/rerun_hashes.txt`.
 - New records are under `REVIEW/_run_records/verify_r5/` and listed in `REVIEW/_run_records/SHA256SUMS`.
+
+## Addendum: check of the text-only follow-ups (D1 5a.2, D2 5b.2)
+
+I checked the diffs only, as proposed above: `git diff 8dfd72921 932698d7a -- DESIGN_NUMERICS/` and `git diff ae2333a80 8b2bca91b -- DESIGN_STANDING/`.
+
+**Hashes at those commits:**
+- D1: `DESIGN.md` `fb62ef4a`, `S11_CONTAINMENT.md` `e6507587`, `R5_4_CURVED.md` `2c9fae78`. `D5_TRIGGER.md` is unchanged (`f6e24a69`), and no run record other than `SHA256SUMS` changed.
+- D2: `DESIGN.md` `edc78f9c`.
+
+**Both diffs are text only.** No quantity, script output or design rule changes.
+
+| Item | Result | Evidence |
+|---|---|---|
+| PARTIAL fix, D1:166 (§1) | **FIXED** | Now reads "…refused per case with a named reason…; the exception is a case with a nonlinear or contact support, which is not selected at all and keeps its ordinary result and standing with no refusal (§4.3, revision 5a.1)" (5a.2 l.167) |
+| PARTIAL fix, D1:720 (§4.6) | **FIXED** | "At the facade, a case with a nonlinear support is not selected (§4.3); its ordinary result and standing are unchanged" (5a.2 l.723), my wording. No sentence in 5a.2 still refuses a nonlinear-support case |
+| NOTE 1: R5-3 caller detail | Done | `S11_CONTAINMENT.md` §8.1 points to I1's `ks_callers.txt` and `PRE_REGENERATION_REPORT.md` §2 (`14354efdb`) as authoritative. It names the zero-prescribed `reduce_system` callers and records `scrutinize_gaps` as nonlinear/legacy |
+| NOTE 2: `_binary64` naming | Done | The §4.3.1 callers paragraph, the K-D5 row and mutation 32 name the four `_binary64` targets, `solve_linearized_system_evidence` at I1's `lib.rs:1968/1981/1999/2004/2025`, and I1's `option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path` |
+| NOTE 3: "undecided" wording | Done | §4.4.1 condition 3 uses D2's decided/undecided definition (undecided includes `RULE_RESULT_INDETERMINATE` and withheld-row refusals). The languages now read "Rust computes, Python recomputes, TS gives the same binding decision", matching D2:390-393 |
+| NOTE 4: D2 stale marks | Done | D2 5b.2 clears the marks at §4.9.9 (old l.653), I-9 (old l.933, now closed with its items checked against D1 5a.1) and §12 (old l.1135). The remaining `[align D1-…]` strings are only in the historical change logs (§0.2 rows and the revision-4 inputs note) and the 5b.2 row, which is correct as a record |
+| NOTE 5: K3a arctangent | Done; framing acceptable | The K3a row and `R5_4_CURVED.md` l.68 state: open interval 0 < φ < π, "at most 2.69 ulp of p = 128, at most 5 reductions and at most 15 series terms, over 13 angles against a 120-digit reference … V1's measured bound, not a proof", and a few-ulp tolerance for the test vectors. That matches my probe. ROOT has ruled that the measured bound is acceptable for selection, with the few-ulp tolerance and any proof owned by the implementation slice. The text matches that ruling |
+| NOTE 6: D-14 text | Done | The change row reads "W1b extension in F3; ROOT corrected 'F2b' to F3". The §4.2 slice flag is marked "(resolved)" with a citation of ROOT's correction, and the D-14 decision row reads "Slice: F3 … (ROOT's correction; resolved)". No D-14 sentence still places it in F2b |
+| NOTE 7: reading convention | Done | §4.3.1 states that quoted EF is \|w\|/criterion and that the rule fires on 2\|w\|/criterion > 1, with the example 0.0019 → 0.0038 |
+| NOTE 8: `hanger.stiffness` | Left open, agreed | ROOT keeps it open as a script fix for the K-D5/W1 slice. I agree: it does not change the restrained set, so it is not a design defect |
+
+**Final verdict: VERIFIED.**
+- All 20 items are verified.
+- All four R5-4 conditions hold (unchanged by 5a.2, whose R5-4 edits are wording only).
+- The one PARTIAL (item 12) is fixed.
+- The only open point is NOTE 8, left for the implementation slice.
+
