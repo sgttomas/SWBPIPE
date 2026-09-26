@@ -1,6 +1,6 @@
-# T3 D2 — result standing, source envelopes and transport (revision 2)
+# T3 D2 — result standing, source envelopes and transport (revision 3)
 
-Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_ITEMS manager, 2026-09-26. **This is a proposal.** It becomes a basis only if ROOT selects it after V1's backcheck. Revision 1 is kept byte-for-byte as `_run_records/DESIGN_revision1.md` (sha256 prefix `185e178efe3b9855`).
+Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_ITEMS manager, 2026-09-26. **This is a proposal.** It becomes a basis only if ROOT selects it after V1's backcheck. Revision 1 is kept byte-for-byte as `_run_records/DESIGN_revision1.md` (sha256 prefix `185e178efe3b9855`), and revision 2 as `_run_records/DESIGN_revision2.md` (`5c36da2cb8cf89e6`, also in `DESIGN_revision2.sha256`). Revision 3 is narrow: §0.1 lists every change.
 
 - **Brief:** `T3/TASK_BRIEFS/D2_STANDING_DESIGN.md` with `_COMMON.md`. Revision inputs at `065c9ff60`: `T3/REVIEW/RETURN.md` (V1), `T3/ROOT_RULINGS_V1.md` (ROOT's early rulings, plus the further rulings on R-3(a), R-3(b) and R-7 relayed by the manager), and `T3/MANAGER_NOTES/V1_DISPOSITIONS.md`.
 - **Abbreviations:**
@@ -10,6 +10,20 @@ Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_IT
 - **Bases.** Main `c61a540ea`; T1 candidate `f3270ea79`, read only through `git show` and `git diff c61a540ea...f3270ea79`. Line numbers are at those commits and will drift.
 - **Design against T1 as merged.** Places where T1's final merge could change this design are marked **[T1-n]** (§10).
 - **Nothing was built or run against product code** (host hold). The only runs are read-only, standard-library corpus scans (§12). The revised probes and their predictions are in `_run_records/`.
+- **Probe addendum.** After ROOT released the host, the prepared probes PR-1 to PR-7 were run unchanged against exported copies of both bases. The results are in §12.1.
+- **Revision 3 inputs:** `T3/REVIEW/BACKCHECK_R2.md` at `3ea78add8` (V1's backcheck of D1 revision 2: S8-R, S2-R, S5-R and the IF-1 confirmation), and ROOT's rulings on it at the end of `T3/ROOT_RULINGS_V1.md` (`5111651ed`), with the manager's relay of ROOT's final wording for gate condition 3. D1 revision 2 (`3ff9c1fd873d9f28`) §4.1.6, §4.4.1 and §5 were read; D1 revision 3 was not yet available.
+
+## 0.1 Revision 3 — what changed and why
+
+| # | Input | What changed | Where |
+|---|---|---|---|
+| 1 | V1 BACKCHECK_R2 S8-R; ROOT's S8-R ruling | **The floor is enforced by the readers.** G5 gains G5b, which recomputes S\* from the published rows, and G5c, which recomputes every quantity's verified-accuracy class as `abs(q) < fl(R·S*)`, with R's bits pinned. A mismatch is `unsupported`. A new consumer rule (§4.9.9) applies to `absolute_verified` and not-covered quantities: they are withheld from reliance (rule binding refused with a named reason, never counted as Passed, the headline refused when it points at one), shown as uncovered with their absolute bound, and carried with their class in every canonical and exported form. No exemption is proposed. | §4.9.3, §4.9.9, §4.7, §6.2, DD-13 |
+| 2 | V1 S2-R; ROOT's final wording for gate condition 3 | The gate's standing condition now reads, as ROOT worded it: "the successor identity's standing is no worse than the retiring identity's, case by case, in all three languages", with identical, fail-closed standing in each language. H-a log-law cases are `needs_recompute` under both the joined identity and its successor, so they pass. Cited where S-E2, S-F and S-G2 depend on the gate. | §4.2.2, §4.5.2, §4.5.3, §4.9.5 |
+| 3 | V1 confirms that D1 adopted IF-1 | **DD-11 is closed.** `numerical_quality` keeps the ordinary attempt's outcome, and the precision-p outcome lives only in the receipt. | §4.9.2, §5, §9 |
+| 4 | V1 S5-R (D1 states the `digest_ok()` dependency) | **I-7 is closed:** W1 attempts require S-H's `digest_ok()`; otherwise the case gets `RETAINED_PRECISION_UNAVAILABLE` (`invocation_not_representable`). G4 admits that reason. | §5, §4.9.3 |
+| 5 | Host release | The probe addendum (§12.1) is folded in unchanged. Its findings F-P2, F-P3 and F-P7 are recorded, not designed. | §12.1 |
+
+The rest of revision 2, including §12.1, stands unchanged.
 
 ## 0. Revision 2 — what changed and why
 
@@ -39,7 +53,7 @@ Unchanged in substance: F1 for composite finalization (S-D), the S-A tightening,
 | 5 | source-blocks-1 re-homing | **R-B:** D1's F2 retires exact-block selection for fresh solves under the **shared retirement gate**. Historical source-blocks-1 stays readable and byte-unchanged. Mixed envelopes stay `needs_recompute`; all-selected envelopes stay Current with the notice and the summary refusal (R-7 (i)). The texts stop promising T3. |
 | 6 | Transport and display | **Display (S-B):** refuse a conversion that shows a nonzero value as zero or subnormal. **Capture (S-H, T3):** make the solve independent of the checked-profile digest. **Receipts:** a hashing failure is a finalization failure (S-D). **Canonical carriers and persistence:** T6 adopts `openpipestress_jcs_binary64_v1`, with the integer-literal and negative-zero rules stated. **Comparison policy:** no protected predicate changes. |
 | 7 | Standing across languages | One shared case file per slice in Rust, Python and TS. The static sets become Current-admission sets. Five standing changes are listed in §4.7. |
-| 8 | Successor-identity readers | **S-G:** a closed reader contract for D1's successor identities (§4.9). Standing comes from an invocation-bound, verified per-case receipt plus model-derived re-derivation, the same trust basis as physics-source-1. There is no kernel replay in the readers; replay is a Rust validation-lane audit. |
+| 8 | Successor-identity readers | **S-G:** a closed reader contract for D1's successor identities (§4.9). Standing comes from an invocation-bound, verified per-case receipt plus model-derived re-derivation, the same trust basis as physics-source-1. There is no kernel replay in the readers; replay is a Rust validation-lane audit. **Revision 3:** the readers recompute S\* and every quantity's accuracy class. Below-floor and not-covered quantities are shown uncovered, refused for rule binding and never counted as Passed (§4.9.9). |
 
 **No owner decision is needed.** Technical decisions for ROOT are in §9.
 
@@ -259,6 +273,10 @@ Numbers compare by binary64 value (T1's `same`, `load_reference.rs:278-290`).
     - `unsupported` applies on a mismatch;
   - TS gets a check-for-check port with a validated token (DD-3 TS-a).
 - **After F3.** Once F3 lands and joined stops being fresh (R-3(a)), historical joined envelopes keep the standing S-E2 gave them. Joined has no known defect, so ROOT's R-3(b) logic for physics-source-1 applies by analogy. That is decision DD-10.
+- **The gate at F3** (revision 3). The joined family retires under D1's shared gate (§4.5.2). Its standing condition is "the successor identity's standing is no worse than the retiring identity's, case by case, in all three languages". S-E2 does not change what that condition compares:
+  - without S-E2, the retiring joined identity reads `needs_recompute` for every case, so any fail-closed successor standing passes;
+  - with S-E2, a joined case is eligible exactly where J4 re-derivation succeeds, and the successor (S-G2, using the same S-E1 core) must be at least as good on each such case;
+  - under H-a, log-law cases are `needs_recompute` under both identities, and pass.
 
 #### 4.2.3 The TypeScript position
 
@@ -306,14 +324,14 @@ D1 defines the gate (ROOT ruling 3; dispositions R-4). Its four conditions, as V
 
 1. **Coverage:** every committed `fixtures/product_preview/{source_blocks,physics_source}` request, solved fresh in both modes, is selected by D1's method.
 2. **Budgets:** the D-8 limits admit them.
-3. **Standing:** they are Current or eligible in Rust, Python and TS through the successor readers. This is S-G (§4.9), so S-G is a precondition of the gate.
+3. **Standing** (ROOT's final wording, revision 3): "the successor identity's standing is no worse than the retiring identity's, case by case, in all three languages". On top of that, each language's standing must be identical and fail-closed across the whole family. It does not require every case to become eligible. A declared out-of-scope subset reads `needs_recompute` under both identities, and passes. The H-a log-law cases under the joined identity are the example. The successor standing comes from S-G (§4.9), so S-G is a precondition of the gate.
 4. **Values:** the projections match exact-block within the unchanged 1e-9.
 
 R-B, S-F and residuals R-1a and R-1b cite this gate. If it is not met within T3, ROOT chooses R-0 (DD-6). Under R-0, the texts are reworded to "until the general accuracy method is available", so that they never promise a tranche that will not deliver.
 
 #### 4.5.3 S-F (after the gate is met; with or after D1's F2)
 
-1. **Producer.** Superseded by D1's F2, which stops exact-block selection for fresh solves on both routes. S-F adds no producer gate. **[T1-1]**
+1. **Producer.** Superseded by D1's F2, which stops exact-block selection for fresh solves on both routes. S-F adds no producer gate. **[T1-1]** The family retires only when D1's shared gate passes (§4.5.2). Its standing condition (ROOT's wording) is "the successor identity's standing is no worse than the retiring identity's, case by case, in all three languages". On the committed source-blocks-1 requests, an all-selected envelope is Current today, so the `<preview-retained>` result for the same request must be Current too. A mixed envelope is `needs_recompute` today, so any fail-closed successor standing passes.
 2. **Standing** (R-7 (i)):
    - mixed envelopes keep `SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS`;
    - all-selected envelopes stay Current, and `rule_binding_refusal` keeps refusing the summary and the headline's row;
@@ -384,6 +402,7 @@ Otherwise it is `unavailable` with `DISPLAY_UNIT_RANGE: nonzero value is not rep
 | S-3 joined (conditional) | Remove T1's early return; add the joined branch | same | same | S-E2, only if built |
 | S-4 retirement | None: source-blocks-1 and physics-source-1 stay in the sets (R-3(b), R-7 (i)); doc comments only | same | same | S-F |
 | S-5 composite fallback, capture | None (existing identities) | none | none | S-D, S-H |
+| S-6 verified-accuracy classes (revision 3) | `rule_binding_refusal` returns `RULE_QUANTITY_BELOW_VERIFIED_FLOOR` or `RULE_QUANTITY_NOT_COVERED` for classified rows of successor envelopes. Envelope standing unchanged | `rule_binding_refusal` same | `ruleBindingRefusal` same; row labels and notices | S-G1, S-G2 |
 
 **Parity.** Each slice has one shared JSON case file (envelope, invocation or null, requested refs, expected standing, expected reason or code) consumed by all three languages. The parity summary records exact agreements, declared language-specific strings, zero undeclared differences, and zero cases accepted by one language and refused by another. Each new branch has a mutant per language, killed by a named case.
 
@@ -434,7 +453,7 @@ Each successor has its own semantic table. Following the source-blocks-1 precede
   - **`unavailable`:** the attempt failed. It carries a reason, the attempts list and a reference to its `RETAINED_PRECISION_UNAVAILABLE` diagnostic;
   - **`not_required`:** the ordinary attempt passed.
 - **Mixed envelopes are normal** (D1 §5.3). A successor identity is emitted only when at least one case is `selected`.
-- **`numerical_quality.cases[i]` keeps the ordinary attempt's M03-INTEGRITY-v1 outcome** for every case, selected ones included. The precision-p outcome lives only in the receipt. Readers never derive a selected case's standing from `numerical_quality`. This is interface requirement IF-1 for D1: D1 §4.5 says "checks passed at precision p". If D1 instead writes `checks_passed` into `numerical_quality` for a selected case, the base-identity standing rule would admit it without the receipt, so S-G would have to special-case it. That is DD-11.
+- **`numerical_quality.cases[i]` keeps the ordinary attempt's M03-INTEGRITY-v1 outcome** for every case, selected ones included. The precision-p outcome lives only in the receipt. Readers never derive a selected case's standing from `numerical_quality`. D1 adopted this as IF-1 (D1 revision 2 §4.5 and §5 item 3, confirmed by V1's backcheck), so DD-11 is closed. G5 still refuses a selected case whose `numerical_quality` claims `checks_passed` without a matching ordinary attempt.
 - Every row of a selected case carries `recovery_method = contribution_preserving_multiprecision_v1` in its evidence (D1 §5.2).
 
 #### 4.9.3 Reader checks (identical order and codes in Rust, Python and TS)
@@ -446,7 +465,9 @@ Each successor has its own semantic table. Following the source-blocks-1 precede
 | G2 | Encoding. Every receipt number that can exceed 2^53 − 1, be subnormal or be negative zero is a 16-hex bit string decoding to a finite binary64. Plain JSON numbers in the receipt are only exact integers (counts, precisions, work) within the profile's integer range |
 | G3 | Case coverage and order against the request (when an invocation is supplied) and `numerical_quality`. Case ids unique |
 | G4 | Diagnostics. Exactly one `RETAINED_PRECISION_SELECTED` per selected case and one `RETAINED_PRECISION_UNAVAILABLE` per unavailable case, each with `affected_refs == [case id]`. No `RETAINED_PRECISION_UNAVAILABLE` or `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` names a selected case (the S13 rule from the start). No `SOURCE_BLOCK_RECOVERY_SELECTED` anywhere: a successor envelope never mixes methods (D1 option A) |
-| G5 | Per selected case: p ∈ {128, 256, 512}; verification p = 2p ≤ 1024; the attempts list ends with the accepted attempt, and every earlier attempt has a rejection reason; work within the registered limits (D-8); every stop-rule entry decodes to a value ≤ 2^-64 (exact binary64 comparison with the constant); pivot margin and rcond decode to finite positive values; the retained-state digest is 64 lowercase hex; the ordinary-attempt reference binds to `numerical_quality.cases[i]` and its diagnostic, as source-blocks `ordinary()` does |
+| G5 (G5a) | Per selected case: p ∈ {128, 256, 512}; verification p = 2p ≤ 1024; the attempts list ends with the accepted attempt, and every earlier attempt has a rejection reason; work within the registered limits (D-8); every stop-rule entry decodes to a value ≤ 2^-64 (exact binary64 comparison with the constant); pivot margin and rcond decode to finite positive values; the retained-state and load-ledger digests are 64 lowercase hex; the ordinary-attempt reference binds to `numerical_quality.cases[i]` and its diagnostic, as source-blocks `ordinary()` does. `RETAINED_PRECISION_UNAVAILABLE` reasons admitted in G4 include `receipt_encoding`, `publication_hash_range` and `invocation_not_representable` (D1 §5 item 2; S5-R) |
+| G5b (revision 3, S8-R) | **S\* recomputation.** For each body and each kind D1 revision 3 defines (translation, rotation, force, moment, and the new twist and extension kinds), the reader recomputes S\* from the published rows of that case (or combination), exactly as D1 revision 3 specifies: the kind mapping of row kinds and units, the pinned unit factors, S(kind) as the largest abs value, the coupling with L_b in D1's stated operation order, and the twist and extension derivation D1 fixes. Inputs the rows cannot supply (body membership, L_b, section terms for twist and extension) are checked against the invocation model with D1's formula, and structurally when there is no invocation. Eligibility always has an invocation, so every eligible result has its S\* fully verified. The recomputed S\* must equal the receipt's S\* bits exactly. Otherwise `RETAINED_PRECISION_SCALE_MISMATCH` (`unsupported`) |
+| G5c (revision 3, S8-R) | **Classification recomputation.** R is read from its pinned bits in the receipt, which must equal the registered constant's bits. For every published physical quantity row of a selected case (and every retained-state combination output), the reader computes `t = fl(R·S*)` for that row's body and kind, and its class: `absolute_verified` iff `abs(q) < t`, else `relative_verified`. A row whose kind is outside D1's kind mapping is `not_covered`. The receipt's `absolute_verified` list must equal the recomputed set exactly, each listed bound must equal `fl(2^-64·S*)` bit for bit, and any row the receipt marks `not_covered` must be one the reader also finds outside the mapping. Otherwise `RETAINED_PRECISION_CLASSIFICATION_MISMATCH` (`unsupported`). Rows of unselected cases are ordinary rows and carry no class |
 | G6 | Rows. Every row of a selected case carries the method token. No row of an unselected case carries it |
 | G7 | The base-identity validator on a projection. It removes only the receipt, the method-token evidence and the identity, profile and policy constants that G0–G6 bound. It then runs the unchanged preview-physics-1, physics-1 or load-reference-1 evidence validator (T1's projection pattern, `load_reference_source.rs:184-220`) |
 | G8 | With an invocation: invocation shape and hash (with the named profile); model project id; case coverage; requested mode. Model-derived operands: `<physics-retained>` uses physics-source-1's `actual_materials` through S-C's parameter, over the physics-1 evidence; `<load-reference-retained>` uses S-E1 (J4.2–J4.8; `Scope` → `needs_recompute`); `<preview-retained>` compares the materials and sections its preview-physics-1 evidence publishes, and what it does not publish, the receipt's source identity digest covers (the physics-source-1 trust level, stated as a limit) |
@@ -465,7 +486,7 @@ Each successor has its own semantic table. Following the source-blocks-1 precede
 
 #### 4.9.5 The 0.4.0 successor (S-G2)
 
-G8 uses S-E1. The H-a rule (DD-4) means a D1 0.4.0 successor case that uses the logarithmic law is `needs_recompute`, unless ROOT chooses H-b. That limit is inherited by D1's 0.4.0 coverage, and D1 should record it against the shared gate's coverage condition.
+G8 uses S-E1. The H-a rule (DD-4) means a D1 0.4.0 successor case that uses the logarithmic law is `needs_recompute`, unless ROOT chooses H-b. The same case is `needs_recompute` under the retiring joined identity, so ROOT's gate condition 3 ("no worse than the retiring identity's, case by case, in all three languages") passes for it (S2-R ruling). D1 records the H-a subset in the gate definition as a declared out-of-scope subset.
 
 #### 4.9.6 Admission sets, schemas and tables
 
@@ -495,6 +516,38 @@ G8 uses S-E1. The H-a rule (DD-4) means a D1 0.4.0 successor case that uses the 
   - an invocation whose material point differs.
 - **Mutants.** One per new branch per language.
 
+#### 4.9.9 Verified-accuracy classes: the consumer rule (revision 3, S8-R)
+
+ROOT ruled that a quantity below the floor is withheld, or marked uncovered, and never counted as Passed. `absolute_verified` quantities are withheld from Current, or explicitly exempt with a stated reason. The rule below applies in Rust, Python and TS, and at every binding and export site.
+
+| Class (from G5c) | What readers show | Rule binding and reliance | Canonical and exported forms |
+|---|---|---|---|
+| `relative_verified` | The value, as today | Bindable, subject to the envelope's standing | As today |
+| `absolute_verified` | The value, marked "uncovered: verified only to an absolute bound of ±b (below the relative floor)", with b = `fl(2^-64·S*)` | **Withheld.** `rule_binding_refusal` returns `RULE_QUANTITY_BELOW_VERIFIED_FLOOR`. The rule runner reports the input as `RULE_INPUTS_INCOMPLETE` with that reason, never as a pass. A summary or headline whose `result_ref` names such a row is refused in the same way | The receipt travels with the document. `derive_document` copies it (the receipt-copy list of §4.9.7), and adds one `row_disclosures` entry per such row naming the class and bound. Every canonical-document consumer applies the same refusal |
+| `not_covered` | The value, marked "uncovered: no verified accuracy for this quantity kind" | **Withheld.** `RULE_QUANTITY_NOT_COVERED`, as above | As above, with class `not_covered` |
+
+**Envelope standing is not demoted by these rows.** Demoting it would withhold correct relative-verified quantities, for example every signed action in a torsion model whose axial force is a structural zero computed as noise (D1 §4.1.6 D-12 rationale). This mirrors T0R's R-2 and R-7 (i) pattern: an envelope stays Current, and a quantity with no reliable reading is refused wherever it could be relied on. So "withheld from Current" is enforced at quantity level:
+- the quantity never binds;
+- it never counts as Passed;
+- it never appears unlabelled.
+
+**Exemption.** None is proposed. An exact structural zero cannot be told apart from noise below the floor (D1 §4.1.6), so no class of below-floor quantity can be exempted on evidence. A future exemption needs a ROOT ruling that names the quantity class and its reason.
+
+**Interval binding (option).** Binding an `absolute_verified` quantity as the interval q ± b, and passing a rule only if it passes at both ends, would restore use of these quantities. It needs interval semantics in `rule_check_runner` (a new input shape) and in its desktop mirror. It is not proposed in T3 (DD-13).
+
+**The VP harness.** A below-floor or not-covered comparison never counts as a pass (ROOT's F2 ruling). That is D1's and R1's harness rule. On the reader side it means S-G's shared case files never treat a floor-classified row as verified-relative evidence.
+
+**Where the rule lives:**
+- `semantic_contract::rule_binding_refusal`, `compatibility.rule_binding_refusal` and `knownSemanticLimitations.ruleBindingRefusal` gain the two codes for successor identities, reading the validated receipt. The native binding sites and `rule_check_runner` already route through the helper (§3.5).
+- `knownSemanticNotices` gains a text for each class.
+- `derive_document` gains the disclosure.
+
+All of these are S-G1 or S-G2 files.
+
+**Notice texts:**
+- **`N_RP_ABSOLUTE`:** "Uncovered quantity: verified only to an absolute bound of ±{b} {unit}, below the relative accuracy floor for this body. It is shown for inspection; rule checks cannot bind to it."
+- **`N_RP_NOT_COVERED`:** "Uncovered quantity: no verified accuracy for this quantity kind. It is shown for inspection; rule checks cannot bind to it."
+
 ### 4.10 Interaction with S11 (context only)
 
 V1-S11, an absorbed and cancelled nodal load published as Passed, is D1's containment slice (ROOT ruling 2; `MANAGER_NOTES/S11_MAP.md`). Its reader-side effect is none, provided the containment marks the case not Passed (Sensitive or refused): whole-envelope standing then withholds Current in every language, unchanged. If the containment adds a diagnostic code to an identity whose readers enumerate diagnostic codes, that code must be added to those readers in the same slice. D2 flags this as interface IF-2.
@@ -502,12 +555,19 @@ V1-S11, an absorbed and cancelled nodal load published as Passed, is D1's contai
 ## 5. Interface assumptions and requirements on D1
 
 - **I-1 (row semantics).** Successor rows have their base identity's semantics (D1 §4.4). S-G's G7 depends on this.
-- **I-2 (standing basis).** A verified receipt plus invocation binding (§4.9.4). IF-1: `numerical_quality` keeps the ordinary attempt's outcome (DD-11).
+- **I-2 (standing basis).** A verified receipt plus invocation binding (§4.9.4). IF-1, that `numerical_quality` keeps the ordinary attempt's outcome, is adopted by D1 (DD-11 closed).
+- **I-8 (floor classification, revision 3).** D1 revision 3 defines:
+  - S\* on published rows for every kind, including twist and extension, with the kind mapping, unit factors, L_b formula and operation order pinned;
+  - R's bits, in the receipt;
+  - the classification `abs(q) < fl(R·S*)` on the published value;
+  - which rows, if any, are `not_covered`.
+
+  G5b and G5c mirror those definitions exactly. If D1 revision 3 differs in a detail, S-G follows D1 and keeps the structure (recompute, compare bits, refuse on mismatch).
 - **I-3 (retirement).** Replaced by the shared retirement gate (§4.5.2), defined by D1. S-G is its standing condition.
 - **I-4 (existing source identities).** Answered by ROOT: physics-source-1 is no longer emitted after F2 but stays eligible (R-3(b)); joined stays fresh until F3 (R-3(a)).
 - **I-5 (range).** Unchanged: §4.6 applies to whatever D1 publishes.
 - **I-6 (receipt encoding).** D1 revision 2 names the profile and the bit-string encoding. The reader requirements are G1 and G2. D1 states the per-case outcome of a hashing failure (V1-S4). Recommended to D1: the checked profile with bit strings, because readers then need no new canonicalizer in TS.
-- **I-7 (capture).** D1's method is gated by S-H's digest availability, unless D1 specifies otherwise for its receipt.
+- **I-7 (capture): closed.** D1 states that W1 attempts require S-H's `digest_ok()`; otherwise `RETAINED_PRECISION_UNAVAILABLE` (`invocation_not_representable`) applies (V1 S5-R).
 - **IF-2 (S11).** §4.10.
 
 **Validity if D1 chooses differently.** Items 1, 3, 4, 6 and 7 hold. Item 8 (S-G) is written against D1 §5; a different receipt changes G5's fields, not the structure. Item 5 depends on the gate. Item 2 is scheduled by ROOT's R-3(a).
@@ -542,7 +602,7 @@ Sources are in `_run_records/d2_probe/`; the plan and predictions are in `_run_r
 | S-H | A 1e16 N/m spring (integer literal) solves on each route, both modes; every committed request byte-identical | The mutant restoring the early `?` fails; a sensitive case in such a request carries the capture `UNAVAILABLE`, never a selection |
 | S-E1 | Every committed joined and load-reference-1 witness re-derives to its published records, in 3 languages | One mutation per J4 row gives Mismatch; `Scope` cases (H-a law, i128 overflow) give identical outcomes ×3 |
 | S-E2 (if built) | Five joined witnesses eligible with their invocation; route documents minted | Revision 1's J4 controls; no invocation → `needs_recompute` |
-| S-G | §4.9.8 positives | §4.9.8 negatives; Rust replay audit in the validation lane |
+| S-G | §4.9.8 positives. Revision 3 adds: a weak-coupling case (D1's S8-W) whose below-floor rows are listed `absolute_verified`, shown uncovered and refused for binding identically in the three languages; a relative row in the same envelope still binds | §4.9.8 negatives. Revision 3 adds: an S\* entry off by one ulp; R's bits changed; a qualifying row missing from the `absolute_verified` list; an extra listed row; a bound off by one ulp; a row marked `not_covered` that is inside the mapping (each `unsupported`); a headline pointing at an `absolute_verified` row (binding refused). Rust replay audit in the validation lane |
 | S-F | Historical raws keep their standing (all-selected Current, mixed `needs_recompute`); texts updated | A tampered historical raw is `unsupported` |
 
 ### 6.3 Pre-0.4 differential (S-D, S-H, and D1's F2)
@@ -597,7 +657,7 @@ None is deleted, and none is weakened.
 | Binding route (T1 §11) | Automatic for eligible identities | Desktop export of the load-reference and successor identities: T6 |
 | Selected-UNAVAILABLE | Closed (S-A); built into S-G | None |
 | T0R carries R-1, R-2 | Fresh results: moot after F2. Historical: containment kept by ruling (R-7 (i)); texts no longer promise a tranche | None, unless a defect is found |
-| Successor readers (V1-S3) | S-G1 and S-G2 designed | None in design; implementation with F2 and F3 |
+| Successor readers (V1-S3) | S-G1 and S-G2 designed, with the floor enforced (G5b, G5c, §4.9.9) | None in design; implementation with F2 and F3 |
 | M34 display range | Closed (S-B) | None |
 | M34 transport range | Requirement, references, capture fix and fallback | Carrier adoption and persistence: T6 |
 | M34 comparison policy | Stated; unchanged predicates | None |
@@ -619,8 +679,9 @@ Containment alone closes no group. Closure needs VP-ORACLES and VP-ROBUST on the
 | DD-8 | Transport split | **T3: capture (S-H), requirement, references, fallback, display. T6: binary64 carriers, headless digest, persistence, export, with the integer-literal, negative-zero and size rules** / T3 adopts the carriers now | Open (ruling 4 assigns capture to T3) |
 | DD-9 | Eligible load-reference, joined and successor results are Current and rule-eligible; export and report package refused until T6 | **Confirm** / keep them off rule checks until T6 | Open |
 | DD-10 | Historical joined standing after F3, if S-E2 was built | **Keep eligibility (as R-3(b))** / `needs_recompute` | Open, only if S-E2 is built |
-| DD-11 | Selected-case `numerical_quality` (IF-1) | **Ordinary attempt's outcome; precision-p outcome only in the receipt** / D1 writes `checks_passed` and S-G special-cases it | Open, with D1 |
+| DD-11 | Selected-case `numerical_quality` (IF-1) | **Ordinary attempt's outcome; precision-p outcome only in the receipt** / D1 writes `checks_passed` and S-G special-cases it | **Closed:** adopted by D1 (V1 backcheck) |
 | DD-12 | Capture fix | **H-1 fallible digest** / H-2 scientific profile at capture / H-3 normalized hashing | Open |
+| DD-13 | Consumer rule for `absolute_verified` and `not_covered` quantities (revision 3) | **Quantity-level withholding: shown uncovered with the bound, rule binding refused, never Passed, class carried in canonical forms; envelope standing unchanged; no exemption** / whole-envelope `needs_recompute` whenever a selected case has such a row / interval binding q ± b in the rule runner | Open. ROOT's S8-R ruling requires withholding or a stated exemption; the recommendation meets it |
 
 **Owner-level question.** None. F3 would raise one (case-scoped Current), as in revision 1.
 
@@ -673,8 +734,46 @@ Containment alone closes no group. Closure needs VP-ORACLES and VP-ROBUST on the
 **Limits:**
 - The capture refusal is established by reading (as V1's was).
 - The integer-literal form of desktop requests follows from JS number formatting and serde's parsing, not from a run.
-- The successor reader contract is written against D1 revision 1's §5. D1 revision 2's profile and encoding may change G1, G2 and G5's fields.
+- The successor reader contract was written against D1 revision 1's §5 and checked against D1 revision 2's §5 in V1's backcheck (G1, G2 and G5a consistent). G5b and G5c are written against D1 revision 3's announced definitions (I-8), which were not yet available.
 - H-b's termination at 1024 bits is not proved for every binary64 argument. H-a has no such dependency.
 - The ROOT rulings after `065c9ff60` were read from the manager's relay.
 
-`_run_records/SHA256SUMS` lists this folder's files.
+### 12.1 Probe results (addendum after the host release)
+
+**How the probes were run.**
+- The unchanged `_run_records/d2_probe` sources and `PROBE_PLAN.txt` revision 2.
+- Built from `git archive` exports of `c61a540ea` and `f3270ea79` in `<scratch>`, never from T1's worktree.
+- `CARGO_TARGET_DIR=<t3-target>`, `RUSTUP_TOOLCHAIN=1.97.1` (rustc 1.97.1), `CARGO_INCREMENTAL=0`, `cargo build --offline --release -j 2`. Not `--locked`: the probe crate is not in the copied lockfile.
+- Each build waited until no other cargo process was running.
+- Records are in `_run_records/probes/`: per-probe logs `PR-1.log` to `PR-7.log`, full logs, build logs, `ENVIRONMENT.txt` (toolchain and binary hashes), the runner script, and `SHA256SUMS`.
+- The build output and exports were deleted afterwards.
+
+**Main and T1 gave identical results on every probe except PR-4,** where main lacks the 0.4.0 fixture. Every probe gave the same outcome in both solver modes.
+
+| Probe | Predicted | Observed (both bases, both modes) | Verdict |
+|---|---|---|---|
+| PR-1, P12 | `Err` SOURCE_BLOCKS_FINALIZATION_FAILED | `Err` SOURCE_BLOCKS_FINALIZATION_FAILED | Confirmed |
+| PR-2, P12 with N06 selected | `Err` SOURCE_BLOCKS_FINALIZATION_FAILED | `Ok`, but a **blocked** physics-1 envelope: `MODEL_INCOMPLETE`, 0 rows, blocking `NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED` on `case:ordinary-pressure`. `case` (N06) carries `SOURCE_BLOCK_RECOVERY_SELECTED`; `case:ordinary-pressure` carries `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` | **Prediction failed** (finding F-P2 below) |
+| PR-3, 21 N05 cases | `Err` SOURCE_BLOCKS_FINALIZATION_FAILED | `Ok`, but a **blocked** preview-physics-1 envelope: `MODEL_INCOMPLETE`, 0 rows, blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` at `case:18`. That is the per-case finalization arm (`PP:2914-2926`), not the invocation receipt | **Prediction failed in form** (finding F-P3) |
+| PR-3b, 2 cases | `Ok` source-blocks-1 | `Ok` source-blocks-1, receipt `qualified`, both cases selected | Confirmed |
+| PR-4, P3 | main: skipped; T1: `Ok` load-reference-1 | main: skipped. T1: `Ok` load-reference-1, `MECHANICS_SOLVED`, `sensitive`, no receipt; both cases `UNAVAILABLE` and `NOT_JOINED` | Confirmed |
+| PR-5a/5b, request torque 1e16 | `Err` capture refusal | `Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000` | **Confirmed (V1-S5).** The probe used a float literal; the integer-literal code (`CHECKED-JSON-UNSAFE-INTEGER`) was not exercised |
+| PR-5c, torque 1e7 | `Ok` source identity | `Ok` source-blocks-1, qualified | Confirmed |
+| PR-5d/5e, torque 1e12 | `Err` SOURCE_BLOCKS_FINALIZATION_FAILED (receipt hash) | `Err` SOURCE_BLOCKS_FINALIZATION_FAILED for source-blocks-1 and physics-source-1 | Confirmed. Attribution to the receipt hash is by elimination: capture passed, and the `Err` value carries no detail |
+| PR-5f, ordinary route with a combination, request 1e16 | `Err` capture refusal | `Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000` | Confirmed: the refusal applies to the ordinary route too |
+| PR-6, display | Scaled underflow reported `converted`; overflow `unavailable` | 5e-324 Pa→MPa `converted` 0.0; 1e-303 Pa→MPa `converted` 1e-309 (subnormal); 2.2250738585072014e-308 N→kN `converted` 2.225e-311 (subnormal); 1e-320 Pa→MPa `converted` 0.0; identity keeps 5e-324; −0 Pa→MPa gives +0 (sign dropped); 1.7e308 MPa→Pa `unavailable` | Confirmed |
+| PR-7, canonical | Checked refuses \|x\| > 2^53 − 1; binary64 admits; −0 differs; differ = 0 | `guard_json` and the checked profile refuse every value from 2^53 up (9007199254740992, 1e16, 1e20, 1e21, 1e300). binary64 admits them all. −0: checked admits it and renders `0`; binary64 refuses it (`BINARY64-JSON-NEGATIVE-ZERO`). Differential: 105,049 checked-admitted values, 0 differing | Confirmed, with one observation (F-P7) |
+
+**Findings from the probes.** They are recorded, not designed. Neither this addendum nor revision 3 changes the design in response to them.
+
+- **F-P2: a rejected, unrecoverable case blocks the whole invocation, before finalization.**
+  - In PR-2, the second case's ordinary attempt is rejected (assembly unresolved), and retained source is unavailable to it (pressure region). The case loop therefore returns a blocked envelope as soon as that case solves (`PP:1497-1499`), and the N06 case's correct selected result is lost with it. S-D's fallback never runs.
+  - This is the product's existing M03 rule on every route: a case with no publishable response blocks the invocation. It is not the finalization defect. Under the brief's standard it is still "an invocation loses a correct result because another case failed".
+  - Only case-level publication (options F2 or F3, which needs a blocked-case form) or D1's method would change it.
+  - Residual R-1b (N06 selected, with the *other* case sensitive rather than rejected) was not exercised by this input. A corrected probe PR-2b (N06 plus the sensitive P12 pressure case) is proposed for the implementation slice.
+  - For ROOT, the question is whether this blocking rule stays as M03 policy or is taken up with F2/F3. I recommend recording it as open with D1's F2, and not changing it in T3's standing work.
+- **F-P3: the invocation-ledger trigger surfaces at per-case finalization.** With 21 cases, case 18's finalization, not the invocation receipt, fails first, so the result is a blocked envelope rather than `Err`. S-D's mechanism covers this arm (§4.1.3 item 3), so the design is unaffected. The S-D companion test should assert the per-case arm with this input.
+- **F-P7: binary64 canonical text is not readable by checked-profile consumers.** The scientific profile renders 1e16 and 1e20 as integral literals (`10000000000000000`, `100000000000000000000`), which the checked profile refuses on input. For T6: a carrier hashed or written under binary64 cannot be re-read by any checked-profile consumer. Adoption must move every consumer of that carrier at once. The same applies to the negative-zero rule already listed in §4.6.2.
+- **Display sign of zero.** −0 displays as `0`, as §4.6.1 specifies. The sign is dropped in conversion, which is harmless for display.
+
+`_run_records/SHA256SUMS` lists this folder's files; `_run_records/probes/SHA256SUMS` lists the probe records.

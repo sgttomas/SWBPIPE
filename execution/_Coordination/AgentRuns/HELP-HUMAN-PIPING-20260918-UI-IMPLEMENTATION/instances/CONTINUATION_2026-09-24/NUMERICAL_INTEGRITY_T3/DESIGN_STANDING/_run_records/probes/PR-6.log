@@ -1,0 +1,18 @@
+## c61a540ea (main)
+display "subnormal-in-identity": "converted" value=5e-324 bits=Some("0000000000000001") msg=null
+display "subnormal-in-scaled": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "normal-in-subnormal-out": "converted" value=1e-309 bits=Some("0000b8157268fdaf") msg=null
+display "normal-in-zero-out": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "smallest-normal-force": "converted" value=2.225073858507e-311 bits=Some("000004189374bc6a") msg=null
+display "exact-zero": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "negative-zero": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "large-overflow": "unavailable" value=null bits=None msg="display conversion result is not finite"
+## f3270ea79 (t1)
+display "subnormal-in-identity": "converted" value=5e-324 bits=Some("0000000000000001") msg=null
+display "subnormal-in-scaled": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "normal-in-subnormal-out": "converted" value=1e-309 bits=Some("0000b8157268fdaf") msg=null
+display "normal-in-zero-out": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "smallest-normal-force": "converted" value=2.225073858507e-311 bits=Some("000004189374bc6a") msg=null
+display "exact-zero": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "negative-zero": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "large-overflow": "unavailable" value=null bits=None msg="display conversion result is not finite"

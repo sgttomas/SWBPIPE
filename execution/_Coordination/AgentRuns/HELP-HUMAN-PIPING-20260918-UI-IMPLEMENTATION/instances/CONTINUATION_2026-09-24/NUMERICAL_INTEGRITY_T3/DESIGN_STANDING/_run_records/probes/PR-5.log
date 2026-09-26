@@ -1,0 +1,26 @@
+## c61a540ea (main)
+PR-5a sb_request_torque_1e16_capture SparseInteractive: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5a sb_request_torque_1e16_capture DenseScrutiny: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5b ps_request_torque_1e16_capture SparseInteractive: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5b ps_request_torque_1e16_capture DenseScrutiny: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5c sb_torque_1e7_control SparseInteractive: Ok semantic=source-blocks-1 mechanics=MECHANICS_SOLVED quality="sensitive" receipt=Some(String("qualified")) cases=Some(["\"case\":\"qualified\":\"retained_source_blocks_exact_v1\""]) rows=79 blocking=[] info=["SOURCE_BLOCK_RECOVERY_SELECTED[\"case\"]"]
+PR-5c sb_torque_1e7_control DenseScrutiny: Ok semantic=source-blocks-1 mechanics=MECHANICS_SOLVED quality="sensitive" receipt=Some(String("qualified")) cases=Some(["\"case\":\"qualified\":\"retained_source_blocks_exact_v1\""]) rows=80 blocking=[] info=["SOURCE_BLOCK_RECOVERY_SELECTED[\"case\"]"]
+PR-5d sb_published_rotation_1e16 SparseInteractive: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5d sb_published_rotation_1e16 DenseScrutiny: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5e ps_published_rotation_1e16 SparseInteractive: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5e ps_published_rotation_1e16 DenseScrutiny: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5f ordinary_route_request_1e16_capture SparseInteractive: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5f ordinary_route_request_1e16_capture DenseScrutiny: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+## f3270ea79 (t1)
+PR-5a sb_request_torque_1e16_capture SparseInteractive: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5a sb_request_torque_1e16_capture DenseScrutiny: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5b ps_request_torque_1e16_capture SparseInteractive: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5b ps_request_torque_1e16_capture DenseScrutiny: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5c sb_torque_1e7_control SparseInteractive: Ok semantic=source-blocks-1 mechanics=MECHANICS_SOLVED quality="sensitive" receipt=Some(String("qualified")) cases=Some(["\"case\":\"qualified\":\"retained_source_blocks_exact_v1\""]) rows=79 blocking=[] info=["SOURCE_BLOCK_RECOVERY_SELECTED[\"case\"]"]
+PR-5c sb_torque_1e7_control DenseScrutiny: Ok semantic=source-blocks-1 mechanics=MECHANICS_SOLVED quality="sensitive" receipt=Some(String("qualified")) cases=Some(["\"case\":\"qualified\":\"retained_source_blocks_exact_v1\""]) rows=80 blocking=[] info=["SOURCE_BLOCK_RECOVERY_SELECTED[\"case\"]"]
+PR-5d sb_published_rotation_1e16 SparseInteractive: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5d sb_published_rotation_1e16 DenseScrutiny: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5e ps_published_rotation_1e16 SparseInteractive: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5e ps_published_rotation_1e16 DenseScrutiny: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5f ordinary_route_request_1e16_capture SparseInteractive: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5f ordinary_route_request_1e16_capture DenseScrutiny: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000

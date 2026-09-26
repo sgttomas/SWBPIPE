@@ -1,0 +1,41 @@
+d2_probe label=main
+PR-1 p12 SparseInteractive: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-1 p12 DenseScrutiny: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-2 p12_n06 SparseInteractive: Ok semantic=physics-1 mechanics=MODEL_INCOMPLETE quality="unresolved" receipt=None cases=None rows=0 blocking=["NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED[\"case:ordinary-pressure\"]"] info=["NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED[\"case\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case\"]", "SOURCE_BLOCK_RECOVERY_UNAVAILABLE[\"case:ordinary-pressure\"]"]
+PR-2 p12_n06 DenseScrutiny: Ok semantic=physics-1 mechanics=MODEL_INCOMPLETE quality="unresolved" receipt=None cases=None rows=0 blocking=["NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED[\"case:ordinary-pressure\"]"] info=["NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED[\"case\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case\"]", "SOURCE_BLOCK_RECOVERY_UNAVAILABLE[\"case:ordinary-pressure\"]"]
+PR-3 sb_invocation_limit_21 SparseInteractive: Ok semantic=preview-physics-1 mechanics=MODEL_INCOMPLETE quality="not_assessed" receipt=None cases=None rows=0 blocking=["SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED[\"case:18\"]"] info=["SOURCE_BLOCK_RECOVERY_SELECTED[\"case:0\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:1\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:2\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:3\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:4\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:5\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:6\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:7\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:8\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:9\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:10\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:11\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:12\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:13\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:14\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:15\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:16\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:17\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:18\"]"]
+PR-3 sb_invocation_limit_21 DenseScrutiny: Ok semantic=preview-physics-1 mechanics=MODEL_INCOMPLETE quality="not_assessed" receipt=None cases=None rows=0 blocking=["SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED[\"case:18\"]"] info=["SOURCE_BLOCK_RECOVERY_SELECTED[\"case:0\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:1\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:2\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:3\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:4\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:5\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:6\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:7\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:8\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:9\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:10\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:11\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:12\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:13\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:14\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:15\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:16\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:17\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:18\"]"]
+PR-3b sb_invocation_limit_2_control SparseInteractive: Ok semantic=source-blocks-1 mechanics=MECHANICS_SOLVED quality="sensitive" receipt=Some(String("qualified")) cases=Some(["\"case:0\":\"qualified\":\"retained_source_blocks_exact_v1\"", "\"case:1\":\"qualified\":\"retained_source_blocks_exact_v1\""]) rows=158 blocking=[] info=["SOURCE_BLOCK_RECOVERY_SELECTED[\"case:0\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:1\"]"]
+PR-3b sb_invocation_limit_2_control DenseScrutiny: Ok semantic=source-blocks-1 mechanics=MECHANICS_SOLVED quality="sensitive" receipt=Some(String("qualified")) cases=Some(["\"case:0\":\"qualified\":\"retained_source_blocks_exact_v1\"", "\"case:1\":\"qualified\":\"retained_source_blocks_exact_v1\""]) rows=160 blocking=[] info=["SOURCE_BLOCK_RECOVERY_SELECTED[\"case:0\"]", "SOURCE_BLOCK_RECOVERY_SELECTED[\"case:1\"]"]
+PR-4 p3: skipped (fixture absent at this revision)
+PR-5a sb_request_torque_1e16_capture SparseInteractive: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5a sb_request_torque_1e16_capture DenseScrutiny: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5b ps_request_torque_1e16_capture SparseInteractive: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5b ps_request_torque_1e16_capture DenseScrutiny: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5c sb_torque_1e7_control SparseInteractive: Ok semantic=source-blocks-1 mechanics=MECHANICS_SOLVED quality="sensitive" receipt=Some(String("qualified")) cases=Some(["\"case\":\"qualified\":\"retained_source_blocks_exact_v1\""]) rows=79 blocking=[] info=["SOURCE_BLOCK_RECOVERY_SELECTED[\"case\"]"]
+PR-5c sb_torque_1e7_control DenseScrutiny: Ok semantic=source-blocks-1 mechanics=MECHANICS_SOLVED quality="sensitive" receipt=Some(String("qualified")) cases=Some(["\"case\":\"qualified\":\"retained_source_blocks_exact_v1\""]) rows=80 blocking=[] info=["SOURCE_BLOCK_RECOVERY_SELECTED[\"case\"]"]
+PR-5d sb_published_rotation_1e16 SparseInteractive: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5d sb_published_rotation_1e16 DenseScrutiny: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5e ps_published_rotation_1e16 SparseInteractive: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5e ps_published_rotation_1e16 DenseScrutiny: Err SOURCE_BLOCKS_FINALIZATION_FAILED
+PR-5f ordinary_route_request_1e16_capture SparseInteractive: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+PR-5f ordinary_route_request_1e16_capture DenseScrutiny: Err CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000
+display "subnormal-in-identity": "converted" value=5e-324 bits=Some("0000000000000001") msg=null
+display "subnormal-in-scaled": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "normal-in-subnormal-out": "converted" value=1e-309 bits=Some("0000b8157268fdaf") msg=null
+display "normal-in-zero-out": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "smallest-normal-force": "converted" value=2.225073858507e-311 bits=Some("000004189374bc6a") msg=null
+display "exact-zero": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "negative-zero": "converted" value=0.0 bits=Some("0000000000000000") msg=null
+display "large-overflow": "unavailable" value=null bits=None msg="display conversion result is not finite"
+canonical 9.007199254740991e15: guard_json=Ok(()) ijson=Ok("[9007199254740991]") binary64=Ok("[9007199254740991]")
+canonical 9.007199254740992e15: guard_json=Err("UNSAFE_JSON_NUMBER") ijson=Err("CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 9007199254740992") binary64=Ok("[9007199254740992]")
+canonical 1e16: guard_json=Err("UNSAFE_JSON_NUMBER") ijson=Err("CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10000000000000000") binary64=Ok("[10000000000000000]")
+canonical 1e20: guard_json=Err("UNSAFE_JSON_NUMBER") ijson=Err("CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 100000000000000000000") binary64=Ok("[100000000000000000000]")
+canonical 1e21: guard_json=Err("UNSAFE_JSON_NUMBER") ijson=Err("CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1000000000000000000000") binary64=Ok("[1e+21]")
+canonical 1e300: guard_json=Err("UNSAFE_JSON_NUMBER") ijson=Err("CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000") binary64=Ok("[1e+300]")
+canonical 1.5e-310: guard_json=Ok(()) ijson=Ok("[1.5e-310]") binary64=Ok("[1.5e-310]")
+canonical 5e-324: guard_json=Ok(()) ijson=Ok("[5e-324]") binary64=Ok("[5e-324]")
+canonical -0e0: guard_json=Ok(()) ijson=Ok("[0]") binary64=Err("BINARY64-JSON-NEGATIVE-ZERO")
+canonical 1.23456e2: guard_json=Ok(()) ijson=Ok("[123.456]") binary64=Ok("[123.456]")
+canonical differential admitted=105049 equal=105049 differ=0
