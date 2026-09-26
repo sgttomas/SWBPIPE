@@ -181,3 +181,15 @@ An arbitrary-precision backend (MPFR through `rug` needs GMP/MPFR system librari
 **The comparison policy for new cases.** M34 asks for "dimension-aware ... comparison rules with near-zero floors" and says "preserve protected criteria until an evidenced change is approved". If the design proposes changing any protected predicate (the absolute 1e-9 in the mechanics benchmark, DEC-026, DEC-050/053), that needs the approval the finding names, and the approving instrument is not clear from the records. T3's recommendation is to avoid the question: leave every protected predicate unchanged and apply the existing relative form `1e-9 · max(|exp|, scale)`, with stated zero scales, only to new T3 cases. If the design finds that a protected predicate is itself wrong, T3 will bring concrete options to ROOT.
 
 No other owner decision is foreseen at stage 0.
+
+## 6. Findings added after stage 0
+
+These findings were found during stage 1 and are recorded here so the map stays complete. The owning records are cited.
+
+| Finding | Where | Severity | Owner and route |
+|---|---|---|---|
+| V1-S11: cancelled load contributions folded in binary64 and published as Passed | `primitive_loads/src/lib.rs:1401-1409`, `PP:1810` and the other force producers; recovery-side folds (`S11_CONTAINMENT.md` §2.2, E1–E14) | Silent wrong, bounded to about half an ulp of the gross load | T3: S11-K, then S11-F (`MANAGER_NOTES/S11_MAP.md`, `ROOT_RULINGS_V1.md`) |
+| V1-S5: invocation capture refuses any request containing a finite \|x\| ≥ 2^53 | `PP:1239-1240` → `source_receipt.rs:64-73` | Refusal (capability hole) | T3 capture step (D2 S-H); T6 export carriers |
+| N-S11-R: the M03 intended-action residual is published with a naive sum; an exact zero shows as -0.0 | `FK/structural.rs:554`, rendered at `PP:883, 2046, 2057` | Low: imprecise diagnostic value | T3, D-S11-2 |
+| Formation silent zero: an underflowed stiffness-coefficient product becomes 0 with no error | `FK/lib.rs:717-726` | Silent input change | T3, K2 (checked formation), next after S11-K |
+| Friction forces added after the ledger in the nonlinear loop, with no in-loop load guard | `nonlinear_integration/src/lib.rs:1642-1659` | Bounded | T5 (open) |
