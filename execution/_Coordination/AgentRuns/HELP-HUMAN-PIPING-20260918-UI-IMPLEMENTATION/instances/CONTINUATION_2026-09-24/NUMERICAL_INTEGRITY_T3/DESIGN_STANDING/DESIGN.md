@@ -1,6 +1,6 @@
-# T3 D2 — result standing, source envelopes and transport (revision 5b)
+# T3 D2 — result standing, source envelopes and transport (revision 5b.2)
 
-Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_ITEMS manager, 2026-09-26. **This is a proposal.** It becomes a basis only if ROOT selects it after V1's backcheck. Revision 1 is kept byte-for-byte as `_run_records/DESIGN_revision1.md` (sha256 prefix `185e178efe3b9855`), revision 2 as `_run_records/DESIGN_revision2.md` (`5c36da2cb8cf89e6`, also in `DESIGN_revision2.sha256`), revision 3 as `_run_records/DESIGN_revision3.md` (`43c7d672df4c5f83`), revision 4 as `_run_records/DESIGN_revision4.md` (`e12bd015fc1e5cd0`), revision 5 as `_run_records/DESIGN_revision5.md` (`0d50f1f9afbdf66f`), and revision 5a as `_run_records/DESIGN_revision5a.md` (`04a466b148605153`). Revisions 3 to 5b are narrow: §0.5, §0.4, §0.3, §0.2 and §0.1 list every change.
+Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_ITEMS manager, 2026-09-26. **This is a proposal.** It becomes a basis only if ROOT selects it after V1's backcheck. Revision 1 is kept byte-for-byte as `_run_records/DESIGN_revision1.md` (sha256 prefix `185e178efe3b9855`), revision 2 as `_run_records/DESIGN_revision2.md` (`5c36da2cb8cf89e6`, also in `DESIGN_revision2.sha256`), revision 3 as `_run_records/DESIGN_revision3.md` (`43c7d672df4c5f83`), revision 4 as `_run_records/DESIGN_revision4.md` (`e12bd015fc1e5cd0`), revision 5 as `_run_records/DESIGN_revision5.md` (`0d50f1f9afbdf66f`), and revision 5a as `_run_records/DESIGN_revision5a.md` (`04a466b148605153`). Revisions 3 to 5b.2 are narrow: §0.5, §0.4, §0.3, §0.2 and §0.1 list every change.
 
 - **Brief:** `T3/TASK_BRIEFS/D2_STANDING_DESIGN.md` with `_COMMON.md`. Revision inputs at `065c9ff60`: `T3/REVIEW/RETURN.md` (V1), `T3/ROOT_RULINGS_V1.md` (ROOT's early rulings, plus the further rulings on R-3(a), R-3(b) and R-7 relayed by the manager), and `T3/MANAGER_NOTES/V1_DISPOSITIONS.md`.
 - **Abbreviations:**
@@ -30,6 +30,7 @@ Design TASK D2 (Type 2, HELPS_HUMANS-style design posture) for the T3 WORKING_IT
 | 6 | ROOT's rulings, `SELECTION_PACKAGE.md` §5 | **§9 statuses updated.** DD-1, DD-2, DD-3, DD-4, DD-5, DD-6, DD-8, DD-9, DD-10 (only if S-E2 is built), DD-12 and DD-15 are marked ruled, in ROOT's wording. | §9 |
 | 7 | D-14; the S11 exception re-pin; R5-4 | **No text change needed.** This design does not mention equivalent-static loads, the S11 exception list or D5C-2's demotion of curved bends. For R5-4, D1 leaves the `FormationCheck` record unchanged and keeps D5C-2's demotion only as the fail-closed default, so §0.4 row 5 ("readers are unaffected") still holds. Curved rows stay `not_covered` by rule 2b. | none |
 | 5b.1 | ROOT's rulings on D2 5b (`ROOT_RULINGS_V1.md`, `43409a1e8`) | **Nonlinear-support rule narrowed** (in-place micro-edit to 5b). A nonlinear-support case is never selected, keeps its ordinary result and standing, and is never withheld or refused by this rule. `RETAINED_PRECISION_INPUT_DOF_MISMATCH` applies only where a receipt claims selection of such a case, as a reader integrity refusal of that receipt. The §6.2 negative is reworded, and a positive control is added. ROOT also accepted counting withheld-row refusals as undecided in the check-level gate (row 3), with no text change. | G5c rule 2a, §6.2 |
+| 5b.2 | V1's NOTE in `REVIEW/VERIFY_R5.md` (`ff62a6dc4`); D1 revision 5a.1 (`8dfd72921`, sha256 prefix `13c1a7d51e722c12`) | **Stale [align D1-r4] marks cleared** (in-place text edit, no substance change). §4.9.9's refusal-code note, I-9 (now closed) and §12's basis note are checked against D1 revision 5a.1, which carries the two refusal codes, the k values, the magnitude factor, the closed list's home and the receipt section terms. The title and the narrow-revisions note now read 5b.2. The marks in the historical change logs (§0.2, and the revision-4 inputs note) are left as records. | §4.9.9, §5 I-9, §12, title |
 
 The rest of revision 5a stands.
 
@@ -650,7 +651,7 @@ ROOT ruled that a quantity below the floor is withheld, or marked uncovered, and
 - it never counts as Passed;
 - it never appears unlabelled.
 
-**Refusal codes (revision 4, N-5).** Two codes are kept: `RULE_QUANTITY_BELOW_VERIFIED_FLOOR` for `absolute_verified`, and `RULE_QUANTITY_NOT_COVERED` for `not_covered`. They tell the user different things: "known only to ±b" against "no accuracy claim for this kind". D1 revision 3 names one code for both; D1 revision 4 is asked to adopt these two **[align D1-r4]**.
+**Refusal codes (revision 4, N-5).** Two codes are kept: `RULE_QUANTITY_BELOW_VERIFIED_FLOOR` for `absolute_verified`, and `RULE_QUANTITY_NOT_COVERED` for `not_covered`. They tell the user different things: "known only to ±b" against "no accuracy claim for this kind". D1 revision 3 named one code for both; D1 carries these two (revision 5a.1 §4.1.6 item 4, `8dfd72921`).
 
 **Per-case counts of withheld rows (revisions 4–5).** Each reader exposes one function per language, with the same output shape and shared cases: `classification_summary(source, invocation) -> [{case_id, relative_verified, absolute_verified, interval_bindable, not_covered, input_derived, non_quantity, withheld}]`. It is computed from the G5c classes of a validated source; `unsupported` sources return nothing.
 
@@ -930,7 +931,7 @@ This follows D1 §8.1.2 step for step, with `b_proof.py` as the reference implem
   - which rows, if any, are `not_covered`.
 
   G5b and G5c mirror those definitions exactly. If D1 revision 3 differs in a detail, S-G follows D1 and keeps the structure (recompute, compare bits, refuse on mismatch).
-- **I-9 (revision 4) [align D1-r4].** D1 revision 4 is expected to fix:
+- **I-9 (revision 4): closed in revision 5b.2.** D1 revision 5a.1 (`8dfd72921`) carries every item below: the stress factors k per kind in its closed table (k = 2√2 and k = 4 by R4-1, not the k = 2 D2 first asked for, and the upward k_i); magnitude rows formed at p with k = 1; the closed row-kind list in each successor semantic table (DD-14); the receipt section terms A, Z, L, E·A/L and G·J/L as bit strings (§4.1.6.1 item 7); and the two refusal codes (§4.1.6 item 4). D1 revision 4 was expected to fix:
   - the stress factors k per stress kind (D2 asks for k = 2 on `open_formula_stress_summary`);
   - the magnitude factors;
   - the closed row-kind list, which D2 proposes to carry in each successor table (§4.9.10);
@@ -1132,7 +1133,7 @@ Containment alone closes no group. Closure needs VP-ORACLES and VP-ROBUST on the
 **Limits:**
 - The capture refusal is established by reading (as V1's was).
 - The integer-literal form of desktop requests follows from JS number formatting and serde's parsing, not from a run.
-- The successor reader contract was written against D1 revision 1's §5 and checked against D1 revision 2's §5 in V1's backcheck (G1, G2 and G5a consistent). G5b and G5c were checked against D1 revision 3 in V1's combined backcheck. The revision-4 parts marked **[align D1-r4]** are written against D1's announced revision-4 changes, which were not yet available.
+- The successor reader contract was written against D1 revision 1's §5 and checked against D1 revision 2's §5 in V1's backcheck (G1, G2 and G5a consistent). G5b and G5c were checked against D1 revision 3 in V1's combined backcheck. The revision-4 parts were written against D1's announced revision-4 changes, which were not yet available then. Revisions 5a and 5b.2 checked them against D1's committed text, and 5b.2 cleared the last alignment marks against D1 revision 5a.1 (`8dfd72921`).
 - H-b's termination at 1024 bits is not proved for every binary64 argument. H-a has no such dependency.
 - The ROOT rulings after `065c9ff60` were read from the manager's relay.
 
