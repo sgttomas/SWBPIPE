@@ -187,14 +187,16 @@ impl SelectedSourceRecovery {
         Ok(result)
     }
 
-    /// ROOT CP3 SF-1 (resolved load/reference-state cases only). Captured
-    /// replay continues this attempt's own ledger and repeats its source
-    /// closure and exact solve, so its work is bounded by the live charge.
-    /// Selection first reserves that amount: the case is selected only when
-    /// the remaining limit still covers it. Otherwise the attempt is declined
-    /// as a budget refusal whose rejected work is the unreserved replay. This
-    /// does not by itself guarantee every later finalization stage; a join
-    /// that still cannot finalize is published on the ordinary route.
+    /// ROOT CP3 SF-1 screen (resolved load/reference-state cases only).
+    /// Captured replay continues this attempt's own ledger and repeats its
+    /// source closure and exact solve, so its work is close to the live
+    /// charge. Selection first reserves an amount equal to that charge;
+    /// otherwise the attempt is declined as a budget refusal whose rejected
+    /// work is the unreserved replay. This is a screen, not a guarantee:
+    /// derived recipes and the finalization reservation are charged before
+    /// replay, and replay can cost slightly more than the live charge. A
+    /// selected join that still cannot finalize is published on the ordinary
+    /// route (CP4 review SF-1R).
     pub fn reserve_captured_replay(self, limit: usize) -> Result<Self, RecoveryFailure> {
         let charged = self.summary.work.charged;
         if charged <= limit.saturating_sub(charged) {

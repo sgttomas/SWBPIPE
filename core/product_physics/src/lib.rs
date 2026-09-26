@@ -827,14 +827,21 @@ impl Default for SourceRecoveryBudget {
     fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None } }
 }
 impl SourceRecoveryBudget {
-    /// A fresh ledger with the same closed limits; executed work is never
-    /// refunded into it, because the fallback invocation is a separate run.
+    /// The republication continues this same ledger (CP4 review N-2, ROOT's
+    /// preference): every successful, failed, reserved and publication charge
+    /// of the first run stays charged, so the whole captured invocation,
+    /// including its fallback, stays within the one invocation limit.
     fn withholding_load_state_join(&self, cause: String) -> Self {
         Self {
             per_case_limit: self.per_case_limit,
             invocation_limit: self.invocation_limit,
+            charged: self.charged,
+            failed_charged: self.failed_charged,
+            publication_charged: self.publication_charged,
+            rejected: self.rejected,
+            attempts: self.attempts,
             load_state_join_withheld: Some(cause),
-            ..Default::default()
+            load_state_join_failure: self.load_state_join_failure.clone(),
         }
     }
     fn record_load_state_join_failure(&mut self, cause: String) {
@@ -1424,7 +1431,9 @@ fn run_linear_static_preview_captured(
     // finalize never loses its ordinary results. It is republished with every
     // case on its ordinary route (`load-reference-1`, no receipt); each
     // successful retained-source attempt is declined with the recorded cause.
-    // Pre-0.4 invocations keep their existing behaviour and bytes.
+    // The republication continues the same ledger, so the invocation limit
+    // bounds all executed work. Pre-0.4 invocations keep their existing
+    // behaviour and bytes.
     let fallback_request = (capture.is_some()
         && case_state::is_load_state(&request.model)
         && source_budget.load_state_join_withheld.is_none())
@@ -2365,14 +2374,24 @@ fn solve_load_case(
         .and_then(|recovery| match load_state {
             // Pre-0.4 selection is unchanged.
             None => Ok(recovery),
-            // ROOT CP3 SF-1: the invocation publishes ordinarily.
-            Some(_) if source_budget.load_state_join_withheld.is_some() => {
-                Err(recovery.decline_withheld())
-            }
-            // ROOT CP3 SF-1: captured replay repeats the live attempt's work
-            // in the same ledger, so selection first reserves an equal
-            // amount; a case is selected only when that replay fits.
-            Some(_) => recovery.reserve_captured_replay(case_limit),
+            // ROOT CP3 SF-1 screen: captured replay repeats the live
+            // attempt's source closure and exact solve in the same ledger, so
+            // selection first reserves an amount equal to the live charge.
+            // This screen does not guarantee finalization (other stages are
+            // charged before replay, and replay may cost slightly more); a
+            // selected join that still cannot finalize is republished on the
+            // ordinary route. The case's own refusal is checked first so
+            // that a republication still reports it.
+            Some(_) => recovery
+                .reserve_captured_replay(case_limit)
+                .and_then(|recovery| {
+                    if source_budget.load_state_join_withheld.is_some() {
+                        // ROOT CP3 SF-1: the invocation publishes ordinarily.
+                        Err(recovery.decline_withheld())
+                    } else {
+                        Ok(recovery)
+                    }
+                }),
         });
         match attempt {
             Ok(recovery) => selected_source = Some(recovery),

@@ -258,9 +258,13 @@ fn a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back
             message.contains("invocation join withheld") && message.contains(&cause),
             "{message}"
         );
-        // The fallback is a separate run: its own ledger, never a refund.
-        assert_eq!(budget.attempts, 1);
-        assert!(budget.charged > 0 && budget.charged == budget.failed_charged);
+        // The republication continues the same ledger (CP4 review N-2):
+        // both attempts stay charged, nothing is refunded, and the whole
+        // invocation stays within the one invocation limit.
+        assert_eq!(budget.attempts, 2);
+        assert!(budget.charged > budget.per_case_limit);
+        assert!(budget.charged == budget.failed_charged);
+        assert!(budget.charged <= budget.invocation_limit);
     }
 }
 
@@ -305,4 +309,131 @@ fn the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback() {
         outcome.err().as_deref(),
         Some("SOURCE_BLOCKS_FINALIZATION_FAILED")
     );
+}
+
+/// A declared load added to case `case` of the request, with its ledger entry.
+fn add_load(request: &mut Value, case: usize, id: &str, dir: &str, value: f64) {
+    let case = &mut request["model"]["load_cases"][case];
+    let mut load = case["primitive_loads"][0].clone();
+    load["id"] = json!(id);
+    load["direction"] = json!(dir);
+    load["target"] = json!({"type": "node", "node": "tip"});
+    if dir.starts_with('R') {
+        load["category"] = json!("concentrated_moment");
+        load["dimension"] = json!("moment");
+        load["magnitude"] = json!({"value": value, "unit": "N*m"});
+    } else {
+        load["category"] = json!("concentrated_force");
+        load["dimension"] = json!("force");
+        load["magnitude"] = json!({"value": value, "unit": "N"});
+    }
+    case["primitive_loads"].as_array_mut().unwrap().push(load);
+    case["analysis_state"]["load_sources"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({"source_ref": id, "factor": 1.0}));
+}
+
+/// Copies case 0 under a new ID, renaming its loads and ledger entries.
+fn copy_case(request: &mut Value, id: &str) {
+    let mut case = request["model"]["load_cases"][0].clone();
+    case["id"] = json!(id);
+    for load in case["primitive_loads"].as_array_mut().unwrap() {
+        let renamed = format!("{}:{id}", load["id"].as_str().unwrap());
+        load["id"] = json!(renamed);
+    }
+    for source in case["analysis_state"]["load_sources"]
+        .as_array_mut()
+        .unwrap()
+    {
+        let renamed = format!("{}:{id}", source["source_ref"].as_str().unwrap());
+        source["source_ref"] = json!(renamed);
+    }
+    request["model"]["load_cases"]
+        .as_array_mut()
+        .unwrap()
+        .push(case);
+}
+
+#[test]
+fn a_join_that_passes_the_replay_screen_but_cannot_finalize_falls_back_at_the_public_limit() {
+    // CP4 review SF-1R: one declared 1e-6 N*m tip RY moment gives a live charge
+    // (about 3.99M) that passes the c <= L - c screen at the public 8M limit;
+    // the stages charged before replay then leave replay short. ROOT's ruling
+    // (b): the screen is not a guarantee; the fallback is.
+    for mode in [
+        PreviewSolverMode::SparseInteractive,
+        PreviewSolverMode::DenseScrutiny,
+    ] {
+        let mut request = witness();
+        add_load(&mut request, 0, "extra:ry", "RY", 1.0e-6);
+        let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode)
+            .unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        assert_ordinary_publication(&envelope, &request, mode, &[CASE]);
+        let message =
+            &diagnostics_for(&envelope, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", CASE)[0].message;
+        assert!(message.contains("invocation join withheld"), "{message}");
+        assert!(
+            message.contains("could not finalize: case case:join: captured source replay"),
+            "{message}"
+        );
+        assert!(
+            !message.contains("captured replay reservation"),
+            "{message}"
+        );
+    }
+}
+
+#[test]
+fn a_republication_reports_a_case_s_own_replay_screen_refusal() {
+    // CP4 review N-3: case:join is selectable; case:heavy (one extra tip UZ
+    // force) fails its own screen, so the composite receipt cannot finalize.
+    // In the republication case:join is withheld, while case:heavy still
+    // reports its own screen refusal.
+    for mode in [
+        PreviewSolverMode::SparseInteractive,
+        PreviewSolverMode::DenseScrutiny,
+    ] {
+        let mut request = witness();
+        copy_case(&mut request, "case:heavy");
+        add_load(&mut request, 1, "extra:heavy", "UZ", 1.0e-6);
+        let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode)
+            .unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        assert_ordinary_publication(&envelope, &request, mode, &[CASE, "case:heavy"]);
+        let joined =
+            &diagnostics_for(&envelope, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", CASE)[0].message;
+        assert!(joined.contains("invocation join withheld"), "{joined}");
+        assert!(joined.contains("invocation receipt:"), "{joined}");
+        let heavy = &diagnostics_for(&envelope, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", "case:heavy")
+            [0]
+        .message;
+        assert!(heavy.contains("captured replay reservation"), "{heavy}");
+        assert!(!heavy.contains("invocation join withheld"), "{heavy}");
+    }
+}
+
+#[test]
+fn a_fallback_after_invocation_limit_exhaustion_stays_within_the_invocation_limit() {
+    // CP4 review N-2: ten selectable copies exhaust the 64M invocation limit
+    // during the first run. The republication continues the same ledger, so
+    // total executed work never exceeds that one limit.
+    let mut request = witness();
+    for index in 1..10 {
+        copy_case(&mut request, &format!("case:copy{index}"));
+    }
+    let cases: Vec<String> = std::iter::once(CASE.to_string())
+        .chain((1..10).map(|index| format!("case:copy{index}")))
+        .collect();
+    let case_refs: Vec<&str> = cases.iter().map(String::as_str).collect();
+    let mode = PreviewSolverMode::DenseScrutiny;
+    let (typed, capture) = CapturedInvocation::parse(request.clone(), mode).unwrap();
+    let mut budget = SourceRecoveryBudget {
+        per_case_limit: PHYSICS_SOURCE_WORK_LIMIT,
+        ..Default::default()
+    };
+    let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
+    assert_ordinary_publication(&envelope, &request, mode, &case_refs);
+    assert!(budget.load_state_join_withheld.is_some(), "fallback ran");
+    assert!(budget.charged <= budget.invocation_limit);
+    assert_eq!(budget.invocation_limit, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
 }
